@@ -63,7 +63,6 @@ rm -f configure
 rm -f mkinstalldirs
 
 # `admin' directory.
-rm -f admin/compile
 rm -f admin/config.guess
 rm -f admin/config.sub
 rm -f admin/depcomp

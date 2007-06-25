@@ -63,7 +63,6 @@ dnl Check for the C++ compiler and required features.
 dnl -----------------------------------------------------------------------
 
 AC_PROG_CXX
-AM_PROG_CC_C_O
 
 dnl -----------------------------------------------------------------------
 dnl Installation of documentation.
