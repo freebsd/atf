@@ -1,0 +1,833 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[english]{babel}
+\usepackage{anysize}
+\usepackage{url}
+
+\marginsize{2cm}{2cm}{2cm}{3cm}
+
+\title{Automated testing framework for \\ The NetBSD Operating System: \\
+Project proposal}
+\author{Julio M. Merino Vidal \texttt{<jmmv@NetBSD.org>}}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+This document contains an overview of random requirements and ideas that
+should be made part of an automatic testing framework for The NetBSD
+Operating System.  Therefore keep in mind that anything exposed here can
+change (to better hopefully) during the effective development of the
+project.
+
+This project is being presented as a candidate for development during the
+Google Summer of Code 2007 program.  Some more details about this are given
+in the project proposal itself submitted through Google's web application.
+
+Note that many examples in the text talk about tmpfs's regression test
+suite.  This is because I wrote tmpfs (as part of Google's Summer of Code
+2005 program) along its test suite and found it very annoying that there
+was no consistent framework to write nor run the tests.  Hence this project
+proposal.
+
+\end{abstract}
+
+% -------------------------------------------------------------------------
+
+\section{Project overview}
+
+% -------------------------------------------------------------------------
+
+\subsection{The problem}
+
+An operating system is an extremely complex piece of software.  It
+requires automatic testing to ensure its features work as expected and
+that they do not break over time.
+
+At the moment, NetBSD includes some (few) regression tests in the
+\verb*|src/regress|\footnote{\url{
+http://cvsweb.NetBSD.org/bsdweb.cgi/src/regress/}} source tree.  It is not
+possible to run all of them automatically and therefore few people uses
+them.  As a result, some of these tests are already broken in some
+platforms supported by NetBSD and they can even panic the kernel!
+
+It is also a fact that some problems fixed in the past reappeared in recent
+versions of NetBSD.  Due to the lack of formal regression testing, it is
+very difficult to detect these situations, other than putting new versions
+in production and hoping that such problems do not happen again.
+
+At last, the system often suffers from trivial breakage that could be
+avoided by having a correct and, most importantly, \emph{automated},
+testing framework.
+
+% -------------------------------------------------------------------------
+
+\subsection{Project goals}
+
+The following list shows all the ideal goals of the project.  Some of them
+may be very hard to achieve and therefore might not be done during the time
+allocated by the SoC program.  It should be negotiated which goals to
+prioritize.
+
+\begin{itemize}
+
+\item Design and implement an automated testing system for The NetBSD
+Operating System.  This should include all possible test types such as
+regression tests, unit tests, etc.
+
+\item Consolidate the test results into a single and easy to read report,
+with the ability to present these in different formats.  E.g. plain text,
+HTML, XML for further parsing, etc.
+
+\item Support testing of both the kernel and user-land parts of the system.
+
+\item Minimize code duplication.
+
+\item Support multiple platforms (ideally all those supported by NetBSD).
+
+\item Ability to test the whole operating system at will after
+installation, without the need of the source tree.  It is very important
+to let end users reproduce the test results with minimum effort.
+
+\item Allow some kind of benchmarking.
+
+\item Migrate existing tests to the new framework to demonstrate that it
+works and that it is flexible enough.
+
+\item Write new tests for common system functionality, to some extent. 
+Full coverage is not the objective of this project; this could be an
+extremely time-consuming task and could require full knowledge of all
+areas of the system, something that no person alone has.  However, many
+open bug reports (PRs) can be translated to tests so that other developers
+can easily see what's broken.
+
+\end{itemize}
+
+% -------------------------------------------------------------------------
+
+\subsection{Why NetBSD?}
+
+The following list outlines multiple reasons to develop this system under
+NetBSD and not, e.g., a GNU/Linux distribution:
+
+\begin{itemize}
+
+\item NetBSD is a complete system: the test framework can be used to check
+\emph{both the kernel and user-space applications} as a whole.  This could
+be impossible under a GNU/Linux system.  There, you already have individual
+test suites for several components (\verb*|coreutils|, \verb*|textutils|,
+etc.) but you cannot reliably have a single test suite that checks
+everything including Linux (the kernel) itself.
+
+\item NetBSD focuses on correct and clean design.  It could be great to
+also demonstrate that this produces correct code, and one way to do so is
+to have a large and accurate test suite that can be run by the system users
+at will.  Other projects follow a similar approach here, and it seems to be
+very successful; check out, e.g. Monotone or GCC.
+
+\item Being able to demonstrate that NetBSD behaves correctly in multiple
+areas can raise interest in this operating system by new researchers, 
+system administrators needing to configure solid machines, developers and
+even end users.
+
+\item There is clearly a need for such a test system in NetBSD.  As there
+is no way to run the existing tests easily, they eventually break and the
+problems are not discovered until much later.  This results in some test
+cases being able to, e.g., trivially crash the system.  And, unfortunately,
+this is already happening today.
+
+\item There is a lot of interest in this project by several NetBSD
+developers which means that it will be a great contribution to a big open
+source project.  Plus I believe it can seriously benefit the project in the
+long term.  Note that this project was proposed and already picked up in
+the past two SoC years, but it could not be developed for multiple reasons.
+
+\item Having this system available in NetBSD could ease the release
+process.  At the moment, it is very difficult to decide when to cut a
+formal release from the NetBSD-current development tree, because it is hard
+to see if it is "stable enough".  Having a way to stress-test the system
+could let the release engineering team decide if the code can be branched
+or not at a given point, based on the amount of breakage shown by tests.
+
+\item I am already familiar with NetBSD and it is my favorite free
+operating system.
+
+\end{itemize}
+
+% -------------------------------------------------------------------------
+
+\subsection{Deliverables}
+
+This project will deliver the items listed below.  As mentioned in the
+goals section, these may require a lot of work so some of them should be
+negotiated depending on the available time and progress of the overall
+project.
+
+\begin{itemize}
+
+\item The C monitor: A library for test programs written in C that
+implements an homogeneous command-line interface across programs and
+provides common functionality required during tests (logging, test cases,
+detection of required features, etc.).  See section \ref{sec:monitor}.
+
+\item The POSIX shell monitor: Same as the C monitor but for test programs
+written in the POSIX shell language.
+
+\item The \verb*|regress| utility: A program that provides an interface to
+automate the execution of tests, collect the results, format them, etc. 
+It is a higher-level interface than that offered by the test programs
+themselves.  See section \ref{sec:execution}.
+
+\item The test daemon: It is still unknown if this will be needed.  But it
+may be useful to have a daemon run on slave machines that handles the
+remote execution of tests.  See section \ref{sec:master_slave}.
+
+\item The \verb*|mkimage| utility: A program that creates a disk image,
+installs NetBSD into it, configures several details and finally executes a
+test inside it.  See section \ref{sec:mkimage}.
+
+\item Conversion of existing tests: A conversion of all the existing tests
+inside \verb*|src/regress| to the new framework.
+
+\item New tests: Several new tests for other system functionality that is
+still uncovered.  These will be provided mostly to illustrate all the
+different possibilities of the new framework but, if time permits, several
+tests for common functionality will also be implemented.
+
+\end{itemize}
+
+% -------------------------------------------------------------------------
+
+\section{Testing infrastructure}
+
+The basic idea behind the new testing framework is to allow users of the
+system (administrators, researchers, end users, etc.) to run a full set of
+tests after installation \emph{without having to deal with the system's
+source tree}.  Therefore tests will be built and installed under a new
+hierarchy in the file system, something that will happen during a regular
+build of the whole operating system.  In the examples below I will assume
+that such hierarchy is placed in \verb*|/usr/tests| and is distributed
+alongside formal system releases in a \verb*|tests.tgz|
+set\footnote{See
+\url{ftp://ftp.netbsd.org/pub/NetBSD/NetBSD-3.1/i386/binary/sets/} for a
+list of the sets that form NetBSD/i386 3.1.}.
+
+% -------------------------------------------------------------------------
+
+\subsection{Test types}
+
+When discussing this project with people external to NetBSD (such as
+teachers at my faculty), it is common to hear the question of
+"\emph{What kind of tests are you talking about?}".
+
+There are many types of tests that one can run.  Some of them are trivial
+to write and others are more complex but, in the end, they are equally
+important.  Ideally, the test framework should let the developer write
+checks for any kind of test.
+
+Just to mention some styles that have to be supported:
+
+\begin{description}
+
+\item Regression tests
+
+These tests are implemented after fixing problems in the code to ensure
+that such problems do not reappear in the future.  If it is easy enough to
+write tests, even end users could accompany their bug reports with sample
+tests to reproduce their problems.  Then, the developer could have to work
+towards making that specific test succeed.
+
+\item Unit tests
+
+These tests check a specific feature of a given component in the system.
+Even if some of them seem trivial, they are still very important.  These
+include tests for conformance of API return values to the specification,
+the correct functionality of command line options, etc.  In some cases,
+these can also be seen as regression tests.
+
+\item Integration tests
+
+These tests are more generic than unit tests in the sense that they check
+the behavior of multiple components when used together.  It is difficult to
+draw the line where a unit tests becomes an integration test, though.
+
+\item Stress tests
+
+These tests are generally accompanied by a huge set of pre-built (or random)
+data, which are later used to stress test a component of the system.  For
+example, one could prepare different workloads to test that the RAID
+subsystem works correctly or that a network driver provides the expected
+performance in specific situations.
+
+\end{description}
+
+% -------------------------------------------------------------------------
+
+\subsection{Hierarchical organization}
+
+Tests are organized hierarchically forming a tree:
+
+\begin{description}
+
+\item [Test case]
+The most basic testing unit.  This includes, e.g. testing for equality
+(value returned by a function against the expected result) or testing for
+correct execution (whether a program exited with success or not).
+
+\item [Test program]
+A test program is a collection of related test cases and can be seen, as a
+whole, as a test case for some specific functionality.  It is standalone
+which means that it can be directly executed by the user from the command
+line.
+
+\item [Test suite]
+A collection of related test programs (represented as a directory in the
+file system). Test suites can be nested (simply using subdirectories) and
+the most generic one tests the whole operating system.
+
+\end{description}
+
+This concept separation can already be found in the existing regression
+tests and is very common in other testing frameworks out there.  For
+example: there is a test suite for tmpfs \verb*|regress/sys/fs/tmpfs|
+composed of multiple test programs (\verb*|t_mkdir|, \verb*|t_create|,
+etc.). Each test program contains multiple basic test cases.  So, at the
+high level, you see \verb*|t_mkdir| is a test case for the \verb*|mkdir(2)|
+operation on a tmpfs file system, but on a lower level, \verb*|t_mkdir| is
+composed of several other test cases that stress-test that same operation
+in multiple ways.
+
+% -------------------------------------------------------------------------
+
+\subsection{Makefiles}
+
+The current test infrastructure relies on \verb*|make(1)| to build and run
+tests.  This requires the availability of a source tree, all the
+development tools and, most importantly, keeps a lot of testing logic in
+the build scripts themselves.
+
+In the new framework, the build infrastructure should be as simple as
+possible and must not contain any testing logic (such as logging);
+otherwise the test programs could not be executed standalone.  In other
+words, \verb*|make(1)| must be used for what it was designed for: tracking
+dependencies, building the test programs and any required helpers.
+
+Somewhat related to this, the tests are currently stored in a tree that is
+separate from the regular sources.  Given the way that tests could be
+executed in the new framework, there is no need to keep this separation
+any more so the tests could be moved to where they make most sense: as
+close to the sources as possible.
+
+% -------------------------------------------------------------------------
+
+\subsection{Master/slave setup}
+\label{sec:master_slave}
+
+Given the cross-platform nature of NetBSD some tests depend on a specific
+platform or on some specific hardware.  There has to be a way to deploy a
+test suite or test program to a remote machine (slave), run it and gather
+the results.  This is easy to achieve if we have the \verb*|tests.tgz| set
+mentioned above because it can be cross-built using NetBSD's
+\verb*|build.sh| script and later installed on the remote machines.
+
+Generalizing the above requirement, it should be possible to have a master
+machine coordinating multiple slaves and receiving their results,
+collapsing them all in a single log.  The master may not even be a NetBSD
+box.
+
+It is still unknown if the slaves will require some kind of testing daemon
+that waits for testing petitions and serves them.  Using SSH alone is
+probably enough.
+
+% -------------------------------------------------------------------------
+
+\subsection{Test report}
+
+A test program can report any of the following states after execution:
+
+\begin{description}
+
+\item [Passed]
+The test was executed and finished successfully.
+
+\item [Failed]
+The test was executed and failed for some specific reason which must be
+reported.
+
+\item [Skipped]
+The test was not executed because some preconditions were not met
+(missing tools, kernel drivers, etc.), all of which must be logged.  This
+is not an actual failure but the user must be aware of it.
+
+\item [Expected failure]
+The test was executed and detected an invalid situation.  However this
+failure was expected and therefore the test returns success.  This is
+useful to test for functionality \emph{known to be broken} in the system
+and to automatically detect when it gets fixed.
+
+\end{description}
+
+The test system must generate a user-friendly report after execution that
+lists, for each test, its result (as described above).  Due to the
+master/slave design, the report has to consolidate the results of multiple
+test machines so that the developer can take a quick overview of the
+current status.
+
+To generate user-friendly tests, the system has to support the conversion
+of logs to several formats such as plain text or XML.  XML allows the later
+beautification using XSLT stylesheets.  These allow presenting the report
+as, e.g. an HTML document with pretty tables formatted with CSS.  Whether
+the internal system status should also be stored in XML is still undecided
+but should not matter at all in the general design.
+
+The release engineering team currently serves a consolidated report for
+the status of automated builds of the whole
+system\footnote{\url{http://releng.netbsd.org/cgi-bin/builds.cgi}}.  The
+testing report could follow the same spirit.
+
+% -------------------------------------------------------------------------
+
+\subsection{Test execution}
+\label{sec:execution}
+
+The current testing infrastructure requires all Makefiles to specify all
+available test programs so that the \verb*|regress| target can run them
+all.  This restricts the execution of tests to those users with a source
+tree available and with the development tools (the \verb*|comp.tgz| set)
+installed.
+
+It is probably a good idea to allow the execution of tests easily without
+having a source tree available.  In that case the tests have to be
+redistributed as part of the system as in the \verb*|tests.tgz|) set
+already mentioned.  End users could then install and use it to verify if
+the system is stable and functional on a new installation.  Even more, the
+installer might even offer to do so for new setups!
+
+If this is done, \verb*|make(1)| should not be involved in the test
+execution itself to avoid a dependency on the development tools.  Then
+there should be some other way to automatically run a set of tests.  This
+can either be in the form of a simple shell script or tool that iterates
+over the test directories.  pkgsrc currently has a \verb*|pkg_regress|
+program that does just that. This tool could also be the one that
+implements the master/slave functionality described below.
+
+Assuming we have the tool mentioned in the previous paragraph and that
+it is called \verb*|regress|, consider the following fictitious examples:
+
+\begin{verbatim}
+/usr/tests# regress -f "privileges = root"
+recursively runs all tests that require root privileges
+
+/usr/tests# regress -l foo.log
+recursively runs all tests and leaves their results in foo.log
+
+/usr/tests/sys# regress
+recursively runs all tests (kernel only due to the
+directory we are in)
+
+/usr/tests/sys/arch/mac68k# regress -r my.mac68k.machine
+recursively runs all mac68-specific kernel tests on a
+remote machine
+
+/usr/tests/bin/cp# regress t_iflag
+runs cp(1)'s "t_iflag" test
+\end{verbatim}
+
+% -------------------------------------------------------------------------
+
+\subsection{Configuration}
+
+The test system shall be configurable.  Some tests are so generic that
+require to be specialized by the end user to make sense on some
+situations.  On the other hand, there are details the framework cannot
+guess so they must be provided by the user; for example, the address of
+the remote machines to run machine-specific tests or the emulator to use
+to execute critical tests.
+
+Given that tests are organized hierarchically in a tree, a configuration
+file that followed this same structure could be enough.  At each node you
+could specify property/value pairs that affect that specific node and all
+its children.  And a node could be either a test suite or a specific test
+program.  For example:
+
+\begin{verbatim}
+node sys {
+    node fs {
+        # Run all file system tests within QEMU and
+        # give them a 100-second long delay until a
+        # panic is assumed.
+        emulator = qemu
+        emulator.timeout = 100s
+
+        node tmpfs {
+            # Size of the tmpfs mounted by its test
+            # suite; makes no sense on other file
+            # systems.
+            size = 100M
+        }
+    }
+}
+\end{verbatim}
+
+This should be implemented at the framework level which then passes to
+each test program its specific configuration.  Of course, each test program
+has to be configurable on its own to meet the requirement of standalone
+programs but the interface can be different.  E.g. the above could be
+expressed, for a given tmpfs test, as:
+
+\begin{verbatim}
+/usr/tests/sys/fs/tmpfs# ./t_mkdir -s emulator=qemu \
+    -s emulator.timeout=100s -s size=100M
+\end{verbatim}
+
+
+% -------------------------------------------------------------------------
+
+\section{Test programs}
+
+Test programs must be self-sufficient: they should be executable on their
+own and behave as if they were executed from within the regress target
+(again, no testing functionality should be bundled in the Makefiles
+themselves).  Of course the necessary requirements must be available.  For
+example: a test program written in shell scripting may require the use of
+some C code to access an specific system functionality; this could be
+provided as a helper tool if not available as part of any of the standard
+system utilities.  (See tmpfs's \verb*|h_tools.c| used by the multiple
+\verb*|t_*| shell scripts.)
+
+Given the variety of stuff to check, test programs can be written either in
+C or shell scripting.  In some situations writing tests in shell is a lot
+easier than in C, but in other cases it is impossible to test a feature
+from the shell alone.  Of course some more-specific tests could be written
+in other languages (e.g. awk), but their "front-end" (monitor) could still
+rely on C or sh.
+
+The test framework has to provide libraries to encapsulate most of the
+common stuff done by test programs, and these have to be equally available
+from any of the supported languages.  These libraries include:
+
+\begin{itemize}
+
+\item Logging of the test program result.
+
+\item Automatic set up and clean up of test directories.
+
+\item Functions/macros to test for expected results (similar to an
+assertion but with proper logging).
+
+\item Common code to check for required features to actually run the test
+(privileges, missing tools, etc.).
+
+\end{itemize}
+
+The shell ``library'' may be made to rely on the C one, but if it is kept
+simple enough that may not be needed.
+
+An example shell-based test program could be:
+
+\begin{verbatim}
+# example.sh.test
+
+test_header() {
+    ... described below ...
+}
+
+test_skip() {
+    ... described below ...
+}
+
+test_body() {
+    mkdir a || test_die
+    test -d a || test_die
+}
+\end{verbatim}
+
+And similarly for a C file.  As you can see the above is not executable on
+its own.  It requires to be ``linked'' with the test monitor to work, as
+described later.
+
+There might even be a need for \verb*|test_init()| and
+\verb*|test_finish()| functions that encapsulate all the test configuration
+(e.g. mounting a file system and unmounting it later on).  This could allow
+running the body multiple times without executing the expensive
+(de)configuration operations.  Could be useful for the benchmarking idea
+exposed below.
+
+% -------------------------------------------------------------------------
+
+\subsection{Verbosity}
+
+A test program should have the ability to report its progress to the user
+at run time.  This must be configurable so that the user can choose which
+level of information wants to see:
+
+\begin{description}
+
+\item [Silent]
+The test program generates no output.
+
+\begin{verbatim}
+# ./t_mkdir -v 0
+#
+\end{verbatim}
+
+\item [Results only]
+The test program results (as a whole) are printed in a compact form.
+
+\begin{verbatim}
+# ./t_mkdir -v 1
+t_mkdir: OK.
+#
+\end{verbatim}
+
+\item [Full]
+The test program prints a detailed output of its activity (e.g. a message
+before each test case that specifies what is going to happen).  This 
+will be useful when debugging test failures and when executing tests that
+take very long.
+
+\begin{verbatim}
+# ./t_mkdir -v 2
+t_mkdir: Running tests
+    Directories can be created...
+    Link count is updated after directory creation...
+    Create many directories...
+    Nested directories can be created...
+t_mkdir: All tests were successful
+#
+\end{verbatim}
+
+\end{description}
+
+Regardless of the verbosity configuration, all tests must log their results
+to the appropriate logging file and/or report success through the program's
+exit code.  Otherwise silent output could be useless.
+
+% -------------------------------------------------------------------------
+
+\subsection{The monitor}
+\label{sec:monitor}
+
+A test program can abruptly fail leaving garbage all around.  Test programs
+should be run within a monitor that catches any unexpected condition and
+tries to do the necessary cleanup.
+
+This monitor can be built inside the test program itself (catching signals,
+doing some sanity checks, etc.) so it does not break the goal of making
+test programs be standalone.  In the case of a C test, the monitor
+implements the main function and later delegates its tasks to the
+test\_body.  In a shell-based test, the monitor needs either be bundled
+inside the resulting source file or has to be sourced but the key idea is
+the same.
+
+It is important to note that the monitor shall also provide a common
+front-end (command line options, verbosity behavior, etc.) to all tests as
+well as all the ``library'' facilities mentioned above.
+
+% -------------------------------------------------------------------------
+
+\subsection{Declarative headers}
+
+Test programs have to be described in some way so that the user knows what
+is going on.  These descriptions also allow the user to filter some tests
+based on specific properties.  For example:
+
+\begin{itemize}
+
+\item Test program purpose: textual description.
+
+\item Privileges required: root, regular user, N/A.
+
+\item Useful for benchmarking: yes, no.
+
+\item Already fixed bugs (PRs) that this test checks for.
+
+\end{itemize}
+
+These headers are useful, among other things, to quickly determine which
+tests to run.  For example, if a regular user is executing a test suite,
+the test monitor can quickly decide if the test has to be skipped or not
+or request root privileges on demand using \verb*|sudo(8)|.  This also
+allows to quickly run all tests applicable under a given condition.
+
+The header is bundled into the source file by defining it in a special
+function.  For example:
+
+\begin{verbatim}
+# begin example.sh.test
+
+test_header() {
+    set comment "Ensures that cp copies files"
+    set benchmarking "Yes"
+    set privileges "root"
+}
+
+test_body() {
+    ...
+}
+\end{verbatim}
+
+The monitor could then allow controlled access to the header properties or
+handle some "skip" reasons automatically to minimize code duplication
+among tests:
+
+\begin{verbatim}
+$ ./example query privileges
+root
+$ ./example -v 1
+example: SKIPPED - You are not root
+$
+\end{verbatim}
+
+% -------------------------------------------------------------------------
+
+\subsection{Requirements}
+
+Some tests can only be run under certain conditions.  For example some of
+them may require root privileges, others may require the presence of a
+given kernel subsystem, etc.
+
+It is possible to abstract some of these restrictions and define them
+in a declarative way as described in the test headers above.  This shall be
+done to avoid, as much as possible, code duplication across tests and to
+keep all logic centralized.  This includes, but is not limited to:
+
+\begin{itemize}
+
+\item Required privileges.
+
+\item Required platform.
+
+\item Presence of an specific binary.
+
+\item Presence of a specific file system in the kernel.
+
+\end{itemize}
+
+However, this is not scalable because, given the nature of tests, each
+of them might need to be skipped on a very specific condition.  The test
+program needs to have a way to verify some conditions are met on its own
+and abort with an skipped result.  So we could have:
+
+\begin{verbatim}
+# example.sh.test
+
+test_skip() {
+    if test -f /bin/cp; then
+        true
+    else
+        log_skip "/bin/cp is not available"
+        false
+    fi
+}
+\end{verbatim}
+
+% -------------------------------------------------------------------------
+
+\section{Other ideas}
+
+% -------------------------------------------------------------------------
+
+\subsection{Kernel testing}
+\label{sec:mkimage}
+
+Some kernel features cannot be tested once the system is up (e.g. Multiboot
+booting).  There has to be a common framework (provided by the
+``libraries'' or as a helper tool) to configure a virtual machine (QEMU,
+Xen, ...), populate it with appropriate contents, launch it and gather the
+results.
+
+On a further thought, it could be useful to implement the creation of
+system images (to be later used within an emulator or virtualization
+system) in a
+standalone tool (let's say \verb*|mkimage(8)|).  It may come handy in more
+situations that testing alone.  Writing such a tool is non-trivial because
+it needs to be portable; remember that the master system may not be
+running NetBSD!
+
+This can also be useful to run critical tests that may crash the computer
+or tests that need to mess with the system's configuration (e.g. enable a
+NFS server, export some specific directories and then run some commands).
+The former is difficult to run on a remote machine (what to do if it
+crashes?) but the latter is possible.
+
+% -------------------------------------------------------------------------
+
+\subsection{Benchmarking}
+
+Some tests are useful to benchmark the system.  For example, the test that
+verifies that a given file system can be mounted correctly is not useful
+for a benchmark, but the test that does multiple mkdirs within it is.
+
+The framework has to provide a way to properly mark such tests as useful
+for a benchmarking run.  When such functionality is enabled, the framework
+can run such tests multiple times to gather somewhat stable statistics
+and later log them along the test results.  (This is where the
+\verb*|test_init()| and \verb*|test_finish()| functions mentioned earlier
+may come handy because the benchmark could run the body multiple times
+bypassing the expensive setup operation.)
+
+Benchmark tests should be easily comparable to a previous run and the
+system should spot which test have improved (or become worse) by a
+reasonable amount.
+
+As far as I know, Monotone\footnote{\url{http://www.monotone.ca/}} is using
+a similar approach to benchmark changes to the core program.
+
+% -------------------------------------------------------------------------
+
+\subsection{Naming scheme}
+
+It may be good to have some naming conventions on tests and helper tools
+to quickly differentiate them.  Given that they will be executable
+programs, extensions should not be used.  So we could have, e.g. a
+\verb*|t_| prefix or \verb*|_test| suffix for test programs and similarly
+for helpers (\verb*|h_| or \verb*|_helper|).  tmpfs currently does this
+based on ideas taken from Monotone and
+Boost\footnote{\url{http://www.boost.org/}}'s test suites.
+
+This is important if the tests end up living alongside the real program
+sources.  Otherwise this is not required because the tests could be living
+in an independent tree separate from the sources.
+
+% -------------------------------------------------------------------------
+
+\section{Project extensions}
+
+Here is a list of possible extensions that can be added to the project.
+These should be worked on after the fundamentals of the framework are
+implemented, but most likely fall outside the scope of SoC.  The project is
+already large enough to fill the whole summer:
+
+\begin{itemize}
+\item It would be nice to be able to compile the kernel's file system code
+in user space as if it were a regular library or program\footnote{
+\url{http://www.NetBSD.org/contrib/projects.html#usermode-ffs}.}.  This
+way, the testing framework could stress-test the file system code without
+worring about system crashes nor data corruption: everything could be
+running inside user space.
+
+\item Add the ability to do test coverage scans for a particular system
+area.  That is, allow the framework to report the user how much (and
+which) of the existing code has been run during a test; this is useful to
+demonstrate if the test suite covers all possible execution flows or not.
+
+In order to do this, one would need binaries built with profiling support
+and the framework would have to provide an automated way to analyze the
+execution results, generating an appropriate report at the end.
+
+\item As already mentioned in the introduction, add new tests for several
+parts of the system.  For example, it'd be a good idea to scan the list of
+open bug reports in \url{http://www.NetBSD.org/Gnats/} and add tests to
+reproduce the bugs described in them.
+
+Furthermore, this could include an analysis of how to test some specific
+parts of the system because, oftentimes, they will require complex tests
+to be stressed.  Just consider how one could test the system scheduler or
+the behavior of some concrete hardware devices; testing these may require
+changes to the code itself to be testing-friendly.
+\end{itemize}
+
+
+\end{document}
