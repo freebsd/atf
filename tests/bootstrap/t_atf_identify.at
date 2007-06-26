@@ -38,24 +38,51 @@ dnl OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 dnl IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 dnl
 
-AT_INIT([bootstrap tests])
+AT_SETUP([atf-identify: identification of test names])
+AT_TESTED(atf-identify)
 
-m4_define([GUESS_TOPDIR], {
-    old=$(pwd)
-    while test $(pwd) != '/' -a ! -e ./libatf.hpp; do
-        cd ..
-    done
-    topdir=$(pwd)
-    cd ${old}
-    echo ${topdir}
-})
+dnl Set up the tests' tree.
+AT_CHECK([mkdir top], [0], [], [])
+AT_CHECK([mkdir top/test0], [0], [], [])
+AT_CHECK([mkdir top/test0/test1], [0], [], [])
+AT_CHECK([touch top/test0/test2], [0], [], [])
+AT_CHECK([touch top/test0/test1/test3], [0], [], [])
+AT_CHECK([touch top/test4], [0], [], [])
+AT_CHECK([echo 'test0' >top/Atffile], [0], [], [])
+AT_CHECK([echo 'test1' >top/test0/Atffile], [0], [], [])
+AT_CHECK([echo 'test2' >>top/test0/Atffile], [0], [], [])
+AT_CHECK([echo 'test3' >top/test0/test1/Atffile], [0], [], [])
 
-m4_define([TEST_HELPER], [$(GUESS_TOPDIR)/tests/bootstrap/h_$1])
+dnl Identify a non-existent test.
+AT_CHECK([atf-identify test4], [1], [], [stderr])
+AT_CHECK([grep 'Cannot locate test program' stderr], [0], [ignore], [])
 
-dnl The tests below are sorted depending on how important they are.
-m4_include(tests/bootstrap/t_libcommon_opts_args.at)
-m4_include(tests/bootstrap/t_libatfmain_options.at)
-m4_include(tests/bootstrap/t_libatfmain_help.at)
-m4_include(tests/bootstrap/t_atf_identify.at)
+dnl Identify an existent test but without an Atffile.
+AT_CHECK([atf-identify top], [1], [], [stderr])
+AT_CHECK([grep 'Cannot open Atffile' stderr], [0], [ignore], [])
+
+dnl Identify an existent test not present in the Atffile.
+AT_CHECK([cd top && atf-identify test4], [1], [], [stderr])
+AT_CHECK([grep 'test program.*not listed' stderr], [0], [ignore], [])
+
+dnl Identify a top-level test.
+AT_DATA([expout], [/test0
+])
+AT_CHECK([cd top && atf-identify test0], [0], [expout], [])
+
+dnl Identify a couple of tests inside a subdirectory.
+AT_DATA([expout], [/test0/test1
+])
+AT_CHECK([cd top/test0 && atf-identify test1], [0], [expout], [])
+AT_DATA([expout], [/test0/test2
+])
+AT_CHECK([cd top/test0 && atf-identify test2], [0], [expout], [])
+
+dnl Identify a test deeper in the test4.
+AT_DATA([expout], [/test0/test1/test3
+])
+AT_CHECK([cd top/test0/test1 && atf-identify test3], [0], [expout], [])
+
+AT_CLEANUP()
 
 dnl vim: syntax=m4:expandtab:shiftwidth=4:softtabstop=4

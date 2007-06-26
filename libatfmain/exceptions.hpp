@@ -46,12 +46,24 @@
 namespace atf {
 namespace main {
 
+class system_error : public std::runtime_error {
+    int m_sys_err;
+    mutable std::string m_message;
+
+public:
+    system_error(const std::string&, const std::string&, int);
+    ~system_error(void) throw();
+
+    int code(void) const throw();
+    const char* what(void) const throw();
+};
+
 class usage_error : public std::runtime_error {
     char m_text[4096];
 
 public:
     usage_error(const char* fmt, ...) throw();
-    virtual ~usage_error(void) throw();
+    ~usage_error(void) throw();
 
     const char* what(void) const throw();
 };

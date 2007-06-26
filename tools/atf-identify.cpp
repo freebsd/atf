@@ -40,12 +40,46 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <string>
 
 #include "libatf.hpp"
 
+#include "libatfmain/atffile.hpp"
 #include "libatfmain/application.hpp"
+#include "libatfmain/filesystem.hpp"
 
-class atf_identify : public atf::main::application {
+namespace am = atf::main;
+
+std::string
+identify(const std::string& name, const std::string& curdir)
+{
+    assert(curdir[curdir.length() - 1] == '/');
+
+    am::directory dir(curdir);
+    if (!dir.has(name))
+        throw atf::not_found_error< std::string >
+            ("Cannot locate test program", name);
+
+    std::string ident;
+
+    am::atffile af(curdir + "Atffile");
+    if (!af.has(name))
+        throw atf::not_found_error< std::string >
+            ("The test program is not listed in the Atffile", name);
+
+    std::string base = am::get_leaf_name(curdir);
+    std::string d = am::get_branch_path(curdir);
+    try {
+        ident = identify(base, d + "/");
+    } catch (const atf::not_found_error< std::string >&e ) {
+        // Do nothing.
+    }
+    ident += "/" + name;
+
+    return ident;
+}
+
+class atf_identify : public am::application {
     std::string specific_args(void) const;
 
 public:
@@ -62,8 +96,23 @@ atf_identify::specific_args(void)
 int
 atf_identify::main(void)
 {
-    std::cout << "atf-identify not yet written" << std::endl;
-    return EXIT_SUCCESS;
+    if (m_argc < 1)
+        throw am::usage_error("No test program specified");
+
+    int errcode;
+    std::string tp(m_argv[0]);
+
+    try {
+        std::string ident = identify(tp, am::get_work_dir() + "/");
+        std::cout << ident << std::endl;
+        errcode = EXIT_SUCCESS;
+    } catch (const atf::not_found_error< std::string >& e) {
+        std::cerr << "Cannot calculate identifier for " << tp
+                  << ": " << e.what() << std::endl;
+        errcode = EXIT_FAILURE;
+    }
+
+    return errcode;
 }
 
 int

@@ -201,8 +201,11 @@ am::application::run(int argc, char* const* argv)
                   << "Type `" << m_prog_name << " -h' for more details."
                   << std::endl;
         return EXIT_FAILURE;
+    } catch (const std::exception& e) {
+        std::cerr << "Caught unexpected error: " << e.what() << std::endl;
+        return EXIT_FAILURE;
     } catch (...) {
-        std::cerr << "Caught unexpected error!" << std::endl;
+        std::cerr << "Caught unknown error!" << std::endl;
         return EXIT_FAILURE;
     }
 }

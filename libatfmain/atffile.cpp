@@ -38,71 +38,31 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cstdarg>
-#include <cstdio>
-#include <cstring>
+#include <fstream>
 
+#include "libatf/exceptions.hpp"
+
+#include "libatfmain/atffile.hpp"
 #include "libatfmain/exceptions.hpp"
 
 namespace am = atf::main;
 
-am::system_error::system_error(const std::string& who,
-                               const std::string& message,
-                               int sys_err) :
-    std::runtime_error(who + ": " + message),
-    m_sys_err(sys_err)
+am::atffile::atffile(const std::string& filename)
 {
+    std::ifstream is(filename.c_str());
+    if (!is)
+        throw atf::not_found_error< std::string >
+            ("Cannot open Atffile", "Atffile");
+
+    std::string line;
+    while (std::getline(is, line))
+        m_entries.insert(line);
+
+    is.close();
 }
 
-am::system_error::~system_error(void)
-    throw()
+bool
+am::atffile::has(const std::string& name) const
 {
-}
-
-int
-am::system_error::code(void)
-    const
-    throw()
-{
-    return m_sys_err;
-}
-
-const char*
-am::system_error::what(void)
-    const
-    throw()
-{
-    try {
-        if (m_message.length() == 0) {
-            m_message = std::string(std::runtime_error::what()) + ": ";
-            m_message += ::strerror(m_sys_err);
-        }
-
-        return m_message.c_str();
-    } catch (...) {
-        return "Unable to format system_error message";
-    }
-}
-
-am::usage_error::usage_error(const char *fmt, ...)
-    throw() :
-    std::runtime_error("usage_error; message unformatted")
-{
-    va_list ap;
-
-    va_start(ap, fmt);
-    std::vsnprintf(m_text, sizeof(m_text), fmt, ap);
-    va_end(ap);
-}
-
-am::usage_error::~usage_error(void)
-    throw()
-{
-}
-
-const char*
-am::usage_error::what(void)
-    const throw()
-{
-    return m_text;
+    return m_entries.find(name) != m_entries.end();
 }

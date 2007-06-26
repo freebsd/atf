@@ -38,71 +38,68 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cstdarg>
-#include <cstdio>
-#include <cstring>
+extern "C" {
+#include <sys/param.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <libgen.h>
+#include <unistd.h>
+}
+
+#include <cerrno>
 
 #include "libatfmain/exceptions.hpp"
+#include "libatfmain/filesystem.hpp"
 
 namespace am = atf::main;
 
-am::system_error::system_error(const std::string& who,
-                               const std::string& message,
-                               int sys_err) :
-    std::runtime_error(who + ": " + message),
-    m_sys_err(sys_err)
+am::directory::directory(const std::string& path)
 {
+    DIR* dp = ::opendir(path.c_str());
+    if (dp == NULL)
+        throw system_error("atf::main::directory::directory",
+                           "opendir(3) failed", errno);
+
+    struct dirent* dep;
+    while ((dep = ::readdir(dp)) != NULL)
+        m_entries.insert(dep->d_name);
+
+    if (::closedir(dp) == -1)
+        throw system_error("atf::main::directory::directory",
+                           "closedir(3) failed", errno);
 }
 
-am::system_error::~system_error(void)
-    throw()
-{
-}
-
-int
-am::system_error::code(void)
+bool
+am::directory::has(const std::string& name)
     const
-    throw()
 {
-    return m_sys_err;
+    return m_entries.find(name) != m_entries.end();
 }
 
-const char*
-am::system_error::what(void)
-    const
-    throw()
+std::string
+am::get_branch_path(const std::string& path)
 {
-    try {
-        if (m_message.length() == 0) {
-            m_message = std::string(std::runtime_error::what()) + ": ";
-            m_message += ::strerror(m_sys_err);
-        }
-
-        return m_message.c_str();
-    } catch (...) {
-        return "Unable to format system_error message";
-    }
+    return ::dirname(path.c_str());
 }
 
-am::usage_error::usage_error(const char *fmt, ...)
-    throw() :
-    std::runtime_error("usage_error; message unformatted")
+std::string
+am::get_leaf_name(const std::string& path)
 {
-    va_list ap;
-
-    va_start(ap, fmt);
-    std::vsnprintf(m_text, sizeof(m_text), fmt, ap);
-    va_end(ap);
+    return ::basename(path.c_str());
 }
 
-am::usage_error::~usage_error(void)
-    throw()
+std::string
+am::get_work_dir(void)
 {
-}
+#if defined(MAXPATHLEN)
+    char buf[MAXPATHLEN];
 
-const char*
-am::usage_error::what(void)
-    const throw()
-{
-    return m_text;
+    if (::getcwd(buf, sizeof(buf)) == NULL)
+        throw system_error("atf::main::get_work_dir",
+                           "getcwd(3) failed", errno);
+
+    return std::string(buf);
+#else // !defined(MAXPATHLEN)
+#   error "Not implemented."
+#endif // defined(MAXPATHLEN)
 }

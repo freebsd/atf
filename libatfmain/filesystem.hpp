@@ -38,71 +38,30 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cstdarg>
-#include <cstdio>
-#include <cstring>
+#ifndef _ATF_LIBATFMAIN_FILESYSTEM_HPP_
+#define _ATF_LIBATFMAIN_FILESYSTEM_HPP_
 
-#include "libatfmain/exceptions.hpp"
+#include <set>
+#include <string>
 
-namespace am = atf::main;
+namespace atf {
+namespace main {
 
-am::system_error::system_error(const std::string& who,
-                               const std::string& message,
-                               int sys_err) :
-    std::runtime_error(who + ": " + message),
-    m_sys_err(sys_err)
-{
-}
+class directory {
+    typedef std::set< std::string > entries_set;
+    entries_set m_entries;
 
-am::system_error::~system_error(void)
-    throw()
-{
-}
+public:
+    directory(const std::string& path);
 
-int
-am::system_error::code(void)
-    const
-    throw()
-{
-    return m_sys_err;
-}
+    bool has(const std::string& name) const;
+};
 
-const char*
-am::system_error::what(void)
-    const
-    throw()
-{
-    try {
-        if (m_message.length() == 0) {
-            m_message = std::string(std::runtime_error::what()) + ": ";
-            m_message += ::strerror(m_sys_err);
-        }
+std::string get_branch_path(const std::string&);
+std::string get_leaf_name(const std::string&);
+std::string get_work_dir(void);
 
-        return m_message.c_str();
-    } catch (...) {
-        return "Unable to format system_error message";
-    }
-}
+} // namespace main
+} // namespace atf
 
-am::usage_error::usage_error(const char *fmt, ...)
-    throw() :
-    std::runtime_error("usage_error; message unformatted")
-{
-    va_list ap;
-
-    va_start(ap, fmt);
-    std::vsnprintf(m_text, sizeof(m_text), fmt, ap);
-    va_end(ap);
-}
-
-am::usage_error::~usage_error(void)
-    throw()
-{
-}
-
-const char*
-am::usage_error::what(void)
-    const throw()
-{
-    return m_text;
-}
+#endif // _ATF_LIBATFMAIN_FILESYSTEM_HPP_

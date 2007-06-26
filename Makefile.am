@@ -76,7 +76,9 @@ nobase_include_HEADERS = libatf/exceptions.hpp \
 # -------------------------------------------------------------------------
 
 common_sources = libatfmain/application.cpp \
-                 libatfmain/exceptions.cpp
+                 libatfmain/atffile.cpp \
+                 libatfmain/exceptions.cpp \
+                 libatfmain/filesystem.cpp
 
 noinst_LIBRARIES = libatfmain/libcommon.a
 libatfmain_libcommon_a_SOURCES = $(common_sources)
@@ -128,7 +130,8 @@ EXTRA_DIST =	tests/bootstrap/testsuite \
 		tests/bootstrap/testsuite.at \
 		$(testsuite_incs)
 
-testsuite_incs=	$(srcdir)/tests/bootstrap/t_libatfmain_help.at \
+testsuite_incs=	$(srcdir)/tests/bootstrap/t_atf_identify.at \
+		$(srcdir)/tests/bootstrap/t_libatfmain_help.at \
 		$(srcdir)/tests/bootstrap/t_libatfmain_options.at \
 		$(srcdir)/tests/bootstrap/t_libcommon_opts_args.at
 
@@ -154,7 +157,7 @@ $(srcdir)/tests/bootstrap/testsuite: $(srcdir)/tests/bootstrap/testsuite.at \
 # `tools' directory.
 # -------------------------------------------------------------------------
 
-bin_PROGRAMS = tools/atf-identify
+libexec_PROGRAMS = tools/atf-identify
 
 tools_atf_identify_SOURCES = tools/atf-identify.cpp
 tools_atf_identify_LDADD = libatfmain/libcommon.a
