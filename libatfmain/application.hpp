@@ -38,32 +38,60 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cstdlib>
-#include <iostream>
+#ifndef _ATF_LIBATFMAIN_APPLICATION_HPP_
+#define _ATF_LIBATFMAIN_APPLICATION_HPP_
 
-#include "libatf.hpp"
+#include <ostream>
+#include <set>
+#include <string>
 
-#include "libatfmain/application.hpp"
+#include <libatfmain/exceptions.hpp>
 
-atf::test_suite init_test_suite(void);
+namespace atf {
+namespace main {
 
-class test_program : public atf::main::application {
+class application {
+    void process_options(void);
+    void usage(std::ostream&);
+
+    bool inited(void);
+
+protected:
+    class option {
+        char m_character;
+        bool m_argument;
+        std::string m_description;
+
+        friend class application;
+
+    public:
+        option(char, bool, const std::string&);
+
+        bool operator<(const option&) const;
+    };
+    typedef std::set< option > options_set;
+
+    int m_argc;
+    char* const* m_argv;
+
+    static const char* m_prog_name;
+
+    options_set options(void);
+
+    // To be redefined.
+    virtual std::string specific_args(void) const;
+    virtual options_set specific_options(void) const;
+    virtual void process_option(int, const char*);
+    virtual int main(void) = 0;
+
 public:
-    int main(void);
+    application(void);
+    virtual ~application(void);
+
+    int run(int, char* const* argv);
 };
 
-int
-test_program::main(void)
-{
-    atf::report r(std::cout);
-    atf::test_suite ts = init_test_suite();
-    ts.run(&r);
+} // namespace main
+} // namespace atf
 
-    return EXIT_SUCCESS;
-}
-
-int
-main(int argc, char* const* argv)
-{
-    return test_program().run(argc, argv);
-}
+#endif /* _ATF_LIBATFMAIN_APPLICATION_HPP_ */

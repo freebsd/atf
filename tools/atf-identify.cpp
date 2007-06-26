@@ -45,25 +45,29 @@
 
 #include "libatfmain/application.hpp"
 
-atf::test_suite init_test_suite(void);
+class atf_identify : public atf::main::application {
+    std::string specific_args(void) const;
 
-class test_program : public atf::main::application {
 public:
     int main(void);
 };
 
-int
-test_program::main(void)
+std::string
+atf_identify::specific_args(void)
+    const
 {
-    atf::report r(std::cout);
-    atf::test_suite ts = init_test_suite();
-    ts.run(&r);
+    return "<test-program>";
+}
 
+int
+atf_identify::main(void)
+{
+    std::cout << "atf-identify not yet written" << std::endl;
     return EXIT_SUCCESS;
 }
 
 int
 main(int argc, char* const* argv)
 {
-    return test_program().run(argc, argv);
+    return atf_identify().run(argc, argv);
 }

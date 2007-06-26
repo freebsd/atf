@@ -39,31 +39,24 @@
 //
 
 #include <cstdlib>
-#include <iostream>
 
 #include "libatf.hpp"
 
 #include "libatfmain/application.hpp"
 
-atf::test_suite init_test_suite(void);
-
-class test_program : public atf::main::application {
+class h_app_empty : public atf::main::application {
 public:
     int main(void);
 };
 
 int
-test_program::main(void)
+h_app_empty::main(void)
 {
-    atf::report r(std::cout);
-    atf::test_suite ts = init_test_suite();
-    ts.run(&r);
-
     return EXIT_SUCCESS;
 }
 
 int
 main(int argc, char* const* argv)
 {
-    return test_program().run(argc, argv);
+    return h_app_empty().run(argc, argv);
 }

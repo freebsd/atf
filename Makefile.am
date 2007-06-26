@@ -75,8 +75,19 @@ nobase_include_HEADERS = libatf/exceptions.hpp \
 # `libatfmain' directory.
 # -------------------------------------------------------------------------
 
+common_sources = libatfmain/application.cpp \
+                 libatfmain/exceptions.cpp
+
+noinst_LIBRARIES = libatfmain/libcommon.a
+libatfmain_libcommon_a_SOURCES = $(common_sources)
+# XXX Workaround for a bug in GNU Automake which prevents the common files
+# to be built with and without GNU Libtool.  Setting different CXXFLAGS
+# forces the generated Makefile to use different objects for each case.
+libatfmain_libcommon_a_CXXFLAGS = $(AM_CXXFLAGS)
+
 lib_LTLIBRARIES += libatfmain/libatfmain.la
-libatfmain_libatfmain_la_SOURCES = libatfmain/main.cpp
+libatfmain_libatfmain_la_SOURCES = libatfmain/main.cpp \
+                                   $(common_sources)
 libatfmain_libatfmain_la_LDFLAGS = -Llibatf
 libatfmain_libatfmain_la_LIBADD = -latf
 
@@ -84,7 +95,20 @@ libatfmain_libatfmain_la_LIBADD = -latf
 # `tests/bootstrap' directory.
 # -------------------------------------------------------------------------
 
-noinst_PROGRAMS = tests/bootstrap/h_pass
+# XXX These should only be built when running 'make check', or something
+# like that.
+
+noinst_PROGRAMS = tests/bootstrap/h_app_empty
+tests_bootstrap_h_app_empty_SOURCES = tests/bootstrap/h_app_empty.cpp
+tests_bootstrap_h_app_empty_LDADD = -latf libatfmain/libcommon.a
+tests_bootstrap_h_app_empty_LDFLAGS = -Llibatf
+
+noinst_PROGRAMS += tests/bootstrap/h_app_opts_args
+tests_bootstrap_h_app_opts_args_SOURCES = tests/bootstrap/h_app_opts_args.cpp
+tests_bootstrap_h_app_opts_args_LDADD = -latf libatfmain/libcommon.a
+tests_bootstrap_h_app_opts_args_LDFLAGS = -Llibatf
+
+noinst_PROGRAMS += tests/bootstrap/h_pass
 tests_bootstrap_h_pass_SOURCES = tests/bootstrap/h_pass.cpp
 tests_bootstrap_h_pass_LDADD = -latf -latfmain
 tests_bootstrap_h_pass_LDFLAGS = -Llibatf -Llibatfmain
@@ -105,7 +129,8 @@ EXTRA_DIST =	tests/bootstrap/testsuite \
 		$(testsuite_incs)
 
 testsuite_incs=	$(srcdir)/tests/bootstrap/t_libatfmain_help.at \
-		$(srcdir)/tests/bootstrap/t_libatfmain_options.at
+		$(srcdir)/tests/bootstrap/t_libatfmain_options.at \
+		$(srcdir)/tests/bootstrap/t_libcommon_opts_args.at
 
 $(srcdir)/tests/bootstrap/package.m4: $(top_srcdir)/configure.ac
 	{ \
@@ -124,5 +149,14 @@ $(srcdir)/tests/bootstrap/testsuite: $(srcdir)/tests/bootstrap/testsuite.at \
 	    -I $(srcdir)/tests/bootstrap \
 	    $(srcdir)/tests/bootstrap/testsuite.at -o $@.tmp
 	mv $@.tmp $@
+
+# -------------------------------------------------------------------------
+# `tools' directory.
+# -------------------------------------------------------------------------
+
+bin_PROGRAMS = tools/atf-identify
+
+tools_atf_identify_SOURCES = tools/atf-identify.cpp
+tools_atf_identify_LDADD = libatfmain/libcommon.a
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

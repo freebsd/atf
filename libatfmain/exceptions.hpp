@@ -38,32 +38,25 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cstdlib>
-#include <iostream>
+#ifndef _ATF_LIBATFMAIN_EXCEPTIONS_HPP_
+#define _ATF_LIBATFMAIN_EXCEPTIONS_HPP_
 
-#include "libatf.hpp"
+#include <stdexcept>
 
-#include "libatfmain/application.hpp"
+namespace atf {
+namespace main {
 
-atf::test_suite init_test_suite(void);
+class usage_error : public std::runtime_error {
+    char m_text[4096];
 
-class test_program : public atf::main::application {
 public:
-    int main(void);
+    usage_error(const char* fmt, ...) throw();
+    virtual ~usage_error(void) throw();
+
+    const char* what(void) const throw();
 };
 
-int
-test_program::main(void)
-{
-    atf::report r(std::cout);
-    atf::test_suite ts = init_test_suite();
-    ts.run(&r);
+} // namespace main
+} // namespace atf
 
-    return EXIT_SUCCESS;
-}
-
-int
-main(int argc, char* const* argv)
-{
-    return test_program().run(argc, argv);
-}
+#endif // _ATF_LIBATFMAIN_EXCEPTIONS_HPP_

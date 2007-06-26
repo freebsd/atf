@@ -38,6 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cassert>
 #include <cstdlib>
 #include <iostream>
 
@@ -45,25 +46,57 @@
 
 #include "libatfmain/application.hpp"
 
-atf::test_suite init_test_suite(void);
+class h_app_opts_args : public atf::main::application {
+    std::string specific_args(void) const;
+    options_set specific_options(void) const;
+    void process_option(int, const char*);
 
-class test_program : public atf::main::application {
 public:
     int main(void);
 };
 
-int
-test_program::main(void)
+std::string
+h_app_opts_args::specific_args(void)
+    const
 {
-    atf::report r(std::cout);
-    atf::test_suite ts = init_test_suite();
-    ts.run(&r);
+    return "<arg1> <arg2>";
+}
 
+h_app_opts_args::options_set
+h_app_opts_args::specific_options(void)
+    const
+{
+    options_set opts;
+    opts.insert(option('d', false, "Debug mode"));
+    opts.insert(option('v', true, "Verbosity level"));
+    return opts;
+}
+
+void
+h_app_opts_args::process_option(int ch, const char* arg)
+{
+    switch (ch) {
+    case 'd':
+        std::cout << "-d given" << std::endl;
+        break;
+
+    case 'v':
+        std::cout << "-v given with argument " << arg << std::endl;
+        break;
+
+    default:
+        assert(false);
+    }
+}
+
+int
+h_app_opts_args::main(void)
+{
     return EXIT_SUCCESS;
 }
 
 int
 main(int argc, char* const* argv)
 {
-    return test_program().run(argc, argv);
+    return h_app_opts_args().run(argc, argv);
 }

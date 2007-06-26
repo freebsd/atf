@@ -53,6 +53,7 @@ m4_define([GUESS_TOPDIR], {
 m4_define([TEST_HELPER], [$(GUESS_TOPDIR)/tests/bootstrap/h_$1])
 
 dnl The tests below are sorted depending on how important they are.
+m4_include(tests/bootstrap/t_libcommon_opts_args.at)
 m4_include(tests/bootstrap/t_libatfmain_options.at)
 m4_include(tests/bootstrap/t_libatfmain_help.at)
 

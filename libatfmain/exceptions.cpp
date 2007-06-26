@@ -38,32 +38,32 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cstdlib>
-#include <iostream>
+#include <cstdarg>
+#include <cstdio>
 
-#include "libatf.hpp"
+#include "libatfmain/exceptions.hpp"
 
-#include "libatfmain/application.hpp"
+namespace am = atf::main;
 
-atf::test_suite init_test_suite(void);
-
-class test_program : public atf::main::application {
-public:
-    int main(void);
-};
-
-int
-test_program::main(void)
+am::usage_error::usage_error(const char *fmt, ...)
+    throw() :
+    std::runtime_error("usage_error; message unformatted")
 {
-    atf::report r(std::cout);
-    atf::test_suite ts = init_test_suite();
-    ts.run(&r);
+    va_list ap;
 
-    return EXIT_SUCCESS;
+    va_start(ap, fmt);
+    std::vsnprintf(m_text, sizeof(m_text), fmt, ap);
+    va_end(ap);
 }
 
-int
-main(int argc, char* const* argv)
+am::usage_error::~usage_error(void)
+    throw()
 {
-    return test_program().run(argc, argv);
+}
+
+const char*
+am::usage_error::what(void)
+    const throw()
+{
+    return m_text;
 }
