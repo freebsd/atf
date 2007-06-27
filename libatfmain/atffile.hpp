@@ -41,20 +41,15 @@
 #ifndef _ATF_LIBATFMAIN_ATFFILE_HPP_
 #define _ATF_LIBATFMAIN_ATFFILE_HPP_
 
-#include <set>
 #include <string>
+#include <vector>
 
 namespace atf {
 namespace main {
 
-class atffile {
-    typedef std::set< std::string > entries_set;
-    entries_set m_entries;
-
+class atffile : public std::vector< std::string > {
 public:
     atffile(const std::string& = "Atffile");
-
-    bool has(const std::string&) const;
 };
 
 } // namespace main

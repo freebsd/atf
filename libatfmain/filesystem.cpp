@@ -62,18 +62,11 @@ am::directory::directory(const std::string& path)
 
     struct dirent* dep;
     while ((dep = ::readdir(dp)) != NULL)
-        m_entries.insert(dep->d_name);
+        insert(dep->d_name);
 
     if (::closedir(dp) == -1)
         throw system_error("atf::main::directory::directory",
                            "closedir(3) failed", errno);
-}
-
-bool
-am::directory::has(const std::string& name)
-    const
-{
-    return m_entries.find(name) != m_entries.end();
 }
 
 std::string

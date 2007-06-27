@@ -38,6 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <algorithm>
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -56,14 +57,14 @@ identify(const std::string& name, const std::string& curdir)
     assert(curdir[curdir.length() - 1] == '/');
 
     am::directory dir(curdir);
-    if (!dir.has(name))
+    if (std::find(dir.begin(), dir.end(), name) == dir.end())
         throw atf::not_found_error< std::string >
             ("Cannot locate test program", name);
 
     std::string ident;
 
     am::atffile af(curdir + "Atffile");
-    if (!af.has(name))
+    if (std::find(af.begin(), af.end(), name) == af.end())
         throw atf::not_found_error< std::string >
             ("The test program is not listed in the Atffile", name);
 

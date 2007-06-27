@@ -56,13 +56,7 @@ am::atffile::atffile(const std::string& filename)
 
     std::string line;
     while (std::getline(is, line))
-        m_entries.insert(line);
+        push_back(line);
 
     is.close();
-}
-
-bool
-am::atffile::has(const std::string& name) const
-{
-    return m_entries.find(name) != m_entries.end();
 }

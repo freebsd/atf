@@ -47,14 +47,9 @@
 namespace atf {
 namespace main {
 
-class directory {
-    typedef std::set< std::string > entries_set;
-    entries_set m_entries;
-
+class directory : public std::set< std::string > {
 public:
     directory(const std::string& path);
-
-    bool has(const std::string& name) const;
 };
 
 std::string get_branch_path(const std::string&);
