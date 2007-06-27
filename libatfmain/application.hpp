@@ -74,7 +74,7 @@ protected:
     int m_argc;
     char* const* m_argv;
 
-    static const char* m_prog_name;
+    const char* m_prog_name;
 
     options_set options(void);
 

@@ -52,8 +52,6 @@ extern "C" {
 
 namespace am = atf::main;
 
-const char* am::application::m_prog_name = NULL;
-
 am::application::option::option(char ch, bool a, const std::string& desc) :
     m_character(ch),
     m_argument(a),
@@ -70,7 +68,8 @@ am::application::option::operator<(const am::application::option& o)
 
 am::application::application(void) :
     m_argc(-1),
-    m_argv(NULL)
+    m_argv(NULL),
+    m_prog_name(NULL)
 {
 }
 
