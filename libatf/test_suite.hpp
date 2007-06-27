@@ -50,6 +50,8 @@ class test_case;
 
 class test_suite : public std::vector< test_case * > {
 public:
+    test_suite(void);
+
     void run(report*);
 };
 

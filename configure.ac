@@ -62,7 +62,73 @@ dnl -----------------------------------------------------------------------
 dnl Check for the C++ compiler and required features.
 dnl -----------------------------------------------------------------------
 
+AC_LANG(C++)
 AC_PROG_CXX
+
+dnl -----------------------------------------------------------------------
+dnl Set up the developer mode
+dnl -----------------------------------------------------------------------
+
+AC_ARG_ENABLE(developer,
+              AS_HELP_STRING(--enable-developer,
+                             [enable developer features]),,
+              [case ${PACKAGE_VERSION} in
+               0.*|*99*|*alpha*|*beta*)
+                   enable_developer=yes
+                   ;;
+               *)
+                   enable_developer=no
+                   ;;
+               esac])
+
+if test ${enable_developer} = yes; then
+    try_flags="-g \
+               -Wabi \
+               -Wall \
+               -Wcast-qual \
+               -Wctor-dtor-privacy \
+               -Werror \
+               -Wextra \
+               -Wno-deprecated \
+               -Wno-non-template-friend \
+               -Wno-pmf-conversions \
+               -Wno-sign-compare \
+               -Wno-unused-parameter \
+               -Wnon-virtual-dtor \
+               -Woverloaded-virtual \
+               -Wpointer-arith \
+               -Wredundant-decls \
+               -Wreorder \
+               -Wreturn-type \
+               -Wshadow \
+               -Wsign-promo \
+               -Wswitch \
+               -Wsynth \
+               -Wwrite-strings"
+    #
+    # The following flags should also be enabled but cannot be.  Reasons
+    # given below.
+    #
+    # -Wold-style-cast: Raises errors when using TIOCGWINSZ, at least under
+    #                   Mac OS X.  This is due to the way _IOR is defined.
+    #
+else
+    try_flags="-DNDEBUG"
+fi
+
+valid=""
+for f in ${try_flags}
+do
+    AC_MSG_CHECKING(whether ${CXX} supports ${f})
+    saved_cxxflags="${CXXFLAGS}"
+    CXXFLAGS="${CXXFLAGS} ${f}"
+    AC_COMPILE_IFELSE([int main(void) { return 0; }],
+                      AC_MSG_RESULT(yes)
+                      valid="${valid} ${f}",
+                      AC_MSG_RESULT(no))
+    CXXFLAGS="${saved_cxxflags}"
+done
+CXXFLAGS="${CXXFLAGS} ${valid}"
 
 dnl -----------------------------------------------------------------------
 dnl Installation of documentation.

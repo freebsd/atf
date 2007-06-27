@@ -41,6 +41,10 @@
 #include "libatf/test_case.hpp"
 #include "libatf/test_suite.hpp"
 
+atf::test_suite::test_suite(void)
+{
+}
+
 void
 atf::test_suite::run(report* r)
 {

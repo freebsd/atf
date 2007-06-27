@@ -57,6 +57,11 @@ class test_pass : public as::tc
     {
         return as::tcr::ok();
     }
+
+public:
+    test_pass(void)
+    {
+    }
 };
 static test_pass test_pass;
 
