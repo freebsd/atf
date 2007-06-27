@@ -52,6 +52,9 @@ dist-hook:
 	@echo "     RIGHT VERSIONS OF THE GNU BUILD SYSTEM!"
 	@echo "-------------------------------------------------"
 
+AM_CPPFLAGS = -DATF_LIBEXECDIR=\"$(libexecdir)\" \
+              -DATF_PKGDATADIR=\"$(pkgdatadir)\"
+
 # -------------------------------------------------------------------------
 # `libatf' directory.
 # -------------------------------------------------------------------------
@@ -116,6 +119,7 @@ tests_bootstrap_h_pass_LDADD = -latf -latfmain
 tests_bootstrap_h_pass_LDFLAGS = -Llibatf -Llibatfmain
 
 TESTS=		$(srcdir)/tests/bootstrap/testsuite
+TESTS_ENVIRONMENT = PATH=$$(atf-config -t atf_libexecdir):$${PATH}
 
 DISTCLEANFILES = \
 		tests/bootstrap/atconfig \
@@ -130,7 +134,8 @@ EXTRA_DIST =	tests/bootstrap/testsuite \
 		tests/bootstrap/testsuite.at \
 		$(testsuite_incs)
 
-testsuite_incs=	$(srcdir)/tests/bootstrap/t_atf_identify.at \
+testsuite_incs=	$(srcdir)/tests/bootstrap/t_atf_config.at \
+		$(srcdir)/tests/bootstrap/t_atf_identify.at \
 		$(srcdir)/tests/bootstrap/t_libatfmain_help.at \
 		$(srcdir)/tests/bootstrap/t_libatfmain_options.at \
 		$(srcdir)/tests/bootstrap/t_libcommon_opts_args.at
@@ -157,8 +162,11 @@ $(srcdir)/tests/bootstrap/testsuite: $(srcdir)/tests/bootstrap/testsuite.at \
 # `tools' directory.
 # -------------------------------------------------------------------------
 
-libexec_PROGRAMS = tools/atf-identify
+bin_PROGRAMS = tools/atf-config
+tools_atf_config_SOURCES = tools/atf-config.cpp
+tools_atf_config_LDADD = libatfmain/libcommon.a
 
+libexec_PROGRAMS = tools/atf-identify
 tools_atf_identify_SOURCES = tools/atf-identify.cpp
 tools_atf_identify_LDADD = libatfmain/libcommon.a
 

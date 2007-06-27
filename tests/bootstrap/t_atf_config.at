@@ -38,25 +38,44 @@ dnl OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 dnl IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 dnl
 
-AT_INIT([bootstrap tests])
+AT_SETUP([atf-config: querying of build-time variables])
+AT_TESTED(atf-config)
 
-m4_define([GUESS_TOPDIR], {
-    old=$(pwd)
-    while test $(pwd) != '/' -a ! -e ./libatf.hpp; do
-        cd ..
-    done
-    topdir=$(pwd)
-    cd ${old}
-    echo ${topdir}
-})
+m4_define(COUNT_LINES, [test @S|@[(wc -l $1 | awk '{ print @S|@1 }')] = $2])
 
-m4_define([TEST_HELPER], [$(GUESS_TOPDIR)/tests/bootstrap/h_$1])
+dnl List all variables.
+AT_CHECK([atf-config], [0], [stdout], [])
+AT_CHECK([grep 'atf_libexecdir' stdout], [0], [ignore], [])
+AT_CHECK([grep 'atf_pkgdatadir' stdout], [0], [ignore], [])
 
-dnl The tests below are sorted depending on how important they are.
-m4_include(tests/bootstrap/t_libcommon_opts_args.at)
-m4_include(tests/bootstrap/t_libatfmain_options.at)
-m4_include(tests/bootstrap/t_libatfmain_help.at)
-m4_include(tests/bootstrap/t_atf_config.at)
-m4_include(tests/bootstrap/t_atf_identify.at)
+dnl Query a single variable.
+AT_CHECK([atf-config atf_pkgdatadir], [0], [stdout], [])
+AT_CHECK([grep 'atf_pkgdatadir' stdout], [0], [ignore], [])
+AT_CHECK([COUNT_LINES(stdout, 1)], [0], [ignore], [])
+expected_val=$(awk '{ print @S|@3 }' stdout)
+
+dnl Query a single variable in terse mode.
+AT_CHECK([atf-config -t atf_pkgdatadir], [0], [stdout], [])
+AT_CHECK([grep 'atf_pkgdatadir' stdout], [1], [ignore], [])
+AT_CHECK([grep "@S|@{expected_val}" stdout], [0], [ignore], [])
+AT_CHECK([COUNT_LINES(stdout, 1)], [0], [ignore], [])
+
+dnl Query several variables.
+AT_CHECK([atf-config atf_libexecdir atf_pkgdatadir], [0], [stdout], [])
+AT_CHECK([grep 'atf_libexecdir' stdout], [0], [ignore], [])
+AT_CHECK([grep 'atf_pkgdatadir' stdout], [0], [ignore], [])
+AT_CHECK([COUNT_LINES(stdout, 2)], [0], [ignore], [])
+
+dnl Query a non-existent variable.
+AT_CHECK([atf-config non_existent], [1], [], [stderr])
+AT_CHECK([grep 'Unknown variable.*non_existent' stderr], [0], [ignore], [])
+
+dnl Query an existent and non-existent variable.
+AT_CHECK([atf-config atf_libexecdir non_existent], [1], [], [stderr])
+AT_CHECK([grep 'Unknown variable.*non_existent' stderr], [0], [ignore], [])
+AT_CHECK([atf-config non_existent atf_libexecdir], [1], [], [stderr])
+AT_CHECK([grep 'Unknown variable.*non_existent' stderr], [0], [ignore], [])
+
+AT_CLEANUP()
 
 dnl vim: syntax=m4:expandtab:shiftwidth=4:softtabstop=4
