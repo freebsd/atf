@@ -47,13 +47,26 @@
 #include "libatfmain/application.hpp"
 
 class h_app_opts_args : public atf::main::application {
+    static const char* m_description;
+
     std::string specific_args(void) const;
     options_set specific_options(void) const;
     void process_option(int, const char*);
 
 public:
+    h_app_opts_args(void);
+
     int main(void);
 };
+
+const char* h_app_opts_args::m_description =
+    "A helper application for the bootstrap test suite that redefines the "
+    "methods to specify custom options and arguments.";
+
+h_app_opts_args::h_app_opts_args(void) :
+    application(m_description)
+{
+}
 
 std::string
 h_app_opts_args::specific_args(void)

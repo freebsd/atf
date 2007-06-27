@@ -49,6 +49,8 @@
 namespace am = atf::main;
 
 class atf_config : public am::application {
+    static const char* m_description;
+
     bool m_tflag;
 
     void process_option(int, const char*);
@@ -62,6 +64,12 @@ public:
 
     int main(void);
 };
+
+const char* atf_config::m_description =
+    "atf-config is a tool that queries the value of several "
+    "installation-specific configuration values of the atf.  "
+    "It can be used by external tools to discover where specific "
+    "internal atf files are installed.";
 
 typedef std::map< std::string, std::string > confvars_map;
 
@@ -81,6 +89,7 @@ get_confvars(void)
 }
 
 atf_config::atf_config(void) :
+    application(m_description),
     m_tflag(false)
 {
 }

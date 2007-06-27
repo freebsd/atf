@@ -49,6 +49,7 @@ extern "C" {
 
 #include "libatfmain/application.hpp"
 #include "libatfmain/exceptions.hpp"
+#include "libatfmain/ui.hpp"
 
 namespace am = atf::main;
 
@@ -66,10 +67,11 @@ am::application::option::operator<(const am::application::option& o)
     return m_character < o.m_character;
 }
 
-am::application::application(void) :
+am::application::application(const std::string& description) :
     m_argc(-1),
     m_argv(NULL),
-    m_prog_name(NULL)
+    m_prog_name(NULL),
+    m_description(description)
 {
 }
 
@@ -161,6 +163,8 @@ am::application::usage(std::ostream& os)
     if (!args.empty())
         os << " " << args;
     os << std::endl << std::endl;
+
+    os << format_text(m_description) << std::endl << std::endl;
 
     os << "Available options:" << std::endl;
     options_set opts = options();

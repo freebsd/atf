@@ -48,9 +48,21 @@
 atf::test_suite init_test_suite(void);
 
 class test_program : public atf::main::application {
+    static const char* m_description;
+
 public:
+    test_program(void);
+
     int main(void);
 };
+
+const char* test_program::m_description =
+    "This is an independent atf test program.";
+
+test_program::test_program(void) :
+    application(m_description)
+{
+}
 
 int
 test_program::main(void)

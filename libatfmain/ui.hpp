@@ -48,7 +48,7 @@ namespace atf {
 namespace main {
 
 std::vector< std::string > split(const std::string&, const std::string&);
-std::string format_text(const std::string&, const size_t, size_t);
+std::string format_text(const std::string&, const size_t = 0, size_t = 0);
 
 } // namespace main
 } // namespace atf

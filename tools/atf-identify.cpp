@@ -81,11 +81,25 @@ identify(const std::string& name, const std::string& curdir)
 }
 
 class atf_identify : public am::application {
+    static const char* m_description;
+
     std::string specific_args(void) const;
 
 public:
+    atf_identify(void);
+
     int main(void);
 };
+
+const char* atf_identify::m_description =
+    "atf-identify is a tool that calculates a test program's identifier "
+    "by inspecting its location inside the file system and its relation "
+    "with parent tests.";
+
+atf_identify::atf_identify(void) :
+    application(m_description)
+{
+}
 
 std::string
 atf_identify::specific_args(void)

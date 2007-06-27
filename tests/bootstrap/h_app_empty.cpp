@@ -45,9 +45,22 @@
 #include "libatfmain/application.hpp"
 
 class h_app_empty : public atf::main::application {
+    static const char* m_description;
+
 public:
+    h_app_empty(void);
+
     int main(void);
 };
+
+const char* h_app_empty::m_description =
+    "A helper application for the bootstrap test suite that does nothing "
+    "on its own and redefines no methods.";
+
+h_app_empty::h_app_empty(void) :
+    application(m_description)
+{
+}
 
 int
 h_app_empty::main(void)

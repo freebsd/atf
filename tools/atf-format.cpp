@@ -50,6 +50,8 @@
 namespace am = atf::main;
 
 class atf_format : public am::application {
+    static const char* m_description;
+
     std::string m_tag;
 
     void process_option(int, const char*);
@@ -57,10 +59,21 @@ class atf_format : public am::application {
     options_set specific_options(void) const;
 
 public:
+    atf_format(void);
+
     int main(void);
 };
 
-typedef std::map< std::string, std::string > confvars_map;
+const char* atf_format::m_description =
+    "atf-format is a tool that formats text messages to fit inside "
+    "the terminal's size.  Messages can be fed either through the "
+    "standard input or as arguments to the program.  Each independent "
+    "line is treated as a different paragraph.";
+
+atf_format::atf_format(void) :
+    application(m_description)
+{
+}
 
 void
 atf_format::process_option(int ch, const char* arg)

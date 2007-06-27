@@ -75,6 +75,7 @@ protected:
     char* const* m_argv;
 
     const char* m_prog_name;
+    std::string m_description;
 
     options_set options(void);
 
@@ -85,7 +86,7 @@ protected:
     virtual int main(void) = 0;
 
 public:
-    application(void);
+    application(const std::string&);
     virtual ~application(void);
 
     int run(int, char* const* argv);
