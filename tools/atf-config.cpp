@@ -89,7 +89,7 @@ get_confvars(void)
 }
 
 atf_config::atf_config(void) :
-    application(m_description),
+    application(m_description, "atf-config(1)"),
     m_tflag(false)
 {
 }

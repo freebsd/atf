@@ -71,7 +71,7 @@ const char* atf_format::m_description =
     "line is treated as a different paragraph.";
 
 atf_format::atf_format(void) :
-    application(m_description)
+    application(m_description, "atf-format(1)")
 {
 }
 

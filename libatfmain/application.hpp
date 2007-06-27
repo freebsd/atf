@@ -76,6 +76,7 @@ protected:
 
     const char* m_prog_name;
     std::string m_description;
+    std::string m_manpage;
 
     options_set options(void);
 
@@ -86,7 +87,7 @@ protected:
     virtual int main(void) = 0;
 
 public:
-    application(const std::string&);
+    application(const std::string&, const std::string& = "");
     virtual ~application(void);
 
     int run(int, char* const* argv);

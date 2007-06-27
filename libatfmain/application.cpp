@@ -67,11 +67,13 @@ am::application::option::operator<(const am::application::option& o)
     return m_character < o.m_character;
 }
 
-am::application::application(const std::string& description) :
+am::application::application(const std::string& description,
+                             const std::string& manpage) :
     m_argc(-1),
     m_argv(NULL),
     m_prog_name(NULL),
-    m_description(description)
+    m_description(description),
+    m_manpage(manpage)
 {
 }
 
@@ -179,6 +181,11 @@ am::application::usage(std::ostream& os)
             os << "    ";
         os << "    " << opt.m_description << std::endl;
     }
+    os << std::endl;
+
+    if (!m_manpage.empty())
+        os << format_text("For more details please see " + m_manpage + ".")
+           << std::endl << std::endl;
 }
 
 int

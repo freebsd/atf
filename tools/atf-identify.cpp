@@ -97,7 +97,7 @@ const char* atf_identify::m_description =
     "with parent tests.";
 
 atf_identify::atf_identify(void) :
-    application(m_description)
+    application(m_description, "atf-identify(1)")
 {
 }
 
