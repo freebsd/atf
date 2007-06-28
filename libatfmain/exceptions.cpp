@@ -38,11 +38,19 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "config.h"
+
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
 
 #include "libatfmain/exceptions.hpp"
+
+#if !defined(HAVE_VSNPRINTF_IN_STD)
+namespace std {
+using ::vsnprintf;
+}
+#endif // !defined(HAVE_VSNPRINTF_IN_STD)
 
 namespace am = atf::main;
 

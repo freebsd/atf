@@ -89,6 +89,21 @@ AC_COMPILE_IFELSE(
               [Define to 1 if dirname takes a constant pointer]),
     AC_MSG_RESULT(no))
 
+AC_MSG_CHECKING(whether vsnprintf is in std)
+AC_COMPILE_IFELSE(
+    [#include <cstdarg>
+     #include <cstdio>
+     int main(void) {
+         va_list ap;
+         char* buf = NULL;
+         const char* fmt = NULL;
+         std::vsnprintf(buf, 0, fmt, ap);
+     }],
+    AC_MSG_RESULT(yes)
+    AC_DEFINE([HAVE_VSNPRINTF_IN_STD], [1],
+              [Define to 1 if vnsprintf is in std]),
+    AC_MSG_RESULT(no))
+
 dnl -----------------------------------------------------------------------
 dnl Set up the developer mode
 dnl -----------------------------------------------------------------------
