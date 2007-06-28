@@ -65,6 +65,30 @@ dnl -----------------------------------------------------------------------
 AC_LANG(C++)
 AC_PROG_CXX
 
+AC_MSG_CHECKING(whether basename takes a constant pointer)
+AC_COMPILE_IFELSE(
+    [#include <libgen.h>
+     int main(void) {
+         const char* s = "/foo/bar/";
+         (void)::basename(s);
+     }],
+    AC_MSG_RESULT(yes)
+    AC_DEFINE([HAVE_CONST_BASENAME], [1],
+              [Define to 1 if basename takes a constant pointer]),
+    AC_MSG_RESULT(no))
+
+AC_MSG_CHECKING(whether dirname takes a constant pointer)
+AC_COMPILE_IFELSE(
+    [#include <libgen.h>
+     int main(void) {
+         const char* s = "/foo/bar/";
+         (void)::dirname(s);
+     }],
+    AC_MSG_RESULT(yes)
+    AC_DEFINE([HAVE_CONST_DIRNAME], [1],
+              [Define to 1 if dirname takes a constant pointer]),
+    AC_MSG_RESULT(no))
+
 dnl -----------------------------------------------------------------------
 dnl Set up the developer mode
 dnl -----------------------------------------------------------------------

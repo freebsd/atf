@@ -38,6 +38,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "config.h"
+
 extern "C" {
 #include <sys/param.h>
 #include <sys/types.h>
@@ -46,6 +48,7 @@ extern "C" {
 #include <unistd.h>
 }
 
+#include <cassert>
 #include <cerrno>
 
 #include "libatfmain/exceptions.hpp"
@@ -72,13 +75,55 @@ am::directory::directory(const std::string& path)
 std::string
 am::get_branch_path(const std::string& path)
 {
-    return ::dirname(path.c_str());
+    std::string branch;
+
+    if (path.empty())
+        branch = ".";
+    else {
+        std::string::size_type endpos = path.length() - 1;
+        while (path[endpos] == '/')
+            endpos--;
+
+        std::string::size_type endpos2 = path.rfind('/', endpos);
+        if (endpos2 == std::string::npos)
+            branch = ".";
+        else
+            branch = path.substr(0, endpos2);
+    }
+
+#if defined(HAVE_CONST_DIRNAME)
+    assert(branch == ::dirname(path.c_str()));
+#endif // defined(HAVE_CONST_DIRNAME)
+
+    return branch;
 }
 
 std::string
 am::get_leaf_name(const std::string& path)
 {
-    return ::basename(path.c_str());
+    std::string leaf;
+
+    if (path.empty())
+        leaf = ".";
+    else {
+        std::string::size_type endpos = path.length() - 1;
+        while (path[endpos] == '/')
+            endpos--;
+
+        std::string::size_type begpos = path.rfind('/', endpos);
+        if (begpos == std::string::npos)
+            begpos = 0;
+        else
+            begpos++;
+
+        leaf = path.substr(begpos, endpos - begpos + 1);
+    }
+
+#if defined(HAVE_CONST_BASENAME)
+    assert(leaf == ::basename(path.c_str()));
+#endif // defined(HAVE_CONST_BASENAME)
+
+    return leaf;
 }
 
 std::string
