@@ -119,7 +119,7 @@ atf_config::specific_options(void)
     const
 {
     options_set opts;
-    opts.insert(option('t', false, "Terse output: show values only"));
+    opts.insert(option('t', "", "Terse output: show values only"));
     return opts;
 }
 

@@ -80,8 +80,8 @@ h_app_opts_args::specific_options(void)
     const
 {
     options_set opts;
-    opts.insert(option('d', false, "Debug mode"));
-    opts.insert(option('v', true, "Verbosity level"));
+    opts.insert(option('d', "", "Debug mode"));
+    opts.insert(option('v', "level", "Verbosity level"));
     return opts;
 }
 

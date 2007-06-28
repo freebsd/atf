@@ -59,13 +59,13 @@ class application {
 protected:
     class option {
         char m_character;
-        bool m_argument;
+        std::string m_argument;
         std::string m_description;
 
         friend class application;
 
     public:
-        option(char, bool, const std::string&);
+        option(char, const std::string&, const std::string&);
 
         bool operator<(const option&) const;
     };

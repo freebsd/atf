@@ -53,7 +53,9 @@ extern "C" {
 
 namespace am = atf::main;
 
-am::application::option::option(char ch, bool a, const std::string& desc) :
+am::application::option::option(char ch,
+                                const std::string& a,
+                                const std::string& desc) :
     m_character(ch),
     m_argument(a),
     m_description(desc)
@@ -91,7 +93,7 @@ am::application::options_set
 am::application::options(void)
 {
     options_set opts = specific_options();
-    opts.insert(option('h', false, "Shows this help message"));
+    opts.insert(option('h', "", "Shows this help message"));
     return opts;
 }
 
@@ -127,7 +129,7 @@ am::application::process_options(void)
             const option& opt = (*iter);
 
             optstr += opt.m_character;
-            if (opt.m_argument)
+            if (!opt.m_argument.empty())
                 optstr += ':';
         }
     }
@@ -168,18 +170,26 @@ am::application::usage(std::ostream& os)
 
     os << format_text(m_description) << std::endl << std::endl;
 
-    os << "Available options:" << std::endl;
     options_set opts = options();
+    assert(!opts.empty());
+    os << "Available options:" << std::endl;
+    size_t coldesc = 0;
     for (options_set::const_iterator iter = opts.begin();
          iter != opts.end(); iter++) {
         const option& opt = (*iter);
 
-        os << "    -" << opt.m_character;
-        if (opt.m_argument)
-            os << " arg";
-        else
-            os << "    ";
-        os << "    " << opt.m_description << std::endl;
+        if (opt.m_argument.length() > coldesc)
+            coldesc = opt.m_argument.length();
+    }
+    for (options_set::const_iterator iter = opts.begin();
+         iter != opts.end(); iter++) {
+        const option& opt = (*iter);
+
+        std::string tag = std::string("    -") + opt.m_character + " " +
+                          opt.m_argument + "    ";
+        os << tag
+           << format_text(opt.m_description, coldesc + 11, tag.length())
+           << std::endl;
     }
     os << std::endl;
 

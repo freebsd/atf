@@ -100,7 +100,7 @@ atf_format::specific_options(void)
     const
 {
     options_set opts;
-    opts.insert(option('t', true, "Tag to use for printing"));
+    opts.insert(option('t', "tag", "Tag to use for printing"));
     return opts;
 }
 
