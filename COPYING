@@ -43,4 +43,23 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+Relicensed code
+===============
+
+The following code snippets have been taken from other projects.
+Even though they were not originally licensed under the terms above,
+the original authors have agreed to relicense their work so that
+this project can be distributed under a single license.  This section
+is put here just to clarify this fact.
+
+* configure.ac, Makefile.am: The original versions were derived from
+  the ones in the XML Catalog Manager project, version 2.2.
+  Author: Julio M. Merino Vidal <jmmv@users.sourceforge.net>
+
+* libatfmain/ui.cpp: The format_paragraph and format_text functions
+  were derived form the ones in the Monotone project, revision
+  3a0982da308228d796df35f98d787c5cff2bb5b6.
+  Author: Julio M. Merino Vidal <jmmv@NetBSD.org>
+
+
 -- EOF
