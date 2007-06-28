@@ -42,6 +42,7 @@ extern "C" {
 #include <sys/ioctl.h>
 }
 
+#include <cassert>
 #include <cstdlib>
 #include <sstream>
 
