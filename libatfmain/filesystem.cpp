@@ -87,6 +87,8 @@ am::get_branch_path(const std::string& path)
         std::string::size_type endpos2 = path.rfind('/', endpos);
         if (endpos2 == std::string::npos)
             branch = ".";
+        else if (endpos2 == 0)
+            branch = "/";
         else
             branch = path.substr(0, endpos2);
     }

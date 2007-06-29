@@ -163,6 +163,19 @@ $(srcdir)/tests/bootstrap/testsuite: $(srcdir)/tests/bootstrap/testsuite.at \
 	mv $@.tmp $@
 
 # -------------------------------------------------------------------------
+# `tests/units' directory.
+# -------------------------------------------------------------------------
+
+# XXX These should only be built when running 'make check', or something
+# like that.
+
+TESTS += tests/units/t_filesystem
+noinst_PROGRAMS += tests/units/t_filesystem
+tests_units_t_filesystem_SOURCES = tests/units/t_filesystem.cpp
+tests_units_t_filesystem_LDADD = -latf -latfmain
+tests_units_t_filesystem_LDFLAGS = -Llibatf -Llibatfmain
+
+# -------------------------------------------------------------------------
 # `tools' directory.
 # -------------------------------------------------------------------------
 

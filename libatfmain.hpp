@@ -41,6 +41,8 @@
 #ifndef _ATF_LIBATFMAIN_HPP_
 #define _ATF_LIBATFMAIN_HPP_
 
+#include <vector>
+
 #include <libatf.hpp>
 
 #define ATF_INIT_TEST_CASES(tcs) \

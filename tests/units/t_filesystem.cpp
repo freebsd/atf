@@ -38,43 +38,80 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_LIBATF_TEST_CASE_HPP_
-#define _ATF_LIBATF_TEST_CASE_HPP_
+#include <libatf.hpp>
+#include <libatfmain.hpp>
 
-#include <sstream>
+#include "libatfmain/filesystem.hpp"
 
-#include <libatf/test_case_result.hpp>
-#include <libatf/variables.hpp>
+namespace as = atf::shorthands;
 
-namespace atf {
-
-class test_case {
-    detail::variables_map m_meta_data;
-
-protected:
-    virtual void head(void) = 0;
-    virtual test_case_result body(void) const = 0;
-
-    void set(const std::string&, const std::string&);
-
-public:
-    test_case(void);
-    virtual ~test_case(void);
-
-    const std::string& get(const std::string&) const;
-
-    void init(void);
-    test_case_result run(void) const;
-};
-
-} // namespace atf
-
-#define ATF_CHECK_EQUAL(x, y) \
-    if ((x) != (y)) { \
-        std::ostringstream ss; \
-        ss << "Line " << __LINE__ << ": " << #x << " != " << #y << " (" \
-           << (x) << " != " << (y) << ")"; \
-        return atf::test_case_result::failed(ss.str()); \
+class tc_get_branch_path : public as::tc
+{
+    void
+    head(void)
+    {
+        set("ident", "tc_get_branch_path");
+        set("descr", "Tests the get_branch_path function");
     }
 
-#endif // _ATF_LIBATF_TEST_CASE_HPP_
+    as::tcr
+    body(void)
+        const
+    {
+        using atf::main::get_branch_path;
+
+        ATF_CHECK_EQUAL(get_branch_path(""), ".");
+        ATF_CHECK_EQUAL(get_branch_path("."), ".");
+        ATF_CHECK_EQUAL(get_branch_path("foo"), ".");
+        ATF_CHECK_EQUAL(get_branch_path("foo/bar"), "foo");
+        ATF_CHECK_EQUAL(get_branch_path("/foo"), "/");
+        ATF_CHECK_EQUAL(get_branch_path("/foo/bar"), "/foo");
+
+        return as::tcr::passed();
+    }
+
+public:
+    tc_get_branch_path(void)
+    {
+    }
+};
+
+class tc_get_leaf_name : public as::tc
+{
+    void
+    head(void)
+    {
+        set("ident", "tc_get_leaf_name");
+        set("descr", "Tests the get_leaf_name function");
+    }
+
+    as::tcr
+    body(void)
+        const
+    {
+        using atf::main::get_leaf_name;
+
+        ATF_CHECK_EQUAL(get_leaf_name(""), ".");
+        ATF_CHECK_EQUAL(get_leaf_name("."), ".");
+        ATF_CHECK_EQUAL(get_leaf_name("foo"), "foo");
+        ATF_CHECK_EQUAL(get_leaf_name("foo/bar"), "bar");
+        ATF_CHECK_EQUAL(get_leaf_name("/foo"), "foo");
+        ATF_CHECK_EQUAL(get_leaf_name("/foo/bar"), "bar");
+
+        return as::tcr::passed();
+    }
+
+public:
+    tc_get_leaf_name(void)
+    {
+    }
+};
+
+ATF_INIT_TEST_CASES(tcs)
+{
+    static tc_get_branch_path tc_get_branch_path;
+    tcs.push_back(&tc_get_branch_path);
+
+    static tc_get_leaf_name tc_get_leaf_name;
+    tcs.push_back(&tc_get_leaf_name);
+}
