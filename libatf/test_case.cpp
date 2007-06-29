@@ -38,6 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cassert>
 #include <stdexcept>
 
 #include "libatf/test_case.hpp"
