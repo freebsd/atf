@@ -41,16 +41,21 @@
 #ifndef _ATF_LIBATF_TEST_CASE_HPP_
 #define _ATF_LIBATF_TEST_CASE_HPP_
 
+#include <map>
 #include <sstream>
 
 #include <libatf/test_case_result.hpp>
-#include <libatf/variables.hpp>
 
 namespace atf {
 
 class test_case {
+    typedef std::map< std::string, std::string > variables_map;
+
     std::string m_ident;
-    detail::variables_map m_meta_data;
+    variables_map m_meta_data;
+
+    void ensure_defined(const std::string&);
+    void ensure_not_empty(const std::string&);
 
 protected:
     virtual void head(void) = 0;

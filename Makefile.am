@@ -61,14 +61,12 @@ AM_CPPFLAGS = -DATF_LIBEXECDIR=\"$(libexecdir)\" \
 
 lib_LTLIBRARIES = libatf/libatf.la
 libatf_libatf_la_SOURCES = libatf/test_case.cpp \
-                           libatf/test_case_result.cpp \
-                           libatf/variables.cpp
+                           libatf/test_case_result.cpp
 
 include_HEADERS = libatf.hpp
 nobase_include_HEADERS = libatf/exceptions.hpp \
                          libatf/test_case.hpp \
-                         libatf/test_case_result.hpp \
-                         libatf/variables.hpp
+                         libatf/test_case_result.hpp
 
 # -------------------------------------------------------------------------
 # `libatfmain' directory.

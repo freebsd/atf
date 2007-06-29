@@ -41,6 +41,7 @@
 #include <cassert>
 #include <stdexcept>
 
+#include "libatf/exceptions.hpp"
 #include "libatf/test_case.hpp"
 
 atf::test_case::test_case(const std::string& ident) :
@@ -53,6 +54,28 @@ atf::test_case::~test_case(void)
 }
 
 void
+atf::test_case::ensure_defined(const std::string& name)
+{
+    if (m_meta_data.find(name) == m_meta_data.end())
+        throw atf::not_found_error< std::string >
+            ("Undefined variable in test case", name);
+}
+
+void
+atf::test_case::ensure_not_empty(const std::string& name)
+{
+    ensure_defined(name);
+
+    variables_map::const_iterator iter = m_meta_data.find(name);
+    assert(iter != m_meta_data.end());
+
+    const std::string& val = (*iter).second;
+    if (val.empty())
+        throw atf::not_found_error< std::string > // XXX Incorrect error
+            ("Variable empty", name);
+}
+
+void
 atf::test_case::set(const std::string& var, const std::string& val)
 {
     m_meta_data[var] = val;
@@ -62,7 +85,7 @@ const std::string&
 atf::test_case::get(const std::string& var)
     const
 {
-    detail::variables_map::const_iterator iter = m_meta_data.find(var);
+    variables_map::const_iterator iter = m_meta_data.find(var);
     assert(iter != m_meta_data.end());
     return (*iter).second;
 }
@@ -77,8 +100,8 @@ atf::test_case::init(void)
     assert(m_meta_data.find("ident") == m_meta_data.end());
     m_meta_data["ident"] = m_ident;
 
-    detail::variable_ensure_not_empty(m_meta_data, "ident");
-    detail::variable_ensure_not_empty(m_meta_data, "descr");
+    ensure_not_empty("ident");
+    ensure_not_empty("descr");
 }
 
 atf::test_case_result
