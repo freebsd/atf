@@ -52,6 +52,10 @@
 namespace am = atf::main;
 
 class test_program : public am::application {
+public:
+    typedef std::vector< atf::test_case * > test_cases;
+
+private:
     static const char* m_description;
 
     bool m_lflag;
@@ -61,16 +65,16 @@ class test_program : public am::application {
     options_set specific_options(void) const;
     void process_option(int, const char*);
 
-    typedef std::vector< atf::test_case * > test_cases;
+    test_cases m_test_cases;
 
-    static test_cases init_test_cases(void);
+    test_cases init_test_cases(void);
     static test_cases filter_test_cases(test_cases, std::set< std::string >&);
 
     int list_test_cases(void);
     int run_test_cases(void);
 
 public:
-    test_program(void);
+    test_program(const test_cases&);
 
     int main(void);
 };
@@ -78,9 +82,10 @@ public:
 const char* test_program::m_description =
     "This is an independent atf test program.";
 
-test_program::test_program(void) :
+test_program::test_program(const test_cases& tcs) :
     application(m_description),
-    m_lflag(false)
+    m_lflag(false),
+    m_test_cases(tcs)
 {
 }
 
@@ -116,10 +121,7 @@ test_program::process_option(int ch, const char* arg)
 test_program::test_cases
 test_program::init_test_cases(void)
 {
-    void __atf_init_test_cases(test_cases&);
-
-    test_cases tcs;
-    __atf_init_test_cases(tcs);
+    test_cases tcs = m_test_cases;
 
     for (test_cases::iterator iter = tcs.begin();
          iter != tcs.end(); iter++) {
@@ -216,8 +218,16 @@ test_program::main(void)
     return errcode;
 }
 
+namespace atf {
+    namespace main {
+        int run_test_program(int, char* const*,
+                             const test_program::test_cases&);
+    }
+}
+
 int
-main(int argc, char* const* argv)
+am::run_test_program(int argc, char* const* argv,
+                     const test_program::test_cases& tcs)
 {
-    return test_program().run(argc, argv);
+    return test_program(tcs).run(argc, argv);
 }

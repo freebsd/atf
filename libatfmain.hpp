@@ -46,7 +46,23 @@
 #include <libatf.hpp>
 
 #define ATF_INIT_TEST_CASES(tcs) \
-void \
-__atf_init_test_cases(std::vector< atf::test_case * >& tcs)
+    namespace atf { \
+        namespace main { \
+            int run_test_program(int, char* const*, \
+                                 const std::vector< atf::test_case * >&); \
+        } \
+    } \
+    \
+    int \
+    main(int argc, char* const* argv) \
+    { \
+        void __atf_init_test_cases(std::vector< atf::test_case * >&); \
+        std::vector< atf::test_case * > tcs; \
+        __atf_init_test_cases(tcs); \
+        return atf::main::run_test_program(argc, argv, tcs); \
+    } \
+    \
+    void \
+    __atf_init_test_cases(std::vector< atf::test_case * >& tcs)
 
 #endif // _ATF_LIBATFMAIN_HPP_

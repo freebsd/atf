@@ -72,23 +72,14 @@ nobase_include_HEADERS = libatf/exceptions.hpp \
 # `libatfmain' directory.
 # -------------------------------------------------------------------------
 
-common_sources = libatfmain/application.cpp \
-                 libatfmain/atffile.cpp \
-                 libatfmain/exceptions.cpp \
-                 libatfmain/filesystem.cpp \
-                 libatfmain/report.cpp \
-                 libatfmain/ui.cpp
-
-noinst_LIBRARIES = libatfmain/libcommon.a
-libatfmain_libcommon_a_SOURCES = $(common_sources)
-# XXX Workaround for a bug in GNU Automake which prevents the common files
-# to be built with and without GNU Libtool.  Setting different CXXFLAGS
-# forces the generated Makefile to use different objects for each case.
-libatfmain_libcommon_a_CXXFLAGS = $(AM_CXXFLAGS)
-
 lib_LTLIBRARIES += libatfmain/libatfmain.la
-libatfmain_libatfmain_la_SOURCES = libatfmain/main.cpp \
-                                   $(common_sources)
+libatfmain_libatfmain_la_SOURCES = libatfmain/application.cpp \
+                                   libatfmain/atffile.cpp \
+                                   libatfmain/exceptions.cpp \
+                                   libatfmain/filesystem.cpp \
+                                   libatfmain/main.cpp \
+                                   libatfmain/report.cpp \
+                                   libatfmain/ui.cpp
 libatfmain_libatfmain_la_LDFLAGS = -Llibatf
 libatfmain_libatfmain_la_LIBADD = -latf
 
@@ -100,13 +91,13 @@ include_HEADERS += libatfmain.hpp
 
 check_PROGRAMS = tests/bootstrap/h_app_empty
 tests_bootstrap_h_app_empty_SOURCES = tests/bootstrap/h_app_empty.cpp
-tests_bootstrap_h_app_empty_LDADD = -latf libatfmain/libcommon.a
-tests_bootstrap_h_app_empty_LDFLAGS = -Llibatf
+tests_bootstrap_h_app_empty_LDADD = -latf -latfmain
+tests_bootstrap_h_app_empty_LDFLAGS = -Llibatf -Llibatfmain
 
 check_PROGRAMS += tests/bootstrap/h_app_opts_args
 tests_bootstrap_h_app_opts_args_SOURCES = tests/bootstrap/h_app_opts_args.cpp
-tests_bootstrap_h_app_opts_args_LDADD = -latf libatfmain/libcommon.a
-tests_bootstrap_h_app_opts_args_LDFLAGS = -Llibatf
+tests_bootstrap_h_app_opts_args_LDADD = -latf -latfmain
+tests_bootstrap_h_app_opts_args_LDFLAGS = -Llibatf -Llibatfmain
 
 check_PROGRAMS += tests/bootstrap/h_tp_basic
 tests_bootstrap_h_tp_basic_SOURCES = tests/bootstrap/h_tp_basic.cpp
@@ -173,14 +164,17 @@ tests_units_t_filesystem_LDFLAGS = -Llibatf -Llibatfmain
 
 bin_PROGRAMS = tools/atf-config
 tools_atf_config_SOURCES = tools/atf-config.cpp
-tools_atf_config_LDADD = libatfmain/libcommon.a
+tools_atf_config_LDADD = -latfmain
+tools_atf_config_LDFLAGS = -Llibatfmain
 
 libexec_PROGRAMS = tools/atf-format
 tools_atf_format_SOURCES = tools/atf-format.cpp
-tools_atf_format_LDADD = libatfmain/libcommon.a
+tools_atf_format_LDADD = -latfmain
+tools_atf_format_LDFLAGS = -Llibatfmain
 
 libexec_PROGRAMS += tools/atf-identify
 tools_atf_identify_SOURCES = tools/atf-identify.cpp
-tools_atf_identify_LDADD = libatfmain/libcommon.a
+tools_atf_identify_LDADD = -latfmain
+tools_atf_identify_LDFLAGS = -Llibatfmain
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
