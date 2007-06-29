@@ -49,7 +49,6 @@ ATF_TEST_CASE(tc_get_branch_path);
 
 ATF_TEST_CASE_HEAD(tc_get_branch_path)
 {
-    set("ident", "tc_get_branch_path");
     set("descr", "Tests the get_branch_path function");
 }
 
@@ -71,7 +70,6 @@ ATF_TEST_CASE(tc_get_leaf_name);
 
 ATF_TEST_CASE_HEAD(tc_get_leaf_name)
 {
-    set("ident", "tc_get_leaf_name");
     set("descr", "Tests the get_leaf_name function");
 }
 

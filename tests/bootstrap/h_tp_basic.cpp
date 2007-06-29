@@ -47,7 +47,6 @@ ATF_TEST_CASE(tc_pass);
 
 ATF_TEST_CASE_HEAD(tc_pass)
 {
-    set("ident", "tc_pass");
     set("descr", "An empty test case that always passes");
 }
 
@@ -60,7 +59,6 @@ ATF_TEST_CASE(tc_fail);
 
 ATF_TEST_CASE_HEAD(tc_fail)
 {
-    set("ident", "tc_fail");
     set("descr", "An empty test case that always fails");
 }
 
@@ -73,7 +71,6 @@ ATF_TEST_CASE(tc_skip);
 
 ATF_TEST_CASE_HEAD(tc_skip)
 {
-    set("ident", "tc_skip");
     set("descr", "An empty test case that is always skipped");
 }
 
@@ -86,7 +83,6 @@ ATF_TEST_CASE(tc_bogus);
 
 ATF_TEST_CASE_HEAD(tc_bogus)
 {
-    set("ident", "tc_bogus");
     set("descr", "A bogus test case that always fails by being "
                  "incorrectly defined");
 }

@@ -43,7 +43,8 @@
 
 #include "libatf/test_case.hpp"
 
-atf::test_case::test_case(void)
+atf::test_case::test_case(const std::string& ident) :
+    m_ident(ident)
 {
 }
 
@@ -72,6 +73,9 @@ atf::test_case::init(void)
     assert(m_meta_data.empty());
 
     head();
+
+    assert(m_meta_data.find("ident") == m_meta_data.end());
+    m_meta_data["ident"] = m_ident;
 
     detail::variable_ensure_not_empty(m_meta_data, "ident");
     detail::variable_ensure_not_empty(m_meta_data, "descr");

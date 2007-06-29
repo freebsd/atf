@@ -49,6 +49,7 @@
 namespace atf {
 
 class test_case {
+    std::string m_ident;
     detail::variables_map m_meta_data;
 
 protected:
@@ -58,7 +59,7 @@ protected:
     void set(const std::string&, const std::string&);
 
 public:
-    test_case(void);
+    test_case(const std::string&);
     virtual ~test_case(void);
 
     const std::string& get(const std::string&) const;
@@ -74,7 +75,7 @@ public:
         void head(void); \
         void body(void) const; \
     public: \
-        name(void) {} \
+        name(void) : atf::test_case(#name) {} \
     }; \
     static name name;
 
