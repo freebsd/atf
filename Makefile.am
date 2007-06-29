@@ -100,20 +100,17 @@ include_HEADERS += libatfmain.hpp
 # `tests/bootstrap' directory.
 # -------------------------------------------------------------------------
 
-# XXX These should only be built when running 'make check', or something
-# like that.
-
-noinst_PROGRAMS = tests/bootstrap/h_app_empty
+check_PROGRAMS = tests/bootstrap/h_app_empty
 tests_bootstrap_h_app_empty_SOURCES = tests/bootstrap/h_app_empty.cpp
 tests_bootstrap_h_app_empty_LDADD = -latf libatfmain/libcommon.a
 tests_bootstrap_h_app_empty_LDFLAGS = -Llibatf
 
-noinst_PROGRAMS += tests/bootstrap/h_app_opts_args
+check_PROGRAMS += tests/bootstrap/h_app_opts_args
 tests_bootstrap_h_app_opts_args_SOURCES = tests/bootstrap/h_app_opts_args.cpp
 tests_bootstrap_h_app_opts_args_LDADD = -latf libatfmain/libcommon.a
 tests_bootstrap_h_app_opts_args_LDFLAGS = -Llibatf
 
-noinst_PROGRAMS += tests/bootstrap/h_tp_basic
+check_PROGRAMS += tests/bootstrap/h_tp_basic
 tests_bootstrap_h_tp_basic_SOURCES = tests/bootstrap/h_tp_basic.cpp
 tests_bootstrap_h_tp_basic_LDADD = -latf -latfmain
 tests_bootstrap_h_tp_basic_LDFLAGS = -Llibatf -Llibatfmain
@@ -166,11 +163,8 @@ $(srcdir)/tests/bootstrap/testsuite: $(srcdir)/tests/bootstrap/testsuite.at \
 # `tests/units' directory.
 # -------------------------------------------------------------------------
 
-# XXX These should only be built when running 'make check', or something
-# like that.
-
 TESTS += tests/units/t_filesystem
-noinst_PROGRAMS += tests/units/t_filesystem
+check_PROGRAMS += tests/units/t_filesystem
 tests_units_t_filesystem_SOURCES = tests/units/t_filesystem.cpp
 tests_units_t_filesystem_LDADD = -latf -latfmain
 tests_units_t_filesystem_LDFLAGS = -Llibatf -Llibatfmain
