@@ -40,7 +40,7 @@ dnl
 
 AT_SETUP([libatfmain: options handling])
 
-AT_CHECK([TEST_HELPER(pass) -Z], 1, [], [stderr])
+AT_CHECK([TEST_HELPER(tp_basic) -Z], 1, [], [stderr])
 AT_CHECK([grep 'Unknown option.*-Z' stderr], 0, [ignore], [])
 
 AT_CLEANUP()

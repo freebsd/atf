@@ -41,8 +41,6 @@ dnl
 AT_SETUP([atf-config: querying of build-time variables])
 AT_TESTED(atf-config)
 
-m4_define(COUNT_LINES, [test @S|@[(wc -l $1 | awk '{ print @S|@1 }')] = $2])
-
 dnl List all variables.
 AT_CHECK([atf-config], [0], [stdout], [])
 AT_CHECK([grep 'atf_libexecdir' stdout], [0], [ignore], [])

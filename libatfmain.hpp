@@ -38,19 +38,13 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "libatf/test_case.hpp"
-#include "libatf/test_suite.hpp"
+#ifndef _ATF_LIBATFMAIN_HPP_
+#define _ATF_LIBATFMAIN_HPP_
 
-atf::test_suite::test_suite(void)
-{
-}
+#include <libatf.hpp>
 
-void
-atf::test_suite::run(report* r)
-{
-    for (iterator iter = begin(); iter != end(); iter++) {
-        const test_case* tc = *iter;
+#define ATF_INIT_TEST_CASES(tcs) \
+void \
+__atf_init_test_cases(std::vector< atf::test_case * >& tcs)
 
-        tc->run(r);
-    }
-}
+#endif // _ATF_LIBATFMAIN_HPP_

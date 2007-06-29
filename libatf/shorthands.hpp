@@ -43,14 +43,12 @@
 
 #include <libatf/test_case.hpp>
 #include <libatf/test_case_result.hpp>
-#include <libatf/test_suite.hpp>
 
 namespace atf {
 namespace shorthands {
 
 typedef test_case tc;
 typedef test_case_result tcr;
-typedef test_suite ts;
 
 } // namespace shorthands
 } // namespace atf

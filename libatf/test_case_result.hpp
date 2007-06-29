@@ -47,9 +47,9 @@ namespace atf {
 
 class test_case_result {
 public:
-    enum status { status_ok, status_skipped, status_failed };
+    enum status { status_passed, status_skipped, status_failed };
 
-    static test_case_result ok(void);
+    static test_case_result passed(void);
     static test_case_result skipped(const std::string&);
     static test_case_result failed(const std::string& = "");
 

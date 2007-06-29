@@ -46,8 +46,6 @@
 
 namespace atf {
 
-class report;
-
 class test_case {
     detail::variables_map m_meta_data;
 
@@ -55,11 +53,16 @@ protected:
     virtual void head(void) = 0;
     virtual test_case_result body(void) const = 0;
 
+    void set(const std::string&, const std::string&);
+
 public:
     test_case(void);
     virtual ~test_case(void);
 
-    test_case_result run(report*) const;
+    const std::string& get(const std::string&) const;
+
+    void init(void);
+    test_case_result run(void) const;
 };
 
 } // namespace atf

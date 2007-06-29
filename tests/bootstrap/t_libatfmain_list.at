@@ -38,31 +38,20 @@ dnl OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 dnl IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 dnl
 
-AT_INIT([bootstrap tests])
+AT_SETUP([libatfmain: list test cases])
 
-m4_define([GUESS_TOPDIR], {
-    old=$(pwd)
-    while test $(pwd) != '/' -a ! -e ./libatf.hpp; do
-        cd ..
-    done
-    topdir=$(pwd)
-    cd ${old}
-    echo ${topdir}
-})
+AT_CHECK([TEST_HELPER(tp_basic) -l], [0], [stdout], [])
+AT_CHECK([COUNT_LINES(stdout, 4)], [0], [ignore], [])
+AT_CHECK([grep 'tc_pass .*always passes' stdout], [0], [ignore], [])
+AT_CHECK([grep 'tc_fail .*always fails' stdout], [0], [ignore], [])
+AT_CHECK([grep 'tc_fail_reason .*always fails.*reason' stdout],
+         [0], [ignore], [])
+AT_CHECK([grep 'tc_skip .*always skipped' stdout], [0], [ignore], [])
 
-m4_define([TEST_HELPER], [$(GUESS_TOPDIR)/tests/bootstrap/h_$1])
+AT_CHECK([TEST_HELPER(tp_basic) -l tc_pass], [0], [stdout], [])
+AT_CHECK([COUNT_LINES(stdout, 1)], [0], [ignore], [])
+AT_CHECK([grep 'tc_pass .*always passes' stdout], [0], [ignore], [])
 
-m4_define(COUNT_LINES, [test @S|@[(wc -l $1 | awk '{ print @S|@1 }')] = $2])
-
-dnl The tests below are sorted depending on how important they are.
-m4_include(tests/bootstrap/t_libcommon_opts_args.at)
-m4_include(tests/bootstrap/t_libatfmain_options.at)
-m4_include(tests/bootstrap/t_libatfmain_help.at)
-m4_include(tests/bootstrap/t_libatfmain_filter.at)
-m4_include(tests/bootstrap/t_libatfmain_run.at)
-m4_include(tests/bootstrap/t_libatfmain_list.at)
-m4_include(tests/bootstrap/t_atf_format.at)
-m4_include(tests/bootstrap/t_atf_config.at)
-m4_include(tests/bootstrap/t_atf_identify.at)
+AT_CLEANUP()
 
 dnl vim: syntax=m4:expandtab:shiftwidth=4:softtabstop=4

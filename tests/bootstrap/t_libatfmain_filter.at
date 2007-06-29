@@ -38,31 +38,29 @@ dnl OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 dnl IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 dnl
 
-AT_INIT([bootstrap tests])
+AT_SETUP([libatfmain: filter test cases by name])
 
-m4_define([GUESS_TOPDIR], {
-    old=$(pwd)
-    while test $(pwd) != '/' -a ! -e ./libatf.hpp; do
-        cd ..
-    done
-    topdir=$(pwd)
-    cd ${old}
-    echo ${topdir}
-})
+AT_DATA([expout], [tc_pass, passed
+tc_fail, failed
+tc_fail_reason, failed, On purpose
+tc_skip, skipped, By design
+])
+AT_CHECK([TEST_HELPER(tp_basic)], 1, [expout], [])
 
-m4_define([TEST_HELPER], [$(GUESS_TOPDIR)/tests/bootstrap/h_$1])
+AT_DATA([expout], [tc_pass, passed
+])
+AT_CHECK([TEST_HELPER(tp_basic) tc_pass], 0, [expout], [])
 
-m4_define(COUNT_LINES, [test @S|@[(wc -l $1 | awk '{ print @S|@1 }')] = $2])
+AT_DATA([expout], [tc_skip, skipped, By design
+])
+AT_CHECK([TEST_HELPER(tp_basic) tc_skip], 0, [expout], [])
 
-dnl The tests below are sorted depending on how important they are.
-m4_include(tests/bootstrap/t_libcommon_opts_args.at)
-m4_include(tests/bootstrap/t_libatfmain_options.at)
-m4_include(tests/bootstrap/t_libatfmain_help.at)
-m4_include(tests/bootstrap/t_libatfmain_filter.at)
-m4_include(tests/bootstrap/t_libatfmain_run.at)
-m4_include(tests/bootstrap/t_libatfmain_list.at)
-m4_include(tests/bootstrap/t_atf_format.at)
-m4_include(tests/bootstrap/t_atf_config.at)
-m4_include(tests/bootstrap/t_atf_identify.at)
+AT_XFAIL_IF(true) dnl Wildcards not supported yet.
+AT_DATA([expout], [tc_fail, failed
+tc_fail_reason, failed, On purpose
+])
+AT_CHECK([TEST_HELPER(tp_basic) tc_fail*], 1, [expout], [])
+
+AT_CLEANUP()
 
 dnl vim: syntax=m4:expandtab:shiftwidth=4:softtabstop=4

@@ -38,23 +38,49 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_LIBATF_TEST_SUITE_HPP_
-#define _ATF_LIBATF_TEST_SUITE_HPP_
+#include <cassert>
 
-#include <vector>
+#include "libatf.hpp"
 
-namespace atf {
+#include "libatfmain/report.hpp"
 
-class report;
-class test_case;
+namespace am = atf::main;
 
-class test_suite : public std::vector< test_case * > {
-public:
-    test_suite(void);
+am::report::report(std::ostream& os) :
+    m_os(os)
+{
+}
 
-    void run(report*);
-};
+am::report::~report(void)
+{
+}
 
-} // namespace atf
+void
+am::report::log(const std::string& ident,
+                const atf::test_case_result& tcr)
+{
+    test_case_result::status s = tcr.get_status();
+    const std::string& r = tcr.get_reason();
 
-#endif // _ATF_LIBATF_TEST_SUITE_HPP_
+    m_os << ident << ", ";
+
+    switch (s) {
+    case test_case_result::status_passed:
+        m_os << "passed" << std::endl;
+        break;
+
+    case test_case_result::status_skipped:
+        m_os << "skipped, " << r << std::endl;
+        break;
+
+    case test_case_result::status_failed:
+        if (r.empty())
+            m_os << "failed" << std::endl;
+        else
+            m_os << "failed, " << r << std::endl;
+        break;
+
+    default:
+        assert(false);
+    }
+}

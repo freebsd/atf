@@ -60,18 +60,14 @@ AM_CPPFLAGS = -DATF_LIBEXECDIR=\"$(libexecdir)\" \
 # -------------------------------------------------------------------------
 
 lib_LTLIBRARIES = libatf/libatf.la
-libatf_libatf_la_SOURCES = libatf/report.cpp \
-                           libatf/test_case.cpp \
+libatf_libatf_la_SOURCES = libatf/test_case.cpp \
                            libatf/test_case_result.cpp \
-                           libatf/test_suite.cpp \
                            libatf/variables.cpp
 
 include_HEADERS = libatf.hpp
 nobase_include_HEADERS = libatf/exceptions.hpp \
-                         libatf/report.hpp \
                          libatf/test_case.hpp \
                          libatf/test_case_result.hpp \
-                         libatf/test_suite.hpp \
                          libatf/variables.hpp
 
 # -------------------------------------------------------------------------
@@ -82,6 +78,7 @@ common_sources = libatfmain/application.cpp \
                  libatfmain/atffile.cpp \
                  libatfmain/exceptions.cpp \
                  libatfmain/filesystem.cpp \
+                 libatfmain/report.cpp \
                  libatfmain/ui.cpp
 
 noinst_LIBRARIES = libatfmain/libcommon.a
@@ -96,6 +93,8 @@ libatfmain_libatfmain_la_SOURCES = libatfmain/main.cpp \
                                    $(common_sources)
 libatfmain_libatfmain_la_LDFLAGS = -Llibatf
 libatfmain_libatfmain_la_LIBADD = -latf
+
+include_HEADERS += libatfmain.hpp
 
 # -------------------------------------------------------------------------
 # `tests/bootstrap' directory.
@@ -114,10 +113,10 @@ tests_bootstrap_h_app_opts_args_SOURCES = tests/bootstrap/h_app_opts_args.cpp
 tests_bootstrap_h_app_opts_args_LDADD = -latf libatfmain/libcommon.a
 tests_bootstrap_h_app_opts_args_LDFLAGS = -Llibatf
 
-noinst_PROGRAMS += tests/bootstrap/h_pass
-tests_bootstrap_h_pass_SOURCES = tests/bootstrap/h_pass.cpp
-tests_bootstrap_h_pass_LDADD = -latf -latfmain
-tests_bootstrap_h_pass_LDFLAGS = -Llibatf -Llibatfmain
+noinst_PROGRAMS += tests/bootstrap/h_tp_basic
+tests_bootstrap_h_tp_basic_SOURCES = tests/bootstrap/h_tp_basic.cpp
+tests_bootstrap_h_tp_basic_LDADD = -latf -latfmain
+tests_bootstrap_h_tp_basic_LDFLAGS = -Llibatf -Llibatfmain
 
 TESTS=		$(srcdir)/tests/bootstrap/testsuite
 TESTS_ENVIRONMENT = PATH=$$(atf-config -t atf_libexecdir):$${PATH}
@@ -138,8 +137,11 @@ EXTRA_DIST =	tests/bootstrap/testsuite \
 testsuite_incs=	$(srcdir)/tests/bootstrap/t_atf_config.at \
 		$(srcdir)/tests/bootstrap/t_atf_format.at \
 		$(srcdir)/tests/bootstrap/t_atf_identify.at \
+		$(srcdir)/tests/bootstrap/t_libatfmain_filter.at \
 		$(srcdir)/tests/bootstrap/t_libatfmain_help.at \
+		$(srcdir)/tests/bootstrap/t_libatfmain_list.at \
 		$(srcdir)/tests/bootstrap/t_libatfmain_options.at \
+		$(srcdir)/tests/bootstrap/t_libatfmain_run.at \
 		$(srcdir)/tests/bootstrap/t_libcommon_opts_args.at
 
 $(srcdir)/tests/bootstrap/package.m4: $(top_srcdir)/configure.ac

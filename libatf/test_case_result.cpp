@@ -48,9 +48,9 @@ atf::test_case_result::test_case_result(atf::test_case_result::status s,
 }
 
 atf::test_case_result
-atf::test_case_result::ok(void)
+atf::test_case_result::passed(void)
 {
-    return test_case_result(status_ok, "");
+    return test_case_result(status_passed, "");
 }
 
 atf::test_case_result

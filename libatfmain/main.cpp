@@ -38,17 +38,36 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cassert>
 #include <cstdlib>
 #include <iostream>
+#include <vector>
 
 #include "libatf.hpp"
 
 #include "libatfmain/application.hpp"
+#include "libatfmain/report.hpp"
+#include "libatfmain/ui.hpp"
 
-atf::test_suite init_test_suite(void);
+namespace am = atf::main;
 
-class test_program : public atf::main::application {
+class test_program : public am::application {
     static const char* m_description;
+
+    bool m_lflag;
+    std::set< std::string > m_tcnames;
+
+    std::string specific_args(void) const;
+    options_set specific_options(void) const;
+    void process_option(int, const char*);
+
+    typedef std::vector< atf::test_case * > test_cases;
+
+    static test_cases init_test_cases(void);
+    static test_cases filter_test_cases(test_cases, std::set< std::string >&);
+
+    int list_test_cases(void);
+    int run_test_cases(void);
 
 public:
     test_program(void);
@@ -60,18 +79,141 @@ const char* test_program::m_description =
     "This is an independent atf test program.";
 
 test_program::test_program(void) :
-    application(m_description)
+    application(m_description),
+    m_lflag(false)
 {
+}
+
+std::string
+test_program::specific_args(void)
+    const
+{
+    return "[test_case1 [.. test_caseN]]";
+}
+
+test_program::options_set
+test_program::specific_options(void)
+    const
+{
+    options_set opts;
+    opts.insert(option('l', "", "List test cases and their purpose"));
+    return opts;
+}
+
+void
+test_program::process_option(int ch, const char* arg)
+{
+    switch (ch) {
+    case 'l':
+        m_lflag = true;
+        break;
+
+    default:
+        assert(false);
+    }
+}
+
+test_program::test_cases
+test_program::init_test_cases(void)
+{
+    void __atf_init_test_cases(test_cases&);
+
+    test_cases tcs;
+    __atf_init_test_cases(tcs);
+
+    for (test_cases::iterator iter = tcs.begin();
+         iter != tcs.end(); iter++) {
+        atf::test_case* tc = *iter;
+
+        tc->init();
+    }
+
+    return tcs;
+}
+
+test_program::test_cases
+test_program::filter_test_cases(test_cases tcs,
+                                std::set< std::string >& tcnames)
+{
+    test_cases tcso;
+
+    if (tcnames.empty())
+        tcso = tcs;
+    else {
+        for (test_cases::iterator iter = tcs.begin();
+             iter != tcs.end(); iter++) {
+            atf::test_case* tc = *iter;
+
+            if (tcnames.find(tc->get("ident")) != tcnames.end())
+                tcso.push_back(tc);
+        }
+    }
+
+    return tcso;
+}
+
+int
+test_program::list_test_cases(void)
+{
+    test_cases tcs = filter_test_cases(init_test_cases(), m_tcnames);
+
+    std::string::size_type maxlen = 0;
+    for (test_cases::const_iterator iter = tcs.begin();
+         iter != tcs.end(); iter++) {
+        const atf::test_case* tc = *iter;
+
+        if (maxlen < tc->get("ident").length())
+            maxlen = tc->get("ident").length();
+    }
+
+    for (test_cases::const_iterator iter = tcs.begin();
+         iter != tcs.end(); iter++) {
+        const atf::test_case* tc = *iter;
+
+        std::cout << tc->get("ident") << "    "
+                  << am::format_text(tc->get("descr"), maxlen + 4,
+                                     tc->get("ident").length() + 4)
+                  << std::endl;
+    }
+
+    return EXIT_SUCCESS;
+}
+
+int
+test_program::run_test_cases(void)
+{
+    test_cases tcs = filter_test_cases(init_test_cases(), m_tcnames);
+
+    int errcode = EXIT_SUCCESS;
+
+    am::report r(std::cout);
+    for (test_cases::iterator iter = tcs.begin();
+         iter != tcs.end(); iter++) {
+        atf::test_case* tc = *iter;
+
+        atf::test_case_result tcr = tc->run();
+        r.log(tc->get("ident"), tcr);
+        if (tcr.get_status() == atf::test_case_result::status_failed)
+            errcode = EXIT_FAILURE;
+    }
+
+    return errcode;
 }
 
 int
 test_program::main(void)
 {
-    atf::report r(std::cout);
-    atf::test_suite ts = init_test_suite();
-    ts.run(&r);
+    int errcode;
 
-    return EXIT_SUCCESS;
+    for (int i = 0; i < m_argc; i++)
+        m_tcnames.insert(m_argv[i]);
+
+    if (m_lflag)
+        errcode = list_test_cases();
+    else
+        errcode = run_test_cases();
+
+    return errcode;
 }
 
 int

@@ -38,25 +38,113 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_LIBATF_REPORT_HPP_
-#define _ATF_LIBATF_REPORT_HPP_
+#include <iostream>
+#include <vector>
 
-#include <ostream>
+#include <libatf.hpp>
+#include <libatfmain.hpp>
 
-#include <libatf/test_case.hpp>
-#include <libatf/test_case_result.hpp>
+namespace as = atf::shorthands;
 
-namespace atf {
+class test_pass : public as::tc
+{
+    void
+    head(void)
+    {
+        set("ident", "tc_pass");
+        set("descr", "An empty test case that always passes");
+    }
 
-class report {
-    std::ostream& m_os;
+    as::tcr
+    body(void)
+        const
+    {
+        return as::tcr::passed();
+    }
 
 public:
-    report(std::ostream&);
-
-    void log(const test_case*, const test_case_result&);
+    test_pass(void)
+    {
+    }
 };
 
-} // namespace atf
+class test_fail : public as::tc
+{
+    void
+    head(void)
+    {
+        set("ident", "tc_fail");
+        set("descr", "An empty test case that always fails");
+    }
 
-#endif // _ATF_LIBATF_REPORT_HPP_
+    as::tcr
+    body(void)
+        const
+    {
+        return as::tcr::failed();
+    }
+
+public:
+    test_fail(void)
+    {
+    }
+};
+
+class test_fail_reason : public as::tc
+{
+    void
+    head(void)
+    {
+        set("ident", "tc_fail_reason");
+        set("descr", "An empty test case that always fails with a reason");
+    }
+
+    as::tcr
+    body(void)
+        const
+    {
+        return as::tcr::failed("On purpose");
+    }
+
+public:
+    test_fail_reason(void)
+    {
+    }
+};
+
+class test_skip : public as::tc
+{
+    void
+    head(void)
+    {
+        set("ident", "tc_skip");
+        set("descr", "An empty test case that is always skipped");
+    }
+
+    as::tcr
+    body(void)
+        const
+    {
+        return as::tcr::skipped("By design");
+    }
+
+public:
+    test_skip(void)
+    {
+    }
+};
+
+ATF_INIT_TEST_CASES(tcs)
+{
+    static test_pass test_pass;
+    tcs.push_back(&test_pass);
+
+    static test_fail test_fail;
+    tcs.push_back(&test_fail);
+
+    static test_fail_reason test_fail_reason;
+    tcs.push_back(&test_fail_reason);
+
+    static test_skip test_skip;
+    tcs.push_back(&test_skip);
+}

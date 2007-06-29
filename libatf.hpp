@@ -42,11 +42,9 @@
 #define _ATF_LIBATF_HPP_
 
 #include <libatf/exceptions.hpp>
-#include <libatf/report.hpp>
 #include <libatf/shorthands.hpp>
 #include <libatf/test_case.hpp>
 #include <libatf/test_case_result.hpp>
-#include <libatf/test_suite.hpp>
 #include <libatf/variables.hpp>
 
 #endif // _ATF_LIBATF_HPP_

@@ -40,10 +40,10 @@ dnl
 
 AT_SETUP([libatfmain: online help option])
 
-AT_CHECK([TEST_HELPER(pass)], 0, [stdout], [])
+AT_CHECK([TEST_HELPER(tp_basic)], 1, [stdout], [])
 AT_CHECK([grep 'Available options' stdout], 1, [ignore], [])
 
-AT_CHECK([TEST_HELPER(pass) -h], 0, [stdout], [])
+AT_CHECK([TEST_HELPER(tp_basic) -h], 0, [stdout], [])
 AT_CHECK([grep 'Available options' stdout], 0, [ignore], [])
 
 AT_CLEANUP()

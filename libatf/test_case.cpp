@@ -40,7 +40,6 @@
 
 #include <stdexcept>
 
-#include "libatf/report.hpp"
 #include "libatf/test_case.hpp"
 
 atf::test_case::test_case(void)
@@ -51,25 +50,49 @@ atf::test_case::~test_case(void)
 {
 }
 
-atf::test_case_result
-atf::test_case::run(atf::report* r)
+void
+atf::test_case::set(const std::string& var, const std::string& val)
+{
+    m_meta_data[var] = val;
+}
+
+const std::string&
+atf::test_case::get(const std::string& var)
     const
 {
+    detail::variables_map::const_iterator iter = m_meta_data.find(var);
+    assert(iter != m_meta_data.end());
+    return (*iter).second;
+}
+
+void
+atf::test_case::init(void)
+{
+    assert(m_meta_data.empty());
+
+    head();
+
+    detail::variable_ensure_not_empty(m_meta_data, "ident");
+    detail::variable_ensure_not_empty(m_meta_data, "descr");
+}
+
+atf::test_case_result
+atf::test_case::run(void)
+    const
+{
+    assert(!m_meta_data.empty());
+
+    test_case_result tcr = test_case_result::failed("Unexpected error");
+
     try {
-        test_case_result tcr = body();
-        r->log(this, tcr);
-        return tcr;
+        tcr = body();
     } catch (const std::exception& e) {
-        test_case_result tcr =
-            test_case_result::failed(std::string("Unhandled "
-                                                 "exception: ") +
-                                     e.what());
-        r->log(this, tcr);
-        return tcr;
+        tcr = test_case_result::failed(std::string("Unhandled "
+                                                   "exception: ") +
+                                       e.what());
     } catch (...) {
-        test_case_result tcr =
-            test_case_result::failed("Unknown unhandled exception");
-        r->log(this, tcr);
-        return tcr;
+        tcr = test_case_result::failed("Unknown unhandled exception");
     }
+
+    return tcr;
 }
