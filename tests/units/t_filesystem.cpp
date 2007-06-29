@@ -43,8 +43,6 @@
 
 #include "libatfmain/filesystem.hpp"
 
-namespace as = atf::shorthands;
-
 ATF_TEST_CASE(tc_get_branch_path);
 
 ATF_TEST_CASE_HEAD(tc_get_branch_path)

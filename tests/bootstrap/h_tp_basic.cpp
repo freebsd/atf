@@ -41,8 +41,6 @@
 #include <libatf.hpp>
 #include <libatfmain.hpp>
 
-namespace as = atf::shorthands;
-
 ATF_TEST_CASE(tc_pass);
 
 ATF_TEST_CASE_HEAD(tc_pass)
