@@ -38,9 +38,6 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <iostream>
-#include <vector>
-
 #include <libatf.hpp>
 #include <libatfmain.hpp>
 
