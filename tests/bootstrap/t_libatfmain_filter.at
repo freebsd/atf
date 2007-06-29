@@ -41,9 +41,9 @@ dnl
 AT_SETUP([libatfmain: filter test cases by name])
 
 AT_DATA([expout], [tc_pass, passed
-tc_fail, failed
-tc_fail_reason, failed, On purpose
+tc_fail, failed, On purpose
 tc_skip, skipped, By design
+tc_bogus, failed, BOGUS TEST; DID NOT RETURN ANY RESULT
 ])
 AT_CHECK([TEST_HELPER(tp_basic)], 1, [expout], [])
 
@@ -56,10 +56,10 @@ AT_DATA([expout], [tc_skip, skipped, By design
 AT_CHECK([TEST_HELPER(tp_basic) tc_skip], 0, [expout], [])
 
 AT_XFAIL_IF(true) dnl Wildcards not supported yet.
-AT_DATA([expout], [tc_fail, failed
-tc_fail_reason, failed, On purpose
+AT_DATA([expout], [tc_pass, passed
+tc_fail, failed, On purpose
 ])
-AT_CHECK([TEST_HELPER(tp_basic) tc_fail*], 1, [expout], [])
+AT_CHECK([TEST_HELPER(tp_basic) *a*], 1, [expout], [])
 
 AT_CLEANUP()
 

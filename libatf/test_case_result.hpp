@@ -51,7 +51,9 @@ public:
 
     static test_case_result passed(void);
     static test_case_result skipped(const std::string&);
-    static test_case_result failed(const std::string& = "");
+    static test_case_result skipped(size_t, const std::string&);
+    static test_case_result failed(const std::string&);
+    static test_case_result failed(size_t, const std::string&);
 
     status get_status(void) const;
     const std::string& get_reason(void) const;

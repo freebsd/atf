@@ -44,9 +44,8 @@ AT_CHECK([TEST_HELPER(tp_basic) -l], [0], [stdout], [])
 AT_CHECK([COUNT_LINES(stdout, 4)], [0], [ignore], [])
 AT_CHECK([grep 'tc_pass .*always passes' stdout], [0], [ignore], [])
 AT_CHECK([grep 'tc_fail .*always fails' stdout], [0], [ignore], [])
-AT_CHECK([grep 'tc_fail_reason .*always fails.*reason' stdout],
-         [0], [ignore], [])
 AT_CHECK([grep 'tc_skip .*always skipped' stdout], [0], [ignore], [])
+AT_CHECK([grep 'tc_bogus .*bogus' stdout], [0], [ignore], [])
 
 AT_CHECK([TEST_HELPER(tp_basic) -l tc_pass], [0], [stdout], [])
 AT_CHECK([COUNT_LINES(stdout, 1)], [0], [ignore], [])

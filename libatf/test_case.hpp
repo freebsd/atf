@@ -53,7 +53,7 @@ class test_case {
 
 protected:
     virtual void head(void) = 0;
-    virtual test_case_result body(void) const = 0;
+    virtual void body(void) const = 0;
 
     void set(const std::string&, const std::string&);
 
@@ -69,12 +69,38 @@ public:
 
 } // namespace atf
 
+#define ATF_TEST_CASE(name) \
+    class name : public atf::test_case { \
+        void head(void); \
+        void body(void) const; \
+    public: \
+        name(void) {} \
+    }; \
+    static name name;
+
+#define ATF_TEST_CASE_HEAD(name) \
+    void \
+    name::head(void)
+
+#define ATF_TEST_CASE_BODY(name) \
+    void \
+    name::body(void) \
+        const
+
+#define ATF_FAIL(reason) \
+    throw atf::test_case_result::failed(reason)
+
+#define ATF_SKIP(reason) \
+    throw atf::test_case_result::skipped(reason)
+
+#define ATF_PASS() \
+    throw atf::test_case_result::passed()
+
 #define ATF_CHECK_EQUAL(x, y) \
     if ((x) != (y)) { \
         std::ostringstream ss; \
-        ss << "Line " << __LINE__ << ": " << #x << " != " << #y << " (" \
-           << (x) << " != " << (y) << ")"; \
-        return atf::test_case_result::failed(ss.str()); \
+        ss << #x << " != " << #y << " (" << (x) << " != " << (y) << ")"; \
+        throw atf::test_case_result::failed(__LINE__, ss.str()); \
     }
 
 #endif // _ATF_LIBATF_TEST_CASE_HPP_

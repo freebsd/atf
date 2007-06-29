@@ -74,10 +74,7 @@ am::report::log(const std::string& ident,
         break;
 
     case test_case_result::status_failed:
-        if (r.empty())
-            m_os << "failed" << std::endl;
-        else
-            m_os << "failed, " << r << std::endl;
+        m_os << "failed, " << r << std::endl;
         break;
 
     default:

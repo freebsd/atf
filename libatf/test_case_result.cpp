@@ -38,6 +38,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <sstream>
+
 #include "libatf/test_case_result.hpp"
 
 atf::test_case_result::test_case_result(atf::test_case_result::status s,
@@ -60,9 +62,25 @@ atf::test_case_result::skipped(const std::string& reason)
 }
 
 atf::test_case_result
+atf::test_case_result::skipped(size_t line, const std::string& reason)
+{
+    std::ostringstream ss;
+    ss << "Line " << line << ": " << reason;
+    return skipped(ss.str());
+}
+
+atf::test_case_result
 atf::test_case_result::failed(const std::string& reason)
 {
     return test_case_result(status_failed, reason);
+}
+
+atf::test_case_result
+atf::test_case_result::failed(size_t line, const std::string& reason)
+{
+    std::ostringstream ss;
+    ss << "Line " << line << ": " << reason;
+    return failed(ss.str());
 }
 
 atf::test_case_result::status

@@ -83,16 +83,26 @@ atf::test_case::run(void)
 {
     assert(!m_meta_data.empty());
 
-    test_case_result tcr = test_case_result::failed("Unexpected error");
+    test_case_result tcr = test_case_result::failed("INTERNAL ERROR");
 
     try {
-        tcr = body();
-    } catch (const std::exception& e) {
-        tcr = test_case_result::failed(std::string("Unhandled "
-                                                   "exception: ") +
-                                       e.what());
+        try {
+            body();
+            throw test_case_result::failed("BOGUS TEST; DID NOT RETURN "
+                                           "ANY RESULT");
+        } catch (const test_case_result& tcre) {
+            throw tcre;
+        } catch (const std::exception& e) {
+            throw test_case_result::failed(std::string("Unhandled "
+                                                       "exception: ") +
+                                           e.what());
+        } catch (...) {
+            throw test_case_result::failed("Unknown unhandled exception");
+        }
+    } catch (const test_case_result& tcre) {
+        tcr = tcre;
     } catch (...) {
-        tcr = test_case_result::failed("Unknown unhandled exception");
+        assert(false);
     }
 
     return tcr;

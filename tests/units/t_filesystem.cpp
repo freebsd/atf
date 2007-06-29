@@ -45,73 +45,52 @@
 
 namespace as = atf::shorthands;
 
-class tc_get_branch_path : public as::tc
+ATF_TEST_CASE(tc_get_branch_path);
+
+ATF_TEST_CASE_HEAD(tc_get_branch_path)
 {
-    void
-    head(void)
-    {
-        set("ident", "tc_get_branch_path");
-        set("descr", "Tests the get_branch_path function");
-    }
+    set("ident", "tc_get_branch_path");
+    set("descr", "Tests the get_branch_path function");
+}
 
-    as::tcr
-    body(void)
-        const
-    {
-        using atf::main::get_branch_path;
-
-        ATF_CHECK_EQUAL(get_branch_path(""), ".");
-        ATF_CHECK_EQUAL(get_branch_path("."), ".");
-        ATF_CHECK_EQUAL(get_branch_path("foo"), ".");
-        ATF_CHECK_EQUAL(get_branch_path("foo/bar"), "foo");
-        ATF_CHECK_EQUAL(get_branch_path("/foo"), "/");
-        ATF_CHECK_EQUAL(get_branch_path("/foo/bar"), "/foo");
-
-        return as::tcr::passed();
-    }
-
-public:
-    tc_get_branch_path(void)
-    {
-    }
-};
-
-class tc_get_leaf_name : public as::tc
+ATF_TEST_CASE_BODY(tc_get_branch_path)
 {
-    void
-    head(void)
-    {
-        set("ident", "tc_get_leaf_name");
-        set("descr", "Tests the get_leaf_name function");
-    }
+    using atf::main::get_branch_path;
 
-    as::tcr
-    body(void)
-        const
-    {
-        using atf::main::get_leaf_name;
+    ATF_CHECK_EQUAL(get_branch_path(""), ".");
+    ATF_CHECK_EQUAL(get_branch_path("."), ".");
+    ATF_CHECK_EQUAL(get_branch_path("foo"), ".");
+    ATF_CHECK_EQUAL(get_branch_path("foo/bar"), "foo");
+    ATF_CHECK_EQUAL(get_branch_path("/foo"), "/");
+    ATF_CHECK_EQUAL(get_branch_path("/foo/bar"), "/foo");
 
-        ATF_CHECK_EQUAL(get_leaf_name(""), ".");
-        ATF_CHECK_EQUAL(get_leaf_name("."), ".");
-        ATF_CHECK_EQUAL(get_leaf_name("foo"), "foo");
-        ATF_CHECK_EQUAL(get_leaf_name("foo/bar"), "bar");
-        ATF_CHECK_EQUAL(get_leaf_name("/foo"), "foo");
-        ATF_CHECK_EQUAL(get_leaf_name("/foo/bar"), "bar");
+    ATF_PASS();
+}
 
-        return as::tcr::passed();
-    }
+ATF_TEST_CASE(tc_get_leaf_name);
 
-public:
-    tc_get_leaf_name(void)
-    {
-    }
-};
+ATF_TEST_CASE_HEAD(tc_get_leaf_name)
+{
+    set("ident", "tc_get_leaf_name");
+    set("descr", "Tests the get_leaf_name function");
+}
+
+ATF_TEST_CASE_BODY(tc_get_leaf_name)
+{
+    using atf::main::get_leaf_name;
+
+    ATF_CHECK_EQUAL(get_leaf_name(""), ".");
+    ATF_CHECK_EQUAL(get_leaf_name("."), ".");
+    ATF_CHECK_EQUAL(get_leaf_name("foo"), "foo");
+    ATF_CHECK_EQUAL(get_leaf_name("foo/bar"), "bar");
+    ATF_CHECK_EQUAL(get_leaf_name("/foo"), "foo");
+    ATF_CHECK_EQUAL(get_leaf_name("/foo/bar"), "bar");
+
+    ATF_PASS();
+}
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    static tc_get_branch_path tc_get_branch_path;
     tcs.push_back(&tc_get_branch_path);
-
-    static tc_get_leaf_name tc_get_leaf_name;
     tcs.push_back(&tc_get_leaf_name);
 }

@@ -43,105 +43,63 @@
 
 namespace as = atf::shorthands;
 
-class test_pass : public as::tc
+ATF_TEST_CASE(tc_pass);
+
+ATF_TEST_CASE_HEAD(tc_pass)
 {
-    void
-    head(void)
-    {
-        set("ident", "tc_pass");
-        set("descr", "An empty test case that always passes");
-    }
+    set("ident", "tc_pass");
+    set("descr", "An empty test case that always passes");
+}
 
-    as::tcr
-    body(void)
-        const
-    {
-        return as::tcr::passed();
-    }
-
-public:
-    test_pass(void)
-    {
-    }
-};
-
-class test_fail : public as::tc
+ATF_TEST_CASE_BODY(tc_pass)
 {
-    void
-    head(void)
-    {
-        set("ident", "tc_fail");
-        set("descr", "An empty test case that always fails");
-    }
+    ATF_PASS();
+}
 
-    as::tcr
-    body(void)
-        const
-    {
-        return as::tcr::failed();
-    }
+ATF_TEST_CASE(tc_fail);
 
-public:
-    test_fail(void)
-    {
-    }
-};
-
-class test_fail_reason : public as::tc
+ATF_TEST_CASE_HEAD(tc_fail)
 {
-    void
-    head(void)
-    {
-        set("ident", "tc_fail_reason");
-        set("descr", "An empty test case that always fails with a reason");
-    }
+    set("ident", "tc_fail");
+    set("descr", "An empty test case that always fails");
+}
 
-    as::tcr
-    body(void)
-        const
-    {
-        return as::tcr::failed("On purpose");
-    }
-
-public:
-    test_fail_reason(void)
-    {
-    }
-};
-
-class test_skip : public as::tc
+ATF_TEST_CASE_BODY(tc_fail)
 {
-    void
-    head(void)
-    {
-        set("ident", "tc_skip");
-        set("descr", "An empty test case that is always skipped");
-    }
+    ATF_FAIL("On purpose");
+}
 
-    as::tcr
-    body(void)
-        const
-    {
-        return as::tcr::skipped("By design");
-    }
+ATF_TEST_CASE(tc_skip);
 
-public:
-    test_skip(void)
-    {
-    }
-};
+ATF_TEST_CASE_HEAD(tc_skip)
+{
+    set("ident", "tc_skip");
+    set("descr", "An empty test case that is always skipped");
+}
+
+ATF_TEST_CASE_BODY(tc_skip)
+{
+    ATF_SKIP("By design");
+}
+
+ATF_TEST_CASE(tc_bogus);
+
+ATF_TEST_CASE_HEAD(tc_bogus)
+{
+    set("ident", "tc_bogus");
+    set("descr", "A bogus test case that always fails by being "
+                 "incorrectly defined");
+}
+
+ATF_TEST_CASE_BODY(tc_bogus)
+{
+    // Fails because it does not return any result explicitly.
+}
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    static test_pass test_pass;
-    tcs.push_back(&test_pass);
-
-    static test_fail test_fail;
-    tcs.push_back(&test_fail);
-
-    static test_fail_reason test_fail_reason;
-    tcs.push_back(&test_fail_reason);
-
-    static test_skip test_skip;
-    tcs.push_back(&test_skip);
+    tcs.push_back(&tc_pass);
+    tcs.push_back(&tc_fail);
+    tcs.push_back(&tc_skip);
+    tcs.push_back(&tc_bogus);
 }
