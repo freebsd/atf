@@ -44,7 +44,7 @@
 
 #include "libatfmain/application.hpp"
 
-class h_app_empty : public atf::main::application {
+class h_app_empty : public atf::application {
     static const char* m_description;
 
 public:

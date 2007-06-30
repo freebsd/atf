@@ -45,9 +45,7 @@
 #include "libatfmain/atffile.hpp"
 #include "libatfmain/exceptions.hpp"
 
-namespace am = atf::main;
-
-am::atffile::atffile(const std::string& filename)
+atf::atffile::atffile(const std::string& filename)
 {
     std::ifstream is(filename.c_str());
     if (!is)

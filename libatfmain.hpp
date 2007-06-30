@@ -47,10 +47,8 @@
 
 #define ATF_INIT_TEST_CASES(tcs) \
     namespace atf { \
-        namespace main { \
-            int run_test_program(int, char* const*, \
-                                 const std::vector< atf::test_case * >&); \
-        } \
+        int run_test_program(int, char* const*, \
+                             const std::vector< atf::test_case * >&); \
     } \
     \
     int \
@@ -59,7 +57,7 @@
         void __atf_init_test_cases(std::vector< atf::test_case * >&); \
         std::vector< atf::test_case * > tcs; \
         __atf_init_test_cases(tcs); \
-        return atf::main::run_test_program(argc, argv, tcs); \
+        return atf::run_test_program(argc, argv, tcs); \
     } \
     \
     void \

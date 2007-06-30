@@ -40,24 +40,20 @@
 
 #include <cassert>
 
-#include "libatf.hpp"
-
 #include "libatfmain/report.hpp"
 
-namespace am = atf::main;
-
-am::report::report(std::ostream& os) :
+atf::report::report(std::ostream& os) :
     m_os(os)
 {
 }
 
-am::report::~report(void)
+atf::report::~report(void)
 {
 }
 
 void
-am::report::log(const std::string& ident,
-                const atf::test_case_result& tcr)
+atf::report::log(const std::string& ident,
+                 const atf::test_case_result& tcr)
 {
     test_case_result::status s = tcr.get_status();
     const std::string& r = tcr.get_reason();

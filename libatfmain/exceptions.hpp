@@ -38,13 +38,12 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_LIBATFMAIN_EXCEPTIONS_HPP_
-#define _ATF_LIBATFMAIN_EXCEPTIONS_HPP_
+#ifndef _ATF_EXCEPTIONS_HPP_
+#define _ATF_EXCEPTIONS_HPP_
 
 #include <stdexcept>
 
 namespace atf {
-namespace main {
 
 class system_error : public std::runtime_error {
     int m_sys_err;
@@ -68,7 +67,6 @@ public:
     const char* what(void) const throw();
 };
 
-} // namespace main
 } // namespace atf
 
-#endif // _ATF_LIBATFMAIN_EXCEPTIONS_HPP_
+#endif // _ATF_EXCEPTIONS_HPP_

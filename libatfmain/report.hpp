@@ -38,8 +38,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_LIBATFMAIN_REPORT_HPP_
-#define _ATF_LIBATFMAIN_REPORT_HPP_
+#ifndef _ATF_REPORT_HPP_
+#define _ATF_REPORT_HPP_
 
 #include <string>
 #include <ostream>
@@ -47,7 +47,6 @@
 #include <libatf/test_case_result.hpp>
 
 namespace atf {
-namespace main {
 
 class report {
     std::ostream& m_os;
@@ -59,7 +58,6 @@ public:
     virtual void log(const std::string&, const test_case_result&);
 };
 
-} // namespace main
 } // namespace atf
 
-#endif // _ATF_LIBATFMAIN_REPORT_HPP_
+#endif // _ATF_REPORT_HPP_

@@ -38,14 +38,13 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_LIBATFMAIN_FILESYSTEM_HPP_
-#define _ATF_LIBATFMAIN_FILESYSTEM_HPP_
+#ifndef _ATF_FILESYSTEM_HPP_
+#define _ATF_FILESYSTEM_HPP_
 
 #include <set>
 #include <string>
 
 namespace atf {
-namespace main {
 
 class directory : public std::set< std::string > {
 public:
@@ -56,7 +55,6 @@ std::string get_branch_path(const std::string&);
 std::string get_leaf_name(const std::string&);
 std::string get_work_dir(void);
 
-} // namespace main
 } // namespace atf
 
-#endif // _ATF_LIBATFMAIN_FILESYSTEM_HPP_
+#endif // _ATF_FILESYSTEM_HPP_

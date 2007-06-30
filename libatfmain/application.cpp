@@ -51,11 +51,9 @@ extern "C" {
 #include "libatfmain/exceptions.hpp"
 #include "libatfmain/ui.hpp"
 
-namespace am = atf::main;
-
-am::application::option::option(char ch,
-                                const std::string& a,
-                                const std::string& desc) :
+atf::application::option::option(char ch,
+                                 const std::string& a,
+                                 const std::string& desc) :
     m_character(ch),
     m_argument(a),
     m_description(desc)
@@ -63,14 +61,14 @@ am::application::option::option(char ch,
 }
 
 bool
-am::application::option::operator<(const am::application::option& o)
+atf::application::option::operator<(const atf::application::option& o)
     const
 {
     return m_character < o.m_character;
 }
 
-am::application::application(const std::string& description,
-                             const std::string& manpage) :
+atf::application::application(const std::string& description,
+                              const std::string& manpage) :
     m_argc(-1),
     m_argv(NULL),
     m_prog_name(NULL),
@@ -79,18 +77,18 @@ am::application::application(const std::string& description,
 {
 }
 
-am::application::~application(void)
+atf::application::~application(void)
 {
 }
 
 bool
-am::application::inited(void)
+atf::application::inited(void)
 {
     return m_argc != -1;
 }
 
-am::application::options_set
-am::application::options(void)
+atf::application::options_set
+atf::application::options(void)
 {
     options_set opts = specific_options();
     opts.insert(option('h', "", "Shows this help message"));
@@ -98,26 +96,26 @@ am::application::options(void)
 }
 
 std::string
-am::application::specific_args(void)
+atf::application::specific_args(void)
     const
 {
     return "";
 }
 
-am::application::options_set
-am::application::specific_options(void)
+atf::application::options_set
+atf::application::specific_options(void)
     const
 {
     return options_set();
 }
 
 void
-am::application::process_option(int ch, const char* arg)
+atf::application::process_option(int ch, const char* arg)
 {
 }
 
 void
-am::application::process_options(void)
+atf::application::process_options(void)
 {
     assert(inited());
 
@@ -158,7 +156,7 @@ am::application::process_options(void)
 }
 
 void
-am::application::usage(std::ostream& os)
+atf::application::usage(std::ostream& os)
 {
     assert(inited());
 
@@ -199,7 +197,7 @@ am::application::usage(std::ostream& os)
 }
 
 int
-am::application::run(int argc, char* const* argv)
+atf::application::run(int argc, char* const* argv)
 {
     assert(argc > 0);
     assert(argv != NULL);

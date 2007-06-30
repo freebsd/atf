@@ -47,9 +47,7 @@
 #include "libatfmain/application.hpp"
 #include "libatfmain/ui.hpp"
 
-namespace am = atf::main;
-
-class atf_format : public am::application {
+class atf_format : public atf::application {
     static const char* m_description;
 
     std::string m_tag;
@@ -127,7 +125,7 @@ atf_format::main(void)
         std::cout << m_tag;
         col += m_tag.length();
     }
-    std::cout << am::format_text(str, col, col) << std::endl;
+    std::cout << atf::format_text(str, col, col) << std::endl;
 
     return EXIT_SUCCESS;
 }

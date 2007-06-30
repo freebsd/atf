@@ -43,15 +43,13 @@
 #include <iostream>
 #include <vector>
 
-#include "libatf.hpp"
+#include "libatf/test_case.hpp"
 
 #include "libatfmain/application.hpp"
 #include "libatfmain/report.hpp"
 #include "libatfmain/ui.hpp"
 
-namespace am = atf::main;
-
-class test_program : public am::application {
+class test_program : public atf::application {
 public:
     typedef std::vector< atf::test_case * > test_cases;
 
@@ -173,8 +171,8 @@ test_program::list_test_cases(void)
         const atf::test_case* tc = *iter;
 
         std::cout << tc->get("ident") << "    "
-                  << am::format_text(tc->get("descr"), maxlen + 4,
-                                     tc->get("ident").length() + 4)
+                  << atf::format_text(tc->get("descr"), maxlen + 4,
+                                      tc->get("ident").length() + 4)
                   << std::endl;
     }
 
@@ -188,7 +186,7 @@ test_program::run_test_cases(void)
 
     int errcode = EXIT_SUCCESS;
 
-    am::report r(std::cout);
+    atf::report r(std::cout);
     for (test_cases::iterator iter = tcs.begin();
          iter != tcs.end(); iter++) {
         atf::test_case* tc = *iter;
@@ -219,15 +217,13 @@ test_program::main(void)
 }
 
 namespace atf {
-    namespace main {
-        int run_test_program(int, char* const*,
-                             const test_program::test_cases&);
-    }
+    int run_test_program(int, char* const*,
+                         const test_program::test_cases&);
 }
 
 int
-am::run_test_program(int argc, char* const* argv,
-                     const test_program::test_cases& tcs)
+atf::run_test_program(int argc, char* const* argv,
+                      const test_program::test_cases& tcs)
 {
     return test_program(tcs).run(argc, argv);
 }

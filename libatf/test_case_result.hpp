@@ -38,8 +38,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_LIBATF_TEST_CASE_RESULT_HPP_
-#define _ATF_LIBATF_TEST_CASE_RESULT_HPP_
+#ifndef _ATF_TEST_CASE_RESULT_HPP_
+#define _ATF_TEST_CASE_RESULT_HPP_
 
 #include <string>
 
@@ -67,4 +67,4 @@ private:
 
 } // namespace atf
 
-#endif // _ATF_LIBATF_TEST_CASE_RESULT_HPP_
+#endif // _ATF_TEST_CASE_RESULT_HPP_

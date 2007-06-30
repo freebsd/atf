@@ -38,21 +38,19 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_LIBATFMAIN_ATFFILE_HPP_
-#define _ATF_LIBATFMAIN_ATFFILE_HPP_
+#ifndef _ATF_ATFFILE_HPP_
+#define _ATF_ATFFILE_HPP_
 
 #include <string>
 #include <vector>
 
 namespace atf {
-namespace main {
 
 class atffile : public std::vector< std::string > {
 public:
     atffile(const std::string& = "Atffile");
 };
 
-} // namespace main
 } // namespace atf
 
-#endif // _ATF_LIBATFMAIN_ATFFILE_HPP_
+#endif // _ATF_ATFFILE_HPP_

@@ -48,8 +48,6 @@ extern "C" {
 
 #include "libatfmain/ui.hpp"
 
-namespace am = atf::main;
-
 static
 size_t
 terminal_width(void)
@@ -80,7 +78,7 @@ terminal_width(void)
 }
 
 std::vector< std::string >
-am::split(const std::string& str, const std::string& delim)
+atf::split(const std::string& str, const std::string& delim)
 {
     std::vector< std::string > words;
 
@@ -111,7 +109,7 @@ format_paragraph(const std::string& text,
 
     const size_t maxcol = terminal_width();
 
-    std::vector< std::string > words = am::split(text, " ");
+    std::vector< std::string > words = atf::split(text, " ");
     for (std::vector< std::string >::const_iterator iter = words.begin();
          iter != words.end(); iter++) {
         const std::string& word = *iter;
@@ -141,7 +139,7 @@ format_paragraph(const std::string& text,
 // 'col' specifies the column where the text will start and 'curcol'
 // specifies the current position of the cursor.
 std::string
-am::format_text(const std::string& text, const size_t col, size_t curcol)
+atf::format_text(const std::string& text, const size_t col, size_t curcol)
 {
     assert(curcol <= col);
 

@@ -38,8 +38,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_LIBATF_TEST_CASE_HPP_
-#define _ATF_LIBATF_TEST_CASE_HPP_
+#ifndef _ATF_TEST_CASE_HPP_
+#define _ATF_TEST_CASE_HPP_
 
 #include <map>
 #include <sstream>
@@ -109,4 +109,4 @@ public:
         throw atf::test_case_result::failed(__LINE__, ss.str()); \
     }
 
-#endif // _ATF_LIBATF_TEST_CASE_HPP_
+#endif // _ATF_TEST_CASE_HPP_

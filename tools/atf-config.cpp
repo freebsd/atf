@@ -46,9 +46,7 @@
 
 #include "libatfmain/application.hpp"
 
-namespace am = atf::main;
-
-class atf_config : public am::application {
+class atf_config : public atf::application {
     static const char* m_description;
 
     bool m_tflag;

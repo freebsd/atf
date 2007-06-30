@@ -38,8 +38,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_LIBATFMAIN_APPLICATION_HPP_
-#define _ATF_LIBATFMAIN_APPLICATION_HPP_
+#ifndef _ATF_APPLICATION_HPP_
+#define _ATF_APPLICATION_HPP_
 
 #include <ostream>
 #include <set>
@@ -48,7 +48,6 @@
 #include <libatfmain/exceptions.hpp>
 
 namespace atf {
-namespace main {
 
 class application {
     void process_options(void);
@@ -93,7 +92,6 @@ public:
     int run(int, char* const* argv);
 };
 
-} // namespace main
 } // namespace atf
 
-#endif /* _ATF_LIBATFMAIN_APPLICATION_HPP_ */
+#endif // _ATF_APPLICATION_HPP_

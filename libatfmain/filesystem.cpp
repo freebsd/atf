@@ -54,9 +54,7 @@ extern "C" {
 #include "libatfmain/exceptions.hpp"
 #include "libatfmain/filesystem.hpp"
 
-namespace am = atf::main;
-
-am::directory::directory(const std::string& path)
+atf::directory::directory(const std::string& path)
 {
     DIR* dp = ::opendir(path.c_str());
     if (dp == NULL)
@@ -73,7 +71,7 @@ am::directory::directory(const std::string& path)
 }
 
 std::string
-am::get_branch_path(const std::string& path)
+atf::get_branch_path(const std::string& path)
 {
     std::string branch;
 
@@ -101,7 +99,7 @@ am::get_branch_path(const std::string& path)
 }
 
 std::string
-am::get_leaf_name(const std::string& path)
+atf::get_leaf_name(const std::string& path)
 {
     std::string leaf;
 
@@ -129,7 +127,7 @@ am::get_leaf_name(const std::string& path)
 }
 
 std::string
-am::get_work_dir(void)
+atf::get_work_dir(void)
 {
 #if defined(MAXPATHLEN)
     char buf[MAXPATHLEN];

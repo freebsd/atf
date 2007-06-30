@@ -46,7 +46,7 @@
 
 #include "libatfmain/application.hpp"
 
-class h_app_opts_args : public atf::main::application {
+class h_app_opts_args : public atf::application {
     static const char* m_description;
 
     std::string specific_args(void) const;

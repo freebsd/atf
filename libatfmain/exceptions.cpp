@@ -52,23 +52,21 @@ using ::vsnprintf;
 }
 #endif // !defined(HAVE_VSNPRINTF_IN_STD)
 
-namespace am = atf::main;
-
-am::system_error::system_error(const std::string& who,
-                               const std::string& message,
-                               int sys_err) :
+atf::system_error::system_error(const std::string& who,
+                                const std::string& message,
+                                int sys_err) :
     std::runtime_error(who + ": " + message),
     m_sys_err(sys_err)
 {
 }
 
-am::system_error::~system_error(void)
+atf::system_error::~system_error(void)
     throw()
 {
 }
 
 int
-am::system_error::code(void)
+atf::system_error::code(void)
     const
     throw()
 {
@@ -76,7 +74,7 @@ am::system_error::code(void)
 }
 
 const char*
-am::system_error::what(void)
+atf::system_error::what(void)
     const
     throw()
 {
@@ -92,7 +90,7 @@ am::system_error::what(void)
     }
 }
 
-am::usage_error::usage_error(const char *fmt, ...)
+atf::usage_error::usage_error(const char *fmt, ...)
     throw() :
     std::runtime_error("usage_error; message unformatted")
 {
@@ -103,13 +101,13 @@ am::usage_error::usage_error(const char *fmt, ...)
     va_end(ap);
 }
 
-am::usage_error::~usage_error(void)
+atf::usage_error::~usage_error(void)
     throw()
 {
 }
 
 const char*
-am::usage_error::what(void)
+atf::usage_error::what(void)
     const throw()
 {
     return m_text;
