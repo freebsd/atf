@@ -38,31 +38,59 @@ dnl OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 dnl IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 dnl
 
-AT_INIT([bootstrap tests])
+AT_SETUP([atf-run: execution of tests])
+AT_TESTED(atf-run)
 
-m4_define([GUESS_TOPDIR], {
-    old=$(pwd)
-    while test $(pwd) != '/' -a ! -e ./libs/atf.hpp; do
-        cd ..
-    done
-    topdir=$(pwd)
-    cd ${old}
-    echo ${topdir}
-})
+m4_define([CREATE_PASS_TEST], [AT_DATA([$1],[#! /bin/sh
+echo '$2, passed'
+true
+])
+AT_CHECK([chmod +x $1], [0], [], [])
+])
 
-m4_define([TEST_HELPER], [$(GUESS_TOPDIR)/tests/bootstrap/h_$1])
+m4_define([CREATE_FAIL_TEST], [AT_DATA([$1],[#! /bin/sh
+echo '$2, failed, No reason'
+false
+])
+AT_CHECK([chmod +x $1], [0], [], [])
+])
 
-m4_define(COUNT_LINES, [test @S|@[(wc -l $1 | awk '{ print @S|@1 }')] = $2])
+AT_CHECK([mkdir top], [0], [], [])
+AT_CHECK([mkdir top/dir1], [0], [], [])
+AT_CHECK([mkdir top/dir2], [0], [], [])
+AT_DATA([top/Atffile], [dir1
+dir2
+test1
+test2
+])
+AT_DATA([top/dir1/Atffile], [test3
+])
+AT_DATA([top/dir2/Atffile], [test4
+test5
+])
+CREATE_PASS_TEST([top/test1], [tc_1])
+CREATE_FAIL_TEST([top/test2], [tc_2])
+CREATE_PASS_TEST([top/dir1/test3], [tc_3])
+CREATE_FAIL_TEST([top/dir2/test4], [tc_4])
+CREATE_PASS_TEST([top/dir2/test5], [tc_5])
 
-dnl The tests below are sorted depending on how important they are.
-m4_include(tests/bootstrap/t_application_opts_args.at)
-m4_include(tests/bootstrap/t_application_help.at)
-m4_include(tests/bootstrap/t_test_program_filter.at)
-m4_include(tests/bootstrap/t_test_program_run.at)
-m4_include(tests/bootstrap/t_test_program_list.at)
-m4_include(tests/bootstrap/t_atf_format.at)
-m4_include(tests/bootstrap/t_atf_config.at)
-m4_include(tests/bootstrap/t_atf_identify.at)
-m4_include(tests/bootstrap/t_atf_run.at)
+AT_DATA([expout], [tc_3, passed
+])
+AT_CHECK([cd top/dir1 && atf-run], [0], [expout], [])
+
+AT_DATA([expout], [tc_4, failed, No reason
+tc_5, passed
+])
+AT_CHECK([cd top/dir2 && atf-run], [1], [expout], [])
+
+AT_DATA([expout], [tc_3, passed
+tc_4, failed, No reason
+tc_5, passed
+tc_1, passed
+tc_2, failed, No reason
+])
+AT_CHECK([cd top && atf-run], [1], [expout], [])
+
+AT_CLEANUP()
 
 dnl vim: syntax=m4:expandtab:shiftwidth=4:softtabstop=4

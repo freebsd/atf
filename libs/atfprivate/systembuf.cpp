@@ -38,82 +38,82 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_TEST_CASE_HPP_
-#define _ATF_TEST_CASE_HPP_
+extern "C" {
+#include <unistd.h>
+}
 
-#include <map>
-#include <sstream>
+#include <cassert>
 
-#include <atf/test_case_result.hpp>
+#include <atfprivate/systembuf.hpp>
 
-namespace atf {
+atf::systembuf::systembuf(handle_type h, std::size_t bufsize) :
+    m_handle(h),
+    m_bufsize(bufsize),
+    m_read_buf(NULL),
+    m_write_buf(NULL)
+{
+    assert(m_handle >= 0);
+    assert(m_bufsize > 0);
 
-class test_case {
-    typedef std::map< std::string, std::string > variables_map;
-
-    std::string m_ident;
-    variables_map m_meta_data;
-
-    void ensure_defined(const std::string&);
-    void ensure_not_empty(const std::string&);
-
-protected:
-    virtual void head(void) = 0;
-    virtual void body(void) const = 0;
-
-    void set(const std::string&, const std::string&);
-
-public:
-    test_case(const std::string&);
-    virtual ~test_case(void);
-
-    const std::string& get(const std::string&) const;
-
-    void init(void);
-    test_case_result run(void) const;
-};
-
-} // namespace atf
-
-#define ATF_TEST_CASE(name) \
-    class name : public atf::test_case { \
-        void head(void); \
-        void body(void) const; \
-    public: \
-        name(void) : atf::test_case(#name) {} \
-    }; \
-    static name name;
-
-#define ATF_TEST_CASE_HEAD(name) \
-    void \
-    name::head(void)
-
-#define ATF_TEST_CASE_BODY(name) \
-    void \
-    name::body(void) \
-        const
-
-#define ATF_FAIL(reason) \
-    throw atf::test_case_result::failed(reason)
-
-#define ATF_SKIP(reason) \
-    throw atf::test_case_result::skipped(reason)
-
-#define ATF_PASS() \
-    throw atf::test_case_result::passed()
-
-#define ATF_CHECK(x) \
-    if (!(x)) { \
-        std::ostringstream ss; \
-        ss << #x << " not met"; \
-        throw atf::test_case_result::failed(__LINE__, ss.str()); \
+    try {
+        m_read_buf = new char[bufsize];
+        m_write_buf = new char[bufsize];
+    } catch (...) {
+        if (m_read_buf != NULL)
+            delete [] m_read_buf;
+        if (m_write_buf != NULL)
+            delete [] m_write_buf;
+        throw;
     }
 
-#define ATF_CHECK_EQUAL(x, y) \
-    if ((x) != (y)) { \
-        std::ostringstream ss; \
-        ss << #x << " != " << #y << " (" << (x) << " != " << (y) << ")"; \
-        throw atf::test_case_result::failed(__LINE__, ss.str()); \
-    }
+    setp(m_write_buf, m_write_buf + m_bufsize);
+}
 
-#endif // _ATF_TEST_CASE_HPP_
+atf::systembuf::~systembuf(void)
+{
+    delete [] m_read_buf;
+    delete [] m_write_buf;
+}
+
+atf::systembuf::int_type
+atf::systembuf::underflow(void)
+{
+    assert(gptr() >= egptr());
+
+    bool ok;
+    ssize_t cnt = ::read(m_handle, m_read_buf, m_bufsize);
+    ok = (cnt != -1 && cnt != 0);
+
+    if (!ok)
+        return traits_type::eof();
+    else {
+        setg(m_read_buf, m_read_buf, m_read_buf + cnt);
+        return traits_type::to_int_type(*gptr());
+    }
+}
+
+atf::systembuf::int_type
+atf::systembuf::overflow(int c)
+{
+    assert(pptr() >= epptr());
+    if (sync() == -1)
+        return traits_type::eof();
+    if (!traits_type::eq_int_type(c, traits_type::eof())) {
+        traits_type::assign(*pptr(), c);
+        pbump(1);
+    }
+    return traits_type::not_eof(c);
+}
+
+int
+atf::systembuf::sync(void)
+{
+    ssize_t cnt = pptr() - pbase();
+
+    bool ok;
+    ok = ::write(m_handle, pbase(), cnt) == cnt;
+
+    if (ok)
+        pbump(-cnt);
+    return ok ? 0 : -1;
+}

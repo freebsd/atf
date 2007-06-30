@@ -38,82 +38,114 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_TEST_CASE_HPP_
-#define _ATF_TEST_CASE_HPP_
+extern "C" {
+#   include <unistd.h>
+}
 
-#include <map>
-#include <sstream>
+#include <cassert>
+#include <cerrno>
 
-#include <atf/test_case_result.hpp>
+#include <atfprivate/exceptions.hpp>
+#include <atfprivate/file_handle.hpp>
 
-namespace atf {
+atf::file_handle::file_handle(void) :
+    m_handle(invalid_value())
+{
+}
 
-class test_case {
-    typedef std::map< std::string, std::string > variables_map;
+atf::file_handle::file_handle(handle_type h) :
+    m_handle(h)
+{
+    assert(m_handle != invalid_value());
+}
 
-    std::string m_ident;
-    variables_map m_meta_data;
+atf::file_handle::file_handle(const file_handle& fh) :
+    m_handle(fh.m_handle)
+{
+    fh.m_handle = invalid_value();
+}
 
-    void ensure_defined(const std::string&);
-    void ensure_not_empty(const std::string&);
+atf::file_handle::~file_handle(void)
+{
+    if (is_valid())
+        close();
+}
 
-protected:
-    virtual void head(void) = 0;
-    virtual void body(void) const = 0;
+atf::file_handle&
+atf::file_handle::operator=(const file_handle& fh)
+{
+    m_handle = fh.m_handle;
+    fh.m_handle = invalid_value();
 
-    void set(const std::string&, const std::string&);
+    return *this;
+}
 
-public:
-    test_case(const std::string&);
-    virtual ~test_case(void);
+bool
+atf::file_handle::is_valid(void)
+    const
+{
+    return m_handle != invalid_value();
+}
 
-    const std::string& get(const std::string&) const;
+void
+atf::file_handle::close(void)
+{
+    assert(is_valid());
 
-    void init(void);
-    test_case_result run(void) const;
-};
+    ::close(m_handle);
 
-} // namespace atf
+    m_handle = invalid_value();
+}
 
-#define ATF_TEST_CASE(name) \
-    class name : public atf::test_case { \
-        void head(void); \
-        void body(void) const; \
-    public: \
-        name(void) : atf::test_case(#name) {} \
-    }; \
-    static name name;
+atf::file_handle::handle_type
+atf::file_handle::disown(void)
+{
+    assert(is_valid());
 
-#define ATF_TEST_CASE_HEAD(name) \
-    void \
-    name::head(void)
+    handle_type h = m_handle;
+    m_handle = invalid_value();
+    return h;
+}
 
-#define ATF_TEST_CASE_BODY(name) \
-    void \
-    name::body(void) \
-        const
+atf::file_handle::handle_type
+atf::file_handle::get(void)
+    const
+{
+    assert(is_valid());
 
-#define ATF_FAIL(reason) \
-    throw atf::test_case_result::failed(reason)
+    return m_handle;
+}
 
-#define ATF_SKIP(reason) \
-    throw atf::test_case_result::skipped(reason)
+void
+atf::file_handle::posix_remap(handle_type h)
+{
+    assert(is_valid());
 
-#define ATF_PASS() \
-    throw atf::test_case_result::passed()
+    if (::dup2(m_handle, h) == -1)
+        throw system_error("atf::file_handle::posix_remap",
+                           "dup2(2) failed", errno);
 
-#define ATF_CHECK(x) \
-    if (!(x)) { \
-        std::ostringstream ss; \
-        ss << #x << " not met"; \
-        throw atf::test_case_result::failed(__LINE__, ss.str()); \
+    if (::close(m_handle) == -1) {
+        ::close(h);
+        throw system_error("atf::file_handle::posix_remap",
+                           "close(2) failed", errno);
     }
 
-#define ATF_CHECK_EQUAL(x, y) \
-    if ((x) != (y)) { \
-        std::ostringstream ss; \
-        ss << #x << " != " << #y << " (" << (x) << " != " << (y) << ")"; \
-        throw atf::test_case_result::failed(__LINE__, ss.str()); \
-    }
+    m_handle = h;
+}
 
-#endif // _ATF_TEST_CASE_HPP_
+atf::file_handle
+atf::file_handle::posix_dup(int h1, int h2)
+{
+    if (::dup2(h1, h2) == -1)
+        throw system_error("atf::file_handle::posix_dup",
+                           "dup2(2) failed", errno);
+
+    return file_handle(h2);
+}
+
+const atf::file_handle::handle_type
+atf::file_handle::invalid_value(void)
+{
+    return -1;
+}

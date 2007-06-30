@@ -67,8 +67,18 @@ libs_libatfprivate_la_SOURCES = libs/atfprivate/application.cpp \
                                 libs/atfprivate/atffile.hpp \
                                 libs/atfprivate/exceptions.cpp \
                                 libs/atfprivate/exceptions.hpp \
+                                libs/atfprivate/file_handle.cpp \
+                                libs/atfprivate/file_handle.hpp \
                                 libs/atfprivate/filesystem.cpp \
                                 libs/atfprivate/filesystem.hpp \
+                                libs/atfprivate/pipe.cpp \
+                                libs/atfprivate/pipe.hpp \
+                                libs/atfprivate/pistream.cpp \
+                                libs/atfprivate/pistream.hpp \
+                                libs/atfprivate/postream.cpp \
+                                libs/atfprivate/postream.hpp \
+                                libs/atfprivate/systembuf.cpp \
+                                libs/atfprivate/systembuf.hpp \
                                 libs/atfprivate/ui.cpp \
                                 libs/atfprivate/ui.hpp
 
@@ -128,6 +138,7 @@ testsuite_incs=	$(srcdir)/tests/bootstrap/t_application_help.at \
 		$(srcdir)/tests/bootstrap/t_atf_config.at \
 		$(srcdir)/tests/bootstrap/t_atf_format.at \
 		$(srcdir)/tests/bootstrap/t_atf_identify.at \
+		$(srcdir)/tests/bootstrap/t_atf_run.at \
 		$(srcdir)/tests/bootstrap/t_test_program_filter.at \
 		$(srcdir)/tests/bootstrap/t_test_program_list.at \
 		$(srcdir)/tests/bootstrap/t_test_program_run.at
@@ -154,11 +165,38 @@ $(srcdir)/tests/bootstrap/testsuite: $(srcdir)/tests/bootstrap/testsuite.at \
 # `tests/units' directory.
 # -------------------------------------------------------------------------
 
-TESTS += tests/units/t_filesystem
+check-local:
+	cd tests/units && $(TESTS_ENVIRONMENT) atf-run
+
+check_PROGRAMS += tests/units/t_file_handle
+tests_units_t_file_handle_SOURCES = tests/units/t_file_handle.cpp
+tests_units_t_file_handle_LDADD = -latf
+tests_units_t_file_handle_LDFLAGS = -Llibs
+
 check_PROGRAMS += tests/units/t_filesystem
 tests_units_t_filesystem_SOURCES = tests/units/t_filesystem.cpp
 tests_units_t_filesystem_LDADD = -latf
 tests_units_t_filesystem_LDFLAGS = -Llibs
+
+check_PROGRAMS += tests/units/t_pipe
+tests_units_t_pipe_SOURCES = tests/units/t_pipe.cpp
+tests_units_t_pipe_LDADD = -latf
+tests_units_t_pipe_LDFLAGS = -Llibs
+
+check_PROGRAMS += tests/units/t_pistream
+tests_units_t_pistream_SOURCES = tests/units/t_pistream.cpp
+tests_units_t_pistream_LDADD = -latf
+tests_units_t_pistream_LDFLAGS = -Llibs
+
+check_PROGRAMS += tests/units/t_postream
+tests_units_t_postream_SOURCES = tests/units/t_postream.cpp
+tests_units_t_postream_LDADD = -latf
+tests_units_t_postream_LDFLAGS = -Llibs
+
+check_PROGRAMS += tests/units/t_systembuf
+tests_units_t_systembuf_SOURCES = tests/units/t_systembuf.cpp
+tests_units_t_systembuf_LDADD = -latf
+tests_units_t_systembuf_LDFLAGS = -Llibs
 
 # -------------------------------------------------------------------------
 # `tools' directory.
@@ -178,5 +216,10 @@ libexec_PROGRAMS += tools/atf-identify
 tools_atf_identify_SOURCES = tools/atf-identify.cpp
 tools_atf_identify_LDADD = -latfprivate
 tools_atf_identify_LDFLAGS = -Llibs
+
+bin_PROGRAMS += tools/atf-run
+tools_atf_run_SOURCES = tools/atf-run.cpp
+tools_atf_run_LDADD = -latfprivate
+tools_atf_run_LDFLAGS = -Llibs
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
