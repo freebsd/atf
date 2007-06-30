@@ -206,8 +206,6 @@ tests_atf_units_t_systembuf_SOURCES = tests/atf/units/t_systembuf.cpp
 tests_atf_units_t_systembuf_LDADD = -latf
 tests_atf_units_t_systembuf_LDFLAGS = -Llibs
 
-check_PROGRAMS += atf_units_PROGRAMS
-
 # -------------------------------------------------------------------------
 # `tools' directory.
 # -------------------------------------------------------------------------
