@@ -46,7 +46,7 @@ extern "C" {
 #include <cstdlib>
 #include <sstream>
 
-#include "libatfmain/ui.hpp"
+#include "atfprivate/ui.hpp"
 
 static
 size_t

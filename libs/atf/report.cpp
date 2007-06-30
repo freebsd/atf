@@ -38,75 +38,42 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_TEST_CASE_HPP_
-#define _ATF_TEST_CASE_HPP_
+#include <cassert>
 
-#include <map>
-#include <sstream>
+#include "atf/report.hpp"
 
-#include <libatf/test_case_result.hpp>
+atf::report::report(std::ostream& os) :
+    m_os(os)
+{
+}
 
-namespace atf {
+atf::report::~report(void)
+{
+}
 
-class test_case {
-    typedef std::map< std::string, std::string > variables_map;
+void
+atf::report::log(const std::string& ident,
+                 const atf::test_case_result& tcr)
+{
+    test_case_result::status s = tcr.get_status();
+    const std::string& r = tcr.get_reason();
 
-    std::string m_ident;
-    variables_map m_meta_data;
+    m_os << ident << ", ";
 
-    void ensure_defined(const std::string&);
-    void ensure_not_empty(const std::string&);
+    switch (s) {
+    case test_case_result::status_passed:
+        m_os << "passed" << std::endl;
+        break;
 
-protected:
-    virtual void head(void) = 0;
-    virtual void body(void) const = 0;
+    case test_case_result::status_skipped:
+        m_os << "skipped, " << r << std::endl;
+        break;
 
-    void set(const std::string&, const std::string&);
+    case test_case_result::status_failed:
+        m_os << "failed, " << r << std::endl;
+        break;
 
-public:
-    test_case(const std::string&);
-    virtual ~test_case(void);
-
-    const std::string& get(const std::string&) const;
-
-    void init(void);
-    test_case_result run(void) const;
-};
-
-} // namespace atf
-
-#define ATF_TEST_CASE(name) \
-    class name : public atf::test_case { \
-        void head(void); \
-        void body(void) const; \
-    public: \
-        name(void) : atf::test_case(#name) {} \
-    }; \
-    static name name;
-
-#define ATF_TEST_CASE_HEAD(name) \
-    void \
-    name::head(void)
-
-#define ATF_TEST_CASE_BODY(name) \
-    void \
-    name::body(void) \
-        const
-
-#define ATF_FAIL(reason) \
-    throw atf::test_case_result::failed(reason)
-
-#define ATF_SKIP(reason) \
-    throw atf::test_case_result::skipped(reason)
-
-#define ATF_PASS() \
-    throw atf::test_case_result::passed()
-
-#define ATF_CHECK_EQUAL(x, y) \
-    if ((x) != (y)) { \
-        std::ostringstream ss; \
-        ss << #x << " != " << #y << " (" << (x) << " != " << (y) << ")"; \
-        throw atf::test_case_result::failed(__LINE__, ss.str()); \
+    default:
+        assert(false);
     }
-
-#endif // _ATF_TEST_CASE_HPP_
+}

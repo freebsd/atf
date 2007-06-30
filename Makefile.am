@@ -53,37 +53,42 @@ dist-hook:
 	@echo "-------------------------------------------------"
 
 AM_CPPFLAGS = -DATF_LIBEXECDIR=\"$(libexecdir)\" \
-              -DATF_PKGDATADIR=\"$(pkgdatadir)\"
+              -DATF_PKGDATADIR=\"$(pkgdatadir)\" \
+              -I$(srcdir)/libs
 
 # -------------------------------------------------------------------------
-# `libatf' directory.
+# `libs/atfprivate' directory.
 # -------------------------------------------------------------------------
 
-lib_LTLIBRARIES = libatf/libatf.la
-libatf_libatf_la_SOURCES = libatf/test_case.cpp \
-                           libatf/test_case_result.cpp
-
-include_HEADERS = libatf.hpp
-nobase_include_HEADERS = libatf/exceptions.hpp \
-                         libatf/test_case.hpp \
-                         libatf/test_case_result.hpp
+lib_LTLIBRARIES = libs/libatfprivate.la
+libs_libatfprivate_la_SOURCES = libs/atfprivate/application.cpp \
+                                libs/atfprivate/application.hpp \
+                                libs/atfprivate/atffile.cpp \
+                                libs/atfprivate/atffile.hpp \
+                                libs/atfprivate/exceptions.cpp \
+                                libs/atfprivate/exceptions.hpp \
+                                libs/atfprivate/filesystem.cpp \
+                                libs/atfprivate/filesystem.hpp \
+                                libs/atfprivate/ui.cpp \
+                                libs/atfprivate/ui.hpp
 
 # -------------------------------------------------------------------------
-# `libatfmain' directory.
+# `libs/atf' directory.
 # -------------------------------------------------------------------------
 
-lib_LTLIBRARIES += libatfmain/libatfmain.la
-libatfmain_libatfmain_la_SOURCES = libatfmain/application.cpp \
-                                   libatfmain/atffile.cpp \
-                                   libatfmain/exceptions.cpp \
-                                   libatfmain/filesystem.cpp \
-                                   libatfmain/main.cpp \
-                                   libatfmain/report.cpp \
-                                   libatfmain/ui.cpp
-libatfmain_libatfmain_la_LDFLAGS = -Llibatf
-libatfmain_libatfmain_la_LIBADD = -latf
+lib_LTLIBRARIES += libs/libatf.la
+libs_libatf_la_SOURCES = libs/atf/report.cpp \
+                         libs/atf/report.hpp \
+                         libs/atf/test_case.cpp \
+                         libs/atf/test_case_result.cpp \
+                         libs/atf/test_program.cpp
+libs_libatf_la_LDFLAGS = -Llibs
+libs_libatf_la_LIBADD = -latfprivate
 
-include_HEADERS += libatfmain.hpp
+include_HEADERS = libs/atf.hpp
+atf_HEADERS = libs/atf/test_case.hpp \
+              libs/atf/test_case_result.hpp
+atfdir = $(includedir)/atf
 
 # -------------------------------------------------------------------------
 # `tests/bootstrap' directory.
@@ -91,18 +96,18 @@ include_HEADERS += libatfmain.hpp
 
 check_PROGRAMS = tests/bootstrap/h_app_empty
 tests_bootstrap_h_app_empty_SOURCES = tests/bootstrap/h_app_empty.cpp
-tests_bootstrap_h_app_empty_LDADD = -latf -latfmain
-tests_bootstrap_h_app_empty_LDFLAGS = -Llibatf -Llibatfmain
+tests_bootstrap_h_app_empty_LDADD = -latfprivate
+tests_bootstrap_h_app_empty_LDFLAGS = -Llibs
 
 check_PROGRAMS += tests/bootstrap/h_app_opts_args
 tests_bootstrap_h_app_opts_args_SOURCES = tests/bootstrap/h_app_opts_args.cpp
-tests_bootstrap_h_app_opts_args_LDADD = -latf -latfmain
-tests_bootstrap_h_app_opts_args_LDFLAGS = -Llibatf -Llibatfmain
+tests_bootstrap_h_app_opts_args_LDADD = -latfprivate
+tests_bootstrap_h_app_opts_args_LDFLAGS = -Llibs
 
 check_PROGRAMS += tests/bootstrap/h_tp_basic
 tests_bootstrap_h_tp_basic_SOURCES = tests/bootstrap/h_tp_basic.cpp
-tests_bootstrap_h_tp_basic_LDADD = -latf -latfmain
-tests_bootstrap_h_tp_basic_LDFLAGS = -Llibatf -Llibatfmain
+tests_bootstrap_h_tp_basic_LDADD = -latf
+tests_bootstrap_h_tp_basic_LDFLAGS = -Llibs
 
 TESTS=		$(srcdir)/tests/bootstrap/testsuite
 TESTS_ENVIRONMENT = PATH=$$(atf-config -t atf_libexecdir):$${PATH}
@@ -120,15 +125,14 @@ EXTRA_DIST =	tests/bootstrap/testsuite \
 		tests/bootstrap/testsuite.at \
 		$(testsuite_incs)
 
-testsuite_incs=	$(srcdir)/tests/bootstrap/t_atf_config.at \
+testsuite_incs=	$(srcdir)/tests/bootstrap/t_application_help.at \
+		$(srcdir)/tests/bootstrap/t_application_opts_args.at \
+		$(srcdir)/tests/bootstrap/t_atf_config.at \
 		$(srcdir)/tests/bootstrap/t_atf_format.at \
 		$(srcdir)/tests/bootstrap/t_atf_identify.at \
-		$(srcdir)/tests/bootstrap/t_libatfmain_filter.at \
-		$(srcdir)/tests/bootstrap/t_libatfmain_help.at \
-		$(srcdir)/tests/bootstrap/t_libatfmain_list.at \
-		$(srcdir)/tests/bootstrap/t_libatfmain_options.at \
-		$(srcdir)/tests/bootstrap/t_libatfmain_run.at \
-		$(srcdir)/tests/bootstrap/t_libcommon_opts_args.at
+		$(srcdir)/tests/bootstrap/t_test_program_filter.at \
+		$(srcdir)/tests/bootstrap/t_test_program_list.at \
+		$(srcdir)/tests/bootstrap/t_test_program_run.at
 
 $(srcdir)/tests/bootstrap/package.m4: $(top_srcdir)/configure.ac
 	{ \
@@ -155,8 +159,8 @@ $(srcdir)/tests/bootstrap/testsuite: $(srcdir)/tests/bootstrap/testsuite.at \
 TESTS += tests/units/t_filesystem
 check_PROGRAMS += tests/units/t_filesystem
 tests_units_t_filesystem_SOURCES = tests/units/t_filesystem.cpp
-tests_units_t_filesystem_LDADD = -latf -latfmain
-tests_units_t_filesystem_LDFLAGS = -Llibatf -Llibatfmain
+tests_units_t_filesystem_LDADD = -latf
+tests_units_t_filesystem_LDFLAGS = -Llibs
 
 # -------------------------------------------------------------------------
 # `tools' directory.
@@ -164,17 +168,17 @@ tests_units_t_filesystem_LDFLAGS = -Llibatf -Llibatfmain
 
 bin_PROGRAMS = tools/atf-config
 tools_atf_config_SOURCES = tools/atf-config.cpp
-tools_atf_config_LDADD = -latfmain
-tools_atf_config_LDFLAGS = -Llibatfmain
+tools_atf_config_LDADD = -latfprivate
+tools_atf_config_LDFLAGS = -Llibs
 
 libexec_PROGRAMS = tools/atf-format
 tools_atf_format_SOURCES = tools/atf-format.cpp
-tools_atf_format_LDADD = -latfmain
-tools_atf_format_LDFLAGS = -Llibatfmain
+tools_atf_format_LDADD = -latfprivate
+tools_atf_format_LDFLAGS = -Llibs
 
 libexec_PROGRAMS += tools/atf-identify
 tools_atf_identify_SOURCES = tools/atf-identify.cpp
-tools_atf_identify_LDADD = -latfmain
-tools_atf_identify_LDFLAGS = -Llibatfmain
+tools_atf_identify_LDADD = -latfprivate
+tools_atf_identify_LDFLAGS = -Llibs
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

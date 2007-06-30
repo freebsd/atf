@@ -40,9 +40,7 @@
 
 #include <cstdlib>
 
-#include "libatf.hpp"
-
-#include "libatfmain/application.hpp"
+#include "atfprivate/application.hpp"
 
 class h_app_empty : public atf::application {
     static const char* m_description;

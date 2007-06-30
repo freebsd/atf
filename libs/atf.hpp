@@ -38,23 +38,30 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <fstream>
+#ifndef _ATF_HPP_
+#define _ATF_HPP_
 
-#include "libatf/exceptions.hpp"
+#include <atf/test_case.hpp>
+#include <atf/test_case_result.hpp>
 
-#include "libatfmain/atffile.hpp"
-#include "libatfmain/exceptions.hpp"
+#include <vector>
 
-atf::atffile::atffile(const std::string& filename)
-{
-    std::ifstream is(filename.c_str());
-    if (!is)
-        throw atf::not_found_error< std::string >
-            ("Cannot open Atffile", "Atffile");
+#define ATF_INIT_TEST_CASES(tcs) \
+    namespace atf { \
+        int run_test_program(int, char* const*, \
+                             const std::vector< atf::test_case * >&); \
+    } \
+    \
+    int \
+    main(int argc, char* const* argv) \
+    { \
+        void __atf_init_test_cases(std::vector< atf::test_case * >&); \
+        std::vector< atf::test_case * > tcs; \
+        __atf_init_test_cases(tcs); \
+        return atf::run_test_program(argc, argv, tcs); \
+    } \
+    \
+    void \
+    __atf_init_test_cases(std::vector< atf::test_case * >& tcs)
 
-    std::string line;
-    while (std::getline(is, line))
-        push_back(line);
-
-    is.close();
-}
+#endif // _ATF_HPP_

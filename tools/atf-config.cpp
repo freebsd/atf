@@ -41,10 +41,10 @@
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
+#include <map>
+#include <string>
 
-#include "libatf.hpp"
-
-#include "libatfmain/application.hpp"
+#include "atfprivate/application.hpp"
 
 class atf_config : public atf::application {
     static const char* m_description;

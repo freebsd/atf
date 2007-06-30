@@ -44,11 +44,9 @@
 #include <iostream>
 #include <string>
 
-#include "libatf.hpp"
-
-#include "libatfmain/atffile.hpp"
-#include "libatfmain/application.hpp"
-#include "libatfmain/filesystem.hpp"
+#include "atfprivate/application.hpp"
+#include "atfprivate/atffile.hpp"
+#include "atfprivate/filesystem.hpp"
 
 std::string
 identify(const std::string& name, const std::string& curdir)

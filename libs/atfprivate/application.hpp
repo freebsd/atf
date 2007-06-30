@@ -38,29 +38,60 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_LIBATFMAIN_HPP_
-#define _ATF_LIBATFMAIN_HPP_
+#ifndef _ATF_APPLICATION_HPP_
+#define _ATF_APPLICATION_HPP_
 
-#include <vector>
+#include <ostream>
+#include <set>
+#include <string>
 
-#include <libatf.hpp>
+#include <atfprivate/exceptions.hpp>
 
-#define ATF_INIT_TEST_CASES(tcs) \
-    namespace atf { \
-        int run_test_program(int, char* const*, \
-                             const std::vector< atf::test_case * >&); \
-    } \
-    \
-    int \
-    main(int argc, char* const* argv) \
-    { \
-        void __atf_init_test_cases(std::vector< atf::test_case * >&); \
-        std::vector< atf::test_case * > tcs; \
-        __atf_init_test_cases(tcs); \
-        return atf::run_test_program(argc, argv, tcs); \
-    } \
-    \
-    void \
-    __atf_init_test_cases(std::vector< atf::test_case * >& tcs)
+namespace atf {
 
-#endif // _ATF_LIBATFMAIN_HPP_
+class application {
+    void process_options(void);
+    void usage(std::ostream&);
+
+    bool inited(void);
+
+protected:
+    class option {
+        char m_character;
+        std::string m_argument;
+        std::string m_description;
+
+        friend class application;
+
+    public:
+        option(char, const std::string&, const std::string&);
+
+        bool operator<(const option&) const;
+    };
+    typedef std::set< option > options_set;
+
+    int m_argc;
+    char* const* m_argv;
+
+    const char* m_prog_name;
+    std::string m_description;
+    std::string m_manpage;
+
+    options_set options(void);
+
+    // To be redefined.
+    virtual std::string specific_args(void) const;
+    virtual options_set specific_options(void) const;
+    virtual void process_option(int, const char*);
+    virtual int main(void) = 0;
+
+public:
+    application(const std::string&, const std::string& = "");
+    virtual ~application(void);
+
+    int run(int, char* const* argv);
+};
+
+} // namespace atf
+
+#endif // _ATF_APPLICATION_HPP_

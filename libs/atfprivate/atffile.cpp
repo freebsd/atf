@@ -38,60 +38,21 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_APPLICATION_HPP_
-#define _ATF_APPLICATION_HPP_
+#include <fstream>
 
-#include <ostream>
-#include <set>
-#include <string>
+#include "atfprivate/atffile.hpp"
+#include "atfprivate/exceptions.hpp"
 
-#include <libatfmain/exceptions.hpp>
+atf::atffile::atffile(const std::string& filename)
+{
+    std::ifstream is(filename.c_str());
+    if (!is)
+        throw atf::not_found_error< std::string >
+            ("Cannot open Atffile", "Atffile");
 
-namespace atf {
+    std::string line;
+    while (std::getline(is, line))
+        push_back(line);
 
-class application {
-    void process_options(void);
-    void usage(std::ostream&);
-
-    bool inited(void);
-
-protected:
-    class option {
-        char m_character;
-        std::string m_argument;
-        std::string m_description;
-
-        friend class application;
-
-    public:
-        option(char, const std::string&, const std::string&);
-
-        bool operator<(const option&) const;
-    };
-    typedef std::set< option > options_set;
-
-    int m_argc;
-    char* const* m_argv;
-
-    const char* m_prog_name;
-    std::string m_description;
-    std::string m_manpage;
-
-    options_set options(void);
-
-    // To be redefined.
-    virtual std::string specific_args(void) const;
-    virtual options_set specific_options(void) const;
-    virtual void process_option(int, const char*);
-    virtual int main(void) = 0;
-
-public:
-    application(const std::string&, const std::string& = "");
-    virtual ~application(void);
-
-    int run(int, char* const* argv);
-};
-
-} // namespace atf
-
-#endif // _ATF_APPLICATION_HPP_
+    is.close();
+}

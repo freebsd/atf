@@ -39,7 +39,7 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-if test ! -f libatf.hpp; then
+if test ! -f ./libs/atf.hpp; then
     echo "`basename $0`: must be run from atf source's top directory" 1>&2
     exit 1
 fi

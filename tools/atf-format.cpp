@@ -42,10 +42,8 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "libatf.hpp"
-
-#include "libatfmain/application.hpp"
-#include "libatfmain/ui.hpp"
+#include "atfprivate/application.hpp"
+#include "atfprivate/ui.hpp"
 
 class atf_format : public atf::application {
     static const char* m_description;

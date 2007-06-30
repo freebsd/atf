@@ -56,9 +56,9 @@ is put here just to clarify this fact.
   the ones in the XML Catalog Manager project, version 2.2.
   Author: Julio M. Merino Vidal <jmmv@users.sourceforge.net>
 
-* libatfmain/ui.cpp: The format_paragraph and format_text functions
-  were derived form the ones in the Monotone project, revision
-  3a0982da308228d796df35f98d787c5cff2bb5b6.
+* libs/atfprivate/ui.cpp: The format_paragraph and format_text
+  functions were derived form the ones in the Monotone project,
+  revision 3a0982da308228d796df35f98d787c5cff2bb5b6.
   Author: Julio M. Merino Vidal <jmmv@NetBSD.org>
 
 

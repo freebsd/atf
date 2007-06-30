@@ -43,11 +43,10 @@
 #include <iostream>
 #include <vector>
 
-#include "libatf/test_case.hpp"
-
-#include "libatfmain/application.hpp"
-#include "libatfmain/report.hpp"
-#include "libatfmain/ui.hpp"
+#include "atfprivate/application.hpp"
+#include "atfprivate/ui.hpp"
+#include "atf/report.hpp"
+#include "atf/test_case.hpp"
 
 class test_program : public atf::application {
 public:

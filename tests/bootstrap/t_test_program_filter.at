@@ -38,7 +38,7 @@ dnl OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 dnl IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 dnl
 
-AT_SETUP([libatfmain: output format and exit codes])
+AT_SETUP([test_program: filter test cases by name])
 
 AT_DATA([expout], [tc_pass, passed
 tc_fail, failed, On purpose
@@ -51,13 +51,15 @@ AT_DATA([expout], [tc_pass, passed
 ])
 AT_CHECK([TEST_HELPER(tp_basic) tc_pass], 0, [expout], [])
 
-AT_DATA([expout], [tc_fail, failed, On purpose
-])
-AT_CHECK([TEST_HELPER(tp_basic) tc_fail], 1, [expout], [])
-
 AT_DATA([expout], [tc_skip, skipped, By design
 ])
 AT_CHECK([TEST_HELPER(tp_basic) tc_skip], 0, [expout], [])
+
+AT_XFAIL_IF(true) dnl Wildcards not supported yet.
+AT_DATA([expout], [tc_pass, passed
+tc_fail, failed, On purpose
+])
+AT_CHECK([TEST_HELPER(tp_basic) *a*], 1, [expout], [])
 
 AT_CLEANUP()
 

@@ -38,61 +38,77 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <sstream>
+#include "config.h"
 
-#include "libatf/test_case_result.hpp"
+#include <cstdarg>
+#include <cstdio>
+#include <cstring>
 
-atf::test_case_result::test_case_result(atf::test_case_result::status s,
-                                        const std::string& r) :
-    m_status(s),
-    m_reason(r)
+#include "atfprivate/exceptions.hpp"
+
+#if !defined(HAVE_VSNPRINTF_IN_STD)
+namespace std {
+using ::vsnprintf;
+}
+#endif // !defined(HAVE_VSNPRINTF_IN_STD)
+
+atf::system_error::system_error(const std::string& who,
+                                const std::string& message,
+                                int sys_err) :
+    std::runtime_error(who + ": " + message),
+    m_sys_err(sys_err)
 {
 }
 
-atf::test_case_result
-atf::test_case_result::passed(void)
+atf::system_error::~system_error(void)
+    throw()
 {
-    return test_case_result(status_passed, "");
 }
 
-atf::test_case_result
-atf::test_case_result::skipped(const std::string& reason)
-{
-    return test_case_result(status_skipped, reason);
-}
-
-atf::test_case_result
-atf::test_case_result::skipped(size_t line, const std::string& reason)
-{
-    std::ostringstream ss;
-    ss << "Line " << line << ": " << reason;
-    return skipped(ss.str());
-}
-
-atf::test_case_result
-atf::test_case_result::failed(const std::string& reason)
-{
-    return test_case_result(status_failed, reason);
-}
-
-atf::test_case_result
-atf::test_case_result::failed(size_t line, const std::string& reason)
-{
-    std::ostringstream ss;
-    ss << "Line " << line << ": " << reason;
-    return failed(ss.str());
-}
-
-atf::test_case_result::status
-atf::test_case_result::get_status(void)
+int
+atf::system_error::code(void)
     const
+    throw()
 {
-    return m_status;
+    return m_sys_err;
 }
 
-const std::string&
-atf::test_case_result::get_reason(void)
+const char*
+atf::system_error::what(void)
     const
+    throw()
 {
-    return m_reason;
+    try {
+        if (m_message.length() == 0) {
+            m_message = std::string(std::runtime_error::what()) + ": ";
+            m_message += ::strerror(m_sys_err);
+        }
+
+        return m_message.c_str();
+    } catch (...) {
+        return "Unable to format system_error message";
+    }
+}
+
+atf::usage_error::usage_error(const char *fmt, ...)
+    throw() :
+    std::runtime_error("usage_error; message unformatted")
+{
+    va_list ap;
+
+    va_start(ap, fmt);
+    std::vsnprintf(m_text, sizeof(m_text), fmt, ap);
+    va_end(ap);
+}
+
+atf::usage_error::~usage_error(void)
+    throw()
+{
+}
+
+const char*
+atf::usage_error::what(void)
+    const throw()
+{
+    return m_text;
 }

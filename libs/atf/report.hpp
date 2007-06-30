@@ -38,11 +38,26 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_LIBATF_HPP_
-#define _ATF_LIBATF_HPP_
+#ifndef _ATF_REPORT_HPP_
+#define _ATF_REPORT_HPP_
 
-#include <libatf/exceptions.hpp>
-#include <libatf/test_case.hpp>
-#include <libatf/test_case_result.hpp>
+#include <string>
+#include <ostream>
 
-#endif // _ATF_LIBATF_HPP_
+#include <atf/test_case_result.hpp>
+
+namespace atf {
+
+class report {
+    std::ostream& m_os;
+
+public:
+    report(std::ostream&);
+    virtual ~report(void);
+
+    virtual void log(const std::string&, const test_case_result&);
+};
+
+} // namespace atf
+
+#endif // _ATF_REPORT_HPP_

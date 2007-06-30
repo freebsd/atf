@@ -38,10 +38,9 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <libatf.hpp>
-#include <libatfmain.hpp>
+#include <atf.hpp>
 
-#include "libatfmain/filesystem.hpp"
+#include "atfprivate/filesystem.hpp"
 
 ATF_TEST_CASE(tc_get_branch_path);
 

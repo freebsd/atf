@@ -16,10 +16,5 @@ addressed.  Basically they are here so that they are not omitted.
   outputs.  The current one is fine to be parsed by other programs, but
   is not specially readable by humans.
 
-* I don't like the way libatf and libatfmain are currently separated,
-  and I'm not sure if the separation is worth it.  Should be reordered
-  in some other way, possibly keeping all code and headers in a single
-  directory.
-
 
 -- EOF

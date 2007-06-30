@@ -38,54 +38,61 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_LIBATF_EXCEPTIONS_HPP_
-#define _ATF_LIBATF_EXCEPTIONS_HPP_
+#include <sstream>
 
-#include <stdexcept>
+#include "atf/test_case_result.hpp"
 
-namespace atf {
-
-template< class T >
-class not_found_error :
-    public std::runtime_error
-{
-    T m_value;
-
-public:
-    not_found_error(const std::string& message, const T& value) throw();
-
-    virtual ~not_found_error(void) throw();
-
-    const T& get_value(void) const throw();
-};
-
-template< class T >
-inline
-not_found_error< T >::not_found_error(const std::string& message,
-                                      const T& value)
-    throw() :
-    std::runtime_error(message),
-    m_value(value)
+atf::test_case_result::test_case_result(atf::test_case_result::status s,
+                                        const std::string& r) :
+    m_status(s),
+    m_reason(r)
 {
 }
 
-template< class T >
-inline
-not_found_error< T >::~not_found_error(void)
-    throw()
+atf::test_case_result
+atf::test_case_result::passed(void)
 {
+    return test_case_result(status_passed, "");
 }
 
-template< class T >
-inline
-const T&
-not_found_error< T >::get_value(void)
+atf::test_case_result
+atf::test_case_result::skipped(const std::string& reason)
+{
+    return test_case_result(status_skipped, reason);
+}
+
+atf::test_case_result
+atf::test_case_result::skipped(size_t line, const std::string& reason)
+{
+    std::ostringstream ss;
+    ss << "Line " << line << ": " << reason;
+    return skipped(ss.str());
+}
+
+atf::test_case_result
+atf::test_case_result::failed(const std::string& reason)
+{
+    return test_case_result(status_failed, reason);
+}
+
+atf::test_case_result
+atf::test_case_result::failed(size_t line, const std::string& reason)
+{
+    std::ostringstream ss;
+    ss << "Line " << line << ": " << reason;
+    return failed(ss.str());
+}
+
+atf::test_case_result::status
+atf::test_case_result::get_status(void)
     const
-    throw()
 {
-    return m_value;
+    return m_status;
 }
 
-}; // namespace atf
-
-#endif // _ATF_LIBATF_EXCEPTIONS_HPP_
+const std::string&
+atf::test_case_result::get_reason(void)
+    const
+{
+    return m_reason;
+}

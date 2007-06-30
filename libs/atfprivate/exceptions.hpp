@@ -38,77 +38,76 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "config.h"
+#ifndef _ATF_EXCEPTIONS_HPP_
+#define _ATF_EXCEPTIONS_HPP_
 
-#include <cstdarg>
-#include <cstdio>
-#include <cstring>
+#include <stdexcept>
 
-#include "libatfmain/exceptions.hpp"
+namespace atf {
 
-#if !defined(HAVE_VSNPRINTF_IN_STD)
-namespace std {
-using ::vsnprintf;
-}
-#endif // !defined(HAVE_VSNPRINTF_IN_STD)
-
-atf::system_error::system_error(const std::string& who,
-                                const std::string& message,
-                                int sys_err) :
-    std::runtime_error(who + ": " + message),
-    m_sys_err(sys_err)
+template< class T >
+class not_found_error :
+    public std::runtime_error
 {
-}
+    T m_value;
 
-atf::system_error::~system_error(void)
-    throw()
-{
-}
+public:
+    not_found_error(const std::string& message, const T& value) throw();
 
-int
-atf::system_error::code(void)
-    const
-    throw()
-{
-    return m_sys_err;
-}
+    virtual ~not_found_error(void) throw();
 
-const char*
-atf::system_error::what(void)
-    const
-    throw()
-{
-    try {
-        if (m_message.length() == 0) {
-            m_message = std::string(std::runtime_error::what()) + ": ";
-            m_message += ::strerror(m_sys_err);
-        }
+    const T& get_value(void) const throw();
+};
 
-        return m_message.c_str();
-    } catch (...) {
-        return "Unable to format system_error message";
-    }
-}
-
-atf::usage_error::usage_error(const char *fmt, ...)
+template< class T >
+inline
+not_found_error< T >::not_found_error(const std::string& message,
+                                      const T& value)
     throw() :
-    std::runtime_error("usage_error; message unformatted")
+    std::runtime_error(message),
+    m_value(value)
 {
-    va_list ap;
-
-    va_start(ap, fmt);
-    std::vsnprintf(m_text, sizeof(m_text), fmt, ap);
-    va_end(ap);
 }
 
-atf::usage_error::~usage_error(void)
+template< class T >
+inline
+not_found_error< T >::~not_found_error(void)
     throw()
 {
 }
 
-const char*
-atf::usage_error::what(void)
-    const throw()
+template< class T >
+inline
+const T&
+not_found_error< T >::get_value(void)
+    const
+    throw()
 {
-    return m_text;
+    return m_value;
 }
+
+class system_error : public std::runtime_error {
+    int m_sys_err;
+    mutable std::string m_message;
+
+public:
+    system_error(const std::string&, const std::string&, int);
+    ~system_error(void) throw();
+
+    int code(void) const throw();
+    const char* what(void) const throw();
+};
+
+class usage_error : public std::runtime_error {
+    char m_text[4096];
+
+public:
+    usage_error(const char* fmt, ...) throw();
+    ~usage_error(void) throw();
+
+    const char* what(void) const throw();
+};
+
+} // namespace atf
+
+#endif // _ATF_EXCEPTIONS_HPP_

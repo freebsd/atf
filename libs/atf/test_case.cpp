@@ -41,8 +41,8 @@
 #include <cassert>
 #include <stdexcept>
 
-#include "libatf/exceptions.hpp"
-#include "libatf/test_case.hpp"
+#include "atfprivate/exceptions.hpp"
+#include "atf/test_case.hpp"
 
 atf::test_case::test_case(const std::string& ident) :
     m_ident(ident)

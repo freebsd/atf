@@ -47,9 +47,9 @@ extern "C" {
 #include <cstring>
 #include <iostream>
 
-#include "libatfmain/application.hpp"
-#include "libatfmain/exceptions.hpp"
-#include "libatfmain/ui.hpp"
+#include "atfprivate/application.hpp"
+#include "atfprivate/exceptions.hpp"
+#include "atfprivate/ui.hpp"
 
 atf::application::option::option(char ch,
                                  const std::string& a,

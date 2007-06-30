@@ -38,7 +38,7 @@ dnl OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 dnl IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 dnl
 
-AT_SETUP([libcommon: arguments and options handling])
+AT_SETUP([application: arguments and options handling])
 
 dnl Check that an application that does not redefine any method does
 dnl not show strange flags in the usage message.

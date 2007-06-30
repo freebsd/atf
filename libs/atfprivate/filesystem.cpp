@@ -51,8 +51,8 @@ extern "C" {
 #include <cassert>
 #include <cerrno>
 
-#include "libatfmain/exceptions.hpp"
-#include "libatfmain/filesystem.hpp"
+#include "atfprivate/exceptions.hpp"
+#include "atfprivate/filesystem.hpp"
 
 atf::directory::directory(const std::string& path)
 {

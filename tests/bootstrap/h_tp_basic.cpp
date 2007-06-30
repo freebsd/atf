@@ -38,8 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <libatf.hpp>
-#include <libatfmain.hpp>
+#include <atf.hpp>
 
 ATF_TEST_CASE(tc_pass);
 

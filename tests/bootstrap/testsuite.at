@@ -42,7 +42,7 @@ AT_INIT([bootstrap tests])
 
 m4_define([GUESS_TOPDIR], {
     old=$(pwd)
-    while test $(pwd) != '/' -a ! -e ./libatf.hpp; do
+    while test $(pwd) != '/' -a ! -e ./libs/atf.hpp; do
         cd ..
     done
     topdir=$(pwd)
@@ -55,12 +55,11 @@ m4_define([TEST_HELPER], [$(GUESS_TOPDIR)/tests/bootstrap/h_$1])
 m4_define(COUNT_LINES, [test @S|@[(wc -l $1 | awk '{ print @S|@1 }')] = $2])
 
 dnl The tests below are sorted depending on how important they are.
-m4_include(tests/bootstrap/t_libcommon_opts_args.at)
-m4_include(tests/bootstrap/t_libatfmain_options.at)
-m4_include(tests/bootstrap/t_libatfmain_help.at)
-m4_include(tests/bootstrap/t_libatfmain_filter.at)
-m4_include(tests/bootstrap/t_libatfmain_run.at)
-m4_include(tests/bootstrap/t_libatfmain_list.at)
+m4_include(tests/bootstrap/t_application_opts_args.at)
+m4_include(tests/bootstrap/t_application_help.at)
+m4_include(tests/bootstrap/t_test_program_filter.at)
+m4_include(tests/bootstrap/t_test_program_run.at)
+m4_include(tests/bootstrap/t_test_program_list.at)
 m4_include(tests/bootstrap/t_atf_format.at)
 m4_include(tests/bootstrap/t_atf_config.at)
 m4_include(tests/bootstrap/t_atf_identify.at)
