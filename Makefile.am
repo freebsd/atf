@@ -99,6 +99,15 @@ atf_HEADERS = libs/atf/test_case.hpp \
 atfdir = $(includedir)/atf
 
 # -------------------------------------------------------------------------
+# `subrs' directory.
+# -------------------------------------------------------------------------
+
+subrs_DATA = subrs/atf.footer.subr \
+             subrs/atf.header.subr \
+             subrs/atf.init.subr
+subrsdir = $(pkgdatadir)
+
+# -------------------------------------------------------------------------
 # `tests/bootstrap' directory.
 # -------------------------------------------------------------------------
 
@@ -112,10 +121,16 @@ tests_bootstrap_h_app_opts_args_SOURCES = tests/bootstrap/h_app_opts_args.cpp
 tests_bootstrap_h_app_opts_args_LDADD = -latfprivate
 tests_bootstrap_h_app_opts_args_LDFLAGS = -Llibs
 
-check_PROGRAMS += tests/bootstrap/h_tp_basic
-tests_bootstrap_h_tp_basic_SOURCES = tests/bootstrap/h_tp_basic.cpp
-tests_bootstrap_h_tp_basic_LDADD = -latf
-tests_bootstrap_h_tp_basic_LDFLAGS = -Llibs
+check_PROGRAMS += tests/bootstrap/h_tp_basic_cpp
+tests_bootstrap_h_tp_basic_cpp_SOURCES = tests/bootstrap/h_tp_basic_cpp.cpp
+tests_bootstrap_h_tp_basic_cpp_LDADD = -latf
+tests_bootstrap_h_tp_basic_cpp_LDFLAGS = -Llibs
+
+check_SCRIPTS = tests/bootstrap/h_tp_basic_sh
+CLEANFILES = tests/bootstrap/h_tp_basic_sh
+# XXX Not cross-compile friendly...
+tests/bootstrap/h_tp_basic_sh: $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh
+	./tools/atf-compile -o $@ $<
 
 TESTS=		$(srcdir)/tests/bootstrap/testsuite
 TESTS_ENVIRONMENT = PATH=$$(atf-config -t atf_libexecdir):$${PATH}
@@ -139,6 +154,7 @@ testsuite_incs=	$(srcdir)/tests/bootstrap/t_application_help.at \
 		$(srcdir)/tests/bootstrap/t_atf_format.at \
 		$(srcdir)/tests/bootstrap/t_atf_identify.at \
 		$(srcdir)/tests/bootstrap/t_atf_run.at \
+		$(srcdir)/tests/bootstrap/t_test_program_compare.at \
 		$(srcdir)/tests/bootstrap/t_test_program_filter.at \
 		$(srcdir)/tests/bootstrap/t_test_program_list.at \
 		$(srcdir)/tests/bootstrap/t_test_program_run.at
@@ -214,6 +230,11 @@ bin_PROGRAMS = tools/atf-config
 tools_atf_config_SOURCES = tools/atf-config.cpp
 tools_atf_config_LDADD = -latfprivate
 tools_atf_config_LDFLAGS = -Llibs
+
+bin_PROGRAMS += tools/atf-compile
+tools_atf_compile_SOURCES = tools/atf-compile.cpp
+tools_atf_compile_LDADD = -latfprivate
+tools_atf_compile_LDFLAGS = -Llibs
 
 libexec_PROGRAMS = tools/atf-format
 tools_atf_format_SOURCES = tools/atf-format.cpp

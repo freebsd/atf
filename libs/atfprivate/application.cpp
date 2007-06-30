@@ -177,16 +177,19 @@ atf::application::usage(std::ostream& os)
         const option& opt = (*iter);
 
         if (opt.m_argument.length() > coldesc)
-            coldesc = opt.m_argument.length();
+            coldesc = opt.m_argument.length() + 1;
     }
     for (options_set::const_iterator iter = opts.begin();
          iter != opts.end(); iter++) {
         const option& opt = (*iter);
 
-        std::string tag = std::string("    -") + opt.m_character + " " +
-                          opt.m_argument + "    ";
+        std::string tag = std::string("    -") + opt.m_character;
+        if (opt.m_argument.empty())
+            tag += "    ";
+        else
+            tag += " " + opt.m_argument + "    ";
         os << tag
-           << format_text(opt.m_description, coldesc + 11, tag.length())
+           << format_text(opt.m_description, coldesc + 10, tag.length())
            << std::endl;
     }
     os << std::endl;
