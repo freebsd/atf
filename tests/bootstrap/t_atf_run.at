@@ -74,22 +74,21 @@ CREATE_PASS_TEST([top/dir1/test3], [tc_3])
 CREATE_FAIL_TEST([top/dir2/test4], [tc_4])
 CREATE_PASS_TEST([top/dir2/test5], [tc_5])
 
-AT_DATA([expout], [tc_3, passed
-])
-AT_CHECK([cd top/dir1 && atf-run], [0], [expout], [])
+AT_CHECK([cd top/dir1 && atf-run], [0], [stdout], [])
+AT_CHECK([grep -i 'tc_3.*passed' stdout], [0], [ignore], [])
+AT_CHECK([grep -i 'tc_@<:@1245@:>@' stdout], [1], [], [])
 
-AT_DATA([expout], [tc_4, failed, No reason
-tc_5, passed
-])
-AT_CHECK([cd top/dir2 && atf-run], [1], [expout], [])
+AT_CHECK([cd top/dir2 && atf-run], [1], [stdout], [])
+AT_CHECK([grep -i 'tc_4.*failed' stdout], [0], [ignore], [])
+AT_CHECK([grep -i 'tc_5.*passed' stdout], [0], [ignore], [])
+AT_CHECK([grep -i 'tc_@<:@123@:>@' stdout], [1], [], [])
 
-AT_DATA([expout], [tc_3, passed
-tc_4, failed, No reason
-tc_5, passed
-tc_1, passed
-tc_2, failed, No reason
-])
-AT_CHECK([cd top && atf-run], [1], [expout], [])
+AT_CHECK([cd top && atf-run], [1], [stdout], [])
+AT_CHECK([grep -i 'tc_1.*passed' stdout], [0], [ignore], [])
+AT_CHECK([grep -i 'tc_2.*failed' stdout], [0], [ignore], [])
+AT_CHECK([grep -i 'tc_3.*passed' stdout], [0], [ignore], [])
+AT_CHECK([grep -i 'tc_4.*failed' stdout], [0], [ignore], [])
+AT_CHECK([grep -i 'tc_5.*passed' stdout], [0], [ignore], [])
 
 AT_CLEANUP()
 

@@ -24,5 +24,7 @@ addressed.  Basically they are here so that they are not omitted.
   some extent.  Once implemented, make t_file_handle.cpp and t_pipe.cpp
   use stdout again, instead of stderr.
 
+* Make ATF_PASS optional.  It is a pain to put it everywhere...
+
 
 -- EOF

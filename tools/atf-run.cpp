@@ -58,92 +58,17 @@ extern "C" {
 #include "atfprivate/filesystem.hpp"
 #include "atfprivate/pipe.hpp"
 #include "atfprivate/pistream.hpp"
-
-static int run_test(const std::string& progname);
-
-static
-int
-run_test_program(const std::string& progname)
-{
-    pid_t pid;
-
-    atf::pipe outpipe;
-
-    int code = EXIT_SUCCESS;
-
-    pid = ::fork();
-    if (pid == -1) {
-        throw atf::system_error("run_test_program",
-                                "fork(2) failed", errno);
-    } else if (pid == 0) {
-        outpipe.rend().close();
-        atf::file_handle fhout = outpipe.wend().get();
-        fhout.posix_remap(STDOUT_FILENO);
-
-        ::execl(progname.c_str(), atf::get_leaf_name(progname).c_str(),
-                NULL);
-
-        std::cerr << "Failed to execute `" << progname << "': "
-                  << std::strerror(errno) << std::endl;
-        ::exit(128);
-    } else {
-        outpipe.wend().close();
-        atf::file_handle fhout = outpipe.rend().get();
-        atf::pistream in(fhout);
-
-        std::string line;
-        while (std::getline(in, line))
-            std::cout << line << std::endl;
-
-        in.close();
-
-        int status;
-        if (::waitpid(pid, &status, 0) == -1)
-            throw atf::system_error("run_test_program",
-                                    "waitpid(2) failed", errno);
-        if (WIFEXITED(status))
-            code = WEXITSTATUS(status);
-        else
-            code = EXIT_FAILURE;
-    }
-
-    return code;
-}
-
-static
-int
-run_test_directory(const std::string& progname)
-{
-    atf::atffile af(progname + "/Atffile");
-
-    bool ok = true;
-    for (std::vector< std::string >::const_iterator iter = af.begin();
-         iter != af.end(); iter++)
-        ok &= (run_test(progname + "/" + *iter) == EXIT_SUCCESS);
-
-    return ok ? EXIT_SUCCESS : EXIT_FAILURE;
-}
-
-static
-int
-run_test(const std::string& progname)
-{
-    struct stat sb;
-
-    if (::stat(progname.c_str(), &sb) == -1)
-        throw atf::system_error("run_test",
-                                "stat(2) failed", errno);
-
-    int errcode;
-    if (sb.st_mode & S_IFDIR)
-        errcode = run_test_directory(progname.c_str());
-    else
-        errcode = run_test_program(progname.c_str());
-    return errcode;
-}
+#include "atfprivate/ui.hpp"
 
 class atf_run : public atf::application {
     static const char* m_description;
+
+    size_t m_tps;
+    size_t m_tcs_passed, m_tcs_failed, m_tcs_skipped;
+
+    int run_test(const std::string&);
+    int run_test_directory(const std::string&);
+    int run_test_program(const std::string&);
 
     std::string specific_args(void) const;
 
@@ -170,6 +95,129 @@ atf_run::specific_args(void)
 }
 
 int
+atf_run::run_test(const std::string& tp)
+{
+    struct stat sb;
+
+    if (::stat(tp.c_str(), &sb) == -1)
+        throw atf::system_error("atf_run::run_test",
+                                "stat(2) failed", errno);
+
+    int errcode;
+    if (sb.st_mode & S_IFDIR)
+        errcode = run_test_directory(tp);
+    else
+        errcode = run_test_program(tp);
+    return errcode;
+}
+
+int
+atf_run::run_test_directory(const std::string& tp)
+{
+    atf::atffile af(tp + "/Atffile");
+
+    bool ok = true;
+    for (std::vector< std::string >::const_iterator iter = af.begin();
+         iter != af.end(); iter++)
+        ok &= (run_test(tp + "/" + *iter) == EXIT_SUCCESS);
+
+    return ok ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+int
+atf_run::run_test_program(const std::string& tp)
+{
+    atf::pipe outpipe;
+    pid_t pid = ::fork();
+    if (pid == -1) {
+        throw atf::system_error("run_test_program",
+                                "fork(2) failed", errno);
+    } else if (pid == 0) {
+        outpipe.rend().close();
+        atf::file_handle fhout = outpipe.wend().get();
+        fhout.posix_remap(STDOUT_FILENO);
+
+        ::execl(tp.c_str(), atf::get_leaf_name(tp).c_str(),
+                NULL);
+
+        std::cerr << "Failed to execute `" << tp << "': "
+                  << std::strerror(errno) << std::endl;
+        ::exit(128);
+    }
+
+    outpipe.wend().close();
+    atf::file_handle fhout = outpipe.rend().get();
+    atf::pistream in(fhout);
+
+    std::string ident;
+    {
+        std::string dir = atf::get_branch_path(tp);
+        if (dir == ".")
+            dir = "/";
+        else
+            dir = "/" + dir + "/";
+        ident = atf::identify(atf::get_leaf_name(tp),
+                              atf::get_work_dir() + dir);
+    }
+
+    std::cout << ident << ": Running test cases" << std::endl;
+
+    size_t passed = 0, skipped = 0, failed = 0;
+    std::string line;
+    while (std::getline(in, line)) {
+        std::vector< std::string > words = atf::split(line, ", ");
+
+        const std::string& tc = words[0];
+        const std::string& status = words[1];
+        const std::string& reason = words.size() == 3 ? words[2] : "";
+
+        std::string tag = "    " + tc + ": ";
+        std::string msg;
+        if (status == "passed") {
+            passed++;
+            msg = "Passed.";
+        } else if (status == "skipped") {
+            skipped++;
+            msg = "Skipped: " + reason;
+        } else if (status == "failed") {
+            failed++;
+            msg = "Failed: " + reason;
+        } else {
+            // XXX Bogus test.
+        }
+
+        std::cout << tag << atf::format_text(msg, tag.length(), tag.length())
+                  << std::endl;
+    }
+
+    std::cout << "    Summary: " << passed << " passed, " << skipped
+              << " skipped, " << failed << " failed" << std::endl
+              << std::endl;
+
+    in.close();
+
+    m_tps++;
+    m_tcs_passed += passed;
+    m_tcs_failed += failed;
+    m_tcs_skipped += skipped;
+
+    int status;
+    if (::waitpid(pid, &status, 0) == -1)
+        throw atf::system_error("atf_run::run_test_program",
+                                "waitpid(2) failed", errno);
+
+    int code;
+    if (WIFEXITED(status)) {
+        code = WEXITSTATUS(status);
+        if (failed > 0 && code == EXIT_SUCCESS) {
+            // XXX Bogus test.
+        }
+    } else
+        code = EXIT_FAILURE;
+    return code;
+}
+
+int
 atf_run::main(void)
 {
     std::vector< std::string > tps;
@@ -180,10 +228,26 @@ atf_run::main(void)
             tps.push_back(m_argv[i]);
     }
 
+    m_tps = 0;
+    m_tcs_passed = m_tcs_failed = m_tcs_skipped = 0;
+
     bool ok = true;
     for (std::vector< std::string >::const_iterator iter = tps.begin();
          iter != tps.end(); iter++)
         ok &= (run_test(*iter) == EXIT_SUCCESS);
+
+    if (m_tps > 0) {
+        std::cout << "Summary for " << m_tps << " executed test programs"
+                  << std::endl;
+        std::cout << "    " << m_tcs_passed << " test cases passed."
+                  << std::endl;
+        std::cout << "    " << m_tcs_failed << " test cases failed."
+                  << std::endl;
+        std::cout << "    " << m_tcs_skipped << " test cases were skipped."
+                  << std::endl;
+    } else {
+        std::cout << "No tests run." << std::endl;
+    }
 
     return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }
