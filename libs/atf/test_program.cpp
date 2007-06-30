@@ -45,8 +45,37 @@
 
 #include "atfprivate/application.hpp"
 #include "atfprivate/ui.hpp"
-#include "atf/report.hpp"
 #include "atf/test_case.hpp"
+
+static
+std::string
+format_tcr(const std::string& ident,
+           const atf::test_case_result& tcr)
+{
+    atf::test_case_result::status s = tcr.get_status();
+    const std::string& r = tcr.get_reason();
+
+    std::string str = ident + ", ";
+
+    switch (s) {
+    case atf::test_case_result::status_passed:
+        str += "passed";
+        break;
+
+    case atf::test_case_result::status_skipped:
+        str += "skipped, " + r;
+        break;
+
+    case atf::test_case_result::status_failed:
+        str += "failed, " + r;
+        break;
+
+    default:
+        assert(false);
+    }
+
+    return str;
+}
 
 class test_program : public atf::application {
 public:
@@ -185,13 +214,12 @@ test_program::run_test_cases(void)
 
     int errcode = EXIT_SUCCESS;
 
-    atf::report r(std::cout);
     for (test_cases::iterator iter = tcs.begin();
          iter != tcs.end(); iter++) {
         atf::test_case* tc = *iter;
 
         atf::test_case_result tcr = tc->run();
-        r.log(tc->get("ident"), tcr);
+        std::cout << format_tcr(tc->get("ident"), tcr) << std::endl;
         if (tcr.get_status() == atf::test_case_result::status_failed)
             errcode = EXIT_FAILURE;
     }

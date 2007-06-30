@@ -77,9 +77,7 @@ libs_libatfprivate_la_SOURCES = libs/atfprivate/application.cpp \
 # -------------------------------------------------------------------------
 
 lib_LTLIBRARIES += libs/libatf.la
-libs_libatf_la_SOURCES = libs/atf/report.cpp \
-                         libs/atf/report.hpp \
-                         libs/atf/test_case.cpp \
+libs_libatf_la_SOURCES = libs/atf/test_case.cpp \
                          libs/atf/test_case_result.cpp \
                          libs/atf/test_program.cpp
 libs_libatf_la_LDFLAGS = -Llibs
