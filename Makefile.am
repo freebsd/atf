@@ -162,41 +162,51 @@ $(srcdir)/tests/bootstrap/testsuite: $(srcdir)/tests/bootstrap/testsuite.at \
 	mv $@.tmp $@
 
 # -------------------------------------------------------------------------
-# `tests/units' directory.
+# `tests/atf' directory.
 # -------------------------------------------------------------------------
 
 check-local:
-	cd tests/units && $(TESTS_ENVIRONMENT) atf-run
+	cd tests/atf && $(TESTS_ENVIRONMENT) atf-run
 
-check_PROGRAMS += tests/units/t_file_handle
-tests_units_t_file_handle_SOURCES = tests/units/t_file_handle.cpp
-tests_units_t_file_handle_LDADD = -latf
-tests_units_t_file_handle_LDFLAGS = -Llibs
+testsdir = $(exec_prefix)/tests
+pkgtestsdir = $(exec_prefix)/tests/atf
 
-check_PROGRAMS += tests/units/t_filesystem
-tests_units_t_filesystem_SOURCES = tests/units/t_filesystem.cpp
-tests_units_t_filesystem_LDADD = -latf
-tests_units_t_filesystem_LDFLAGS = -Llibs
+pkgtests_DATA = tests/atf/Atffile
 
-check_PROGRAMS += tests/units/t_pipe
-tests_units_t_pipe_SOURCES = tests/units/t_pipe.cpp
-tests_units_t_pipe_LDADD = -latf
-tests_units_t_pipe_LDFLAGS = -Llibs
+atf_units_DATA = tests/atf/units/Atffile
+atf_unitsdir = $(pkgtestsdir)/units
 
-check_PROGRAMS += tests/units/t_pistream
-tests_units_t_pistream_SOURCES = tests/units/t_pistream.cpp
-tests_units_t_pistream_LDADD = -latf
-tests_units_t_pistream_LDFLAGS = -Llibs
+atf_units_PROGRAMS = tests/atf/units/t_file_handle
+tests_atf_units_t_file_handle_SOURCES = tests/atf/units/t_file_handle.cpp
+tests_atf_units_t_file_handle_LDADD = -latf
+tests_atf_units_t_file_handle_LDFLAGS = -Llibs
 
-check_PROGRAMS += tests/units/t_postream
-tests_units_t_postream_SOURCES = tests/units/t_postream.cpp
-tests_units_t_postream_LDADD = -latf
-tests_units_t_postream_LDFLAGS = -Llibs
+atf_units_PROGRAMS += tests/atf/units/t_filesystem
+tests_atf_units_t_filesystem_SOURCES = tests/atf/units/t_filesystem.cpp
+tests_atf_units_t_filesystem_LDADD = -latf
+tests_atf_units_t_filesystem_LDFLAGS = -Llibs
 
-check_PROGRAMS += tests/units/t_systembuf
-tests_units_t_systembuf_SOURCES = tests/units/t_systembuf.cpp
-tests_units_t_systembuf_LDADD = -latf
-tests_units_t_systembuf_LDFLAGS = -Llibs
+atf_units_PROGRAMS += tests/atf/units/t_pipe
+tests_atf_units_t_pipe_SOURCES = tests/atf/units/t_pipe.cpp
+tests_atf_units_t_pipe_LDADD = -latf
+tests_atf_units_t_pipe_LDFLAGS = -Llibs
+
+atf_units_PROGRAMS += tests/atf/units/t_pistream
+tests_atf_units_t_pistream_SOURCES = tests/atf/units/t_pistream.cpp
+tests_atf_units_t_pistream_LDADD = -latf
+tests_atf_units_t_pistream_LDFLAGS = -Llibs
+
+atf_units_PROGRAMS += tests/atf/units/t_postream
+tests_atf_units_t_postream_SOURCES = tests/atf/units/t_postream.cpp
+tests_atf_units_t_postream_LDADD = -latf
+tests_atf_units_t_postream_LDFLAGS = -Llibs
+
+atf_units_PROGRAMS += tests/atf/units/t_systembuf
+tests_atf_units_t_systembuf_SOURCES = tests/atf/units/t_systembuf.cpp
+tests_atf_units_t_systembuf_LDADD = -latf
+tests_atf_units_t_systembuf_LDFLAGS = -Llibs
+
+check_PROGRAMS += atf_units_PROGRAMS
 
 # -------------------------------------------------------------------------
 # `tools' directory.
