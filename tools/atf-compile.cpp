@@ -126,7 +126,7 @@ atf_compile::process_option(int ch, const char* arg)
 void
 atf_compile::compile(std::ostream& os)
 {
-    os << "#! /bin/sh" << std::endl; // XXX
+    os << "#! " << atf::config::get("atf_shell") << std::endl;
     cat_file(os, atf::config::get("atf_pkgdatadir") + "/atf.init.subr");
     os << std::endl;
     os << ". ${atf_pkgdatadir}/atf.header.subr" << std::endl;

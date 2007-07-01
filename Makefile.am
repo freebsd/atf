@@ -54,6 +54,7 @@ dist-hook:
 
 AM_CPPFLAGS = -DATF_LIBEXECDIR=\"$(libexecdir)\" \
               -DATF_PKGDATADIR=\"$(pkgdatadir)\" \
+              -DATF_SHELL=\"$(ATF_SHELL)\" \
               -I$(srcdir)/libs
 
 # -------------------------------------------------------------------------

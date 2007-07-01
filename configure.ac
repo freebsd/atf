@@ -105,6 +105,27 @@ AC_COMPILE_IFELSE(
     AC_MSG_RESULT(no))
 
 dnl -----------------------------------------------------------------------
+dnl Check for required tools.
+dnl -----------------------------------------------------------------------
+
+AC_ARG_VAR([ATF_SHELL], [Location of the POSIX shell interpreter to use])
+if test x"${ATF_SHELL}" = x""; then
+    AC_PATH_PROGS(ATF_SHELL, [bash sh])
+else
+    case ${ATF_SHELL} in
+    /*)
+        ;;
+    *)
+        AC_MSG_ERROR([ATF_SHELL must hold an absolute path])
+        ;;
+    esac
+fi
+if test x"${ATF_SHELL}" = x""; then
+    AC_MSG_ERROR([No POSIX shell interpreter found; maybe set ATF_SHELL?])
+fi
+AC_SUBST(ATF_SHELL)
+
+dnl -----------------------------------------------------------------------
 dnl Set up the developer mode
 dnl -----------------------------------------------------------------------
 

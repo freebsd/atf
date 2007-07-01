@@ -66,6 +66,12 @@ init_variables(void)
     else
         m_variables["atf_pkgdatadir"] = ATF_PKGDATADIR;
 
+    str = ::getenv("ATF_SHELL");
+    if (str != NULL)
+        m_variables["atf_shell"] = str;
+    else
+        m_variables["atf_shell"] = ATF_SHELL;
+
     assert(!m_variables.empty());
 }
 
