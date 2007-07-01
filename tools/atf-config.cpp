@@ -45,6 +45,7 @@
 #include <string>
 
 #include "atfprivate/application.hpp"
+#include "atfprivate/config.hpp"
 
 class atf_config : public atf::application {
     static const char* m_description;
@@ -68,23 +69,6 @@ const char* atf_config::m_description =
     "installation-specific configuration values of the atf.  "
     "It can be used by external tools to discover where specific "
     "internal atf files are installed.";
-
-typedef std::map< std::string, std::string > confvars_map;
-
-// XXX This may belong to the library in some way so that programs can
-// query these variables dynamically, without having to use the build-time
-// macros.
-static
-confvars_map
-get_confvars(void)
-{
-    confvars_map cv;
-
-    cv["atf_libexecdir"] = ATF_LIBEXECDIR;
-    cv["atf_pkgdatadir"] = ATF_PKGDATADIR;
-
-    return cv;
-}
 
 atf_config::atf_config(void) :
     application(m_description, "atf-config(1)"),
@@ -137,16 +121,16 @@ atf_config::format_var(const std::string& name, const std::string& val)
 int
 atf_config::main(void)
 {
-    confvars_map cv = get_confvars();
-
     if (m_argc < 1) {
-        for (confvars_map::const_iterator iter = cv.begin();
-             iter != cv.end(); iter++)
+        std::map< std::string, std::string > cv = atf::config::get_all();
+
+        for (std::map< std::string, std::string >::const_iterator iter =
+             cv.begin(); iter != cv.end(); iter++)
             std::cout << format_var((*iter).first, (*iter).second)
                       << std::endl;
     } else {
         for (int i = 0; i < m_argc; i++) {
-            if (cv.find(m_argv[i]) == cv.end()) {
+            if (!atf::config::has(m_argv[i])) {
                 std::cerr << "Unknown variable `" << m_argv[i] << "'"
                           << std::endl;
                 return EXIT_FAILURE;
@@ -154,10 +138,7 @@ atf_config::main(void)
         }
 
         for (int i = 0; i < m_argc; i++) {
-            confvars_map::const_iterator iter = cv.find(m_argv[i]);
-            assert(iter != cv.end());
-
-            std::cout << format_var((*iter).first, (*iter).second)
+            std::cout << format_var(m_argv[i], atf::config::get(m_argv[i]))
                       << std::endl;
         }
     }

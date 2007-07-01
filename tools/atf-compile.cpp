@@ -49,12 +49,13 @@ extern "C" {
 #include <iostream>
 
 #include "atfprivate/application.hpp"
+#include "atfprivate/config.hpp"
 
 static
 void
-cat_file(std::ostream& os, const char* path)
+cat_file(std::ostream& os, const std::string& path)
 {
-    std::ifstream is(path);
+    std::ifstream is(path.c_str());
     if (!is) {
         // XXX
         std::cerr << "Cannot open " << path << std::endl;
@@ -126,7 +127,7 @@ void
 atf_compile::compile(std::ostream& os)
 {
     os << "#! /bin/sh" << std::endl; // XXX
-    cat_file(os, ATF_PKGDATADIR "/atf.init.subr");
+    cat_file(os, atf::config::get("atf_pkgdatadir") + "/atf.init.subr");
     os << std::endl;
     os << ". ${atf_pkgdatadir}/atf.header.subr" << std::endl;
     os << std::endl;

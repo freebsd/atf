@@ -65,6 +65,8 @@ libs_libatfprivate_la_SOURCES = libs/atfprivate/application.cpp \
                                 libs/atfprivate/application.hpp \
                                 libs/atfprivate/atffile.cpp \
                                 libs/atfprivate/atffile.hpp \
+                                libs/atfprivate/config.cpp \
+                                libs/atfprivate/config.hpp \
                                 libs/atfprivate/exceptions.cpp \
                                 libs/atfprivate/exceptions.hpp \
                                 libs/atfprivate/file_handle.cpp \
@@ -130,7 +132,7 @@ check_SCRIPTS = tests/bootstrap/h_tp_basic_sh
 CLEANFILES = tests/bootstrap/h_tp_basic_sh
 # XXX Not cross-compile friendly...
 tests/bootstrap/h_tp_basic_sh: $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh
-	./tools/atf-compile -o $@ $<
+	ATF_PKGDATADIR=$(srcdir)/subrs ./tools/atf-compile -o $@ $<
 
 TESTS=		$(srcdir)/tests/bootstrap/testsuite
 TESTS_ENVIRONMENT = PATH=$$(atf-config -t atf_libexecdir):$${PATH}

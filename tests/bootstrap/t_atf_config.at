@@ -74,6 +74,11 @@ AT_CHECK([grep 'Unknown variable.*non_existent' stderr], [0], [ignore], [])
 AT_CHECK([atf-config non_existent atf_libexecdir], [1], [], [stderr])
 AT_CHECK([grep 'Unknown variable.*non_existent' stderr], [0], [ignore], [])
 
+dnl Override a variable.
+AT_CHECK([ATF_LIBEXECDIR=foo atf-config], [0], [stdout], [])
+AT_CHECK([grep 'atf_libexecdir : foo' stdout], [0], [ignore], [])
+AT_CHECK([grep 'atf_pkgdatadir.*foo' stdout], [1], [], [])
+
 AT_CLEANUP()
 
 dnl vim: syntax=m4:expandtab:shiftwidth=4:softtabstop=4
