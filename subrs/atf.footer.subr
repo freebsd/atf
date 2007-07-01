@@ -83,6 +83,7 @@ run_test_case()
 
     Test_Case="${_tc}"
 
+    atf_set "isolated" "no"
     ${_tc}_head
 
     if [ $(atf_get isolated) = yes ]; then
@@ -144,8 +145,7 @@ main()
             ;;
 
         \?)
-            eval optopt=\"\${`expr ${OPTIND} - 1`}\"
-            syntax_error "Unknown option ${optopt}."
+            syntax_error "Unknown option -${OPTARG}."
             # NOTREACHED
             ;;
         esac
@@ -157,7 +157,12 @@ main()
     # TODO Implement _lflag.
 
     ok=true
-    local tc tcs="${@:-${Test_Cases}}"
+    local tc tcs
+    if [ ${#} -gt 0 ]; then
+        tcs=${@}
+    else
+        tcs=${Test_Cases}
+    fi
     for tc in ${tcs}
     do
         if run_test_case ${tc}; then

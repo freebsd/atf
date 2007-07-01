@@ -38,6 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cassert>
 #include <fstream>
 
 #include "atfprivate/atffile.hpp"
