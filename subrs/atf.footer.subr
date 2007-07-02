@@ -47,6 +47,92 @@ atf_add_test_case()
     Test_Cases="${Test_Cases} ${tc}"
 }
 
+atf_check()
+{
+    _cmd="${1}"
+    _expcode="${2:-0}"
+    _expout="${3:-null}"
+    _experr="${4:-null}"
+
+    case ${_expout} in
+    expout)
+        test -f expout || atf_fail "No expout file found"
+        ;;
+    ignore)
+        ;;
+    null)
+        ;;
+    stdout)
+        test -f stdout && rm -f stdout
+        test -f stdout && atf_fail "Could not delete stale stdout file"
+        ;;
+    *)
+        atf_fail "Invalid value in atf_check's expout parameter"
+        ;;
+    esac
+
+    case ${_experr} in
+    experr)
+        test -f experr || atf_fail "No experr file found"
+        ;;
+    ignore)
+        ;;
+    null)
+        ;;
+    stderr)
+        test -f stderr && rm -f stderr
+        test -f stderr && atf_fail "Could not delete stale stderr file"
+        ;;
+    *)
+        atf_fail "Invalid value in atf_check's experr parameter"
+        ;;
+    esac
+
+    ( eval ${_cmd} >aux-stdout 2>aux-stderr )
+    _code=${?}
+
+    if [ ${_code} -ne ${_expcode} ]; then
+        atf_fail "Exit code ${_code} does not match the expected" \
+                 "code ${_expcode}"
+    fi
+
+    case ${_expout} in
+    expout)
+        cmp -s expout aux-stdout || atf_fail "stdout does not match"
+        ;;
+    ignore)
+        ;;
+    null)
+        touch empty-file
+        cmp -s empty-file aux-stdout || atf_fail "stdout was not silent"
+        ;;
+    stdout)
+        mv aux-stdout stdout
+        ;;
+    *)
+        atf_fail "INTERNAL ERROR IN atf_check FUNCTION"
+        ;;
+    esac
+
+    case ${_experr} in
+    experr)
+        cmp -s experr aux-stderr || atf_fail "stderr does not match"
+        ;;
+    ignore)
+        ;;
+    null)
+        touch empty-file
+        cmp -s empty-file aux-stderr || atf_fail "stderr was not silent"
+        ;;
+    stderr)
+        mv aux-stderr stderr
+        ;;
+    *)
+        atf_fail "INTERNAL ERROR IN atf_check FUNCTION"
+        ;;
+    esac
+}
+
 atf_pass()
 {
     echo "${Test_Case}, passed"
@@ -55,14 +141,14 @@ atf_pass()
 
 atf_skip()
 {
-    local reason="${1}"
+    local reason="${@}"
     echo "${Test_Case}, skipped, ${reason}"
     exit 0
 }
 
 atf_fail()
 {
-    local reason="${1}"
+    local reason="${@}"
     echo "${Test_Case}, failed, ${reason}"
     exit 1
 }
@@ -83,7 +169,7 @@ run_test_case()
 
     Test_Case="${_tc}"
 
-    atf_set "isolated" "no"
+    atf_set "isolated" "yes"
     ${_tc}_head
 
     if [ $(atf_get isolated) = yes ]; then

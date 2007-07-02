@@ -57,6 +57,9 @@ AM_CPPFLAGS = -DATF_LIBEXECDIR=\"$(libexecdir)\" \
               -DATF_SHELL=\"$(ATF_SHELL)\" \
               -I$(srcdir)/libs
 
+# XXX Not cross-compile friendly...
+ATF_COMPILE_SH = ATF_LIBEXECDIR=$(srcdir)/subrs ./tools/atf-compile
+
 # -------------------------------------------------------------------------
 # `libs/atfprivate' directory.
 # -------------------------------------------------------------------------
@@ -131,9 +134,13 @@ tests_bootstrap_h_tp_basic_cpp_LDFLAGS = -Llibs
 
 check_SCRIPTS = tests/bootstrap/h_tp_basic_sh
 CLEANFILES = tests/bootstrap/h_tp_basic_sh
-# XXX Not cross-compile friendly...
 tests/bootstrap/h_tp_basic_sh: $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh
-	ATF_PKGDATADIR=$(srcdir)/subrs ./tools/atf-compile -o $@ $<
+	$(ATF_COMPILE_SH) -o $@ $<
+
+check_SCRIPTS += tests/bootstrap/h_tp_atf_check_sh
+CLEANFILES += tests/bootstrap/h_tp_atf_check_sh
+tests/bootstrap/h_tp_atf_check_sh: $(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh
+	$(ATF_COMPILE_SH) -o $@ $<
 
 TESTS=		$(srcdir)/tests/bootstrap/testsuite
 TESTS_ENVIRONMENT = PATH=$$(atf-config -t atf_libexecdir):$${PATH}
@@ -157,6 +164,7 @@ testsuite_incs=	$(srcdir)/tests/bootstrap/t_application_help.at \
 		$(srcdir)/tests/bootstrap/t_atf_format.at \
 		$(srcdir)/tests/bootstrap/t_atf_identify.at \
 		$(srcdir)/tests/bootstrap/t_atf_run.at \
+		$(srcdir)/tests/bootstrap/t_subr_atf_check.at \
 		$(srcdir)/tests/bootstrap/t_test_program_compare.at \
 		$(srcdir)/tests/bootstrap/t_test_program_filter.at \
 		$(srcdir)/tests/bootstrap/t_test_program_list.at \
@@ -191,6 +199,14 @@ testsdir = $(exec_prefix)/tests
 pkgtestsdir = $(exec_prefix)/tests/atf
 
 pkgtests_DATA = tests/atf/Atffile
+
+atf_tools_DATA = tests/atf/tools/Atffile
+atf_toolsdir = $(pkgtestsdir)/tools
+
+atf_tools_SCRIPTS = tests/atf/tools/t_atf_compile
+CLEANFILES += tests/atf/tools/t_atf_compile
+tests/atf/tools/t_atf_compile: $(srcdir)/tests/atf/tools/t_atf_compile.sh
+	$(ATF_COMPILE_SH) -o $@ $<
 
 atf_units_DATA = tests/atf/units/Atffile
 atf_unitsdir = $(pkgtestsdir)/units
