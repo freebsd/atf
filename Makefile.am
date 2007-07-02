@@ -57,12 +57,12 @@ AM_CPPFLAGS = -DATF_LIBEXECDIR=\"$(libexecdir)\" \
               -DATF_SHELL=\"$(ATF_SHELL)\" \
               -I$(srcdir)/libs
 
-# XXX Not cross-compile friendly...
 ATF_COMPILE_DEPS = $(srcdir)/subrs/atf.footer.subr
 ATF_COMPILE_DEPS += $(srcdir)/subrs/atf.header.subr
 ATF_COMPILE_DEPS += $(srcdir)/subrs/atf.init.subr
-ATF_COMPILE_DEPS += tools/atf-compile
-ATF_COMPILE_SH = ATF_PKGDATADIR=$(srcdir)/subrs ./tools/atf-compile
+ATF_COMPILE_DEPS += tools/atf-cross-compile.sh
+ATF_COMPILE_SH = ATF_PKGDATADIR=$(srcdir)/subrs ATF_SHELL=$(ATF_SHELL) \
+                 ./tools/atf-cross-compile.sh
 
 # -------------------------------------------------------------------------
 # `libs/atfprivate' directory.
@@ -263,6 +263,8 @@ bin_PROGRAMS = tools/atf-config
 tools_atf_config_SOURCES = tools/atf-config.cpp
 tools_atf_config_LDADD = -latfprivate
 tools_atf_config_LDFLAGS = -Llibs
+
+EXTRA_DIST += tools/atf-cross-compile.sh
 
 bin_PROGRAMS += tools/atf-compile
 tools_atf_compile_SOURCES = tools/atf-compile.cpp
