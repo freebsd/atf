@@ -143,6 +143,8 @@ atf_run::run_test_program(const std::string& tp)
         std::cerr << "Failed to execute `" << tp << "': "
                   << std::strerror(errno) << std::endl;
         ::exit(128);
+        // TODO Account the tests that were not executed and report that
+        // as an error!
     }
 
     outpipe.wend().close();
