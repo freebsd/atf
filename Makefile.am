@@ -62,7 +62,7 @@ ATF_COMPILE_DEPS = $(srcdir)/subrs/atf.footer.subr
 ATF_COMPILE_DEPS += $(srcdir)/subrs/atf.header.subr
 ATF_COMPILE_DEPS += $(srcdir)/subrs/atf.init.subr
 ATF_COMPILE_DEPS += tools/atf-compile
-ATF_COMPILE_SH = ATF_LIBEXECDIR=$(srcdir)/subrs ./tools/atf-compile
+ATF_COMPILE_SH = ATF_PKGDATADIR=$(srcdir)/subrs ./tools/atf-compile
 
 # -------------------------------------------------------------------------
 # `libs/atfprivate' directory.
@@ -116,6 +116,7 @@ subrs_DATA = subrs/atf.footer.subr \
              subrs/atf.header.subr \
              subrs/atf.init.subr
 subrsdir = $(pkgdatadir)
+EXTRA_DIST = $(subrs_DATA)
 
 # -------------------------------------------------------------------------
 # `tests/bootstrap' directory.
@@ -138,12 +139,14 @@ tests_bootstrap_h_tp_basic_cpp_LDFLAGS = -Llibs
 
 check_SCRIPTS = tests/bootstrap/h_tp_basic_sh
 CLEANFILES = tests/bootstrap/h_tp_basic_sh
+EXTRA_DIST += tests/bootstrap/h_tp_basic_sh.sh
 tests/bootstrap/h_tp_basic_sh: $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh \
                                $(ATF_COMPILE_DEPS)
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh
 
 check_SCRIPTS += tests/bootstrap/h_tp_atf_check_sh
 CLEANFILES += tests/bootstrap/h_tp_atf_check_sh
+EXTRA_DIST += tests/bootstrap/h_tp_atf_check_sh.sh
 tests/bootstrap/h_tp_atf_check_sh: $(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh \
                                    $(ATF_COMPILE_DEPS)
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh
@@ -159,7 +162,7 @@ DISTCLEANFILES = \
 distclean-local:
 	-rm -rf testsuite.dir
 
-EXTRA_DIST =	tests/bootstrap/testsuite \
+EXTRA_DIST +=	tests/bootstrap/testsuite \
 		tests/bootstrap/package.m4 \
 		tests/bootstrap/testsuite.at \
 		$(testsuite_incs)
@@ -205,18 +208,22 @@ testsdir = $(exec_prefix)/tests
 pkgtestsdir = $(exec_prefix)/tests/atf
 
 pkgtests_DATA = tests/atf/Atffile
+EXTRA_DIST += $(pkgtests_DATA)
 
 atf_tools_DATA = tests/atf/tools/Atffile
 atf_toolsdir = $(pkgtestsdir)/tools
+EXTRA_DIST += $(atf_tools_DATA)
 
 atf_tools_SCRIPTS = tests/atf/tools/t_atf_compile
 CLEANFILES += tests/atf/tools/t_atf_compile
+EXTRA_DIST += tests/atf/tools/t_atf_compile.sh
 tests/atf/tools/t_atf_compile: $(srcdir)/tests/atf/tools/t_atf_compile.sh \
                                $(ATF_COMPILE_DEPS)
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_compile.sh
 
 atf_units_DATA = tests/atf/units/Atffile
 atf_unitsdir = $(pkgtestsdir)/units
+EXTRA_DIST += $(atf_units_DATA)
 
 atf_units_PROGRAMS = tests/atf/units/t_file_handle
 tests_atf_units_t_file_handle_SOURCES = tests/atf/units/t_file_handle.cpp
