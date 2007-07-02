@@ -110,13 +110,12 @@ atf::test_case::run(void)
 {
     assert(!m_meta_data.empty());
 
-    test_case_result tcr = test_case_result::failed("INTERNAL ERROR");
+    test_case_result tcr = test_case_result::passed();
 
     try {
         try {
             body();
-            throw test_case_result::failed("BOGUS TEST; DID NOT RETURN "
-                                           "ANY RESULT");
+            assert(tcr.get_status() == test_case_result::status_passed);
         } catch (const test_case_result& tcre) {
             throw tcre;
         } catch (const std::exception& e) {

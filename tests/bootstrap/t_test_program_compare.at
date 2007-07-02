@@ -75,10 +75,10 @@ AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_skip], [0], [stdout], [])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
 AT_CHECK([TEST_HELPER(tp_basic_sh) tc_skip], [0], [expout], [])
 
-dnl Run the tc_bogus test case.
-AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_bogus], [1], [stdout], [])
+dnl Run the tc_default test case.
+AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_default], [0], [stdout], [])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
-AT_CHECK([TEST_HELPER(tp_basic_sh) tc_bogus], [1], [expout], [])
+AT_CHECK([TEST_HELPER(tp_basic_sh) tc_default], [0], [expout], [])
 
 dnl Run an unknown test case.
 dnl TODO

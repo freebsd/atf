@@ -76,17 +76,16 @@ ATF_TEST_CASE_BODY(tc_skip)
     ATF_SKIP("By design");
 }
 
-ATF_TEST_CASE(tc_bogus);
+ATF_TEST_CASE(tc_default);
 
-ATF_TEST_CASE_HEAD(tc_bogus)
+ATF_TEST_CASE_HEAD(tc_default)
 {
-    set("descr", "A bogus test case that always fails by being "
-                 "incorrectly defined");
+    set("descr", "A test case that passes without explicitly "
+                 "stating it");
 }
 
-ATF_TEST_CASE_BODY(tc_bogus)
+ATF_TEST_CASE_BODY(tc_default)
 {
-    // Fails because it does not return any result explicitly.
 }
 
 ATF_INIT_TEST_CASES(tcs)
@@ -94,5 +93,5 @@ ATF_INIT_TEST_CASES(tcs)
     tcs.push_back(&tc_pass);
     tcs.push_back(&tc_fail);
     tcs.push_back(&tc_skip);
-    tcs.push_back(&tc_bogus);
+    tcs.push_back(&tc_default);
 }

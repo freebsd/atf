@@ -66,8 +66,6 @@ ATF_TEST_CASE_BODY(tc_main)
     ATF_CHECK_EQUAL(tmp, "1Test");
     rend >> tmp;
     ATF_CHECK_EQUAL(tmp, "1message");
-
-    ATF_PASS();
 }
 
 ATF_INIT_TEST_CASES(tcs)

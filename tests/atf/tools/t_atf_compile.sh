@@ -56,7 +56,6 @@ EOF
     atf_check 'grep ^\..*/atf.init.subr tp_test' 1
     atf_check 'grep ^\..*/atf.header.subr tp_test' 0 ignore
     atf_check 'grep ^\..*/atf.footer.subr tp_test' 0 ignore
-    atf_pass
 }
 
 tc_oflag_head()
@@ -71,7 +70,6 @@ tc_oflag_body()
     atf_check 'atf-compile -o tp_foo tp_foo.sh' 0
     atf_check 'test -f tp_foo' 0
     atf_check 'cmp stdout tp_foo' 0 ignore
-    atf_pass
 }
 
 atf_init_test_cases()

@@ -183,12 +183,11 @@ run_test_case()
     fi
 
     if [ -z "${_out}" ]; then
-        echo "${_tc}, failed, BOGUS TEST; DID NOT RETURN ANY RESULT"
-        _ret=1
-    else
-        echo ${_out}
+        _out=$(atf_pass)
+        _ret=0
     fi
 
+    echo ${_out}
     return ${_ret}
 }
 

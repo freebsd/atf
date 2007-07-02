@@ -43,7 +43,7 @@ AT_SETUP([test_program: filter test cases by name])
 AT_DATA([expout], [tc_pass, passed
 tc_fail, failed, On purpose
 tc_skip, skipped, By design
-tc_bogus, failed, BOGUS TEST; DID NOT RETURN ANY RESULT
+tc_default, passed
 ])
 AT_CHECK([TEST_HELPER(tp_basic_cpp)], 1, [expout], [])
 

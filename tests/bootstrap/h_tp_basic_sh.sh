@@ -68,13 +68,13 @@ tc_skip_body()
     atf_skip "By design"
 }
 
-tc_bogus_head()
+tc_default_head()
 {
-    atf_set "descr" "A bogus test case that always fails by being" \
-                    "incorrectly defined"
+    atf_set "descr" "A test case that passes without explicitly" \
+                    "stating it"
 }
 
-tc_bogus_body()
+tc_default_body()
 {
     :
 }
@@ -84,5 +84,5 @@ atf_init_test_cases()
     atf_add_test_case tc_pass
     atf_add_test_case tc_fail
     atf_add_test_case tc_skip
-    atf_add_test_case tc_bogus
+    atf_add_test_case tc_default
 }
