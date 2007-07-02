@@ -160,7 +160,37 @@ atf_get()
 
 atf_set()
 {
-    eval __tc_var_${Test_Case}_${1}=\"\${2}\"
+    _var=${1}; shift
+    eval __tc_var_${Test_Case}_${_var}=\"\${*}\"
+}
+
+list_test_cases()
+{
+    _maxlen=0
+    for _tc in ${*}; do
+        if [ ${#_tc} -gt ${_maxlen} ]; then
+            _maxlen=${#_tc}
+        fi
+    done
+    _maxlen=$((${_maxlen} + 4))
+    for _tc in ${*}; do
+        Test_Case=${_tc}
+        ${_tc}_head
+        ${atf_format} -t ${_tc} -l ${_maxlen} $(atf_get descr)
+    done
+}
+
+run_test_cases()
+{
+    while [ ${#} -gt 0 ]; do
+        if run_test_case ${1}; then
+            :
+        else
+            ok=false
+        fi
+
+        shift
+    done
 }
 
 run_test_case()
@@ -239,8 +269,6 @@ main()
 
     atf_init_test_cases
 
-    # TODO Implement _lflag.
-
     ok=true
     local tc tcs
     if [ ${#} -gt 0 ]; then
@@ -248,14 +276,11 @@ main()
     else
         tcs=${Test_Cases}
     fi
-    for tc in ${tcs}
-    do
-        if run_test_case ${tc}; then
-            :
-        else
-            ok=false
-        fi
-    done
+    if `${_lflag}`; then
+        list_test_cases ${tcs}
+    else
+        run_test_cases ${tcs}
+    fi
 
     ${ok}
 }

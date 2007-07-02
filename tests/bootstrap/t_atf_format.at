@@ -57,6 +57,7 @@ AT_DATA([expout],
 [  tag  This is a single-line text message to be formatted.
 ])
 AT_CHECK([COLUMNS=80 atf-format -t '  tag  ' <text], [0], [expout], [])
+AT_CHECK([COLUMNS=80 atf-format -t '  tag' -l 7 <text], [0], [expout], [])
 
 AT_DATA([expout],
 [This is a single-line
@@ -71,6 +72,7 @@ AT_DATA([expout],
        formatted.
 ])
 AT_CHECK([COLUMNS=28 atf-format -t '  tag  ' <text], [0], [expout], [])
+AT_CHECK([COLUMNS=28 atf-format -t '  tag' -l 7 <text], [0], [expout], [])
 
 AT_DATA([expout],
 [  tag  This
@@ -84,6 +86,7 @@ AT_DATA([expout],
        formatted.
 ])
 AT_CHECK([COLUMNS=1 atf-format -t '  tag  ' <text], [0], [expout], [])
+AT_CHECK([COLUMNS=1 atf-format -t '  tag' -l 7 <text], [0], [expout], [])
 
 dnl Now repeat all the tests above buy by formatting a two-paragraph
 dnl message.
@@ -106,6 +109,7 @@ AT_DATA([expout],
        And this is the second line, or better said paragraph.
 ])
 AT_CHECK([COLUMNS=80 atf-format -t '  tag  ' <text], [0], [expout], [])
+AT_CHECK([COLUMNS=80 atf-format -t '  tag' -l 7 <text], [0], [expout], [])
 
 AT_DATA([expout],
 [This is a multi-line
@@ -130,6 +134,7 @@ AT_DATA([expout],
        paragraph.
 ])
 AT_CHECK([COLUMNS=28 atf-format -t '  tag  ' <text], [0], [expout], [])
+AT_CHECK([COLUMNS=28 atf-format -t '  tag' -l 7 <text], [0], [expout], [])
 
 AT_DATA([expout],
 [  tag  This
@@ -154,6 +159,7 @@ AT_DATA([expout],
        paragraph.
 ])
 AT_CHECK([COLUMNS=1 atf-format -t '  tag  ' <text], [0], [expout], [])
+AT_CHECK([COLUMNS=1 atf-format -t '  tag' -l 7 <text], [0], [expout], [])
 
 AT_CLEANUP()
 

@@ -41,6 +41,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 
 #include "atfprivate/application.hpp"
 #include "atfprivate/ui.hpp"
@@ -48,6 +49,7 @@
 class atf_format : public atf::application {
     static const char* m_description;
 
+    size_t m_length;
     std::string m_tag;
 
     void process_option(int, const char*);
@@ -67,7 +69,8 @@ const char* atf_format::m_description =
     "line is treated as a different paragraph.";
 
 atf_format::atf_format(void) :
-    application(m_description, "atf-format(1)")
+    application(m_description, "atf-format(1)"),
+    m_length(0)
 {
 }
 
@@ -75,8 +78,22 @@ void
 atf_format::process_option(int ch, const char* arg)
 {
     switch (ch) {
+    case 'l':
+        {
+            std::istringstream ss(arg);
+            ss >> m_length;
+            if (m_length < m_tag.length()) {
+                std::cerr << "Length must be greater than tag's length"
+                          << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
+        }
+        break;
+
     case 't':
         m_tag = arg;
+        if (m_length < m_tag.length())
+            m_length = m_tag.length();
         break;
 
     default:
@@ -96,6 +113,7 @@ atf_format::specific_options(void)
     const
 {
     options_set opts;
+    opts.insert(option('l', "length", "Tag length"));
     opts.insert(option('t', "tag", "Tag to use for printing"));
     return opts;
 }
@@ -123,7 +141,7 @@ atf_format::main(void)
         std::cout << m_tag;
         col += m_tag.length();
     }
-    std::cout << atf::format_text(str, col, col) << std::endl;
+    std::cout << atf::format_text(str, m_length, col) << std::endl;
 
     return EXIT_SUCCESS;
 }

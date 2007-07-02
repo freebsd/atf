@@ -51,9 +51,9 @@ sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
 AT_CHECK([TEST_HELPER(tp_basic_sh -Z)], [1], [], [experr])
 
 dnl List all tests.
-dnl AT_CHECK([TEST_HELPER(tp_basic_cpp) -l], [0], [stdout], [])
-dnl sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
-dnl AT_CHECK([TEST_HELPER(tp_basic_sh -l)], [0], [expout], [])
+AT_CHECK([TEST_HELPER(tp_basic_cpp) -l], [0], [stdout], [])
+sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
+AT_CHECK([TEST_HELPER(tp_basic_sh) -l], [0], [expout], [])
 
 dnl Run all tests.
 AT_CHECK([TEST_HELPER(tp_basic_cpp)], [1], [stdout], [])
