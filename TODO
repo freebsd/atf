@@ -6,23 +6,72 @@ All rights reserved.
 Things to do
 ============
 
-This project is still in very early stages of development.  The list
-below is very incomplete, but it details some items that have to be
-addressed.  Basically they are here so that they are not omitted.
+This project is still in very early stages of development.  The list below
+is very incomplete, but it details some items that have to be addressed.
+Basically they are here so that they are not forgotten.
 
 * Implement wildcard filtering for test names in test programs.
-
-* Make the report class purely abstract and implement different report
-  outputs.  The current one is fine to be parsed by other programs, but
-  is not specially readable by humans.
 
 * Replace #ifndef by #if !defined.
 
 * Test cases should be isolated to run in an independent directory.
+  Note: the shell library already does this.
 
-* Test cases should be safe to closing stdin, stdout and stderr, to
-  some extent.  Once implemented, make t_file_handle.cpp and t_pipe.cpp
-  use stdout again, instead of stderr.
+* Test cases should be safe to closing stdin, stdout and stderr, to some
+  extent.  Once implemented, make t_file_handle.cpp and t_pipe.cpp use
+  stdout again, instead of stderr.
+
+* Add format and versioning tags to the outputs that have to be machine-
+  parseable.  For example: the output of test programs.
+
+* Add the ability to specify the work directory for the tests.
+
+* Add scripts to sanity-check our code (trailing whitespace, tabs, etc.)
+
+* Look for a way to ensure that the C++ and shell interfaces are consistent
+  with each other.  For example: the meta-data recognized by each test
+  case and the default values for them.
+
+* Implement the atf-report tool, which takes the output of atf-run and
+  converts it to some nice format.  Ideas for these output formats
+  include: proplib, a home-grown XML format, and HTML pages.
+
+* Make sure that the tests in tests/atf have, at the very least, the same
+  coverage as the ones in tests/bootstrap.
+
+* Add manual pages for the tools and the library interfaces.
+
+* Document the code.
+
+
+Things to we will not do
+========================
+
+This is a list of things that will *not* be addressed anytime soon in the
+project.  Of course most of them would be nice to have in the future, but
+they will not block releases nor drive development.  We can obviously
+change our mind in the future and add move some of these to the above list.
+
+* Native Win32 support: we are not talking about building atf with tools
+  such as Cygwin or MinGW, which should already be possible.  Native Win32
+  support means modifying the code to use Win32 library calls and easily
+  build out of the box (i.e. the GNU Autotools are not useful in that
+  case).
+
+* Extreme efficiency: even though we will focus on using the most suitable
+  data structures in each situation, we will not attempt to get extreme
+  efficiency by adding hacks that make the code uglier.  Testing is a task
+  that requires a lot of resources on its own, and some tests will be
+  specially intensive, so there is no point in micro-optimizing atf if the
+  global gains are negligible.
+
+* Extreme portability: the initial goal of this project was to provide a
+  testing framework for the NetBSD Operating System.  Given that this
+  system has a very nice build framework, we can be sure that atf will be
+  built and used with sane tools (basically a decent C++ compiler and a
+  POSIX-compliant shell interpreter).  We will definitely not aim for
+  portability to broken systems by tweaking our code to not follow the
+  standards.
 
 
 -- EOF
