@@ -58,6 +58,10 @@ AM_CPPFLAGS = -DATF_LIBEXECDIR=\"$(libexecdir)\" \
               -I$(srcdir)/libs
 
 # XXX Not cross-compile friendly...
+ATF_COMPILE_DEPS = $(srcdir)/subrs/atf.footer.subr
+ATF_COMPILE_DEPS += $(srcdir)/subrs/atf.header.subr
+ATF_COMPILE_DEPS += $(srcdir)/subrs/atf.init.subr
+ATF_COMPILE_DEPS += tools/atf-compile
 ATF_COMPILE_SH = ATF_LIBEXECDIR=$(srcdir)/subrs ./tools/atf-compile
 
 # -------------------------------------------------------------------------
@@ -134,13 +138,15 @@ tests_bootstrap_h_tp_basic_cpp_LDFLAGS = -Llibs
 
 check_SCRIPTS = tests/bootstrap/h_tp_basic_sh
 CLEANFILES = tests/bootstrap/h_tp_basic_sh
-tests/bootstrap/h_tp_basic_sh: $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh
-	$(ATF_COMPILE_SH) -o $@ $<
+tests/bootstrap/h_tp_basic_sh: $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh \
+                               $(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh
 
 check_SCRIPTS += tests/bootstrap/h_tp_atf_check_sh
 CLEANFILES += tests/bootstrap/h_tp_atf_check_sh
-tests/bootstrap/h_tp_atf_check_sh: $(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh
-	$(ATF_COMPILE_SH) -o $@ $<
+tests/bootstrap/h_tp_atf_check_sh: $(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh \
+                                   $(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh
 
 TESTS=		$(srcdir)/tests/bootstrap/testsuite
 TESTS_ENVIRONMENT = PATH=$$(atf-config -t atf_libexecdir):$${PATH}
@@ -205,8 +211,9 @@ atf_toolsdir = $(pkgtestsdir)/tools
 
 atf_tools_SCRIPTS = tests/atf/tools/t_atf_compile
 CLEANFILES += tests/atf/tools/t_atf_compile
-tests/atf/tools/t_atf_compile: $(srcdir)/tests/atf/tools/t_atf_compile.sh
-	$(ATF_COMPILE_SH) -o $@ $<
+tests/atf/tools/t_atf_compile: $(srcdir)/tests/atf/tools/t_atf_compile.sh \
+                               $(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_compile.sh
 
 atf_units_DATA = tests/atf/units/Atffile
 atf_unitsdir = $(pkgtestsdir)/units

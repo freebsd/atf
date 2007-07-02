@@ -136,6 +136,8 @@ atf_compile::compile(std::ostream& os)
         os << std::endl;
     }
     os << ". ${atf_pkgdatadir}/atf.footer.subr" << std::endl;
+    os << std::endl;
+    os << "main \"${@}\"" << std::endl;
 }
 
 int
