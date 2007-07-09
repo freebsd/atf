@@ -83,10 +83,10 @@ fi
 echo "#! ${ATF_SHELL}" >${tfile}
 cat ${ATF_PKGDATADIR}/atf.init.subr >>${tfile}
 echo >>${tfile}
-echo '. ${atf_pkgdatadir}/atf.header.subr' >>${tfile}
+echo '. ${Atf_Pkgdatadir}/atf.header.subr' >>${tfile}
 echo >>${tfile}
 cat <${sfile} >>${tfile}
-echo '. ${atf_pkgdatadir}/atf.footer.subr' >>${tfile}
+echo '. ${Atf_Pkgdatadir}/atf.footer.subr' >>${tfile}
 echo >>${tfile}
 echo "main \${@}" >>${tfile}
 

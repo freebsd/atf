@@ -129,13 +129,13 @@ atf_compile::compile(std::ostream& os)
     os << "#! " << atf::config::get("atf_shell") << std::endl;
     cat_file(os, atf::config::get("atf_pkgdatadir") + "/atf.init.subr");
     os << std::endl;
-    os << ". ${atf_pkgdatadir}/atf.header.subr" << std::endl;
+    os << ". ${Atf_Pkgdatadir}/atf.header.subr" << std::endl;
     os << std::endl;
     for (int i = 0; i < m_argc; i++) {
         cat_file(os, m_argv[i]);
         os << std::endl;
     }
-    os << ". ${atf_pkgdatadir}/atf.footer.subr" << std::endl;
+    os << ". ${Atf_Pkgdatadir}/atf.footer.subr" << std::endl;
     os << std::endl;
     os << "main \"${@}\"" << std::endl;
 }

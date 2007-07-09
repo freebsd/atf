@@ -44,7 +44,7 @@ tc_exitcode_0_0_head()
 }
 tc_exitcode_0_0_body()
 {
-    atf_check 'true' 0
+    atf_check 'true' 0 null null
 }
 
 tc_exitcode_0_1_head()
@@ -53,7 +53,7 @@ tc_exitcode_0_1_head()
 }
 tc_exitcode_0_1_body()
 {
-    atf_check 'true' 1
+    atf_check 'true' 1 null null
 }
 
 tc_exitcode_1_0_head()
@@ -62,7 +62,7 @@ tc_exitcode_1_0_head()
 }
 tc_exitcode_1_0_body()
 {
-    atf_check 'false' 0
+    atf_check 'false' 0 null null
 }
 
 tc_exitcode_1_1_head()
@@ -71,7 +71,7 @@ tc_exitcode_1_1_head()
 }
 tc_exitcode_1_1_body()
 {
-    atf_check 'false' 1
+    atf_check 'false' 1 null null
 }
 
 tc_stdout_expout_pass_head()

@@ -38,10 +38,22 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+#
+# File: atf.header.subr
+#
+#   This file provides default contents for the hooks that must be
+#   redefined by test programs.
+#
+
+#
+# atf_init_test_cases
+#
+#   The function in charge of registering the test cases that have to
+#   be made available to the user.  Must be redefined.
+#
 atf_init_test_cases()
 {
-    echo "NO TEST CASES DEFINED!"
-    exit 1
+    _atf_error 128 "No test cases defined"
 }
 
-atf_format=$(atf-config -t atf_libexecdir)/atf-format
+# vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

@@ -52,10 +52,10 @@ tc_includes_body()
     cat >tp_test.sh <<EOF
 # This is a sample test program.
 EOF
-    atf_check 'atf-compile -o tp_test tp_test.sh' 0
-    atf_check 'grep ^\..*/atf.init.subr tp_test' 1
-    atf_check 'grep ^\..*/atf.header.subr tp_test' 0 ignore
-    atf_check 'grep ^\..*/atf.footer.subr tp_test' 0 ignore
+    atf_check 'atf-compile -o tp_test tp_test.sh' 0 null null
+    atf_check 'grep ^\..*/atf.init.subr tp_test' 1 null null
+    atf_check 'grep ^\..*/atf.header.subr tp_test' 0 ignore null
+    atf_check 'grep ^\..*/atf.footer.subr tp_test' 0 ignore null
 }
 
 tc_oflag_head()
@@ -64,12 +64,12 @@ tc_oflag_head()
 }
 tc_oflag_body()
 {
-    atf_check 'touch tp_foo.sh'
-    atf_check 'atf-compile tp_foo.sh' 0 stdout
-    atf_check 'test -f tp_foo' 1
-    atf_check 'atf-compile -o tp_foo tp_foo.sh' 0
-    atf_check 'test -f tp_foo' 0
-    atf_check 'cmp stdout tp_foo' 0 ignore
+    atf_check 'touch tp_foo.sh' 0 null null
+    atf_check 'atf-compile tp_foo.sh' 0 stdout null
+    atf_check 'test -f tp_foo' 1 null null
+    atf_check 'atf-compile -o tp_foo tp_foo.sh' 0 null null
+    atf_check 'test -f tp_foo' 0 null null
+    atf_check 'cmp stdout tp_foo' 0 ignore null
 }
 
 atf_init_test_cases()
