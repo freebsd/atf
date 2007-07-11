@@ -88,7 +88,7 @@ echo >>${tfile}
 cat <${sfile} >>${tfile}
 echo '. ${Atf_Pkgdatadir}/atf.footer.subr' >>${tfile}
 echo >>${tfile}
-echo "main \${@}" >>${tfile}
+echo "main \"\${@}\"" >>${tfile}
 
 chmod +x ${tfile}
 
