@@ -93,3 +93,5 @@ echo "main \"\${@}\"" >>${tfile}
 chmod +x ${tfile}
 
 exit 0
+
+# vim: syntax=sh:expandtab:shiftwidth=4:sofftabstop=4

@@ -39,17 +39,19 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-if test ! -f ./libs/atf.hpp; then
-    echo "`basename $0`: must be run from atf source's top directory" 1>&2
+Prog_Name=${0##*/}
+
+if [ ! -f ./libs/atf.hpp ]; then
+    echo "${Prog_Name}: must be run from atf source's top directory" 1>&2
     exit 1
 fi
 
-if test ! -f configure; then
-    echo "`basename $0`: nothing to clean" 1>&2
+if [ ! -f configure ]; then
+    echo "${Prog_Name}: nothing to clean" 1>&2
     exit 1
 fi
 
-test -f Makefile || ./configure
+[ -f Makefile ] || ./configure
 make distclean
 
 # Top-level directory.
@@ -79,3 +81,5 @@ find . -name '#*' | xargs rm -rf
 find . -name '*~' | xargs rm -rf
 find . -name .deps | xargs rm -rf
 find . -name .libs | xargs rm -rf
+
+# vim: syntax=sh:expandtab:shiftwidth=4:sofftabstop=4

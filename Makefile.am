@@ -162,8 +162,9 @@ tests/bootstrap/h_tp_basic_sh: $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh \
 check_SCRIPTS += tests/bootstrap/h_tp_atf_check_sh
 CLEANFILES += tests/bootstrap/h_tp_atf_check_sh
 EXTRA_DIST += tests/bootstrap/h_tp_atf_check_sh.sh
-tests/bootstrap/h_tp_atf_check_sh: $(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh \
-                                   $(ATF_COMPILE_DEPS)
+tests/bootstrap/h_tp_atf_check_sh: \
+		$(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh \
+		$(ATF_COMPILE_DEPS)
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh
 
 TESTS=		$(srcdir)/tests/bootstrap/testsuite

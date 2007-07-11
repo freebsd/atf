@@ -281,3 +281,5 @@ atf_init_test_cases()
     atf_add_test_case tc_stderr_stderr_written
     atf_add_test_case tc_stderr_stderr_noclobber
 }
+
+# vim: syntax=sh:expandtab:shiftwidth=4:sofftabstop=4
