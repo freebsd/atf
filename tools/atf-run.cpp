@@ -151,18 +151,7 @@ atf_run::run_test_program(const std::string& tp)
     atf::file_handle fhout = outpipe.rend().get();
     atf::pistream in(fhout);
 
-    std::string ident;
-    {
-        std::string dir = atf::get_branch_path(tp);
-        if (dir == ".")
-            dir = "/";
-        else
-            dir = "/" + dir + "/";
-        ident = atf::identify(atf::get_leaf_name(tp),
-                              atf::get_work_dir() + dir);
-    }
-
-    std::cout << ident << ": Running test cases" << std::endl;
+    std::cout << tp << ": Running test cases" << std::endl;
 
     size_t passed = 0, skipped = 0, failed = 0;
     std::string line;

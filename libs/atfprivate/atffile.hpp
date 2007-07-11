@@ -51,8 +51,6 @@ public:
     atffile(const std::string& = "Atffile");
 };
 
-std::string identify(const std::string&, const std::string&);
-
 } // namespace atf
 
 #endif // _ATF_ATFFILE_HPP_

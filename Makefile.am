@@ -171,7 +171,6 @@ testsuite_incs=	$(srcdir)/tests/bootstrap/t_application_help.at \
 		$(srcdir)/tests/bootstrap/t_application_opts_args.at \
 		$(srcdir)/tests/bootstrap/t_atf_config.at \
 		$(srcdir)/tests/bootstrap/t_atf_format.at \
-		$(srcdir)/tests/bootstrap/t_atf_identify.at \
 		$(srcdir)/tests/bootstrap/t_atf_run.at \
 		$(srcdir)/tests/bootstrap/t_subr_atf_check.at \
 		$(srcdir)/tests/bootstrap/t_test_program_compare.at \
@@ -275,11 +274,6 @@ libexec_PROGRAMS = tools/atf-format
 tools_atf_format_SOURCES = tools/atf-format.cpp
 tools_atf_format_LDADD = -latfprivate
 tools_atf_format_LDFLAGS = -Llibs
-
-libexec_PROGRAMS += tools/atf-identify
-tools_atf_identify_SOURCES = tools/atf-identify.cpp
-tools_atf_identify_LDADD = -latfprivate
-tools_atf_identify_LDFLAGS = -Llibs
 
 bin_PROGRAMS += tools/atf-run
 tools_atf_run_SOURCES = tools/atf-run.cpp
