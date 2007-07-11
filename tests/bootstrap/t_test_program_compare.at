@@ -85,7 +85,7 @@ AT_CHECK([TEST_HELPER(tp_basic_cpp) "*f*"], [1], [stdout], [])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
 AT_CHECK([TEST_HELPER(tp_basic_sh) "*f*"], [1], [expout], [])
 
-Run an unknown test case.
+dnl Run an unknown test case.
 AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_unknown], [0], [], [stderr])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
 AT_CHECK([TEST_HELPER(tp_basic_sh) tc_unknown], [0], [experr], [])
