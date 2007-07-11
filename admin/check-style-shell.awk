@@ -74,10 +74,6 @@ BEGIN {
     vim_modeline = 1
 }
 
-/mode: shell-script/ {
-    emacs_modeline = 1
-}
-
 /^[ \t]*#/ {
     next
 }
@@ -113,7 +109,7 @@ BEGIN {
 END {
     if (skip)
         warn("Missing NO_CHECK_STYLE_END");
-    if (! emacs_modeline || ! vim_modeline)
+    if (! vim_modeline)
         warn("Missing mode lines");
     if (error)
         exit 1
