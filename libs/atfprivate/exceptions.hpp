@@ -108,6 +108,44 @@ public:
     const char* what(void) const throw();
 };
 
+//!
+//! \brief An error class to hold information about bad patterns.
+//!
+//! The pattern_error class is used to represent an error when parsing
+//! or comparing a pattern against a string.
+//!
+//! TODO Mark non-copyable.
+//!
+class pattern_error : public std::runtime_error {
+    //!
+    //! \brief A pointer to the error message.
+    //!
+    //! This variable holds a pointer to the error message describing
+    //! why the pattern failed.  This is a pointer to dynamic memory
+    //! allocated by the code that constructed this class.
+    //!
+    char *m_what;
+
+public:
+    //!
+    //! \brief Constructs a new pattern_error.
+    //!
+    //! Constructs a new pattern error, to be thrown as an exception,
+    //! with the given error message.  The error message must be a
+    //! pointer to dynamically allocated memory, obtained by using the
+    //! 'new char[...]' construction.
+    //!
+    pattern_error(char *);
+
+    //!
+    //! \brief Destroys the pattern_error.
+    //!
+    //! Destroys the object and releases the memory that was held by the
+    //! error message given during construction.
+    //!
+    ~pattern_error(void) throw();
+};
+
 } // namespace atf
 
 #endif // _ATF_EXCEPTIONS_HPP_

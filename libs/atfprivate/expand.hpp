@@ -38,89 +38,31 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "config.h"
+#ifndef _ATF_EXPAND_HPP_
+#define _ATF_EXPAND_HPP_
 
-#include <cstdarg>
-#include <cstdio>
-#include <cstring>
+#include <set>
+#include <string>
 
-#include "atfprivate/exceptions.hpp"
+namespace atf {
 
-#if !defined(HAVE_VSNPRINTF_IN_STD)
-namespace std {
-using ::vsnprintf;
-}
-#endif // !defined(HAVE_VSNPRINTF_IN_STD)
+//!
+//! \brief Expands a glob pattern among multiple candidates.
+//!
+//! Given a glob pattern and a set of candidate strings, checks which of
+//! those strings match the glob pattern and returns them.
+//!
+std::set< std::string > expand_glob(const std::string&,
+                                    const std::set< std::string >&);
 
-atf::system_error::system_error(const std::string& who,
-                                const std::string& message,
-                                int sys_err) :
-    std::runtime_error(who + ": " + message),
-    m_sys_err(sys_err)
-{
-}
+//!
+//! \brief Checks if a given string matches a glob pattern.
+//!
+//! Given a glob pattern and a string, checks whether the former matches
+//! the latter.  Returns a boolean indicating this condition.
+//!
+bool matches_glob(const std::string&, const std::string&);
 
-atf::system_error::~system_error(void)
-    throw()
-{
-}
+} // namespace atf
 
-int
-atf::system_error::code(void)
-    const
-    throw()
-{
-    return m_sys_err;
-}
-
-const char*
-atf::system_error::what(void)
-    const
-    throw()
-{
-    try {
-        if (m_message.length() == 0) {
-            m_message = std::string(std::runtime_error::what()) + ": ";
-            m_message += ::strerror(m_sys_err);
-        }
-
-        return m_message.c_str();
-    } catch (...) {
-        return "Unable to format system_error message";
-    }
-}
-
-atf::usage_error::usage_error(const char *fmt, ...)
-    throw() :
-    std::runtime_error("usage_error; message unformatted")
-{
-    va_list ap;
-
-    va_start(ap, fmt);
-    std::vsnprintf(m_text, sizeof(m_text), fmt, ap);
-    va_end(ap);
-}
-
-atf::usage_error::~usage_error(void)
-    throw()
-{
-}
-
-const char*
-atf::usage_error::what(void)
-    const throw()
-{
-    return m_text;
-}
-
-atf::pattern_error::pattern_error(char* w) :
-    std::runtime_error(w),
-    m_what(w)
-{
-}
-
-atf::pattern_error::~pattern_error(void)
-    throw()
-{
-    delete [] m_what;
-}
+#endif // _ATF_EXPAND_HPP_

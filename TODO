@@ -12,6 +12,10 @@ Basically they are here so that they are not forgotten.
 
 * Implement wildcard filtering for test names in test programs.
 
+* Add a class, similar in idea to boost::noncopyable, to easily mark some
+  classes as not copyable.  Or, failing to do that, any other way to do
+  the same.
+
 * Replace #ifndef by #if !defined.
 
 * Change the way test programs report their output.  They should write
