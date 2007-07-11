@@ -35,8 +35,6 @@ Basically they are here so that they are not forgotten.
 
 * Add the ability to specify the work directory for the tests.
 
-* Add scripts to sanity-check our code (trailing whitespace, tabs, etc.)
-
 * Look for a way to ensure that the C++ and shell interfaces are consistent
   with each other.  For example: the meta-data recognized by each test
   case and the default values for them.

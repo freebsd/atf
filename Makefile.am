@@ -46,7 +46,7 @@ if INSTALL_DOCS
 doc_DATA = AUTHORS COPYING NEWS README TODO
 endif # INSTALL_DOCS
 
-dist-hook:
+dist-hook: check-style
 	@echo "-------------------------------------------------"
 	@echo " REMEMBER THAT README HAS TO BE UPDATED WITH THE"
 	@echo "     RIGHT VERSIONS OF THE GNU BUILD SYSTEM!"
@@ -63,6 +63,19 @@ ATF_COMPILE_DEPS += $(srcdir)/subrs/atf.init.subr
 ATF_COMPILE_DEPS += tools/atf-cross-compile.sh
 ATF_COMPILE_SH = ATF_PKGDATADIR=$(srcdir)/subrs ATF_SHELL=$(ATF_SHELL) \
                  ./tools/atf-cross-compile.sh
+
+# -------------------------------------------------------------------------
+# `admin' directory.
+# -------------------------------------------------------------------------
+
+.PHONY: check-style
+check-style:
+	$(srcdir)/admin/check-style.sh
+
+EXTRA_DIST = admin/check-style-common.awk \
+             admin/check-style-cpp.awk \
+             admin/check-style-shell.awk \
+             admin/check-style.sh
 
 # -------------------------------------------------------------------------
 # `libs/atfprivate' directory.
@@ -118,7 +131,7 @@ subrs_DATA = subrs/atf.footer.subr \
              subrs/atf.header.subr \
              subrs/atf.init.subr
 subrsdir = $(pkgdatadir)
-EXTRA_DIST = $(subrs_DATA)
+EXTRA_DIST += $(subrs_DATA)
 
 # -------------------------------------------------------------------------
 # `tests/bootstrap' directory.
