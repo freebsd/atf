@@ -286,6 +286,35 @@ _atf_error()
 }
 
 #
+# _atf_expand_glob glob
+#
+#   Prints all test case identifiers that match the provided glob
+#   pattern.  The results are sorted alphabetically.
+#
+_atf_expand_glob()
+{
+    _glob="${1}"
+    _matched=""
+    set -- ${Test_Cases}
+    while [ ${#} -gt 0 ]; do
+        case "${1}" in
+        ${_glob}) _matched="${_matched} ${1}" ;;
+        *) ;;
+        esac
+
+        shift
+    done
+
+    set -- ${_matched}
+    {
+        while [ ${#} -gt 0 ]; do
+            echo ${1}
+            shift
+        done
+    } | sort
+}
+
+#
 # _atf_get varname
 #
 #   Prints the value of a test case-specific variable.
@@ -339,25 +368,6 @@ _atf_list_tcs()
         _atf_parse_head ${_tc}
         _atf_echo -t ${_tc} -l ${_maxlen} $(_atf_get descr)
     done
-}
-
-#
-# _atf_known_tc tcname
-#
-#   Checks whether the test case specified has been registered by the
-#   test program.
-#
-_atf_known_tc()
-{
-    _tcname=${1}
-    set -- ${Test_Cases}
-    while [ ${#} -gt 0 ]; do
-        if [ ${_tcname} = ${1} ]; then
-            return 0
-        fi
-        shift
-    done
-    return 1
 }
 
 #
@@ -507,14 +517,15 @@ main()
 
     # Set _tcs to the test cases to run.
     if [ ${#} -gt 0 ]; then
-        # Ensure all test cases specified for the user are defined.
+        # Expand glob patterns and report erroneous test cases.
         _tcs=
-        for _tc in ${@}; do
-            if _atf_known_tc ${_tc}; then
-                _tcs="${_tcs} ${_tc}"
-            else
-                _atf_error 1 "Unknown test case \`${_tc}'"
-            fi
+        while [ ${#} -gt 0 ]; do
+            _matches=$(_atf_expand_glob "${1}")
+            [ ${#_matches} -eq 0 ] &&
+                _atf_error 1 "Unknown test case \`${1}'"
+
+            _tcs="${_tcs} ${_matches}"
+            shift
         done
     else
         _tcs=${Test_Cases}

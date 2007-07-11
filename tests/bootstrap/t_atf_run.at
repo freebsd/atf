@@ -90,6 +90,23 @@ AT_CHECK([grep -i 'tc_3.*passed' stdout], [0], [ignore], [])
 AT_CHECK([grep -i 'tc_4.*failed' stdout], [0], [ignore], [])
 AT_CHECK([grep -i 'tc_5.*passed' stdout], [0], [ignore], [])
 
+dnl Repeat previous but using a glob that matches everything.
+AT_DATA([top/Atffile], [*
+])
+AT_CHECK([cd top && atf-run], [1], [stdout], [])
+AT_CHECK([grep -i 'tc_1.*passed' stdout], [0], [ignore], [])
+AT_CHECK([grep -i 'tc_2.*failed' stdout], [0], [ignore], [])
+AT_CHECK([grep -i 'tc_3.*passed' stdout], [0], [ignore], [])
+AT_CHECK([grep -i 'tc_4.*failed' stdout], [0], [ignore], [])
+AT_CHECK([grep -i 'tc_5.*passed' stdout], [0], [ignore], [])
+
+dnl Repeat previous but using a glob that matches directories only.
+AT_DATA([top/Atffile], [d*
+])
+AT_CHECK([cd top && atf-run], [1], [stdout], [])
+AT_CHECK([grep -i 'tc_3.*passed' stdout], [0], [ignore], [])
+AT_CHECK([grep -i 'tc_4.*failed' stdout], [0], [ignore], [])
+AT_CHECK([grep -i 'tc_5.*passed' stdout], [0], [ignore], [])
 AT_CLEANUP()
 
 dnl vim: syntax=m4:expandtab:shiftwidth=4:softtabstop=4

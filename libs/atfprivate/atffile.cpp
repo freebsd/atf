@@ -43,6 +43,7 @@
 
 #include "atfprivate/atffile.hpp"
 #include "atfprivate/exceptions.hpp"
+#include "atfprivate/expand.hpp"
 #include "atfprivate/filesystem.hpp"
 
 atf::atffile::atffile(const std::string& filename)
@@ -52,9 +53,17 @@ atf::atffile::atffile(const std::string& filename)
         throw atf::not_found_error< std::string >
             ("Cannot open Atffile", "Atffile");
 
+    directory dir(get_branch_path(filename));
+    dir.erase("Atffile");
+    dir.erase(".");
+    dir.erase("..");
+    // XXX Remove other hidden files.
+
     std::string line;
-    while (std::getline(is, line))
-        push_back(line);
+    while (std::getline(is, line)) {
+        std::set< std::string > ms = expand_glob(line, dir);
+        insert(end(), ms.begin(), ms.end());
+    }
 
     is.close();
 }
