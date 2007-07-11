@@ -38,7 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_HPP_
+#if !defined(_ATF_HPP_)
 #define _ATF_HPP_
 
 #include <atf/test_case.hpp>
@@ -64,4 +64,4 @@
     void \
     __atf_init_test_cases(std::vector< atf::test_case * >& tcs)
 
-#endif // _ATF_HPP_
+#endif // !defined(_ATF_HPP_)

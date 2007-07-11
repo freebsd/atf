@@ -38,7 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_UI_HPP_
+#if !defined(_ATF_UI_HPP_)
 #define _ATF_UI_HPP_
 
 #include <string>
@@ -51,4 +51,4 @@ std::string format_text(const std::string&, const size_t = 0, size_t = 0);
 
 } // namespace atf
 
-#endif // _ATF_UI_HPP_
+#endif // !defined(_ATF_UI_HPP_)

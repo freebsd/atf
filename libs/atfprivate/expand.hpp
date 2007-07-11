@@ -38,7 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_EXPAND_HPP_
+#if !defined(_ATF_EXPAND_HPP_)
 #define _ATF_EXPAND_HPP_
 
 #include <set>
@@ -65,4 +65,4 @@ bool matches_glob(const std::string&, const std::string&);
 
 } // namespace atf
 
-#endif // _ATF_EXPAND_HPP_
+#endif // !defined(_ATF_EXPAND_HPP_)

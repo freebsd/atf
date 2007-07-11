@@ -38,7 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_APPLICATION_HPP_
+#if !defined(_ATF_APPLICATION_HPP_)
 #define _ATF_APPLICATION_HPP_
 
 #include <ostream>
@@ -94,4 +94,4 @@ public:
 
 } // namespace atf
 
-#endif // _ATF_APPLICATION_HPP_
+#endif // !defined(_ATF_APPLICATION_HPP_)

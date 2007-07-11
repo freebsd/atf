@@ -38,7 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_EXCEPTIONS_HPP_
+#if !defined(_ATF_EXCEPTIONS_HPP_)
 #define _ATF_EXCEPTIONS_HPP_
 
 #include <stdexcept>
@@ -148,4 +148,4 @@ public:
 
 } // namespace atf
 
-#endif // _ATF_EXCEPTIONS_HPP_
+#endif // !defined(_ATF_EXCEPTIONS_HPP_)

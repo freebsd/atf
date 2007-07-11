@@ -38,7 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_ATFFILE_HPP_
+#if !defined(_ATF_ATFFILE_HPP_)
 #define _ATF_ATFFILE_HPP_
 
 #include <string>
@@ -53,4 +53,4 @@ public:
 
 } // namespace atf
 
-#endif // _ATF_ATFFILE_HPP_
+#endif // !defined(_ATF_ATFFILE_HPP_)

@@ -38,7 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_TEST_CASE_HPP_
+#if !defined(_ATF_TEST_CASE_HPP_)
 #define _ATF_TEST_CASE_HPP_
 
 #include <map>
@@ -116,4 +116,4 @@ public:
         throw atf::test_case_result::failed(__LINE__, ss.str()); \
     }
 
-#endif // _ATF_TEST_CASE_HPP_
+#endif // !defined(_ATF_TEST_CASE_HPP_)

@@ -14,8 +14,6 @@ Basically they are here so that they are not forgotten.
   classes as not copyable.  Or, failing to do that, any other way to do
   the same.
 
-* Replace #ifndef by #if !defined.
-
 * Change the way test programs report their output.  They should write
   that information to a configurable channel (different than stdout and
   stderr) so that the output of the tests can write some useful information

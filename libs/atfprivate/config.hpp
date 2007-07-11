@@ -38,7 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_CONFIG_HPP_
+#if !defined(_ATF_CONFIG_HPP_)
 #define _ATF_CONFIG_HPP_
 
 #include <map>
@@ -54,4 +54,4 @@ namespace config {
 
 } // namespace atf
 
-#endif // _ATF_CONFIG_HPP_
+#endif // !defined(_ATF_CONFIG_HPP_)

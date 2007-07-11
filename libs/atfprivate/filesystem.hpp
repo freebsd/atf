@@ -38,7 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_FILESYSTEM_HPP_
+#if !defined(_ATF_FILESYSTEM_HPP_)
 #define _ATF_FILESYSTEM_HPP_
 
 #include <set>
@@ -57,4 +57,4 @@ std::string get_work_dir(void);
 
 } // namespace atf
 
-#endif // _ATF_FILESYSTEM_HPP_
+#endif // !defined(_ATF_FILESYSTEM_HPP_)
