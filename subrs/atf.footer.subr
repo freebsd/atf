@@ -281,7 +281,7 @@ _atf_error()
 {
     _error_code="${1}"; shift
 
-    _atf_echo -t "${Prog_Name}: " "ERROR:" "$@"
+    _atf_echo -r -t "${Prog_Name}: " "ERROR:" "$@" 1>&2
     exit ${_error_code}
 }
 
@@ -458,8 +458,9 @@ _atf_run_tcs()
 #
 _atf_syntax_error()
 {
-    echo "Syntax error: ${@}" 1>&2
-    echo "Type \`${Prog_Name} -h' for more details." 1>&2
+    _atf_echo -r -t "${Prog_Name}: " "ERROR: ${@}" 1>&2
+    _atf_echo -r -t "${Prog_Name}: " "Type \`${Prog_Name} -h' for more" \
+                                     "details." 1>&2
     exit 1
 }
 
@@ -482,6 +483,20 @@ Available options:
 EOF
 
     exit 0
+}
+
+#
+# _atf_warning [msg1 [.. msgN]]
+#
+#   Prints the given warning message (which can be composed of multiple
+#   arguments, in which case are joined by a single space).
+#
+#   This must not be used by test programs themselves (hence making
+#   the function private).
+#
+_atf_warning()
+{
+    _atf_echo -r -t "${Prog_Name}: " "WARNING:" "$@" 1>&2
 }
 
 #

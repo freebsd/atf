@@ -38,6 +38,10 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#if defined(HAVE_CONFIG_H)
+#include "config.h"
+#endif
+
 extern "C" {
 #include <unistd.h>
 }
@@ -188,8 +192,8 @@ atf::application::usage(std::ostream& os)
             tag += "    ";
         else
             tag += " " + opt.m_argument + "    ";
-        os << tag
-           << format_text(opt.m_description, coldesc + 10, tag.length())
+        os << format_text_with_tag(opt.m_description, tag, false,
+                                   coldesc + 10)
            << std::endl;
     }
     os << std::endl;
@@ -214,19 +218,39 @@ atf::application::run(int argc, char* const* argv)
     else
         m_prog_name++;
 
+    const std::string bug =
+        std::string("This is probably a bug in ") + m_prog_name +
+        " or one of the libraries it uses.  Please report this problem to "
+        PACKAGE_BUGREPORT " and provide as many details as possible "
+        "describing how you got to this condition.";
+
+    int errcode;
     try {
         process_options();
-        return main();
+        errcode = main();
     } catch (const usage_error& e) {
-        std::cerr << "Syntax error: " << e.what() << std::endl
-                  << "Type `" << m_prog_name << " -h' for more details."
+        std::cerr << format_error(m_prog_name, e.what())
+                  << std::endl
+                  << format_info(m_prog_name, std::string("Type `") +
+                                 m_prog_name + " -h' for more details.")
                   << std::endl;
-        return EXIT_FAILURE;
+        errcode = EXIT_FAILURE;
+    } catch (const std::runtime_error& e) {
+        std::cerr << format_error(m_prog_name, std::string(e.what()))
+                  << std::endl;
+        errcode = EXIT_FAILURE;
     } catch (const std::exception& e) {
-        std::cerr << "Caught unexpected error: " << e.what() << std::endl;
-        return EXIT_FAILURE;
+        std::cerr << format_error(m_prog_name,
+                                  std::string("Caught unexpected error: ") +
+                                  e.what() + "\n" + bug)
+                  << std::endl;
+        errcode = EXIT_FAILURE;
     } catch (...) {
-        std::cerr << "Caught unknown error!" << std::endl;
-        return EXIT_FAILURE;
+        std::cerr << format_error(m_prog_name,
+                                  std::string("Caught unknown error\n") +
+                                  bug)
+                  << std::endl;
+        errcode = EXIT_FAILURE;
     }
+    return errcode;
 }

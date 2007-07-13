@@ -86,10 +86,9 @@ sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
 AT_CHECK([TEST_HELPER(tp_basic_sh) "*f*"], [1], [expout], [])
 
 dnl Run an unknown test case.
-AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_unknown], [0], [], [stderr])
+AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_unknown], [1], [], [stderr])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
-AT_CHECK([TEST_HELPER(tp_basic_sh) tc_unknown], [0], [experr], [])
-AT_XFAIL_IF(true) dnl XXX The C++ library does not report an error.
+AT_CHECK([TEST_HELPER(tp_basic_sh) tc_unknown], [1], [], [experr])
 
 AT_CLEANUP()
 

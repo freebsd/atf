@@ -177,7 +177,7 @@ atf_run::run_test_program(const std::string& tp)
             // XXX Bogus test.
         }
 
-        std::cout << tag << atf::format_text(msg, tag.length(), tag.length())
+        std::cout << atf::format_text_with_tag(msg, tag, false, tag.length())
                   << std::endl;
     }
 
