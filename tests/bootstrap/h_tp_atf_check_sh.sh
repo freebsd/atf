@@ -163,6 +163,11 @@ tc_stdout_stdout_noclobber_body()
 
     echo bar >aux
     cmp -s stdout aux || atf_fail "Test failed"
+
+    echo "foo bar" >stdout
+    atf_check "cut -d ' ' -f 1 <stdout" 0 stdout null
+    echo foo >expout
+    atf_check "cat stdout" 0 expout null
 }
 
 tc_stderr_experr_pass_head()
@@ -254,6 +259,11 @@ tc_stderr_stderr_noclobber_body()
 
     echo bar >aux
     cmp -s stderr aux || atf_fail "Test failed"
+
+    echo "foo bar" >stderr
+    atf_check "cut -d ' ' -f 1 <stderr 1>&2" 0 null stderr
+    echo foo >experr
+    atf_check "cat stderr 1>&2" 0 null experr
 }
 
 atf_init_test_cases()

@@ -77,35 +77,26 @@ terminal_width(void)
     return width;
 }
 
-std::vector< std::string >
-atf::split(const std::string& str, const std::string& delim)
-{
-    std::vector< std::string > words;
-
-    std::string::size_type pos = 0, newpos = 0;
-    while (pos < str.length() && newpos != std::string::npos) {
-        newpos = str.find(delim, pos);
-        words.push_back(str.substr(pos, newpos - pos));
-        pos = newpos + delim.length();
-    }
-
-    return words;
-}
-
-// See description for format_text below for more details.
 static
 std::string
 format_paragraph(const std::string& text,
-                 const size_t col,
-                 size_t curcol)
+                 const std::string& tag,
+                 const bool first,
+                 const bool repeat,
+                 const size_t col)
 {
     assert(text.find('\n') == std::string::npos);
 
+    const std::string pad(col - tag.length(), ' ');
+    const std::string fullpad(col, ' ');
+
     std::string formatted;
-    if (curcol < col) {
-        formatted = std::string(col - curcol, ' ');
-        curcol = col;
-    }
+    if (first || repeat)
+        formatted = tag + pad;
+    else
+        formatted = fullpad;
+    assert(formatted.length() == col);
+    size_t curcol = col;
 
     const size_t maxcol = terminal_width();
 
@@ -115,7 +106,10 @@ format_paragraph(const std::string& text,
         const std::string& word = *iter;
 
         if (iter != words.begin() && curcol + word.length() + 1 > maxcol) {
-            formatted += '\n' + std::string(col, ' ');
+            if (repeat)
+                formatted += '\n' + tag + pad;
+            else
+                formatted += '\n' + fullpad;
             curcol = col;
         } else if (iter != words.begin()) {
             formatted += ' ';
@@ -129,19 +123,31 @@ format_paragraph(const std::string& text,
     return formatted;
 }
 
-// Reformats the given text so that it fits in the current screen with no
-// wrapping.
-//
-// The input text is a series of words and sentences.  Paragraphs may be
-// separated with a '\n' character, which is taken into account to do the
-// proper formatting.  The text should not finish in '\n'.
-//
-// 'col' specifies the column where the text will start and 'curcol'
-// specifies the current position of the cursor.
 std::string
-atf::format_text(const std::string& text, const size_t col, size_t curcol)
+atf::format_error(const std::string& prog_name, const std::string& error)
 {
-    assert(curcol <= col);
+    return format_text_with_tag("ERROR: " + error, prog_name + ": ", true);
+}
+
+std::string
+atf::format_info(const std::string& prog_name, const std::string& msg)
+{
+    return format_text_with_tag(msg, prog_name + ": ", true);
+}
+
+std::string
+atf::format_text(const std::string& text)
+{
+    return format_text_with_tag(text, "", false, 0);
+}
+
+std::string
+atf::format_text_with_tag(const std::string& text, const std::string& tag,
+                          bool repeat, size_t col)
+{
+    assert(col == 0 || col >= tag.length());
+    if (col == 0)
+        col = tag.length();
 
     std::string formatted;
 
@@ -150,11 +156,36 @@ atf::format_text(const std::string& text, const size_t col, size_t curcol)
          iter != lines.end(); iter++) {
         const std::string& line = *iter;
 
-        formatted += format_paragraph(line, col, curcol);
-        if (iter + 1 != lines.end())
-            formatted += "\n\n";
-        curcol = 0;
+        formatted += format_paragraph(line, tag, iter == lines.begin(),
+                                      repeat, col);
+        if (iter + 1 != lines.end()) {
+            if (repeat)
+                formatted += "\n" + tag + "\n";
+            else
+                formatted += "\n\n";
+        }
     }
 
     return formatted;
+}
+
+std::string
+atf::format_warning(const std::string& prog_name, const std::string& error)
+{
+    return format_text_with_tag("WARNING: " + error, prog_name + ": ", true);
+}
+
+std::vector< std::string >
+atf::split(const std::string& str, const std::string& delim)
+{
+    std::vector< std::string > words;
+
+    std::string::size_type pos = 0, newpos = 0;
+    while (pos < str.length() && newpos != std::string::npos) {
+        newpos = str.find(delim, pos);
+        words.push_back(str.substr(pos, newpos - pos));
+        pos = newpos + delim.length();
+    }
+
+    return words;
 }

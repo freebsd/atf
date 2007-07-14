@@ -51,6 +51,7 @@ class atf_format : public atf::application {
 
     size_t m_length;
     std::string m_tag;
+    bool m_repeat;
 
     void process_option(int, const char*);
     std::string specific_args(void) const;
@@ -70,7 +71,8 @@ const char* atf_format::m_description =
 
 atf_format::atf_format(void) :
     application(m_description, "atf-format(1)"),
-    m_length(0)
+    m_length(0),
+    m_repeat(false)
 {
 }
 
@@ -82,12 +84,14 @@ atf_format::process_option(int ch, const char* arg)
         {
             std::istringstream ss(arg);
             ss >> m_length;
-            if (m_length < m_tag.length()) {
-                std::cerr << "Length must be greater than tag's length"
-                          << std::endl;
-                std::exit(EXIT_FAILURE);
-            }
+            if (m_length < m_tag.length())
+                throw std::runtime_error("Length must be greater than "
+                                         "tag's length");
         }
+        break;
+
+    case 'r':
+        m_repeat = true;
         break;
 
     case 't':
@@ -114,6 +118,7 @@ atf_format::specific_options(void)
 {
     options_set opts;
     opts.insert(option('l', "length", "Tag length"));
+    opts.insert(option('r', "", "Repeat tag on each line"));
     opts.insert(option('t', "tag", "Tag to use for printing"));
     return opts;
 }
@@ -136,12 +141,8 @@ atf_format::main(void)
             str += line + '\n';
     }
 
-    size_t col = 0;
-    if (!m_tag.empty()) {
-        std::cout << m_tag;
-        col += m_tag.length();
-    }
-    std::cout << atf::format_text(str, m_length, col) << std::endl;
+    std::cout << atf::format_text_with_tag(str, m_tag, m_repeat, m_length)
+              << std::endl;
 
     return EXIT_SUCCESS;
 }

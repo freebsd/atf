@@ -56,11 +56,8 @@ void
 cat_file(std::ostream& os, const std::string& path)
 {
     std::ifstream is(path.c_str());
-    if (!is) {
-        // XXX
-        std::cerr << "Cannot open " << path << std::endl;
-        std::exit(EXIT_FAILURE);
-    }
+    if (!is)
+        throw std::runtime_error("Cannot open " + path);
     std::string line;
     while (std::getline(is, line))
         os << line << std::endl;
@@ -150,10 +147,9 @@ atf_compile::main(void)
         compile(std::cout);
     } else {
         std::ofstream os(m_outfile.c_str());
-        if (!os) {
-            std::cerr << "Cannot open output" << std::endl;
-            return EXIT_FAILURE;
-        }
+        if (!os)
+            throw std::runtime_error("Cannot open output file `" +
+                                     m_outfile + "'");
         compile(os);
         os.close();
 

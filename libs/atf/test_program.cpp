@@ -209,6 +209,8 @@ test_program::filter_test_cases(test_cases tcs,
             const std::string& glob = *iter;
 
             std::set< std::string > ms = atf::expand_glob(glob, ids);
+            if (ms.empty())
+                throw std::runtime_error("Unknown test case `" + glob + "'");
             exps.insert(ms.begin(), ms.end());
         }
 
@@ -246,9 +248,9 @@ test_program::list_test_cases(void)
          iter != tcs.end(); iter++) {
         const atf::test_case* tc = *iter;
 
-        std::cout << tc->get("ident") << "    "
-                  << atf::format_text(tc->get("descr"), maxlen + 4,
-                                      tc->get("ident").length() + 4)
+        std::cout << atf::format_text_with_tag(tc->get("descr"),
+                                               tc->get("ident"),
+                                               false, maxlen + 4)
                   << std::endl;
     }
 
