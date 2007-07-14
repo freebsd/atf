@@ -63,8 +63,6 @@ atf_check()
     null)
         ;;
     stdout)
-        test -f stdout && rm -f stdout
-        test -f stdout && atf_fail "Could not delete stale stdout file"
         ;;
     *)
         atf_fail "Invalid value in atf_check's expout parameter"
@@ -80,8 +78,6 @@ atf_check()
     null)
         ;;
     stderr)
-        test -f stderr && rm -f stderr
-        test -f stderr && atf_fail "Could not delete stale stderr file"
         ;;
     *)
         atf_fail "Invalid value in atf_check's experr parameter"
@@ -107,6 +103,8 @@ atf_check()
         cmp -s empty-file aux-stdout || atf_fail "stdout was not silent"
         ;;
     stdout)
+        test -f stdout && rm -f stdout
+        test -f stdout && atf_fail "Could not delete stale stdout file"
         mv aux-stdout stdout
         ;;
     *)
@@ -125,6 +123,8 @@ atf_check()
         cmp -s empty-file aux-stderr || atf_fail "stderr was not silent"
         ;;
     stderr)
+        test -f stderr && rm -f stderr
+        test -f stderr && atf_fail "Could not delete stale stderr file"
         mv aux-stderr stderr
         ;;
     *)
