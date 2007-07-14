@@ -82,4 +82,4 @@ find . -name '*~' | xargs rm -rf
 find . -name .deps | xargs rm -rf
 find . -name .libs | xargs rm -rf
 
-# vim: syntax=sh:expandtab:shiftwidth=4:sofftabstop=4
+# vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
