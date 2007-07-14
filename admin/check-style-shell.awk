@@ -39,47 +39,80 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-Prog_Name=${0##*/}
+function warn(msg) {
+    print FILENAME "[" FNR "]: " msg > "/dev/stderr"
+    error = 1
+}
 
-if [ ! -f ./libs/atf.hpp ]; then
-    echo "${Prog_Name}: must be run from atf source's top directory" 1>&2
-    exit 1
-fi
+BEGIN {
+    skip = 0
+    error = 0
+    emacs_modeline = 0
+    vim_modeline = 0
+}
 
-if [ ! -f configure ]; then
-    echo "${Prog_Name}: nothing to clean" 1>&2
-    exit 1
-fi
+/NO_CHECK_STYLE_BEGIN/ {
+    skip = 1
+    next
+}
 
-[ -f Makefile ] || ./configure
-make distclean
+/NO_CHECK_STYLE_END/ {
+    skip = 0
+    next
+}
 
-# Top-level directory.
-rm -f .gdb_history
-rm -f INSTALL
-rm -f Makefile.in
-rm -f aclocal.m4
-rm -rf autom4te.cache
-rm -f config.h.in
-rm -f configure
-rm -f mkinstalldirs
+/NO_CHECK_STYLE/ {
+    next
+}
 
-# `admin' directory.
-rm -f admin/config.guess
-rm -f admin/config.sub
-rm -f admin/depcomp
-rm -f admin/install-sh
-rm -f admin/ltmain.sh
-rm -f admin/missing
+{
+    if (skip)
+        next
+}
 
-# `tests/bootstrap' directory.
-rm -f tests/bootstrap/package.m4
-rm -f tests/bootstrap/testsuite
+/vim: syntax=sh/ {
+    vim_modeline = 1
+}
 
-# Files and directories spread all around the tree.
-find . -name '#*' | xargs rm -rf
-find . -name '*~' | xargs rm -rf
-find . -name .deps | xargs rm -rf
-find . -name .libs | xargs rm -rf
+/^[ \t]*#/ {
+    next
+}
 
-# vim: syntax=sh:expandtab:shiftwidth=4:sofftabstop=4
+/[$ \t]+_[a-zA-Z0-9]+=/ {
+    warn("Variable should not start with an underline")
+}
+
+/\$[^0-9'"$?@#*{(|\/]+/ {
+    warn("Missing braces around variable name")
+}
+
+/=(""|'')/ {
+    warn("Assignment to the empty string does not need quotes");
+}
+
+/basename[ \t]+/ {
+    warn("Use parameter expansion instead of basename");
+}
+
+/dirname[ \t]+/ {
+    warn("Use parameter expansion instead of dirname");
+}
+
+/if[ \t]+(test|![ \t]+test)/ {
+    warn("Use [ instead of test");
+}
+
+/if.*;[ \t]*fi$/ {
+    warn("Avoid using a single-line if conditional");
+}
+
+END {
+    if (skip)
+        warn("Missing NO_CHECK_STYLE_END");
+    if (! vim_modeline)
+        warn("Missing mode lines");
+    if (error)
+        exit 1
+}
+
+# vim: syntax=awk:expandtab:shiftwidth=4:softtabstop=4

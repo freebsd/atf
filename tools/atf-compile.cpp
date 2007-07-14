@@ -56,11 +56,8 @@ void
 cat_file(std::ostream& os, const std::string& path)
 {
     std::ifstream is(path.c_str());
-    if (!is) {
-        // XXX
-        std::cerr << "Cannot open " << path << std::endl;
-        std::exit(EXIT_FAILURE);
-    }
+    if (!is)
+        throw std::runtime_error("Cannot open " + path);
     std::string line;
     while (std::getline(is, line))
         os << line << std::endl;
@@ -129,13 +126,15 @@ atf_compile::compile(std::ostream& os)
     os << "#! " << atf::config::get("atf_shell") << std::endl;
     cat_file(os, atf::config::get("atf_pkgdatadir") + "/atf.init.subr");
     os << std::endl;
-    os << ". ${atf_pkgdatadir}/atf.header.subr" << std::endl;
+    os << ". ${Atf_Pkgdatadir}/atf.header.subr" << std::endl;
     os << std::endl;
     for (int i = 0; i < m_argc; i++) {
         cat_file(os, m_argv[i]);
         os << std::endl;
     }
-    os << ". ${atf_pkgdatadir}/atf.footer.subr" << std::endl;
+    os << ". ${Atf_Pkgdatadir}/atf.footer.subr" << std::endl;
+    os << std::endl;
+    os << "main \"${@}\"" << std::endl;
 }
 
 int
@@ -148,10 +147,9 @@ atf_compile::main(void)
         compile(std::cout);
     } else {
         std::ofstream os(m_outfile.c_str());
-        if (!os) {
-            std::cerr << "Cannot open output" << std::endl;
-            return EXIT_FAILURE;
-        }
+        if (!os)
+            throw std::runtime_error("Cannot open output file `" +
+                                     m_outfile + "'");
         compile(os);
         os.close();
 

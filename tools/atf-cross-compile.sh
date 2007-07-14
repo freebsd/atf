@@ -1,4 +1,3 @@
-#! /bin/sh
 #
 # Automated Testing Framework (atf)
 #
@@ -39,47 +38,60 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-Prog_Name=${0##*/}
-
-if [ ! -f ./libs/atf.hpp ]; then
-    echo "${Prog_Name}: must be run from atf source's top directory" 1>&2
+if [ -z "${ATF_PKGDATADIR}" ]; then
+    echo "atf-cross-compile: ATF_PKGDATADIR is undefined" 1>&2
     exit 1
 fi
 
-if [ ! -f configure ]; then
-    echo "${Prog_Name}: nothing to clean" 1>&2
+if [ ! -f "${ATF_PKGDATADIR}/atf.init.subr" ]; then
+    echo "atf-cross-compile: ATF_PKGDATADIR is not valid" 1>&2
     exit 1
 fi
 
-[ -f Makefile ] || ./configure
-make distclean
+if [ -z "${ATF_SHELL}" ]; then
+    echo "atf-cross-compile: ATF_SHELL is undefined" 1>&2
+    exit 1
+fi
 
-# Top-level directory.
-rm -f .gdb_history
-rm -f INSTALL
-rm -f Makefile.in
-rm -f aclocal.m4
-rm -rf autom4te.cache
-rm -f config.h.in
-rm -f configure
-rm -f mkinstalldirs
+if [ ${#} -lt 1 ]; then
+    echo "atf-cross-compile: no -o option specified" 1>&2
+    exit 1
+fi
 
-# `admin' directory.
-rm -f admin/config.guess
-rm -f admin/config.sub
-rm -f admin/depcomp
-rm -f admin/install-sh
-rm -f admin/ltmain.sh
-rm -f admin/missing
+if [ ${1} != '-o' ]; then
+    echo "atf-cross-compile: no -o option specified" 1>&2
+    exit 1
+fi
+if [ ${#} -lt 2 ]; then
+    echo "atf-cross-compile: no source file specified" 1>&2
+    exit 1
+fi
 
-# `tests/bootstrap' directory.
-rm -f tests/bootstrap/package.m4
-rm -f tests/bootstrap/testsuite
+if [ ${#} -lt 3 ]; then
+    echo "atf-cross-compile: no target file specified" 1>&2
+    exit 1
+fi
 
-# Files and directories spread all around the tree.
-find . -name '#*' | xargs rm -rf
-find . -name '*~' | xargs rm -rf
-find . -name .deps | xargs rm -rf
-find . -name .libs | xargs rm -rf
+tfile=${2}
+sfile=${3}
+
+if [ ! -f "${sfile}" ]; then
+    echo "atf-cross-compile: source file does not exist" 1>&2
+    exit 1
+fi
+
+echo "#! ${ATF_SHELL}" >${tfile}
+cat ${ATF_PKGDATADIR}/atf.init.subr >>${tfile}
+echo >>${tfile}
+echo '. ${Atf_Pkgdatadir}/atf.header.subr' >>${tfile}
+echo >>${tfile}
+cat <${sfile} >>${tfile}
+echo '. ${Atf_Pkgdatadir}/atf.footer.subr' >>${tfile}
+echo >>${tfile}
+echo "main \"\${@}\"" >>${tfile}
+
+chmod +x ${tfile}
+
+exit 0
 
 # vim: syntax=sh:expandtab:shiftwidth=4:sofftabstop=4

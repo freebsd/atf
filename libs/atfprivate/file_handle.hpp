@@ -38,7 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_FILE_HANDLE_HPP_
+#if !defined(_ATF_FILE_HANDLE_HPP_)
 #define _ATF_FILE_HANDLE_HPP_
 
 //!
@@ -259,4 +259,4 @@ private:
 
 } // namespace atf
 
-#endif // _ATF_FILE_HANDLE_HPP_
+#endif // !defined(_ATF_FILE_HANDLE_HPP_)

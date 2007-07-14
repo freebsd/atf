@@ -39,47 +39,48 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-Prog_Name=${0##*/}
+function warn(msg) {
+    print FILENAME "[" FNR "]: " msg > "/dev/stderr"
+    error = 1
+}
 
-if [ ! -f ./libs/atf.hpp ]; then
-    echo "${Prog_Name}: must be run from atf source's top directory" 1>&2
-    exit 1
-fi
+BEGIN {
+    skip = 0
+    error = 0
+}
 
-if [ ! -f configure ]; then
-    echo "${Prog_Name}: nothing to clean" 1>&2
-    exit 1
-fi
+/NO_CHECK_STYLE_BEGIN/ {
+    skip = 1
+    next
+}
 
-[ -f Makefile ] || ./configure
-make distclean
+/NO_CHECK_STYLE_END/ {
+    skip = 0
+    next
+}
 
-# Top-level directory.
-rm -f .gdb_history
-rm -f INSTALL
-rm -f Makefile.in
-rm -f aclocal.m4
-rm -rf autom4te.cache
-rm -f config.h.in
-rm -f configure
-rm -f mkinstalldirs
+/NO_CHECK_STYLE/ {
+    next
+}
 
-# `admin' directory.
-rm -f admin/config.guess
-rm -f admin/config.sub
-rm -f admin/depcomp
-rm -f admin/install-sh
-rm -f admin/ltmain.sh
-rm -f admin/missing
+{
+    if (skip)
+        next
+}
 
-# `tests/bootstrap' directory.
-rm -f tests/bootstrap/package.m4
-rm -f tests/bootstrap/testsuite
+/#ifdef/ {
+    warn("Undesired usage of #ifdef; use #if defined()")
+}
 
-# Files and directories spread all around the tree.
-find . -name '#*' | xargs rm -rf
-find . -name '*~' | xargs rm -rf
-find . -name .deps | xargs rm -rf
-find . -name .libs | xargs rm -rf
+/#ifndef/ {
+    warn("Undesired usage of #ifndef; use #if !defined()")
+}
 
-# vim: syntax=sh:expandtab:shiftwidth=4:sofftabstop=4
+END {
+    if (skip)
+        warn("Missing NO_CHECK_STYLE_END");
+    if (error)
+        exit 1
+}
+
+# vim: syntax=awk:expandtab:shiftwidth=4:softtabstop=4

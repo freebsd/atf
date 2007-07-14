@@ -44,7 +44,7 @@
 //! Includes the declaration of the pistream class.
 //!
 
-#ifndef _ATF_PISTREAM_HPP_
+#if !defined(_ATF_PISTREAM_HPP_)
 #define _ATF_PISTREAM_HPP_
 
 #include <istream>
@@ -119,4 +119,4 @@ public:
 
 } // namespace atf
 
-#endif // _ATF_PISTREAM_HPP_
+#endif // !defined(_ATF_PISTREAM_HPP_)

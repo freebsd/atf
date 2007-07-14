@@ -136,7 +136,6 @@ ATF_TEST_CASE_HEAD(tc_short_read)
 ATF_TEST_CASE_BODY(tc_short_read)
 {
     test_read(64, 1024);
-    ATF_PASS();
 }
 
 ATF_TEST_CASE(tc_long_read);
@@ -148,7 +147,6 @@ ATF_TEST_CASE_HEAD(tc_long_read)
 ATF_TEST_CASE_BODY(tc_long_read)
 {
     test_read(64 * 1024, 1024);
-    ATF_PASS();
 }
 
 ATF_TEST_CASE(tc_short_write);
@@ -160,7 +158,6 @@ ATF_TEST_CASE_HEAD(tc_short_write)
 ATF_TEST_CASE_BODY(tc_short_write)
 {
     test_write(64, 1024);
-    ATF_PASS();
 }
 
 ATF_TEST_CASE(tc_long_write);
@@ -172,7 +169,6 @@ ATF_TEST_CASE_HEAD(tc_long_write)
 ATF_TEST_CASE_BODY(tc_long_write)
 {
     test_write(64 * 1024, 1024);
-    ATF_PASS();
 }
 
 ATF_INIT_TEST_CASES(tcs)

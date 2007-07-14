@@ -38,7 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_UI_HPP_
+#if !defined(_ATF_UI_HPP_)
 #define _ATF_UI_HPP_
 
 #include <string>
@@ -46,9 +46,80 @@
 
 namespace atf {
 
+//!
+//! \brief Formats an error message to fit on string.
+//!
+//! Given the program's name and an error message, properly formats it to
+//! fit on screen.
+//!
+//! The program's name is not stored globally to prevent the usage of this
+//! function from inside the library.  Making it a explicit parameter
+//! restricts its usage to the frontend.
+//!
+std::string format_error(const std::string&, const std::string&);
+
+//!
+//! \brief Formats an informational message to fit on string.
+//!
+//! Given the program's name and an informational message, properly formats
+//! it to fit on screen.
+//!
+//! The program's name is not stored globally to prevent the usage of this
+//! function from inside the library.  Making it a explicit parameter
+//! restricts its usage to the frontend.
+//!
+std::string format_info(const std::string&, const std::string&);
+
+//!
+//! \brief Formats a block of text to fit nicely on screen.
+//!
+//! Given a text, which is composed of multiple paragraphs separated by
+//! a single '\n' character, reformats it to fill on the current screen's
+//! width with proper line wrapping.
+//!
+//! This is just a special case of format_text_with_tag, provided for
+//! simplicity.
+//!
+std::string format_text(const std::string&);
+
+//!
+//! \brief Formats a block of text to fit nicely on screen, prepending a
+//! tag to it.
+//!
+//! Given a text, which is composed of multiple paragraphs separated by
+//! a single '\n' character, reformats it to fill on the current screen's
+//! width with proper line wrapping.  The text is prepended with a tag;
+//! i.e. a word that is printed at the beginning of the first paragraph and
+//! optionally repeated at the beginning of each word.  The last parameter
+//! specifies the column on which the text should start, and that position
+//! must be greater than the tag's length or 0, in which case it
+//! automatically takes the correct value.
+//!
+std::string format_text_with_tag(const std::string&, const std::string&,
+                                 bool, size_t = 0);
+
+//!
+//! \brief Formats a warning message to fit on string.
+//!
+//! Given the program's name and a warning message, properly formats it to
+//! fit on screen.
+//!
+//! The program's name is not stored globally to prevent the usage of this
+//! function from inside the library.  Making it a explicit parameter
+//! restricts its usage to the frontend.
+//!
+std::string format_warning(const std::string&, const std::string&);
+
+//!
+//! \brief Splits a string into words.
+//!
+//! Splits the given string into multiple words, all separated by the
+//! given delimiter.  Multiple occurrences of the same delimiter are
+//! not condensed so that rejoining the words later on using the same
+//! delimiter results in the original string.
+//!
 std::vector< std::string > split(const std::string&, const std::string&);
-std::string format_text(const std::string&, const size_t = 0, size_t = 0);
 
 } // namespace atf
 
-#endif // _ATF_UI_HPP_
+#endif // !defined(_ATF_UI_HPP_)

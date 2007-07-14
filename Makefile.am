@@ -46,7 +46,7 @@ if INSTALL_DOCS
 doc_DATA = AUTHORS COPYING NEWS README TODO
 endif # INSTALL_DOCS
 
-dist-hook:
+dist-hook: check-style
 	@echo "-------------------------------------------------"
 	@echo " REMEMBER THAT README HAS TO BE UPDATED WITH THE"
 	@echo "     RIGHT VERSIONS OF THE GNU BUILD SYSTEM!"
@@ -57,8 +57,25 @@ AM_CPPFLAGS = -DATF_LIBEXECDIR=\"$(libexecdir)\" \
               -DATF_SHELL=\"$(ATF_SHELL)\" \
               -I$(srcdir)/libs
 
-# XXX Not cross-compile friendly...
-ATF_COMPILE_SH = ATF_LIBEXECDIR=$(srcdir)/subrs ./tools/atf-compile
+ATF_COMPILE_DEPS = $(srcdir)/subrs/atf.footer.subr
+ATF_COMPILE_DEPS += $(srcdir)/subrs/atf.header.subr
+ATF_COMPILE_DEPS += $(srcdir)/subrs/atf.init.subr
+ATF_COMPILE_DEPS += tools/atf-cross-compile.sh
+ATF_COMPILE_SH = ATF_PKGDATADIR=$(srcdir)/subrs ATF_SHELL=$(ATF_SHELL) \
+                 ./tools/atf-cross-compile.sh
+
+# -------------------------------------------------------------------------
+# `admin' directory.
+# -------------------------------------------------------------------------
+
+.PHONY: check-style
+check-style:
+	$(srcdir)/admin/check-style.sh
+
+EXTRA_DIST = admin/check-style-common.awk \
+             admin/check-style-cpp.awk \
+             admin/check-style-shell.awk \
+             admin/check-style.sh
 
 # -------------------------------------------------------------------------
 # `libs/atfprivate' directory.
@@ -71,6 +88,8 @@ libs_libatfprivate_la_SOURCES = libs/atfprivate/application.cpp \
                                 libs/atfprivate/atffile.hpp \
                                 libs/atfprivate/config.cpp \
                                 libs/atfprivate/config.hpp \
+                                libs/atfprivate/expand.cpp \
+                                libs/atfprivate/expand.hpp \
                                 libs/atfprivate/exceptions.cpp \
                                 libs/atfprivate/exceptions.hpp \
                                 libs/atfprivate/file_handle.cpp \
@@ -112,6 +131,7 @@ subrs_DATA = subrs/atf.footer.subr \
              subrs/atf.header.subr \
              subrs/atf.init.subr
 subrsdir = $(pkgdatadir)
+EXTRA_DIST += $(subrs_DATA)
 
 # -------------------------------------------------------------------------
 # `tests/bootstrap' directory.
@@ -134,13 +154,18 @@ tests_bootstrap_h_tp_basic_cpp_LDFLAGS = -Llibs
 
 check_SCRIPTS = tests/bootstrap/h_tp_basic_sh
 CLEANFILES = tests/bootstrap/h_tp_basic_sh
-tests/bootstrap/h_tp_basic_sh: $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh
-	$(ATF_COMPILE_SH) -o $@ $<
+EXTRA_DIST += tests/bootstrap/h_tp_basic_sh.sh
+tests/bootstrap/h_tp_basic_sh: $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh \
+                               $(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh
 
 check_SCRIPTS += tests/bootstrap/h_tp_atf_check_sh
 CLEANFILES += tests/bootstrap/h_tp_atf_check_sh
-tests/bootstrap/h_tp_atf_check_sh: $(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh
-	$(ATF_COMPILE_SH) -o $@ $<
+EXTRA_DIST += tests/bootstrap/h_tp_atf_check_sh.sh
+tests/bootstrap/h_tp_atf_check_sh: \
+		$(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh \
+		$(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh
 
 TESTS=		$(srcdir)/tests/bootstrap/testsuite
 TESTS_ENVIRONMENT = PATH=$$(atf-config -t atf_libexecdir):$${PATH}
@@ -153,7 +178,7 @@ DISTCLEANFILES = \
 distclean-local:
 	-rm -rf testsuite.dir
 
-EXTRA_DIST =	tests/bootstrap/testsuite \
+EXTRA_DIST +=	tests/bootstrap/testsuite \
 		tests/bootstrap/package.m4 \
 		tests/bootstrap/testsuite.at \
 		$(testsuite_incs)
@@ -162,7 +187,6 @@ testsuite_incs=	$(srcdir)/tests/bootstrap/t_application_help.at \
 		$(srcdir)/tests/bootstrap/t_application_opts_args.at \
 		$(srcdir)/tests/bootstrap/t_atf_config.at \
 		$(srcdir)/tests/bootstrap/t_atf_format.at \
-		$(srcdir)/tests/bootstrap/t_atf_identify.at \
 		$(srcdir)/tests/bootstrap/t_atf_run.at \
 		$(srcdir)/tests/bootstrap/t_subr_atf_check.at \
 		$(srcdir)/tests/bootstrap/t_test_program_compare.at \
@@ -199,19 +223,29 @@ testsdir = $(exec_prefix)/tests
 pkgtestsdir = $(exec_prefix)/tests/atf
 
 pkgtests_DATA = tests/atf/Atffile
+EXTRA_DIST += $(pkgtests_DATA)
 
 atf_tools_DATA = tests/atf/tools/Atffile
 atf_toolsdir = $(pkgtestsdir)/tools
+EXTRA_DIST += $(atf_tools_DATA)
 
 atf_tools_SCRIPTS = tests/atf/tools/t_atf_compile
 CLEANFILES += tests/atf/tools/t_atf_compile
-tests/atf/tools/t_atf_compile: $(srcdir)/tests/atf/tools/t_atf_compile.sh
-	$(ATF_COMPILE_SH) -o $@ $<
+EXTRA_DIST += tests/atf/tools/t_atf_compile.sh
+tests/atf/tools/t_atf_compile: $(srcdir)/tests/atf/tools/t_atf_compile.sh \
+                               $(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_compile.sh
 
 atf_units_DATA = tests/atf/units/Atffile
 atf_unitsdir = $(pkgtestsdir)/units
+EXTRA_DIST += $(atf_units_DATA)
 
-atf_units_PROGRAMS = tests/atf/units/t_file_handle
+atf_units_PROGRAMS = tests/atf/units/t_expand
+tests_atf_units_t_expand_SOURCES = tests/atf/units/t_expand.cpp
+tests_atf_units_t_expand_LDADD = -latf
+tests_atf_units_t_expand_LDFLAGS = -Llibs
+
+atf_units_PROGRAMS += tests/atf/units/t_file_handle
 tests_atf_units_t_file_handle_SOURCES = tests/atf/units/t_file_handle.cpp
 tests_atf_units_t_file_handle_LDADD = -latf
 tests_atf_units_t_file_handle_LDFLAGS = -Llibs
@@ -250,6 +284,8 @@ tools_atf_config_SOURCES = tools/atf-config.cpp
 tools_atf_config_LDADD = -latfprivate
 tools_atf_config_LDFLAGS = -Llibs
 
+EXTRA_DIST += tools/atf-cross-compile.sh
+
 bin_PROGRAMS += tools/atf-compile
 tools_atf_compile_SOURCES = tools/atf-compile.cpp
 tools_atf_compile_LDADD = -latfprivate
@@ -259,11 +295,6 @@ libexec_PROGRAMS = tools/atf-format
 tools_atf_format_SOURCES = tools/atf-format.cpp
 tools_atf_format_LDADD = -latfprivate
 tools_atf_format_LDFLAGS = -Llibs
-
-libexec_PROGRAMS += tools/atf-identify
-tools_atf_identify_SOURCES = tools/atf-identify.cpp
-tools_atf_identify_LDADD = -latfprivate
-tools_atf_identify_LDFLAGS = -Llibs
 
 bin_PROGRAMS += tools/atf-run
 tools_atf_run_SOURCES = tools/atf-run.cpp

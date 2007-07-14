@@ -44,7 +44,7 @@
 //! Includes the declaration of the postream class.
 //!
 
-#ifndef _ATF_POSTREAM_HPP_
+#if !defined(_ATF_POSTREAM_HPP_)
 #define _ATF_POSTREAM_HPP_
 
 #include <ostream>
@@ -119,4 +119,4 @@ public:
 
 } // namespace atf
 
-#endif // _ATF_POSTREAM_HPP_
+#endif // !defined(_ATF_POSTREAM_HPP_)

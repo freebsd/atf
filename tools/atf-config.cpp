@@ -130,11 +130,9 @@ atf_config::main(void)
                       << std::endl;
     } else {
         for (int i = 0; i < m_argc; i++) {
-            if (!atf::config::has(m_argv[i])) {
-                std::cerr << "Unknown variable `" << m_argv[i] << "'"
-                          << std::endl;
-                return EXIT_FAILURE;
-            }
+            if (!atf::config::has(m_argv[i]))
+                throw std::runtime_error(std::string("Unknown variable `") +
+                                         m_argv[i] + "'");
         }
 
         for (int i = 0; i < m_argc; i++) {

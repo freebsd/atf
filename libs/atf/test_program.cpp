@@ -38,12 +38,14 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <vector>
 
 #include "atfprivate/application.hpp"
+#include "atfprivate/expand.hpp"
 #include "atfprivate/ui.hpp"
 #include "atf/test_case.hpp"
 
@@ -94,7 +96,8 @@ private:
     test_cases m_test_cases;
 
     test_cases init_test_cases(void);
-    static test_cases filter_test_cases(test_cases, std::set< std::string >&);
+    static test_cases filter_test_cases(test_cases,
+                                        const std::set< std::string >&);
 
     int list_test_cases(void);
     int run_test_cases(void);
@@ -159,21 +162,68 @@ test_program::init_test_cases(void)
     return tcs;
 }
 
+//
+// An auxiliary unary predicate that compares the given test case's
+// identifier to the identifier stored in it.
+//
+class tc_equal_to_ident {
+    const std::string& m_ident;
+
+public:
+    tc_equal_to_ident(const std::string& i) :
+        m_ident(i)
+    {
+    }
+
+    bool operator()(const atf::test_case* tc)
+    {
+        return tc->get("ident") == m_ident;
+    }
+};
+
 test_program::test_cases
 test_program::filter_test_cases(test_cases tcs,
-                                std::set< std::string >& tcnames)
+                                const std::set< std::string >& tcnames)
 {
     test_cases tcso;
 
-    if (tcnames.empty())
+    if (tcnames.empty()) {
+        // Special case: added for efficiency because this is the most
+        // typical situation.
         tcso = tcs;
-    else {
+    } else {
+        // Collect all the test cases' identifiers.
+        std::set< std::string > ids;
         for (test_cases::iterator iter = tcs.begin();
              iter != tcs.end(); iter++) {
             atf::test_case* tc = *iter;
 
-            if (tcnames.find(tc->get("ident")) != tcnames.end())
-                tcso.push_back(tc);
+            ids.insert(tc->get("ident"));
+        }
+
+        // Iterate over all names provided by the user and, for each one,
+        // expand it as if it were a glob pattern.  Collect all expansions.
+        std::set< std::string > exps;
+        for (std::set< std::string >::const_iterator iter = tcnames.begin();
+             iter != tcnames.end(); iter++) {
+            const std::string& glob = *iter;
+
+            std::set< std::string > ms = atf::expand_glob(glob, ids);
+            if (ms.empty())
+                throw std::runtime_error("Unknown test case `" + glob + "'");
+            exps.insert(ms.begin(), ms.end());
+        }
+
+        // For each expansion, locate its corresponding test case and add
+        // it to the output set.
+        for (std::set< std::string >::const_iterator iter = exps.begin();
+             iter != exps.end(); iter++) {
+            const std::string& name = *iter;
+
+            test_cases::iterator tciter =
+                std::find_if(tcs.begin(), tcs.end(), tc_equal_to_ident(name));
+            assert(tciter != tcs.end());
+            tcso.push_back(*tciter);
         }
     }
 
@@ -198,9 +248,9 @@ test_program::list_test_cases(void)
          iter != tcs.end(); iter++) {
         const atf::test_case* tc = *iter;
 
-        std::cout << tc->get("ident") << "    "
-                  << atf::format_text(tc->get("descr"), maxlen + 4,
-                                      tc->get("ident").length() + 4)
+        std::cout << atf::format_text_with_tag(tc->get("descr"),
+                                               tc->get("ident"),
+                                               false, maxlen + 4)
                   << std::endl;
     }
 

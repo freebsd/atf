@@ -70,5 +70,12 @@ is put here just to clarify this fact.
   library.
   Author: Julio M. Merino Vidal <jmmv84@gmail.com>
 
+* admin/check-style.sh, admin/check-style-common.awk,
+  admin/check-style-cpp.awk, admin/check-style-shell.awk: These files,
+  except the first one, were first implemented in the Buildtool project.
+  They were later adapted to be part of Boost.Process and, during that
+  process, the shell script was created.
+  Author: Julio M. Merino Vidal <jmmv84@gmail.com>
+
 
 -- EOF

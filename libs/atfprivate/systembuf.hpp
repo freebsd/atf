@@ -38,7 +38,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef _ATF_SYSTEMBUF_HPP_
+#if !defined(_ATF_SYSTEMBUF_HPP_)
 #define _ATF_SYSTEMBUF_HPP_
 
 //!
@@ -159,4 +159,4 @@ protected:
 
 } // namespace atf
 
-#endif // _ATF_SYSTEMBUF_HPP_
+#endif // !defined(_ATF_SYSTEMBUF_HPP_)

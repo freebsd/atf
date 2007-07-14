@@ -38,68 +38,31 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <algorithm>
-#include <cassert>
-#include <cstdlib>
-#include <iostream>
+#if !defined(_ATF_EXPAND_HPP_)
+#define _ATF_EXPAND_HPP_
+
+#include <set>
 #include <string>
 
-#include "atfprivate/application.hpp"
-#include "atfprivate/atffile.hpp"
-#include "atfprivate/filesystem.hpp"
+namespace atf {
 
-class atf_identify : public atf::application {
-    static const char* m_description;
+//!
+//! \brief Expands a glob pattern among multiple candidates.
+//!
+//! Given a glob pattern and a set of candidate strings, checks which of
+//! those strings match the glob pattern and returns them.
+//!
+std::set< std::string > expand_glob(const std::string&,
+                                    const std::set< std::string >&);
 
-    std::string specific_args(void) const;
+//!
+//! \brief Checks if a given string matches a glob pattern.
+//!
+//! Given a glob pattern and a string, checks whether the former matches
+//! the latter.  Returns a boolean indicating this condition.
+//!
+bool matches_glob(const std::string&, const std::string&);
 
-public:
-    atf_identify(void);
+} // namespace atf
 
-    int main(void);
-};
-
-const char* atf_identify::m_description =
-    "atf-identify is a tool that calculates a test program's identifier "
-    "by inspecting its location inside the file system and its relation "
-    "with parent tests.";
-
-atf_identify::atf_identify(void) :
-    application(m_description, "atf-identify(1)")
-{
-}
-
-std::string
-atf_identify::specific_args(void)
-    const
-{
-    return "<test-program>";
-}
-
-int
-atf_identify::main(void)
-{
-    if (m_argc < 1)
-        throw atf::usage_error("No test program specified");
-
-    int errcode;
-    std::string tp(m_argv[0]);
-
-    try {
-        std::string ident = atf::identify(tp, atf::get_work_dir() + "/");
-        std::cout << ident << std::endl;
-        errcode = EXIT_SUCCESS;
-    } catch (const atf::not_found_error< std::string >& e) {
-        std::cerr << "Cannot calculate identifier for " << tp
-                  << ": " << e.what() << std::endl;
-        errcode = EXIT_FAILURE;
-    }
-
-    return errcode;
-}
-
-int
-main(int argc, char* const* argv)
-{
-    return atf_identify().run(argc, argv);
-}
+#endif // !defined(_ATF_EXPAND_HPP_)

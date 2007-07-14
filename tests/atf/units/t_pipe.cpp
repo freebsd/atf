@@ -71,8 +71,6 @@ ATF_TEST_CASE_BODY(tc_read_and_write)
     ATF_CHECK_EQUAL(tmp, "1Test");
     rend >> tmp;
     ATF_CHECK_EQUAL(tmp, "1message");
-
-    ATF_PASS();
 }
 
 ATF_TEST_CASE(tc_remap_read);
@@ -95,8 +93,6 @@ ATF_TEST_CASE_BODY(tc_remap_read)
     ATF_CHECK_EQUAL(tmp, "2Test");
     std::cin >> tmp;
     ATF_CHECK_EQUAL(tmp, "2message");
-
-    ATF_PASS();
 }
 
 ATF_TEST_CASE(tc_remap_write);
@@ -119,8 +115,6 @@ ATF_TEST_CASE_BODY(tc_remap_write)
     ATF_CHECK_EQUAL(tmp, "3Test");
     rend >> tmp;
     ATF_CHECK_EQUAL(tmp, "3message");
-
-    ATF_PASS();
 }
 
 ATF_INIT_TEST_CASES(tcs)

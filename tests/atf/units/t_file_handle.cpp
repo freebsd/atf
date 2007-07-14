@@ -62,8 +62,6 @@ ATF_TEST_CASE_BODY(tc_construct)
     atf::file_handle fh2(STDERR_FILENO);
     ATF_CHECK(fh2.is_valid());
     fh2.disown();
-
-    ATF_PASS();
 }
 
 ATF_TEST_CASE(tc_copy);
@@ -85,8 +83,6 @@ ATF_TEST_CASE_BODY(tc_copy)
     ATF_CHECK(fh1.is_valid());
 
     fh1.disown();
-
-    ATF_PASS();
 }
 
 ATF_TEST_CASE(tc_get);
@@ -98,8 +94,6 @@ ATF_TEST_CASE_BODY(tc_get)
 {
     atf::file_handle fh1(STDERR_FILENO);
     ATF_CHECK_EQUAL(fh1.get(), STDERR_FILENO);
-
-    ATF_PASS();
 }
 
 ATF_TEST_CASE(tc_posix_dup);
@@ -131,8 +125,6 @@ ATF_TEST_CASE_BODY(tc_posix_dup)
     ATF_CHECK_EQUAL(::read(rend.get(), buf2, sizeof(buf2)), 14);
     buf2[14] = '\0';
     ATF_CHECK(std::strcmp(buf2, "test-posix-dup") == 0);
-
-    ATF_PASS();
 }
 
 ATF_TEST_CASE(tc_posix_remap);
@@ -158,8 +150,6 @@ ATF_TEST_CASE_BODY(tc_posix_remap)
     ATF_CHECK_EQUAL(::read(rend.get(), buf, sizeof(buf)), 16);
     buf[16] = '\0';
     ATF_CHECK(std::strcmp(buf, "test-posix-remap") == 0);
-
-    ATF_PASS();
 }
 
 ATF_INIT_TEST_CASES(tcs)

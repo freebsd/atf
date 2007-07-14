@@ -43,6 +43,7 @@
 
 #include "atfprivate/atffile.hpp"
 #include "atfprivate/exceptions.hpp"
+#include "atfprivate/expand.hpp"
 #include "atfprivate/filesystem.hpp"
 
 atf::atffile::atffile(const std::string& filename)
@@ -52,38 +53,17 @@ atf::atffile::atffile(const std::string& filename)
         throw atf::not_found_error< std::string >
             ("Cannot open Atffile", "Atffile");
 
+    directory dir(get_branch_path(filename));
+    dir.erase("Atffile");
+    dir.erase(".");
+    dir.erase("..");
+    // XXX Remove other hidden files.
+
     std::string line;
-    while (std::getline(is, line))
-        push_back(line);
+    while (std::getline(is, line)) {
+        std::set< std::string > ms = expand_glob(line, dir);
+        insert(end(), ms.begin(), ms.end());
+    }
 
     is.close();
-}
-
-std::string
-atf::identify(const std::string& name, const std::string& curdir)
-{
-    assert(curdir[curdir.length() - 1] == '/');
-
-    atf::directory dir(curdir);
-    if (std::find(dir.begin(), dir.end(), name) == dir.end())
-        throw atf::not_found_error< std::string >
-            ("Cannot locate test program", name);
-
-    std::string ident;
-
-    atf::atffile af(curdir + "Atffile");
-    if (std::find(af.begin(), af.end(), name) == af.end())
-        throw atf::not_found_error< std::string >
-            ("The test program is not listed in the Atffile", name);
-
-    std::string base = atf::get_leaf_name(curdir);
-    std::string d = atf::get_branch_path(curdir);
-    try {
-        ident = identify(base, d + "/");
-    } catch (const atf::not_found_error< std::string >&e ) {
-        // Do nothing.
-    }
-    ident += "/" + name;
-
-    return ident;
 }
