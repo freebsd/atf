@@ -236,11 +236,23 @@ tests/atf/tools/t_atf_compile: $(srcdir)/tests/atf/tools/t_atf_compile.sh \
                                $(ATF_COMPILE_DEPS)
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_compile.sh
 
+atf_tools_SCRIPTS += tests/atf/tools/t_atf_config
+CLEANFILES += tests/atf/tools/t_atf_config
+EXTRA_DIST += tests/atf/tools/t_atf_config.sh
+tests/atf/tools/t_atf_config: $(srcdir)/tests/atf/tools/t_atf_config.sh \
+                               $(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_config.sh
+
 atf_units_DATA = tests/atf/units/Atffile
 atf_unitsdir = $(pkgtestsdir)/units
 EXTRA_DIST += $(atf_units_DATA)
 
-atf_units_PROGRAMS = tests/atf/units/t_expand
+atf_units_PROGRAMS = tests/atf/units/t_config
+tests_atf_units_t_config_SOURCES = tests/atf/units/t_config.cpp
+tests_atf_units_t_config_LDADD = -latf
+tests_atf_units_t_config_LDFLAGS = -Llibs
+
+atf_units_PROGRAMS += tests/atf/units/t_expand
 tests_atf_units_t_expand_SOURCES = tests/atf/units/t_expand.cpp
 tests_atf_units_t_expand_LDADD = -latf
 tests_atf_units_t_expand_LDFLAGS = -Llibs

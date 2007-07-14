@@ -47,10 +47,39 @@
 namespace atf {
 
 namespace config {
-    const std::string& get(const std::string&);
-    bool has(const std::string&);
-    const std::map< std::string, std::string >& get_all(void);
-}
+
+//!
+//! \brief Gets a build-time configuration variable's value.
+//!
+//! Given the name of a build-time configuration variable, returns its
+//! textual value.  The user is free to override these by setting their
+//! corresponding environment variables.  Therefore always use this
+//! interface to get the value of these variables.
+//!
+//! \pre The variable must exist.
+//!
+const std::string& get(const std::string&);
+
+//!
+//! \brief Returns all the build-time configuration variables.
+//!
+//! Returns a name to value map containing all build-time configuration
+//! variables.
+//!
+const std::map< std::string, std::string >& get_all(void);
+
+//!
+//! \brief Checks whether a build-time configuration variable exists.
+//!
+//! Given the name of a build-time configuration variable, checks
+//! whether it is defined and returns a boolean indicating this
+//! condition.  The program only has to use this function to sanity-check
+//! a variable name provided by the user.  Otherwise it can assume that
+//! the variables are defined.
+//!
+bool has(const std::string&);
+
+} // namespace config
 
 } // namespace atf
 

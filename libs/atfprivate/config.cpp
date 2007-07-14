@@ -46,6 +46,12 @@
 
 static std::map< std::string, std::string > m_variables;
 
+//
+// Adds all predefined standard build-time variables to the m_variables
+// map, considering the values a user may have provided in the environment.
+//
+// Can only be called once during the program's lifetime.
+//
 static
 void
 init_variables(void)
@@ -75,15 +81,6 @@ init_variables(void)
     assert(!m_variables.empty());
 }
 
-bool
-atf::config::has(const std::string& varname)
-{
-    if (m_variables.empty())
-        init_variables();
-
-    return m_variables.find(varname) != m_variables.end();
-}
-
 const std::string&
 atf::config::get(const std::string& varname)
 {
@@ -102,3 +99,30 @@ atf::config::get_all(void)
 
     return m_variables;
 }
+
+bool
+atf::config::has(const std::string& varname)
+{
+    if (m_variables.empty())
+        init_variables();
+
+    return m_variables.find(varname) != m_variables.end();
+}
+
+namespace atf {
+namespace config {
+//
+// Auxiliary function for the t_config test program so that it can
+// revert the configuration's global status to an empty state and
+// do new tests from there on.
+//
+// Ideally this shouldn't be part of the production library... but
+// this is so small that it does not matter.
+//
+void
+__reinit(void)
+{
+    m_variables.clear();
+}
+} // namespace config
+} // namespace atf

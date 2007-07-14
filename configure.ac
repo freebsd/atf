@@ -89,6 +89,44 @@ AC_COMPILE_IFELSE(
               [Define to 1 if dirname takes a constant pointer]),
     AC_MSG_RESULT(no))
 
+AC_CHECK_FUNCS([putenv setenv unsetenv])
+
+AC_MSG_CHECKING(whether putenv is in std)
+AC_COMPILE_IFELSE(
+    [#include <cstdlib>
+     int main(void) {
+         std::putenv("a=b");
+         return 0;
+     }],
+    AC_MSG_RESULT(yes)
+    AC_DEFINE([HAVE_PUTENV_IN_STD], [1],
+              [Define to 1 if putenv is in std]),
+    AC_MSG_RESULT(no))
+
+AC_MSG_CHECKING(whether setenv is in std)
+AC_COMPILE_IFELSE(
+    [#include <cstdlib>
+     int main(void) {
+         std::setenv("a", "b");
+         return 0;
+     }],
+    AC_MSG_RESULT(yes)
+    AC_DEFINE([HAVE_SETENV_IN_STD], [1],
+              [Define to 1 if setenv is in std]),
+    AC_MSG_RESULT(no))
+
+AC_MSG_CHECKING(whether unsetenv is in std)
+AC_COMPILE_IFELSE(
+    [#include <cstdlib>
+     int main(void) {
+         std::unsetenv("a");
+         return 0;
+     }],
+    AC_MSG_RESULT(yes)
+    AC_DEFINE([HAVE_UNSETENV_IN_STD], [1],
+              [Define to 1 if unsetenv is in std]),
+    AC_MSG_RESULT(no))
+
 AC_MSG_CHECKING(whether vsnprintf is in std)
 AC_COMPILE_IFELSE(
     [#include <cstdarg>
