@@ -141,3 +141,19 @@ atf::get_work_dir(void)
 #   error "Not implemented."
 #endif // defined(MAXPATHLEN)
 }
+
+bool
+atf::exists(const std::string& path)
+{
+    bool ok;
+
+    int res = ::access(path.c_str(), F_OK);
+    if (res == 0)
+        ok = true;
+    else if (res == -1 && errno == ENOENT)
+        ok = false;
+    else
+        throw system_error("atf::exists", "access(2) failed", errno);
+
+    return ok;
+}

@@ -225,6 +225,18 @@ pkgtestsdir = $(exec_prefix)/tests/atf
 pkgtests_DATA = tests/atf/Atffile
 EXTRA_DIST += $(pkgtests_DATA)
 
+atf_test_programs_DATA = tests/atf/test_programs/Atffile
+atf_test_programsdir = $(pkgtestsdir)/test_programs
+EXTRA_DIST += $(atf_test_programs_DATA)
+
+atf_test_programs_SCRIPTS = tests/atf/test_programs/t_srcdir
+CLEANFILES += tests/atf/test_programs/t_srcdir
+EXTRA_DIST += tests/atf/test_programs/t_srcdir.sh
+tests/atf/test_programs/t_srcdir: \
+		$(srcdir)/tests/atf/test_programs/t_srcdir.sh \
+		$(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_srcdir.sh
+
 atf_tools_DATA = tests/atf/tools/Atffile
 atf_toolsdir = $(pkgtestsdir)/tools
 EXTRA_DIST += $(atf_tools_DATA)

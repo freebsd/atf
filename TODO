@@ -10,9 +10,6 @@ This project is still in very early stages of development.  The list below
 is very incomplete, but it details some items that have to be addressed.
 Basically they are here so that they are not forgotten.
 
-* Make it possible for test cases to know where their "source directory"
-  is -- i.e. where they can find helper/data files.
-
 * Add a way to specify which bug/issue/whatever a given test case is
   stress-testing.  This information is useful when detecting regressions.
 

@@ -56,6 +56,11 @@ Atf_Format=$(atf-config -t atf_libexecdir)/atf-format
 # head or not.
 Parsing_Head=false
 
+# The test program's source directory: i.e. where its auxiliary data files
+# and helper utilities can be found.  Defaults to the current directory
+# but can be overriden through the '-s' flag.
+Source_Dir=$(pwd)
+
 # Indicates the test case we are currently processing.
 Test_Case=
 
@@ -212,6 +217,18 @@ atf_fail()
 }
 
 #
+# atf_get varname
+#
+#   Prints the value of a test case-specific variable.  Given that one
+#   should not get the value of non-existent variables, it is fine to
+#   always use this function as 'val=$(atf_get var)'.
+#
+atf_get()
+{
+    eval echo \${__tc_var_${Test_Case}_${1}}
+}
+
+#
 # atf_fail msg1 [.. msgN]
 #
 #   Makes the test case pass.  Shouldn't be used in general, as a test
@@ -315,16 +332,6 @@ _atf_expand_glob()
 }
 
 #
-# _atf_get varname
-#
-#   Prints the value of a test case-specific variable.
-#
-_atf_get()
-{
-    eval echo \${__tc_var_${Test_Case}_${1}}
-}
-
-#
 # _atf_get_bool varname
 #
 #   Evaluates a test case-specific variable as a boolean and returns its
@@ -332,7 +339,7 @@ _atf_get()
 #
 _atf_get_bool()
 {
-    case $(_atf_get ${1}) in
+    case $(atf_get ${1}) in
     [Yy][Ee][Ss]|[Tt][Rr][Uu][Ee])
         return 0
         ;;
@@ -366,7 +373,7 @@ _atf_list_tcs()
     _maxlen=$((${_maxlen} + 4))
     for _tc in ${*}; do
         _atf_parse_head ${_tc}
-        _atf_echo -t ${_tc} -l ${_maxlen} $(_atf_get descr)
+        _atf_echo -t ${_tc} -l ${_maxlen} $(atf_get descr)
     done
 }
 
@@ -386,12 +393,13 @@ _atf_parse_head()
     # Set default values for test case variables.
     atf_set ident "${1}"
     atf_set isolated "yes"
+    atf_set srcdir "${Source_Dir}"
 
     # Let the test case set its own variables.
     ${1}_head
 
     # Ensure the test case defined some mandatory variables.
-    [ -n "$(_atf_get descr)" ] || \
+    [ -n "$(atf_get descr)" ] || \
         _atf_error 128 "Test case did not define the 'descr' variable"
 
     Parsing_Head=false
@@ -471,14 +479,16 @@ _atf_syntax_error()
 #
 _atf_usage()
 {
+    # TODO: Run this through atf-format.
     cat <<EOF
 Usage: ${Prog_Name} [options] [test_case1 [.. test_caseN]]
 
 This is an independent atf test program.
 
 Available options:
-    -h    Shows this help message
-    -l    List test cases and their purpose
+    -h           Shows this help message
+    -l           List test cases and their purpose
+    -s srcdir    Directory where the test's data files are located
 
 EOF
 
@@ -508,7 +518,7 @@ main()
 {
     # Process command-line options first.
     _lflag=false
-    while getopts :hl arg; do
+    while getopts :hls: arg; do
         case ${arg} in
         h)
             _atf_usage
@@ -519,6 +529,10 @@ main()
             _lflag=true
             ;;
 
+        s)
+            Source_Dir=${OPTARG}
+            ;;
+
         \?)
             _atf_syntax_error "Unknown option -${OPTARG}."
             # NOTREACHED
@@ -526,6 +540,14 @@ main()
         esac
     done
     shift `expr ${OPTIND} - 1`
+
+    # First of all, make sure that the source directory is correct.  It
+    # doesn't matter if the user did not change it, because the default
+    # value may not work.  (TODO: It possibly should, even though it is
+    # not a big deal because atf-run deals with this.)
+    [ -f ${Source_Dir}/${Prog_Name} ] || \
+        _atf_error 1 "Cannot find the test program in the source" \
+                     "directory \`${Source_Dir}'"
 
     # Call the test program's hook to register all available test cases.
     atf_init_test_cases

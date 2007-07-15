@@ -137,8 +137,14 @@ atf_run::run_test_program(const std::string& tp)
         atf::file_handle fhout = outpipe.wend().get();
         fhout.posix_remap(STDOUT_FILENO);
 
-        ::execl(tp.c_str(), atf::get_leaf_name(tp).c_str(),
-                NULL);
+        std::string dir = atf::get_branch_path(tp);
+        std::string file = atf::get_leaf_name(tp);
+
+        // XXX Should this use -s instead?  Or do we really want to switch
+        // to the target directory?
+        ::chdir(dir.c_str());
+
+        ::execl(file.c_str(), file.c_str(), NULL);
 
         std::cerr << "Failed to execute `" << tp << "': "
                   << std::strerror(errno) << std::endl;

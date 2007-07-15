@@ -45,6 +45,7 @@
 #include <vector>
 
 #include "atfprivate/application.hpp"
+#include "atfprivate/filesystem.hpp"
 #include "atfprivate/expand.hpp"
 #include "atfprivate/ui.hpp"
 #include "atf/test_case.hpp"
@@ -87,6 +88,7 @@ private:
     static const char* m_description;
 
     bool m_lflag;
+    std::string m_srcdir;
     std::set< std::string > m_tcnames;
 
     std::string specific_args(void) const;
@@ -114,6 +116,7 @@ const char* test_program::m_description =
 test_program::test_program(const test_cases& tcs) :
     application(m_description),
     m_lflag(false),
+    m_srcdir(atf::get_work_dir()),
     m_test_cases(tcs)
 {
 }
@@ -131,6 +134,8 @@ test_program::specific_options(void)
 {
     options_set opts;
     opts.insert(option('l', "", "List test cases and their purpose"));
+    opts.insert(option('s', "srcdir", "Directory where the test's data "
+                                      "files are located"));
     return opts;
 }
 
@@ -140,6 +145,10 @@ test_program::process_option(int ch, const char* arg)
     switch (ch) {
     case 'l':
         m_lflag = true;
+        break;
+
+    case 's':
+        m_srcdir = true;
         break;
 
     default:
@@ -157,6 +166,7 @@ test_program::init_test_cases(void)
         atf::test_case* tc = *iter;
 
         tc->init();
+        tc->set("srcdir", m_srcdir);
     }
 
     return tcs;
@@ -281,6 +291,10 @@ int
 test_program::main(void)
 {
     int errcode;
+
+    if (!atf::exists(m_srcdir + "/" + m_prog_name))
+        throw std::runtime_error("Cannot find the test program in the "
+                                 "source directory `" + m_srcdir + "'");
 
     for (int i = 0; i < m_argc; i++)
         m_tcnames.insert(m_argv[i]);

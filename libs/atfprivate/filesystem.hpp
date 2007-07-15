@@ -54,6 +54,7 @@ public:
 std::string get_branch_path(const std::string&);
 std::string get_leaf_name(const std::string&);
 std::string get_work_dir(void);
+bool exists(const std::string&);
 
 } // namespace atf
 

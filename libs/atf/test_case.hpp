@@ -61,13 +61,12 @@ protected:
     virtual void head(void) = 0;
     virtual void body(void) const = 0;
 
-    void set(const std::string&, const std::string&);
-
 public:
     test_case(const std::string&);
     virtual ~test_case(void);
 
     const std::string& get(const std::string&) const;
+    void set(const std::string&, const std::string&);
 
     void init(void);
     test_case_result run(void) const;
