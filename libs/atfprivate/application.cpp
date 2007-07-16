@@ -176,7 +176,7 @@ atf::application::usage(std::ostream& os)
          iter != opts.end(); iter++) {
         const option& opt = (*iter);
 
-        if (opt.m_argument.length() > coldesc)
+        if (opt.m_argument.length() + 1 > coldesc)
             coldesc = opt.m_argument.length() + 1;
     }
     for (options_set::const_iterator iter = opts.begin();
