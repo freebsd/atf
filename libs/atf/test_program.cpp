@@ -148,7 +148,7 @@ test_program::process_option(int ch, const char* arg)
         break;
 
     case 's':
-        m_srcdir = true;
+        m_srcdir = arg;
         break;
 
     default:
