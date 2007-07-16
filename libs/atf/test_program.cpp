@@ -89,6 +89,7 @@ private:
 
     bool m_lflag;
     std::string m_srcdir;
+    std::string m_workdir;
     std::set< std::string > m_tcnames;
 
     std::string specific_args(void) const;
@@ -117,6 +118,7 @@ test_program::test_program(const test_cases& tcs) :
     application(m_description),
     m_lflag(false),
     m_srcdir(atf::get_work_dir()),
+    m_workdir(atf::get_temp_dir()),
     m_test_cases(tcs)
 {
 }
@@ -136,6 +138,8 @@ test_program::specific_options(void)
     opts.insert(option('l', "", "List test cases and their purpose"));
     opts.insert(option('s', "srcdir", "Directory where the test's data "
                                       "files are located"));
+    opts.insert(option('w', "workdir", "Base directory where the test cases "
+                                       "will put temporary files"));
     return opts;
 }
 
@@ -149,6 +153,10 @@ test_program::process_option(int ch, const char* arg)
 
     case 's':
         m_srcdir = arg;
+        break;
+
+	case 'w':
+        m_workdir = arg;
         break;
 
     default:
@@ -167,6 +175,7 @@ test_program::init_test_cases(void)
 
         tc->init();
         tc->set("srcdir", m_srcdir);
+        tc->set("workdir", m_workdir);
     }
 
     return tcs;
@@ -295,6 +304,10 @@ test_program::main(void)
     if (!atf::exists(m_srcdir + "/" + m_prog_name))
         throw std::runtime_error("Cannot find the test program in the "
                                  "source directory `" + m_srcdir + "'");
+
+    if (!atf::exists(m_workdir))
+        throw std::runtime_error("Cannot find the work directory `" +
+                                 m_workdir + "'");
 
     for (int i = 0; i < m_argc; i++)
         m_tcnames.insert(m_argv[i]);

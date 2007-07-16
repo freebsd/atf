@@ -38,21 +38,46 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-//
-// Helper program for the t_srcdir test.  This provides a test case that
-// checks whether it can find a data file in its source directory.
-//
+#include <cstdlib>
+#include <fstream>
+#include <stdexcept>
 
 #include <atf.hpp>
 
 #include "atfprivate/filesystem.hpp"
 
-ATF_TEST_CASE(exists);
-ATF_TEST_CASE_HEAD(exists)
+ATF_TEST_CASE(isolated_path);
+ATF_TEST_CASE_HEAD(isolated_path)
 {
-    set("descr", "Not important");
+    set("descr", "Helper test case for the t_isolated test program");
+
+    const char* i = std::getenv("ISOLATED");
+    if (i == NULL)
+        set("isolated", "invalid-value");
+    else
+        set("isolated", i);
 }
-ATF_TEST_CASE_BODY(exists)
+ATF_TEST_CASE_BODY(isolated_path)
+{
+    const char* p = std::getenv("PATHFILE");
+    if (p == NULL)
+        ATF_FAIL("PATHFILE not defined");
+
+    std::ofstream os(p);
+    if (!os)
+        ATF_FAIL(std::string("Could not open ") + p + " for writing");
+
+    os << atf::get_work_dir() << std::endl;
+
+    os.close();
+}
+
+ATF_TEST_CASE(srcdir_exists);
+ATF_TEST_CASE_HEAD(srcdir_exists)
+{
+    set("descr", "Helper test case for the t_srcdir test program");
+}
+ATF_TEST_CASE_BODY(srcdir_exists)
 {
     if (!atf::exists(get("srcdir") + "/datafile"))
         ATF_FAIL("Cannot find datafile");
@@ -60,5 +85,6 @@ ATF_TEST_CASE_BODY(exists)
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    tcs.push_back(&exists);
+    tcs.push_back(&isolated_path);
+    tcs.push_back(&srcdir_exists);
 }

@@ -53,8 +53,12 @@ public:
 
 std::string get_branch_path(const std::string&);
 std::string get_leaf_name(const std::string&);
+std::string get_temp_dir(void);
 std::string get_work_dir(void);
 bool exists(const std::string&);
+std::string create_temp_dir(const std::string&);
+void change_directory(const std::string&);
+void rm_rf(const std::string&);
 
 } // namespace atf
 

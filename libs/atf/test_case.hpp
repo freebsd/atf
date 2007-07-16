@@ -66,6 +66,7 @@ public:
     virtual ~test_case(void);
 
     const std::string& get(const std::string&) const;
+    bool get_bool(const std::string&) const;
     void set(const std::string&, const std::string&);
 
     void init(void);

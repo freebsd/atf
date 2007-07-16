@@ -67,6 +67,9 @@ Test_Case=
 # The list of all test cases provided by the test program.
 Test_Cases=
 
+# The test program's base directory where it will put temporary files.
+Work_Dir=${TMPDIR:-/tmp}
+
 # ------------------------------------------------------------------------
 # PUBLIC INTERFACE
 # ------------------------------------------------------------------------
@@ -394,6 +397,7 @@ _atf_parse_head()
     atf_set ident "${1}"
     atf_set isolated "yes"
     atf_set srcdir "${Source_Dir}"
+    atf_set workdir "${Work_Dir}"
 
     # Let the test case set its own variables.
     ${1}_head
@@ -419,7 +423,7 @@ _atf_run_tc()
     if _atf_get_bool isolated; then
         # XXX Allow the user to customize where to place the work
         # directories.
-        _workdir=$(mktemp -d /tmp/atf.XXXXXX)
+        _workdir=$(mktemp -d $(atf_get workdir)/atf.XXXXXX)
         if [ ${?} -eq 0 ]; then
             _out=$(cd ${_workdir} ; ${1}_body)
             _ret=$?
@@ -485,10 +489,12 @@ _atf_usage()
     _atf_echo "This is an independent atf test program."
     echo
     _atf_echo "Available options:"
-    _atf_echo -t "    -h           " "Shows this help message"
-    _atf_echo -t "    -l           " "List test cases and their purpose"
-    _atf_echo -t "    -s srcdir    " "Directory where the test's data" \
-                                     "files are located"
+    _atf_echo -t "    -h            " "Shows this help message"
+    _atf_echo -t "    -l            " "List test cases and their purpose"
+    _atf_echo -t "    -s srcdir     " "Directory where the test's data" \
+                                      "files are located"
+    _atf_echo -t "    -w workdir    " "Base directory where the test cases" \
+                                      "will put temporary files"
     echo
     exit 0
 }
@@ -516,7 +522,7 @@ main()
 {
     # Process command-line options first.
     _lflag=false
-    while getopts :hls: arg; do
+    while getopts :hls:w: arg; do
         case ${arg} in
         h)
             _atf_usage
@@ -529,6 +535,10 @@ main()
 
         s)
             Source_Dir=${OPTARG}
+            ;;
+
+        w)
+            Work_Dir=${OPTARG}
             ;;
 
         \?)
@@ -546,6 +556,11 @@ main()
     [ -f ${Source_Dir}/${Prog_Name} ] || \
         _atf_error 1 "Cannot find the test program in the source" \
                      "directory \`${Source_Dir}'"
+
+    # Now check that the base work directory exists.  We do not want to
+    # bother creating it.
+    [ -d ${Work_Dir} ] || \
+        _atf_error 1 "Cannot find the work directory \`${Work_Dir}'"
 
     # Call the test program's hook to register all available test cases.
     atf_init_test_cases
