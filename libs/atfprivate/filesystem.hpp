@@ -41,14 +41,43 @@
 #if !defined(_ATF_FILESYSTEM_HPP_)
 #define _ATF_FILESYSTEM_HPP_
 
+#include <map>
 #include <set>
 #include <string>
 
 namespace atf {
 
-class directory : public std::set< std::string > {
+class directory;
+
+class file_info {
+public:
+    enum type {
+        blk_type,
+        chr_type,
+        dir_type,
+        fifo_type,
+        lnk_type,
+        reg_type,
+        sock_type,
+        unknown_type,
+        wht_type
+    };
+
+    const std::string& get_name(void) const;
+    type get_type(void) const;
+
+private:
+    std::string m_name;
+    type m_type;
+
+    explicit file_info(void*);
+    friend class directory;
+};
+
+class directory : public std::map< std::string, file_info > {
 public:
     directory(const std::string& path);
+    std::set< std::string > names(void) const;
 };
 
 std::string get_branch_path(const std::string&);

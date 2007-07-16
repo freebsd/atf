@@ -55,20 +55,66 @@ extern "C" {
 #include "atfprivate/exceptions.hpp"
 #include "atfprivate/filesystem.hpp"
 
+atf::file_info::file_info(void* data)
+{
+    struct dirent* de = static_cast< struct dirent* >(data);
+    m_name = de->d_name;
+    switch (de->d_type) {
+    case DT_BLK:     m_type = blk_type;     break;
+    case DT_CHR:     m_type = chr_type;     break;
+    case DT_DIR:     m_type = dir_type;     break;
+    case DT_FIFO:    m_type = fifo_type;    break;
+    case DT_LNK:     m_type = lnk_type;     break;
+    case DT_REG:     m_type = reg_type;     break;
+    case DT_SOCK:    m_type = sock_type;    break;
+    case DT_UNKNOWN: m_type = unknown_type; break;
+    case DT_WHT:     m_type = wht_type;     break;
+    default:
+        throw std::runtime_error("Unknown dirent type returned by "
+                                 "readdir(2)");
+    }
+}
+
+const std::string&
+atf::file_info::get_name(void)
+    const
+{
+    return m_name;
+}
+
+atf::file_info::type
+atf::file_info::get_type(void)
+    const
+{
+    return m_type;
+}
+
 atf::directory::directory(const std::string& path)
 {
     DIR* dp = ::opendir(path.c_str());
     if (dp == NULL)
-        throw system_error("atf::main::directory::directory",
+        throw system_error("atf::directory::directory",
                            "opendir(3) failed", errno);
 
     struct dirent* dep;
     while ((dep = ::readdir(dp)) != NULL)
-        insert(dep->d_name);
+        insert(value_type(dep->d_name, file_info(dep)));
 
     if (::closedir(dp) == -1)
-        throw system_error("atf::main::directory::directory",
+        throw system_error("atf::directory::directory",
                            "closedir(3) failed", errno);
+}
+
+std::set< std::string >
+atf::directory::names(void)
+    const
+{
+    std::set< std::string > ns;
+
+    for (const_iterator iter = begin(); iter != end(); iter++)
+        ns.insert((*iter).first);
+
+    return ns;
 }
 
 std::string
@@ -193,24 +239,6 @@ atf::create_temp_dir(const std::string& pattern)
     return res;
 }
 
-// XXX: Temporary hack.  The directory class should be refactored to also
-// store the type of each of its entries.  Then use that information
-// instead of this function.
-extern "C" {
-#include <sys/types.h>
-#include <sys/stat.h>
-}
-static
-bool
-is_directory(const std::string& path)
-{
-    struct stat sb;
-    if (::stat(path.c_str(), &sb) == -1)
-        throw atf::system_error("is_directory(" + path + ")",
-                                "stat(2) failed", errno);
-    return ((sb.st_mode & S_IFMT) == S_IFDIR);
-}
-
 void
 atf::rm_rf(const std::string& path)
 {
@@ -224,14 +252,15 @@ atf::rm_rf(const std::string& path)
 
     for (directory::iterator iter = dir.begin(); iter != dir.end();
          iter++) {
-        const std::string& entry = path + "/" + (*iter);
+        const file_info& entry = (*iter).second;
 
-        if (is_directory(entry))
-            rm_rf(entry);
+        std::string entrypath = path + "/" + entry.get_name();
+        if (entry.get_type() == file_info::dir_type)
+            rm_rf(entrypath);
         else {
-            if (::unlink(entry.c_str()) == -1)
+            if (::unlink(entrypath.c_str()) == -1)
                 throw system_error("atf::rm_rf(" + path + ")",
-                                   "unlink(" + entry + ") failed", errno);
+                                   "unlink(" + entrypath + ") failed", errno);
         }
     }
 
