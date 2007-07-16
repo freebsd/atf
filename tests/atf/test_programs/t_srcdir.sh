@@ -38,8 +38,6 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# TODO: Do the same tests but for programs written in C++.
-
 create_files()
 {
     mkdir tmp
