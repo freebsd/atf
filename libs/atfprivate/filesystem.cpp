@@ -206,8 +206,9 @@ is_directory(const std::string& path)
 {
     struct stat sb;
     if (::stat(path.c_str(), &sb) == -1)
-        return false;
-    return (sb.st_mode & S_IFMT == S_IFDIR);
+        throw atf::system_error("is_directory(" + path + ")",
+                                "stat(2) failed", errno);
+    return ((sb.st_mode & S_IFMT) == S_IFDIR);
 }
 
 void
@@ -223,18 +224,18 @@ atf::rm_rf(const std::string& path)
 
     for (directory::iterator iter = dir.begin(); iter != dir.end();
          iter++) {
-        const std::string& entry = *iter;
+        const std::string& entry = path + "/" + (*iter);
 
         if (is_directory(entry))
             rm_rf(entry);
         else {
             if (::unlink(entry.c_str()) == -1)
                 throw system_error("atf::rm_rf(" + path + ")",
-                                   "unlink(2) failed", errno);
+                                   "unlink(" + entry + ") failed", errno);
         }
     }
 
     if (::rmdir(path.c_str()) == -1)
         throw system_error("atf::rm_rf(" + path + ")",
-                           "rmdir(2) failed", errno);
+                           "rmdir(" + path + ") failed", errno);
 }

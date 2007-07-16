@@ -126,8 +126,16 @@ cleanup_body()
     mkdir ${tmpdir}
 
     for h in ${h_cpp} ${h_sh}; do
+        # First try to clean a work directory that, supposedly, does not
+        # have any subdirectories.
         atf_check "ISOLATED=yes PATHFILE=$(pwd)/path ${h} \
                   -s ${srcdir} -w ${tmpdir} isolated_path" 0 ignore null
+        atf_check "test -d $(cat path)" 1 null null
+
+        # Now do the same but with a work directory that has subdirectories.
+        # The program will have to recurse into them to clean them all.
+        atf_check "PATHFILE=$(pwd)/path ${h} \
+                  -s ${srcdir} -w ${tmpdir} isolated_rm_rf" 0 ignore null
         atf_check "test -d $(cat path)" 1 null null
     done
 }

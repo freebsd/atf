@@ -54,9 +54,33 @@ isolated_path_body()
     pwd -P >${PATHFILE}
 }
 
+isolated_rm_rf_head()
+{
+    atf_set "descr" "Helper test case for the t_isolated test program"
+    atf_set "isolated" "yes"
+}
+isolated_rm_rf_body()
+{
+    test -z "${PATHFILE}" && atf_fail "PATHFILE not defined"
+    pwd -P >${PATHFILE}
+
+    mkdir 1
+    mkdir 1/1
+    mkdir 1/2
+    mkdir 1/3
+    mkdir 1/3/1
+    mkdir 1/3/2
+    mkdir 2
+    touch 2/1
+    touch 2/2
+    mkdir 2/3
+    touch 2/3/1
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case isolated_path
+    atf_add_test_case isolated_rm_rf
     # srcdir_exists is not here (while it is in h_cpp.cpp) because of the
     # requirements of the t_srcdir test program (which cannot rely on -s
     # itself to find the source file).
