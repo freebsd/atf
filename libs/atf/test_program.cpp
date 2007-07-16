@@ -155,7 +155,7 @@ test_program::process_option(int ch, const char* arg)
         m_srcdir = arg;
         break;
 
-	case 'w':
+    case 'w':
         m_workdir = arg;
         break;
 
