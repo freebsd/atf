@@ -50,7 +50,7 @@ m4_define([GUESS_TOPDIR], {
     echo ${topdir}
 })
 
-m4_define([TEST_HELPER], [cd $(GUESS_TOPDIR)/tests/bootstrap && ./h_$1])
+m4_define([TEST_HELPER], [cd $(GUESS_TOPDIR)/tests/bootstrap && $2 ./h_$1])
 
 m4_define(COUNT_LINES, [test @S|@[(wc -l $1 | awk '{ print @S|@1 }')] = $2])
 

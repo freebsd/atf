@@ -479,19 +479,17 @@ _atf_syntax_error()
 #
 _atf_usage()
 {
-    # TODO: Run this through atf-format.
-    cat <<EOF
-Usage: ${Prog_Name} [options] [test_case1 [.. test_caseN]]
-
-This is an independent atf test program.
-
-Available options:
-    -h           Shows this help message
-    -l           List test cases and their purpose
-    -s srcdir    Directory where the test's data files are located
-
-EOF
-
+    _atf_echo -t "Usage: " "${Prog_Name} [options] [test_case1" \
+                           "[.. test_caseN]]"
+    echo
+    _atf_echo "This is an independent atf test program."
+    echo
+    _atf_echo "Available options:"
+    _atf_echo -t "    -h           " "Shows this help message"
+    _atf_echo -t "    -l           " "List test cases and their purpose"
+    _atf_echo -t "    -s srcdir    " "Directory where the test's data" \
+                                     "files are located"
+    echo
     exit 0
 }
 

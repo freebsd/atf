@@ -164,13 +164,14 @@ atf::application::usage(std::ostream& os)
 {
     assert(inited());
 
-    os << "Usage: " << m_prog_name << " [options]";
     std::string args = specific_args();
     if (!args.empty())
-        os << " " << args;
-    os << std::endl << std::endl;
-
-    os << format_text(m_description) << std::endl << std::endl;
+        args = " " + args;
+    os << format_text_with_tag(std::string(m_prog_name) + " [options]" +
+                               args, "Usage: ", false) << std::endl
+       << std::endl
+       << format_text(m_description) << std::endl
+       << std::endl;
 
     options_set opts = options();
     assert(!opts.empty());
