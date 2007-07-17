@@ -127,18 +127,31 @@ atf_run::run_test_directory(const std::string& tp)
 int
 atf_run::run_test_program(const std::string& tp)
 {
-    atf::pipe outpipe;
+    atf::pipe respipe;
     pid_t pid = ::fork();
     if (pid == -1) {
         throw atf::system_error("run_test_program",
                                 "fork(2) failed", errno);
     } else if (pid == 0) {
-        outpipe.rend().close();
-        atf::file_handle fhout = outpipe.wend().get();
-        fhout.posix_remap(STDOUT_FILENO);
+        respipe.rend().close();
+        atf::file_handle fhres = respipe.wend().get();
+        fhres.posix_remap(16);
 
-        ::execl(tp.c_str(), atf::get_leaf_name(tp).c_str(),
-                NULL);
+        std::string dir = atf::get_branch_path(tp);
+        std::string file = atf::get_leaf_name(tp);
+
+        // XXX Should this use -s instead?  Or do we really want to switch
+        // to the target directory?
+        ::chdir(dir.c_str());
+
+        char * args[3];
+        args[0] = new char[file.length() + 1];
+        std::strcpy(args[0], file.c_str());
+        args[1] = new char[5];
+        std::strcpy(args[1], "-r16");
+        args[2] = NULL;
+
+        ::execv(file.c_str(), args);
 
         std::cerr << "Failed to execute `" << tp << "': "
                   << std::strerror(errno) << std::endl;
@@ -147,9 +160,9 @@ atf_run::run_test_program(const std::string& tp)
         // as an error!
     }
 
-    outpipe.wend().close();
-    atf::file_handle fhout = outpipe.rend().get();
-    atf::pistream in(fhout);
+    respipe.wend().close();
+    atf::file_handle fhres = respipe.rend().get();
+    atf::pistream in(fhres);
 
     std::cout << tp << ": Running test cases" << std::endl;
 

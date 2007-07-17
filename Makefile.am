@@ -225,6 +225,39 @@ pkgtestsdir = $(exec_prefix)/tests/atf
 pkgtests_DATA = tests/atf/Atffile
 EXTRA_DIST += $(pkgtests_DATA)
 
+atf_test_programs_DATA = tests/atf/test_programs/Atffile
+atf_test_programsdir = $(pkgtestsdir)/test_programs
+EXTRA_DIST += $(atf_test_programs_DATA)
+
+atf_test_programs_SCRIPTS = tests/atf/test_programs/h_sh
+CLEANFILES += tests/atf/test_programs/h_sh
+EXTRA_DIST += tests/atf/test_programs/h_sh.sh
+tests/atf/test_programs/h_sh: \
+		$(srcdir)/tests/atf/test_programs/h_sh.sh \
+		$(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/h_sh.sh
+
+atf_test_programs_SCRIPTS += tests/atf/test_programs/t_isolated
+CLEANFILES += tests/atf/test_programs/t_isolated
+EXTRA_DIST += tests/atf/test_programs/t_isolated.sh
+tests/atf/test_programs/t_isolated: \
+		$(srcdir)/tests/atf/test_programs/t_isolated.sh \
+		$(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_isolated.sh
+
+atf_test_programs_SCRIPTS += tests/atf/test_programs/t_srcdir
+CLEANFILES += tests/atf/test_programs/t_srcdir
+EXTRA_DIST += tests/atf/test_programs/t_srcdir.sh
+tests/atf/test_programs/t_srcdir: \
+		$(srcdir)/tests/atf/test_programs/t_srcdir.sh \
+		$(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_srcdir.sh
+
+atf_test_programs_PROGRAMS = tests/atf/test_programs/h_cpp
+tests_atf_test_programs_h_cpp_SOURCES = tests/atf/test_programs/h_cpp.cpp
+tests_atf_test_programs_h_cpp_LDADD = -latf
+tests_atf_test_programs_h_cpp_LDFLAGS = -Llibs
+
 atf_tools_DATA = tests/atf/tools/Atffile
 atf_toolsdir = $(pkgtestsdir)/tools
 EXTRA_DIST += $(atf_tools_DATA)
@@ -236,11 +269,23 @@ tests/atf/tools/t_atf_compile: $(srcdir)/tests/atf/tools/t_atf_compile.sh \
                                $(ATF_COMPILE_DEPS)
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_compile.sh
 
+atf_tools_SCRIPTS += tests/atf/tools/t_atf_config
+CLEANFILES += tests/atf/tools/t_atf_config
+EXTRA_DIST += tests/atf/tools/t_atf_config.sh
+tests/atf/tools/t_atf_config: $(srcdir)/tests/atf/tools/t_atf_config.sh \
+                               $(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_config.sh
+
 atf_units_DATA = tests/atf/units/Atffile
 atf_unitsdir = $(pkgtestsdir)/units
 EXTRA_DIST += $(atf_units_DATA)
 
-atf_units_PROGRAMS = tests/atf/units/t_expand
+atf_units_PROGRAMS = tests/atf/units/t_config
+tests_atf_units_t_config_SOURCES = tests/atf/units/t_config.cpp
+tests_atf_units_t_config_LDADD = -latf
+tests_atf_units_t_config_LDFLAGS = -Llibs
+
+atf_units_PROGRAMS += tests/atf/units/t_expand
 tests_atf_units_t_expand_SOURCES = tests/atf/units/t_expand.cpp
 tests_atf_units_t_expand_LDADD = -latf
 tests_atf_units_t_expand_LDFLAGS = -Llibs

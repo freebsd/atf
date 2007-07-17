@@ -94,4 +94,4 @@ chmod +x ${tfile}
 
 exit 0
 
-# vim: syntax=sh:expandtab:shiftwidth=4:sofftabstop=4
+# vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

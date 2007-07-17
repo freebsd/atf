@@ -42,10 +42,14 @@
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
+#include <sstream>
 #include <vector>
 
 #include "atfprivate/application.hpp"
+#include "atfprivate/filesystem.hpp"
 #include "atfprivate/expand.hpp"
+#include "atfprivate/postream.hpp"
 #include "atfprivate/ui.hpp"
 #include "atf/test_case.hpp"
 
@@ -87,6 +91,9 @@ private:
     static const char* m_description;
 
     bool m_lflag;
+    int m_results_fd;
+    std::string m_srcdir;
+    std::string m_workdir;
     std::set< std::string > m_tcnames;
 
     std::string specific_args(void) const;
@@ -114,6 +121,9 @@ const char* test_program::m_description =
 test_program::test_program(const test_cases& tcs) :
     application(m_description),
     m_lflag(false),
+    m_results_fd(STDOUT_FILENO),
+    m_srcdir(atf::get_work_dir()),
+    m_workdir(atf::get_temp_dir()),
     m_test_cases(tcs)
 {
 }
@@ -131,6 +141,13 @@ test_program::specific_options(void)
 {
     options_set opts;
     opts.insert(option('l', "", "List test cases and their purpose"));
+    opts.insert(option('r', "fd", "The file descriptor to which the test "
+                                  "program will send the results of the "
+                                  "test cases"));
+    opts.insert(option('s', "srcdir", "Directory where the test's data "
+                                      "files are located"));
+    opts.insert(option('w', "workdir", "Base directory where the test cases "
+                                       "will put temporary files"));
     return opts;
 }
 
@@ -140,6 +157,21 @@ test_program::process_option(int ch, const char* arg)
     switch (ch) {
     case 'l':
         m_lflag = true;
+        break;
+
+    case 'r':
+        {
+            std::istringstream ss(arg);
+            ss >> m_results_fd;
+        }
+        break;
+
+    case 's':
+        m_srcdir = arg;
+        break;
+
+    case 'w':
+        m_workdir = arg;
         break;
 
     default:
@@ -157,6 +189,8 @@ test_program::init_test_cases(void)
         atf::test_case* tc = *iter;
 
         tc->init();
+        tc->set("srcdir", m_srcdir);
+        tc->set("workdir", m_workdir);
     }
 
     return tcs;
@@ -264,12 +298,25 @@ test_program::run_test_cases(void)
 
     int errcode = EXIT_SUCCESS;
 
+    std::auto_ptr< std::ostream > ros;
+    if (m_results_fd != STDOUT_FILENO && m_results_fd != STDERR_FILENO) {
+        atf::file_handle fh(m_results_fd);
+        ros = std::auto_ptr< std::ostream >(new atf::postream(fh));
+    }
+
     for (test_cases::iterator iter = tcs.begin();
          iter != tcs.end(); iter++) {
         atf::test_case* tc = *iter;
 
         atf::test_case_result tcr = tc->run();
-        std::cout << format_tcr(tc->get("ident"), tcr) << std::endl;
+
+        if (m_results_fd == STDOUT_FILENO)
+            std::cout << format_tcr(tc->get("ident"), tcr) << std::endl;
+        else if (m_results_fd == STDERR_FILENO)
+            std::cerr << format_tcr(tc->get("ident"), tcr) << std::endl;
+        else
+            (*ros) << format_tcr(tc->get("ident"), tcr) << std::endl;
+
         if (tcr.get_status() == atf::test_case_result::status_failed)
             errcode = EXIT_FAILURE;
     }
@@ -281,6 +328,14 @@ int
 test_program::main(void)
 {
     int errcode;
+
+    if (!atf::exists(m_srcdir + "/" + m_prog_name))
+        throw std::runtime_error("Cannot find the test program in the "
+                                 "source directory `" + m_srcdir + "'");
+
+    if (!atf::exists(m_workdir))
+        throw std::runtime_error("Cannot find the work directory `" +
+                                 m_workdir + "'");
 
     for (int i = 0; i < m_argc; i++)
         m_tcnames.insert(m_argv[i]);

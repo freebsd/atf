@@ -1,4 +1,3 @@
-#! /bin/sh
 #
 # Automated Testing Framework (atf)
 #
@@ -39,47 +38,52 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-Prog_Name=${0##*/}
+isolated_path_head()
+{
+    atf_set "descr" "Helper test case for the t_isolated test program"
 
-if [ ! -f ./libs/atf.hpp ]; then
-    echo "${Prog_Name}: must be run from atf source's top directory" 1>&2
-    exit 1
-fi
+    if [ -z "${ISOLATED}" ]; then
+        atf_set "isolated" "invalid-value"
+    else
+        atf_set "isolated" "${ISOLATED}"
+    fi
+}
+isolated_path_body()
+{
+    test -z "${PATHFILE}" && atf_fail "PATHFILE not defined"
+    pwd -P >${PATHFILE}
+}
 
-if [ ! -f configure ]; then
-    echo "${Prog_Name}: nothing to clean" 1>&2
-    exit 1
-fi
+isolated_rm_rf_head()
+{
+    atf_set "descr" "Helper test case for the t_isolated test program"
+    atf_set "isolated" "yes"
+}
+isolated_rm_rf_body()
+{
+    test -z "${PATHFILE}" && atf_fail "PATHFILE not defined"
+    pwd -P >${PATHFILE}
 
-[ -f Makefile ] || ./configure
-make distclean
+    mkdir 1
+    mkdir 1/1
+    mkdir 1/2
+    mkdir 1/3
+    mkdir 1/3/1
+    mkdir 1/3/2
+    mkdir 2
+    touch 2/1
+    touch 2/2
+    mkdir 2/3
+    touch 2/3/1
+}
 
-# Top-level directory.
-rm -f .gdb_history
-rm -f INSTALL
-rm -f Makefile.in
-rm -f aclocal.m4
-rm -rf autom4te.cache
-rm -f config.h.in
-rm -f configure
-rm -f mkinstalldirs
-
-# `admin' directory.
-rm -f admin/config.guess
-rm -f admin/config.sub
-rm -f admin/depcomp
-rm -f admin/install-sh
-rm -f admin/ltmain.sh
-rm -f admin/missing
-
-# `tests/bootstrap' directory.
-rm -f tests/bootstrap/package.m4
-rm -f tests/bootstrap/testsuite
-
-# Files and directories spread all around the tree.
-find . -name '#*' | xargs rm -rf
-find . -name '*~' | xargs rm -rf
-find . -name .deps | xargs rm -rf
-find . -name .libs | xargs rm -rf
+atf_init_test_cases()
+{
+    atf_add_test_case isolated_path
+    atf_add_test_case isolated_rm_rf
+    # srcdir_exists is not here (while it is in h_cpp.cpp) because of the
+    # requirements of the t_srcdir test program (which cannot rely on -s
+    # itself to find the source file).
+}
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

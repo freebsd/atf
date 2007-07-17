@@ -45,7 +45,14 @@ tc_fail, failed, On purpose
 tc_skip, skipped, By design
 tc_default, passed
 ])
+AT_CHECK([cp expout experr], 0, [], [])
 AT_CHECK([TEST_HELPER(tp_basic_cpp)], 1, [expout], [])
+
+dnl Check the -r flag to redirect the results output.
+AT_CHECK([TEST_HELPER(tp_basic_cpp) -r1], 1, [expout], [])
+AT_CHECK([TEST_HELPER(tp_basic_cpp) -r2], 1, [], [experr])
+AT_CHECK([TEST_HELPER(tp_basic_cpp) -r3 3>resout], 1, [], [])
+AT_CHECK([cmp -s resout expout], 0, [], [])
 
 AT_DATA([expout], [tc_pass, passed
 ])

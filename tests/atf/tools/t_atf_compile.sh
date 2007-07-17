@@ -78,4 +78,4 @@ atf_init_test_cases()
     atf_add_test_case tc_includes
 }
 
-# vim: syntax=sh:expandtab:shiftwidth=4:sofftabstop=4
+# vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
