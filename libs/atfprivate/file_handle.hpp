@@ -216,6 +216,9 @@ public:
     //!
     void posix_remap(handle_type h);
 
+    // TODO: Copy documentation from posix_dup below and adjust it.
+    static file_handle posix_dup(int h1);
+
     //!
     //! \brief Duplicates an open native file handle.
     //!

@@ -135,6 +135,17 @@ atf::file_handle::posix_remap(handle_type h)
 }
 
 atf::file_handle
+atf::file_handle::posix_dup(int h1)
+{
+    int h2 = ::dup(h1);
+    if (h2 == -1)
+        throw system_error("atf::file_handle::posix_dup",
+                           "dup2(2) failed", errno);
+
+    return file_handle(h2);
+}
+
+atf::file_handle
 atf::file_handle::posix_dup(int h1, int h2)
 {
     if (::dup2(h1, h2) == -1)

@@ -42,6 +42,7 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 #include <unistd.h>
 }
 
@@ -136,6 +137,18 @@ atf_run::run_test_program(const std::string& tp)
         respipe.rend().close();
         atf::file_handle fhres = respipe.wend().get();
         fhres.posix_remap(16);
+
+        int nullfd = ::open("/dev/null", O_WRONLY);
+        if (nullfd != -1) {
+            atf::file_handle nullfh(nullfd);
+            atf::file_handle nullfh2 = atf::file_handle::posix_dup(nullfd);
+
+            ::close(STDOUT_FILENO);
+            nullfh.posix_remap(STDOUT_FILENO);
+
+            ::close(STDERR_FILENO);
+            nullfh2.posix_remap(STDERR_FILENO);
+        }
 
         std::string dir = atf::get_branch_path(tp);
         std::string file = atf::get_leaf_name(tp);
