@@ -41,32 +41,34 @@ dnl
 AT_SETUP([test_program: output format and exit codes])
 
 for h in tp_basic_cpp tp_basic_sh; do
-    AT_DATA([expout], [tc_pass, passed
+
+AT_DATA([expout], [tc_pass, passed
 tc_fail, failed, On purpose
 tc_skip, skipped, By design
 tc_default, passed
 ])
 
-    AT_CHECK([cp expout experr], 0, [], [])
-    AT_CHECK([TEST_HELPER(${h})], 1, [expout], [])
+AT_CHECK([cp expout experr], 0, [], [])
+AT_CHECK([TEST_HELPER(${h})], 1, [expout], [])
 
-    dnl Check the -r flag to redirect the results output.
-    AT_CHECK([TEST_HELPER(${h}) -r1], 1, [expout], [])
-    AT_CHECK([TEST_HELPER(${h}) -r2], 1, [], [experr])
-    AT_CHECK([TEST_HELPER(${h}) -r3 3>resout], 1, [], [])
-    AT_CHECK([cmp -s resout expout], 0, [], [])
+dnl Check the -r flag to redirect the results output.
+AT_CHECK([TEST_HELPER(${h}) -r1], 1, [expout], [])
+AT_CHECK([TEST_HELPER(${h}) -r2], 1, [], [experr])
+AT_CHECK([TEST_HELPER(${h}) -r3 3>resout], 1, [], [])
+AT_CHECK([cmp -s resout expout], 0, [], [])
 
-    AT_DATA([expout], [tc_pass, passed
+AT_DATA([expout], [tc_pass, passed
 ])
-    AT_CHECK([TEST_HELPER(${h}) tc_pass], 0, [expout], [])
+AT_CHECK([TEST_HELPER(${h}) tc_pass], 0, [expout], [])
 
-    AT_DATA([expout], [tc_fail, failed, On purpose
+AT_DATA([expout], [tc_fail, failed, On purpose
 ])
-    AT_CHECK([TEST_HELPER(${h}) tc_fail], 1, [expout], [])
+AT_CHECK([TEST_HELPER(${h}) tc_fail], 1, [expout], [])
 
-    AT_DATA([expout], [tc_skip, skipped, By design
+AT_DATA([expout], [tc_skip, skipped, By design
 ])
-    AT_CHECK([TEST_HELPER(${h}) tc_skip], 0, [expout], [])
+AT_CHECK([TEST_HELPER(${h}) tc_skip], 0, [expout], [])
+
 done
 
 AT_CLEANUP()
