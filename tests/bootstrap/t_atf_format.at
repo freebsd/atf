@@ -39,7 +39,12 @@ dnl IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 dnl
 
 AT_SETUP([atf-format: formatting of long lines])
-AT_TESTED(atf-format)
+
+AT_TESTED([atf-config])
+atf-format()
+{
+    $(atf-config libexecdir)/atf-format
+}
 
 dnl Start by formatting a single-paragraph message.  Do several tests
 dnl with different screen widths.

@@ -168,7 +168,6 @@ tests/bootstrap/h_tp_atf_check_sh: \
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh
 
 TESTS=		$(srcdir)/tests/bootstrap/testsuite
-TESTS_ENVIRONMENT = PATH=$$(atf-config -t atf_libexecdir):$${PATH}
 
 DISTCLEANFILES = \
 		tests/bootstrap/atconfig \
