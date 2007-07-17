@@ -60,6 +60,10 @@ Parsing_Head=false
 # the test cases.
 Results_Fd=1
 
+# A temporary file used to determine if a test case explicitly reported
+# its exit status or not.
+Status_File=
+
 # The test program's source directory: i.e. where its auxiliary data files
 # and helper utilities can be found.  Defaults to the current directory
 # but can be overriden through the '-s' flag.
@@ -219,7 +223,8 @@ atf_check()
 #
 atf_fail()
 {
-    echo "${Test_Case}, failed, ${@}"
+    echo "${Test_Case}, failed, ${@}" >&${Results_Fd}
+    echo yes >${Status_File}
     exit 1
 }
 
@@ -236,14 +241,15 @@ atf_get()
 }
 
 #
-# atf_fail msg1 [.. msgN]
+# atf_pass msg1 [.. msgN]
 #
 #   Makes the test case pass.  Shouldn't be used in general, as a test
 #   case that does not explicitly fail is assumed to pass.
 #
 atf_pass()
 {
-    echo "${Test_Case}, passed"
+    echo "${Test_Case}, passed" >&${Results_Fd}
+    echo yes >${Status_File}
     exit 0
 }
 
@@ -271,7 +277,8 @@ atf_set()
 #
 atf_skip()
 {
-    echo "${Test_Case}, skipped, ${@}"
+    echo "${Test_Case}, skipped, ${@}" >&${Results_Fd}
+    echo yes >${Status_File}
     exit 0
 }
 
@@ -424,29 +431,31 @@ _atf_run_tc()
 {
     _atf_parse_head ${1}
 
+    # Assume that the test case has not reported any exit status so that
+    # we can apply the 'pass' default later on.
+    echo no >${Status_File}
+
     if _atf_get_bool isolated; then
-        # XXX Allow the user to customize where to place the work
-        # directories.
         _workdir=$(mktemp -d $(atf_get workdir)/atf.XXXXXX)
         if [ ${?} -eq 0 ]; then
-            _out=$(cd ${_workdir} ; ${1}_body)
+            ( cd ${_workdir} ; ${1}_body )
             _ret=$?
             rm -rf ${_workdir}
         else
-            _out=$(atf_fail "Could not create the work directory")
+            ( atf_fail "Could not create the work directory" )
             _ret=${?}
         fi
     else
-        _out=$(${1}_body)
+        ( ${1}_body )
         _ret=${?}
     fi
 
-    if [ -z "${_out}" ]; then
-        _out=$(atf_pass)
+    # Set a default exit status if the test case did not report any.
+    if [ "$(cat ${Status_File})" != yes ]; then
+        ( atf_pass )
         _ret=0
     fi
 
-    echo ${_out} 1>&${Results_Fd}
     return ${_ret}
 }
 
@@ -458,11 +467,18 @@ _atf_run_tc()
 #
 _atf_run_tcs()
 {
+    # Initialize the status file here (instead of in _atf_run_tc) so that
+    # we can reuse it for all test cases.
+    Status_File=$(mktemp $(atf_get workdir)/atf.XXXXXX)
+
     _ok=true
     while [ ${#} -gt 0 ]; do
         _atf_run_tc ${1} || _ok=false
         shift
     done
+
+    rm -f ${Status_File}
+
     ${_ok}
 }
 
