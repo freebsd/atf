@@ -46,14 +46,14 @@ sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
 AT_CHECK([TEST_HELPER(tp_basic_sh) -h], [0], [expout], [])
 
 dnl Ask for help, force line wrapping.
-AT_CHECK([TEST_HELPER(tp_basic_cpp, COLUMNS=20) -h], [0], [stdout], [])
+AT_CHECK([COLUMNS=20 TEST_HELPER(tp_basic_cpp) -h], [0], [stdout], [])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
-AT_CHECK([TEST_HELPER(tp_basic_sh, COLUMNS=20) -h], [0], [expout], [])
+AT_CHECK([COLUMNS=20 TEST_HELPER(tp_basic_sh) -h], [0], [expout], [])
 
 dnl Give an invalid option.
 AT_CHECK([TEST_HELPER(tp_basic_cpp) -Z], [1], [], [stderr])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
-AT_CHECK([TEST_HELPER(tp_basic_sh -Z)], [1], [], [experr])
+AT_CHECK([TEST_HELPER(tp_basic_sh) -Z], [1], [], [experr])
 
 dnl List all tests.
 AT_CHECK([TEST_HELPER(tp_basic_cpp) -l], [0], [stdout], [])
