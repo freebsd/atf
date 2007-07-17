@@ -40,25 +40,29 @@ dnl
 
 AT_SETUP([test_program: filter test cases by name])
 
+for h in tp_basic_cpp tp_basic_sh; do
+
 AT_DATA([expout], [tc_pass, passed
 tc_fail, failed, On purpose
 tc_skip, skipped, By design
 tc_default, passed
 ])
-AT_CHECK([TEST_HELPER(tp_basic_cpp)], 1, [expout], [])
+AT_CHECK([TEST_HELPER(${h})], 1, [expout], [])
 
 AT_DATA([expout], [tc_pass, passed
 ])
-AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_pass], 0, [expout], [])
+AT_CHECK([TEST_HELPER(${h}) tc_pass], 0, [expout], [])
 
 AT_DATA([expout], [tc_skip, skipped, By design
 ])
-AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_skip], 0, [expout], [])
+AT_CHECK([TEST_HELPER(${h}) tc_skip], 0, [expout], [])
 
 AT_DATA([expout], [tc_default, passed
 tc_fail, failed, On purpose
 ])
-AT_CHECK([TEST_HELPER(tp_basic_cpp) "*f*"], 1, [expout], [])
+AT_CHECK([TEST_HELPER(${h}) "*f*"], 1, [expout], [])
+
+done
 
 AT_CLEANUP()
 
