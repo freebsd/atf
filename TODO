@@ -38,9 +38,6 @@ Basically they are here so that they are not forgotten.
   directly nor use std::exit; they should instead be using exceptions
   appropriately so that all errors can receive the same treatment.
 
-* Test cases should be isolated to run in an independent directory.
-  Note: the shell library already does this.
-
 * Test cases should be safe to closing stdin, stdout and stderr, to some
   extent.  Once implemented, make t_file_handle.cpp and t_pipe.cpp use
   stdout again, instead of stderr.
