@@ -29,11 +29,6 @@ Basically they are here so that they are not forgotten.
   classes as not copyable.  Or, failing to do that, any other way to do
   the same.
 
-* Change the way test programs report their output.  They should write
-  that information to a configurable channel (different than stdout and
-  stderr) so that the output of the tests can write some useful information
-  (if wanted).
-
 * Audit error reporting in all tools.  They must not write to std::cerr
   directly nor use std::exit; they should instead be using exceptions
   appropriately so that all errors can receive the same treatment.

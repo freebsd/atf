@@ -56,6 +56,10 @@ Atf_Format=$(atf-config -t atf_libexecdir)/atf-format
 # head or not.
 Parsing_Head=false
 
+# The file descriptor on which the test program will print the results of
+# the test cases.
+Results_Fd=1
+
 # The test program's source directory: i.e. where its auxiliary data files
 # and helper utilities can be found.  Defaults to the current directory
 # but can be overriden through the '-s' flag.
@@ -442,7 +446,7 @@ _atf_run_tc()
         _ret=0
     fi
 
-    echo ${_out}
+    echo ${_out} 1>&${Results_Fd}
     return ${_ret}
 }
 
@@ -491,6 +495,9 @@ _atf_usage()
     _atf_echo "Available options:"
     _atf_echo -t "    -h            " "Shows this help message"
     _atf_echo -t "    -l            " "List test cases and their purpose"
+    _atf_echo -t "    -r fd         " "The file descriptor to which the" \
+                                      "test program will send the results" \
+                                      "of the test cases"
     _atf_echo -t "    -s srcdir     " "Directory where the test's data" \
                                       "files are located"
     _atf_echo -t "    -w workdir    " "Base directory where the test cases" \
@@ -522,7 +529,7 @@ main()
 {
     # Process command-line options first.
     _lflag=false
-    while getopts :hls:w: arg; do
+    while getopts :hlr:s:w: arg; do
         case ${arg} in
         h)
             _atf_usage
@@ -531,6 +538,10 @@ main()
 
         l)
             _lflag=true
+            ;;
+
+        r)
+            Results_Fd=${OPTARG}
             ;;
 
         s)
