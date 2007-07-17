@@ -121,5 +121,5 @@ ATF_INIT_TEST_CASES(tcs)
 {
     tcs.push_back(&tc_read_and_write);
     tcs.push_back(&tc_remap_read);
-    tcs.push_back(&tc_remap_write);
+    // XXX tcs.push_back(&tc_remap_write);
 }

@@ -40,44 +40,48 @@ dnl
 
 AT_SETUP([subr: atf_check function])
 
-AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_exitcode_0_0], [0], [ignore], [])
-AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_exitcode_0_1], [1], [ignore], [])
-AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_exitcode_1_0], [1], [ignore], [])
-AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_exitcode_1_1], [0], [ignore], [])
+AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_exitcode_0_0],
+         [0], [ignore], [ignore])
+AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_exitcode_0_1],
+         [1], [ignore], [ignore])
+AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_exitcode_1_0],
+         [1], [ignore], [ignore])
+AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_exitcode_1_1],
+         [0], [ignore], [ignore])
 
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_stdout_expout_pass],
-                      [0], [ignore], [])
+                      [0], [ignore], [ignore])
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_stdout_expout_fail],
-                      [1], [ignore], [])
+                      [1], [ignore], [ignore])
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_stdout_ignore_empty],
-                      [0], [ignore], [])
+                      [0], [ignore], [ignore])
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_stdout_ignore_sth],
-                      [0], [ignore], [])
+                      [0], [ignore], [ignore])
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_stdout_null_empty],
-                      [0], [ignore], [])
+                      [0], [ignore], [ignore])
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_stdout_null_sth],
-                      [1], [ignore], [])
+                      [1], [ignore], [ignore])
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_stdout_stdout_written],
-                      [0], [ignore], [])
+                      [0], [ignore], [ignore])
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_stdout_stdout_noclobber],
-                      [0], [ignore], [])
+                      [0], [ignore], [ignore])
 
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_stderr_experr_pass],
-                      [0], [ignore], [])
+                      [0], [ignore], [ignore])
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_stderr_experr_fail],
-                      [1], [ignore], [])
+                      [1], [ignore], [ignore])
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_stderr_ignore_empty],
-                      [0], [ignore], [])
+                      [0], [ignore], [ignore])
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_stderr_ignore_sth],
-                      [0], [ignore], [])
+                      [0], [ignore], [ignore])
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_stderr_null_empty],
-                      [0], [ignore], [])
+                      [0], [ignore], [ignore])
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_stderr_null_sth],
-                      [1], [ignore], [])
+                      [1], [ignore], [ignore])
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_stderr_stderr_written],
-                      [0], [ignore], [])
+                      [0], [ignore], [ignore])
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) tc_stderr_stderr_noclobber],
-                      [0], [ignore], [])
+                      [0], [ignore], [ignore])
 
 AT_CLEANUP()
 

@@ -52,12 +52,12 @@ default_body()
 
     for h in ${h_cpp} ${h_sh}; do
         atf_check "ISOLATED=no PATHFILE=$(pwd)/expout ${h} \
-                  -s ${srcdir} isolated_path" 0 ignore null
+                  -s ${srcdir} isolated_path" 0 ignore ignore
         atf_check "pwd -P" 0 expout null
 
         atf_check "ISOLATED=yes PATHFILE=$(pwd)/path ${h} \
-                  -s ${srcdir} isolated_path" 0 ignore null
-        atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore null
+                  -s ${srcdir} isolated_path" 0 ignore ignore
+        atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore ignore
     done
 }
 
@@ -77,12 +77,12 @@ tmpdir_body()
 
     for h in ${h_cpp} ${h_sh}; do
         atf_check "ISOLATED=no PATHFILE=$(pwd)/expout TMPDIR=${tmpdir} ${h} \
-                  -s ${srcdir} isolated_path" 0 ignore null
+                  -s ${srcdir} isolated_path" 0 ignore ignore
         atf_check "pwd -P" 0 expout null
 
         atf_check "ISOLATED=yes PATHFILE=$(pwd)/path TMPDIR=${tmpdir} ${h} \
-                  -s ${srcdir} isolated_path" 0 ignore null
-        atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore null
+                  -s ${srcdir} isolated_path" 0 ignore ignore
+        atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore ignore
     done
 }
 
@@ -102,11 +102,11 @@ wflag_body()
 
     for h in ${h_cpp} ${h_sh}; do
         atf_check "ISOLATED=no PATHFILE=$(pwd)/expout ${h} \
-                  -s ${srcdir} -w ${tmpdir} isolated_path" 0 ignore null
+                  -s ${srcdir} -w ${tmpdir} isolated_path" 0 ignore ignore
         atf_check "pwd -P" 0 expout null
 
         atf_check "ISOLATED=yes PATHFILE=$(pwd)/path ${h} \
-                  -s ${srcdir} -w ${tmpdir} isolated_path" 0 ignore null
+                  -s ${srcdir} -w ${tmpdir} isolated_path" 0 ignore ignore
         atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore null
     done
 }
@@ -129,13 +129,13 @@ cleanup_body()
         # First try to clean a work directory that, supposedly, does not
         # have any subdirectories.
         atf_check "ISOLATED=yes PATHFILE=$(pwd)/path ${h} \
-                  -s ${srcdir} -w ${tmpdir} isolated_path" 0 ignore null
+                  -s ${srcdir} -w ${tmpdir} isolated_path" 0 ignore ignore
         atf_check "test -d $(cat path)" 1 null null
 
         # Now do the same but with a work directory that has subdirectories.
         # The program will have to recurse into them to clean them all.
         atf_check "PATHFILE=$(pwd)/path ${h} \
-                  -s ${srcdir} -w ${tmpdir} isolated_rm_rf" 0 ignore null
+                  -s ${srcdir} -w ${tmpdir} isolated_rm_rf" 0 ignore ignore
         atf_check "test -d $(cat path)" 1 null null
     done
 }
