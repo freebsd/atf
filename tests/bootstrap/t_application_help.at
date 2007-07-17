@@ -40,10 +40,10 @@ dnl
 
 AT_SETUP([application: online help option])
 
-AT_CHECK([TEST_HELPER(tp_basic_cpp)], 1, [stdout], [])
+AT_CHECK([APP_HELPER(app_empty)], 0, [stdout], [])
 AT_CHECK([grep 'Available options' stdout], 1, [ignore], [])
 
-AT_CHECK([TEST_HELPER(tp_basic_cpp) -h], 0, [stdout], [])
+AT_CHECK([APP_HELPER(app_empty) -h], 0, [stdout], [])
 AT_CHECK([grep 'Available options' stdout], 0, [ignore], [])
 
 AT_CLEANUP()
