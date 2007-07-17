@@ -19,10 +19,6 @@ Basically they are here so that they are not forgotten.
   stderr) so that the output of the tests can write some useful information
   (if wanted).
 
-* Audit error reporting in all tools.  They must not write to std::cerr
-  directly nor use std::exit; they should instead be using exceptions
-  appropriately so that all errors can receive the same treatment.
-
 * Test cases should be isolated to run in an independent directory.
   Note: the shell library already does this.
 
