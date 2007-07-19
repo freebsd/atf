@@ -126,6 +126,8 @@ atf_check()
     _expout="${3}"
     _experr="${4}"
 
+    atf_info "Checking command [${_cmd}]"
+
     # Sanity-check the expout parameter and prepare the work directory for
     # the test.
     case ${_expout} in
@@ -174,13 +176,25 @@ atf_check()
     # Check what the command wrote to stdout.
     case ${_expout} in
     expout)
-        cmp -s expout aux-stdout || atf_fail "stdout does not match"
+        if cmp -s expout aux-stdout; then
+            :
+        else
+            echo "stdout:"
+            diff -u expout aux-stdout
+            atf_fail "stdout does not match"
+        fi
         ;;
     ignore)
         ;;
     null)
         touch empty-file
-        cmp -s empty-file aux-stdout || atf_fail "stdout was not silent"
+        if cmp -s empty-file aux-stdout; then
+            :
+        else
+            echo "stdout:"
+            cat aux-stdout
+            atf_fail "stdout was not silent"
+        fi
         ;;
     stdout)
         test -f stdout && rm -f stdout
@@ -195,13 +209,25 @@ atf_check()
     # Check what the command wrote to stderr.
     case ${_experr} in
     experr)
-        cmp -s experr aux-stderr || atf_fail "stderr does not match"
+        if cmp -s experr aux-stderr; then
+            :
+        else
+            echo "stderr:"
+            diff -u experr aux-stderr
+            atf_fail "stderr does not match"
+        fi
         ;;
     ignore)
         ;;
     null)
         touch empty-file
-        cmp -s empty-file aux-stderr || atf_fail "stderr was not silent"
+        if cmp -s empty-file aux-stderr; then
+            :
+        else
+            echo "stderr:"
+            cat aux-stderr
+            atf_fail "stderr was not silent"
+        fi
         ;;
     stderr)
         test -f stderr && rm -f stderr
@@ -238,6 +264,17 @@ atf_fail()
 atf_get()
 {
     eval echo \${__tc_var_${Test_Case}_${1}}
+}
+
+#
+# atf_info [msg1 [.. msgN]]
+#
+#   Prints a message indicating the status of the test case; i.e. what
+#   it is currently doing.
+#
+atf_info()
+{
+    _atf_echo -r -t "${Test_Case}: " "${@}"
 }
 
 #
