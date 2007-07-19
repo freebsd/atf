@@ -53,7 +53,7 @@ atf::atffile::atffile(const std::string& filename)
         throw atf::not_found_error< std::string >
             ("Cannot open Atffile", "Atffile");
 
-    directory dir(get_branch_path(filename));
+    fs::directory dir(fs::get_branch_path(filename));
     dir.erase("Atffile");
     dir.erase(".");
     dir.erase("..");

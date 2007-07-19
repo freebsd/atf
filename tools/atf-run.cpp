@@ -150,8 +150,8 @@ atf_run::run_test_program(const std::string& tp)
             nullfh2.posix_remap(STDERR_FILENO);
         }
 
-        std::string dir = atf::get_branch_path(tp);
-        std::string file = atf::get_leaf_name(tp);
+        std::string dir = atf::fs::get_branch_path(tp);
+        std::string file = atf::fs::get_leaf_name(tp);
 
         // XXX Should this use -s instead?  Or do we really want to switch
         // to the target directory?

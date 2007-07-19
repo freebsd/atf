@@ -51,12 +51,14 @@ ATF_TEST_CASE_HEAD(tc_get_branch_path)
 
 ATF_TEST_CASE_BODY(tc_get_branch_path)
 {
-    ATF_CHECK_EQUAL(atf::get_branch_path(""), ".");
-    ATF_CHECK_EQUAL(atf::get_branch_path("."), ".");
-    ATF_CHECK_EQUAL(atf::get_branch_path("foo"), ".");
-    ATF_CHECK_EQUAL(atf::get_branch_path("foo/bar"), "foo");
-    ATF_CHECK_EQUAL(atf::get_branch_path("/foo"), "/");
-    ATF_CHECK_EQUAL(atf::get_branch_path("/foo/bar"), "/foo");
+    using atf::fs::get_branch_path;
+
+    ATF_CHECK_EQUAL(get_branch_path(""), ".");
+    ATF_CHECK_EQUAL(get_branch_path("."), ".");
+    ATF_CHECK_EQUAL(get_branch_path("foo"), ".");
+    ATF_CHECK_EQUAL(get_branch_path("foo/bar"), "foo");
+    ATF_CHECK_EQUAL(get_branch_path("/foo"), "/");
+    ATF_CHECK_EQUAL(get_branch_path("/foo/bar"), "/foo");
 }
 
 ATF_TEST_CASE(tc_get_leaf_name);
@@ -68,12 +70,14 @@ ATF_TEST_CASE_HEAD(tc_get_leaf_name)
 
 ATF_TEST_CASE_BODY(tc_get_leaf_name)
 {
-    ATF_CHECK_EQUAL(atf::get_leaf_name(""), ".");
-    ATF_CHECK_EQUAL(atf::get_leaf_name("."), ".");
-    ATF_CHECK_EQUAL(atf::get_leaf_name("foo"), "foo");
-    ATF_CHECK_EQUAL(atf::get_leaf_name("foo/bar"), "bar");
-    ATF_CHECK_EQUAL(atf::get_leaf_name("/foo"), "foo");
-    ATF_CHECK_EQUAL(atf::get_leaf_name("/foo/bar"), "bar");
+    using atf::fs::get_leaf_name;
+
+    ATF_CHECK_EQUAL(get_leaf_name(""), ".");
+    ATF_CHECK_EQUAL(get_leaf_name("."), ".");
+    ATF_CHECK_EQUAL(get_leaf_name("foo"), "foo");
+    ATF_CHECK_EQUAL(get_leaf_name("foo/bar"), "bar");
+    ATF_CHECK_EQUAL(get_leaf_name("/foo"), "foo");
+    ATF_CHECK_EQUAL(get_leaf_name("/foo/bar"), "bar");
 }
 
 ATF_INIT_TEST_CASES(tcs)

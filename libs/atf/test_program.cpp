@@ -122,8 +122,8 @@ test_program::test_program(const test_cases& tcs) :
     application(m_description),
     m_lflag(false),
     m_results_fd(STDOUT_FILENO),
-    m_srcdir(atf::get_work_dir()),
-    m_workdir(atf::get_temp_dir()),
+    m_srcdir(atf::fs::get_work_dir()),
+    m_workdir(atf::fs::get_temp_dir()),
     m_test_cases(tcs)
 {
 }
@@ -329,11 +329,11 @@ test_program::main(void)
 {
     int errcode;
 
-    if (!atf::exists(m_srcdir + "/" + m_prog_name))
+    if (!atf::fs::exists(m_srcdir + "/" + m_prog_name))
         throw std::runtime_error("Cannot find the test program in the "
                                  "source directory `" + m_srcdir + "'");
 
-    if (!atf::exists(m_workdir))
+    if (!atf::fs::exists(m_workdir))
         throw std::runtime_error("Cannot find the work directory `" +
                                  m_workdir + "'");
 

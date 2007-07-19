@@ -133,10 +133,10 @@ enter_workdir(const atf::test_case* tc, std::string& olddir,
     if (!tc->get_bool("isolated"))
         return;
 
-    olddir = atf::get_work_dir();
+    olddir = atf::fs::get_work_dir();
     const std::string pattern = tc->get("workdir") + "/atf.XXXXXX";
-    workdir = atf::create_temp_dir(pattern);
-    atf::change_directory(workdir);
+    workdir = atf::fs::create_temp_dir(pattern);
+    atf::fs::change_directory(workdir);
 }
 
 static
@@ -147,8 +147,8 @@ leave_workdir(const atf::test_case* tc, std::string& olddir,
     if (!tc->get_bool("isolated"))
         return;
 
-    atf::change_directory(olddir);
-    atf::rm_rf(workdir);
+    atf::fs::change_directory(olddir);
+    atf::fs::rm_rf(workdir);
 }
 
 atf::test_case_result

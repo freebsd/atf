@@ -46,6 +46,7 @@
 #include <string>
 
 namespace atf {
+namespace fs {
 
 class directory;
 
@@ -89,6 +90,7 @@ std::string create_temp_dir(const std::string&);
 void change_directory(const std::string&);
 void rm_rf(const std::string&);
 
+} // namespace fs
 } // namespace atf
 
 #endif // !defined(_ATF_FS_HPP_)

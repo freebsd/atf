@@ -90,7 +90,7 @@ ATF_TEST_CASE_BODY(isolated_path)
     if (!os)
         ATF_FAIL(std::string("Could not open ") + p + " for writing");
 
-    os << atf::get_work_dir() << std::endl;
+    os << atf::fs::get_work_dir() << std::endl;
 
     os.close();
 }
@@ -111,7 +111,7 @@ ATF_TEST_CASE_BODY(isolated_rm_rf)
     if (!os)
         ATF_FAIL(std::string("Could not open ") + p + " for writing");
 
-    os << atf::get_work_dir() << std::endl;
+    os << atf::fs::get_work_dir() << std::endl;
 
     os.close();
 
@@ -135,7 +135,7 @@ ATF_TEST_CASE_HEAD(srcdir_exists)
 }
 ATF_TEST_CASE_BODY(srcdir_exists)
 {
-    if (!atf::exists(get("srcdir") + "/datafile"))
+    if (!atf::fs::exists(get("srcdir") + "/datafile"))
         ATF_FAIL("Cannot find datafile");
 }
 

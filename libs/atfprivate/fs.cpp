@@ -55,7 +55,10 @@ extern "C" {
 #include "atfprivate/exceptions.hpp"
 #include "atfprivate/fs.hpp"
 
-atf::file_info::file_info(void* data)
+namespace impl = atf::fs;
+#define IMPL_NAME "atf::fs"
+
+impl::file_info::file_info(void* data)
 {
     struct dirent* de = static_cast< struct dirent* >(data);
     m_name = de->d_name;
@@ -76,24 +79,24 @@ atf::file_info::file_info(void* data)
 }
 
 const std::string&
-atf::file_info::get_name(void)
+impl::file_info::get_name(void)
     const
 {
     return m_name;
 }
 
-atf::file_info::type
-atf::file_info::get_type(void)
+impl::file_info::type
+impl::file_info::get_type(void)
     const
 {
     return m_type;
 }
 
-atf::directory::directory(const std::string& path)
+impl::directory::directory(const std::string& path)
 {
     DIR* dp = ::opendir(path.c_str());
     if (dp == NULL)
-        throw system_error("atf::directory::directory",
+        throw system_error(IMPL_NAME "::directory::directory",
                            "opendir(3) failed", errno);
 
     struct dirent* dep;
@@ -101,12 +104,12 @@ atf::directory::directory(const std::string& path)
         insert(value_type(dep->d_name, file_info(dep)));
 
     if (::closedir(dp) == -1)
-        throw system_error("atf::directory::directory",
+        throw system_error(IMPL_NAME "::directory::directory",
                            "closedir(3) failed", errno);
 }
 
 std::set< std::string >
-atf::directory::names(void)
+impl::directory::names(void)
     const
 {
     std::set< std::string > ns;
@@ -118,7 +121,7 @@ atf::directory::names(void)
 }
 
 std::string
-atf::get_branch_path(const std::string& path)
+impl::get_branch_path(const std::string& path)
 {
     std::string branch;
 
@@ -146,7 +149,7 @@ atf::get_branch_path(const std::string& path)
 }
 
 std::string
-atf::get_leaf_name(const std::string& path)
+impl::get_leaf_name(const std::string& path)
 {
     std::string leaf;
 
@@ -174,20 +177,20 @@ atf::get_leaf_name(const std::string& path)
 }
 
 std::string
-atf::get_temp_dir(void)
+impl::get_temp_dir(void)
 {
     const char* tmpdir = std::getenv("TMPDIR");
     return tmpdir == NULL ? "/tmp" : tmpdir;
 }
 
 std::string
-atf::get_work_dir(void)
+impl::get_work_dir(void)
 {
 #if defined(MAXPATHLEN)
     char buf[MAXPATHLEN];
 
     if (::getcwd(buf, sizeof(buf)) == NULL)
-        throw system_error("atf::main::get_work_dir",
+        throw system_error(IMPL_NAME "::get_work_dir",
                            "getcwd(3) failed", errno);
 
     return std::string(buf);
@@ -197,7 +200,7 @@ atf::get_work_dir(void)
 }
 
 bool
-atf::exists(const std::string& path)
+impl::exists(const std::string& path)
 {
     bool ok;
 
@@ -207,28 +210,28 @@ atf::exists(const std::string& path)
     else if (res == -1 && errno == ENOENT)
         ok = false;
     else
-        throw system_error("atf::exists", "access(2) failed", errno);
+        throw system_error(IMPL_NAME "::exists", "access(2) failed", errno);
 
     return ok;
 }
 
 void
-atf::change_directory(const std::string& dir)
+impl::change_directory(const std::string& dir)
 {
     if (::chdir(dir.c_str()) == -1)
-        throw system_error("atf::chdir", "chdir(2) failed", errno);
+        throw system_error(IMPL_NAME "::chdir", "chdir(2) failed", errno);
 }
 
 std::string
-atf::create_temp_dir(const std::string& pattern)
+impl::create_temp_dir(const std::string& pattern)
 {
     char* buf = new char[pattern.length() + 1];
     std::string res;
     try {
         std::strcpy(buf, pattern.c_str());
         if (::mkdtemp(buf) == NULL)
-            throw system_error("atf::create_temp_dir", "mkdtemp(3) failed",
-                               errno);
+            throw system_error(IMPL_NAME "::create_temp_dir",
+                               "mkdtemp(3) failed", errno);
         res = buf;
         delete [] buf;
     } catch (...) {
@@ -240,7 +243,7 @@ atf::create_temp_dir(const std::string& pattern)
 }
 
 void
-atf::rm_rf(const std::string& path)
+impl::rm_rf(const std::string& path)
 {
     assert(!path.empty());
     assert(path[0] == '/');
@@ -259,12 +262,13 @@ atf::rm_rf(const std::string& path)
             rm_rf(entrypath);
         else {
             if (::unlink(entrypath.c_str()) == -1)
-                throw system_error("atf::rm_rf(" + path + ")",
-                                   "unlink(" + entrypath + ") failed", errno);
+                throw system_error(IMPL_NAME "::rm_rf(" + path + ")",
+                                   "unlink(" + entrypath + ") failed",
+                                   errno);
         }
     }
 
     if (::rmdir(path.c_str()) == -1)
-        throw system_error("atf::rm_rf(" + path + ")",
+        throw system_error(IMPL_NAME "::rm_rf(" + path + ")",
                            "rmdir(" + path + ") failed", errno);
 }
