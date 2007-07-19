@@ -40,6 +40,12 @@
 
 extern "C" {
 #include <regex.h>
+
+// REG_BASIC is just a synonym for 0, provided as a counterpart to
+// REG_EXTENDED to improve readability.  It is not provided by all systems.
+#if !defined(REG_BASIC)
+#define REG_BASIC 0
+#endif // !defined(REG_BASIC)
 }
 
 #include <cassert>
