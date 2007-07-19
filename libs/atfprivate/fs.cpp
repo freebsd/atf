@@ -53,7 +53,7 @@ extern "C" {
 #include <cstdlib>
 
 #include "atfprivate/exceptions.hpp"
-#include "atfprivate/filesystem.hpp"
+#include "atfprivate/fs.hpp"
 
 atf::file_info::file_info(void* data)
 {

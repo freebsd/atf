@@ -49,7 +49,7 @@ extern "C" {
 
 #include <atf.hpp>
 
-#include "atfprivate/filesystem.hpp"
+#include "atfprivate/fs.hpp"
 
 static
 void

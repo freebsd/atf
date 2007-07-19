@@ -47,8 +47,8 @@
 #include <vector>
 
 #include "atfprivate/application.hpp"
-#include "atfprivate/filesystem.hpp"
 #include "atfprivate/expand.hpp"
+#include "atfprivate/fs.hpp"
 #include "atfprivate/postream.hpp"
 #include "atfprivate/ui.hpp"
 #include "atf/test_case.hpp"

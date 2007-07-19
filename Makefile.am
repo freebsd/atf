@@ -94,8 +94,8 @@ libs_libatfprivate_la_SOURCES = libs/atfprivate/application.cpp \
                                 libs/atfprivate/exceptions.hpp \
                                 libs/atfprivate/file_handle.cpp \
                                 libs/atfprivate/file_handle.hpp \
-                                libs/atfprivate/filesystem.cpp \
-                                libs/atfprivate/filesystem.hpp \
+                                libs/atfprivate/fs.cpp \
+                                libs/atfprivate/fs.hpp \
                                 libs/atfprivate/pipe.cpp \
                                 libs/atfprivate/pipe.hpp \
                                 libs/atfprivate/pistream.cpp \
@@ -306,10 +306,10 @@ tests_atf_units_t_file_handle_SOURCES = tests/atf/units/t_file_handle.cpp
 tests_atf_units_t_file_handle_LDADD = -latf
 tests_atf_units_t_file_handle_LDFLAGS = -Llibs
 
-atf_units_PROGRAMS += tests/atf/units/t_filesystem
-tests_atf_units_t_filesystem_SOURCES = tests/atf/units/t_filesystem.cpp
-tests_atf_units_t_filesystem_LDADD = -latf
-tests_atf_units_t_filesystem_LDFLAGS = -Llibs
+atf_units_PROGRAMS += tests/atf/units/t_fs
+tests_atf_units_t_fs_SOURCES = tests/atf/units/t_fs.cpp
+tests_atf_units_t_fs_LDADD = -latf
+tests_atf_units_t_fs_LDFLAGS = -Llibs
 
 atf_units_PROGRAMS += tests/atf/units/t_pipe
 tests_atf_units_t_pipe_SOURCES = tests/atf/units/t_pipe.cpp

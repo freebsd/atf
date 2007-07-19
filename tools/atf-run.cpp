@@ -56,7 +56,7 @@ extern "C" {
 #include "atfprivate/application.hpp"
 #include "atfprivate/atffile.hpp"
 #include "atfprivate/exceptions.hpp"
-#include "atfprivate/filesystem.hpp"
+#include "atfprivate/fs.hpp"
 #include "atfprivate/pipe.hpp"
 #include "atfprivate/pistream.hpp"
 #include "atfprivate/ui.hpp"

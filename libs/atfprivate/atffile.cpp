@@ -44,7 +44,7 @@
 #include "atfprivate/atffile.hpp"
 #include "atfprivate/exceptions.hpp"
 #include "atfprivate/expand.hpp"
-#include "atfprivate/filesystem.hpp"
+#include "atfprivate/fs.hpp"
 
 atf::atffile::atffile(const std::string& filename)
 {

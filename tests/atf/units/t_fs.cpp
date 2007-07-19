@@ -38,57 +38,46 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_FILESYSTEM_HPP_)
-#define _ATF_FILESYSTEM_HPP_
+#include <atf.hpp>
 
-#include <map>
-#include <set>
-#include <string>
+#include "atfprivate/fs.hpp"
 
-namespace atf {
+ATF_TEST_CASE(tc_get_branch_path);
 
-class directory;
+ATF_TEST_CASE_HEAD(tc_get_branch_path)
+{
+    set("descr", "Tests the get_branch_path function");
+}
 
-class file_info {
-public:
-    enum type {
-        blk_type,
-        chr_type,
-        dir_type,
-        fifo_type,
-        lnk_type,
-        reg_type,
-        sock_type,
-        unknown_type,
-        wht_type
-    };
+ATF_TEST_CASE_BODY(tc_get_branch_path)
+{
+    ATF_CHECK_EQUAL(atf::get_branch_path(""), ".");
+    ATF_CHECK_EQUAL(atf::get_branch_path("."), ".");
+    ATF_CHECK_EQUAL(atf::get_branch_path("foo"), ".");
+    ATF_CHECK_EQUAL(atf::get_branch_path("foo/bar"), "foo");
+    ATF_CHECK_EQUAL(atf::get_branch_path("/foo"), "/");
+    ATF_CHECK_EQUAL(atf::get_branch_path("/foo/bar"), "/foo");
+}
 
-    const std::string& get_name(void) const;
-    type get_type(void) const;
+ATF_TEST_CASE(tc_get_leaf_name);
 
-private:
-    std::string m_name;
-    type m_type;
+ATF_TEST_CASE_HEAD(tc_get_leaf_name)
+{
+    set("descr", "Tests the get_leaf_name function");
+}
 
-    explicit file_info(void*);
-    friend class directory;
-};
+ATF_TEST_CASE_BODY(tc_get_leaf_name)
+{
+    ATF_CHECK_EQUAL(atf::get_leaf_name(""), ".");
+    ATF_CHECK_EQUAL(atf::get_leaf_name("."), ".");
+    ATF_CHECK_EQUAL(atf::get_leaf_name("foo"), "foo");
+    ATF_CHECK_EQUAL(atf::get_leaf_name("foo/bar"), "bar");
+    ATF_CHECK_EQUAL(atf::get_leaf_name("/foo"), "foo");
+    ATF_CHECK_EQUAL(atf::get_leaf_name("/foo/bar"), "bar");
+}
 
-class directory : public std::map< std::string, file_info > {
-public:
-    directory(const std::string& path);
-    std::set< std::string > names(void) const;
-};
-
-std::string get_branch_path(const std::string&);
-std::string get_leaf_name(const std::string&);
-std::string get_temp_dir(void);
-std::string get_work_dir(void);
-bool exists(const std::string&);
-std::string create_temp_dir(const std::string&);
-void change_directory(const std::string&);
-void rm_rf(const std::string&);
-
-} // namespace atf
-
-#endif // !defined(_ATF_FILESYSTEM_HPP_)
+ATF_INIT_TEST_CASES(tcs)
+{
+    tcs.push_back(&tc_get_branch_path);
+    tcs.push_back(&tc_get_leaf_name);
+}

@@ -42,8 +42,8 @@
 #include <cctype>
 #include <stdexcept>
 
-#include "atfprivate/filesystem.hpp"
 #include "atfprivate/exceptions.hpp"
+#include "atfprivate/fs.hpp"
 #include "atf/test_case.hpp"
 
 atf::test_case::test_case(const std::string& ident) :
