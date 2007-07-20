@@ -183,7 +183,8 @@ atf::split(const std::string& str, const std::string& delim)
     std::string::size_type pos = 0, newpos = 0;
     while (pos < str.length() && newpos != std::string::npos) {
         newpos = str.find(delim, pos);
-        words.push_back(str.substr(pos, newpos - pos));
+        if (newpos != pos)
+            words.push_back(str.substr(pos, newpos - pos));
         pos = newpos + delim.length();
     }
 
