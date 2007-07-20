@@ -23,8 +23,6 @@ Basically they are here so that they are not forgotten.
 
 * Make sure that atf_check is not used if isolated=no.
 
-* Make atf-run ignore non-executable test cases when using glob patterns.
-
 * Add a class, similar in idea to boost::noncopyable, to easily mark some
   classes as not copyable.  Or, failing to do that, any other way to do
   the same.

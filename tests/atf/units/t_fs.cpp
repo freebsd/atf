@@ -243,6 +243,39 @@ ATF_TEST_CASE_BODY(directory_read)
     ATF_CHECK(d.find("reg") != d.end());
 }
 
+ATF_TEST_CASE(directory_file_info);
+ATF_TEST_CASE_HEAD(directory_file_info)
+{
+    set("descr", "Tests that the file_info objects attached to the "
+                 "directory are valid");
+}
+ATF_TEST_CASE_BODY(directory_file_info)
+{
+    using atf::fs::directory;
+    using atf::fs::file_info;
+    using atf::fs::path;
+
+    create_files();
+
+    directory d(path("files"));
+
+    {
+        directory::const_iterator iter = d.find("dir");
+        ATF_CHECK(iter != d.end());
+        const file_info& fi = (*iter).second;
+        ATF_CHECK(fi.get_path() == path("files/dir"));
+        ATF_CHECK(fi.get_type() == file_info::dir_type);
+    }
+
+    {
+        directory::const_iterator iter = d.find("reg");
+        ATF_CHECK(iter != d.end());
+        const file_info& fi = (*iter).second;
+        ATF_CHECK(fi.get_path() == path("files/reg"));
+        ATF_CHECK(fi.get_type() == file_info::reg_type);
+    }
+}
+
 ATF_TEST_CASE(directory_names);
 ATF_TEST_CASE_HEAD(directory_names)
 {
@@ -271,8 +304,7 @@ ATF_TEST_CASE_BODY(directory_names)
 ATF_TEST_CASE(file_info_stat);
 ATF_TEST_CASE_HEAD(file_info_stat)
 {
-    set("descr", "Tests the file_info creation through ::stat and its "
-                 "contents");
+    set("descr", "Tests the file_info creation and its basic contents");
 }
 ATF_TEST_CASE_BODY(file_info_stat)
 {
@@ -296,37 +328,76 @@ ATF_TEST_CASE_BODY(file_info_stat)
     }
 }
 
-ATF_TEST_CASE(file_info_directory);
-ATF_TEST_CASE_HEAD(file_info_directory)
+ATF_TEST_CASE(file_info_perms);
+ATF_TEST_CASE_HEAD(file_info_perms)
 {
-    set("descr", "Tests the file_info creation through directory and its "
-                 "contents");
+    set("descr", "Tests the file_info methods to get the file's "
+                 "permissions");
 }
-ATF_TEST_CASE_BODY(file_info_directory)
+ATF_TEST_CASE_BODY(file_info_perms)
 {
-    using atf::fs::directory;
     using atf::fs::file_info;
     using atf::fs::path;
 
-    create_files();
+    path p("file");
 
-    directory d(path("files"));
+    std::ofstream os(p.c_str());
+    os.close();
 
-    {
-        directory::const_iterator iter = d.find("dir");
-        ATF_CHECK(iter != d.end());
-        const file_info& fi = (*iter).second;
-        ATF_CHECK(fi.get_path() == path("files/dir"));
-        ATF_CHECK(fi.get_type() == file_info::dir_type);
+#define perms(ur, uw, ux, gr, gw, gx, othr, othw, othx) \
+    { \
+        file_info fi(p); \
+        ATF_CHECK(fi.is_owner_readable() == ur); \
+        ATF_CHECK(fi.is_owner_writable() == uw); \
+        ATF_CHECK(fi.is_owner_executable() == ux); \
+        ATF_CHECK(fi.is_group_readable() == gr); \
+        ATF_CHECK(fi.is_group_writable() == gw); \
+        ATF_CHECK(fi.is_group_executable() == gx); \
+        ATF_CHECK(fi.is_other_readable() == othr); \
+        ATF_CHECK(fi.is_other_writable() == othw); \
+        ATF_CHECK(fi.is_other_executable() == othx); \
     }
 
-    {
-        directory::const_iterator iter = d.find("reg");
-        ATF_CHECK(iter != d.end());
-        const file_info& fi = (*iter).second;
-        ATF_CHECK(fi.get_path() == path("files/reg"));
-        ATF_CHECK(fi.get_type() == file_info::reg_type);
-    }
+    ::chmod(p.c_str(), 0000);
+    perms(false, false, false, false, false, false, false, false, false);
+
+    ::chmod(p.c_str(), 0001);
+    perms(false, false, false, false, false, false, false, false, true);
+
+    ::chmod(p.c_str(), 0010);
+    perms(false, false, false, false, false, true, false, false, false);
+
+    ::chmod(p.c_str(), 0100);
+    perms(false, false, true, false, false, false, false, false, false);
+
+    ::chmod(p.c_str(), 0002);
+    perms(false, false, false, false, false, false, false, true, false);
+
+    ::chmod(p.c_str(), 0020);
+    perms(false, false, false, false, true, false, false, false, false);
+
+    ::chmod(p.c_str(), 0200);
+    perms(false, true, false, false, false, false, false, false, false);
+
+    ::chmod(p.c_str(), 0004);
+    perms(false, false, false, false, false, false, true, false, false);
+
+    ::chmod(p.c_str(), 0040);
+    perms(false, false, false, true, false, false, false, false, false);
+
+    ::chmod(p.c_str(), 0400);
+    perms(true, false, false, false, false, false, false, false, false);
+
+    ::chmod(p.c_str(), 0644);
+    perms(true, true, false, true, false, false, true, false, false);
+
+    ::chmod(p.c_str(), 0755);
+    perms(true, true, true, true, false, true, true, false, true);
+
+    ::chmod(p.c_str(), 0777);
+    perms(true, true, true, true, true, true, true, true, true);
+
+#undef perms
 }
 
 // ------------------------------------------------------------------------
@@ -372,6 +443,7 @@ ATF_TEST_CASE_BODY(create_temp_dir)
 {
     using atf::fs::create_temp_dir;
     using atf::fs::exists;
+    using atf::fs::file_info;
     using atf::fs::path;
 
     path tmpl("testdir.XXXXXX");
@@ -384,9 +456,27 @@ ATF_TEST_CASE_BODY(create_temp_dir)
     ATF_CHECK( exists(t1));
     ATF_CHECK( exists(t2));
 
-    // TODO: Once there is a way to check for the file modes in file_info,
-    // ensure that the directories are secure.  This will be done when
-    // implementing executable-files filtering in atf-run.
+    file_info fi1(t1);
+    ATF_CHECK( fi1.is_owner_readable());
+    ATF_CHECK( fi1.is_owner_writable());
+    ATF_CHECK( fi1.is_owner_executable());
+    ATF_CHECK(!fi1.is_group_readable());
+    ATF_CHECK(!fi1.is_group_writable());
+    ATF_CHECK(!fi1.is_group_executable());
+    ATF_CHECK(!fi1.is_other_readable());
+    ATF_CHECK(!fi1.is_other_writable());
+    ATF_CHECK(!fi1.is_other_executable());
+
+    file_info fi2(t2);
+    ATF_CHECK( fi2.is_owner_readable());
+    ATF_CHECK( fi2.is_owner_writable());
+    ATF_CHECK( fi2.is_owner_executable());
+    ATF_CHECK(!fi2.is_group_readable());
+    ATF_CHECK(!fi2.is_group_writable());
+    ATF_CHECK(!fi2.is_group_executable());
+    ATF_CHECK(!fi2.is_other_readable());
+    ATF_CHECK(!fi2.is_other_writable());
+    ATF_CHECK(!fi2.is_other_executable());
 }
 
 ATF_TEST_CASE(exists);
@@ -478,13 +568,14 @@ ATF_INIT_TEST_CASES(tcs)
     tcs.push_back(&path_compare_different);
     tcs.push_back(&path_concat);
 
+    // Add the tests for the "file_info" class.
+    tcs.push_back(&file_info_stat);
+    tcs.push_back(&file_info_perms);
+
     // Add the tests for the "directory" class.
     tcs.push_back(&directory_read);
     tcs.push_back(&directory_names);
-
-    // Add the tests for the "file_info" class.
-    tcs.push_back(&file_info_stat);
-    tcs.push_back(&file_info_directory);
+    tcs.push_back(&directory_file_info);
 
     // Add the tests for the free functions.
     tcs.push_back(&get_current_dir);

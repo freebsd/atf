@@ -49,14 +49,20 @@ atf::atffile::atffile(const atf::fs::path& filename)
 {
     std::ifstream is(filename.c_str());
     if (!is)
-        throw atf::not_found_error< std::string >
-            ("Cannot open Atffile", "Atffile");
+        throw atf::not_found_error< fs::path >
+            ("Cannot open Atffile", filename);
 
     fs::directory dir(filename.branch_path());
-    dir.erase("Atffile");
-    dir.erase(".");
-    dir.erase("..");
-    // XXX Remove other hidden files.
+    dir.erase(filename.leaf_name());
+    for (fs::directory::iterator iter = dir.begin(); iter != dir.end();
+         iter++) {
+        const std::string& name = (*iter).first;
+        const fs::file_info& fi = (*iter).second;
+
+        if (name[0] == '.' || (!fi.is_owner_executable() &&
+                               !fi.is_group_executable()))
+            dir.erase(iter);
+    }
 
     std::string line;
     while (std::getline(is, line)) {

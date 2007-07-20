@@ -41,6 +41,10 @@
 #if !defined(_ATF_FS_HPP_)
 #define _ATF_FS_HPP_
 
+extern "C" {
+#include <sys/types.h>
+}
+
 #include <map>
 #include <set>
 #include <stdexcept>
@@ -197,7 +201,6 @@ public:
         lnk_type,
         reg_type,
         sock_type,
-        unknown_type,
         wht_type
     };
 
@@ -220,6 +223,57 @@ public:
     //!
     type get_type(void) const;
 
+    //!
+    //! \brief Returns whether the file is readable by its owner or not.
+    //!
+    bool is_owner_readable(void) const;
+
+    //!
+    //! \brief Returns whether the file is writable by its owner or not.
+    //!
+    bool is_owner_writable(void) const;
+
+    //!
+    //! \brief Returns whether the file is executable by its owner or not.
+    //!
+    bool is_owner_executable(void) const;
+
+    //!
+    //! \brief Returns whether the file is readable by the users belonging
+    //! to its group or not.
+    //!
+    bool is_group_readable(void) const;
+
+    //!
+    //! \brief Returns whether the file is writable the users belonging to
+    //! its group or not.
+    //!
+    bool is_group_writable(void) const;
+
+    //!
+    //! \brief Returns whether the file is executable by the users
+    //! belonging to its group or not.
+    //!
+    bool is_group_executable(void) const;
+
+    //!
+    //! \brief Returns whether the file is readable by people different
+    //! than the owner and those belonging to the group or not.
+    //!
+    bool is_other_readable(void) const;
+
+    //!
+    //! \brief Returns whether the file is write by people different
+    //! than the owner and those belonging to the group or not.
+    //!
+    bool is_other_writable(void) const;
+
+    //!
+    //! \brief Returns whether the file is executable by people different
+    //! than the owner and those belonging to the group or not.
+    //!
+    bool is_other_executable(void) const;
+
 private:
     //!
     //! \brief The file's full path.
@@ -232,19 +286,9 @@ private:
     type m_type;
 
     //!
-    //! \brief Constructs a new file_info based on data returned by
-    //! ::readdir.
+    //! \brief The file's mode.
     //!
-    //! This constructor creates a new file_info object and fills it with
-    //! the data that was returned by the ::readdir system function.  It
-    //! takes an opaque pointer to avoid having to expose system headers
-    //! to files including fs.hpp.
-    //!
-    //! It is private because the only other class supposed to construct
-    //! a file_info through this constructor is directory.
-    //!
-    file_info(const path&, void*);
-    friend class directory;
+    mode_t m_mode;
 };
 
 // ------------------------------------------------------------------------

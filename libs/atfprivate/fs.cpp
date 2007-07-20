@@ -218,35 +218,20 @@ impl::file_info::file_info(const path& p) :
                                 "stat(2) failed", errno);
 
     switch (sb.st_mode & S_IFMT) {
-    case S_IFBLK:  m_type = blk_type;     break;
-    case S_IFCHR:  m_type = chr_type;     break;
-    case S_IFDIR:  m_type = dir_type;     break;
-    case S_IFIFO:  m_type = fifo_type;    break;
-    case S_IFLNK:  m_type = lnk_type;     break;
-    case S_IFREG:  m_type = reg_type;     break;
-    case S_IFSOCK: m_type = sock_type;    break;
-    case S_IFWHT:  m_type = wht_type;     break;
-    default:       m_type = unknown_type; break;
+    case S_IFBLK:  m_type = blk_type;  break;
+    case S_IFCHR:  m_type = chr_type;  break;
+    case S_IFDIR:  m_type = dir_type;  break;
+    case S_IFIFO:  m_type = fifo_type; break;
+    case S_IFLNK:  m_type = lnk_type;  break;
+    case S_IFREG:  m_type = reg_type;  break;
+    case S_IFSOCK: m_type = sock_type; break;
+    case S_IFWHT:  m_type = wht_type;  break;
+    default:
+        throw std::runtime_error(IMPL_NAME "::file_info(" + p.str() + "): "
+                                 "stat(2) returned an unknown file type");
     }
-}
 
-impl::file_info::file_info(const path& dir, void* data) :
-    m_path("not-yet-initialized")
-{
-    struct dirent* de = static_cast< struct dirent* >(data);
-    m_path = dir / de->d_name;
-    switch (de->d_type) {
-    case DT_BLK:     m_type = blk_type;     break;
-    case DT_CHR:     m_type = chr_type;     break;
-    case DT_DIR:     m_type = dir_type;     break;
-    case DT_FIFO:    m_type = fifo_type;    break;
-    case DT_LNK:     m_type = lnk_type;     break;
-    case DT_REG:     m_type = reg_type;     break;
-    case DT_SOCK:    m_type = sock_type;    break;
-    case DT_UNKNOWN: m_type = unknown_type; break;
-    case DT_WHT:     m_type = wht_type;     break;
-    default:         m_type = unknown_type; break;
-    }
+    m_mode = sb.st_mode & ~S_IFMT;
 }
 
 const impl::path&
@@ -263,6 +248,69 @@ impl::file_info::get_type(void)
     return m_type;
 }
 
+bool
+impl::file_info::is_owner_readable(void)
+    const
+{
+    return m_mode & S_IRUSR;
+}
+
+bool
+impl::file_info::is_owner_writable(void)
+    const
+{
+    return m_mode & S_IWUSR;
+}
+
+bool
+impl::file_info::is_owner_executable(void)
+    const
+{
+    return m_mode & S_IXUSR;
+}
+
+bool
+impl::file_info::is_group_readable(void)
+    const
+{
+    return m_mode & S_IRGRP;
+}
+
+bool
+impl::file_info::is_group_writable(void)
+    const
+{
+    return m_mode & S_IWGRP;
+}
+
+bool
+impl::file_info::is_group_executable(void)
+    const
+{
+    return m_mode & S_IXGRP;
+}
+
+bool
+impl::file_info::is_other_readable(void)
+    const
+{
+    return m_mode & S_IROTH;
+}
+
+bool
+impl::file_info::is_other_writable(void)
+    const
+{
+    return m_mode & S_IWOTH;
+}
+
+bool
+impl::file_info::is_other_executable(void)
+    const
+{
+    return m_mode & S_IXOTH;
+}
+
 // ------------------------------------------------------------------------
 // The "directory" class.
 // ------------------------------------------------------------------------
@@ -275,8 +323,10 @@ impl::directory::directory(const path& p)
                            p.str() + ")", "opendir(3) failed", errno);
 
     struct dirent* dep;
-    while ((dep = ::readdir(dp)) != NULL)
-        insert(value_type(dep->d_name, file_info(p, dep)));
+    while ((dep = ::readdir(dp)) != NULL) {
+        path entryp = p / dep->d_name;
+        insert(value_type(dep->d_name, file_info(entryp)));
+    }
 
     if (::closedir(dp) == -1)
         throw system_error(IMPL_NAME "::directory::directory(" +
