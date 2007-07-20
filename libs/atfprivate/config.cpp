@@ -61,25 +61,25 @@ init_variables(void)
     assert(m_variables.empty());
 
     str = ::getenv("ATF_LIBEXECDIR");
-    if (str != NULL)
+    if (str != NULL && str[0] != '\0')
         m_variables["atf_libexecdir"] = str;
     else
         m_variables["atf_libexecdir"] = ATF_LIBEXECDIR;
 
     str = ::getenv("ATF_PKGDATADIR");
-    if (str != NULL)
+    if (str != NULL && str[0] != '\0')
         m_variables["atf_pkgdatadir"] = str;
     else
         m_variables["atf_pkgdatadir"] = ATF_PKGDATADIR;
 
     str = ::getenv("ATF_SHELL");
-    if (str != NULL)
+    if (str != NULL && str[0] != '\0')
         m_variables["atf_shell"] = str;
     else
         m_variables["atf_shell"] = ATF_SHELL;
 
     str = ::getenv("ATF_WORKDIR");
-    if (str != NULL)
+    if (str != NULL && str[0] != '\0')
         m_variables["atf_workdir"] = str;
     else
         m_variables["atf_workdir"] = ATF_WORKDIR;

@@ -114,6 +114,17 @@ ATF_TEST_CASE_BODY(get)
     ATF_CHECK(atf::config::get("atf_shell") != "env-value");
     ATF_CHECK(atf::config::get("atf_workdir") != "env-value");
 
+    // Make sure empty values in the environment are not considered.
+    set_env_var("ATF_LIBEXECDIR", "");
+    set_env_var("ATF_PKGDATADIR", "");
+    set_env_var("ATF_SHELL", "");
+    set_env_var("ATF_WORKDIR", "");
+    atf::config::__reinit();
+    ATF_CHECK(!atf::config::get("atf_libexecdir").empty());
+    ATF_CHECK(!atf::config::get("atf_pkgdatadir").empty());
+    ATF_CHECK(!atf::config::get("atf_shell").empty());
+    ATF_CHECK(!atf::config::get("atf_workdir").empty());
+
     // Check if the ATF_LIBEXECDIR variable is recognized.
     set_env_var  ("ATF_LIBEXECDIR", "env-value");
     unset_env_var("ATF_PKGDATADIR");
