@@ -76,7 +76,7 @@ Test_Case=
 Test_Cases=
 
 # The test program's base directory where it will put temporary files.
-Work_Dir=${TMPDIR:-/tmp}
+Work_Dir=$(atf-config -t atf_workdir)
 
 # ------------------------------------------------------------------------
 # PUBLIC INTERFACE

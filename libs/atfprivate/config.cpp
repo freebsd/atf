@@ -78,6 +78,12 @@ init_variables(void)
     else
         m_variables["atf_shell"] = ATF_SHELL;
 
+    str = ::getenv("ATF_WORKDIR");
+    if (str != NULL)
+        m_variables["atf_workdir"] = str;
+    else
+        m_variables["atf_workdir"] = ATF_WORKDIR;
+
     assert(!m_variables.empty());
 }
 

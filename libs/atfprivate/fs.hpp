@@ -43,15 +43,152 @@
 
 #include <map>
 #include <set>
+#include <stdexcept>
 #include <string>
 
 namespace atf {
 namespace fs {
 
+// ------------------------------------------------------------------------
+// The "path_error" class.
+// ------------------------------------------------------------------------
+
+//!
+//! \brief A class to signal errors in path manipulation.
+//!
+//! This error class is used by the path manipulation algorithms to signal
+//! any detected error.
+//!
+class path_error : public std::runtime_error {
+public:
+    path_error(const std::string&);
+};
+
+// ------------------------------------------------------------------------
+// The "path" class.
+// ------------------------------------------------------------------------
+
+//!
+//! \brief A class to represent a path to a file.
+//!
+//! The path class represents the route to a file or directory in the
+//! file system.  All file manipulation operations use this class to
+//! represent their arguments as it takes care of normalizing user-provided
+//! strings and ensures they are valid.
+//!
+//! It is important to note that the file pointed to by a path need not
+//! exist.
+//!
+class path {
+    //!
+    //! \brief Internal representation of a path.
+    //!
+    std::string m_data;
+
+public:
+    //!
+    //! \brief Constructs a new path from a user-provided string.
+    //!
+    //! This constructor takes a string, either provided by the program's
+    //! code or by the user and constructs a new path object.  The string
+    //! is normalized to not contain multiple delimiters together and to
+    //! remove any trailing one.
+    //!
+    //! \throw path_error If the string is empty.
+    //!
+    explicit path(const std::string&);
+
+    //!
+    //! \brief Returns a pointer to a C-style string representing this path.
+    //!
+    const char* c_str(void) const;
+
+    //!
+    //! \brief Returns a string representing this path.
+    //!
+    const std::string& str(void) const;
+
+    //!
+    //! \brief Returns the branch path of this path.
+    //!
+    //! Calculates and returns the branch path of this path.  In other
+    //! words, it returns what the standard ::dirname function would return.
+    //!
+    path branch_path(void) const;
+
+    //!
+    //! \brief Returns the leaf name of this path.
+    //!
+    //! Calculates and returns the leaf name of this path.  In other words,
+    //! it returns what the standard ::basename function would return.
+    //!
+    std::string leaf_name(void) const;
+
+    //!
+    //! \brief Checks whether this path is absolute or not.
+    //!
+    //! Returns a boolean indicating if this is an absolute path or not;
+    //! i.e. if it starts with a slash.
+    //!
+    bool is_absolute(void) const;
+
+    //!
+    //! \brief Checks whether this path points to the root directory or not.
+    //!
+    //! Returns a boolean indicating if this is path points to the root
+    //! directory or not.  The checks made by this are extremely simple (so
+    //! the results cannot always be trusted) but they are enough for our
+    //! modest sanity-checking needs.  I.e. "/../" could return false.
+    //!
+    bool is_root(void) const;
+
+    //!
+    //! \brief Checks if two paths are equal.
+    //!
+    bool operator==(const path&) const;
+
+    //!
+    //! \brief Checks if two paths are different.
+    //!
+    bool operator!=(const path&) const;
+
+    //!
+    //! \brief Concatenates a path with a string.
+    //!
+    //! Constructs a new path object that is the concatenation of the
+    //! left-hand path with the right-hand string.  The string is normalized
+    //! before the concatenation, and a path delimiter is introduced between
+    //! the two components if needed.
+    //!
+    path operator/(const std::string&) const;
+
+    //!
+    //! \brief Concatenates a path with another path.
+    //!
+    //! Constructs a new path object that is the concatenation of the
+    //! left-hand path with the right-hand one. A path delimiter is
+    //! introduced between the two components if needed.
+    //!
+    path operator/(const path&) const;
+};
+
+// ------------------------------------------------------------------------
+// The "file_info" class.
+// ------------------------------------------------------------------------
+
 class directory;
 
+//!
+//! \brief A class that contains information about a file.
+//!
+//! The file_info class holds information about an specific file that
+//! exists in the file system.
+//!
 class file_info {
 public:
+    //!
+    //! \brief The file's type.
+    //!
     enum type {
         blk_type,
         chr_type,
@@ -64,31 +201,130 @@ public:
         wht_type
     };
 
-    const std::string& get_name(void) const;
+    //!
+    //! \brief Constructs a new file_info based on a given file.
+    //!
+    //! This constructor creates a new file_info object and fills it with
+    //! the data returned by ::stat when run on the given file, which must
+    //! exist.
+    //!
+    explicit file_info(const path&);
+
+    //!
+    //! \brief Returns the file's name.
+    //!
+    const path& get_path(void) const;
+
+    //!
+    //! \brief Returns the file's type.
+    //!
     type get_type(void) const;
 
 private:
-    std::string m_name;
+    //!
+    //! \brief The file's full path.
+    //!
+    path m_path;
+
+    //!
+    //! \brief The file's type.
+    //!
     type m_type;
 
-    explicit file_info(void*);
+    //!
+    //! \brief Constructs a new file_info based on data returned by
+    //! ::readdir.
+    //!
+    //! This constructor creates a new file_info object and fills it with
+    //! the data that was returned by the ::readdir system function.  It
+    //! takes an opaque pointer to avoid having to expose system headers
+    //! to files including fs.hpp.
+    //!
+    //! It is private because the only other class supposed to construct
+    //! a file_info through this constructor is directory.
+    //!
+    file_info(const path&, void*);
     friend class directory;
 };
 
+// ------------------------------------------------------------------------
+// The "directory" class.
+// ------------------------------------------------------------------------
+
+//!
+//! \brief A class representing a file system directory.
+//!
+//! The directory class represents a group of files in the file system and
+//! corresponds to exactly one directory.
+//!
 class directory : public std::map< std::string, file_info > {
 public:
-    directory(const std::string& path);
+    //!
+    //! \brief Constructs a new directory.
+    //!
+    //! Constructs a new directory object representing the given path.
+    //! The directory must exist at creation time as the contents of the
+    //! class are gathered from it.
+    //!
+    directory(const path&);
+
+    //!
+    //! \brief Returns the file names of the files in the directory.
+    //!
+    //! Returns the leaf names of all files contained in the directory.
+    //! I.e. the keys of the directory map.
+    //!
     std::set< std::string > names(void) const;
 };
 
-std::string get_branch_path(const std::string&);
-std::string get_leaf_name(const std::string&);
-std::string get_temp_dir(void);
-std::string get_work_dir(void);
-bool exists(const std::string&);
-std::string create_temp_dir(const std::string&);
-void change_directory(const std::string&);
-void rm_rf(const std::string&);
+// ------------------------------------------------------------------------
+// Free functions.
+// ------------------------------------------------------------------------
+
+//!
+//! \brief Changes the current working directory.
+//!
+//! Changes the current working directory to the given path.  Returns the
+//! path to the directory just left.
+//!
+//! \throw system_error If ::chdir failed.
+//!
+path change_directory(const path&);
+
+//!
+//! \brief Creates a safe temporary directory.
+//!
+//! Given a name template, which must end in six X characters, generates a
+//! unique file name by replacing those Xs with alphanumeric characters and
+//! creates a directory with the resulting name.
+//!
+path create_temp_dir(const path&);
+
+//!
+//! \brief Checks if the given path exists.
+//!
+bool exists(const path&);
+
+//!
+//! \brief Returns the path to the current working directory.
+//!
+//! Calculates and returns the path to the current working directory, which
+//! is guessed using the ::getcwd function.
+//!
+//! \throw system_error If ::getcwd failed.
+//!
+path get_current_dir(void);
+
+//!
+//! \brief Recursively removes a directory tree.
+//!
+//! Recursively removes a directory tree, which can contain both files and
+//! subdirectories.  This will raise an error if asked to remove the root
+//! directory.
+//!
+//! TODO: Avoid crossing file system boundaries for safety.
+//!
+void rm_rf(const path&);
 
 } // namespace fs
 } // namespace atf

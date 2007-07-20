@@ -48,7 +48,7 @@ default_body()
     srcdir=$(atf_get srcdir)
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
-    tmpdir=$(cd ${TMPDIR:-/tmp} && pwd -P)
+    tmpdir=$(cd $(atf-config -t atf_workdir) && pwd -P)
 
     for h in ${h_cpp} ${h_sh}; do
         atf_check "ISOLATED=no PATHFILE=$(pwd)/expout ${h} \
@@ -65,7 +65,7 @@ tmpdir_head()
 {
     atf_set "descr" "Tests that the 'isolated' test property works" \
                     "when the user overrides the work directory through" \
-                    "the TMPDIR environment variable"
+                    "the ATF_WORKDIR environment variable"
 }
 tmpdir_body()
 {
@@ -76,11 +76,13 @@ tmpdir_body()
     mkdir ${tmpdir}
 
     for h in ${h_cpp} ${h_sh}; do
-        atf_check "ISOLATED=no PATHFILE=$(pwd)/expout TMPDIR=${tmpdir} ${h} \
+        atf_check "ISOLATED=no PATHFILE=$(pwd)/expout \
+                  ATF_WORKDIR=${tmpdir} ${h} \
                   -s ${srcdir} isolated_path" 0 ignore ignore
         atf_check "pwd -P" 0 expout null
 
-        atf_check "ISOLATED=yes PATHFILE=$(pwd)/path TMPDIR=${tmpdir} ${h} \
+        atf_check "ISOLATED=yes PATHFILE=$(pwd)/path \
+                  ATF_WORKDIR=${tmpdir} ${h} \
                   -s ${srcdir} isolated_path" 0 ignore ignore
         atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore ignore
     done

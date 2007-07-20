@@ -44,16 +44,15 @@
 #include "atfprivate/atffile.hpp"
 #include "atfprivate/exceptions.hpp"
 #include "atfprivate/expand.hpp"
-#include "atfprivate/fs.hpp"
 
-atf::atffile::atffile(const std::string& filename)
+atf::atffile::atffile(const atf::fs::path& filename)
 {
     std::ifstream is(filename.c_str());
     if (!is)
         throw atf::not_found_error< std::string >
             ("Cannot open Atffile", "Atffile");
 
-    fs::directory dir(fs::get_branch_path(filename));
+    fs::directory dir(filename.branch_path());
     dir.erase("Atffile");
     dir.erase(".");
     dir.erase("..");

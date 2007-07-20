@@ -40,7 +40,6 @@
 
 extern "C" {
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -67,9 +66,9 @@ class atf_run : public atf::application {
     size_t m_tps;
     size_t m_tcs_passed, m_tcs_failed, m_tcs_skipped;
 
-    int run_test(const std::string&);
-    int run_test_directory(const std::string&);
-    int run_test_program(const std::string&);
+    int run_test(const atf::fs::path&);
+    int run_test_directory(const atf::fs::path&);
+    int run_test_program(const atf::fs::path&);
 
     std::string specific_args(void) const;
 
@@ -96,16 +95,12 @@ atf_run::specific_args(void)
 }
 
 int
-atf_run::run_test(const std::string& tp)
+atf_run::run_test(const atf::fs::path& tp)
 {
-    struct stat sb;
-
-    if (::stat(tp.c_str(), &sb) == -1)
-        throw atf::system_error("atf_run::run_test",
-                                "stat(2) failed", errno);
+    atf::fs::file_info fi(tp);
 
     int errcode;
-    if (sb.st_mode & S_IFDIR)
+    if (fi.get_type() == atf::fs::file_info::dir_type)
         errcode = run_test_directory(tp);
     else
         errcode = run_test_program(tp);
@@ -113,20 +108,20 @@ atf_run::run_test(const std::string& tp)
 }
 
 int
-atf_run::run_test_directory(const std::string& tp)
+atf_run::run_test_directory(const atf::fs::path& tp)
 {
-    atf::atffile af(tp + "/Atffile");
+    atf::atffile af(tp / "Atffile");
 
     bool ok = true;
     for (std::vector< std::string >::const_iterator iter = af.begin();
          iter != af.end(); iter++)
-        ok &= (run_test(tp + "/" + *iter) == EXIT_SUCCESS);
+        ok &= (run_test(tp / *iter) == EXIT_SUCCESS);
 
     return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int
-atf_run::run_test_program(const std::string& tp)
+atf_run::run_test_program(const atf::fs::path& tp)
 {
     atf::pipe respipe;
     pid_t pid = ::fork();
@@ -150,12 +145,11 @@ atf_run::run_test_program(const std::string& tp)
             nullfh2.posix_remap(STDERR_FILENO);
         }
 
-        std::string dir = atf::fs::get_branch_path(tp);
-        std::string file = atf::fs::get_leaf_name(tp);
+        std::string file = tp.leaf_name();
 
         // XXX Should this use -s instead?  Or do we really want to switch
         // to the target directory?
-        ::chdir(dir.c_str());
+        ::chdir(tp.branch_path().c_str());
 
         char * args[3];
         args[0] = new char[file.length() + 1];
@@ -166,7 +160,7 @@ atf_run::run_test_program(const std::string& tp)
 
         ::execv(file.c_str(), args);
 
-        std::cerr << "Failed to execute `" << tp << "': "
+        std::cerr << "Failed to execute `" << tp.str() << "': "
                   << std::strerror(errno) << std::endl;
         ::exit(128);
         // TODO Account the tests that were not executed and report that
@@ -177,7 +171,7 @@ atf_run::run_test_program(const std::string& tp)
     atf::file_handle fhres = respipe.rend().get();
     atf::pistream in(fhres);
 
-    std::cout << tp << ": Running test cases" << std::endl;
+    std::cout << tp.str() << ": Running test cases" << std::endl;
 
     size_t passed = 0, skipped = 0, failed = 0;
     std::string line;
@@ -220,8 +214,8 @@ atf_run::run_test_program(const std::string& tp)
 
     int status;
     if (::waitpid(pid, &status, 0) == -1)
-        throw atf::system_error("atf_run::run_test_program",
-                                "waitpid(2) failed", errno);
+        throw atf::system_error("atf_run::run_test_program(" + tp.str() +
+                                ")", "waitpid(2) failed", errno);
 
     int code;
     if (WIFEXITED(status)) {
@@ -251,7 +245,7 @@ atf_run::main(void)
     bool ok = true;
     for (std::vector< std::string >::const_iterator iter = tps.begin();
          iter != tps.end(); iter++)
-        ok &= (run_test(*iter) == EXIT_SUCCESS);
+        ok &= (run_test(atf::fs::path(*iter)) == EXIT_SUCCESS);
 
     if (m_tps > 0) {
         std::cout << "Summary for " << m_tps << " executed test programs"

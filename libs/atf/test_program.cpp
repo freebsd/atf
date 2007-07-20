@@ -47,6 +47,7 @@
 #include <vector>
 
 #include "atfprivate/application.hpp"
+#include "atfprivate/config.hpp"
 #include "atfprivate/expand.hpp"
 #include "atfprivate/fs.hpp"
 #include "atfprivate/postream.hpp"
@@ -92,8 +93,8 @@ private:
 
     bool m_lflag;
     int m_results_fd;
-    std::string m_srcdir;
-    std::string m_workdir;
+    atf::fs::path m_srcdir;
+    atf::fs::path m_workdir;
     std::set< std::string > m_tcnames;
 
     std::string specific_args(void) const;
@@ -122,8 +123,8 @@ test_program::test_program(const test_cases& tcs) :
     application(m_description),
     m_lflag(false),
     m_results_fd(STDOUT_FILENO),
-    m_srcdir(atf::fs::get_work_dir()),
-    m_workdir(atf::fs::get_temp_dir()),
+    m_srcdir(atf::fs::get_current_dir()),
+    m_workdir(atf::config::get("atf_workdir")),
     m_test_cases(tcs)
 {
 }
@@ -167,11 +168,11 @@ test_program::process_option(int ch, const char* arg)
         break;
 
     case 's':
-        m_srcdir = arg;
+        m_srcdir = atf::fs::path(arg);
         break;
 
     case 'w':
-        m_workdir = arg;
+        m_workdir = atf::fs::path(arg);
         break;
 
     default:
@@ -189,8 +190,8 @@ test_program::init_test_cases(void)
         atf::test_case* tc = *iter;
 
         tc->init();
-        tc->set("srcdir", m_srcdir);
-        tc->set("workdir", m_workdir);
+        tc->set("srcdir", m_srcdir.str());
+        tc->set("workdir", m_workdir.str());
     }
 
     return tcs;
@@ -329,13 +330,13 @@ test_program::main(void)
 {
     int errcode;
 
-    if (!atf::fs::exists(m_srcdir + "/" + m_prog_name))
+    if (!atf::fs::exists(m_srcdir / m_prog_name))
         throw std::runtime_error("Cannot find the test program in the "
-                                 "source directory `" + m_srcdir + "'");
+                                 "source directory `" + m_srcdir.str() + "'");
 
     if (!atf::fs::exists(m_workdir))
         throw std::runtime_error("Cannot find the work directory `" +
-                                 m_workdir + "'");
+                                 m_workdir.str() + "'");
 
     for (int i = 0; i < m_argc; i++)
         m_tcnames.insert(m_argv[i]);

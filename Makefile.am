@@ -55,6 +55,7 @@ dist-hook: check-style
 AM_CPPFLAGS = -DATF_LIBEXECDIR=\"$(libexecdir)\" \
               -DATF_PKGDATADIR=\"$(pkgdatadir)\" \
               -DATF_SHELL=\"$(ATF_SHELL)\" \
+              -DATF_WORKDIR=\"$(ATF_WORKDIR)\" \
               -I$(srcdir)/libs
 
 ATF_COMPILE_DEPS = $(srcdir)/subrs/atf.footer.subr
