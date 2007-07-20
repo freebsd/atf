@@ -124,7 +124,7 @@ atf::test_case::init(void)
     ensure_not_empty("ident");
     ensure_not_empty("descr");
 }
-#include <iostream>
+
 static
 void
 enter_workdir(const atf::test_case* tc, std::string& olddir,
