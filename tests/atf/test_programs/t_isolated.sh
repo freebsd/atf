@@ -45,7 +45,7 @@ default_head()
 }
 default_body()
 {
-    srcdir=$(atf_get srcdir)
+    srcdir=$(atf_get_srcdir)
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
     tmpdir=$(cd $(atf-config -t atf_workdir) && pwd -P)
@@ -69,7 +69,7 @@ tmpdir_head()
 }
 tmpdir_body()
 {
-    srcdir=$(atf_get srcdir)
+    srcdir=$(atf_get_srcdir)
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
     tmpdir=$(pwd -P)/workdir
@@ -96,7 +96,7 @@ wflag_head()
 }
 wflag_body()
 {
-    srcdir=$(atf_get srcdir)
+    srcdir=$(atf_get_srcdir)
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
     tmpdir=$(pwd -P)/workdir
@@ -121,7 +121,7 @@ cleanup_head()
 }
 cleanup_body()
 {
-    srcdir=$(atf_get srcdir)
+    srcdir=$(atf_get_srcdir)
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
     tmpdir=$(pwd -P)/workdir

@@ -48,7 +48,7 @@ exists_head() {
     atf_set "descr" "Not important"
 }
 exists_body() {
-    test -f \$(atf_get srcdir)/datafile || atf_fail "Cannot find datafile"
+    test -f \$(atf_get_srcdir)/datafile || atf_fail "Cannot find datafile"
 }
 
 atf_init_test_cases() {
@@ -81,8 +81,8 @@ default_body()
     atf_check 'grep "Cannot.*find.*source.*directory" stderr' 0 ignore null
 
     # Test the C++ interface.
-    atf_check "cd tmp && $(atf_get srcdir)/h_cpp srcdir_exists" 0 ignore ignore
-    atf_check "$(atf_get srcdir)/h_cpp srcdir_exists" 1 null ignore
+    atf_check "cd tmp && $(atf_get_srcdir)/h_cpp srcdir_exists" 0 ignore ignore
+    atf_check "$(atf_get_srcdir)/h_cpp srcdir_exists" 1 null ignore
     atf_check 'grep "Cannot.*find.*source.*directory" stderr' 0 ignore null
 }
 
@@ -104,11 +104,11 @@ sflag_body()
     atf_check './tmp/tp -s $(pwd)/tmp' 0 ignore ignore
 
     # Test the C++ interface.
-    atf_check "cd tmp && $(atf_get srcdir)/h_cpp -s $(pwd)/tmp \
+    atf_check "cd tmp && $(atf_get_srcdir)/h_cpp -s $(pwd)/tmp \
                srcdir_exists" 0 ignore ignore
-    atf_check "$(atf_get srcdir)/h_cpp srcdir_exists" 1 null stderr
+    atf_check "$(atf_get_srcdir)/h_cpp srcdir_exists" 1 null stderr
     atf_check 'grep "Cannot.*find.*source.*directory" stderr' 0 ignore null
-    atf_check "$(atf_get srcdir)/h_cpp -s $(pwd)/tmp \
+    atf_check "$(atf_get_srcdir)/h_cpp -s $(pwd)/tmp \
                srcdir_exists" 0 ignore ignore
 }
 

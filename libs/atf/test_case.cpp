@@ -109,10 +109,21 @@ atf::test_case::get_bool(const std::string& var)
                                  var);
 }
 
+const std::string&
+atf::test_case::get_srcdir(void)
+    const
+{
+    return m_srcdir;
+}
+
 void
-atf::test_case::init(void)
+atf::test_case::init(const std::string& srcdir,
+                     const std::string& workdirbase)
 {
     assert(m_meta_data.empty());
+
+    m_srcdir = srcdir;
+    m_workdirbase = workdirbase;
 
     m_meta_data["isolated"] = "yes";
 
@@ -128,12 +139,12 @@ atf::test_case::init(void)
 static
 void
 enter_workdir(const atf::test_case* tc, atf::fs::path& olddir,
-              atf::fs::path& workdir)
+              atf::fs::path& workdir, const std::string& base)
 {
     if (!tc->get_bool("isolated"))
         return;
 
-    atf::fs::path pattern = atf::fs::path(tc->get("workdir")) / "atf.XXXXXX";
+    atf::fs::path pattern = atf::fs::path(base) / "atf.XXXXXX";
     workdir = atf::fs::create_temp_dir(pattern);
     olddir = atf::fs::change_directory(workdir);
 }
@@ -164,7 +175,7 @@ atf::test_case::run(void)
     try {
         try {
             try {
-                enter_workdir(this, olddir, workdir);
+                enter_workdir(this, olddir, workdir, m_workdirbase);
                 body();
                 leave_workdir(this, olddir, workdir);
                 assert(tcr.get_status() == test_case_result::status_passed);

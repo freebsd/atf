@@ -54,6 +54,9 @@ class test_case {
     std::string m_ident;
     variables_map m_meta_data;
 
+    std::string m_srcdir;
+    std::string m_workdirbase;
+
     void ensure_defined(const std::string&);
     void ensure_not_empty(const std::string&);
 
@@ -69,7 +72,9 @@ public:
     bool get_bool(const std::string&) const;
     void set(const std::string&, const std::string&);
 
-    void init(void);
+    const std::string& get_srcdir(void) const;
+
+    void init(const std::string&, const std::string&);
     test_case_result run(void) const;
 };
 

@@ -135,7 +135,7 @@ ATF_TEST_CASE_HEAD(srcdir_exists)
 }
 ATF_TEST_CASE_BODY(srcdir_exists)
 {
-    if (!atf::fs::exists(atf::fs::path(get("srcdir")) / "datafile"))
+    if (!atf::fs::exists(atf::fs::path(get_srcdir()) / "datafile"))
         ATF_FAIL("Cannot find datafile");
 }
 

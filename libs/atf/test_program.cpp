@@ -189,9 +189,7 @@ test_program::init_test_cases(void)
          iter != tcs.end(); iter++) {
         atf::test_case* tc = *iter;
 
-        tc->init();
-        tc->set("srcdir", m_srcdir.str());
-        tc->set("workdir", m_workdir.str());
+        tc->init(m_srcdir.str(), m_workdir.str());
     }
 
     return tcs;

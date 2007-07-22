@@ -267,6 +267,16 @@ atf_get()
 }
 
 #
+# atf_get_srcdir
+#
+#   Prints the value of the test case's source directory.
+#
+atf_get_srcdir()
+{
+    _atf_internal_get srcdir
+}
+
+#
 # atf_info [msg1 [.. msgN]]
 #
 #   Prints a message indicating the status of the test case; i.e. what
@@ -404,6 +414,30 @@ _atf_get_bool()
 }
 
 #
+# _atf_internal_get varname
+#
+#   Prints the value of a test case-specific internal variable.  Given
+#   that one should not get the value of non-existent variables, it is
+#   fine to always use this function as 'val=$(_atf_internal_get var)'.
+#
+_atf_internal_get()
+{
+    eval echo \${__tc_internal_var_${Test_Case}_${1}}
+}
+
+#
+# _atf_internal_set varname val1 [.. valN]
+#
+#   Sets the test case's private variable 'varname' to the specified
+#   values which are concatenated using a single blank space.
+#
+_atf_internal_set()
+{
+    _var=${1}; shift
+    eval __tc_internal_var_${Test_Case}_${_var}=\"\${*}\"
+}
+
+#
 # _atf_list_tcs [tc1 .. tcN]
 #
 #   Describes all given test cases and prints the list to the standard
@@ -444,8 +478,6 @@ _atf_parse_head()
     # Set default values for test case variables.
     atf_set ident "${1}"
     atf_set isolated "yes"
-    atf_set srcdir "${Source_Dir}"
-    atf_set workdir "${Work_Dir}"
 
     # Let the test case set its own variables.
     ${1}_head
@@ -472,8 +504,10 @@ _atf_run_tc()
     # we can apply the 'pass' default later on.
     echo no >${Status_File}
 
+    _atf_internal_set srcdir "${Source_Dir}"
+
     if _atf_get_bool isolated; then
-        _workdir=$(mktemp -d $(atf_get workdir)/atf.XXXXXX)
+        _workdir=$(mktemp -d ${Work_Dir}/atf.XXXXXX)
         if [ ${?} -eq 0 ]; then
             ( cd ${_workdir} ; ${1}_body )
             _ret=$?
@@ -486,6 +520,8 @@ _atf_run_tc()
         ( ${1}_body )
         _ret=${?}
     fi
+
+    _atf_internal_set srcdir ""
 
     # Set a default exit status if the test case did not report any.
     if [ "$(cat ${Status_File})" != yes ]; then
@@ -506,7 +542,7 @@ _atf_run_tcs()
 {
     # Initialize the status file here (instead of in _atf_run_tc) so that
     # we can reuse it for all test cases.
-    Status_File=$(mktemp $(atf_get workdir)/atf.XXXXXX)
+    Status_File=$(mktemp ${Work_Dir}/atf.XXXXXX)
 
     _ok=true
     while [ ${#} -gt 0 ]; do
