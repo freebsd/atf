@@ -58,12 +58,9 @@ AM_CPPFLAGS = -DATF_LIBEXECDIR=\"$(libexecdir)\" \
               -DATF_WORKDIR=\"$(ATF_WORKDIR)\" \
               -I$(srcdir)/libs
 
-ATF_COMPILE_DEPS = $(srcdir)/subrs/atf.footer.subr
-ATF_COMPILE_DEPS += $(srcdir)/subrs/atf.header.subr
-ATF_COMPILE_DEPS += $(srcdir)/subrs/atf.init.subr
-ATF_COMPILE_DEPS += tools/atf-cross-compile.sh
-ATF_COMPILE_SH = ATF_PKGDATADIR=$(srcdir)/subrs ATF_SHELL=$(ATF_SHELL) \
-                 ./tools/atf-cross-compile.sh
+ATF_COMPILE_DEPS = $(srcdir)/subrs/atf.init.subr
+ATF_COMPILE_DEPS += tools/atf-host-compile
+ATF_COMPILE_SH = ./tools/atf-host-compile
 
 # -------------------------------------------------------------------------
 # `admin' directory.
@@ -346,7 +343,16 @@ tools_atf_config_SOURCES = tools/atf-config.cpp
 tools_atf_config_LDADD = -latfprivate
 tools_atf_config_LDFLAGS = -Llibs
 
-EXTRA_DIST += tools/atf-cross-compile.sh
+tools/atf-host-compile: $(srcdir)/tools/atf-host-compile.sh
+	sed -e 's,__ATF_PKGDATADIR__,$(srcdir)/subrs,g' \
+	    -e 's,__ATF_SHELL__,$(ATF_SHELL),g' \
+	    <$(srcdir)/tools/atf-host-compile.sh \
+	    >tools/atf-host-compile.tmp
+	chmod +x tools/atf-host-compile.tmp
+	mv tools/atf-host-compile.tmp tools/atf-host-compile
+CLEANFILES += tools/atf-host-compile
+CLEANFILES += tools/atf-host-compile.tmp
+EXTRA_DIST += tools/atf-host-compile.sh
 
 bin_PROGRAMS += tools/atf-compile
 tools_atf_compile_SOURCES = tools/atf-compile.cpp

@@ -1,3 +1,4 @@
+#! __ATF_SHELL__
 #
 # Automated Testing Framework (atf)
 #
@@ -38,60 +39,56 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-if [ -z "${ATF_PKGDATADIR}" ]; then
-    echo "atf-cross-compile: ATF_PKGDATADIR is undefined" 1>&2
+Prog_Name=${0##*/}
+Atf_Pkgdatadir="__ATF_PKGDATADIR__"
+Atf_Shell="__ATF_SHELL__"
+
+err()
+{
+    echo "${Prog_Name}: ${@}" 1>&2
     exit 1
-fi
+}
 
-if [ ! -f "${ATF_PKGDATADIR}/atf.init.subr" ]; then
-    echo "atf-cross-compile: ATF_PKGDATADIR is not valid" 1>&2
+usage()
+{
+    echo "${Prog_Name}: ${@}" 1>&2
+    echo "Usage: ${Prog_Name} -o outfile srcfile" 1>&2
     exit 1
-fi
+}
 
-if [ -z "${ATF_SHELL}" ]; then
-    echo "atf-cross-compile: ATF_SHELL is undefined" 1>&2
-    exit 1
-fi
+main()
+{
+    [ -f "${Atf_Pkgdatadir}/atf.init.subr" ] || \
+        err "Could not find ${Atf_Pkgdatadir}/atf.init.subr"
 
-if [ ${#} -lt 1 ]; then
-    echo "atf-cross-compile: no -o option specified" 1>&2
-    exit 1
-fi
+    [ ${#} -ge 1 ] || usage "No -o option specified"
+    [ ${1} == '-o' ] || usage "No -o option specified"
+    [ ${#} -ge 2 ] || usage "No target file specified"
+    [ ${#} -ge 3 ] || usage "No source file specified"
 
-if [ ${1} != '-o' ]; then
-    echo "atf-cross-compile: no -o option specified" 1>&2
-    exit 1
-fi
-if [ ${#} -lt 2 ]; then
-    echo "atf-cross-compile: no source file specified" 1>&2
-    exit 1
-fi
+    tfile=${2}
+    sfile=${3}
 
-if [ ${#} -lt 3 ]; then
-    echo "atf-cross-compile: no target file specified" 1>&2
-    exit 1
-fi
+    [ "${tfile}" != "${sfile}" ] || \
+        err "Source file and target file must not be the same"
 
-tfile=${2}
-sfile=${3}
+    [ -f "${sfile}" ] || err "Source file ${sfile} does not exist"
 
-if [ ! -f "${sfile}" ]; then
-    echo "atf-cross-compile: source file does not exist" 1>&2
-    exit 1
-fi
+    echo "#! ${Atf_Shell}" >${tfile}
+    cat ${Atf_Pkgdatadir}/atf.init.subr >>${tfile}
+    echo >>${tfile}
+    echo '. ${Atf_Pkgdatadir}/atf.header.subr' >>${tfile}
+    echo >>${tfile}
+    cat <${sfile} >>${tfile}
+    echo '. ${Atf_Pkgdatadir}/atf.footer.subr' >>${tfile}
+    echo >>${tfile}
+    echo "main \"\${@}\"" >>${tfile}
 
-echo "#! ${ATF_SHELL}" >${tfile}
-cat ${ATF_PKGDATADIR}/atf.init.subr >>${tfile}
-echo >>${tfile}
-echo '. ${Atf_Pkgdatadir}/atf.header.subr' >>${tfile}
-echo >>${tfile}
-cat <${sfile} >>${tfile}
-echo '. ${Atf_Pkgdatadir}/atf.footer.subr' >>${tfile}
-echo >>${tfile}
-echo "main \"\${@}\"" >>${tfile}
+    chmod +x ${tfile}
 
-chmod +x ${tfile}
+    exit 0
+}
 
-exit 0
+main "${@}"
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
