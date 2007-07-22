@@ -54,7 +54,7 @@ AM_CPPFLAGS = -DATF_LIBEXECDIR=\"$(libexecdir)\" \
               -DATF_WORKDIR=\"$(ATF_WORKDIR)\" \
               -I$(srcdir)/libs
 
-ATF_COMPILE_DEPS = $(srcdir)/subrs/atf.init.subr
+ATF_COMPILE_DEPS = $(srcdir)/libs/shell/atf.init.subr
 ATF_COMPILE_DEPS += tools/atf-host-compile
 ATF_COMPILE_SH = ./tools/atf-host-compile
 
@@ -121,15 +121,11 @@ atf_HEADERS = libs/atf/test_case.hpp \
               libs/atf/test_case_result.hpp
 atfdir = $(includedir)/atf
 
-# -------------------------------------------------------------------------
-# `subrs' directory.
-# -------------------------------------------------------------------------
-
-subrs_DATA = subrs/atf.footer.subr \
-             subrs/atf.header.subr \
-             subrs/atf.init.subr
-subrsdir = $(pkgdatadir)
-EXTRA_DIST += $(subrs_DATA)
+libs_shell_DATA = libs/shell/atf.footer.subr \
+                  libs/shell/atf.header.subr \
+                  libs/shell/atf.init.subr
+libs_shelldir = $(pkgdatadir)
+EXTRA_DIST += $(libs_shell_DATA)
 
 # -------------------------------------------------------------------------
 # `tests/bootstrap' directory.
@@ -344,7 +340,7 @@ tools_atf_config_LDADD = -latfprivate
 tools_atf_config_LDFLAGS = -Llibs
 
 tools/atf-host-compile: $(srcdir)/tools/atf-host-compile.sh
-	sed -e 's,__ATF_PKGDATADIR__,$(srcdir)/subrs,g' \
+	sed -e 's,__ATF_PKGDATADIR__,$(srcdir)/libs/shell,g' \
 	    -e 's,__ATF_SHELL__,$(ATF_SHELL),g' \
 	    <$(srcdir)/tools/atf-host-compile.sh \
 	    >tools/atf-host-compile.tmp
