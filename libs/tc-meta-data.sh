@@ -56,9 +56,8 @@ pre_process_cpp()
 {
     name=${1} type=${2} empty=${3} default=${4}
 
-    if test -n "${default}"; then
+    [ -n "${default}" ] && \
         echo "m_meta_data[\"${name}\"] = \"${default}\";"
-    fi
 }
 
 call_head_cpp()
@@ -72,12 +71,12 @@ post_process_cpp()
 
     case ${type} in
     boolean)
-        test "${empty}" = "no" || \
+        [ "${empty}" = "no" ] || \
             err "boolean variables cannot be empty"
         echo "ensure_boolean(\"${name}\");"
         ;;
     text)
-        test "${empty}" = "no" && \
+        [ "${empty}" = "no" ] && \
             echo "ensure_not_empty(\"${name}\");"
         ;;
     *)
@@ -94,9 +93,8 @@ pre_process_sh()
 {
     name=${1} type=${2} empty=${3} default=${4}
 
-    if test -n "${default}"; then
+    [ -n "${default}" ] && \
         echo "atf_set ${name} ${default}"
-    fi
 }
 
 call_head_sh()
@@ -110,12 +108,12 @@ post_process_sh()
 
     case ${type} in
     boolean)
-        test "${empty}" = "no" || \
+        [ "${empty}" = "no" ] || \
             err "boolean variables cannot be empty"
         echo "_atf_ensure_boolean ${name}"
         ;;
     text)
-        test "${empty}" = "no" && \
+        [ "${empty}" = "no" ] && \
             echo "_atf_ensure_not_empty ${name}"
         ;;
     *)
