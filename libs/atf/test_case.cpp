@@ -56,17 +56,29 @@ atf::test_case::~test_case(void)
 }
 
 void
-atf::test_case::ensure_defined(const std::string& name)
+atf::test_case::ensure_boolean(const std::string& name)
 {
-    if (m_meta_data.find(name) == m_meta_data.end())
-        throw atf::not_found_error< std::string >
-            ("Undefined variable in test case", name);
+    ensure_not_empty(name);
+
+    std::string val = get(name);
+    for (std::string::size_type i = 0; i < val.length(); i++)
+        val[i] = std::tolower(val[i]);
+
+    if (val == "yes" || val == "true")
+        set(name, "true");
+    else if (val == "no" || val == "false")
+        set(name, "false");
+    else
+        throw std::runtime_error("Invalid value for boolean variable `" +
+                                 name + "'");
 }
 
 void
 atf::test_case::ensure_not_empty(const std::string& name)
 {
-    ensure_defined(name);
+    if (m_meta_data.find(name) == m_meta_data.end())
+        throw atf::not_found_error< std::string >
+            ("Undefined or empty variable", name);
 
     variables_map::const_iterator iter = m_meta_data.find(name);
     assert(iter != m_meta_data.end());
@@ -74,7 +86,7 @@ atf::test_case::ensure_not_empty(const std::string& name)
     const std::string& val = (*iter).second;
     if (val.empty())
         throw atf::not_found_error< std::string > // XXX Incorrect error
-            ("Variable empty", name);
+            ("Undefined or empty variable", name);
 }
 
 void
@@ -97,16 +109,13 @@ atf::test_case::get_bool(const std::string& var)
     const
 {
     std::string val = get(var);
-    for (std::string::size_type i = 0; i < val.length(); i++)
-        val[i] = std::tolower(val[i]);
 
-    if (val == "yes" || val == "true")
+    if (val == "true")
         return true;
-    else if (val == "no" || val == "false")
+    else if (val == "false")
         return false;
     else
-        throw std::runtime_error("Invalid value for boolean varabile " +
-                                 var);
+        assert(false);
 }
 
 const std::string&
@@ -125,15 +134,9 @@ atf::test_case::init(const std::string& srcdir,
     m_srcdir = srcdir;
     m_workdirbase = workdirbase;
 
-    m_meta_data["isolated"] = "yes";
-
-    head();
-
-    assert(m_meta_data.find("ident") == m_meta_data.end());
     m_meta_data["ident"] = m_ident;
-
-    ensure_not_empty("ident");
-    ensure_not_empty("descr");
+#include "tchead.cpp"
+    assert(m_meta_data["ident"] == m_ident);
 }
 
 static

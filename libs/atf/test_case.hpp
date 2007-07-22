@@ -57,7 +57,7 @@ class test_case {
     std::string m_srcdir;
     std::string m_workdirbase;
 
-    void ensure_defined(const std::string&);
+    void ensure_boolean(const std::string&);
     void ensure_not_empty(const std::string&);
 
 protected:

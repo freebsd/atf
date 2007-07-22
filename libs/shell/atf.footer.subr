@@ -345,6 +345,41 @@ _atf_echo()
 }
 
 #
+# _atf_ensure_boolean var
+#
+#   Ensures that the test case defined the variable 'var' to a boolean
+#   value.
+#
+_atf_ensure_boolean()
+{
+    _atf_ensure_not_empty ${1}
+
+    case $(atf_get ${1}) in
+    [Yy][Ee][Ss]|[Tt][Rr][Uu][Ee])
+        atf_set ${1} true
+        ;;
+    [Nn][Oo]|[Ff][Aa][Ll][Ss][Ee])
+        atf_set ${1} false
+        ;;
+    *)
+        _atf_error 128 "Invalid value for boolean variable \`${1}'"
+        ;;
+    esac
+}
+
+#
+# _atf_ensure_not_empty var
+#
+#   Ensures that the test case defined the variable 'var' to a non-empty
+#   value.
+#
+_atf_ensure_not_empty()
+{
+    [ -n "$(atf_get ${1})" ] || \
+        _atf_error 128 "Undefined or empty variable \`${1}'"
+}
+
+#
 # _atf_error error_code [msg1 [.. msgN]]
 #
 #   Prints the given error message (which can be composed of multiple
@@ -400,17 +435,7 @@ _atf_expand_glob()
 #
 _atf_get_bool()
 {
-    case $(atf_get ${1}) in
-    [Yy][Ee][Ss]|[Tt][Rr][Uu][Ee])
-        return 0
-        ;;
-    [Nn][Oo]|[Ff][Aa][Ll][Ss][Ee])
-        return 1
-        ;;
-    *)
-        _atf_error 128 "Invalid value for boolean variable ${1}"
-        ;;
-    esac
+    eval $(atf_get ${1})
 }
 
 #
@@ -475,16 +500,10 @@ _atf_parse_head()
 
     Test_Case="${1}"
 
-    # Set default values for test case variables.
     atf_set ident "${1}"
-    atf_set isolated "yes"
-
-    # Let the test case set its own variables.
-    ${1}_head
-
-    # Ensure the test case defined some mandatory variables.
-    [ -n "$(atf_get descr)" ] || \
-        _atf_error 128 "Test case did not define the 'descr' variable"
+    . ${Atf_Pkgdatadir}/atf.tchead.subr
+    test $(atf_get ident) = "${1}" || \
+        _atf_error 128 "Test case redefined ident"
 
     Parsing_Head=false
 }

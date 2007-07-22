@@ -36,10 +36,6 @@ Basically they are here so that they are not forgotten.
 
 * Add the ability to specify the work directory for the tests.
 
-* Look for a way to ensure that the C++ and shell interfaces are consistent
-  with each other.  For example: the meta-data recognized by each test
-  case and the default values for them.
-
 * Implement the atf-report tool, which takes the output of atf-run and
   converts it to some nice format.  Ideas for these output formats
   include: proplib, a home-grown XML format, and HTML pages.

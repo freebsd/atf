@@ -76,7 +76,7 @@ ATF_TEST_CASE_HEAD(isolated_path)
 
     const char* i = std::getenv("ISOLATED");
     if (i == NULL)
-        set("isolated", "invalid-value");
+        set("isolated", "yes");
     else
         set("isolated", i);
 }

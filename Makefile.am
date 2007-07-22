@@ -109,6 +109,17 @@ libs_libatfprivate_la_SOURCES = libs/atfprivate/application.cpp \
 # `libs/atf' directory.
 # -------------------------------------------------------------------------
 
+libs/atf/tchead.cpp: $(srcdir)/libs/tc-meta-data.sh \
+                     $(srcdir)/libs/tc-meta-data.csv
+	$(ATF_SHELL) $(srcdir)/libs/tc-meta-data.sh cpp \
+	    <$(srcdir)/libs/tc-meta-data.csv \
+	    >libs/atf/tchead.cpp.tmp
+	mv libs/atf/tchead.cpp.tmp libs/atf/tchead.cpp
+CLEANFILES = libs/atf/tchead.cpp.tmp
+CLEANFILES += libs/atf/tchead.cpp
+
+$(srcdir)/libs/atf/test_case.cpp: libs/atf/tchead.cpp
+
 lib_LTLIBRARIES += libs/libatf.la
 libs_libatf_la_SOURCES = libs/atf/test_case.cpp \
                          libs/atf/test_case_result.cpp \
@@ -121,9 +132,23 @@ atf_HEADERS = libs/atf/test_case.hpp \
               libs/atf/test_case_result.hpp
 atfdir = $(includedir)/atf
 
+# -------------------------------------------------------------------------
+# `libs/shell' directory.
+# -------------------------------------------------------------------------
+
+libs/shell/atf.tchead.subr: $(srcdir)/libs/tc-meta-data.sh \
+                            $(srcdir)/libs/tc-meta-data.csv
+	$(ATF_SHELL) $(srcdir)/libs/tc-meta-data.sh sh \
+	    <$(srcdir)/libs/tc-meta-data.csv \
+	    >libs/shell/atf.tchead.subr.tmp
+	mv libs/shell/atf.tchead.subr.tmp libs/shell/atf.tchead.subr
+CLEANFILES += libs/shell/atf.tchead.subr.tmp
+CLEANFILES += libs/shell/atf.tchead.subr
+
 libs_shell_DATA = libs/shell/atf.footer.subr \
                   libs/shell/atf.header.subr \
-                  libs/shell/atf.init.subr
+                  libs/shell/atf.init.subr \
+                  libs/shell/atf.tchead.subr
 libs_shelldir = $(pkgdatadir)
 EXTRA_DIST += $(libs_shell_DATA)
 
@@ -147,7 +172,7 @@ tests_bootstrap_h_tp_basic_cpp_LDADD = -latf
 tests_bootstrap_h_tp_basic_cpp_LDFLAGS = -Llibs
 
 check_SCRIPTS = tests/bootstrap/h_tp_basic_sh
-CLEANFILES = tests/bootstrap/h_tp_basic_sh
+CLEANFILES += tests/bootstrap/h_tp_basic_sh
 EXTRA_DIST += tests/bootstrap/h_tp_basic_sh.sh
 tests/bootstrap/h_tp_basic_sh: $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh \
                                $(ATF_COMPILE_DEPS)
