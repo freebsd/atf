@@ -117,6 +117,8 @@ libs/atf/tchead.cpp: $(srcdir)/libs/tc-meta-data.sh \
 	mv libs/atf/tchead.cpp.tmp libs/atf/tchead.cpp
 CLEANFILES = libs/atf/tchead.cpp.tmp
 CLEANFILES += libs/atf/tchead.cpp
+EXTRA_DIST += libs/tc-meta-data.csv
+EXTRA_DIST += libs/tc-meta-data.sh
 
 $(srcdir)/libs/atf/test_case.cpp: libs/atf/tchead.cpp
 
