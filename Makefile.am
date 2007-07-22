@@ -46,11 +46,7 @@ if INSTALL_DOCS
 doc_DATA = AUTHORS COPYING NEWS README TODO
 endif # INSTALL_DOCS
 
-dist-hook: check-style
-	@echo "-------------------------------------------------"
-	@echo " REMEMBER THAT README HAS TO BE UPDATED WITH THE"
-	@echo "     RIGHT VERSIONS OF THE GNU BUILD SYSTEM!"
-	@echo "-------------------------------------------------"
+dist-hook: check-readme check-style
 
 AM_CPPFLAGS = -DATF_LIBEXECDIR=\"$(libexecdir)\" \
               -DATF_PKGDATADIR=\"$(pkgdatadir)\" \
@@ -65,6 +61,10 @@ ATF_COMPILE_SH = ./tools/atf-host-compile
 # -------------------------------------------------------------------------
 # `admin' directory.
 # -------------------------------------------------------------------------
+
+.PHONY: check-readme
+check-readme:
+	$(srcdir)/admin/check-readme.sh $(srcdir)/README
 
 .PHONY: check-style
 check-style:
