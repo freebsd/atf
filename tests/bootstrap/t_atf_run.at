@@ -41,14 +41,14 @@ dnl
 AT_SETUP([atf-run: execution of tests])
 AT_TESTED(atf-run)
 
-dnl XXX The 16 number used below is a hack used to simplify these tests.
+dnl XXX The 9 number used below is a hack used to simplify these tests.
 dnl The correct fix could be to make the auxiliary test programs be real
 dnl test programs instead of two-liners creted from here.
 
 m4_define([CREATE_PASS_TEST], [AT_DATA([$1],[#! /bin/sh
 echo ignore-me
 echo ignore-me >&2
-echo '$2, passed' >&16
+echo '$2, passed' >&9
 true
 ])
 AT_CHECK([chmod +x $1], [0], [], [])
@@ -57,7 +57,7 @@ AT_CHECK([chmod +x $1], [0], [], [])
 m4_define([CREATE_FAIL_TEST], [AT_DATA([$1],[#! /bin/sh
 echo ignore-me
 echo ignore-me >&2
-echo '$2, failed, No reason' >&16
+echo '$2, failed, No reason' >&9
 false
 ])
 AT_CHECK([chmod +x $1], [0], [], [])

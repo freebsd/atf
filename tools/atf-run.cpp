@@ -131,7 +131,7 @@ atf_run::run_test_program(const atf::fs::path& tp)
     } else if (pid == 0) {
         respipe.rend().close();
         atf::file_handle fhres = respipe.wend().get();
-        fhres.posix_remap(16);
+        fhres.posix_remap(9);
 
         int nullfd = ::open("/dev/null", O_WRONLY);
         if (nullfd != -1) {
@@ -155,7 +155,7 @@ atf_run::run_test_program(const atf::fs::path& tp)
         args[0] = new char[file.length() + 1];
         std::strcpy(args[0], file.c_str());
         args[1] = new char[5];
-        std::strcpy(args[1], "-r16");
+        std::strcpy(args[1], "-r9");
         args[2] = NULL;
 
         ::execv(file.c_str(), args);
