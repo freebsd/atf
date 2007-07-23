@@ -114,8 +114,10 @@ atf::test_case::get_bool(const std::string& var)
         return true;
     else if (val == "false")
         return false;
-    else
+    else {
         assert(false);
+        return false;
+    }
 }
 
 const std::string&
