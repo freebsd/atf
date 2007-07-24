@@ -180,7 +180,15 @@ atf_run::run_test_program(const atf::fs::path& tp)
 
         const std::string& tc = words[0];
         const std::string& status = words[1];
-        const std::string& reason = words.size() == 3 ? words[2] : "";
+        std::string reason;
+        if (words.size() >= 3) {
+            for (std::vector< std::string >::size_type i = 2;
+                 i < words.size(); i++) {
+                reason += words[i];
+                if (i < words.size() - 1)
+                    reason += ", ";
+            }
+        }
 
         std::string tag = "    " + tc + ": ";
         std::string msg;

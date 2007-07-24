@@ -308,6 +308,13 @@ tests/atf/tools/t_atf_config: $(srcdir)/tests/atf/tools/t_atf_config.sh \
                                $(ATF_COMPILE_DEPS)
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_config.sh
 
+atf_tools_SCRIPTS += tests/atf/tools/t_atf_run
+CLEANFILES += tests/atf/tools/t_atf_run
+EXTRA_DIST += tests/atf/tools/t_atf_run.sh
+tests/atf/tools/t_atf_run: $(srcdir)/tests/atf/tools/t_atf_run.sh \
+                           $(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_run.sh
+
 atf_units_DATA = tests/atf/units/Atffile
 atf_unitsdir = $(pkgtestsdir)/units
 EXTRA_DIST += $(atf_units_DATA)
