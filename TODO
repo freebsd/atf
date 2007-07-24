@@ -10,6 +10,15 @@ This project is still in very early stages of development.  The list below
 is very incomplete, but it details some items that have to be addressed.
 Basically they are here so that they are not forgotten.
 
+* Make atf-run account for the total executed test programs and how many
+  of them failed.  Possibly also collect their names.
+
+* Fix atf-run to show an error if a test program did not execute any test
+  case.
+
+* Fix atf-run to show an error if a test program did not provide a result
+  message for those test cases that failed or were skipped.
+
 * Add a way to specify which bug/issue/whatever a given test case is
   stress-testing.  This information is useful when detecting regressions.
 
