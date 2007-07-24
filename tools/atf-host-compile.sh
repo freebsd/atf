@@ -66,20 +66,23 @@ main()
     [ ${#} -ge 2 ] || usage "No target file specified"
     [ ${#} -ge 3 ] || usage "No source file specified"
 
-    tfile=${2}
-    sfile=${3}
+    shift # Strip -o
+    tfile=${1}; shift
+    sfiles="${@}"
 
-    [ "${tfile}" != "${sfile}" ] || \
-        err "Source file and target file must not be the same"
+    for sfile in ${sfiles}; do
+        [ "${tfile}" != "${sfile}" ] || \
+            err "Source file and target file must not be the same"
 
-    [ -f "${sfile}" ] || err "Source file ${sfile} does not exist"
+        [ -f "${sfile}" ] || err "Source file ${sfile} does not exist"
+    done
 
     echo "#! ${Atf_Shell}" >${tfile}
     cat ${Atf_Pkgdatadir}/atf.init.subr >>${tfile}
     echo >>${tfile}
     echo '. ${Atf_Pkgdatadir}/atf.header.subr' >>${tfile}
     echo >>${tfile}
-    cat <${sfile} >>${tfile}
+    cat ${sfiles} >>${tfile}
     echo '. ${Atf_Pkgdatadir}/atf.footer.subr' >>${tfile}
     echo >>${tfile}
     echo "main \"\${@}\"" >>${tfile}
