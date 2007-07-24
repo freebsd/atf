@@ -54,7 +54,6 @@ EOF
     cat >>helper.sh
 
     cat >>helper.sh <<EOF
-    atf_check 'true' 0 null null
 }
 
 atf_init_test_cases()
@@ -183,6 +182,55 @@ EOF
         atf_fail "atf_check does not print stderr's contents"
 }
 
+no_isolated_head()
+{
+    atf_set "descr" "Verifies that atf_check fails if isolated=no"
+}
+no_isolated_body()
+{
+    cat >helper.sh <<EOF
+main_head()
+{
+    atf_set "descr" "Helper test case"
+    atf_set "isolated" "no"
+}
+main_body()
+{
+    atf_check 'true' 0 null null
+}
+
+atf_init_test_cases()
+{
+    atf_add_test_case main
+}
+EOF
+    atf-compile -o helper helper.sh
+
+    atf_check './helper' 1 ignore stderr
+    atf_check 'grep "isolated=no" stderr' 0 ignore null
+}
+
+change_cwd_head()
+{
+    atf_set "descr" "Verifies that atf_check uses the correct work" \
+                    "directory even if changing the current one"
+}
+change_cwd_body()
+{
+    create_helper <<EOF
+mkdir foo
+chmod 555 foo
+cd foo
+atf_check 'echo Hello' 0 stdout null
+cd -
+test -f stdout || atf_fail "Used incorrect work directory"
+echo Hello >bar
+cmp -s stdout bar || atf_fail "Used incorrect work directory"
+EOF
+    atf_check './helper -r3 3>resout' 0 stdout stderr
+    atf_check 'grep -i passed resout' 0 ignore null
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case info_ok
@@ -190,6 +238,8 @@ atf_init_test_cases()
     atf_add_test_case experr_mismatch
     atf_add_test_case null_stdout
     atf_add_test_case null_stderr
+    atf_add_test_case no_isolated
+    atf_add_test_case change_cwd
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

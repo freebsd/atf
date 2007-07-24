@@ -75,8 +75,11 @@ Test_Case=
 # The list of all test cases provided by the test program.
 Test_Cases=
 
+# The test case's work directory.
+Work_Dir=
+
 # The test program's base directory where it will put temporary files.
-Work_Dir=$(atf-config -t atf_workdir)
+Work_Dir_Base=$(atf-config -t atf_workdir)
 
 # ------------------------------------------------------------------------
 # PUBLIC INTERFACE
@@ -121,6 +124,9 @@ atf_check()
 {
     test ${#} -eq 4 || atf_fail "Incorrect number of parameters"
 
+    [ -z "${Work_Dir}" ] && \
+        _atf_error 128 "atf_check cannot be used with isolated=no"
+
     _cmd="${1}"
     _expcode="${2}"
     _expout="${3}"
@@ -132,7 +138,7 @@ atf_check()
     # the test.
     case ${_expout} in
     expout)
-        test -f expout || atf_fail "No expout file found"
+        test -f ${Work_Dir}/expout || atf_fail "No expout file found"
         ;;
     ignore)
         ;;
@@ -149,7 +155,7 @@ atf_check()
     # the test.
     case ${_experr} in
     experr)
-        test -f experr || atf_fail "No experr file found"
+        test -f ${Work_Dir}/experr || atf_fail "No experr file found"
         ;;
     ignore)
         ;;
@@ -164,7 +170,7 @@ atf_check()
 
     # Run the command and capture its error code, output and error
     # channels.
-    ( eval ${_cmd} >aux-stdout 2>aux-stderr )
+    ( eval ${_cmd} >${Work_Dir}/aux-stdout 2>${Work_Dir}/aux-stderr )
     _code=${?}
 
     # Check the command's error code.
@@ -176,30 +182,31 @@ atf_check()
     # Check what the command wrote to stdout.
     case ${_expout} in
     expout)
-        if cmp -s expout aux-stdout; then
+        if cmp -s ${Work_Dir}/expout ${Work_Dir}/aux-stdout; then
             :
         else
             echo "stdout:"
-            diff -u expout aux-stdout
+            diff -u ${Work_Dir}/expout ${Work_Dir}/aux-stdout
             atf_fail "stdout does not match"
         fi
         ;;
     ignore)
         ;;
     null)
-        touch empty-file
-        if cmp -s empty-file aux-stdout; then
+        touch ${Work_Dir}/empty-file
+        if cmp -s ${Work_Dir}/empty-file ${Work_Dir}/aux-stdout; then
             :
         else
             echo "stdout:"
-            cat aux-stdout
+            cat ${Work_Dir}/aux-stdout
             atf_fail "stdout was not silent"
         fi
         ;;
     stdout)
-        test -f stdout && rm -f stdout
-        test -f stdout && atf_fail "Could not delete stale stdout file"
-        mv aux-stdout stdout
+        test -f ${Work_Dir}/stdout && rm -f ${Work_Dir}/stdout
+        test -f ${Work_Dir}/stdout && \
+            atf_fail "Could not delete stale stdout file"
+        mv ${Work_Dir}/aux-stdout ${Work_Dir}/stdout
         ;;
     *)
         _atf_error 128 "Internal error in the atf_check function"
@@ -209,30 +216,31 @@ atf_check()
     # Check what the command wrote to stderr.
     case ${_experr} in
     experr)
-        if cmp -s experr aux-stderr; then
+        if cmp -s ${Work_Dir}/experr ${Work_Dir}/aux-stderr; then
             :
         else
             echo "stderr:"
-            diff -u experr aux-stderr
+            diff -u ${Work_Dir}/experr ${Work_Dir}/aux-stderr
             atf_fail "stderr does not match"
         fi
         ;;
     ignore)
         ;;
     null)
-        touch empty-file
-        if cmp -s empty-file aux-stderr; then
+        touch ${Work_Dir}/empty-file
+        if cmp -s ${Work_Dir}/empty-file ${Work_Dir}/aux-stderr; then
             :
         else
             echo "stderr:"
-            cat aux-stderr
+            cat ${Work_Dir}/aux-stderr
             atf_fail "stderr was not silent"
         fi
         ;;
     stderr)
-        test -f stderr && rm -f stderr
-        test -f stderr && atf_fail "Could not delete stale stderr file"
-        mv aux-stderr stderr
+        test -f ${Work_Dir}/stderr && rm -f ${Work_Dir}/stderr
+        test -f ${Work_Dir}/stderr && \
+            atf_fail "Could not delete stale stderr file"
+        mv ${Work_Dir}/aux-stderr ${Work_Dir}/stderr
         ;;
     *)
         _atf_error 128 "Internal error in the atf_check function"
@@ -526,15 +534,16 @@ _atf_run_tc()
     _atf_internal_set srcdir "${Source_Dir}"
 
     if _atf_get_bool isolated; then
-        _workdir=$(mktemp -d ${Work_Dir}/atf.XXXXXX)
+        Work_Dir=$(mktemp -d ${Work_Dir_Base}/atf.XXXXXX)
         if [ ${?} -eq 0 ]; then
-            ( cd ${_workdir} ; ${1}_body )
+            ( cd ${Work_Dir} ; ${1}_body )
             _ret=$?
-            rm -rf ${_workdir}
+            rm -rf ${Work_Dir}
         else
             ( atf_fail "Could not create the work directory" )
             _ret=${?}
         fi
+        Work_Dir=
     else
         ( ${1}_body )
         _ret=${?}
@@ -564,7 +573,7 @@ _atf_run_tcs()
 {
     # Initialize the status file here (instead of in _atf_run_tc) so that
     # we can reuse it for all test cases.
-    Status_File=$(mktemp ${Work_Dir}/atf.XXXXXX)
+    Status_File=$(mktemp ${Work_Dir_Base}/atf.XXXXXX)
 
     _ok=true
     while [ ${#} -gt 0 ]; do
@@ -660,7 +669,7 @@ main()
             ;;
 
         w)
-            Work_Dir=${OPTARG}
+            Work_Dir_Base=${OPTARG}
             ;;
 
         \?)
@@ -681,8 +690,8 @@ main()
 
     # Now check that the base work directory exists.  We do not want to
     # bother creating it.
-    [ -d ${Work_Dir} ] || \
-        _atf_error 1 "Cannot find the work directory \`${Work_Dir}'"
+    [ -d ${Work_Dir_Base} ] || \
+        _atf_error 1 "Cannot find the work directory \`${Work_Dir_Base}'"
 
     # Call the test program's hook to register all available test cases.
     atf_init_test_cases

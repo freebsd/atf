@@ -30,8 +30,6 @@ Basically they are here so that they are not forgotten.
 
 * An atf_check_equal function for shell tests can be useful.
 
-* Make sure that atf_check is not used if isolated=no.
-
 * Add a class, similar in idea to boost::noncopyable, to easily mark some
   classes as not copyable.  Or, failing to do that, any other way to do
   the same.
