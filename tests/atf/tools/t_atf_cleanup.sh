@@ -83,13 +83,10 @@ mount_head()
 {
     atf_set "descr" "Tests that the removal algorithm does not cross" \
                     "mount points"
+    atf_set "require.user" "root"
 }
 mount_body()
 {
-    # XXX Should be specified through the test case's meta-data.
-    [ $(id -u) -eq 0 ] || \
-        atf_skip "Need root privileges"
-
     platform=$(uname)
     case ${platform} in
     NetBSD)

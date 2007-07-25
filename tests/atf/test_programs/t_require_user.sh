@@ -38,76 +38,56 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-isolated_path_head()
+root_head()
 {
-    atf_set "descr" "Helper test case for the t_isolated test program"
-
-    if [ -z "${ISOLATED}" ]; then
-        atf_set "isolated" "invalid-value"
-    else
-        atf_set "isolated" "${ISOLATED}"
-    fi
+    atf_set "descr" "Tests that 'require.user=root' works"
 }
-isolated_path_body()
+root_body()
 {
-    test -z "${PATHFILE}" && atf_fail "PATHFILE not defined"
-    pwd -P >${PATHFILE}
-}
+    srcdir=$(atf_get_srcdir)
+    h_cpp=${srcdir}/h_cpp
+    h_sh=${srcdir}/h_sh
 
-isolated_cleanup_head()
-{
-    atf_set "descr" "Helper test case for the t_isolated test program"
-    atf_set "isolated" "yes"
-}
-isolated_cleanup_body()
-{
-    test -z "${PATHFILE}" && atf_fail "PATHFILE not defined"
-    pwd -P >${PATHFILE}
-
-    mkdir 1
-    mkdir 1/1
-    mkdir 1/2
-    mkdir 1/3
-    mkdir 1/3/1
-    mkdir 1/3/2
-    mkdir 2
-    touch 2/1
-    touch 2/2
-    mkdir 2/3
-    touch 2/3/1
+    for h in ${h_cpp} ${h_sh}; do
+        atf_check "${h} -s ${srcdir} -r3 require_user_root \
+            3>resout" 0 ignore ignore
+        if [ $(id -u) -eq 0 ]; then
+            atf_check 'grep "require_user_root, passed" resout' \
+                0 ignore null
+        else
+            atf_check 'grep "require_user_root, skipped" resout' \
+                0 ignore null
+        fi
+    done
 }
 
-require_user_root_head()
+unprivileged_head()
 {
-    atf_set "descr" "Helper test case for the t_require_user test program"
-    atf_set "isolated" "no"
-    atf_set "require.user" "root"
+    atf_set "descr" "Tests that 'require.user=unprivileged' works"
 }
-require_user_root_body()
+unprivileged_body()
 {
-    :
-}
+    srcdir=$(atf_get_srcdir)
+    h_cpp=${srcdir}/h_cpp
+    h_sh=${srcdir}/h_sh
 
-require_user_unprivileged_head()
-{
-    atf_set "descr" "Helper test case for the t_require_user test program"
-    atf_set "isolated" "no"
-    atf_set "require.user" "unprivileged"
-}
-require_user_unprivileged_body()
-{
-    :
+    for h in ${h_cpp} ${h_sh}; do
+        atf_check "${h} -s ${srcdir} -r3 require_user_unprivileged \
+            3>resout" 0 ignore ignore
+        if [ $(id -u) -eq 0 ]; then
+            atf_check 'grep "require_user_unprivileged, skipped" resout' \
+                0 ignore null
+        else
+            atf_check 'grep "require_user_unprivileged, passed" resout' \
+                0 ignore null
+        fi
+    done
 }
 
 atf_init_test_cases()
 {
-    atf_add_test_case isolated_path
-    atf_add_test_case isolated_cleanup
-    # srcdir_exists is not here (while it is in h_cpp.cpp) because of the
-    # requirements of the t_srcdir test program (which cannot rely on -s
-    # itself to find the source file).
-    atf_add_test_case require_user_root
-    atf_add_test_case require_user_unprivileged
+    atf_add_test_case root
+    atf_add_test_case unprivileged
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

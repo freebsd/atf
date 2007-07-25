@@ -2,3 +2,4 @@
 descr!text!no!
 ident!text!no!
 isolated!boolean!no!yes
+require.user!text!yes

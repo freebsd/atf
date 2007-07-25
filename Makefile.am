@@ -103,7 +103,9 @@ libs_libatfprivate_la_SOURCES = libs/atfprivate/application.cpp \
                                 libs/atfprivate/systembuf.cpp \
                                 libs/atfprivate/systembuf.hpp \
                                 libs/atfprivate/ui.cpp \
-                                libs/atfprivate/ui.hpp
+                                libs/atfprivate/ui.hpp \
+                                libs/atfprivate/user.cpp \
+                                libs/atfprivate/user.hpp
 
 # -------------------------------------------------------------------------
 # `libs/atf' directory.
@@ -285,6 +287,15 @@ tests/atf/test_programs/t_isolated: \
 		$(ATF_COMPILE_DEPS)
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_isolated.sh
 
+atf_test_programs_SCRIPTS += tests/atf/test_programs/t_require_user
+CLEANFILES += tests/atf/test_programs/t_require_user
+EXTRA_DIST += tests/atf/test_programs/t_require_user.sh
+tests/atf/test_programs/t_require_user: \
+		$(srcdir)/tests/atf/test_programs/t_require_user.sh \
+		$(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ \
+	    $(srcdir)/tests/atf/test_programs/t_require_user.sh
+
 atf_test_programs_SCRIPTS += tests/atf/test_programs/t_srcdir
 CLEANFILES += tests/atf/test_programs/t_srcdir
 EXTRA_DIST += tests/atf/test_programs/t_srcdir.sh
@@ -379,6 +390,11 @@ atf_units_PROGRAMS += tests/atf/units/t_ui
 tests_atf_units_t_ui_SOURCES = tests/atf/units/t_ui.cpp
 tests_atf_units_t_ui_LDADD = -latf
 tests_atf_units_t_ui_LDFLAGS = -Llibs
+
+atf_units_PROGRAMS += tests/atf/units/t_user
+tests_atf_units_t_user_SOURCES = tests/atf/units/t_user.cpp
+tests_atf_units_t_user_LDADD = -latf
+tests_atf_units_t_user_LDFLAGS = -Llibs
 
 # -------------------------------------------------------------------------
 # `tools' directory.

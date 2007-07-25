@@ -154,6 +154,8 @@ main()
         IFS=!
         post_process_${lang} ${line}
     done
+
+    exit 0
 }
 
 main "${@}"

@@ -272,7 +272,7 @@ atf_fail()
 #
 atf_get()
 {
-    eval echo \${__tc_var_${Test_Case}_${1}}
+    eval echo \${__tc_var_${Test_Case}_$(_atf_normalize ${1})}
 }
 
 #
@@ -321,7 +321,7 @@ atf_set()
     ${Parsing_Head} || \
         _atf_error 128 "atf_set called from the test case's body"
 
-    _var=${1}; shift
+    _var=$(_atf_normalize ${1}); shift
     eval __tc_var_${Test_Case}_${_var}=\"\${*}\"
 }
 
@@ -497,6 +497,16 @@ _atf_list_tcs()
 }
 
 #
+# _atf_normalize str
+#
+#   Normalizes a string so that it is a valid shell variable name.
+#
+_atf_normalize()
+{
+    echo ${1} | tr . _
+}
+
+#
 # _atf_parse_head tcname
 #
 #   Evaluates a test case's head to gather its variables and prepares the
@@ -531,6 +541,22 @@ _atf_run_tc()
     # Assume that the test case has not reported any exit status so that
     # we can apply the 'pass' default later on.
     echo no >${Status_File}
+
+    case $(atf_get require.user) in
+    root)
+        [ $(id -u) -eq 0 ] || \
+            atf_skip "Requires root privileges"
+        ;;
+    unprivileged)
+        [ $(id -u) -ne 0 ] || \
+            atf_skip "Requires an unprivileged user"
+        ;;
+    "")
+        ;;
+    *)
+        _atf_error 128 "Invalid value in the require.user property"
+        ;;
+    esac
 
     _atf_internal_set srcdir "${Source_Dir}"
 

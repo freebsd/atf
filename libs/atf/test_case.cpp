@@ -44,6 +44,7 @@
 
 #include "atfprivate/exceptions.hpp"
 #include "atfprivate/fs.hpp"
+#include "atfprivate/user.hpp"
 #include "atf/test_case.hpp"
 
 atf::test_case::test_case(const std::string& ident) :
@@ -120,6 +121,14 @@ atf::test_case::get_bool(const std::string& var)
     }
 }
 
+bool
+atf::test_case::has(const std::string& var)
+    const
+{
+    variables_map::const_iterator iter = m_meta_data.find(var);
+    return (iter != m_meta_data.end());
+}
+
 const std::string&
 atf::test_case::get_srcdir(void)
     const
@@ -166,6 +175,24 @@ leave_workdir(const atf::test_case* tc, atf::fs::path& olddir,
     atf::fs::cleanup(workdir);
 }
 
+void
+atf::test_case::parse_props(void)
+    const
+{
+    if (has("require.user")) {
+        const std::string& u = get("require.user");
+        if (u == "root") {
+            if (!user::is_root())
+                ATF_SKIP("Requires root privileges");
+        } else if (u == "unprivileged") {
+            if (!user::is_unprivileged())
+                ATF_SKIP("Requires an unprivileged user");
+        } else
+            throw std::runtime_error("Invalid value in the require.user "
+                                     "property");
+    }
+}
+
 atf::test_case_result
 atf::test_case::run(void)
     const
@@ -179,6 +206,7 @@ atf::test_case::run(void)
 
     try {
         try {
+            parse_props();
             try {
                 enter_workdir(this, olddir, workdir, m_workdirbase);
                 body();

@@ -59,6 +59,9 @@ Basically they are here so that they are not forgotten.
 * Add a way to add an upper-bound limit for test run times.  Otherwise a
   test that enters an infinite loop can stall the whole process.
 
+* Possibly add a way to automatically gain or drop privileges when
+  require.user is set.
+
 
 Things to we will not do
 ========================
