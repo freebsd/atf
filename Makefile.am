@@ -302,7 +302,15 @@ atf_tools_DATA = tests/atf/tools/Atffile
 atf_toolsdir = $(pkgtestsdir)/tools
 EXTRA_DIST += $(atf_tools_DATA)
 
-atf_tools_SCRIPTS = tests/atf/tools/t_atf_compile
+atf_tools_SCRIPTS = tests/atf/tools/t_atf_cleanup
+CLEANFILES += tests/atf/tools/t_atf_cleanup
+EXTRA_DIST += tests/atf/tools/t_atf_cleanup.sh
+tests/atf/tools/t_atf_cleanup: \
+			$(srcdir)/tests/atf/tools/t_atf_cleanup.sh \
+                        $(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_cleanup.sh
+
+atf_tools_SCRIPTS += tests/atf/tools/t_atf_compile
 CLEANFILES += tests/atf/tools/t_atf_compile
 EXTRA_DIST += tests/atf/tools/t_atf_compile.sh
 tests/atf/tools/t_atf_compile: $(srcdir)/tests/atf/tools/t_atf_compile.sh \
@@ -392,12 +400,17 @@ CLEANFILES += tools/atf-host-compile
 CLEANFILES += tools/atf-host-compile.tmp
 EXTRA_DIST += tools/atf-host-compile.sh
 
+libexec_PROGRAMS = tools/atf-cleanup
+tools_atf_cleanup_SOURCES = tools/atf-cleanup.cpp
+tools_atf_cleanup_LDADD = -latfprivate
+tools_atf_cleanup_LDFLAGS = -Llibs
+
 bin_PROGRAMS += tools/atf-compile
 tools_atf_compile_SOURCES = tools/atf-compile.cpp
 tools_atf_compile_LDADD = -latfprivate
 tools_atf_compile_LDFLAGS = -Llibs
 
-libexec_PROGRAMS = tools/atf-format
+libexec_PROGRAMS += tools/atf-format
 tools_atf_format_SOURCES = tools/atf-format.cpp
 tools_atf_format_LDADD = -latfprivate
 tools_atf_format_LDFLAGS = -Llibs

@@ -43,6 +43,7 @@
 extern "C" {
 #include <sys/param.h>
 #include <sys/types.h>
+#include <sys/mount.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <libgen.h>
@@ -231,7 +232,15 @@ impl::file_info::file_info(const path& p) :
                                  "stat(2) returned an unknown file type");
     }
 
+    m_device = sb.st_dev;
     m_mode = sb.st_mode & ~S_IFMT;
+}
+
+dev_t
+impl::file_info::get_device(void)
+    const
+{
+    return m_device;
 }
 
 const impl::path&
@@ -408,32 +417,97 @@ impl::get_current_dir(void)
 #endif // defined(MAXPATHLEN)
 }
 
+static
 void
-impl::rm_rf(const path& p)
+rm_rf_aux(const impl::path& p, const impl::path& root,
+          const impl::file_info& rootinfo)
 {
-    assert(p.is_absolute());
-    assert(!p.is_root());
+    impl::file_info pinfo(p);
+    if (pinfo.get_device() != rootinfo.get_device())
+        throw std::runtime_error("Cannot cross mount-point " +
+                                 p.str() + " while removing " +
+                                 root.str());
 
-    directory dir(p);
-    dir.erase(".");
-    dir.erase("..");
+    if (pinfo.get_type() != impl::file_info::dir_type) {
+        if (::unlink(p.c_str()) == -1)
+            throw atf::system_error(IMPL_NAME "::rm_rf(" + p.str() + ")",
+                                    "unlink(" + p.str() + ") failed",
+                                    errno);
+    } else {
+        impl::directory dir(p);
+        dir.erase(".");
+        dir.erase("..");
 
-    for (directory::iterator iter = dir.begin(); iter != dir.end();
-         iter++) {
-        const file_info& entry = (*iter).second;
+        for (impl::directory::iterator iter = dir.begin(); iter != dir.end();
+             iter++) {
+            const impl::file_info& entry = (*iter).second;
 
-        path entryp = entry.get_path();
-        if (entry.get_type() == file_info::dir_type)
-            rm_rf(entryp);
-        else {
-            if (::unlink(entryp.c_str()) == -1)
-                throw system_error(IMPL_NAME "::rm_rf(" + p.str() + ")",
-                                   "unlink(" + entryp.str() + ") failed",
-                                   errno);
+            rm_rf_aux(entry.get_path(), root, rootinfo);
+        }
+
+        if (::rmdir(p.c_str()) == -1)
+            throw atf::system_error(IMPL_NAME "::rm_rf(" + p.str() + ")",
+                                    "rmdir(" + p.str() + ") failed", errno);
+    }
+}
+
+//!
+//! \brief Recursively removes a directory tree.
+//!
+//! Recursively removes a directory tree, which can contain both files and
+//! subdirectories.  This will raise an error if asked to remove the root
+//! directory.
+//!
+//! Mount points are not crossed; if one is found, an error is raised.
+//!
+static
+void
+rm_rf(const impl::path& p)
+{
+    if (p.is_root())
+        throw std::runtime_error("Cannot delete root directory for "
+                                 "safety reasons");
+
+    rm_rf_aux(p, p, impl::file_info(p));
+}
+
+static
+std::vector< impl::path >
+find_mount_points(const impl::path& p, const impl::file_info& parentinfo)
+{
+    impl::file_info pinfo(p);
+    std::vector< impl::path > mntpts;
+
+    if (pinfo.get_type() == impl::file_info::dir_type) {
+        impl::directory dir(p);
+        dir.erase(".");
+        dir.erase("..");
+
+        for (impl::directory::iterator iter = dir.begin(); iter != dir.end();
+             iter++) {
+            const impl::file_info& entry = (*iter).second;
+            std::vector< impl::path > aux =
+                find_mount_points(entry.get_path(), pinfo);
+            mntpts.insert(mntpts.end(), aux.begin(), aux.end());
         }
     }
 
-    if (::rmdir(p.c_str()) == -1)
-        throw system_error(IMPL_NAME "::rm_rf(" + p.str() + ")",
-                           "rmdir(" + p.str() + ") failed", errno);
+    if (pinfo.get_device() != parentinfo.get_device())
+        mntpts.push_back(p);
+
+    return mntpts;
+}
+
+void
+impl::cleanup(const path& p)
+{
+    std::vector< path > mntpts = find_mount_points(p, file_info(p));
+    for (std::vector< path >::const_iterator iter = mntpts.begin();
+         iter != mntpts.end(); iter++) {
+        const path& p2 = *iter;
+        if (::unmount(p2.c_str(), 0) == -1)
+            throw system_error(IMPL_NAME "::cleanup(" + p.str() + ")",
+                               "unmount(" + p2.str() + ") failed", errno);
+    }
+    rm_rf(p);
 }

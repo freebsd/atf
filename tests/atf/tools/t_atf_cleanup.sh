@@ -38,52 +38,89 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-isolated_path_head()
+cleanup()
 {
-    atf_set "descr" "Helper test case for the t_isolated test program"
-
-    if [ -z "${ISOLATED}" ]; then
-        atf_set "isolated" "invalid-value"
-    else
-        atf_set "isolated" "${ISOLATED}"
-    fi
-}
-isolated_path_body()
-{
-    test -z "${PATHFILE}" && atf_fail "PATHFILE not defined"
-    pwd -P >${PATHFILE}
+    $(atf-config -t atf_libexecdir)/atf-cleanup "${@}"
 }
 
-isolated_cleanup_head()
+file_head()
 {
-    atf_set "descr" "Helper test case for the t_isolated test program"
-    atf_set "isolated" "yes"
+    atf_set "descr" "Tests that a single file can be removed"
 }
-isolated_cleanup_body()
+file_body()
 {
-    test -z "${PATHFILE}" && atf_fail "PATHFILE not defined"
-    pwd -P >${PATHFILE}
+    atf_check 'touch foo' 0 null null
+    atf_check 'cleanup foo' 0 null null
+    atf_check 'test -e foo' 1 null null
+}
 
-    mkdir 1
-    mkdir 1/1
-    mkdir 1/2
-    mkdir 1/3
-    mkdir 1/3/1
-    mkdir 1/3/2
-    mkdir 2
-    touch 2/1
-    touch 2/2
-    mkdir 2/3
-    touch 2/3/1
+dir_empty_head()
+{
+    atf_set "descr" "Tests that a single empty directory can be removed"
+}
+dir_empty_body()
+{
+    atf_check 'mkdir foo' 0 null null
+    atf_check 'cleanup foo' 0 null null
+    atf_check 'test -e foo' 1 null null
+}
+
+dir_full_head()
+{
+    atf_set "descr" "Tests that a directory with contents can be removed"
+}
+dir_full_body()
+{
+    atf_check 'mkdir foo' 0 null null
+    atf_check 'mkdir foo/bar' 0 null null
+    atf_check 'touch foo/bar/baz' 0 null null
+    atf_check 'touch foo/baz' 0 null null
+    atf_check 'cleanup foo' 0 null null
+    atf_check 'test -e foo' 1 null null
+}
+
+mount_head()
+{
+    atf_set "descr" "Tests that the removal algorithm does not cross" \
+                    "mount points"
+}
+mount_body()
+{
+    # XXX Should be specified through the test case's meta-data.
+    [ $(id -u) -eq 0 ] || \
+        atf_skip "Need root privileges"
+
+    platform=$(uname)
+    case ${platform} in
+    NetBSD)
+        mkdir foo
+        mkdir foo/bar
+        mkdir foo/bar/mnt
+        atf_check 'mount -t tmpfs tmpfs foo/bar/mnt' 0 null null
+        mkdir foo/baz
+        atf_check 'mount -t tmpfs tmpfs foo/baz' 0 null null
+        mkdir foo/baz/foo
+        mkdir foo/baz/foo/bar
+        atf_check 'mount -t tmpfs tmpfs foo/baz/foo/bar' 0 null null
+        ;;
+    *)
+        # XXX Possibly specify in meta-data too.
+        atf_skip "Test unimplemented in this platform (${platform})"
+        ;;
+    esac
+
+    atf_check "cleanup foo" 0 null null
+    mount | grep $(pwd)/foo && \
+        atf_fail "Some file systems remain mounted"
+    atf_check "test -d foo" 1 null null
 }
 
 atf_init_test_cases()
 {
-    atf_add_test_case isolated_path
-    atf_add_test_case isolated_cleanup
-    # srcdir_exists is not here (while it is in h_cpp.cpp) because of the
-    # requirements of the t_srcdir test program (which cannot rely on -s
-    # itself to find the source file).
+    atf_add_test_case file
+    atf_add_test_case dir_empty
+    atf_add_test_case dir_full
+    atf_add_test_case mount
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

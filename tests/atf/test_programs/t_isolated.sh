@@ -137,7 +137,7 @@ cleanup_body()
         # Now do the same but with a work directory that has subdirectories.
         # The program will have to recurse into them to clean them all.
         atf_check "PATHFILE=$(pwd)/path ${h} \
-                  -s ${srcdir} -w ${tmpdir} isolated_rm_rf" 0 ignore ignore
+                  -s ${srcdir} -w ${tmpdir} isolated_cleanup" 0 ignore ignore
         atf_check "test -d $(cat path)" 1 null null
     done
 }

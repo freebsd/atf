@@ -214,6 +214,11 @@ public:
     explicit file_info(const path&);
 
     //!
+    //! \brief Returns the device containing the file.
+    //!
+    dev_t get_device(void) const;
+
+    //!
     //! \brief Returns the file's name.
     //!
     const path& get_path(void) const;
@@ -284,6 +289,11 @@ private:
     //! \brief The file's type.
     //!
     type m_type;
+
+    //!
+    //! \brief The device on which the file lives.
+    //!
+    dev_t m_device;
 
     //!
     //! \brief The file's mode.
@@ -360,15 +370,15 @@ bool exists(const path&);
 path get_current_dir(void);
 
 //!
-//! \brief Recursively removes a directory tree.
+//! \brief Recursively cleans up a directory.
 //!
-//! Recursively removes a directory tree, which can contain both files and
-//! subdirectories.  This will raise an error if asked to remove the root
-//! directory.
+//! This function cleans up a directory hierarchy.  First of all, it looks
+//! for any file system that may be mounted under the given path and, if
+//! any is found, an attempt is made to unmount it.  Later on, the
+//! directory is removed alongside all of its contents.
 //!
-//! TODO: Avoid crossing file system boundaries for safety.
-//!
-void rm_rf(const path&);
+
+void cleanup(const path&);
 
 } // namespace fs
 } // namespace atf

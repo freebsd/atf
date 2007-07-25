@@ -163,7 +163,7 @@ leave_workdir(const atf::test_case* tc, atf::fs::path& olddir,
         return;
 
     atf::fs::change_directory(olddir);
-    atf::fs::rm_rf(workdir);
+    atf::fs::cleanup(workdir);
 }
 
 atf::test_case_result

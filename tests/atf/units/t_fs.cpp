@@ -528,27 +528,25 @@ ATF_TEST_CASE_BODY(get_current_dir)
     ATF_CHECK(get_current_dir() == curdir);
 }
 
-ATF_TEST_CASE(rm_rf);
-ATF_TEST_CASE_HEAD(rm_rf)
+ATF_TEST_CASE(cleanup);
+ATF_TEST_CASE_HEAD(cleanup)
 {
-    set("descr", "Tests the rm_rf function");
+    set("descr", "Tests the cleanup function");
 }
-ATF_TEST_CASE_BODY(rm_rf)
+ATF_TEST_CASE_BODY(cleanup)
 {
+    using atf::fs::cleanup;
     using atf::fs::get_current_dir;
     using atf::fs::exists;
     using atf::fs::path;
-    using atf::fs::rm_rf;
 
     create_files();
 
-    // rm_rf is currently restricted to use absolute paths.
-    path p = get_current_dir() / "files";
-
+    path p("files");
     ATF_CHECK( exists(p));
     ATF_CHECK( exists(p / "dir"));
     ATF_CHECK( exists(p / "reg"));
-    rm_rf(p);
+    cleanup(p);
     ATF_CHECK(!exists(p));
 }
 
@@ -582,5 +580,5 @@ ATF_INIT_TEST_CASES(tcs)
     tcs.push_back(&exists);
     tcs.push_back(&change_directory);
     tcs.push_back(&create_temp_dir);
-    tcs.push_back(&rm_rf);
+    tcs.push_back(&cleanup);
 }

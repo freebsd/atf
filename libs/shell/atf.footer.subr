@@ -50,6 +50,7 @@
 # ------------------------------------------------------------------------
 
 # Values of configuration variables obtained from atf-config.
+Atf_Cleanup=$(atf-config -t atf_libexecdir)/atf-cleanup
 Atf_Format=$(atf-config -t atf_libexecdir)/atf-format
 
 # A boolean variable that indicates whether we are parsing a test case's
@@ -538,7 +539,7 @@ _atf_run_tc()
         if [ ${?} -eq 0 ]; then
             ( cd ${Work_Dir} ; ${1}_body )
             _ret=$?
-            rm -rf ${Work_Dir}
+            ${Atf_Cleanup} ${Work_Dir}
         else
             ( atf_fail "Could not create the work directory" )
             _ret=${?}

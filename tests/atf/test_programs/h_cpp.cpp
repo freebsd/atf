@@ -95,13 +95,13 @@ ATF_TEST_CASE_BODY(isolated_path)
     os.close();
 }
 
-ATF_TEST_CASE(isolated_rm_rf);
-ATF_TEST_CASE_HEAD(isolated_rm_rf)
+ATF_TEST_CASE(isolated_cleanup);
+ATF_TEST_CASE_HEAD(isolated_cleanup)
 {
     set("descr", "Helper test case for the t_isolated test program");
     set("isolated", "yes");
 }
-ATF_TEST_CASE_BODY(isolated_rm_rf)
+ATF_TEST_CASE_BODY(isolated_cleanup)
 {
     const char* p = std::getenv("PATHFILE");
     if (p == NULL)
@@ -142,6 +142,6 @@ ATF_TEST_CASE_BODY(srcdir_exists)
 ATF_INIT_TEST_CASES(tcs)
 {
     tcs.push_back(&isolated_path);
-    tcs.push_back(&isolated_rm_rf);
+    tcs.push_back(&isolated_cleanup);
     tcs.push_back(&srcdir_exists);
 }
