@@ -150,6 +150,17 @@ ATF_TEST_CASE_BODY(require_user_root)
 {
 }
 
+ATF_TEST_CASE(require_user_root2);
+ATF_TEST_CASE_HEAD(require_user_root2)
+{
+    set("descr", "Helper test case for the t_require_user test program");
+    set("isolated", "no");
+    set("require.user", "root");
+}
+ATF_TEST_CASE_BODY(require_user_root2)
+{
+}
+
 ATF_TEST_CASE(require_user_unprivileged);
 ATF_TEST_CASE_HEAD(require_user_unprivileged)
 {
@@ -161,11 +172,24 @@ ATF_TEST_CASE_BODY(require_user_unprivileged)
 {
 }
 
+ATF_TEST_CASE(require_user_unprivileged2);
+ATF_TEST_CASE_HEAD(require_user_unprivileged2)
+{
+    set("descr", "Helper test case for the t_require_user test program");
+    set("isolated", "no");
+    set("require.user", "unprivileged");
+}
+ATF_TEST_CASE_BODY(require_user_unprivileged2)
+{
+}
+
 ATF_INIT_TEST_CASES(tcs)
 {
     tcs.push_back(&isolated_path);
     tcs.push_back(&isolated_cleanup);
     tcs.push_back(&srcdir_exists);
     tcs.push_back(&require_user_root);
+    tcs.push_back(&require_user_root2);
     tcs.push_back(&require_user_unprivileged);
+    tcs.push_back(&require_user_unprivileged2);
 }

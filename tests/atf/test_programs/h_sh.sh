@@ -88,6 +88,17 @@ require_user_root_body()
     :
 }
 
+require_user_root2_head()
+{
+    atf_set "descr" "Helper test case for the t_require_user test program"
+    atf_set "isolated" "no"
+    atf_set "require.user" "root"
+}
+require_user_root2_body()
+{
+    :
+}
+
 require_user_unprivileged_head()
 {
     atf_set "descr" "Helper test case for the t_require_user test program"
@@ -95,6 +106,17 @@ require_user_unprivileged_head()
     atf_set "require.user" "unprivileged"
 }
 require_user_unprivileged_body()
+{
+    :
+}
+
+require_user_unprivileged2_head()
+{
+    atf_set "descr" "Helper test case for the t_require_user test program"
+    atf_set "isolated" "no"
+    atf_set "require.user" "unprivileged"
+}
+require_user_unprivileged2_body()
 {
     :
 }
@@ -107,7 +129,9 @@ atf_init_test_cases()
     # requirements of the t_srcdir test program (which cannot rely on -s
     # itself to find the source file).
     atf_add_test_case require_user_root
+    atf_add_test_case require_user_root2
     atf_add_test_case require_user_unprivileged
+    atf_add_test_case require_user_unprivileged2
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

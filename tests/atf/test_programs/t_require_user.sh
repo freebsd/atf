@@ -38,6 +38,11 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+count_lines()
+{
+    wc -l $1 | awk '{ print $1 }'
+}
+
 root_head()
 {
     atf_set "descr" "Tests that 'require.user=root' works"
@@ -84,10 +89,35 @@ unprivileged_body()
     done
 }
 
+multiple_head()
+{
+    atf_set "descr" "Tests that multiple skip results raised by the" \
+                    "handling of require.user do not abort the program" \
+                    "prematurely"
+}
+multiple_body()
+{
+    srcdir=$(atf_get_srcdir)
+    h_cpp=${srcdir}/h_cpp
+    h_sh=${srcdir}/h_sh
+
+    for h in ${h_cpp} ${h_sh}; do
+        atf_check "${h} -s ${srcdir} -r3 'require_user*' 3>resout" \
+            0 ignore ignore
+        grep ", skipped, " resout >skips
+        [ $(count_lines skips) -lt 2 ] && \
+            atf_fail "Test program aborted prematurely"
+        [ $(count_lines skips) -gt 2 ] && \
+            atf_fail "Test program returned more skips than expected"
+    done
+    atf_pass # XXX Bogus!
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case root
     atf_add_test_case unprivileged
+    atf_add_test_case multiple
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

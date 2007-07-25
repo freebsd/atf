@@ -528,20 +528,15 @@ _atf_parse_head()
 }
 
 #
-# _atf_run_tc tc
+# _atf_parse_props tc
 #
-#   Runs the specified test case.  Prints its exit status to the
-#   standard output and returns a boolean indicating if the test was
-#   successful or not.
+#   Runs a test case's body but, before that, handles the default
+#   properties.  This function must be run in a subshell because the
+#   test case is designed to abruptly exit the shell when any of
+#   atf_pass, atf_skip or atf_fail are executed.
 #
-_atf_run_tc()
+_atf_run_body()
 {
-    _atf_parse_head ${1}
-
-    # Assume that the test case has not reported any exit status so that
-    # we can apply the 'pass' default later on.
-    echo no >${Status_File}
-
     case $(atf_get require.user) in
     root)
         [ $(id -u) -eq 0 ] || \
@@ -558,12 +553,30 @@ _atf_run_tc()
         ;;
     esac
 
+    ${1}_body
+}
+
+#
+# _atf_run_tc tc
+#
+#   Runs the specified test case.  Prints its exit status to the
+#   standard output and returns a boolean indicating if the test was
+#   successful or not.
+#
+_atf_run_tc()
+{
+    _atf_parse_head ${1}
+
+    # Assume that the test case has not reported any exit status so that
+    # we can apply the 'pass' default later on.
+    echo no >${Status_File}
+
     _atf_internal_set srcdir "${Source_Dir}"
 
     if _atf_get_bool isolated; then
         Work_Dir=$(mktemp -d ${Work_Dir_Base}/atf.XXXXXX)
         if [ ${?} -eq 0 ]; then
-            ( cd ${Work_Dir} ; ${1}_body )
+            ( cd ${Work_Dir} ; _atf_run_body ${1} )
             _ret=$?
             ${Atf_Cleanup} ${Work_Dir}
         else
@@ -572,7 +585,7 @@ _atf_run_tc()
         fi
         Work_Dir=
     else
-        ( ${1}_body )
+        ( _atf_run_body ${1} )
         _ret=${?}
     fi
 
