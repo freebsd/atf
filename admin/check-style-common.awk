@@ -80,6 +80,10 @@ BEGIN {
     warn("Trailing spaces or tabs");
 }
 
+/#![^ ]/ { # NO_CHECK_STYLE
+    warn("Invalid shellbang: missing space after !");
+}
+
 END {
     if (skip)
         warn("Missing NO_CHECK_STYLE_END");
