@@ -46,11 +46,18 @@ default_status_head()
 default_status_body()
 {
     cat >helper.sh <<EOF
-pass_head() {
+pass_true_head() {
     atf_set "descr" "Helper test case"
 }
-pass_body() {
+pass_true_body() {
     true
+}
+
+pass_false_head() {
+    atf_set "descr" "Helper test case"
+}
+pass_false_body() {
+    false
 }
 
 fail_head() {
@@ -58,17 +65,19 @@ fail_head() {
 }
 fail_body() {
     echo "An error" 1>&2
-    false
+    exit 1
 }
 
 atf_init_test_cases() {
-    atf_add_test_case pass
+    atf_add_test_case pass_true
+    atf_add_test_case pass_false
     atf_add_test_case fail
 }
 EOF
     atf-compile -o helper helper.sh
 
-    atf_check './helper -r3 pass 3>resout' 0 ignore ignore
+    atf_check './helper -r3 pass_true 3>resout' 0 ignore ignore
+    atf_check './helper -r3 pass_false 3>resout' 0 ignore ignore
     atf_check './helper -r3 fail 3>resout' 1 ignore stderr
     atf_check 'grep "An error" stderr' 0 ignore null
 }
