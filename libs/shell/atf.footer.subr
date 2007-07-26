@@ -576,7 +576,7 @@ _atf_run_tc()
     if _atf_get_bool isolated; then
         Work_Dir=$(mktemp -d ${Work_Dir_Base}/atf.XXXXXX)
         if [ ${?} -eq 0 ]; then
-            ( cd ${Work_Dir} ; _atf_run_body ${1} )
+            ( cd ${Work_Dir} ; _atf_run_body ${1} ; atf_pass )
             _ret=$?
             ${Atf_Cleanup} ${Work_Dir}
         else
@@ -585,7 +585,7 @@ _atf_run_tc()
         fi
         Work_Dir=
     else
-        ( _atf_run_body ${1} )
+        ( _atf_run_body ${1} ; atf_pass )
         _ret=${?}
     fi
 
@@ -593,11 +593,7 @@ _atf_run_tc()
 
     # Set a default exit status if the test case did not report any.
     if [ "$(cat ${Status_File})" != yes ]; then
-        if [ ${_ret} -eq 0 ]; then
-            ( atf_pass )
-        else
-            ( atf_fail "Test case failed unexpectedly; bogus test" )
-        fi
+        ( atf_fail "Test case did not report any status; bogus test" )
     fi
 
     return ${_ret}
