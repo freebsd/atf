@@ -176,7 +176,7 @@ atf_run::run_test_program(const atf::fs::path& tp)
     size_t passed = 0, skipped = 0, failed = 0;
     std::string line;
     while (std::getline(in, line)) {
-        std::vector< std::string > words = atf::split(line, ", ");
+        std::vector< std::string > words = atf::ui::split(line, ", ");
 
         const std::string& tc = words[0];
         const std::string& status = words[1];
@@ -205,7 +205,8 @@ atf_run::run_test_program(const atf::fs::path& tp)
             // XXX Bogus test.
         }
 
-        std::cout << atf::format_text_with_tag(msg, tag, false, tag.length())
+        std::cout << atf::ui::format_text_with_tag(msg, tag, false,
+                                                   tag.length())
                   << std::endl;
     }
 

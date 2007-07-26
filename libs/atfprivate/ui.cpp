@@ -48,6 +48,9 @@ extern "C" {
 
 #include "atfprivate/ui.hpp"
 
+namespace impl = atf::ui;
+#define IMPL_NAME "atf::ui"
+
 static
 size_t
 terminal_width(void)
@@ -100,7 +103,7 @@ format_paragraph(const std::string& text,
 
     const size_t maxcol = terminal_width();
 
-    std::vector< std::string > words = atf::split(text, " ");
+    std::vector< std::string > words = impl::split(text, " ");
     for (std::vector< std::string >::const_iterator iter = words.begin();
          iter != words.end(); iter++) {
         const std::string& word = *iter;
@@ -124,25 +127,25 @@ format_paragraph(const std::string& text,
 }
 
 std::string
-atf::format_error(const std::string& prog_name, const std::string& error)
+impl::format_error(const std::string& prog_name, const std::string& error)
 {
     return format_text_with_tag("ERROR: " + error, prog_name + ": ", true);
 }
 
 std::string
-atf::format_info(const std::string& prog_name, const std::string& msg)
+impl::format_info(const std::string& prog_name, const std::string& msg)
 {
     return format_text_with_tag(msg, prog_name + ": ", true);
 }
 
 std::string
-atf::format_text(const std::string& text)
+impl::format_text(const std::string& text)
 {
     return format_text_with_tag(text, "", false, 0);
 }
 
 std::string
-atf::format_text_with_tag(const std::string& text, const std::string& tag,
+impl::format_text_with_tag(const std::string& text, const std::string& tag,
                           bool repeat, size_t col)
 {
     assert(col == 0 || col >= tag.length());
@@ -170,13 +173,13 @@ atf::format_text_with_tag(const std::string& text, const std::string& tag,
 }
 
 std::string
-atf::format_warning(const std::string& prog_name, const std::string& error)
+impl::format_warning(const std::string& prog_name, const std::string& error)
 {
     return format_text_with_tag("WARNING: " + error, prog_name + ": ", true);
 }
 
 std::vector< std::string >
-atf::split(const std::string& str, const std::string& delim)
+impl::split(const std::string& str, const std::string& delim)
 {
     std::vector< std::string > words;
 

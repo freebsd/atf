@@ -141,7 +141,7 @@ atf_format::main(void)
             str += line + '\n';
     }
 
-    std::cout << atf::format_text_with_tag(str, m_tag, m_repeat, m_length)
+    std::cout << atf::ui::format_text_with_tag(str, m_tag, m_repeat, m_length)
               << std::endl;
 
     return EXIT_SUCCESS;

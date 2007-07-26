@@ -281,9 +281,9 @@ test_program::list_test_cases(void)
          iter != tcs.end(); iter++) {
         const atf::test_case* tc = *iter;
 
-        std::cout << atf::format_text_with_tag(tc->get("descr"),
-                                               tc->get("ident"),
-                                               false, maxlen + 4)
+        std::cout << atf::ui::format_text_with_tag(tc->get("descr"),
+                                                   tc->get("ident"),
+                                                   false, maxlen + 4)
                   << std::endl;
     }
 

@@ -167,10 +167,10 @@ atf::application::usage(std::ostream& os)
     std::string args = specific_args();
     if (!args.empty())
         args = " " + args;
-    os << format_text_with_tag(std::string(m_prog_name) + " [options]" +
-                               args, "Usage: ", false) << std::endl
+    os << ui::format_text_with_tag(std::string(m_prog_name) + " [options]" +
+                                   args, "Usage: ", false) << std::endl
        << std::endl
-       << format_text(m_description) << std::endl
+       << ui::format_text(m_description) << std::endl
        << std::endl;
 
     options_set opts = options();
@@ -193,14 +193,14 @@ atf::application::usage(std::ostream& os)
             tag += "    ";
         else
             tag += " " + opt.m_argument + "    ";
-        os << format_text_with_tag(opt.m_description, tag, false,
-                                   coldesc + 10)
+        os << ui::format_text_with_tag(opt.m_description, tag, false,
+                                       coldesc + 10)
            << std::endl;
     }
     os << std::endl;
 
     if (!m_manpage.empty())
-        os << format_text("For more details please see " + m_manpage + ".")
+        os << ui::format_text("For more details please see " + m_manpage + ".")
            << std::endl << std::endl;
 }
 
@@ -230,26 +230,26 @@ atf::application::run(int argc, char* const* argv)
         process_options();
         errcode = main();
     } catch (const usage_error& e) {
-        std::cerr << format_error(m_prog_name, e.what())
+        std::cerr << ui::format_error(m_prog_name, e.what())
                   << std::endl
-                  << format_info(m_prog_name, std::string("Type `") +
-                                 m_prog_name + " -h' for more details.")
+                  << ui::format_info(m_prog_name, std::string("Type `") +
+                                     m_prog_name + " -h' for more details.")
                   << std::endl;
         errcode = EXIT_FAILURE;
     } catch (const std::runtime_error& e) {
-        std::cerr << format_error(m_prog_name, std::string(e.what()))
+        std::cerr << ui::format_error(m_prog_name, std::string(e.what()))
                   << std::endl;
         errcode = EXIT_FAILURE;
     } catch (const std::exception& e) {
-        std::cerr << format_error(m_prog_name,
-                                  std::string("Caught unexpected error: ") +
-                                  e.what() + "\n" + bug)
+        std::cerr << ui::format_error(m_prog_name,
+                                      std::string("Caught unexpected error: ") +
+                                      e.what() + "\n" + bug)
                   << std::endl;
         errcode = EXIT_FAILURE;
     } catch (...) {
-        std::cerr << format_error(m_prog_name,
-                                  std::string("Caught unknown error\n") +
-                                  bug)
+        std::cerr << ui::format_error(m_prog_name,
+                                      std::string("Caught unknown error\n") +
+                                      bug)
                   << std::endl;
         errcode = EXIT_FAILURE;
     }

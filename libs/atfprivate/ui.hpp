@@ -45,6 +45,7 @@
 #include <vector>
 
 namespace atf {
+namespace ui {
 
 //!
 //! \brief Formats an error message to fit on string.
@@ -120,6 +121,7 @@ std::string format_warning(const std::string&, const std::string&);
 //!
 std::vector< std::string > split(const std::string&, const std::string&);
 
+} // namespace ui
 } // namespace atf
 
 #endif // !defined(_ATF_UI_HPP_)
