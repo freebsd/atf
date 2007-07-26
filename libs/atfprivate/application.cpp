@@ -242,8 +242,8 @@ atf::application::run(int argc, char* const* argv)
         errcode = EXIT_FAILURE;
     } catch (const std::exception& e) {
         std::cerr << ui::format_error(m_prog_name,
-                                      std::string("Caught unexpected error: ") +
-                                      e.what() + "\n" + bug)
+                                      std::string("Caught unexpected error: ")
+                                      + e.what() + "\n" + bug)
                   << std::endl;
         errcode = EXIT_FAILURE;
     } catch (...) {
