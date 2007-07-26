@@ -110,7 +110,6 @@ multiple_body()
         [ $(count_lines skips) -gt 2 ] && \
             atf_fail "Test program returned more skips than expected"
     done
-    atf_pass # XXX Bogus!
 }
 
 atf_init_test_cases()
