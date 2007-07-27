@@ -214,9 +214,9 @@ impl::file_info::file_info(const path& p) :
 {
     struct stat sb;
 
-    if (::stat(p.c_str(), &sb) == -1)
+    if (::lstat(p.c_str(), &sb) == -1)
         throw atf::system_error(IMPL_NAME "::file_info(" + p.str() + ")",
-                                "stat(2) failed", errno);
+                                "lstat(2) failed", errno);
 
     switch (sb.st_mode & S_IFMT) {
     case S_IFBLK:  m_type = blk_type;  break;
@@ -229,7 +229,7 @@ impl::file_info::file_info(const path& p) :
     case S_IFWHT:  m_type = wht_type;  break;
     default:
         throw std::runtime_error(IMPL_NAME "::file_info(" + p.str() + "): "
-                                 "stat(2) returned an unknown file type");
+                                 "lstat(2) returned an unknown file type");
     }
 
     m_device = sb.st_dev;

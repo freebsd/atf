@@ -112,12 +112,43 @@ mount_body()
     atf_check "test -d foo" 1 null null
 }
 
+symlink_head()
+{
+    atf_set "descr" "Tests that the removal algorithm does not follow" \
+                    "symlinks, which may live in another device and thus" \
+                    "be treated as mount points"
+    atf_set "require.user" "root"
+}
+symlink_body()
+{
+    platform=$(uname)
+    case ${platform} in
+    NetBSD)
+        atf_check 'mkdir foo' 0 null null
+        atf_check 'mkdir foo/bar' 0 null null
+        atf_check 'mount -t tmpfs tmpfs foo/bar' 0 null null
+        atf_check 'touch a' 0 null null
+        atf_check 'ln -s $(pwd)/a foo/bar' 0 null null
+        ;;
+    *)
+        # XXX Possibly specify in meta-data too.
+        atf_skip "Test unimplemented in this platform (${platform})"
+        ;;
+    esac
+
+    atf_check "cleanup foo" 0 null null
+    mount | grep $(pwd)/foo && \
+        atf_fail "Some file systems remain mounted"
+    atf_check "test -d foo" 1 null null
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case file
     atf_add_test_case dir_empty
     atf_add_test_case dir_full
     atf_add_test_case mount
+    atf_add_test_case symlink
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
