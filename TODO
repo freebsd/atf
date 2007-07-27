@@ -10,6 +10,10 @@ This project is still in very early stages of development.  The list below
 is very incomplete, but it details some items that have to be addressed.
 Basically they are here so that they are not forgotten.
 
+* Clean the environment before running a test case.  E.g. LANG, TZ, LC_*...
+
+* Set the umask to a known value before running a test case.
+
 * Make atf-run account for the total executed test programs and how many
   of them failed.  Possibly also collect their names.
 
