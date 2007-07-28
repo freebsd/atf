@@ -102,6 +102,8 @@ libs_libatfprivate_la_SOURCES = libs/atfprivate/application.cpp \
                                 libs/atfprivate/postream.hpp \
                                 libs/atfprivate/systembuf.cpp \
                                 libs/atfprivate/systembuf.hpp \
+                                libs/atfprivate/text.cpp \
+                                libs/atfprivate/text.hpp \
                                 libs/atfprivate/ui.cpp \
                                 libs/atfprivate/ui.hpp \
                                 libs/atfprivate/user.cpp \
@@ -386,10 +388,10 @@ tests_atf_units_t_systembuf_SOURCES = tests/atf/units/t_systembuf.cpp
 tests_atf_units_t_systembuf_LDADD = -latf
 tests_atf_units_t_systembuf_LDFLAGS = -Llibs
 
-atf_units_PROGRAMS += tests/atf/units/t_ui
-tests_atf_units_t_ui_SOURCES = tests/atf/units/t_ui.cpp
-tests_atf_units_t_ui_LDADD = -latf
-tests_atf_units_t_ui_LDFLAGS = -Llibs
+atf_units_PROGRAMS += tests/atf/units/t_text
+tests_atf_units_t_text_SOURCES = tests/atf/units/t_text.cpp
+tests_atf_units_t_text_LDADD = -latf
+tests_atf_units_t_text_LDFLAGS = -Llibs
 
 atf_units_PROGRAMS += tests/atf/units/t_user
 tests_atf_units_t_user_SOURCES = tests/atf/units/t_user.cpp

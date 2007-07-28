@@ -46,6 +46,7 @@ extern "C" {
 #include <cstdlib>
 #include <sstream>
 
+#include "atfprivate/text.hpp"
 #include "atfprivate/ui.hpp"
 
 namespace impl = atf::ui;
@@ -103,7 +104,7 @@ format_paragraph(const std::string& text,
 
     const size_t maxcol = terminal_width();
 
-    std::vector< std::string > words = impl::split(text, " ");
+    std::vector< std::string > words = atf::text::split(text, " ");
     for (std::vector< std::string >::const_iterator iter = words.begin();
          iter != words.end(); iter++) {
         const std::string& word = *iter;
@@ -154,7 +155,7 @@ impl::format_text_with_tag(const std::string& text, const std::string& tag,
 
     std::string formatted;
 
-    std::vector< std::string > lines = split(text, "\n");
+    std::vector< std::string > lines = atf::text::split(text, "\n");
     for (std::vector< std::string >::const_iterator iter = lines.begin();
          iter != lines.end(); iter++) {
         const std::string& line = *iter;
@@ -176,20 +177,4 @@ std::string
 impl::format_warning(const std::string& prog_name, const std::string& error)
 {
     return format_text_with_tag("WARNING: " + error, prog_name + ": ", true);
-}
-
-std::vector< std::string >
-impl::split(const std::string& str, const std::string& delim)
-{
-    std::vector< std::string > words;
-
-    std::string::size_type pos = 0, newpos = 0;
-    while (pos < str.length() && newpos != std::string::npos) {
-        newpos = str.find(delim, pos);
-        if (newpos != pos)
-            words.push_back(str.substr(pos, newpos - pos));
-        pos = newpos + delim.length();
-    }
-
-    return words;
 }
