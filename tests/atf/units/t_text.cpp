@@ -40,7 +40,7 @@
 
 #include <atf.hpp>
 
-#include "atfprivate/ui.hpp"
+#include "atfprivate/text.hpp"
 
 ATF_TEST_CASE(split);
 ATF_TEST_CASE_HEAD(split)
@@ -49,7 +49,7 @@ ATF_TEST_CASE_HEAD(split)
 }
 ATF_TEST_CASE_BODY(split)
 {
-    using atf::ui::split;
+    using atf::text::split;
 
     std::vector< std::string > words;
 
@@ -114,7 +114,7 @@ ATF_TEST_CASE_HEAD(split_delims)
 }
 ATF_TEST_CASE_BODY(split_delims)
 {
-    using atf::ui::split;
+    using atf::text::split;
 
     std::vector< std::string > words;
 

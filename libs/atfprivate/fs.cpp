@@ -57,7 +57,7 @@ extern "C" {
 
 #include "atfprivate/exceptions.hpp"
 #include "atfprivate/fs.hpp"
-#include "atfprivate/ui.hpp" // XXX For split.
+#include "atfprivate/text.hpp"
 
 namespace impl = atf::fs;
 #define IMPL_NAME "atf::fs"
@@ -80,7 +80,7 @@ normalize(const std::string& s)
     if (s.empty())
         throw impl::path_error("Path cannot be empty");
 
-    std::vector< std::string > cs = atf::ui::split(s, "/");
+    std::vector< std::string > cs = atf::text::split(s, "/");
     std::string data = (s[0] == '/') ? "/" : "";
     for (std::vector< std::string >::size_type i = 0; i < cs.size(); i++) {
         data += cs[i];
