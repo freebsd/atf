@@ -124,4 +124,11 @@ public:
         throw atf::test_case_result::failed(__LINE__, ss.str()); \
     }
 
+#define ATF_CHECK_THROW(x, e) \
+    try { \
+        x; \
+        ATF_FAIL(#x " did not throw " #e " as expected"); \
+    } catch (const e& eo) { \
+    }
+
 #endif // !defined(_ATF_TEST_CASE_HPP_)

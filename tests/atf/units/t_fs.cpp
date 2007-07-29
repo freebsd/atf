@@ -80,11 +80,7 @@ ATF_TEST_CASE_BODY(path_normalize)
 {
     using atf::fs::path;
 
-    try {
-        path("");
-        ATF_FAIL("Construction of an empty path did not throw an error");
-    } catch (const atf::fs::path_error& es) {
-    }
+    ATF_CHECK_THROW(path(""), atf::fs::path_error);
 
     ATF_CHECK_EQUAL(path(".").str(), ".");
     ATF_CHECK_EQUAL(path("..").str(), "..");
@@ -418,11 +414,7 @@ ATF_TEST_CASE_BODY(change_directory)
     create_files();
     const path old = get_current_dir();
 
-    try {
-        change_directory(path("files/reg"));
-        ATF_FAIL("Changing directory to a file succeeded");
-    } catch (const atf::system_error& e) {
-    }
+    ATF_CHECK_THROW(change_directory(path("files/reg")), atf::system_error);
     ATF_CHECK(get_current_dir() == old);
 
     path old2 = change_directory(path("files"));
