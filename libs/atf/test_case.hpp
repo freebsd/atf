@@ -112,23 +112,24 @@ public:
 
 #define ATF_CHECK(x) \
     if (!(x)) { \
-        std::ostringstream ss; \
-        ss << #x << " not met"; \
-        throw atf::test_case_result::failed(__LINE__, ss.str()); \
+        std::ostringstream __atf_ss; \
+        __atf_ss << #x << " not met"; \
+        throw atf::test_case_result::failed(__LINE__, __atf_ss.str()); \
     }
 
 #define ATF_CHECK_EQUAL(x, y) \
     if ((x) != (y)) { \
-        std::ostringstream ss; \
-        ss << #x << " != " << #y << " (" << (x) << " != " << (y) << ")"; \
-        throw atf::test_case_result::failed(__LINE__, ss.str()); \
+        std::ostringstream __atf_ss; \
+        __atf_ss << #x << " != " << #y << " (" << (x) << " != " \
+                 << (y) << ")"; \
+        throw atf::test_case_result::failed(__LINE__, __atf_ss.str()); \
     }
 
 #define ATF_CHECK_THROW(x, e) \
     try { \
         x; \
         ATF_FAIL(#x " did not throw " #e " as expected"); \
-    } catch (const e& eo) { \
+    } catch (const e& __atf_eo) { \
     }
 
 #endif // !defined(_ATF_TEST_CASE_HPP_)
