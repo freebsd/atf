@@ -54,36 +54,6 @@
 #include "atfprivate/ui.hpp"
 #include "atf/test_case.hpp"
 
-static
-std::string
-format_tcr(const std::string& ident,
-           const atf::test_case_result& tcr)
-{
-    atf::test_case_result::status s = tcr.get_status();
-    const std::string& r = tcr.get_reason();
-
-    std::string str = ident + ", ";
-
-    switch (s) {
-    case atf::test_case_result::status_passed:
-        str += "passed";
-        break;
-
-    case atf::test_case_result::status_skipped:
-        str += "skipped, " + r;
-        break;
-
-    case atf::test_case_result::status_failed:
-        str += "failed, " + r;
-        break;
-
-    default:
-        assert(false);
-    }
-
-    return str;
-}
-
 class test_program : public atf::application {
 public:
     typedef std::vector< atf::test_case * > test_cases;
@@ -93,6 +63,7 @@ private:
 
     bool m_lflag;
     int m_results_fd;
+    std::auto_ptr< std::ostream > m_results_os;
     atf::fs::path m_srcdir;
     atf::fs::path m_workdir;
     std::set< std::string > m_tcnames;
@@ -106,6 +77,8 @@ private:
     test_cases init_test_cases(void);
     static test_cases filter_test_cases(test_cases,
                                         const std::set< std::string >&);
+
+    std::ostream& results_stream(void);
 
     int list_test_cases(void);
     int run_test_cases(void);
@@ -290,6 +263,17 @@ test_program::list_test_cases(void)
     return EXIT_SUCCESS;
 }
 
+std::ostream&
+test_program::results_stream(void)
+{
+    if (m_results_fd == STDOUT_FILENO)
+        return std::cout;
+    else if (m_results_fd == STDERR_FILENO)
+        return std::cerr;
+    else
+        return *m_results_os;
+}
+
 int
 test_program::run_test_cases(void)
 {
@@ -297,24 +281,15 @@ test_program::run_test_cases(void)
 
     int errcode = EXIT_SUCCESS;
 
-    std::auto_ptr< std::ostream > ros;
-    if (m_results_fd != STDOUT_FILENO && m_results_fd != STDERR_FILENO) {
-        atf::file_handle fh(m_results_fd);
-        ros = std::auto_ptr< std::ostream >(new atf::postream(fh));
-    }
+    std::ostream& ros = results_stream();
 
     for (test_cases::iterator iter = tcs.begin();
          iter != tcs.end(); iter++) {
         atf::test_case* tc = *iter;
 
         atf::test_case_result tcr = tc->run();
-
-        if (m_results_fd == STDOUT_FILENO)
-            std::cout << format_tcr(tc->get("ident"), tcr) << std::endl;
-        else if (m_results_fd == STDERR_FILENO)
-            std::cerr << format_tcr(tc->get("ident"), tcr) << std::endl;
-        else
-            (*ros) << format_tcr(tc->get("ident"), tcr) << std::endl;
+        atf::tcname_tcr tcp(tc->get("ident"), tcr);
+        ros << tcp;
 
         if (tcr.get_status() == atf::test_case_result::status_failed)
             errcode = EXIT_FAILURE;
@@ -341,8 +316,13 @@ test_program::main(void)
 
     if (m_lflag)
         errcode = list_test_cases();
-    else
+    else {
+        if (m_results_fd != STDOUT_FILENO && m_results_fd != STDERR_FILENO) {
+            atf::file_handle fh(m_results_fd);
+            m_results_os = std::auto_ptr< std::ostream >(new atf::postream(fh));
+        }
         errcode = run_test_cases();
+    }
 
     return errcode;
 }

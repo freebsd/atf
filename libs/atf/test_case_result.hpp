@@ -41,19 +41,36 @@
 #if !defined(_ATF_TEST_CASE_RESULT_HPP_)
 #define _ATF_TEST_CASE_RESULT_HPP_
 
+#include <istream>
+#include <ostream>
 #include <string>
 
 namespace atf {
 
+// ------------------------------------------------------------------------
+// The "test_case_result" class.
+// ------------------------------------------------------------------------
+
+//!
+//! \brief Holds the results of a test case's execution.
+//!
+//! The test_case_result class holds the information that describes the
+//! results of a test case's execution.  This is composed of an exit code
+//! and a reason for that exit code.
+//!
+//! TODO: Complete documentation for this class.  Not done yet because it
+//! is worth to investigate if this class could be rewritten as several
+//! different classes, one for each status.
+//!
 class test_case_result {
 public:
     enum status { status_passed, status_skipped, status_failed };
 
+    test_case_result(void);
+
     static test_case_result passed(void);
     static test_case_result skipped(const std::string&);
-    static test_case_result skipped(size_t, const std::string&);
     static test_case_result failed(const std::string&);
-    static test_case_result failed(size_t, const std::string&);
 
     status get_status(void) const;
     const std::string& get_reason(void) const;
@@ -66,5 +83,12 @@ private:
 };
 
 } // namespace atf
+
+// ------------------------------------------------------------------------
+// Free functions.
+// ------------------------------------------------------------------------
+
+std::ostream& operator<<(std::ostream&, const atf::test_case_result&);
+std::istream& operator>>(std::istream&, atf::test_case_result&);
 
 #endif // !defined(_ATF_TEST_CASE_RESULT_HPP_)

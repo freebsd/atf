@@ -61,6 +61,8 @@ extern "C" {
 #include "atfprivate/text.hpp"
 #include "atfprivate/ui.hpp"
 
+#include "atf/test_case.hpp"
+
 class atf_run : public atf::application {
     static const char* m_description;
 
@@ -175,33 +177,22 @@ atf_run::run_test_program(const atf::fs::path& tp)
     std::cout << tp.str() << ": Running test cases" << std::endl;
 
     size_t passed = 0, skipped = 0, failed = 0;
-    std::string line;
-    while (std::getline(in, line)) {
-        std::vector< std::string > words = atf::text::split(line, ", ");
+    atf::tcname_tcr tt;
+    while ((in >> tt).good()) {
+        const std::string& tcname = tt.first;
+        const atf::test_case_result& tcr = tt.second;
 
-        const std::string& tc = words[0];
-        const std::string& status = words[1];
-        std::string reason;
-        if (words.size() >= 3) {
-            for (std::vector< std::string >::size_type i = 2;
-                 i < words.size(); i++) {
-                reason += words[i];
-                if (i < words.size() - 1)
-                    reason += ", ";
-            }
-        }
-
-        std::string tag = "    " + tc + ": ";
+        std::string tag = "    " + tcname + ": ";
         std::string msg;
-        if (status == "passed") {
+        if (tcr.get_status() == atf::test_case_result::status_passed) {
             passed++;
             msg = "Passed.";
-        } else if (status == "skipped") {
+        } else if (tcr.get_status() == atf::test_case_result::status_skipped) {
             skipped++;
-            msg = "Skipped: " + reason;
-        } else if (status == "failed") {
+            msg = "Skipped: " + tcr.get_reason();
+        } else if (tcr.get_status() == atf::test_case_result::status_failed) {
             failed++;
-            msg = "Failed: " + reason;
+            msg = "Failed: " + tcr.get_reason();
         } else {
             // XXX Bogus test.
         }

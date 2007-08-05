@@ -43,6 +43,7 @@
 
 #include <map>
 #include <sstream>
+#include <utility>
 
 #include <atf/test_case_result.hpp>
 
@@ -81,7 +82,12 @@ public:
     test_case_result run(void) const;
 };
 
+typedef std::pair< std::string, test_case_result > tcname_tcr;
+
 } // namespace atf
+
+std::ostream& operator<<(std::ostream&, const atf::tcname_tcr&);
+std::istream& operator>>(std::istream&, atf::tcname_tcr&);
 
 #define ATF_TEST_CASE(name) \
     class name : public atf::test_case { \
@@ -113,16 +119,16 @@ public:
 #define ATF_CHECK(x) \
     if (!(x)) { \
         std::ostringstream __atf_ss; \
-        __atf_ss << #x << " not met"; \
-        throw atf::test_case_result::failed(__LINE__, __atf_ss.str()); \
+        __atf_ss << "Line " << __LINE__ << ": " << #x << " not met"; \
+        throw atf::test_case_result::failed(__atf_ss.str()); \
     }
 
 #define ATF_CHECK_EQUAL(x, y) \
     if ((x) != (y)) { \
         std::ostringstream __atf_ss; \
-        __atf_ss << #x << " != " << #y << " (" << (x) << " != " \
-                 << (y) << ")"; \
-        throw atf::test_case_result::failed(__LINE__, __atf_ss.str()); \
+        __atf_ss << "Line " << __LINE__ << ": " << #x << " != " << #y \
+                 << " (" << (x) << " != " << (y) << ")"; \
+        throw atf::test_case_result::failed(__atf_ss.str()); \
     }
 
 #define ATF_CHECK_THROW(x, e) \

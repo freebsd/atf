@@ -45,6 +45,8 @@
 #include "atfprivate/exceptions.hpp"
 #include "atfprivate/fs.hpp"
 #include "atfprivate/user.hpp"
+
+#include "atf/exceptions.hpp"
 #include "atf/test_case.hpp"
 
 atf::test_case::test_case(const std::string& ident) :
@@ -199,7 +201,7 @@ atf::test_case::run(void)
 {
     assert(!m_meta_data.empty());
 
-    test_case_result tcr = test_case_result::passed();
+    test_case_result tcr;
 
     fs::path olddir(".");
     fs::path workdir(".");
@@ -211,7 +213,7 @@ atf::test_case::run(void)
                 enter_workdir(this, olddir, workdir, m_workdirbase);
                 body();
                 leave_workdir(this, olddir, workdir);
-                assert(tcr.get_status() == test_case_result::status_passed);
+                tcr = test_case_result::passed();
             } catch (...) {
                 leave_workdir(this, olddir, workdir);
                 throw;
@@ -232,4 +234,38 @@ atf::test_case::run(void)
     }
 
     return tcr;
+}
+
+std::ostream&
+operator<<(std::ostream& os, const atf::tcname_tcr& tt)
+{
+    const std::string& tcname = tt.first;
+    const atf::test_case_result& tcr = tt.second;
+
+    os << tcname << ", " << tcr;
+
+    return os;
+}
+
+std::istream&
+operator>>(std::istream& is, atf::tcname_tcr& tt)
+{
+    std::string tcname;
+    atf::test_case_result tcr;
+
+    std::getline(is, tcname, ',');
+    if (!is.good())
+        return is;
+    int ch = is.get();
+    if (!is.good())
+        throw atf::format_error("Unexpected end of stream");
+    if (ch != ' ')
+        throw atf::format_error("Incorrect input separator after test"
+                                "case name");
+    is >> tcr;
+
+    tt.first = tcname;
+    tt.second = tcr;
+
+    return is;
 }

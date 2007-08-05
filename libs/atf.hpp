@@ -41,6 +41,7 @@
 #if !defined(_ATF_HPP_)
 #define _ATF_HPP_
 
+#include <atf/exceptions.hpp>
 #include <atf/test_case.hpp>
 #include <atf/test_case_result.hpp>
 

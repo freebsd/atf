@@ -134,7 +134,8 @@ libs_libatf_la_LDFLAGS = -Llibs
 libs_libatf_la_LIBADD = -latfprivate
 
 include_HEADERS = libs/atf.hpp
-atf_HEADERS = libs/atf/test_case.hpp \
+atf_HEADERS = libs/atf/exceptions.hpp \
+              libs/atf/test_case.hpp \
               libs/atf/test_case_result.hpp
 atfdir = $(includedir)/atf
 
@@ -388,6 +389,12 @@ tests_atf_units_t_systembuf_SOURCES = tests/atf/units/t_systembuf.cpp
 tests_atf_units_t_systembuf_LDADD = -latf
 tests_atf_units_t_systembuf_LDFLAGS = -Llibs
 
+atf_units_PROGRAMS += tests/atf/units/t_test_case_result
+tests_atf_units_t_test_case_result_SOURCES = \
+    tests/atf/units/t_test_case_result.cpp
+tests_atf_units_t_test_case_result_LDADD = -latf
+tests_atf_units_t_test_case_result_LDFLAGS = -Llibs
+
 atf_units_PROGRAMS += tests/atf/units/t_text
 tests_atf_units_t_text_SOURCES = tests/atf/units/t_text.cpp
 tests_atf_units_t_text_LDADD = -latf
@@ -435,7 +442,7 @@ tools_atf_format_LDFLAGS = -Llibs
 
 bin_PROGRAMS += tools/atf-run
 tools_atf_run_SOURCES = tools/atf-run.cpp
-tools_atf_run_LDADD = -latfprivate
+tools_atf_run_LDADD = -latfprivate -latf
 tools_atf_run_LDFLAGS = -Llibs
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

@@ -10,6 +10,12 @@ This project is still in very early stages of development.  The list below
 is very incomplete, but it details some items that have to be addressed.
 Basically they are here so that they are not forgotten.
 
+* Reorganize exception classes: if they are exposed to the user, they have
+  to belong to libatf, but libatfprivate may need to throw them from the
+  inside.  Making libatfprivate depend on libatf is not an option.  Maybe
+  put the implementation in libatfprivate and the headers in libatf, or
+  make everything inline and keep a single file in libatf.
+
 * Clean the environment before running a test case.  E.g. LANG, TZ, LC_*...
 
 * Set the umask to a known value before running a test case.
