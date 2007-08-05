@@ -319,7 +319,8 @@ test_program::main(void)
     else {
         if (m_results_fd != STDOUT_FILENO && m_results_fd != STDERR_FILENO) {
             atf::file_handle fh(m_results_fd);
-            m_results_os = std::auto_ptr< std::ostream >(new atf::postream(fh));
+            m_results_os =
+                std::auto_ptr< std::ostream >(new atf::postream(fh));
         }
         errcode = run_test_cases();
     }

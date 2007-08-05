@@ -127,7 +127,8 @@ EXTRA_DIST += libs/tc-meta-data.sh
 $(srcdir)/libs/atf/test_case.cpp: libs/atf/tchead.cpp
 
 lib_LTLIBRARIES += libs/libatf.la
-libs_libatf_la_SOURCES = libs/atf/test_case.cpp \
+libs_libatf_la_SOURCES = libs/atf/exceptions.hpp \
+                         libs/atf/test_case.cpp \
                          libs/atf/test_case_result.cpp \
                          libs/atf/test_program.cpp
 libs_libatf_la_LDFLAGS = -Llibs
