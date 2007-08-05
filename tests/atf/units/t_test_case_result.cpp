@@ -176,6 +176,13 @@ ATF_TEST_CASE_BODY(internalize)
     using atf::test_case_result;
 
     {
+        std::istringstream ss("");
+        test_case_result tcr;
+
+        ATF_CHECK_THROW(ss >> tcr, format_error);
+    }
+
+    {
         std::istringstream ss("foo");
         test_case_result tcr;
 

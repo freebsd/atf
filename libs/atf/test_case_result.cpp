@@ -128,6 +128,8 @@ operator>>(std::istream& is, atf::test_case_result& tcr)
     {
         std::string line;
         std::getline(is, line);
+        if (line.empty())
+            throw atf::format_error("Missing test case result");
         words = atf::text::split(line, ", ");
     }
 
