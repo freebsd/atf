@@ -48,7 +48,6 @@ mangle_fds_body()
     srcdir=$(atf_get_srcdir)
     h_cpp=${srcdir}/h_cpp
     h_sh= #${srcdir}/h_sh
-    tmpdir=$(cd $(atf-config -t atf_workdir) && pwd -P)
 
     for h in ${h_cpp} ${h_sh}; do
         atf_check "ISOLATED=no RESFD=3 ${h} -s ${srcdir} -r3 \
