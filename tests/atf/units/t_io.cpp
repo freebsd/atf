@@ -362,6 +362,12 @@ ATF_TEST_CASE_BODY(pipe_remap_write)
     using atf::io::systembuf;
 
     pipe p;
+    if (p.rend().get() == STDOUT_FILENO) {
+        if (p.rend().get() > p.wend().get())
+            p.rend().posix_remap(p.rend().get() + 1);
+        else
+            p.rend().posix_remap(p.wend().get() + 1);
+    }
     systembuf rbuf(p.rend().get());
     std::istream rend(&rbuf);
     p.wend().posix_remap(STDOUT_FILENO);
