@@ -109,7 +109,7 @@ ATF_TEST_CASE_BODY(tc_remap_write)
 
     // XXX This assumes that the pipe's buffer is big enough to accept
     // the data written without blocking!
-    std::cerr << "3Test 3message" << std::endl;
+    std::cout << "3Test 3message" << std::endl;
     std::string tmp;
     rend >> tmp;
     ATF_CHECK_EQUAL(tmp, "3Test");
@@ -121,5 +121,5 @@ ATF_INIT_TEST_CASES(tcs)
 {
     tcs.push_back(&tc_read_and_write);
     tcs.push_back(&tc_remap_read);
-    // XXX tcs.push_back(&tc_remap_write);
+    tcs.push_back(&tc_remap_write);
 }
