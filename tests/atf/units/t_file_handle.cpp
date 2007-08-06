@@ -59,7 +59,7 @@ ATF_TEST_CASE_BODY(tc_construct)
     atf::file_handle fh1;
     ATF_CHECK(!fh1.is_valid());
 
-    atf::file_handle fh2(STDERR_FILENO);
+    atf::file_handle fh2(STDOUT_FILENO);
     ATF_CHECK(fh2.is_valid());
     fh2.disown();
 }
@@ -72,7 +72,7 @@ ATF_TEST_CASE_HEAD(tc_copy)
 ATF_TEST_CASE_BODY(tc_copy)
 {
     atf::file_handle fh1;
-    atf::file_handle fh2(STDERR_FILENO);
+    atf::file_handle fh2(STDOUT_FILENO);
 
     atf::file_handle fh3(fh2);
     ATF_CHECK(!fh2.is_valid());
@@ -92,8 +92,8 @@ ATF_TEST_CASE_HEAD(tc_get)
 }
 ATF_TEST_CASE_BODY(tc_get)
 {
-    atf::file_handle fh1(STDERR_FILENO);
-    ATF_CHECK_EQUAL(fh1.get(), STDERR_FILENO);
+    atf::file_handle fh1(STDOUT_FILENO);
+    ATF_CHECK_EQUAL(fh1.get(), STDOUT_FILENO);
 }
 
 ATF_TEST_CASE(tc_posix_dup);

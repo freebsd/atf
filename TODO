@@ -46,10 +46,6 @@ Basically they are here so that they are not forgotten.
   classes as not copyable.  Or, failing to do that, any other way to do
   the same.
 
-* Test cases should be safe to closing stdin, stdout and stderr, to some
-  extent.  Once implemented, make t_file_handle.cpp and t_pipe.cpp use
-  stdout again, instead of stderr.
-
 * Add format and versioning tags to the outputs that have to be machine-
   parseable.  For example: the output of test programs.
 

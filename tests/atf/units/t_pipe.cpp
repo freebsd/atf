@@ -105,7 +105,7 @@ ATF_TEST_CASE_BODY(tc_remap_write)
     atf::pipe p;
     atf::systembuf rbuf(p.rend().get());
     std::istream rend(&rbuf);
-    p.wend().posix_remap(STDERR_FILENO);
+    p.wend().posix_remap(STDOUT_FILENO);
 
     // XXX This assumes that the pipe's buffer is big enough to accept
     // the data written without blocking!
