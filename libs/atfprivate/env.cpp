@@ -42,6 +42,7 @@
 #include "config.h"
 #endif
 
+#include <cassert>
 #include <cerrno>
 #include <cstdlib>
 
