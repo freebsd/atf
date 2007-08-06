@@ -66,8 +66,9 @@ atf::atffile::atffile(const atf::fs::path& filename)
 
     std::string line;
     while (std::getline(is, line)) {
-        if (is_glob(line)) {
-            std::set< std::string > ms = expand_glob(line, dir.names());
+        if (expand::is_glob(line)) {
+            std::set< std::string > ms =
+                expand::expand_glob(line, dir.names());
             insert(end(), ms.begin(), ms.end());
         } else {
             if (dir.find(line) == dir.end())

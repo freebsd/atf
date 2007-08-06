@@ -112,15 +112,3 @@ atf::usage_error::what(void)
 {
     return m_text;
 }
-
-atf::pattern_error::pattern_error(char* w) :
-    std::runtime_error(w),
-    m_what(w)
-{
-}
-
-atf::pattern_error::~pattern_error(void)
-    throw()
-{
-    delete [] m_what;
-}

@@ -53,6 +53,13 @@ extern "C" {
 #include "atfprivate/exceptions.hpp"
 #include "atfprivate/expand.hpp"
 
+namespace impl = atf::expand;
+#define IMPL_NAME "atf::expand"
+
+// ------------------------------------------------------------------------
+// Auxiliary functions.
+// ------------------------------------------------------------------------
+
 //
 // Auxiliary function that converts a glob pattern into a regular
 // expression ready to be processed by ::regcomp.  It is currently very
@@ -101,11 +108,31 @@ throw_pattern_error(int errcode, const regex_t* preg)
     char* buf = new char[len];
     size_t len2 = ::regerror(errcode, preg, buf, len);
     assert(len == len2);
-    throw atf::pattern_error(buf);
+    throw impl::pattern_error(buf);
 }
 
+// ------------------------------------------------------------------------
+// The "pattern_error" class.
+// ------------------------------------------------------------------------
+
+impl::pattern_error::pattern_error(char* w) :
+    std::runtime_error(w),
+    m_what(w)
+{
+}
+
+impl::pattern_error::~pattern_error(void)
+    throw()
+{
+    delete [] m_what;
+}
+
+// ------------------------------------------------------------------------
+// Free functions.
+// ------------------------------------------------------------------------
+
 std::set< std::string >
-atf::expand_glob(const std::string& glob,
+impl::expand_glob(const std::string& glob,
                  const std::set< std::string >& candidates)
 {
     std::set< std::string > exps;
@@ -119,7 +146,7 @@ atf::expand_glob(const std::string& glob,
 }
 
 bool
-atf::is_glob(const std::string& glob)
+impl::is_glob(const std::string& glob)
 {
     // NOTE: Keep this in sync with glob_to_regex!
     return (glob.find('*') != std::string::npos) ||
@@ -127,7 +154,7 @@ atf::is_glob(const std::string& glob)
 }
 
 bool
-atf::matches_glob(const std::string& glob, const std::string& candidate)
+impl::matches_glob(const std::string& glob, const std::string& candidate)
 {
     int res;
     ::regex_t preg;
