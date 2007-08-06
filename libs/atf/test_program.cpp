@@ -50,8 +50,9 @@
 #include "atfprivate/config.hpp"
 #include "atfprivate/expand.hpp"
 #include "atfprivate/fs.hpp"
-#include "atfprivate/postream.hpp"
+#include "atfprivate/io.hpp"
 #include "atfprivate/ui.hpp"
+
 #include "atf/test_case.hpp"
 
 class test_program : public atf::application {
@@ -318,9 +319,9 @@ test_program::main(void)
         errcode = list_test_cases();
     else {
         if (m_results_fd != STDOUT_FILENO && m_results_fd != STDERR_FILENO) {
-            atf::file_handle fh(m_results_fd);
+            atf::io::file_handle fh(m_results_fd);
             m_results_os =
-                std::auto_ptr< std::ostream >(new atf::postream(fh));
+                std::auto_ptr< std::ostream >(new atf::io::postream(fh));
         }
         errcode = run_test_cases();
     }

@@ -2,11 +2,7 @@ t_env
 t_config
 t_text
 t_fs
-t_file_handle
-t_systembuf
-t_pipe
-t_pistream
-t_postream
+t_io
 t_expand
 t_user
 t_test_case_result

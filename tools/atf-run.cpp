@@ -56,8 +56,7 @@ extern "C" {
 #include "atfprivate/atffile.hpp"
 #include "atfprivate/exceptions.hpp"
 #include "atfprivate/fs.hpp"
-#include "atfprivate/pipe.hpp"
-#include "atfprivate/pistream.hpp"
+#include "atfprivate/io.hpp"
 #include "atfprivate/text.hpp"
 #include "atfprivate/ui.hpp"
 
@@ -126,20 +125,21 @@ atf_run::run_test_directory(const atf::fs::path& tp)
 int
 atf_run::run_test_program(const atf::fs::path& tp)
 {
-    atf::pipe respipe;
+    atf::io::pipe respipe;
     pid_t pid = ::fork();
     if (pid == -1) {
         throw atf::system_error("run_test_program",
                                 "fork(2) failed", errno);
     } else if (pid == 0) {
         respipe.rend().close();
-        atf::file_handle fhres = respipe.wend().get();
+        atf::io::file_handle fhres = respipe.wend().get();
         fhres.posix_remap(9);
 
         int nullfd = ::open("/dev/null", O_WRONLY);
         if (nullfd != -1) {
-            atf::file_handle nullfh(nullfd);
-            atf::file_handle nullfh2 = atf::file_handle::posix_dup(nullfd);
+            atf::io::file_handle nullfh(nullfd);
+            atf::io::file_handle nullfh2 =
+                atf::io::file_handle::posix_dup(nullfd);
 
             ::close(STDOUT_FILENO);
             nullfh.posix_remap(STDOUT_FILENO);
@@ -171,8 +171,8 @@ atf_run::run_test_program(const atf::fs::path& tp)
     }
 
     respipe.wend().close();
-    atf::file_handle fhres = respipe.rend().get();
-    atf::pistream in(fhres);
+    atf::io::file_handle fhres = respipe.rend().get();
+    atf::io::pistream in(fhres);
 
     std::cout << tp.str() << ": Running test cases" << std::endl;
 

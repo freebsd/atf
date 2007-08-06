@@ -92,18 +92,10 @@ libs_libatfprivate_la_SOURCES = libs/atfprivate/application.cpp \
                                 libs/atfprivate/expand.hpp \
                                 libs/atfprivate/exceptions.cpp \
                                 libs/atfprivate/exceptions.hpp \
-                                libs/atfprivate/file_handle.cpp \
-                                libs/atfprivate/file_handle.hpp \
                                 libs/atfprivate/fs.cpp \
                                 libs/atfprivate/fs.hpp \
-                                libs/atfprivate/pipe.cpp \
-                                libs/atfprivate/pipe.hpp \
-                                libs/atfprivate/pistream.cpp \
-                                libs/atfprivate/pistream.hpp \
-                                libs/atfprivate/postream.cpp \
-                                libs/atfprivate/postream.hpp \
-                                libs/atfprivate/systembuf.cpp \
-                                libs/atfprivate/systembuf.hpp \
+                                libs/atfprivate/io.cpp \
+                                libs/atfprivate/io.hpp \
                                 libs/atfprivate/text.cpp \
                                 libs/atfprivate/text.hpp \
                                 libs/atfprivate/ui.cpp \
@@ -404,35 +396,15 @@ tests_atf_units_t_expand_SOURCES = tests/atf/units/t_expand.cpp
 tests_atf_units_t_expand_LDADD = -latf
 tests_atf_units_t_expand_LDFLAGS = -Llibs
 
-atf_units_PROGRAMS += tests/atf/units/t_file_handle
-tests_atf_units_t_file_handle_SOURCES = tests/atf/units/t_file_handle.cpp
-tests_atf_units_t_file_handle_LDADD = -latf
-tests_atf_units_t_file_handle_LDFLAGS = -Llibs
-
 atf_units_PROGRAMS += tests/atf/units/t_fs
 tests_atf_units_t_fs_SOURCES = tests/atf/units/t_fs.cpp
 tests_atf_units_t_fs_LDADD = -latf
 tests_atf_units_t_fs_LDFLAGS = -Llibs
 
-atf_units_PROGRAMS += tests/atf/units/t_pipe
-tests_atf_units_t_pipe_SOURCES = tests/atf/units/t_pipe.cpp
-tests_atf_units_t_pipe_LDADD = -latf
-tests_atf_units_t_pipe_LDFLAGS = -Llibs
-
-atf_units_PROGRAMS += tests/atf/units/t_pistream
-tests_atf_units_t_pistream_SOURCES = tests/atf/units/t_pistream.cpp
-tests_atf_units_t_pistream_LDADD = -latf
-tests_atf_units_t_pistream_LDFLAGS = -Llibs
-
-atf_units_PROGRAMS += tests/atf/units/t_postream
-tests_atf_units_t_postream_SOURCES = tests/atf/units/t_postream.cpp
-tests_atf_units_t_postream_LDADD = -latf
-tests_atf_units_t_postream_LDFLAGS = -Llibs
-
-atf_units_PROGRAMS += tests/atf/units/t_systembuf
-tests_atf_units_t_systembuf_SOURCES = tests/atf/units/t_systembuf.cpp
-tests_atf_units_t_systembuf_LDADD = -latf
-tests_atf_units_t_systembuf_LDFLAGS = -Llibs
+atf_units_PROGRAMS += tests/atf/units/t_io
+tests_atf_units_t_io_SOURCES = tests/atf/units/t_io.cpp
+tests_atf_units_t_io_LDADD = -latf
+tests_atf_units_t_io_LDFLAGS = -Llibs
 
 atf_units_PROGRAMS += tests/atf/units/t_test_case_result
 tests_atf_units_t_test_case_result_SOURCES = \
