@@ -50,6 +50,7 @@ extern "C" {
 #include <iostream>
 #include <stdexcept>
 
+#include "atfprivate/env.hpp"
 #include "atfprivate/exceptions.hpp"
 #include "atfprivate/fs.hpp"
 #include "atfprivate/user.hpp"
@@ -246,6 +247,7 @@ atf::test_case::fork_body(const std::string& workdir)
         // This is specially useful in those cases where these errors
         // cannot be directed to the parent process.
         try {
+#include "tcenv.cpp"
             body();
             ATF_PASS();
         } catch (const atf::test_case_result& tcre) {
@@ -258,6 +260,9 @@ atf::test_case::fork_body(const std::string& workdir)
             }
             os << tcre;
             os.close();
+        } catch (const std::runtime_error& e) {
+            std::cerr << "Caught unexpected error: " << e.what() << std::endl;
+            ::exit(EXIT_FAILURE);
         } catch (...) {
             std::cerr << "Caught unexpected error" << std::endl;
             ::exit(EXIT_FAILURE);

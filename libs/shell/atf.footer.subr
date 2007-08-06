@@ -540,6 +540,8 @@ _atf_parse_head()
 #
 _atf_run_body()
 {
+    . ${Atf_Pkgdatadir}/atf.tcenv.subr
+
     case $(atf_get require.user) in
     root)
         [ $(id -u) -eq 0 ] || \

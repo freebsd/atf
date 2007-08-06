@@ -115,18 +115,29 @@ libs_libatfprivate_la_SOURCES = libs/atfprivate/application.cpp \
 # `libs/atf' directory.
 # -------------------------------------------------------------------------
 
+libs/atf/tcenv.cpp: $(srcdir)/libs/tc-env.sh \
+                     $(srcdir)/libs/tc-env.csv
+	$(ATF_SHELL) $(srcdir)/libs/tc-env.sh cpp \
+	    <$(srcdir)/libs/tc-env.csv \
+	    >libs/atf/tcenv.cpp.tmp
+	mv libs/atf/tcenv.cpp.tmp libs/atf/tcenv.cpp
+CLEANFILES = libs/atf/tcenv.cpp.tmp
+CLEANFILES += libs/atf/tcenv.cpp
+EXTRA_DIST += libs/tc-env.csv
+EXTRA_DIST += libs/tc-env.sh
+
 libs/atf/tchead.cpp: $(srcdir)/libs/tc-meta-data.sh \
                      $(srcdir)/libs/tc-meta-data.csv
 	$(ATF_SHELL) $(srcdir)/libs/tc-meta-data.sh cpp \
 	    <$(srcdir)/libs/tc-meta-data.csv \
 	    >libs/atf/tchead.cpp.tmp
 	mv libs/atf/tchead.cpp.tmp libs/atf/tchead.cpp
-CLEANFILES = libs/atf/tchead.cpp.tmp
+CLEANFILES += libs/atf/tchead.cpp.tmp
 CLEANFILES += libs/atf/tchead.cpp
 EXTRA_DIST += libs/tc-meta-data.csv
 EXTRA_DIST += libs/tc-meta-data.sh
 
-$(srcdir)/libs/atf/test_case.cpp: libs/atf/tchead.cpp
+$(srcdir)/libs/atf/test_case.cpp: libs/atf/tcenv.cpp libs/atf/tchead.cpp
 
 lib_LTLIBRARIES += libs/libatf.la
 libs_libatf_la_SOURCES = libs/atf/exceptions.hpp \
@@ -146,6 +157,15 @@ atfdir = $(includedir)/atf
 # `libs/shell' directory.
 # -------------------------------------------------------------------------
 
+libs/shell/atf.tcenv.subr: $(srcdir)/libs/tc-env.sh \
+                            $(srcdir)/libs/tc-env.csv
+	$(ATF_SHELL) $(srcdir)/libs/tc-env.sh sh \
+	    <$(srcdir)/libs/tc-env.csv \
+	    >libs/shell/atf.tcenv.subr.tmp
+	mv libs/shell/atf.tcenv.subr.tmp libs/shell/atf.tcenv.subr
+CLEANFILES += libs/shell/atf.tcenv.subr.tmp
+CLEANFILES += libs/shell/atf.tcenv.subr
+
 libs/shell/atf.tchead.subr: $(srcdir)/libs/tc-meta-data.sh \
                             $(srcdir)/libs/tc-meta-data.csv
 	$(ATF_SHELL) $(srcdir)/libs/tc-meta-data.sh sh \
@@ -158,6 +178,7 @@ CLEANFILES += libs/shell/atf.tchead.subr
 libs_shell_DATA = libs/shell/atf.footer.subr \
                   libs/shell/atf.header.subr \
                   libs/shell/atf.init.subr \
+                  libs/shell/atf.tcenv.subr \
                   libs/shell/atf.tchead.subr
 libs_shelldir = $(pkgdatadir)
 EXTRA_DIST += $(libs_shell_DATA)
@@ -284,6 +305,14 @@ tests/atf/test_programs/h_sh: \
 		$(srcdir)/tests/atf/test_programs/h_sh.sh \
 		$(ATF_COMPILE_DEPS)
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/h_sh.sh
+
+atf_test_programs_SCRIPTS += tests/atf/test_programs/t_env
+CLEANFILES += tests/atf/test_programs/t_env
+EXTRA_DIST += tests/atf/test_programs/t_env.sh
+tests/atf/test_programs/t_env: \
+		$(srcdir)/tests/atf/test_programs/t_env.sh \
+		$(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_env.sh
 
 atf_test_programs_SCRIPTS += tests/atf/test_programs/t_fork
 CLEANFILES += tests/atf/test_programs/t_fork

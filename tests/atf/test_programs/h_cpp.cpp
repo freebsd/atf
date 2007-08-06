@@ -70,6 +70,17 @@ touch(const char* path)
     os.close();
 }
 
+ATF_TEST_CASE(env_undef);
+ATF_TEST_CASE_HEAD(env_undef)
+{
+    set("descr", "Helper test case for the t_env test program");
+}
+ATF_TEST_CASE_BODY(env_undef)
+{
+    ATF_CHECK(!atf::env::has("LC_COLLATE"));
+    ATF_CHECK(!atf::env::has("TZ"));
+}
+
 ATF_TEST_CASE(fork_mangle_fds);
 ATF_TEST_CASE_HEAD(fork_mangle_fds)
 {
@@ -216,6 +227,7 @@ ATF_TEST_CASE_BODY(require_user_unprivileged2)
 
 ATF_INIT_TEST_CASES(tcs)
 {
+    tcs.push_back(&env_undef);
     tcs.push_back(&fork_mangle_fds);
     tcs.push_back(&isolated_path);
     tcs.push_back(&isolated_cleanup);

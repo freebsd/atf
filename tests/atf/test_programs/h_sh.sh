@@ -38,6 +38,16 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+env_undef_head()
+{
+    atf_set "descr" "Helper test case for the t_mangle_fds test program"
+}
+env_undef_body()
+{
+    [ -n "${LC_COLLATE}" ] && atf_fail "LC_COLLATE is defined"
+    [ -n "${TZ}" ] && atf_fail "TZ is defined"
+}
+
 fork_mangle_fds_head()
 {
     atf_set "descr" "Helper test case for the t_mangle_fds test program"
@@ -143,6 +153,7 @@ require_user_unprivileged2_body()
 
 atf_init_test_cases()
 {
+    atf_add_test_case env_undef
     atf_add_test_case fork_mangle_fds
     atf_add_test_case isolated_path
     atf_add_test_case isolated_cleanup
