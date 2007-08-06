@@ -143,6 +143,7 @@ require_user_unprivileged2_body()
 
 atf_init_test_cases()
 {
+    atf_add_test_case fork_mangle_fds
     atf_add_test_case isolated_path
     atf_add_test_case isolated_cleanup
     # srcdir_exists is not here (while it is in h_cpp.cpp) because of the
