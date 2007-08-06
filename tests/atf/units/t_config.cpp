@@ -38,27 +38,11 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if defined(HAVE_CONFIG_H)
-#include "config.h"
-#endif
-
-#include <cstdlib>
-
 #include <atf.hpp>
 
 #include "atfprivate/config.hpp"
-
-namespace std {
-#if !defined(HAVE_PUTENV_IN_STD)
-    using ::putenv;
-#endif
-#if !defined(HAVE_SETENV_IN_STD)
-    using ::setenv;
-#endif
-#if !defined(HAVE_UNSETENV_IN_STD)
-    using ::unsetenv;
-#endif
-}
+#include "atfprivate/env.hpp"
+#include "atfprivate/exceptions.hpp"
 
 namespace atf {
     namespace config {
@@ -70,29 +54,23 @@ static
 void
 set_env_var(const char* name, const char* val)
 {
-#if defined(HAVE_SETENV)
-    if (std::setenv(name, val, 1) == -1)
-        ATF_FAIL(std::string("set_env_var(") + name + ") failed");
-#elif defined(HAVE_PUTENV)
-    if (std::putenv(std::string(name) + "=" + val) == -1)
-        ATF_FAIL(std::string("set_env_var(") + name + ") failed");
-#else
-#   error "Don't know how to set an environment variable."
-#endif
+    try {
+        atf::env::set(name, val);
+    } catch (const atf::system_error& e) {
+        ATF_FAIL(std::string("set_env_var(") + name + ", " + val +
+                 ") failed");
+    }
 }
 
 static
 void
 unset_env_var(const char* name)
 {
-#if defined(HAVE_UNSETENV)
-    std::unsetenv(name);
-#elif defined(HAVE_PUTENV)
-    if (std::putenv(std::string(name) + "=") == -1)
+    try {
+        atf::env::unset(name);
+    } catch (const atf::system_error& e) {
         ATF_FAIL(std::string("unset_env_var(") + name + ") failed");
-#else
-#   error "Don't know how to unset an environment variable."
-#endif
+    }
 }
 
 ATF_TEST_CASE(get);

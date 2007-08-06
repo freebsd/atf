@@ -46,6 +46,7 @@ extern "C" {
 #include <cstdlib>
 #include <sstream>
 
+#include "atfprivate/env.hpp"
 #include "atfprivate/text.hpp"
 #include "atfprivate/ui.hpp"
 
@@ -59,8 +60,9 @@ terminal_width(void)
     static size_t width = 0;
 
     if (width == 0) {
-        const char* cols = std::getenv("COLUMNS");
-        if (cols != NULL) {
+        const std::string& cols =
+            atf::env::has("COLUMNS") ? atf::env::get("COLUMNS") : "";
+        if (!cols.empty()) {
             std::istringstream str(cols);
             str >> width;
         } else {

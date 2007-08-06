@@ -39,10 +39,10 @@
 //
 
 #include <cassert>
-#include <cstdlib>
 #include <map>
 
 #include "atfprivate/config.hpp"
+#include "atfprivate/env.hpp"
 
 static std::map< std::string, std::string > m_variables;
 
@@ -56,32 +56,42 @@ static
 void
 init_variables(void)
 {
-    const char* str;
-
     assert(m_variables.empty());
 
-    str = ::getenv("ATF_LIBEXECDIR");
-    if (str != NULL && str[0] != '\0')
-        m_variables["atf_libexecdir"] = str;
-    else
+    if (atf::env::has("ATF_LIBEXECDIR")) {
+        const std::string& val = atf::env::get("ATF_LIBEXECDIR");
+        if (!val.empty())
+            m_variables["atf_libexecdir"] = val;
+        else
+            m_variables["atf_libexecdir"] = ATF_LIBEXECDIR;
+    } else
         m_variables["atf_libexecdir"] = ATF_LIBEXECDIR;
 
-    str = ::getenv("ATF_PKGDATADIR");
-    if (str != NULL && str[0] != '\0')
-        m_variables["atf_pkgdatadir"] = str;
-    else
+    if (atf::env::has("ATF_PKGDATADIR")) {
+        const std::string& val = atf::env::get("ATF_PKGDATADIR");
+        if (!val.empty())
+            m_variables["atf_pkgdatadir"] = val;
+        else
+            m_variables["atf_pkgdatadir"] = ATF_PKGDATADIR;
+    } else
         m_variables["atf_pkgdatadir"] = ATF_PKGDATADIR;
 
-    str = ::getenv("ATF_SHELL");
-    if (str != NULL && str[0] != '\0')
-        m_variables["atf_shell"] = str;
-    else
+    if (atf::env::has("ATF_SHELL")) {
+        const std::string& val = atf::env::get("ATF_SHELL");
+        if (!val.empty())
+            m_variables["atf_shell"] = val;
+        else
+            m_variables["atf_shell"] = ATF_SHELL;
+    } else
         m_variables["atf_shell"] = ATF_SHELL;
 
-    str = ::getenv("ATF_WORKDIR");
-    if (str != NULL && str[0] != '\0')
-        m_variables["atf_workdir"] = str;
-    else
+    if (atf::env::has("ATF_WORKDIR")) {
+        const std::string& val = atf::env::get("ATF_WORKDIR");
+        if (!val.empty())
+            m_variables["atf_workdir"] = val;
+        else
+            m_variables["atf_workdir"] = ATF_WORKDIR;
+    } else
         m_variables["atf_workdir"] = ATF_WORKDIR;
 
     assert(!m_variables.empty());

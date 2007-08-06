@@ -44,12 +44,12 @@ extern "C" {
 #include <fcntl.h>
 }
 
-#include <cstdlib>
 #include <fstream>
 #include <stdexcept>
 
 #include <atf.hpp>
 
+#include "atfprivate/env.hpp"
 #include "atfprivate/fs.hpp"
 
 static
@@ -75,18 +75,16 @@ ATF_TEST_CASE_HEAD(fork_mangle_fds)
 {
     set("descr", "Helper test case for the t_fork test program");
 
-    const char* i = std::getenv("ISOLATED");
-    if (i == NULL)
-        set("isolated", "yes");
+    if (atf::env::has("ISOLATED"))
+        set("isolated", atf::env::get("ISOLATED"));
     else
-        set("isolated", i);
+        set("isolated", "yes");
 }
 ATF_TEST_CASE_BODY(fork_mangle_fds)
 {
-    const char* str = std::getenv("RESFD");
-    if (str == NULL)
+    if (!atf::env::has("RESFD"))
         ATF_FAIL("RESFD not defined");
-    int resfd = std::atoi(str);
+    int resfd = std::atoi(atf::env::get("RESFD").c_str());
 
     if (::close(STDIN_FILENO) == -1)
         ATF_FAIL("Failed to close stdin");
@@ -108,21 +106,20 @@ ATF_TEST_CASE_HEAD(isolated_path)
 {
     set("descr", "Helper test case for the t_isolated test program");
 
-    const char* i = std::getenv("ISOLATED");
-    if (i == NULL)
-        set("isolated", "yes");
+    if (atf::env::has("ISOLATED"))
+        set("isolated", atf::env::get("ISOLATED"));
     else
-        set("isolated", i);
+        set("isolated", "yes");
 }
 ATF_TEST_CASE_BODY(isolated_path)
 {
-    const char* p = std::getenv("PATHFILE");
-    if (p == NULL)
+    if (!atf::env::has("PATHFILE"))
         ATF_FAIL("PATHFILE not defined");
+    const std::string& p = atf::env::get("PATHFILE");
 
-    std::ofstream os(p);
+    std::ofstream os(p.c_str());
     if (!os)
-        ATF_FAIL(std::string("Could not open ") + p + " for writing");
+        ATF_FAIL("Could not open " + p + " for writing");
 
     os << atf::fs::get_current_dir().str() << std::endl;
 
@@ -137,13 +134,13 @@ ATF_TEST_CASE_HEAD(isolated_cleanup)
 }
 ATF_TEST_CASE_BODY(isolated_cleanup)
 {
-    const char* p = std::getenv("PATHFILE");
-    if (p == NULL)
+    if (!atf::env::has("PATHFILE"))
         ATF_FAIL("PATHFILE not defined");
+    const std::string& p = atf::env::get("PATHFILE");
 
-    std::ofstream os(p);
+    std::ofstream os(p.c_str());
     if (!os)
-        ATF_FAIL(std::string("Could not open ") + p + " for writing");
+        ATF_FAIL("Could not open " + p + " for writing");
 
     os << atf::fs::get_current_dir().str() << std::endl;
 
