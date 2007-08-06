@@ -214,7 +214,7 @@ test_program::filter_test_cases(test_cases tcs,
              iter != tcnames.end(); iter++) {
             const std::string& glob = *iter;
 
-            std::set< std::string > ms = atf::expand_glob(glob, ids);
+            std::set< std::string > ms = atf::expand::expand_glob(glob, ids);
             if (ms.empty())
                 throw std::runtime_error("Unknown test case `" + glob + "'");
             exps.insert(ms.begin(), ms.end());

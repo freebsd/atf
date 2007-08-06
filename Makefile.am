@@ -86,6 +86,8 @@ libs_libatfprivate_la_SOURCES = libs/atfprivate/application.cpp \
                                 libs/atfprivate/atffile.hpp \
                                 libs/atfprivate/config.cpp \
                                 libs/atfprivate/config.hpp \
+                                libs/atfprivate/env.cpp \
+                                libs/atfprivate/env.hpp \
                                 libs/atfprivate/expand.cpp \
                                 libs/atfprivate/expand.hpp \
                                 libs/atfprivate/exceptions.cpp \
@@ -362,6 +364,11 @@ atf_units_PROGRAMS = tests/atf/units/t_config
 tests_atf_units_t_config_SOURCES = tests/atf/units/t_config.cpp
 tests_atf_units_t_config_LDADD = -latf
 tests_atf_units_t_config_LDFLAGS = -Llibs
+
+atf_units_PROGRAMS += tests/atf/units/t_env
+tests_atf_units_t_env_SOURCES = tests/atf/units/t_env.cpp
+tests_atf_units_t_env_LDADD = -latf
+tests_atf_units_t_env_LDFLAGS = -Llibs
 
 atf_units_PROGRAMS += tests/atf/units/t_expand
 tests_atf_units_t_expand_SOURCES = tests/atf/units/t_expand.cpp

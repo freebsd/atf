@@ -38,76 +38,59 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATFPRIVATE_EXCEPTIONS_HPP_)
-#define _ATFPRIVATE_EXCEPTIONS_HPP_
+#include <atf.hpp>
 
-#include <stdexcept>
+#include "atfprivate/env.hpp"
 
-namespace atf {
-
-template< class T >
-class not_found_error :
-    public std::runtime_error
+ATF_TEST_CASE(has_get);
+ATF_TEST_CASE_HEAD(has_get)
 {
-    T m_value;
-
-public:
-    not_found_error(const std::string& message, const T& value) throw();
-
-    virtual ~not_found_error(void) throw();
-
-    const T& get_value(void) const throw();
-};
-
-template< class T >
-inline
-not_found_error< T >::not_found_error(const std::string& message,
-                                      const T& value)
-    throw() :
-    std::runtime_error(message),
-    m_value(value)
+    set("descr", "Tests the has and get functions");
+}
+ATF_TEST_CASE_BODY(has_get)
 {
+    ATF_CHECK(atf::env::has("PATH"));
+    ATF_CHECK(!atf::env::get("PATH").empty());
+
+    ATF_CHECK(!atf::env::has("_UNDEFINED_VARIABLE_"));
 }
 
-template< class T >
-inline
-not_found_error< T >::~not_found_error(void)
-    throw()
+// XXX This should be named 'set' instead of 'set_func', but this collides
+// with std::set.  Should rework the macros to make the names private and
+// thus prevent such collisions.
+ATF_TEST_CASE(set_func);
+ATF_TEST_CASE_HEAD(set_func)
 {
+    set("descr", "Tests the set function");
+}
+ATF_TEST_CASE_BODY(set_func)
+{
+    ATF_CHECK(atf::env::has("PATH"));
+    const std::string& oldval = atf::env::get("PATH");
+    atf::env::set("PATH", "foo-bar");
+    ATF_CHECK(atf::env::get("PATH") != oldval);
+    ATF_CHECK_EQUAL(atf::env::get("PATH"), "foo-bar");
+
+    ATF_CHECK(!atf::env::has("_UNDEFINED_VARIABLE_"));
+    atf::env::set("_UNDEFINED_VARIABLE_", "foo2-bar2");
+    ATF_CHECK_EQUAL(atf::env::get("_UNDEFINED_VARIABLE_"), "foo2-bar2");
 }
 
-template< class T >
-inline
-const T&
-not_found_error< T >::get_value(void)
-    const
-    throw()
+ATF_TEST_CASE(unset);
+ATF_TEST_CASE_HEAD(unset)
 {
-    return m_value;
+    set("descr", "Tests the unset function");
+}
+ATF_TEST_CASE_BODY(unset)
+{
+    ATF_CHECK(atf::env::has("PATH"));
+    atf::env::unset("PATH");
+    ATF_CHECK(!atf::env::has("PATH"));
 }
 
-class system_error : public std::runtime_error {
-    int m_sys_err;
-    mutable std::string m_message;
-
-public:
-    system_error(const std::string&, const std::string&, int);
-    ~system_error(void) throw();
-
-    int code(void) const throw();
-    const char* what(void) const throw();
-};
-
-class usage_error : public std::runtime_error {
-    char m_text[4096];
-
-public:
-    usage_error(const char* fmt, ...) throw();
-    ~usage_error(void) throw();
-
-    const char* what(void) const throw();
-};
-
-} // namespace atf
-
-#endif // !defined(_ATFPRIVATE_EXCEPTIONS_HPP_)
+ATF_INIT_TEST_CASES(tcs)
+{
+    tcs.push_back(&has_get);
+    tcs.push_back(&set_func);
+    tcs.push_back(&unset);
+}

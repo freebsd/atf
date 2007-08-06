@@ -38,76 +38,58 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATFPRIVATE_EXCEPTIONS_HPP_)
-#define _ATFPRIVATE_EXCEPTIONS_HPP_
+#if !defined(_ATF_ENV_HPP_)
+#define _ATF_ENV_HPP_
 
-#include <stdexcept>
+#include <string>
 
 namespace atf {
+namespace env {
 
-template< class T >
-class not_found_error :
-    public std::runtime_error
-{
-    T m_value;
+// ------------------------------------------------------------------------
+// Free functions.
+// ------------------------------------------------------------------------
 
-public:
-    not_found_error(const std::string& message, const T& value) throw();
+//!
+//! \brief Returns the value of an environment variable.
+//!
+//! Returns the value of the specified environment variable.  The variable
+//! must be defined.
+//!
+std::string get(const std::string&);
 
-    virtual ~not_found_error(void) throw();
+//!
+//! \brief Checks if the environment has a variable.
+//!
+//! Checks if the environment has a given variable.
+//!
+bool has(const std::string&);
 
-    const T& get_value(void) const throw();
-};
+//!
+//! \brief Sets an environment variable to a given value.
+//!
+//! Sets the specified environment variable to the given value.  Note that
+//! variables set to the empty string are different to undefined ones.
+//!
+//! Be aware that this alters the program's global status, which in general
+//! is a bad thing to do due to the side-effects it may have.  There are
+//! some legitimate usages for this function, though.
+//!
+void set(const std::string&, const std::string&);
 
-template< class T >
-inline
-not_found_error< T >::not_found_error(const std::string& message,
-                                      const T& value)
-    throw() :
-    std::runtime_error(message),
-    m_value(value)
-{
-}
+//!
+//! \brief Unsets an environment variable.
+//!
+//! Unsets the specified environment variable  Note that undefined
+//! variables are different to those defined but set to an empty value.
+//!
+//! Be aware that this alters the program's global status, which in general
+//! is a bad thing to do due to the side-effects it may have.  There are
+//! some legitimate usages for this function, though.
+//!
+void unset(const std::string&);
 
-template< class T >
-inline
-not_found_error< T >::~not_found_error(void)
-    throw()
-{
-}
-
-template< class T >
-inline
-const T&
-not_found_error< T >::get_value(void)
-    const
-    throw()
-{
-    return m_value;
-}
-
-class system_error : public std::runtime_error {
-    int m_sys_err;
-    mutable std::string m_message;
-
-public:
-    system_error(const std::string&, const std::string&, int);
-    ~system_error(void) throw();
-
-    int code(void) const throw();
-    const char* what(void) const throw();
-};
-
-class usage_error : public std::runtime_error {
-    char m_text[4096];
-
-public:
-    usage_error(const char* fmt, ...) throw();
-    ~usage_error(void) throw();
-
-    const char* what(void) const throw();
-};
-
+} // namespace env
 } // namespace atf
 
-#endif // !defined(_ATFPRIVATE_EXCEPTIONS_HPP_)
+#endif // !defined(_ATF_ENV_HPP_)
