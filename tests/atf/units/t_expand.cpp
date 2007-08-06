@@ -42,6 +42,30 @@
 
 #include "atfprivate/expand.hpp"
 
+ATF_TEST_CASE(is_glob);
+ATF_TEST_CASE_HEAD(is_glob)
+{
+    set("descr", "Tests the is_glob function.");
+}
+ATF_TEST_CASE_BODY(is_glob)
+{
+    using atf::is_glob;
+
+    ATF_CHECK(!is_glob(""));
+    ATF_CHECK(!is_glob("a"));
+    ATF_CHECK(!is_glob("foo"));
+
+    ATF_CHECK( is_glob("*"));
+    ATF_CHECK( is_glob("a*"));
+    ATF_CHECK( is_glob("*a"));
+    ATF_CHECK( is_glob("a*b"));
+
+    ATF_CHECK( is_glob("?"));
+    ATF_CHECK( is_glob("a?"));
+    ATF_CHECK( is_glob("?a"));
+    ATF_CHECK( is_glob("a?b"));
+}
+
 ATF_TEST_CASE(matches_glob_plain);
 ATF_TEST_CASE_HEAD(matches_glob_plain)
 {
@@ -225,6 +249,7 @@ ATF_TEST_CASE_BODY(expand_glob_tps)
 
 ATF_INIT_TEST_CASES(tcs)
 {
+    tcs.push_back(&is_glob);
     tcs.push_back(&matches_glob_plain);
     tcs.push_back(&matches_glob_star);
     tcs.push_back(&matches_glob_question);

@@ -56,6 +56,14 @@ std::set< std::string > expand_glob(const std::string&,
                                     const std::set< std::string >&);
 
 //!
+//! \brief Checks if the given string is a glob pattern.
+//!
+//! Returns true if the given string is a glob pattern; i.e. if it contains
+//! any character that will be expanded by expand_glob.
+//!
+bool is_glob(const std::string&);
+
+//!
 //! \brief Checks if a given string matches a glob pattern.
 //!
 //! Given a glob pattern and a string, checks whether the former matches

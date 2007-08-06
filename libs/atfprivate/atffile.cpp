@@ -66,8 +66,15 @@ atf::atffile::atffile(const atf::fs::path& filename)
 
     std::string line;
     while (std::getline(is, line)) {
-        std::set< std::string > ms = expand_glob(line, dir.names());
-        insert(end(), ms.begin(), ms.end());
+        if (is_glob(line)) {
+            std::set< std::string > ms = expand_glob(line, dir.names());
+            insert(end(), ms.begin(), ms.end());
+        } else {
+            if (dir.find(line) == dir.end())
+                throw atf::not_found_error< fs::path >
+                    ("Cannot locate the " + line + " file", fs::path(line));
+            push_back(line);
+        }
     }
 
     is.close();

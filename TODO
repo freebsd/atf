@@ -29,8 +29,6 @@ Basically they are here so that they are not forgotten.
 * Fix atf-run to show an error if a test program did not provide a result
   message for those test cases that failed or were skipped.
 
-* Raise errors for unknown tests in Atffiles, but be careful with globs.
-
 * Add a way to specify which bug/issue/whatever a given test case is
   stress-testing.  This information is useful when detecting regressions.
 

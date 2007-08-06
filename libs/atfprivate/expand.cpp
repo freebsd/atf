@@ -68,6 +68,7 @@ glob_to_regex(const std::string& glob)
     regex = "^";
     for (std::string::const_iterator iter = glob.begin();
          iter != glob.end(); iter++) {
+        // NOTE: Keep this in sync with is_glob!
         if (*iter == '*')
             regex += ".*";
         else if (*iter == '?')
@@ -115,6 +116,14 @@ atf::expand_glob(const std::string& glob,
             exps.insert(*iter);
 
     return exps;
+}
+
+bool
+atf::is_glob(const std::string& glob)
+{
+    // NOTE: Keep this in sync with glob_to_regex!
+    return (glob.find('*') != std::string::npos) ||
+           (glob.find('?') != std::string::npos);
 }
 
 bool
