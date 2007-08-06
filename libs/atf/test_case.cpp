@@ -38,8 +38,16 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+extern "C" {
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+}
+
 #include <cassert>
 #include <cctype>
+#include <fstream>
+#include <iostream>
 #include <stdexcept>
 
 #include "atfprivate/exceptions.hpp"
@@ -177,22 +185,105 @@ leave_workdir(const atf::test_case* tc, atf::fs::path& olddir,
     atf::fs::cleanup(workdir);
 }
 
-void
-atf::test_case::parse_props(void)
+atf::test_case_result
+atf::test_case::safe_run(void)
     const
 {
+    test_case_result tcr = test_case_result::passed();
+
     if (has("require.user")) {
         const std::string& u = get("require.user");
         if (u == "root") {
             if (!user::is_root())
-                ATF_SKIP("Requires root privileges");
+                tcr = test_case_result::skipped("Requires root privileges");
         } else if (u == "unprivileged") {
             if (!user::is_unprivileged())
-                ATF_SKIP("Requires an unprivileged user");
+                tcr = test_case_result::skipped("Requires an unprivileged "
+                                                "user");
         } else
-            throw std::runtime_error("Invalid value in the require.user "
-                                     "property");
+            tcr = test_case_result::skipped("Invalid value in the "
+                                            "require.user property");
     }
+
+    if (tcr.get_status() == test_case_result::status_passed) {
+        // Previous checks have not made the test fail, so run it now.
+
+        fs::path olddir(".");
+        fs::path workdir(".");
+
+        try {
+            enter_workdir(this, olddir, workdir, m_workdirbase);
+            tcr = fork_body(workdir.str());
+            leave_workdir(this, olddir, workdir);
+        } catch (...) {
+            leave_workdir(this, olddir, workdir);
+            throw;
+        }
+    }
+
+    return tcr;
+}
+
+atf::test_case_result
+atf::test_case::fork_body(const std::string& workdir)
+    const
+{
+    test_case_result tcr;
+
+    fs::path result(".");
+    if (get_bool("isolated")) {
+        result = fs::path(workdir) / "tc-result";
+    } else {
+        result = fs::create_temp_file(fs::path(m_workdirbase) / "atf.XXXXXX");
+    }
+
+    pid_t pid = ::fork();
+    if (pid == -1) {
+        tcr = test_case_result::failed("Coult not fork to run test case");
+    } else if (pid == 0) {
+        // Unexpected errors detected in the child process are mentioned
+        // in stderr to give the user a chance to see what happened.
+        // This is specially useful in those cases where these errors
+        // cannot be directed to the parent process.
+        try {
+            body();
+            ATF_PASS();
+        } catch (const atf::test_case_result& tcre) {
+            std::ofstream os(result.c_str());
+            if (!os) {
+                std::cerr << "Could not open the temporary file " +
+                             result.str() + " to leave the results in it"
+                          << std::endl;
+                ::exit(EXIT_FAILURE);
+            }
+            os << tcre;
+            os.close();
+        } catch (...) {
+            std::cerr << "Caught unexpected error" << std::endl;
+            ::exit(EXIT_FAILURE);
+        }
+        ::exit(EXIT_SUCCESS);
+    } else {
+        int status;
+        if (::waitpid(pid, &status, 0) == -1)
+            tcr = test_case_result::failed("waitpid failed");
+        else {
+            std::ifstream is(result.c_str());
+            if (!is) {
+                tcr = test_case_result::failed("Could not open results file "
+                                               "for reading");
+            } else {
+                try {
+                    is >> tcr;
+                } catch (const format_error& e) {
+                    tcr = test_case_result::failed(e.what());
+                }
+                is.close();
+            }
+        }
+    }
+
+    return tcr;
 }
 
 atf::test_case_result
@@ -203,34 +294,14 @@ atf::test_case::run(void)
 
     test_case_result tcr;
 
-    fs::path olddir(".");
-    fs::path workdir(".");
-
     try {
-        try {
-            parse_props();
-            try {
-                enter_workdir(this, olddir, workdir, m_workdirbase);
-                body();
-                leave_workdir(this, olddir, workdir);
-                tcr = test_case_result::passed();
-            } catch (...) {
-                leave_workdir(this, olddir, workdir);
-                throw;
-            }
-        } catch (const test_case_result& tcre) {
-            throw tcre;
-        } catch (const std::exception& e) {
-            throw test_case_result::failed(std::string("Unhandled "
-                                                       "exception: ") +
-                                           e.what());
-        } catch (...) {
-            throw test_case_result::failed("Unknown unhandled exception");
-        }
-    } catch (const test_case_result& tcre) {
-        tcr = tcre;
+        tcr = safe_run();
+    } catch (const std::exception& e) {
+        tcr = test_case_result::failed(std::string("Unhandled "
+                                                   "exception: ") +
+                                       e.what());
     } catch (...) {
-        assert(false);
+        tcr = test_case_result::failed("Unknown unhandled exception");
     }
 
     return tcr;

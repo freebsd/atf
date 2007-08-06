@@ -61,7 +61,8 @@ class test_case {
     void ensure_boolean(const std::string&);
     void ensure_not_empty(const std::string&);
 
-    void parse_props(void) const;
+    test_case_result safe_run(void) const;
+    test_case_result fork_body(const std::string&) const;
 
 protected:
     virtual void head(void) = 0;

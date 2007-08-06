@@ -384,6 +384,23 @@ impl::create_temp_dir(const path& tmpl)
     return path(buf.get());
 }
 
+impl::path
+impl::create_temp_file(const path& tmpl)
+{
+    std::auto_ptr< char > buf(new char[tmpl.str().length() + 1]);
+    std::strcpy(buf.get(), tmpl.c_str());
+    // XXX This usage of mktemp is NOT safe.  I have not bothered to do
+    // this correctly yet because the test case's 'isolated' property
+    // may go away, in which case this function will be useless.
+    int fd = ::mkstemp(buf.get());
+    if (fd == -1)
+        throw system_error(IMPL_NAME "::create_temp_file(" +
+                           tmpl.str() + "/", "mkstemp(3) failed",
+                           errno);
+    ::close(fd);
+    return path(buf.get());
+}
+
 bool
 impl::exists(const path& p)
 {

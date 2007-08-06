@@ -41,6 +41,7 @@
 extern "C" {
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 }
 
 #include <cstdlib>
@@ -67,6 +68,39 @@ touch(const char* path)
     if (!os)
         ATF_FAIL(std::string("Could not create file ") + path);
     os.close();
+}
+
+ATF_TEST_CASE(fork_mangle_fds);
+ATF_TEST_CASE_HEAD(fork_mangle_fds)
+{
+    set("descr", "Helper test case for the t_fork test program");
+
+    const char* i = std::getenv("ISOLATED");
+    if (i == NULL)
+        set("isolated", "yes");
+    else
+        set("isolated", i);
+}
+ATF_TEST_CASE_BODY(fork_mangle_fds)
+{
+    const char* str = std::getenv("RESFD");
+    if (str == NULL)
+        ATF_FAIL("RESFD not defined");
+    int resfd = std::atoi(str);
+
+    if (::close(STDIN_FILENO) == -1)
+        ATF_FAIL("Failed to close stdin");
+    if (::close(STDOUT_FILENO) == -1)
+        ATF_FAIL("Failed to close stdout");
+    if (::close(STDERR_FILENO) == -1)
+        ATF_FAIL("Failed to close stderr");
+    if (::close(resfd) == -1)
+        ATF_FAIL("Failed to close results descriptor");
+
+#if defined(F_CLOSEM)
+    if (::fcntl(0, F_CLOSEM) == -1)
+        ATF_FAIL("Failed to close everything");
+#endif
 }
 
 ATF_TEST_CASE(isolated_path);
@@ -185,6 +219,7 @@ ATF_TEST_CASE_BODY(require_user_unprivileged2)
 
 ATF_INIT_TEST_CASES(tcs)
 {
+    tcs.push_back(&fork_mangle_fds);
     tcs.push_back(&isolated_path);
     tcs.push_back(&isolated_cleanup);
     tcs.push_back(&srcdir_exists);

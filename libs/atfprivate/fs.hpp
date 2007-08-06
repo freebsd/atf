@@ -355,6 +355,15 @@ path change_directory(const path&);
 path create_temp_dir(const path&);
 
 //!
+//! \brief Creates a safe temporary file.
+//!
+//! Given a name template, which must end in six X characters, generates a
+//! unique file name by replacing those Xs with alphanumeric characters and
+//! creates an empty file with the resulting name.
+//!
+path create_temp_file(const path&);
+
+//!
 //! \brief Checks if the given path exists.
 //!
 bool exists(const path&);

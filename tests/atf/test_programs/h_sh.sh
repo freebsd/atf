@@ -38,6 +38,26 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+fork_mangle_fds_head()
+{
+    atf_set "descr" "Helper test case for the t_mangle_fds test program"
+
+    if [ -z "${ISOLATED}" ]; then
+        atf_set "isolated" "invalid-value"
+    else
+        atf_set "isolated" "${ISOLATED}"
+    fi
+}
+fork_mangle_fds_body()
+{
+    test -z "${RESFD}" && atf_fail "RESFD not defined"
+    touch in
+    0<&in
+    1>&out
+    2>&err
+    ${RESFD}>&res
+}
+
 isolated_path_head()
 {
     atf_set "descr" "Helper test case for the t_isolated test program"

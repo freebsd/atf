@@ -283,6 +283,14 @@ tests/atf/test_programs/h_sh: \
 		$(ATF_COMPILE_DEPS)
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/h_sh.sh
 
+atf_test_programs_SCRIPTS += tests/atf/test_programs/t_fork
+CLEANFILES += tests/atf/test_programs/t_fork
+EXTRA_DIST += tests/atf/test_programs/t_fork.sh
+tests/atf/test_programs/t_fork: \
+		$(srcdir)/tests/atf/test_programs/t_fork.sh \
+		$(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_fork.sh
+
 atf_test_programs_SCRIPTS += tests/atf/test_programs/t_isolated
 CLEANFILES += tests/atf/test_programs/t_isolated
 EXTRA_DIST += tests/atf/test_programs/t_isolated.sh

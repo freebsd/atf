@@ -61,6 +61,9 @@ Parsing_Head=false
 # the test cases.
 Results_Fd=1
 
+# The file to which the test case will print its result.
+Results_File=
+
 # A temporary file used to determine if a test case explicitly reported
 # its exit status or not.
 Status_File=
@@ -576,8 +579,11 @@ _atf_run_tc()
     if _atf_get_bool isolated; then
         Work_Dir=$(mktemp -d ${Work_Dir_Base}/atf.XXXXXX)
         if [ ${?} -eq 0 ]; then
+            Results_File=$(mktemp ${Work_Dir}/tc-result)
             ( cd ${Work_Dir} ; _atf_run_body ${1} ; atf_pass )
             _ret=$?
+            cat ${Results_File} 1>&${Results_Fd}
+            Results_File=
             ${Atf_Cleanup} ${Work_Dir}
         else
             ( atf_fail "Could not create the work directory" )
@@ -585,8 +591,11 @@ _atf_run_tc()
         fi
         Work_Dir=
     else
+        Results_File=$(mktemp ${Work_Dir_Base}/atf.XXXXXX)
         ( _atf_run_body ${1} ; atf_pass )
         _ret=${?}
+        cat ${Results_File} 1>&${Results_Fd}
+        Results_File=
     fi
 
     _atf_internal_set srcdir ""
