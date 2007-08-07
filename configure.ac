@@ -143,6 +143,32 @@ AC_COMPILE_IFELSE(
     AC_MSG_RESULT(no))
 
 dnl -----------------------------------------------------------------------
+dnl User-customizable variables.
+dnl -----------------------------------------------------------------------
+
+AC_ARG_VAR([ATF_WORKDIR],
+           [Default location to use for ATF work directories])
+if test x"${ATF_WORKDIR}" = x""; then
+    for t in /tmp /var/tmp; do
+        if test -d ${t}; then
+            ATF_WORKDIR=${t}
+            break
+        fi
+    done
+    if test x"${ATF_WORKDIR}" = x""; then
+        AC_MSG_ERROR([Could not guess a value for ATF_WORKDIR])
+    fi
+else
+    case ${ATF_WORKDIR} in
+    /*)
+        ;;
+    *)
+        AC_MSG_ERROR([ATF_WORKDIR must hold an absolute path])
+        ;;
+    esac
+fi
+
+dnl -----------------------------------------------------------------------
 dnl Check for required tools.
 dnl -----------------------------------------------------------------------
 
@@ -161,7 +187,6 @@ fi
 if test x"${ATF_SHELL}" = x""; then
     AC_MSG_ERROR([No POSIX shell interpreter found; maybe set ATF_SHELL?])
 fi
-AC_SUBST(ATF_SHELL)
 
 dnl -----------------------------------------------------------------------
 dnl Set up the developer mode

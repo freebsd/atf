@@ -38,88 +38,26 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "config.h"
+
 extern "C" {
+#include <sys/types.h>
 #include <unistd.h>
 }
 
-#include <cstdlib>
-#include <iostream>
+#include "atfprivate/user.hpp"
 
-#include <atf.hpp>
+namespace impl = atf::user;
+#define IMPL_NAME "atf::user"
 
-#include "atfprivate/pipe.hpp"
-#include "atfprivate/systembuf.hpp"
-
-ATF_TEST_CASE(tc_read_and_write);
-ATF_TEST_CASE_HEAD(tc_read_and_write)
+bool
+impl::is_root(void)
 {
-    set("descr", "Tests reading from and writing to a pipe");
-}
-ATF_TEST_CASE_BODY(tc_read_and_write)
-{
-    atf::pipe p;
-    atf::systembuf rbuf(p.rend().get());
-    atf::systembuf wbuf(p.wend().get());
-    std::istream rend(&rbuf);
-    std::ostream wend(&wbuf);
-
-    // XXX This assumes that the pipe's buffer is big enough to accept
-    // the data written without blocking!
-    wend << "1Test 1message" << std::endl;
-    std::string tmp;
-    rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "1Test");
-    rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "1message");
+    return ::geteuid() == 0;
 }
 
-ATF_TEST_CASE(tc_remap_read);
-ATF_TEST_CASE_HEAD(tc_remap_read)
+bool
+impl::is_unprivileged(void)
 {
-    set("descr", "Tests the pipe::remap_read method");
-}
-ATF_TEST_CASE_BODY(tc_remap_read)
-{
-    atf::pipe p;
-    atf::systembuf wbuf(p.wend().get());
-    std::ostream wend(&wbuf);
-    p.rend().posix_remap(STDIN_FILENO);
-
-    // XXX This assumes that the pipe's buffer is big enough to accept
-    // the data written without blocking!
-    wend << "2Test 2message" << std::endl;
-    std::string tmp;
-    std::cin >> tmp;
-    ATF_CHECK_EQUAL(tmp, "2Test");
-    std::cin >> tmp;
-    ATF_CHECK_EQUAL(tmp, "2message");
-}
-
-ATF_TEST_CASE(tc_remap_write);
-ATF_TEST_CASE_HEAD(tc_remap_write)
-{
-    set("descr", "Tests the pipe::remap_write method");
-}
-ATF_TEST_CASE_BODY(tc_remap_write)
-{
-    atf::pipe p;
-    atf::systembuf rbuf(p.rend().get());
-    std::istream rend(&rbuf);
-    p.wend().posix_remap(STDERR_FILENO);
-
-    // XXX This assumes that the pipe's buffer is big enough to accept
-    // the data written without blocking!
-    std::cerr << "3Test 3message" << std::endl;
-    std::string tmp;
-    rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "3Test");
-    rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "3message");
-}
-
-ATF_INIT_TEST_CASES(tcs)
-{
-    tcs.push_back(&tc_read_and_write);
-    tcs.push_back(&tc_remap_read);
-    tcs.push_back(&tc_remap_write);
+    return ::geteuid() != 0;
 }

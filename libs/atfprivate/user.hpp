@@ -38,37 +38,16 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <ostream>
+#if !defined(_ATF_USER_HPP_)
+#define _ATF_USER_HPP_
 
-#include <atf.hpp>
+namespace atf {
+namespace user {
 
-#include "atfprivate/pipe.hpp"
-#include "atfprivate/systembuf.hpp"
-#include "atfprivate/postream.hpp"
+bool is_root(void);
+bool is_unprivileged(void);
 
-ATF_TEST_CASE(tc_main);
-ATF_TEST_CASE_HEAD(tc_main)
-{
-    set("descr", "Tests the postream class' behavior");
-}
-ATF_TEST_CASE_BODY(tc_main)
-{
-    atf::pipe p;
-    atf::systembuf rbuf(p.rend().get());
-    std::istream rend(&rbuf);
-    atf::postream wend(p.wend());
+} // namespace user
+} // namespace atf
 
-    // XXX This assumes that the pipe's buffer is big enough to accept
-    // the data written without blocking!
-    wend << "1Test 1message" << std::endl;
-    std::string tmp;
-    rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "1Test");
-    rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "1message");
-}
-
-ATF_INIT_TEST_CASES(tcs)
-{
-    tcs.push_back(&tc_main);
-}
+#endif // !defined(_ATF_USER_HPP_)

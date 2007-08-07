@@ -10,6 +10,23 @@ This project is still in very early stages of development.  The list below
 is very incomplete, but it details some items that have to be addressed.
 Basically they are here so that they are not forgotten.
 
+* Reorganize exception classes: if they are exposed to the user, they have
+  to belong to libatf, but libatfprivate may need to throw them from the
+  inside.  Making libatfprivate depend on libatf is not an option.  Maybe
+  put the implementation in libatfprivate and the headers in libatf, or
+  make everything inline and keep a single file in libatf.
+
+* Set the umask to a known value before running a test case.
+
+* Make atf-run account for the total executed test programs and how many
+  of them failed.  Possibly also collect their names.
+
+* Fix atf-run to show an error if a test program did not execute any test
+  case.
+
+* Fix atf-run to show an error if a test program did not provide a result
+  message for those test cases that failed or were skipped.
+
 * Add a way to specify which bug/issue/whatever a given test case is
   stress-testing.  This information is useful when detecting regressions.
 
@@ -21,36 +38,12 @@ Basically they are here so that they are not forgotten.
 
 * An atf_check_equal function for shell tests can be useful.
 
-* Make sure that atf_check is not used if isolated=no.
-
-* Make atf-run ignore non-executable test cases when using glob patterns.
-
 * Add a class, similar in idea to boost::noncopyable, to easily mark some
   classes as not copyable.  Or, failing to do that, any other way to do
   the same.
 
-* Change the way test programs report their output.  They should write
-  that information to a configurable channel (different than stdout and
-  stderr) so that the output of the tests can write some useful information
-  (if wanted).
-
-* Audit error reporting in all tools.  They must not write to std::cerr
-  directly nor use std::exit; they should instead be using exceptions
-  appropriately so that all errors can receive the same treatment.
-
-* Test cases should be isolated to run in an independent directory.
-  Note: the shell library already does this.
-
-* Test cases should be safe to closing stdin, stdout and stderr, to some
-  extent.  Once implemented, make t_file_handle.cpp and t_pipe.cpp use
-  stdout again, instead of stderr.
-
 * Add format and versioning tags to the outputs that have to be machine-
   parseable.  For example: the output of test programs.
-
-* Look for a way to ensure that the C++ and shell interfaces are consistent
-  with each other.  For example: the meta-data recognized by each test
-  case and the default values for them.
 
 * Implement the atf-report tool, which takes the output of atf-run and
   converts it to some nice format.  Ideas for these output formats
@@ -65,6 +58,9 @@ Basically they are here so that they are not forgotten.
 
 * Add a way to add an upper-bound limit for test run times.  Otherwise a
   test that enters an infinite loop can stall the whole process.
+
+* Possibly add a way to automatically gain or drop privileges when
+  require.user is set.
 
 
 Things to we will not do

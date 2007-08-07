@@ -42,9 +42,9 @@
 #define _ATF_UI_HPP_
 
 #include <string>
-#include <vector>
 
 namespace atf {
+namespace ui {
 
 //!
 //! \brief Formats an error message to fit on string.
@@ -110,16 +110,7 @@ std::string format_text_with_tag(const std::string&, const std::string&,
 //!
 std::string format_warning(const std::string&, const std::string&);
 
-//!
-//! \brief Splits a string into words.
-//!
-//! Splits the given string into multiple words, all separated by the
-//! given delimiter.  Multiple occurrences of the same delimiter are
-//! not condensed so that rejoining the words later on using the same
-//! delimiter results in the original string.
-//!
-std::vector< std::string > split(const std::string&, const std::string&);
-
+} // namespace ui
 } // namespace atf
 
 #endif // !defined(_ATF_UI_HPP_)

@@ -1,2 +1,4 @@
 t_atf_config
 t_atf_compile
+t_atf_cleanup
+t_atf_run

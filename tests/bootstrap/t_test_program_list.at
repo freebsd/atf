@@ -40,16 +40,20 @@ dnl
 
 AT_SETUP([test_program: list test cases])
 
-AT_CHECK([TEST_HELPER(tp_basic_cpp) -l], [0], [stdout], [])
+for h in tp_basic_cpp tp_basic_sh; do
+
+AT_CHECK([TEST_HELPER(${h}) -l], [0], [stdout], [])
 AT_CHECK([COUNT_LINES(stdout, 4)], [0], [ignore], [])
 AT_CHECK([grep 'tc_pass .*always passes' stdout], [0], [ignore], [])
 AT_CHECK([grep 'tc_fail .*always fails' stdout], [0], [ignore], [])
 AT_CHECK([grep 'tc_skip .*always skipped' stdout], [0], [ignore], [])
 AT_CHECK([grep 'tc_default .*explicitly' stdout], [0], [ignore], [])
 
-AT_CHECK([TEST_HELPER(tp_basic_cpp) -l tc_pass], [0], [stdout], [])
+AT_CHECK([TEST_HELPER(${h}) -l tc_pass], [0], [stdout], [])
 AT_CHECK([COUNT_LINES(stdout, 1)], [0], [ignore], [])
 AT_CHECK([grep 'tc_pass .*always passes' stdout], [0], [ignore], [])
+
+done
 
 AT_CLEANUP()
 

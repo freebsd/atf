@@ -38,114 +38,53 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-extern "C" {
-#   include <unistd.h>
-}
-
 #include <cassert>
-#include <cerrno>
+#include <cstdlib>
+#include <iostream>
 
-#include <atfprivate/exceptions.hpp>
-#include <atfprivate/file_handle.hpp>
+#include "atfprivate/application.hpp"
+#include "atfprivate/fs.hpp"
+#include "atfprivate/ui.hpp"
 
-atf::file_handle::file_handle(void) :
-    m_handle(invalid_value())
+class atf_cleanup : public atf::application {
+    static const char* m_description;
+
+    std::string specific_args(void) const;
+
+public:
+    atf_cleanup(void);
+
+    int main(void);
+};
+
+const char* atf_cleanup::m_description =
+    "atf-cleanup recursively removes a test case's work directory, "
+    "unmounting any file systems it may contain and preventing to "
+    "recurse into them if the unmounting fails.";
+
+atf_cleanup::atf_cleanup(void) :
+    application(m_description, "atf-cleanup(1)")
 {
 }
 
-atf::file_handle::file_handle(handle_type h) :
-    m_handle(h)
-{
-    assert(m_handle != invalid_value());
-}
-
-atf::file_handle::file_handle(const file_handle& fh) :
-    m_handle(fh.m_handle)
-{
-    fh.m_handle = invalid_value();
-}
-
-atf::file_handle::~file_handle(void)
-{
-    if (is_valid())
-        close();
-}
-
-atf::file_handle&
-atf::file_handle::operator=(const file_handle& fh)
-{
-    m_handle = fh.m_handle;
-    fh.m_handle = invalid_value();
-
-    return *this;
-}
-
-bool
-atf::file_handle::is_valid(void)
+std::string
+atf_cleanup::specific_args(void)
     const
 {
-    return m_handle != invalid_value();
+    return "[path1 [.. pathN]]";
 }
 
-void
-atf::file_handle::close(void)
+int
+atf_cleanup::main(void)
 {
-    assert(is_valid());
+    for (int i = 0; i < m_argc; i++)
+        atf::fs::cleanup(atf::fs::path(m_argv[i]));
 
-    ::close(m_handle);
-
-    m_handle = invalid_value();
+    return EXIT_SUCCESS;
 }
 
-atf::file_handle::handle_type
-atf::file_handle::disown(void)
+int
+main(int argc, char* const* argv)
 {
-    assert(is_valid());
-
-    handle_type h = m_handle;
-    m_handle = invalid_value();
-    return h;
-}
-
-atf::file_handle::handle_type
-atf::file_handle::get(void)
-    const
-{
-    assert(is_valid());
-
-    return m_handle;
-}
-
-void
-atf::file_handle::posix_remap(handle_type h)
-{
-    assert(is_valid());
-
-    if (::dup2(m_handle, h) == -1)
-        throw system_error("atf::file_handle::posix_remap",
-                           "dup2(2) failed", errno);
-
-    if (::close(m_handle) == -1) {
-        ::close(h);
-        throw system_error("atf::file_handle::posix_remap",
-                           "close(2) failed", errno);
-    }
-
-    m_handle = h;
-}
-
-atf::file_handle
-atf::file_handle::posix_dup(int h1, int h2)
-{
-    if (::dup2(h1, h2) == -1)
-        throw system_error("atf::file_handle::posix_dup",
-                           "dup2(2) failed", errno);
-
-    return file_handle(h2);
-}
-
-const atf::file_handle::handle_type
-atf::file_handle::invalid_value(void)
-{
-    return -1;
+    return atf_cleanup().run(argc, argv);
 }

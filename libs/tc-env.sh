@@ -38,60 +38,74 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-if [ -z "${ATF_PKGDATADIR}" ]; then
-    echo "atf-cross-compile: ATF_PKGDATADIR is undefined" 1>&2
+#
+# Based on an input file describing the environment variables that have
+# to be sanitized when running a test case, generates the necessary C++
+# or POSIX shell code to do the appropriate changes on these variables.
+# Having a single source for the possible variables ensures that the two
+# interfaces are kept consistent.
+#
+
+Prog_Name=${0##*/}
+
+# -------------------------------------------------------------------------
+# C++ output.
+# -------------------------------------------------------------------------
+
+process_cpp()
+{
+    name=${1} defined=${2} default=${3}
+
+    if [ ${defined} = yes ]; then
+        echo "atf::env::set(\"${name}\", \"${default}\");"
+    else
+        echo "atf::env::unset(\"${name}\");"
+    fi
+}
+
+# -------------------------------------------------------------------------
+# POSIX shell output.
+# -------------------------------------------------------------------------
+
+process_sh()
+{
+    name=${1} defined=${2} default=${3}
+
+    if [ ${defined} = yes ]; then
+        echo "${name}=\"${default}\")"
+        echo "export ${name}"
+    else
+        echo "unset ${name}"
+    fi
+}
+
+# -------------------------------------------------------------------------
+# Miscellaneous functions and main program.
+# -------------------------------------------------------------------------
+
+err()
+{
+    echo "${Prog_Name}:" "${@}" 1>&2
     exit 1
-fi
+}
 
-if [ ! -f "${ATF_PKGDATADIR}/atf.init.subr" ]; then
-    echo "atf-cross-compile: ATF_PKGDATADIR is not valid" 1>&2
-    exit 1
-fi
+main()
+{
+    lang=${1}
 
-if [ -z "${ATF_SHELL}" ]; then
-    echo "atf-cross-compile: ATF_SHELL is undefined" 1>&2
-    exit 1
-fi
+    IFS='
+'
+    set -- $(cat)
+    shift # Skip header
 
-if [ ${#} -lt 1 ]; then
-    echo "atf-cross-compile: no -o option specified" 1>&2
-    exit 1
-fi
+    for line in "${@}"; do
+        IFS=!
+        process_${lang} ${line}
+    done
 
-if [ ${1} != '-o' ]; then
-    echo "atf-cross-compile: no -o option specified" 1>&2
-    exit 1
-fi
-if [ ${#} -lt 2 ]; then
-    echo "atf-cross-compile: no source file specified" 1>&2
-    exit 1
-fi
+    exit 0
+}
 
-if [ ${#} -lt 3 ]; then
-    echo "atf-cross-compile: no target file specified" 1>&2
-    exit 1
-fi
-
-tfile=${2}
-sfile=${3}
-
-if [ ! -f "${sfile}" ]; then
-    echo "atf-cross-compile: source file does not exist" 1>&2
-    exit 1
-fi
-
-echo "#! ${ATF_SHELL}" >${tfile}
-cat ${ATF_PKGDATADIR}/atf.init.subr >>${tfile}
-echo >>${tfile}
-echo '. ${Atf_Pkgdatadir}/atf.header.subr' >>${tfile}
-echo >>${tfile}
-cat <${sfile} >>${tfile}
-echo '. ${Atf_Pkgdatadir}/atf.footer.subr' >>${tfile}
-echo >>${tfile}
-echo "main \"\${@}\"" >>${tfile}
-
-chmod +x ${tfile}
-
-exit 0
+main "${@}"
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

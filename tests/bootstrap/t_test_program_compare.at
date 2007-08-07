@@ -46,14 +46,14 @@ sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
 AT_CHECK([TEST_HELPER(tp_basic_sh) -h], [0], [expout], [])
 
 dnl Ask for help, force line wrapping.
-AT_CHECK([TEST_HELPER(tp_basic_cpp, COLUMNS=20) -h], [0], [stdout], [])
+AT_CHECK([COLUMNS=20 TEST_HELPER(tp_basic_cpp) -h], [0], [stdout], [])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
-AT_CHECK([TEST_HELPER(tp_basic_sh, COLUMNS=20) -h], [0], [expout], [])
+AT_CHECK([COLUMNS=20 TEST_HELPER(tp_basic_sh) -h], [0], [expout], [])
 
 dnl Give an invalid option.
 AT_CHECK([TEST_HELPER(tp_basic_cpp) -Z], [1], [], [stderr])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
-AT_CHECK([TEST_HELPER(tp_basic_sh -Z)], [1], [], [experr])
+AT_CHECK([TEST_HELPER(tp_basic_sh) -Z], [1], [], [experr])
 
 dnl List all tests.
 AT_CHECK([TEST_HELPER(tp_basic_cpp) -l], [0], [stdout], [])
@@ -61,39 +61,46 @@ sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
 AT_CHECK([TEST_HELPER(tp_basic_sh) -l], [0], [expout], [])
 
 dnl Run all tests.
-AT_CHECK([TEST_HELPER(tp_basic_cpp)], [1], [stdout], [])
+AT_CHECK([TEST_HELPER(tp_basic_cpp)], [1], [stdout], [stderr])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
-AT_CHECK([TEST_HELPER(tp_basic_sh)], [1], [expout], [])
+sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
+AT_CHECK([TEST_HELPER(tp_basic_sh)], [1], [expout], [experr])
 
 dnl Run the tc_pass test case.
-AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_pass], [0], [stdout], [])
+AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_pass], [0], [stdout], [stderr])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
-AT_CHECK([TEST_HELPER(tp_basic_sh) tc_pass], [0], [expout], [])
+sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
+AT_CHECK([TEST_HELPER(tp_basic_sh) tc_pass], [0], [expout], [experr])
 
 dnl Run the tc_fail test case.
-AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_fail], [1], [stdout], [])
+AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_fail], [1], [stdout], [stderr])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
-AT_CHECK([TEST_HELPER(tp_basic_sh) tc_fail], [1], [expout], [])
+sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
+AT_CHECK([TEST_HELPER(tp_basic_sh) tc_fail], [1], [expout], [experr])
 
 dnl Run the tc_skip test case.
-AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_skip], [0], [stdout], [])
+AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_skip], [0], [stdout], [stderr])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
-AT_CHECK([TEST_HELPER(tp_basic_sh) tc_skip], [0], [expout], [])
+sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
+AT_CHECK([TEST_HELPER(tp_basic_sh) tc_skip], [0], [expout], [experr])
 
 dnl Run the tc_default test case.
-AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_default], [0], [stdout], [])
+AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_default], [0], [stdout], [stderr])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
-AT_CHECK([TEST_HELPER(tp_basic_sh) tc_default], [0], [expout], [])
+sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
+AT_CHECK([TEST_HELPER(tp_basic_sh) tc_default], [0], [expout], [experr])
 
 dnl Try pattern matching.
-AT_CHECK([TEST_HELPER(tp_basic_cpp) "*f*"], [1], [stdout], [])
+AT_CHECK([TEST_HELPER(tp_basic_cpp) "*f*"], [1], [stdout], [stderr])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
-AT_CHECK([TEST_HELPER(tp_basic_sh) "*f*"], [1], [expout], [])
+sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
+AT_CHECK([TEST_HELPER(tp_basic_sh) "*f*"], [1], [expout], [experr])
 
 dnl Run an unknown test case.
-AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_unknown], [1], [], [stderr])
+AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_unknown], [1], [stdout], [stderr])
+sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
-AT_CHECK([TEST_HELPER(tp_basic_sh) tc_unknown], [1], [], [experr])
+AT_CHECK([TEST_HELPER(tp_basic_sh) tc_unknown], [1], [expout], [experr])
 
 AT_CLEANUP()
 

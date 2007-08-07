@@ -38,18 +38,26 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "atfprivate/pistream.hpp"
+#if !defined(_ATF_TEXT_HPP_)
+#define _ATF_TEXT_HPP_
 
-atf::pistream::pistream(atf::file_handle& fh) :
-    std::istream(NULL),
-    m_handle(fh),
-    m_systembuf(m_handle.get())
-{
-    rdbuf(&m_systembuf);
-}
+#include <string>
+#include <vector>
 
-void
-atf::pistream::close(void)
-{
-    m_handle.close();
-}
+namespace atf {
+namespace text {
+
+//!
+//! \brief Splits a string into words.
+//!
+//! Splits the given string into multiple words, all separated by the
+//! given delimiter.  Multiple occurrences of the same delimiter are
+//! not condensed so that rejoining the words later on using the same
+//! delimiter results in the original string.
+//!
+std::vector< std::string > split(const std::string&, const std::string&);
+
+} // namespace text
+} // namespace atf
+
+#endif // !defined(_ATF_TEXT_HPP_)

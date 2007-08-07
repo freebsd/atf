@@ -43,6 +43,7 @@
 
 #include <map>
 #include <sstream>
+#include <utility>
 
 #include <atf/test_case_result.hpp>
 
@@ -54,12 +55,20 @@ class test_case {
     std::string m_ident;
     variables_map m_meta_data;
 
-    void ensure_defined(const std::string&);
+    std::string m_srcdir;
+    std::string m_workdirbase;
+
+    void ensure_boolean(const std::string&);
     void ensure_not_empty(const std::string&);
+
+    test_case_result safe_run(void) const;
+    test_case_result fork_body(const std::string&) const;
 
 protected:
     virtual void head(void) = 0;
     virtual void body(void) const = 0;
+
+    void require_prog(const std::string&) const;
 
 public:
     test_case(const std::string&);
@@ -67,13 +76,21 @@ public:
 
     const std::string& get(const std::string&) const;
     bool get_bool(const std::string&) const;
+    bool has(const std::string&) const;
     void set(const std::string&, const std::string&);
 
-    void init(void);
+    const std::string& get_srcdir(void) const;
+
+    void init(const std::string&, const std::string&);
     test_case_result run(void) const;
 };
 
+typedef std::pair< std::string, test_case_result > tcname_tcr;
+
 } // namespace atf
+
+std::ostream& operator<<(std::ostream&, const atf::tcname_tcr&);
+std::istream& operator>>(std::istream&, atf::tcname_tcr&);
 
 #define ATF_TEST_CASE(name) \
     class name : public atf::test_case { \
@@ -104,16 +121,24 @@ public:
 
 #define ATF_CHECK(x) \
     if (!(x)) { \
-        std::ostringstream ss; \
-        ss << #x << " not met"; \
-        throw atf::test_case_result::failed(__LINE__, ss.str()); \
+        std::ostringstream __atf_ss; \
+        __atf_ss << "Line " << __LINE__ << ": " << #x << " not met"; \
+        throw atf::test_case_result::failed(__atf_ss.str()); \
     }
 
 #define ATF_CHECK_EQUAL(x, y) \
     if ((x) != (y)) { \
-        std::ostringstream ss; \
-        ss << #x << " != " << #y << " (" << (x) << " != " << (y) << ")"; \
-        throw atf::test_case_result::failed(__LINE__, ss.str()); \
+        std::ostringstream __atf_ss; \
+        __atf_ss << "Line " << __LINE__ << ": " << #x << " != " << #y \
+                 << " (" << (x) << " != " << (y) << ")"; \
+        throw atf::test_case_result::failed(__atf_ss.str()); \
+    }
+
+#define ATF_CHECK_THROW(x, e) \
+    try { \
+        x; \
+        ATF_FAIL(#x " did not throw " #e " as expected"); \
+    } catch (const e& __atf_eo) { \
     }
 
 #endif // !defined(_ATF_TEST_CASE_HPP_)

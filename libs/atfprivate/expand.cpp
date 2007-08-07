@@ -40,12 +40,25 @@
 
 extern "C" {
 #include <regex.h>
+
+// REG_BASIC is just a synonym for 0, provided as a counterpart to
+// REG_EXTENDED to improve readability.  It is not provided by all systems.
+#if !defined(REG_BASIC)
+#define REG_BASIC 0
+#endif // !defined(REG_BASIC)
 }
 
 #include <cassert>
 
 #include "atfprivate/exceptions.hpp"
 #include "atfprivate/expand.hpp"
+
+namespace impl = atf::expand;
+#define IMPL_NAME "atf::expand"
+
+// ------------------------------------------------------------------------
+// Auxiliary functions.
+// ------------------------------------------------------------------------
 
 //
 // Auxiliary function that converts a glob pattern into a regular
@@ -62,6 +75,7 @@ glob_to_regex(const std::string& glob)
     regex = "^";
     for (std::string::const_iterator iter = glob.begin();
          iter != glob.end(); iter++) {
+        // NOTE: Keep this in sync with is_glob!
         if (*iter == '*')
             regex += ".*";
         else if (*iter == '?')
@@ -94,11 +108,31 @@ throw_pattern_error(int errcode, const regex_t* preg)
     char* buf = new char[len];
     size_t len2 = ::regerror(errcode, preg, buf, len);
     assert(len == len2);
-    throw atf::pattern_error(buf);
+    throw impl::pattern_error(buf);
 }
 
+// ------------------------------------------------------------------------
+// The "pattern_error" class.
+// ------------------------------------------------------------------------
+
+impl::pattern_error::pattern_error(char* w) :
+    std::runtime_error(w),
+    m_what(w)
+{
+}
+
+impl::pattern_error::~pattern_error(void)
+    throw()
+{
+    delete [] m_what;
+}
+
+// ------------------------------------------------------------------------
+// Free functions.
+// ------------------------------------------------------------------------
+
 std::set< std::string >
-atf::expand_glob(const std::string& glob,
+impl::expand_glob(const std::string& glob,
                  const std::set< std::string >& candidates)
 {
     std::set< std::string > exps;
@@ -112,7 +146,15 @@ atf::expand_glob(const std::string& glob,
 }
 
 bool
-atf::matches_glob(const std::string& glob, const std::string& candidate)
+impl::is_glob(const std::string& glob)
+{
+    // NOTE: Keep this in sync with glob_to_regex!
+    return (glob.find('*') != std::string::npos) ||
+           (glob.find('?') != std::string::npos);
+}
+
+bool
+impl::matches_glob(const std::string& glob, const std::string& candidate)
 {
     int res;
     ::regex_t preg;

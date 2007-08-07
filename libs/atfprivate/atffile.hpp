@@ -44,11 +44,13 @@
 #include <string>
 #include <vector>
 
+#include <atfprivate/fs.hpp>
+
 namespace atf {
 
 class atffile : public std::vector< std::string > {
 public:
-    atffile(const std::string& = "Atffile");
+    atffile(const fs::path& = fs::path("Atffile"));
 };
 
 } // namespace atf

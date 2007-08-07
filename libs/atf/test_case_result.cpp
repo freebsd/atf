@@ -38,9 +38,22 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <sstream>
+#include <cassert>
 
+#include "atfprivate/text.hpp"
+
+#include "atf/exceptions.hpp"
 #include "atf/test_case_result.hpp"
+
+// ------------------------------------------------------------------------
+// The "test_case_result" class.
+// ------------------------------------------------------------------------
+
+atf::test_case_result::test_case_result(void) :
+    m_status(status_failed),
+    m_reason("Uninitialized test case result")
+{
+}
 
 atf::test_case_result::test_case_result(atf::test_case_result::status s,
                                         const std::string& r) :
@@ -62,25 +75,9 @@ atf::test_case_result::skipped(const std::string& reason)
 }
 
 atf::test_case_result
-atf::test_case_result::skipped(size_t line, const std::string& reason)
-{
-    std::ostringstream ss;
-    ss << "Line " << line << ": " << reason;
-    return skipped(ss.str());
-}
-
-atf::test_case_result
 atf::test_case_result::failed(const std::string& reason)
 {
     return test_case_result(status_failed, reason);
-}
-
-atf::test_case_result
-atf::test_case_result::failed(size_t line, const std::string& reason)
-{
-    std::ostringstream ss;
-    ss << "Line " << line << ": " << reason;
-    return failed(ss.str());
 }
 
 atf::test_case_result::status
@@ -95,4 +92,71 @@ atf::test_case_result::get_reason(void)
     const
 {
     return m_reason;
+}
+
+// ------------------------------------------------------------------------
+// Free functions.
+// ------------------------------------------------------------------------
+
+std::ostream&
+operator<<(std::ostream& os, const atf::test_case_result& tcr)
+{
+    switch (tcr.get_status()) {
+    case atf::test_case_result::status_passed:
+        os << "passed" << std::endl;
+        break;
+
+    case atf::test_case_result::status_skipped:
+        os << "skipped, " << tcr.get_reason() << std::endl;
+        break;
+
+    case atf::test_case_result::status_failed:
+        os << "failed, " << tcr.get_reason() << std::endl;
+        break;
+
+    default:
+        assert(false);
+    }
+
+    return os;
+}
+
+std::istream&
+operator>>(std::istream& is, atf::test_case_result& tcr)
+{
+    std::vector< std::string > words;
+    {
+        std::string line;
+        std::getline(is, line);
+        if (line.empty())
+            throw atf::format_error("Missing test case result");
+        words = atf::text::split(line, ", ");
+    }
+
+    std::string r;
+    if (words.size() >= 2) {
+        for (std::vector< std::string >::size_type i = 1;
+             i < words.size(); i++) {
+            r += words[i];
+            if (i < words.size() - 1)
+                r += ", ";
+        }
+    }
+
+    if (words[0] == "passed") {
+        if (words.size() != 1)
+            throw atf::format_error("`passed' status does not allow a reason");
+        tcr = atf::test_case_result::passed();
+    } else if (words[0] == "skipped") {
+        if (words.size() < 2)
+            throw atf::format_error("`skipped' status requires a reason");
+        tcr = atf::test_case_result::skipped(r);
+    } else if (words[0] == "failed") {
+        if (words.size() < 2)
+            throw atf::format_error("`failed' status requires a reason");
+        tcr = atf::test_case_result::failed(r);
+    } else
+        throw atf::format_error("Invalid test case status `" + words[0] + "'");
+
+    return is;
 }

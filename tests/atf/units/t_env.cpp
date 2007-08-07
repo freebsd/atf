@@ -38,28 +38,59 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_FILESYSTEM_HPP_)
-#define _ATF_FILESYSTEM_HPP_
+#include <atf.hpp>
 
-#include <set>
-#include <string>
+#include "atfprivate/env.hpp"
 
-namespace atf {
+ATF_TEST_CASE(has_get);
+ATF_TEST_CASE_HEAD(has_get)
+{
+    set("descr", "Tests the has and get functions");
+}
+ATF_TEST_CASE_BODY(has_get)
+{
+    ATF_CHECK(atf::env::has("PATH"));
+    ATF_CHECK(!atf::env::get("PATH").empty());
 
-class directory : public std::set< std::string > {
-public:
-    directory(const std::string& path);
-};
+    ATF_CHECK(!atf::env::has("_UNDEFINED_VARIABLE_"));
+}
 
-std::string get_branch_path(const std::string&);
-std::string get_leaf_name(const std::string&);
-std::string get_temp_dir(void);
-std::string get_work_dir(void);
-bool exists(const std::string&);
-std::string create_temp_dir(const std::string&);
-void change_directory(const std::string&);
-void rm_rf(const std::string&);
+// XXX This should be named 'set' instead of 'set_func', but this collides
+// with std::set.  Should rework the macros to make the names private and
+// thus prevent such collisions.
+ATF_TEST_CASE(set_func);
+ATF_TEST_CASE_HEAD(set_func)
+{
+    set("descr", "Tests the set function");
+}
+ATF_TEST_CASE_BODY(set_func)
+{
+    ATF_CHECK(atf::env::has("PATH"));
+    const std::string& oldval = atf::env::get("PATH");
+    atf::env::set("PATH", "foo-bar");
+    ATF_CHECK(atf::env::get("PATH") != oldval);
+    ATF_CHECK_EQUAL(atf::env::get("PATH"), "foo-bar");
 
-} // namespace atf
+    ATF_CHECK(!atf::env::has("_UNDEFINED_VARIABLE_"));
+    atf::env::set("_UNDEFINED_VARIABLE_", "foo2-bar2");
+    ATF_CHECK_EQUAL(atf::env::get("_UNDEFINED_VARIABLE_"), "foo2-bar2");
+}
 
-#endif // !defined(_ATF_FILESYSTEM_HPP_)
+ATF_TEST_CASE(unset);
+ATF_TEST_CASE_HEAD(unset)
+{
+    set("descr", "Tests the unset function");
+}
+ATF_TEST_CASE_BODY(unset)
+{
+    ATF_CHECK(atf::env::has("PATH"));
+    atf::env::unset("PATH");
+    ATF_CHECK(!atf::env::has("PATH"));
+}
+
+ATF_INIT_TEST_CASES(tcs)
+{
+    tcs.push_back(&has_get);
+    tcs.push_back(&set_func);
+    tcs.push_back(&unset);
+}

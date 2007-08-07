@@ -41,8 +41,8 @@ dnl
 AT_SETUP([atf-config: querying of build-time variables])
 AT_TESTED(atf-config)
 
-all_vars="atf_libexecdir atf_pkgdatadir atf_shell"
-all_vars_no=3
+all_vars="atf_libexecdir atf_pkgdatadir atf_shell atf_workdir"
+all_vars_no=4
 
 dnl List all variables.
 AT_CHECK([atf-config], [0], [stdout], [])

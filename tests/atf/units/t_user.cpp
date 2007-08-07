@@ -38,37 +38,59 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <ostream>
+extern "C" {
+#include <sys/types.h>
+#include <unistd.h>
+}
 
 #include <atf.hpp>
 
-#include "atfprivate/pipe.hpp"
-#include "atfprivate/systembuf.hpp"
-#include "atfprivate/pistream.hpp"
+#include "atfprivate/exceptions.hpp"
+#include "atfprivate/user.hpp"
 
-ATF_TEST_CASE(tc_main);
-ATF_TEST_CASE_HEAD(tc_main)
-{
-    set("descr", "Tests the pistream class' behavior");
-}
-ATF_TEST_CASE_BODY(tc_main)
-{
-    atf::pipe p;
-    atf::pistream rend(p.rend());
-    atf::systembuf wbuf(p.wend().get());
-    std::ostream wend(&wbuf);
+// ------------------------------------------------------------------------
+// Test cases for the free functions.
+// ------------------------------------------------------------------------
 
-    // XXX This assumes that the pipe's buffer is big enough to accept
-    // the data written without blocking!
-    wend << "1Test 1message" << std::endl;
-    std::string tmp;
-    rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "1Test");
-    rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "1message");
+ATF_TEST_CASE(is_root);
+ATF_TEST_CASE_HEAD(is_root)
+{
+    set("descr", "Tests the is_root function");
 }
+ATF_TEST_CASE_BODY(is_root)
+{
+    using atf::user::is_root;
+
+    if (::geteuid() == 0) {
+        ATF_CHECK(is_root());
+    } else {
+        ATF_CHECK(!is_root());
+    }
+}
+
+ATF_TEST_CASE(is_unprivileged);
+ATF_TEST_CASE_HEAD(is_unprivileged)
+{
+    set("descr", "Tests the is_unprivileged function");
+}
+ATF_TEST_CASE_BODY(is_unprivileged)
+{
+    using atf::user::is_unprivileged;
+
+    if (::geteuid() != 0) {
+        ATF_CHECK(is_unprivileged());
+    } else {
+        ATF_CHECK(!is_unprivileged());
+    }
+}
+
+// ------------------------------------------------------------------------
+// Main.
+// ------------------------------------------------------------------------
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    tcs.push_back(&tc_main);
+    // Add the tests for the free functions.
+    tcs.push_back(&is_root);
+    tcs.push_back(&is_unprivileged);
 }

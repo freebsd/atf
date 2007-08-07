@@ -38,19 +38,27 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "atfprivate/postream.hpp"
+#if !defined(_ATF_EXCEPTIONS_HPP_)
+#define _ATF_EXCEPTIONS_HPP_
 
-atf::postream::postream(atf::file_handle& fh) :
-    std::ostream(NULL),
-    m_handle(fh),
-    m_systembuf(m_handle.get())
-{
-    rdbuf(&m_systembuf);
-}
+#include <stdexcept>
 
-void
-atf::postream::close(void)
-{
-    m_handle.close();
-}
+namespace atf {
 
+//!
+//! \brief A class to signal format errors in external data formats.
+//!
+//! This error class is used to signal format errors while parsing some
+//! externalized representation of a data structure.
+//!
+class format_error : public std::runtime_error {
+public:
+    format_error(const std::string& w) :
+        std::runtime_error(w.c_str())
+    {
+    }
+};
+
+} // namespace atf
+
+#endif // !defined(_ATF_EXCEPTIONS_HPP_)

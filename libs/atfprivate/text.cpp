@@ -38,35 +38,23 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-extern "C" {
-#include <unistd.h>
-}
+#include "atfprivate/text.hpp"
 
-#include <cerrno>
+namespace impl = atf::text;
+#define IMPL_NAME "atf::text"
 
-#include "atfprivate/exceptions.hpp"
-#include "atfprivate/pipe.hpp"
-
-atf::pipe::pipe(void)
+std::vector< std::string >
+impl::split(const std::string& str, const std::string& delim)
 {
-    file_handle::handle_type hs[2];
+    std::vector< std::string > words;
 
-    if (::pipe(hs) == -1)
-        throw system_error("atf::pipe::pipe",
-                           "pipe(2) failed", errno);
+    std::string::size_type pos = 0, newpos = 0;
+    while (pos < str.length() && newpos != std::string::npos) {
+        newpos = str.find(delim, pos);
+        if (newpos != pos)
+            words.push_back(str.substr(pos, newpos - pos));
+        pos = newpos + delim.length();
+    }
 
-    m_read_end = file_handle(hs[0]);
-    m_write_end = file_handle(hs[1]);
-}
-
-atf::file_handle&
-atf::pipe::rend(void)
-{
-    return m_read_end;
-}
-
-atf::file_handle&
-atf::pipe::wend(void)
-{
-    return m_write_end;
+    return words;
 }

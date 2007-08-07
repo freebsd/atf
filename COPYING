@@ -9,10 +9,6 @@ License
 Copyright (c) 2007 The NetBSD Foundation, Inc.
 All rights reserved.
 
-This code is derived from software contributed to The NetBSD Foundation
-by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-2007 program.
-
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
@@ -61,13 +57,10 @@ is put here just to clarify this fact.
   revision 3a0982da308228d796df35f98d787c5cff2bb5b6.
   Author: Julio M. Merino Vidal <jmmv@NetBSD.org>
 
-* libs/atfprivate/file_handle.hpp, libs/atfprivate/pipe.hpp,
-  libs/atfprivate/pistream.hpp, libs/atfprivate/postream.hpp,
-  libs/atfprivate/systembuf.hpp, tests/units/t_file_handle.cpp,
-  tests/units/t_pipe.hpp, tests/units/t_pistream.hpp,
-  tests/units/t_postream.hpp, tests/units/t_systembuf.hpp: These
-  files were derived from their corresponding ones in the Boost.Process
-  library.
+* libs/atfprivate/io.hpp, libs/atfprivate/io.cpp,
+  tests/units/t_io.cpp: These files were derived from the file_handle,
+  systembuf, pipe, pistream and postream classes and tests found in
+  the Boost.Process library.
   Author: Julio M. Merino Vidal <jmmv84@gmail.com>
 
 * admin/check-style.sh, admin/check-style-common.awk,

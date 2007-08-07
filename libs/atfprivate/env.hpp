@@ -38,82 +38,58 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-extern "C" {
-#include <unistd.h>
-}
+#if !defined(_ATF_ENV_HPP_)
+#define _ATF_ENV_HPP_
 
-#include <cassert>
+#include <string>
 
-#include <atfprivate/systembuf.hpp>
+namespace atf {
+namespace env {
 
-atf::systembuf::systembuf(handle_type h, std::size_t bufsize) :
-    m_handle(h),
-    m_bufsize(bufsize),
-    m_read_buf(NULL),
-    m_write_buf(NULL)
-{
-    assert(m_handle >= 0);
-    assert(m_bufsize > 0);
+// ------------------------------------------------------------------------
+// Free functions.
+// ------------------------------------------------------------------------
 
-    try {
-        m_read_buf = new char[bufsize];
-        m_write_buf = new char[bufsize];
-    } catch (...) {
-        if (m_read_buf != NULL)
-            delete [] m_read_buf;
-        if (m_write_buf != NULL)
-            delete [] m_write_buf;
-        throw;
-    }
+//!
+//! \brief Returns the value of an environment variable.
+//!
+//! Returns the value of the specified environment variable.  The variable
+//! must be defined.
+//!
+std::string get(const std::string&);
 
-    setp(m_write_buf, m_write_buf + m_bufsize);
-}
+//!
+//! \brief Checks if the environment has a variable.
+//!
+//! Checks if the environment has a given variable.
+//!
+bool has(const std::string&);
 
-atf::systembuf::~systembuf(void)
-{
-    delete [] m_read_buf;
-    delete [] m_write_buf;
-}
+//!
+//! \brief Sets an environment variable to a given value.
+//!
+//! Sets the specified environment variable to the given value.  Note that
+//! variables set to the empty string are different to undefined ones.
+//!
+//! Be aware that this alters the program's global status, which in general
+//! is a bad thing to do due to the side-effects it may have.  There are
+//! some legitimate usages for this function, though.
+//!
+void set(const std::string&, const std::string&);
 
-atf::systembuf::int_type
-atf::systembuf::underflow(void)
-{
-    assert(gptr() >= egptr());
+//!
+//! \brief Unsets an environment variable.
+//!
+//! Unsets the specified environment variable  Note that undefined
+//! variables are different to those defined but set to an empty value.
+//!
+//! Be aware that this alters the program's global status, which in general
+//! is a bad thing to do due to the side-effects it may have.  There are
+//! some legitimate usages for this function, though.
+//!
+void unset(const std::string&);
 
-    bool ok;
-    ssize_t cnt = ::read(m_handle, m_read_buf, m_bufsize);
-    ok = (cnt != -1 && cnt != 0);
+} // namespace env
+} // namespace atf
 
-    if (!ok)
-        return traits_type::eof();
-    else {
-        setg(m_read_buf, m_read_buf, m_read_buf + cnt);
-        return traits_type::to_int_type(*gptr());
-    }
-}
-
-atf::systembuf::int_type
-atf::systembuf::overflow(int c)
-{
-    assert(pptr() >= epptr());
-    if (sync() == -1)
-        return traits_type::eof();
-    if (!traits_type::eq_int_type(c, traits_type::eof())) {
-        traits_type::assign(*pptr(), c);
-        pbump(1);
-    }
-    return traits_type::not_eof(c);
-}
-
-int
-atf::systembuf::sync(void)
-{
-    ssize_t cnt = pptr() - pbase();
-
-    bool ok;
-    ok = ::write(m_handle, pbase(), cnt) == cnt;
-
-    if (ok)
-        pbump(-cnt);
-    return ok ? 0 : -1;
-}
+#endif // !defined(_ATF_ENV_HPP_)

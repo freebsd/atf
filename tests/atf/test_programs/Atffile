@@ -1,2 +1,6 @@
+t_env
+t_fork
 t_isolated
 t_srcdir
+t_require_progs
+t_require_user
