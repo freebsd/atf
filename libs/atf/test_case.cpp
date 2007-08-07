@@ -49,10 +49,12 @@ extern "C" {
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <vector>
 
 #include "atfprivate/env.hpp"
 #include "atfprivate/exceptions.hpp"
 #include "atfprivate/fs.hpp"
+#include "atfprivate/text.hpp"
 #include "atfprivate/user.hpp"
 
 #include "atf/exceptions.hpp"
@@ -248,6 +250,23 @@ atf::test_case::fork_body(const std::string& workdir)
         // cannot be directed to the parent process.
         try {
 #include "tcenv.cpp"
+
+            // This is here because require_progs can assert if the user
+            // gave bad input.  Having it here lets us capture the abort
+            // from the parent.
+            //
+            // XXX The thing is... is this appropriate?  Should we forbid
+            // the assertions in our code and use exceptions instead?
+            // Or... should all properties be handled here -- aka, in the
+            // controlled environment?
+            if (has("require.progs")) {
+                std::vector< std::string > progs =
+                    text::split(get("require.progs"), " ");
+                for (std::vector< std::string >::const_iterator iter =
+                     progs.begin(); iter != progs.end(); iter++)
+                    require_prog(*iter);
+            }
+
             body();
             ATF_PASS();
         } catch (const atf::test_case_result& tcre) {
@@ -311,6 +330,27 @@ atf::test_case::run(void)
 
     return tcr;
 }
+
+void
+atf::test_case::require_prog(const std::string& prog)
+    const
+{
+    assert(!prog.empty());
+
+    fs::path p(prog);
+
+    if (p.is_absolute()) {
+        if (!fs::is_executable(p))
+            ATF_SKIP("The required program " + prog + " could not "
+                     "be found");
+    } else {
+        assert(p.branch_path() == fs::path("."));
+        if (fs::find_prog_in_path(prog) == fs::path("."))
+            ATF_SKIP("The required program " + prog + " could not "
+                     "be found in the PATH");
+    }
+}
+
 
 std::ostream&
 operator<<(std::ostream& os, const atf::tcname_tcr& tt)

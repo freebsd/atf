@@ -313,6 +313,38 @@ atf_pass()
 }
 
 #
+# atf_require_prog prog
+#
+#   Checks that the given program name (either provided as an absolute
+#   path or as a plain file name) can be found.  If it is not available,
+#   automatically skips the test case with an appropriate message.
+#
+#   Relative paths are not allowed because the test case cannot predict
+#   where it will be executed from.
+#
+atf_require_prog()
+{
+    _prog=
+    case ${1} in
+    /*)
+        _prog="${1}"
+        [ -x ${_prog} ] || \
+            atf_skip "The required program ${1} could not be found"
+        ;;
+    */*)
+        _atf_error 128 "atf_require_prog does not accept relative" \
+                       "path names \`${1}'"
+        ;;
+    *)
+        _prog=$(_atf_find_in_path "${1}")
+        [ -n "${_prog}" ] || \
+            atf_skip "The required program ${1} could not be found" \
+                     "in the PATH"
+        ;;
+    esac
+}
+
+#
 # atf_set varname val1 [.. valN]
 #
 #   Sets the test case's variable 'varname' to the specified values
@@ -541,6 +573,13 @@ _atf_parse_head()
 _atf_run_body()
 {
     . ${Atf_Pkgdatadir}/atf.tcenv.subr
+
+    _progs="$(atf_get require.progs)"
+    if [ -n "${_progs}" ]; then
+        for _p in ${_progs}; do
+            atf_require_prog ${_p}
+        done
+    fi
 
     case $(atf_get require.user) in
     root)

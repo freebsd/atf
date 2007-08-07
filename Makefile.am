@@ -322,6 +322,15 @@ tests/atf/test_programs/t_isolated: \
 		$(ATF_COMPILE_DEPS)
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_isolated.sh
 
+atf_test_programs_SCRIPTS += tests/atf/test_programs/t_require_progs
+CLEANFILES += tests/atf/test_programs/t_require_progs
+EXTRA_DIST += tests/atf/test_programs/t_require_progs.sh
+tests/atf/test_programs/t_require_progs: \
+		$(srcdir)/tests/atf/test_programs/t_require_progs.sh \
+		$(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ \
+	    $(srcdir)/tests/atf/test_programs/t_require_progs.sh
+
 atf_test_programs_SCRIPTS += tests/atf/test_programs/t_require_user
 CLEANFILES += tests/atf/test_programs/t_require_user
 EXTRA_DIST += tests/atf/test_programs/t_require_user.sh

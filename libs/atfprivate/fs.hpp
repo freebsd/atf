@@ -369,6 +369,16 @@ path create_temp_file(const path&);
 bool exists(const path&);
 
 //!
+//! \brief Looks for the given program in the PATH.
+//!
+//! Given a program name (without slashes) looks for it in the path and
+//! returns its full path name if found, otherwise ".".
+//!
+//! XXX Should return an invalid path, not ".".
+//!
+path find_prog_in_path(const std::string&);
+
+//!
 //! \brief Returns the path to the current working directory.
 //!
 //! Calculates and returns the path to the current working directory, which
@@ -377,6 +387,11 @@ bool exists(const path&);
 //! \throw system_error If ::getcwd failed.
 //!
 path get_current_dir(void);
+
+//!
+//! \brief Checks if the given path exists, is accessible and is executable.
+//!
+bool is_executable(const path&);
 
 //!
 //! \brief Recursively cleans up a directory.

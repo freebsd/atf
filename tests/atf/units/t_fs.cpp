@@ -520,6 +520,30 @@ ATF_TEST_CASE_BODY(get_current_dir)
     ATF_CHECK(get_current_dir() == curdir);
 }
 
+ATF_TEST_CASE(is_executable);
+ATF_TEST_CASE_HEAD(is_executable)
+{
+    set("descr", "Tests the is_executable function");
+}
+ATF_TEST_CASE_BODY(is_executable)
+{
+    using atf::fs::is_executable;
+    using atf::fs::path;
+
+    create_files();
+
+    ATF_CHECK( is_executable(path("files")));
+    ATF_CHECK( is_executable(path("files/.")));
+    ATF_CHECK( is_executable(path("files/..")));
+    ATF_CHECK( is_executable(path("files/dir")));
+
+    ATF_CHECK(!is_executable(path("non-existent")));
+
+    ATF_CHECK(!is_executable(path("files/reg")));
+    ATF_CHECK(::chmod("files/reg", 0755) != -1);
+    ATF_CHECK( is_executable(path("files/reg")));
+}
+
 ATF_TEST_CASE(cleanup);
 ATF_TEST_CASE_HEAD(cleanup)
 {
@@ -570,6 +594,7 @@ ATF_INIT_TEST_CASES(tcs)
     // Add the tests for the free functions.
     tcs.push_back(&get_current_dir);
     tcs.push_back(&exists);
+    tcs.push_back(&is_executable);
     tcs.push_back(&change_directory);
     tcs.push_back(&create_temp_dir);
     tcs.push_back(&cleanup);

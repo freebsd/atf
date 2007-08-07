@@ -2,4 +2,5 @@
 descr!text!no!
 ident!text!no!
 isolated!boolean!no!yes
+require.progs!text!yes
 require.user!text!yes

@@ -68,6 +68,8 @@ protected:
     virtual void head(void) = 0;
     virtual void body(void) const = 0;
 
+    void require_prog(const std::string&) const;
+
 public:
     test_case(const std::string&);
     virtual ~test_case(void);

@@ -181,6 +181,28 @@ ATF_TEST_CASE_BODY(srcdir_exists)
         ATF_FAIL("Cannot find datafile");
 }
 
+ATF_TEST_CASE(require_progs_body);
+ATF_TEST_CASE_HEAD(require_progs_body)
+{
+    set("descr", "Helper test case for the t_require_progs test program");
+}
+ATF_TEST_CASE_BODY(require_progs_body)
+{
+    if (atf::env::has("PROGS"))
+        require_prog(atf::env::get("PROGS"));
+}
+
+ATF_TEST_CASE(require_progs_head);
+ATF_TEST_CASE_HEAD(require_progs_head)
+{
+    set("descr", "Helper test case for the t_require_head test program");
+    if (atf::env::has("PROGS"))
+        set("require.progs", atf::env::get("PROGS"));
+}
+ATF_TEST_CASE_BODY(require_progs_head)
+{
+}
+
 ATF_TEST_CASE(require_user_root);
 ATF_TEST_CASE_HEAD(require_user_root)
 {
@@ -232,6 +254,8 @@ ATF_INIT_TEST_CASES(tcs)
     tcs.push_back(&isolated_path);
     tcs.push_back(&isolated_cleanup);
     tcs.push_back(&srcdir_exists);
+    tcs.push_back(&require_progs_body);
+    tcs.push_back(&require_progs_head);
     tcs.push_back(&require_user_root);
     tcs.push_back(&require_user_root2);
     tcs.push_back(&require_user_unprivileged);

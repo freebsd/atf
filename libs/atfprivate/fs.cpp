@@ -56,6 +56,7 @@ extern "C" {
 #include <memory>
 
 #include "atfprivate/exceptions.hpp"
+#include "atfprivate/env.hpp"
 #include "atfprivate/fs.hpp"
 #include "atfprivate/text.hpp"
 
@@ -65,6 +66,31 @@ namespace impl = atf::fs;
 // ------------------------------------------------------------------------
 // Auxiliary functions.
 // ------------------------------------------------------------------------
+
+//!
+//! \brief A controlled version of access(2).
+//!
+//! This function reimplements the standard access(2) system call to
+//! safely control its exit status and raise an exception in case of
+//! failure.
+//!
+static
+bool
+safe_access(const impl::path& p, int mode, int experr)
+{
+    bool ok;
+
+    int res = ::access(p.c_str(), mode);
+    if (res == 0)
+        ok = true;
+    else if (res == -1 && errno == experr)
+        ok = false;
+    else
+        throw atf::system_error("safe_access(" + p.str() + ")",
+                                "access(2) failed", errno);
+
+    return ok;
+}
 
 //!
 //! \brief Normalizes a path.
@@ -404,18 +430,30 @@ impl::create_temp_file(const path& tmpl)
 bool
 impl::exists(const path& p)
 {
-    bool ok;
+    return safe_access(p, F_OK, ENOENT);
+}
 
-    int res = ::access(p.c_str(), F_OK);
-    if (res == 0)
-        ok = true;
-    else if (res == -1 && errno == ENOENT)
-        ok = false;
-    else
-        throw system_error(IMPL_NAME "::exists(" + p.str() + ")",
-                           "access(2) failed", errno);
+impl::path
+impl::find_prog_in_path(const std::string& prog)
+{
+    assert(prog.find('/') == std::string::npos);
 
-    return ok;
+    // Do not bother to provide a default value for PATH.  If it is not
+    // there something is broken in the user's environment.
+    if (!atf::env::has("PATH"))
+        throw std::runtime_error("PATH not defined in the environment");
+    std::vector< std::string > dirs = \
+        atf::text::split(atf::env::get("PATH"), ":");
+
+    path p(".");
+    for (std::vector< std::string >::const_iterator iter = dirs.begin();
+         p.str() == "." && iter != dirs.end(); iter++) {
+        const path& dir = path(*iter);
+
+        if (is_executable(dir / prog))
+            p = dir / prog;
+    }
+    return p;
 }
 
 impl::path
@@ -432,6 +470,14 @@ impl::get_current_dir(void)
 #else // !defined(MAXPATHLEN)
 #   error "Not implemented."
 #endif // defined(MAXPATHLEN)
+}
+
+bool
+impl::is_executable(const path& p)
+{
+    if (!exists(p))
+        return false;
+    return safe_access(p, X_OK, EACCES);
 }
 
 static

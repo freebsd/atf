@@ -107,6 +107,25 @@ isolated_cleanup_body()
     touch 2/3/1
 }
 
+require_progs_body_head()
+{
+    atf_set "descr" "Helper test case for the t_require_progs test program"
+}
+require_progs_body_body()
+{
+    atf_require_prog ${PROGS}
+}
+
+require_progs_head_head()
+{
+    atf_set "descr" "Helper test case for the t_require_progs test program"
+    atf_set "require.progs" "${PROGS}"
+}
+require_progs_head_body()
+{
+    :
+}
+
 require_user_root_head()
 {
     atf_set "descr" "Helper test case for the t_require_user test program"
@@ -160,6 +179,8 @@ atf_init_test_cases()
     # srcdir_exists is not here (while it is in h_cpp.cpp) because of the
     # requirements of the t_srcdir test program (which cannot rely on -s
     # itself to find the source file).
+    atf_add_test_case require_progs_body
+    atf_add_test_case require_progs_head
     atf_add_test_case require_user_root
     atf_add_test_case require_user_root2
     atf_add_test_case require_user_unprivileged
