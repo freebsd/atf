@@ -36,8 +36,6 @@ Basically they are here so that they are not forgotten.
   item, NetBSD could add a 'netbsd.pr' variable and then use this data when
   generating reports to add direct links to the appropriate PRs.
 
-* An atf_check_equal function for shell tests can be useful.
-
 * Add a class, similar in idea to boost::noncopyable, to easily mark some
   classes as not copyable.  Or, failing to do that, any other way to do
   the same.

@@ -42,6 +42,7 @@
 
 create_helper()
 {
+    atf_info "Creating helper.sh"
     cat >helper.sh <<EOF
 main_head()
 {
@@ -231,6 +232,39 @@ EOF
     atf_check 'grep -i passed resout' 0 ignore null
 }
 
+equal_head()
+{
+    atf_set "descr" "Verifies that atf_check_equal works"
+}
+equal_body()
+{
+    create_helper <<EOF
+atf_check_equal a a
+EOF
+    atf_check './helper -r3 3>resout' 0 ignore ignore
+
+    create_helper <<EOF
+atf_check_equal a b
+EOF
+    atf_check './helper -r3 3>resout' 1 ignore ignore
+    atf_check 'grep "a != b (a != b)" resout' 0 ignore null
+
+    create_helper <<EOF
+x=a
+y=a
+atf_check_equal '\$x' '\$y'
+EOF
+    atf_check './helper -r3 3>resout' 0 ignore ignore
+
+    create_helper <<EOF
+x=a
+y=b
+atf_check_equal '\$x' '\$y'
+EOF
+    atf_check './helper -r3 3>resout' 1 ignore ignore
+    atf_check 'grep "\$x != \$y (a != b)" resout' 0 ignore null
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case info_ok
@@ -240,6 +274,7 @@ atf_init_test_cases()
     atf_add_test_case null_stderr
     atf_add_test_case no_isolated
     atf_add_test_case change_cwd
+    atf_add_test_case equal
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
