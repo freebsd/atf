@@ -252,17 +252,17 @@ EOF
     create_helper <<EOF
 x=a
 y=a
-atf_check_equal '\$x' '\$y'
+atf_check_equal '\${x}' '\${y}'
 EOF
     atf_check './helper -r3 3>resout' 0 ignore ignore
 
     create_helper <<EOF
 x=a
 y=b
-atf_check_equal '\$x' '\$y'
+atf_check_equal '\${x}' '\${y}'
 EOF
     atf_check './helper -r3 3>resout' 1 ignore ignore
-    atf_check 'grep "\$x != \$y (a != b)" resout' 0 ignore null
+    atf_check 'grep "\${x} != \${y} (a != b)" resout' 0 ignore null
 }
 
 atf_init_test_cases()
