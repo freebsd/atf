@@ -48,8 +48,6 @@ Basically they are here so that they are not forgotten.
 * Add format and versioning tags to the outputs that have to be machine-
   parseable.  For example: the output of test programs.
 
-* Add the ability to specify the work directory for the tests.
-
 * Look for a way to ensure that the C++ and shell interfaces are consistent
   with each other.  For example: the meta-data recognized by each test
   case and the default values for them.
