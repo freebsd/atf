@@ -293,6 +293,12 @@ impl::pistream::close(void)
     m_handle.close();
 }
 
+impl::file_handle&
+impl::pistream::handle(void)
+{
+    return m_handle;
+}
+
 // ------------------------------------------------------------------------
 // The "postream" class.
 // ------------------------------------------------------------------------
@@ -309,4 +315,10 @@ void
 impl::postream::close(void)
 {
     m_handle.close();
+}
+
+impl::file_handle&
+impl::postream::handle(void)
+{
+    return m_handle;
 }

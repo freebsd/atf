@@ -412,7 +412,9 @@ ATF_TEST_CASE_BODY(pistream)
     using atf::io::systembuf;
 
     pipe p;
+    int fh = p.rend().get();
     pistream rend(p.rend());
+    ATF_CHECK_EQUAL(fh, rend.handle().get());
     systembuf wbuf(p.wend().get());
     std::ostream wend(&wbuf);
 
@@ -442,9 +444,11 @@ ATF_TEST_CASE_BODY(postream)
     using atf::io::systembuf;
 
     pipe p;
+    int fh = p.wend().get();
     systembuf rbuf(p.rend().get());
     std::istream rend(&rbuf);
     postream wend(p.wend());
+    ATF_CHECK_EQUAL(fh, wend.handle().get());
 
     // XXX This assumes that the pipe's buffer is big enough to accept
     // the data written without blocking!

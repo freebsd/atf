@@ -513,6 +513,11 @@ public:
     //! not willing to receive more data.
     //!
     void close(void);
+
+    //!
+    //! \brief Returns the file descriptor attached to this stream.
+    //!
+    file_handle& handle(void);
 };
 
 // ------------------------------------------------------------------------
@@ -580,6 +585,11 @@ public:
     //! is no more data to send.
     //!
     void close(void);
+
+    //!
+    //! \brief Returns the file descriptor attached to this stream.
+    //!
+    file_handle& handle(void);
 };
 
 } // namespace io
