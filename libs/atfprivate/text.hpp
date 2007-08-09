@@ -48,6 +48,32 @@ namespace atf {
 namespace text {
 
 //!
+//! \brief Joins multiple words into a string.
+//!
+//! Joins a list of words into a string, separating them using the provided
+//! separator.  Empty words are not omitted.
+//!
+template< class T >
+std::string
+join(const T& words, const std::string& separator)
+{
+    std::string str;
+
+    typename T::const_iterator iter = words.begin();
+    bool done = iter == words.end();
+    while (!done) {
+        str += *iter;
+        iter++;
+        if (iter != words.end())
+            str += separator;
+        else
+            done = true;
+    }
+
+    return str;
+}
+
+//!
 //! \brief Splits a string into words.
 //!
 //! Splits the given string into multiple words, all separated by the

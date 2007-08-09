@@ -38,9 +38,86 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <set>
+#include <vector>
+
 #include <atf.hpp>
 
 #include "atfprivate/text.hpp"
+
+ATF_TEST_CASE(join);
+ATF_TEST_CASE_HEAD(join)
+{
+    set("descr", "Tests the join function");
+}
+ATF_TEST_CASE_BODY(join)
+{
+    using atf::text::join;
+
+    // First set of tests using a non-sorted collection, std::vector.
+    {
+        std::vector< std::string > words;
+        std::string str;
+
+        words.clear();
+        str = join(words, ",");
+        ATF_CHECK_EQUAL(str, "");
+
+        words.clear();
+        words.push_back("");
+        str = join(words, ",");
+        ATF_CHECK_EQUAL(str, "");
+
+        words.clear();
+        words.push_back("");
+        words.push_back("");
+        str = join(words, ",");
+        ATF_CHECK_EQUAL(str, ",");
+
+        words.clear();
+        words.push_back("foo");
+        words.push_back("");
+        words.push_back("baz");
+        str = join(words, ",");
+        ATF_CHECK_EQUAL(str, "foo,,baz");
+
+        words.clear();
+        words.push_back("foo");
+        words.push_back("bar");
+        words.push_back("baz");
+        str = join(words, ",");
+        ATF_CHECK_EQUAL(str, "foo,bar,baz");
+    }
+
+    // Second set of tests using a sorted collection, std::set.
+    {
+        std::set< std::string > words;
+        std::string str;
+
+        words.clear();
+        str = join(words, ",");
+        ATF_CHECK_EQUAL(str, "");
+
+        words.clear();
+        words.insert("");
+        str = join(words, ",");
+        ATF_CHECK_EQUAL(str, "");
+
+        words.clear();
+        words.insert("foo");
+        words.insert("");
+        words.insert("baz");
+        str = join(words, ",");
+        ATF_CHECK_EQUAL(str, ",baz,foo");
+
+        words.clear();
+        words.insert("foo");
+        words.insert("bar");
+        words.insert("baz");
+        str = join(words, ",");
+        ATF_CHECK_EQUAL(str, "bar,baz,foo");
+    }
+}
 
 ATF_TEST_CASE(split);
 ATF_TEST_CASE_HEAD(split)
@@ -143,6 +220,7 @@ ATF_TEST_CASE_BODY(split_delims)
 
 ATF_INIT_TEST_CASES(tcs)
 {
+    tcs.push_back(&join);
     tcs.push_back(&split);
     tcs.push_back(&split_delims);
 }
