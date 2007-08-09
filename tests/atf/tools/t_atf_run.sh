@@ -50,13 +50,18 @@ separator_body()
 #! /bin/sh
 # Note that the following look like four fields, but in reality they are
 # three.  That's what we are checking for here.
+echo 'Content-Type: application/X-atf-tcs; version="0"' >&9
+echo '' >&9
 echo "tc1, failed, This test failed, second part" >&9
 echo "tc2, skipped, This test was skipped, second part" >&9
 exit 1
 EOF
     chmod +x tc.sh
-    echo "tc.sh" >Atffile
+    cat >Atffile <<EOF
+Content-Type: application/X-atf-atffile; version="0"
 
+tc.sh
+EOF
     atf_check 'atf-run' 1 stdout stderr
     atf_check 'grep -i "failed.*This test failed, second part" stdout' \
               0 ignore null

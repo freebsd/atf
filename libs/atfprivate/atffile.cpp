@@ -44,6 +44,7 @@
 #include "atfprivate/atffile.hpp"
 #include "atfprivate/exceptions.hpp"
 #include "atfprivate/expand.hpp"
+#include "atfprivate/serial.hpp"
 
 atf::atffile::atffile(const atf::fs::path& filename)
 {
@@ -51,6 +52,7 @@ atf::atffile::atffile(const atf::fs::path& filename)
     if (!is)
         throw atf::not_found_error< fs::path >
             ("Cannot open Atffile", filename);
+    serial::internalizer i(is, "application/X-atf-atffile", 0);
 
     fs::directory dir(filename.branch_path());
     dir.erase(filename.leaf_name());

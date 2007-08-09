@@ -57,6 +57,7 @@ extern "C" {
 #include "atfprivate/exceptions.hpp"
 #include "atfprivate/fs.hpp"
 #include "atfprivate/io.hpp"
+#include "atfprivate/serial.hpp"
 #include "atfprivate/text.hpp"
 #include "atfprivate/ui.hpp"
 
@@ -173,12 +174,13 @@ atf_run::run_test_program(const atf::fs::path& tp)
     respipe.wend().close();
     atf::io::file_handle fhres = respipe.rend().get();
     atf::io::pistream in(fhres);
+    atf::serial::internalizer i(in, "application/X-atf-tcs", 0);
 
     std::cout << tp.str() << ": Running test cases" << std::endl;
 
     size_t passed = 0, skipped = 0, failed = 0;
     atf::tcname_tcr tt;
-    while ((in >> tt).good()) {
+    while ((i >> tt).good()) {
         const std::string& tcname = tt.first;
         const atf::test_case_result& tcr = tt.second;
 

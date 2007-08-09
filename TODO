@@ -40,9 +40,6 @@ Basically they are here so that they are not forgotten.
   classes as not copyable.  Or, failing to do that, any other way to do
   the same.
 
-* Add format and versioning tags to the outputs that have to be machine-
-  parseable.  For example: the output of test programs.
-
 * Implement the atf-report tool, which takes the output of atf-run and
   converts it to some nice format.  Ideas for these output formats
   include: proplib, a home-grown XML format, and HTML pages.

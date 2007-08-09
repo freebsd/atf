@@ -218,9 +218,24 @@ ATF_TEST_CASE_BODY(split_delims)
     ATF_CHECK_EQUAL(words[2], "ef");
 }
 
+ATF_TEST_CASE(to_string);
+ATF_TEST_CASE_HEAD(to_string)
+{
+    set("descr", "Tests the to_string function");
+}
+ATF_TEST_CASE_BODY(to_string)
+{
+    using atf::text::to_string;
+
+    ATF_CHECK_EQUAL(to_string('a'), "a");
+    ATF_CHECK_EQUAL(to_string("a"), "a");
+    ATF_CHECK_EQUAL(to_string(5), "5");
+}
+
 ATF_INIT_TEST_CASES(tcs)
 {
     tcs.push_back(&join);
     tcs.push_back(&split);
     tcs.push_back(&split_delims);
+    tcs.push_back(&to_string);
 }

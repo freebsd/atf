@@ -46,6 +46,8 @@ dnl The correct fix could be to make the auxiliary test programs be real
 dnl test programs instead of two-liners creted from here.
 
 m4_define([CREATE_PASS_TEST], [AT_DATA([$1],[#! /bin/sh
+echo "Content-Type: application/X-atf-tcs; version=\"0\"" >&9
+echo "" >&9
 echo ignore-me
 echo ignore-me >&2
 echo '$2, passed' >&9
@@ -55,6 +57,8 @@ AT_CHECK([chmod +x $1], [0], [], [])
 ])
 
 m4_define([CREATE_FAIL_TEST], [AT_DATA([$1],[#! /bin/sh
+echo "Content-Type: application/X-atf-tcs; version=\"0\"" >&9
+echo "" >&9
 echo ignore-me
 echo ignore-me >&2
 echo '$2, failed, No reason' >&9
@@ -66,14 +70,23 @@ AT_CHECK([chmod +x $1], [0], [], [])
 AT_CHECK([mkdir top], [0], [], [])
 AT_CHECK([mkdir top/dir1], [0], [], [])
 AT_CHECK([mkdir top/dir2], [0], [], [])
-AT_DATA([top/Atffile], [dir1
+AT_DATA([top/Atffile],
+[Content-Type: application/X-atf-atffile; version="0"
+
+dir1
 dir2
 test1
 test2
 ])
-AT_DATA([top/dir1/Atffile], [test3
+AT_DATA([top/dir1/Atffile],
+[Content-Type: application/X-atf-atffile; version="0"
+
+test3
 ])
-AT_DATA([top/dir2/Atffile], [test4
+AT_DATA([top/dir2/Atffile],
+[Content-Type: application/X-atf-atffile; version="0"
+
+test4
 test5
 ])
 CREATE_PASS_TEST([top/test1], [tc_1])
@@ -105,7 +118,10 @@ AT_CHECK([grep -i 'ignore-me' stdout], [1], [], [])
 AT_CHECK([grep -i 'ignore-me' stderr], [1], [], [])
 
 dnl Repeat previous but using a glob that matches everything.
-AT_DATA([top/Atffile], [*
+AT_DATA([top/Atffile],
+[Content-Type: application/X-atf-atffile; version="0"
+
+*
 ])
 AT_CHECK([cd top && atf-run], [1], [stdout], [stderr])
 AT_CHECK([grep -i 'tc_1.*passed' stdout], [0], [ignore], [])
@@ -117,7 +133,10 @@ AT_CHECK([grep -i 'ignore-me' stdout], [1], [], [])
 AT_CHECK([grep -i 'ignore-me' stderr], [1], [], [])
 
 dnl Repeat previous but using a glob that matches directories only.
-AT_DATA([top/Atffile], [d*
+AT_DATA([top/Atffile],
+[Content-Type: application/X-atf-atffile; version="0"
+
+d*
 ])
 AT_CHECK([cd top && atf-run], [1], [stdout], [stderr])
 AT_CHECK([grep -i 'tc_3.*passed' stdout], [0], [ignore], [])
@@ -137,7 +156,10 @@ CREATE_PASS_TEST([top/test3], [tc_3])
 AT_CHECK([chmod -x top/test3], [0], [], [])
 CREATE_PASS_TEST([top/.test4], [tc_4])
 AT_CHECK([chmod -x top/.test4], [0], [], [])
-AT_DATA([top/Atffile], [*
+AT_DATA([top/Atffile],
+[Content-Type: application/X-atf-atffile; version="0"
+
+*
 ])
 AT_CHECK([cd top && atf-run], [0], [stdout], [stderr])
 AT_CHECK([grep -i 'tc_1.*passed' stdout], [0], [ignore], [])

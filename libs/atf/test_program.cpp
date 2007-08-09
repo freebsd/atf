@@ -51,6 +51,7 @@
 #include "atfprivate/expand.hpp"
 #include "atfprivate/fs.hpp"
 #include "atfprivate/io.hpp"
+#include "atfprivate/serial.hpp"
 #include "atfprivate/ui.hpp"
 
 #include "atf/test_case.hpp"
@@ -282,7 +283,7 @@ test_program::run_test_cases(void)
 
     int errcode = EXIT_SUCCESS;
 
-    std::ostream& ros = results_stream();
+    atf::serial::externalizer e(results_stream(), "application/X-atf-tcs", 0);
 
     for (test_cases::iterator iter = tcs.begin();
          iter != tcs.end(); iter++) {
@@ -290,7 +291,7 @@ test_program::run_test_cases(void)
 
         atf::test_case_result tcr = tc->run();
         atf::tcname_tcr tcp(tc->get("ident"), tcr);
-        ros << tcp;
+        e << tcp;
 
         if (tcr.get_status() == atf::test_case_result::status_failed)
             errcode = EXIT_FAILURE;

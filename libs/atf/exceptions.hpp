@@ -51,6 +51,8 @@ namespace atf {
 //! This error class is used to signal format errors while parsing some
 //! externalized representation of a data structure.
 //!
+//! XXX This is duplicated in atf::serial...
+//!
 class format_error : public std::runtime_error {
 public:
     format_error(const std::string& w) :

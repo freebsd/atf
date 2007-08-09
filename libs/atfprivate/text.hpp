@@ -41,6 +41,7 @@
 #if !defined(_ATF_TEXT_HPP_)
 #define _ATF_TEXT_HPP_
 
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -82,6 +83,21 @@ join(const T& words, const std::string& separator)
 //! delimiter results in the original string.
 //!
 std::vector< std::string > split(const std::string&, const std::string&);
+
+//!
+//! \brief Converts the given object to a string.
+//!
+//! Returns a string with the representation of the given object.  There
+//! must exist an operator<< method for that object.
+//!
+template< class T >
+std::string
+to_string(const T& ob)
+{
+    std::ostringstream ss;
+    ss << ob;
+    return ss.str();
+}
 
 } // namespace text
 } // namespace atf

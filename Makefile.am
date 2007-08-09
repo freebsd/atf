@@ -96,6 +96,8 @@ libs_libatfprivate_la_SOURCES = libs/atfprivate/application.cpp \
                                 libs/atfprivate/fs.hpp \
                                 libs/atfprivate/io.cpp \
                                 libs/atfprivate/io.hpp \
+                                libs/atfprivate/serial.cpp \
+                                libs/atfprivate/serial.hpp \
                                 libs/atfprivate/text.cpp \
                                 libs/atfprivate/text.hpp \
                                 libs/atfprivate/ui.cpp \
@@ -414,6 +416,11 @@ atf_units_PROGRAMS += tests/atf/units/t_io
 tests_atf_units_t_io_SOURCES = tests/atf/units/t_io.cpp
 tests_atf_units_t_io_LDADD = -latf
 tests_atf_units_t_io_LDFLAGS = -Llibs
+
+atf_units_PROGRAMS += tests/atf/units/t_serial
+tests_atf_units_t_serial_SOURCES = tests/atf/units/t_serial.cpp
+tests_atf_units_t_serial_LDADD = -latf
+tests_atf_units_t_serial_LDFLAGS = -Llibs
 
 atf_units_PROGRAMS += tests/atf/units/t_test_case_result
 tests_atf_units_t_test_case_result_SOURCES = \

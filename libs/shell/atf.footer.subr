@@ -499,6 +499,19 @@ _atf_get_bool()
 }
 
 #
+# _atf_init_output
+#
+#   Initializes the descriptor where we will send the test case's
+#   results.
+#
+_atf_init_output()
+{
+    echo "Content-Type: application/X-atf-tcs; version=\"0\"" \
+        >&${Results_Fd}
+    echo "" >&${Results_Fd}
+}
+
+#
 # _atf_internal_get varname
 #
 #   Prints the value of a test case-specific internal variable.  Given
@@ -676,6 +689,8 @@ _atf_run_tcs()
     # Initialize the status file here (instead of in _atf_run_tc) so that
     # we can reuse it for all test cases.
     Status_File=$(mktemp ${Work_Dir_Base}/atf.XXXXXX)
+
+    _atf_init_output
 
     _ok=true
     while [ ${#} -gt 0 ]; do
