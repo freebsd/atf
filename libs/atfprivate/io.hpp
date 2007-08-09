@@ -206,6 +206,10 @@ public:
     //! In other words, it first calls dup2() to remap the old handle to
     //! the new one and then closes the old handle.
     //!
+    //! If \a h matches the current value of the handle, this is a no-op.
+    //! This is done for simplicity, to avoid the caller having to check
+    //! this condition on its own.
+    //!
     //! If \a h is open, it is automatically closed by dup2().
     //!
     //! This operation is only available in POSIX systems.

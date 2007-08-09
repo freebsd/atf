@@ -241,11 +241,25 @@ ATF_TEST_CASE_BODY(file_handle_posix_remap)
     wend.posix_remap(10);
     ATF_CHECK_EQUAL(wend.get(), 10);
     ATF_CHECK(::write(wend.get(), "test-posix-remap", 16) != -1);
+    {
+        char buf[17];
+        ATF_CHECK_EQUAL(::read(rend.get(), buf, sizeof(buf)), 16);
+        buf[16] = '\0';
+        ATF_CHECK(std::strcmp(buf, "test-posix-remap") == 0);
+    }
 
-    char buf[17];
-    ATF_CHECK_EQUAL(::read(rend.get(), buf, sizeof(buf)), 16);
-    buf[16] = '\0';
-    ATF_CHECK(std::strcmp(buf, "test-posix-remap") == 0);
+    // Redo previous to ensure that remapping over the same descriptor
+    // has no side-effects.
+    ATF_CHECK_EQUAL(wend.get(), 10);
+    wend.posix_remap(10);
+    ATF_CHECK_EQUAL(wend.get(), 10);
+    ATF_CHECK(::write(wend.get(), "test-posix-remap", 16) != -1);
+    {
+        char buf[17];
+        ATF_CHECK_EQUAL(::read(rend.get(), buf, sizeof(buf)), 16);
+        buf[16] = '\0';
+        ATF_CHECK(std::strcmp(buf, "test-posix-remap") == 0);
+    }
 }
 
 // ------------------------------------------------------------------------

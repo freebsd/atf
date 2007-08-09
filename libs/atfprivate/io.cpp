@@ -128,6 +128,9 @@ impl::file_handle::posix_remap(handle_type h)
 {
     assert(is_valid());
 
+    if (m_handle == h)
+        return;
+
     if (::dup2(m_handle, h) == -1)
         throw system_error(IMPL_NAME "::file_handle::posix_remap",
                            "dup2(2) failed", errno);
