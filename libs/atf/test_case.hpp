@@ -137,7 +137,10 @@ std::istream& operator>>(std::istream&, atf::tcname_tcr&);
 #define ATF_CHECK_THROW(x, e) \
     try { \
         x; \
-        ATF_FAIL(#x " did not throw " #e " as expected"); \
+        std::ostringstream __atf_ss; \
+        __atf_ss << "Line " << __LINE__ << ": " #x " did not throw " \
+                    #e " as expected"; \
+        throw atf::test_case_result::failed(__atf_ss.str()); \
     } catch (const e& __atf_eo) { \
     }
 
