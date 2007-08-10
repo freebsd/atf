@@ -247,7 +247,6 @@ impl::internalizer::internalizer(std::istream& is,
 void
 impl::internalizer::read_headers(void)
 {
-    std::string line;
     bool first = true;
 
     header_entry he;
