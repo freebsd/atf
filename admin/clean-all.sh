@@ -80,6 +80,7 @@ rm -f tests/bootstrap/testsuite
 find . -name '#*' | xargs rm -rf
 find . -name '*~' | xargs rm -rf
 find . -name .deps | xargs rm -rf
+find . -name .gdb_history | xargs rm -rf
 find . -name .libs | xargs rm -rf
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
