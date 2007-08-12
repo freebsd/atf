@@ -38,6 +38,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cassert>
+
 #include "atf/serial.hpp"
 #include "atf/text.hpp"
 
