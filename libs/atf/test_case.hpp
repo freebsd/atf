@@ -85,12 +85,7 @@ public:
     test_case_result run(void) const;
 };
 
-typedef std::pair< std::string, test_case_result > tcname_tcr;
-
 } // namespace atf
-
-std::ostream& operator<<(std::ostream&, const atf::tcname_tcr&);
-std::istream& operator>>(std::istream&, atf::tcname_tcr&);
 
 #define ATF_TEST_CASE(name) \
     class name : public atf::test_case { \

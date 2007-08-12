@@ -135,6 +135,7 @@ $(srcdir)/libs/atf/test_case.cpp: libs/atf/tcenv.cpp libs/atf/tchead.cpp
 
 lib_LTLIBRARIES += libs/libatf.la
 libs_libatf_la_SOURCES = libs/atf/exceptions.hpp \
+                         libs/atf/formats.cpp \
                          libs/atf/test_case.cpp \
                          libs/atf/test_case_result.cpp \
                          libs/atf/test_program.cpp
@@ -142,7 +143,9 @@ libs_libatf_la_LDFLAGS = -Llibs
 libs_libatf_la_LIBADD = -latfprivate
 
 include_HEADERS = libs/atf.hpp
+# XXX Including formats.hpp below is wrong; it relies on private headers.
 atf_HEADERS = libs/atf/exceptions.hpp \
+              libs/atf/formats.hpp \
               libs/atf/test_case.hpp \
               libs/atf/test_case_result.hpp
 atfdir = $(includedir)/atf
@@ -260,7 +263,7 @@ $(srcdir)/tests/bootstrap/testsuite: $(srcdir)/tests/bootstrap/testsuite.at \
 # -------------------------------------------------------------------------
 
 check-local:
-	cd tests/atf && $(TESTS_ENVIRONMENT) atf-run
+	cd tests/atf && $(TESTS_ENVIRONMENT) atf-run | atf-report
 
 testsdir = $(exec_prefix)/tests
 pkgtestsdir = $(exec_prefix)/tests/atf
@@ -407,6 +410,11 @@ tests_atf_units_t_expand_SOURCES = tests/atf/units/t_expand.cpp
 tests_atf_units_t_expand_LDADD = -latf
 tests_atf_units_t_expand_LDFLAGS = -Llibs
 
+atf_units_PROGRAMS += tests/atf/units/t_formats
+tests_atf_units_t_formats_SOURCES = tests/atf/units/t_formats.cpp
+tests_atf_units_t_formats_LDADD = -latf
+tests_atf_units_t_formats_LDFLAGS = -Llibs
+
 atf_units_PROGRAMS += tests/atf/units/t_fs
 tests_atf_units_t_fs_SOURCES = tests/atf/units/t_fs.cpp
 tests_atf_units_t_fs_LDADD = -latf
@@ -472,6 +480,11 @@ libexec_PROGRAMS += tools/atf-format
 tools_atf_format_SOURCES = tools/atf-format.cpp
 tools_atf_format_LDADD = -latfprivate
 tools_atf_format_LDFLAGS = -Llibs
+
+bin_PROGRAMS += tools/atf-report
+tools_atf_report_SOURCES = tools/atf-report.cpp
+tools_atf_report_LDADD = -latfprivate -latf
+tools_atf_report_LDFLAGS = -Llibs
 
 bin_PROGRAMS += tools/atf-run
 tools_atf_run_SOURCES = tools/atf-run.cpp

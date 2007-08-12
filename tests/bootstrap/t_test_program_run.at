@@ -42,53 +42,93 @@ AT_SETUP([test_program: output format and exit codes])
 
 for h in tp_basic_cpp tp_basic_sh; do
 
-AT_CHECK([TEST_HELPER(${h})], 1, [stdout], [ignore])
-AT_CHECK([grep '^tc_pass, passed' stdout], [0], [ignore], [])
-AT_CHECK([grep '^tc_fail, failed, On purpose' stdout], [0], [ignore], [])
-AT_CHECK([grep '^tc_skip, skipped, By design' stdout], [0], [ignore], [])
-AT_CHECK([grep '^tc_default, passed' stdout], [0], [ignore], [])
+AT_CHECK([TEST_HELPER(${h})], 1, [stdout], [stderr])
+AT_CHECK([COUNT_IN_LINES([grep __atf_stream_end__ stdout], 4)], [0], [], [])
+AT_CHECK([COUNT_IN_LINES([grep __atf_stream_end__ stderr], 4)], [0], [], [])
+CHECK_TCR(tc_pass, passed, stdout)
+CHECK_TCR(tc_fail, failed, stdout)
+CHECK_TCR(tc_skip, skipped, stdout)
+CHECK_TCR(tc_default, passed, stdout)
 
 dnl Check the -r flag to redirect the results output.
-AT_CHECK([mv stdout expout])
-AT_CHECK([TEST_HELPER(${h}) -r1], 1, [expout], [ignore])
+dnl (Same checks as above, as -r1 is the default.)
+AT_CHECK([TEST_HELPER(${h}) -r1], 1, [stdout], [stderr])
+AT_CHECK([COUNT_IN_LINES([grep __atf_stream_end__ stdout], 4)], [0], [], [])
+AT_CHECK([COUNT_IN_LINES([grep __atf_stream_end__ stderr], 4)], [0], [], [])
+CHECK_TCR(tc_pass, passed, stdout)
+CHECK_TCR(tc_fail, failed, stdout)
+CHECK_TCR(tc_skip, skipped, stdout)
+CHECK_TCR(tc_default, passed, stdout)
 
 dnl Check the -r flag to redirect the results output.
 AT_CHECK([TEST_HELPER(${h}) -r2], 1, [ignore], [stderr])
-AT_CHECK([grep '^tc_pass, passed' stderr], [0], [ignore], [])
-AT_CHECK([grep '^tc_fail, failed, On purpose' stderr], [0], [ignore], [])
-AT_CHECK([grep '^tc_skip, skipped, By design' stderr], [0], [ignore], [])
-AT_CHECK([grep '^tc_default, passed' stderr], [0], [ignore], [])
+AT_CHECK([COUNT_IN_LINES([grep __atf_stream_end__ stdout], 4)], [0], [], [])
+AT_CHECK([COUNT_IN_LINES([grep __atf_stream_end__ stderr], 4)], [0], [], [])
+CHECK_TCR(tc_pass, passed, stderr)
+CHECK_TCR(tc_fail, failed, stderr)
+CHECK_TCR(tc_skip, skipped, stderr)
+CHECK_TCR(tc_default, passed, stderr)
 
 dnl Check the -r flag to redirect the results output.
 AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="0"
 
-tc_pass, passed
-tc_fail, failed, On purpose
-tc_skip, skipped, By design
-tc_default, passed
+4
+tc_pass
+passed
+.
+tc_fail
+failed
+On purpose
+.
+tc_skip
+skipped
+By design
+.
+tc_default
+passed
+.
 ])
-AT_CHECK([TEST_HELPER(${h}) -r3 3>resout], 1, [ignore], [ignore])
+AT_CHECK([TEST_HELPER(${h}) -r3 3>resout], 1, [stdout], [stderr])
+AT_CHECK([COUNT_IN_LINES([grep __atf_stream_end__ stdout], 4)], [0], [], [])
+AT_CHECK([COUNT_IN_LINES([grep __atf_stream_end__ stderr], 4)], [0], [], [])
 AT_CHECK([cmp -s resout expres], 0, [], [])
 
 AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="0"
 
-tc_pass, passed
+1
+tc_pass
+passed
+.
 ])
-AT_CHECK([TEST_HELPER(${h}) -r3 tc_pass 3>resout], 0, [ignore], [ignore])
+AT_CHECK([TEST_HELPER(${h}) -r3 tc_pass 3>resout], 0, [stdout], [stderr])
+AT_CHECK([COUNT_IN_LINES([grep __atf_stream_end__ stdout], 1)], [0], [], [])
+AT_CHECK([COUNT_IN_LINES([grep __atf_stream_end__ stderr], 1)], [0], [], [])
 AT_CHECK([cmp -s resout expres], 0, [], [])
 
 AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="0"
 
-tc_fail, failed, On purpose
+1
+tc_fail
+failed
+On purpose
+.
 ])
-AT_CHECK([TEST_HELPER(${h}) -r3 tc_fail 3>resout], 1, [ignore], [ignore])
+AT_CHECK([TEST_HELPER(${h}) -r3 tc_fail 3>resout], 1, [stdout], [stderr])
+AT_CHECK([COUNT_IN_LINES([grep __atf_stream_end__ stdout], 1)], [0], [], [])
+AT_CHECK([COUNT_IN_LINES([grep __atf_stream_end__ stderr], 1)], [0], [], [])
 AT_CHECK([cmp -s resout expres], 0, [], [])
 
 AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="0"
 
-tc_skip, skipped, By design
+1
+tc_skip
+skipped
+By design
+.
 ])
-AT_CHECK([TEST_HELPER(${h}) -r3 tc_skip 3>resout], 0, [ignore], [ignore])
+AT_CHECK([TEST_HELPER(${h}) -r3 tc_skip 3>resout], 0, [stdout], [stderr])
+AT_CHECK([COUNT_IN_LINES([grep __atf_stream_end__ stdout], 1)], [0], [], [])
+AT_CHECK([COUNT_IN_LINES([grep __atf_stream_end__ stderr], 1)], [0], [], [])
 AT_CHECK([cmp -s resout expres], 0, [], [])
 
 done

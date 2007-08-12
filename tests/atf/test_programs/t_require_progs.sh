@@ -49,32 +49,27 @@ common_tests() {
         atf_check "PROGS='/bin/cp' \
                    ${h} -s ${srcdir} -r3 require_progs_${where} \
                    3>resout" 0 ignore ignore
-        atf_check 'grep "require_progs_${where}, passed" resout' \
-                  0 ignore null
+        atf_check 'grep "passed" resout' 0 ignore null
         atf_check "PROGS='/bin/___non-existent___' \
                    ${h} -s ${srcdir} -r3 require_progs_${where} \
                    3>resout" 0 ignore ignore
-        atf_check 'grep "require_progs_${where}, skipped" resout' \
-                  0 ignore null
+        atf_check 'grep "skipped" resout' 0 ignore null
 
         # Relative paths are not allowed.
         atf_check "PROGS='bin/cp' \
                    ${h} -s ${srcdir} -r3 require_progs_${where} \
                    3>resout" 1 ignore stderr
-        atf_check 'grep "require_progs_${where}, failed" resout' \
-                  0 ignore null
+        atf_check 'grep "failed" resout' 0 ignore null
 
         # Check plain file names, searching them in the PATH.
         atf_check "PROGS='cp' \
                    ${h} -s ${srcdir} -r3 require_progs_${where} \
                    3>resout" 0 ignore ignore
-        atf_check 'grep "require_progs_${where}, passed" resout' \
-                  0 ignore null
+        atf_check 'grep "passed" resout' 0 ignore null
         atf_check "PROGS='___non-existent___' \
                    ${h} -s ${srcdir} -r3 require_progs_${where} \
                    3>resout" 0 ignore ignore
-        atf_check 'grep "require_progs_${where}, skipped" resout' \
-                  0 ignore null
+        atf_check 'grep "skipped" resout' 0 ignore null
     done
 }
 
@@ -105,7 +100,8 @@ require_progs_header_body()
         atf_check "PROGS='/bin/cp /bin/___non-existent___' \
                    ${h} -s ${srcdir} -r3 require_progs_head \
                    3>resout" 0 ignore ignore
-        atf_check 'grep "skipped.*non-existent" resout' 0 ignore null
+        atf_check 'grep "skipped" resout' 0 ignore null
+        atf_check 'grep "non-existent" resout' 0 ignore null
 
         # Check a couple of absolute path names.  Both have to be found.
         atf_check "PROGS='/bin/cp /bin/ls' \
@@ -132,7 +128,8 @@ require_progs_header_body()
         atf_check "PROGS='/bin/cp ___non-existent___' \
                    ${h} -s ${srcdir} -r3 require_progs_head \
                    3>resout" 0 ignore ignore
-        atf_check 'grep "skipped,.*non-existent" resout' 0 ignore null
+        atf_check 'grep "skipped" resout' 0 ignore null
+        atf_check 'grep "non-existent" resout' 0 ignore null
     done
 }
 

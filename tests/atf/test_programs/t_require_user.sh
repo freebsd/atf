@@ -57,11 +57,9 @@ root_body()
         atf_check "${h} -s ${srcdir} -r3 require_user_root \
             3>resout" 0 ignore ignore
         if [ $(id -u) -eq 0 ]; then
-            atf_check 'grep "require_user_root, passed" resout' \
-                0 ignore null
+            atf_check 'grep "passed" resout' 0 ignore null
         else
-            atf_check 'grep "require_user_root, skipped" resout' \
-                0 ignore null
+            atf_check 'grep "skipped" resout' 0 ignore null
         fi
     done
 }
@@ -80,11 +78,9 @@ unprivileged_body()
         atf_check "${h} -s ${srcdir} -r3 require_user_unprivileged \
             3>resout" 0 ignore ignore
         if [ $(id -u) -eq 0 ]; then
-            atf_check 'grep "require_user_unprivileged, skipped" resout' \
-                0 ignore null
+            atf_check 'grep "skipped" resout' 0 ignore null
         else
-            atf_check 'grep "require_user_unprivileged, passed" resout' \
-                0 ignore null
+            atf_check 'grep "passed" resout' 0 ignore null
         fi
     done
 }
@@ -104,7 +100,7 @@ multiple_body()
     for h in ${h_cpp} ${h_sh}; do
         atf_check "${h} -s ${srcdir} -r3 'require_user*' 3>resout" \
             0 ignore ignore
-        grep ", skipped, " resout >skips
+        grep "skipped" resout >skips
         [ $(count_lines skips) -lt 2 ] && \
             atf_fail "Test program aborted prematurely"
         [ $(count_lines skips) -gt 2 ] && \

@@ -54,6 +54,7 @@
 #include "atfprivate/serial.hpp"
 #include "atfprivate/ui.hpp"
 
+#include "atf/formats.hpp"
 #include "atf/test_case.hpp"
 
 class test_program : public atf::application {
@@ -283,15 +284,14 @@ test_program::run_test_cases(void)
 
     int errcode = EXIT_SUCCESS;
 
-    atf::serial::externalizer e(results_stream(), "application/X-atf-tcs", 0);
-
+    atf::formats::atf_tcs_writer w(results_stream(), tcs.size());
     for (test_cases::iterator iter = tcs.begin();
          iter != tcs.end(); iter++) {
         atf::test_case* tc = *iter;
 
+        w.start_tc(tc->get("ident"));
         atf::test_case_result tcr = tc->run();
-        atf::tcname_tcr tcp(tc->get("ident"), tcr);
-        e << tcp;
+        w.end_tc(tcr);
 
         if (tcr.get_status() == atf::test_case_result::status_failed)
             errcode = EXIT_FAILURE;

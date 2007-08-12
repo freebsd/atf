@@ -48,9 +48,14 @@ dnl test programs instead of two-liners creted from here.
 m4_define([CREATE_PASS_TEST], [AT_DATA([$1],[#! /bin/sh
 echo "Content-Type: application/X-atf-tcs; version=\"0\"" >&9
 echo "" >&9
+echo '1' >&9
+echo '$2' >&9
 echo ignore-me
 echo ignore-me >&2
-echo '$2, passed' >&9
+echo __atf_stream_end__
+echo __atf_stream_end__ >&2
+echo 'passed' >&9
+echo '.' >&9
 true
 ])
 AT_CHECK([chmod +x $1], [0], [], [])
@@ -59,9 +64,15 @@ AT_CHECK([chmod +x $1], [0], [], [])
 m4_define([CREATE_FAIL_TEST], [AT_DATA([$1],[#! /bin/sh
 echo "Content-Type: application/X-atf-tcs; version=\"0\"" >&9
 echo "" >&9
+echo '1' >&9
+echo '$2' >&9
 echo ignore-me
 echo ignore-me >&2
-echo '$2, failed, No reason' >&9
+echo __atf_stream_end__
+echo __atf_stream_end__ >&2
+echo 'failed' >&9
+echo 'No reason' >&9
+echo '.' >&9
 false
 ])
 AT_CHECK([chmod +x $1], [0], [], [])
@@ -95,27 +106,27 @@ CREATE_PASS_TEST([top/dir1/test3], [tc_3])
 CREATE_FAIL_TEST([top/dir2/test4], [tc_4])
 CREATE_PASS_TEST([top/dir2/test5], [tc_5])
 
-AT_CHECK([cd top/dir1 && atf-run], [0], [stdout], [stderr])
-AT_CHECK([grep -i 'tc_3.*passed' stdout], [0], [ignore], [])
+AT_CHECK([cd top/dir1 && atf-run], [0], [stdout], [])
+CHECK_TCR(tc_3, passed, stdout)
 AT_CHECK([grep -i 'tc_@<:@1245@:>@' stdout], [1], [], [])
-AT_CHECK([grep -i 'ignore-me' stdout], [1], [], [])
-AT_CHECK([grep -i 'ignore-me' stderr], [1], [], [])
+AT_CHECK([grep 'so: ignore-me' stdout], [0], [ignore], [])
+AT_CHECK([grep 'se: ignore-me' stdout], [0], [ignore], [])
 
 AT_CHECK([cd top/dir2 && atf-run], [1], [stdout], [stderr])
-AT_CHECK([grep -i 'tc_4.*failed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_5.*passed' stdout], [0], [ignore], [])
+CHECK_TCR(tc_4, failed, stdout)
+CHECK_TCR(tc_5, passed, stdout)
 AT_CHECK([grep -i 'tc_@<:@123@:>@' stdout], [1], [], [])
-AT_CHECK([grep -i 'ignore-me' stdout], [1], [], [])
-AT_CHECK([grep -i 'ignore-me' stderr], [1], [], [])
+AT_CHECK([grep 'so: ignore-me' stdout], [0], [ignore], [])
+AT_CHECK([grep 'se: ignore-me' stdout], [0], [ignore], [])
 
 AT_CHECK([cd top && atf-run], [1], [stdout], [stderr])
-AT_CHECK([grep -i 'tc_1.*passed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_2.*failed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_3.*passed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_4.*failed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_5.*passed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'ignore-me' stdout], [1], [], [])
-AT_CHECK([grep -i 'ignore-me' stderr], [1], [], [])
+CHECK_TCR(tc_1, passed, stdout)
+CHECK_TCR(tc_2, failed, stdout)
+CHECK_TCR(tc_3, passed, stdout)
+CHECK_TCR(tc_4, failed, stdout)
+CHECK_TCR(tc_5, passed, stdout)
+AT_CHECK([grep 'so: ignore-me' stdout], [0], [ignore], [])
+AT_CHECK([grep 'se: ignore-me' stdout], [0], [ignore], [])
 
 dnl Repeat previous but using a glob that matches everything.
 AT_DATA([top/Atffile],
@@ -124,13 +135,13 @@ AT_DATA([top/Atffile],
 *
 ])
 AT_CHECK([cd top && atf-run], [1], [stdout], [stderr])
-AT_CHECK([grep -i 'tc_1.*passed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_2.*failed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_3.*passed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_4.*failed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_5.*passed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'ignore-me' stdout], [1], [], [])
-AT_CHECK([grep -i 'ignore-me' stderr], [1], [], [])
+CHECK_TCR(tc_1, passed, stdout)
+CHECK_TCR(tc_2, failed, stdout)
+CHECK_TCR(tc_3, passed, stdout)
+CHECK_TCR(tc_4, failed, stdout)
+CHECK_TCR(tc_5, passed, stdout)
+AT_CHECK([grep 'so: ignore-me' stdout], [0], [ignore], [])
+AT_CHECK([grep 'se: ignore-me' stdout], [0], [ignore], [])
 
 dnl Repeat previous but using a glob that matches directories only.
 AT_DATA([top/Atffile],
@@ -139,11 +150,11 @@ AT_DATA([top/Atffile],
 d*
 ])
 AT_CHECK([cd top && atf-run], [1], [stdout], [stderr])
-AT_CHECK([grep -i 'tc_3.*passed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_4.*failed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_5.*passed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'ignore-me' stdout], [1], [], [])
-AT_CHECK([grep -i 'ignore-me' stderr], [1], [], [])
+CHECK_TCR(tc_3, passed, stdout)
+CHECK_TCR(tc_4, failed, stdout)
+CHECK_TCR(tc_5, passed, stdout)
+AT_CHECK([grep 'so: ignore-me' stdout], [0], [ignore], [])
+AT_CHECK([grep 'se: ignore-me' stdout], [0], [ignore], [])
 
 dnl Make sure globs do not match non-executatble nor hidden files.
 dnl XXX This is not really part of the bootstrap test suite.  Move to
@@ -162,8 +173,8 @@ AT_DATA([top/Atffile],
 *
 ])
 AT_CHECK([cd top && atf-run], [0], [stdout], [stderr])
-AT_CHECK([grep -i 'tc_1.*passed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_2.*passed' stdout], [0], [ignore], [])
+CHECK_TCR(tc_1, passed, stdout)
+CHECK_TCR(tc_2, passed, stdout)
 AT_CHECK([grep -i 'tc_3' stdout], [1], [ignore], [])
 AT_CHECK([grep -i 'tc_4' stdout], [1], [ignore], [])
 

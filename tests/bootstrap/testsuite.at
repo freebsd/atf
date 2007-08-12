@@ -55,7 +55,52 @@ m4_define([APP_HELPER], [$(GUESS_TOPDIR)/tests/bootstrap/h_$1])
 m4_define([TEST_HELPER], [$(GUESS_TOPDIR)/tests/bootstrap/h_$1 \
                           -s $(GUESS_TOPDIR)/tests/bootstrap])
 
+m4_define(COUNT_IN_LINES,
+          [test @S|@[($1 | wc -l | awk '{ print @S|@1 }')] = $2])
+
 m4_define(COUNT_LINES, [test @S|@[(wc -l $1 | awk '{ print @S|@1 }')] = $2])
+
+m4_define(CHECK_TCR,
+[AT_CHECK([awk 'BEGIN {
+    sawname = 0
+    found = 0
+}
+
+/^so: / {
+    next
+}
+
+/^se: / {
+    next
+}
+
+/__atf_stream_end__/ {
+    next
+}
+
+/^$1$/ {
+    sawname = 1
+    next
+}
+
+/^$2$/ {
+    if (sawname)
+        found = 1
+    sawname = 0
+    next
+}
+
+{
+    sawname = 0
+}
+
+END {
+    if (found)
+        exit 0
+    else
+        exit 1
+}' <$3], [0], [], [])
+])
 
 dnl The tests below are sorted depending on how important they are.
 m4_include(tests/bootstrap/t_application_opts_args.at)

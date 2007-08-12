@@ -136,7 +136,7 @@ atf_check()
     _expout="${3}"
     _experr="${4}"
 
-    atf_info "Checking command [${_cmd}]"
+    echo "Checking command [${_cmd}]"
 
     # Sanity-check the expout parameter and prepare the work directory for
     # the test.
@@ -277,7 +277,9 @@ atf_check_equal()
 #
 atf_fail()
 {
-    echo "${Test_Case}, failed, ${@}" >&${Results_Fd}
+    echo "failed" >&${Results_Fd}
+    echo "${@}" >&${Results_Fd}
+    echo "." >&${Results_Fd}
     echo yes >${Status_File}
     exit 1
 }
@@ -305,17 +307,6 @@ atf_get_srcdir()
 }
 
 #
-# atf_info [msg1 [.. msgN]]
-#
-#   Prints a message indicating the status of the test case; i.e. what
-#   it is currently doing.
-#
-atf_info()
-{
-    _atf_echo -r -t "${Test_Case}: " "${@}"
-}
-
-#
 # atf_pass msg1 [.. msgN]
 #
 #   Makes the test case pass.  Shouldn't be used in general, as a test
@@ -323,7 +314,8 @@ atf_info()
 #
 atf_pass()
 {
-    echo "${Test_Case}, passed" >&${Results_Fd}
+    echo "passed" >&${Results_Fd}
+    echo "." >&${Results_Fd}
     echo yes >${Status_File}
     exit 0
 }
@@ -384,7 +376,9 @@ atf_set()
 #
 atf_skip()
 {
-    echo "${Test_Case}, skipped, ${@}" >&${Results_Fd}
+    echo "skipped" >&${Results_Fd}
+    echo "${@}" >&${Results_Fd}
+    echo "." >&${Results_Fd}
     echo yes >${Status_File}
     exit 0
 }
@@ -499,7 +493,7 @@ _atf_get_bool()
 }
 
 #
-# _atf_init_output
+# _atf_init_output [tc1 .. tcN]
 #
 #   Initializes the descriptor where we will send the test case's
 #   results.
@@ -509,6 +503,7 @@ _atf_init_output()
     echo "Content-Type: application/X-atf-tcs; version=\"0\"" \
         >&${Results_Fd}
     echo "" >&${Results_Fd}
+    echo ${#} >&${Results_Fd}
 }
 
 #
@@ -640,6 +635,8 @@ _atf_run_tc()
 {
     _atf_parse_head ${1}
 
+    echo "${Test_Case}" >&${Results_Fd}
+
     # Assume that the test case has not reported any exit status so that
     # we can apply the 'pass' default later on.
     echo no >${Status_File}
@@ -652,6 +649,8 @@ _atf_run_tc()
             Results_File=$(mktemp ${Work_Dir}/tc-result)
             ( cd ${Work_Dir} ; _atf_run_body ${1} ; atf_pass )
             _ret=$?
+            echo __atf_stream_end__
+            echo __atf_stream_end__ 1>&2
             cat ${Results_File} 1>&${Results_Fd}
             Results_File=
             ${Atf_Cleanup} ${Work_Dir}
@@ -664,6 +663,8 @@ _atf_run_tc()
         Results_File=$(mktemp ${Work_Dir_Base}/atf.XXXXXX)
         ( _atf_run_body ${1} ; atf_pass )
         _ret=${?}
+        echo __atf_stream_end__
+        echo __atf_stream_end__ 1>&2
         cat ${Results_File} 1>&${Results_Fd}
         Results_File=
     fi
@@ -690,7 +691,7 @@ _atf_run_tcs()
     # we can reuse it for all test cases.
     Status_File=$(mktemp ${Work_Dir_Base}/atf.XXXXXX)
 
-    _atf_init_output
+    _atf_init_output "${@}"
 
     _ok=true
     while [ ${#} -gt 0 ]; do

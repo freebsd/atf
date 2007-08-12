@@ -277,7 +277,12 @@ atf::test_case::fork_body(const std::string& workdir)
                           << std::endl;
                 ::exit(EXIT_FAILURE);
             }
-            os << tcre;
+            if (tcre.get_status() == atf::test_case_result::status_passed)
+                os << "passed\n";
+            else if (tcre.get_status() == atf::test_case_result::status_failed)
+                os << "failed\n" << tcre.get_reason() << '\n';
+            else if (tcre.get_status() == atf::test_case_result::status_skipped)
+                os << "skipped\n" << tcre.get_reason() << '\n';
             os.close();
         } catch (const std::runtime_error& e) {
             std::cerr << "Caught unexpected error: " << e.what() << std::endl;
@@ -297,10 +302,19 @@ atf::test_case::fork_body(const std::string& workdir)
                 tcr = test_case_result::failed("Could not open results file "
                                                "for reading");
             } else {
-                try {
-                    is >> tcr;
-                } catch (const format_error& e) {
-                    tcr = test_case_result::failed(e.what());
+                std::string line;
+                std::getline(is, line);
+                if (line == "passed") {
+                    tcr = test_case_result::passed();
+                } else if (line == "failed") {
+                    std::getline(is, line);
+                    tcr = test_case_result::failed(line);
+                } else if (line == "skipped") {
+                    std::getline(is, line);
+                    tcr = test_case_result::skipped(line);
+                } else {
+                    tcr = test_case_result::failed("Test case failed to "
+                                                   "report its status");
                 }
                 is.close();
             }
@@ -349,39 +363,4 @@ atf::test_case::require_prog(const std::string& prog)
             ATF_SKIP("The required program " + prog + " could not "
                      "be found in the PATH");
     }
-}
-
-
-std::ostream&
-operator<<(std::ostream& os, const atf::tcname_tcr& tt)
-{
-    const std::string& tcname = tt.first;
-    const atf::test_case_result& tcr = tt.second;
-
-    os << tcname << ", " << tcr;
-
-    return os;
-}
-
-std::istream&
-operator>>(std::istream& is, atf::tcname_tcr& tt)
-{
-    std::string tcname;
-    atf::test_case_result tcr;
-
-    std::getline(is, tcname, ',');
-    if (!is.good())
-        return is;
-    int ch = is.get();
-    if (!is.good())
-        throw atf::format_error("Unexpected end of stream");
-    if (ch != ' ')
-        throw atf::format_error("Incorrect input separator after test"
-                                "case name");
-    is >> tcr;
-
-    tt.first = tcname;
-    tt.second = tcr;
-
-    return is;
 }

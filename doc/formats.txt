@@ -35,7 +35,7 @@ format used in the file, is to allow future changes to a given format.
 Whenever an incompatible change is made, the version is bumped by one.  By
 keeping the header in the first line, future versions may even remove the
 need for such a header -- e.g. if some format was replaced by XML files,
-which have they own mandatory header.
+which have their own mandatory header.
 
 The rest of this file details the different format types.
 
@@ -47,6 +47,12 @@ Still too unstable; not described.
 
 
 Format: X-atf-tcs, version: 0
+=============================
+
+Still too unstable; not described.
+
+
+Format: X-atf-tps, version: 0
 =============================
 
 Still too unstable; not described.

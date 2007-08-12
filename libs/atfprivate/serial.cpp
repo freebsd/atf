@@ -260,7 +260,7 @@ impl::internalizer::read_headers(void)
     }
 
     if (!m_is.good())
-        throw format_error("Unexpected end of stream");
+        throw format_error("Unexpected end of stream ");
 }
 
 bool

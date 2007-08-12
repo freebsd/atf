@@ -38,40 +38,23 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-separator_head()
+nothing_yet_head()
 {
-    atf_set "descr" "Ensures that the test case's error message is " \
-                    "properly handled if it includes the separator " \
-                    "used to format the output"
+    atf_set "descr" "XXX"
 }
-separator_body()
+nothing_yet_body()
 {
-    cat >tc.sh <<EOF
-#! /bin/sh
-# Note that the following look like four fields, but in reality they are
-# three.  That's what we are checking for here.
-echo 'Content-Type: application/X-atf-tcs; version="0"' >&9
-echo '' >&9
-echo "tc1, failed, This test failed, second part" >&9
-echo "tc2, skipped, This test was skipped, second part" >&9
-exit 1
-EOF
-    chmod +x tc.sh
-    cat >Atffile <<EOF
-Content-Type: application/X-atf-atffile; version="0"
-
-tc.sh
-EOF
-    atf_check 'atf-run' 1 stdout stderr
-    atf_check 'grep -i "failed.*This test failed, second part" stdout' \
-              0 ignore null
-    atf_check 'grep -i "skipped.*This test was skipped, second part" stdout' \
-              0 ignore null
+    # XXX This test program had the "separator" test before, which
+    # checked if lines of the form "tcname, skipped, foo, bar" were
+    # treated correctly (foo, bar being the reason, not two different
+    # fields).  The file format does not use this format any more, so
+    # the test was removed.  Have to add real tests for atf-run.
+    :
 }
 
 atf_init_test_cases()
 {
-    atf_add_test_case separator
+    atf_add_test_case nothing_yet
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

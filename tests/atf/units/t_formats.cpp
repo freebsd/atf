@@ -38,50 +38,26 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_TEST_CASE_RESULT_HPP_)
-#define _ATF_TEST_CASE_RESULT_HPP_
+#include <iostream>
+#include <sstream>
 
-#include <istream>
-#include <ostream>
-#include <string>
+#include <atf.hpp>
 
-namespace atf {
+#include "atf/formats.hpp"
 
-// ------------------------------------------------------------------------
-// The "test_case_result" class.
-// ------------------------------------------------------------------------
+// XXX These tests have yet to be written, but not until the file formats
+// become somewhat stable.  Otherwise they are more annoying than helpful.
 
-//!
-//! \brief Holds the results of a test case's execution.
-//!
-//! The test_case_result class holds the information that describes the
-//! results of a test case's execution.  This is composed of an exit code
-//! and a reason for that exit code.
-//!
-//! TODO: Complete documentation for this class.  Not done yet because it
-//! is worth to investigate if this class could be rewritten as several
-//! different classes, one for each status.
-//!
-class test_case_result {
-public:
-    enum status { status_passed, status_skipped, status_failed };
+ATF_TEST_CASE(nothing_yet);
+ATF_TEST_CASE_HEAD(nothing_yet)
+{
+    set("descr", "XXX");
+}
+ATF_TEST_CASE_BODY(nothing_yet)
+{
+}
 
-    test_case_result(void);
-
-    static test_case_result passed(void);
-    static test_case_result skipped(const std::string&);
-    static test_case_result failed(const std::string&);
-
-    status get_status(void) const;
-    const std::string& get_reason(void) const;
-
-private:
-    status m_status;
-    std::string m_reason;
-
-    test_case_result(status, const std::string&);
-};
-
-} // namespace atf
-
-#endif // !defined(_ATF_TEST_CASE_RESULT_HPP_)
+ATF_INIT_TEST_CASES(tcs)
+{
+    tcs.push_back(&nothing_yet);
+}

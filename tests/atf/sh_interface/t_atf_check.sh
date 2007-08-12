@@ -42,7 +42,7 @@
 
 create_helper()
 {
-    atf_info "Creating helper.sh"
+    echo "Creating helper.sh"
     cat >helper.sh <<EOF
 main_head()
 {
