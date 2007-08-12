@@ -10,9 +10,25 @@ This project is still in very early stages of development.  The list below
 is very incomplete, but it details some items that have to be addressed.
 Basically they are here so that they are not forgotten.
 
+* Make the shell library work with 'set -e'?
+
+* Add detection of signals in test cases and run the clean up routines
+  afterwards.
+
+* Shell test programs dynamically locate where the shell library is by
+  calling atf-config (done by atf.init.subr).  Contrarywise, binary test
+  programs are directly linked against the final location of libatf.
+  It may be nice if the latter loaded the library dynamically based on
+  what atf-config said, so the user could switch atf installations by
+  simply changing its PATH (and effectively making atf relocatable on the
+  file system).  Why could this be nice?  To painlessly run an older atf
+  test suite against a more recent version of the code base to ensure
+  there are no regressions even with older tests.  Just a crazy idea, as
+  maybe what the shell test programs currently do is stupid.
+
 * Set the umask to a known value before running a test case.
 
-* Make atf-run account for the total executed test programs and how many
+* Make atf-report account for the total executed test programs and how many
   of them failed.  Possibly also collect their names.
 
 * Fix atf-run to show an error if a test program did not execute any test
@@ -34,9 +50,10 @@ Basically they are here so that they are not forgotten.
   classes as not copyable.  Or, failing to do that, any other way to do
   the same.
 
-* Implement the atf-report tool, which takes the output of atf-run and
-  converts it to some nice format.  Ideas for these output formats
-  include: proplib, a home-grown XML format, and HTML pages.
+* Implement custom XML output in atf-report.  Need to create a DTD too.
+
+* Maybe implement direct HTML output in atf-report to avoid a dependency
+  on xsltproc.  Or maybe not.  Evaluate this idea and decide later.
 
 * Make sure that the tests in tests/atf have, at the very least, the same
   coverage as the ones in tests/bootstrap.
