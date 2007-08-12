@@ -4,10 +4,6 @@ dnl
 dnl Copyright (c) 2007 The NetBSD Foundation, Inc.
 dnl All rights reserved.
 dnl
-dnl This code is derived from software contributed to The NetBSD Foundation
-dnl by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-dnl 2007 program.
-dnl
 dnl Redistribution and use in source and binary forms, with or without
 dnl modification, are permitted provided that the following conditions
 dnl are met:
