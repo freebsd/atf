@@ -147,6 +147,13 @@ public:
     bool is_root(void) const;
 
     //!
+    //! \brief Converts the path to be absolute.
+    //!
+    //! \pre The path was not absolute.
+    //!
+    path to_absolute(void) const;
+
+    //!
     //! \brief Checks if two paths are equal.
     //!
     bool operator==(const path&) const;
@@ -217,6 +224,11 @@ public:
     //! \brief Returns the device containing the file.
     //!
     dev_t get_device(void) const;
+
+    //!
+    //! \brief Returns the file's inode.
+    //!
+    ino_t get_inode(void) const;
 
     //!
     //! \brief Returns the file's name.
@@ -294,6 +306,11 @@ private:
     //! \brief The device on which the file lives.
     //!
     dev_t m_device;
+
+    //!
+    //! \brief The file's inode.
+    //!
+    ino_t m_inode;
 
     //!
     //! \brief The file's mode.

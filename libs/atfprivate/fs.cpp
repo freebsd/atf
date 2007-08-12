@@ -203,6 +203,15 @@ impl::path::leaf_name(void)
     return leaf;
 }
 
+impl::path
+impl::path::to_absolute(void)
+    const
+{
+    assert(!is_absolute());
+    path curdir = get_current_dir();
+    return curdir / (*this);
+}
+
 bool
 impl::path::operator==(const path& p)
     const
@@ -259,6 +268,7 @@ impl::file_info::file_info(const path& p) :
     }
 
     m_device = sb.st_dev;
+    m_inode = sb.st_ino;
     m_mode = sb.st_mode & ~S_IFMT;
 }
 
@@ -267,6 +277,13 @@ impl::file_info::get_device(void)
     const
 {
     return m_device;
+}
+
+ino_t
+impl::file_info::get_inode(void)
+    const
+{
+    return m_inode;
 }
 
 const impl::path&

@@ -214,6 +214,42 @@ ATF_TEST_CASE_BODY(path_concat)
     ATF_CHECK_EQUAL((path("foo/") / "///bar///baz").str(), "foo/bar/baz");
 }
 
+ATF_TEST_CASE(path_to_absolute);
+ATF_TEST_CASE_HEAD(path_to_absolute)
+{
+    set("descr", "Tests the conversion of a relative path to an absolute "
+                 "one");
+}
+ATF_TEST_CASE_BODY(path_to_absolute)
+{
+    using atf::fs::file_info;
+    using atf::fs::path;
+
+    create_files();
+
+    {
+        const path p(".");
+        path pa = p.to_absolute();
+        ATF_CHECK(pa.is_absolute());
+
+        file_info fi(p);
+        file_info fia(pa);
+        ATF_CHECK_EQUAL(fi.get_device(), fia.get_device());
+        ATF_CHECK_EQUAL(fi.get_inode(), fia.get_inode());
+    }
+
+    {
+        const path p("files/reg");
+        path pa = p.to_absolute();
+        ATF_CHECK(pa.is_absolute());
+
+        file_info fi(p);
+        file_info fia(pa);
+        ATF_CHECK_EQUAL(fi.get_device(), fia.get_device());
+        ATF_CHECK_EQUAL(fi.get_inode(), fia.get_inode());
+    }
+}
+
 // ------------------------------------------------------------------------
 // Test cases for the "directory" class.
 // ------------------------------------------------------------------------
@@ -581,6 +617,7 @@ ATF_INIT_TEST_CASES(tcs)
     tcs.push_back(&path_compare_equal);
     tcs.push_back(&path_compare_different);
     tcs.push_back(&path_concat);
+    tcs.push_back(&path_to_absolute);
 
     // Add the tests for the "file_info" class.
     tcs.push_back(&file_info_stat);
