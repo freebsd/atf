@@ -446,6 +446,30 @@ tests_atf_units_t_user_LDADD = -latf
 tests_atf_units_t_user_LDFLAGS = -Llibs
 
 # -------------------------------------------------------------------------
+# `tests/build' directory.
+# -------------------------------------------------------------------------
+
+check_LIBRARIES = tests/build/libuseless.a
+
+tests_build_libuseless_a_SOURCES = \
+    tests/build/t_include_application_hpp.cpp \
+    tests/build/t_include_atf_hpp.cpp \
+    tests/build/t_include_atffile_hpp.cpp \
+    tests/build/t_include_config_hpp.cpp \
+    tests/build/t_include_env_hpp.cpp \
+    tests/build/t_include_exceptions_hpp.cpp \
+    tests/build/t_include_expand_hpp.cpp \
+    tests/build/t_include_formats_hpp.cpp \
+    tests/build/t_include_fs_hpp.cpp \
+    tests/build/t_include_io_hpp.cpp \
+    tests/build/t_include_macros_hpp.cpp \
+    tests/build/t_include_serial_hpp.cpp \
+    tests/build/t_include_tests_hpp.cpp \
+    tests/build/t_include_text_hpp.cpp \
+    tests/build/t_include_ui_hpp.cpp \
+    tests/build/t_include_user_hpp.cpp
+
+# -------------------------------------------------------------------------
 # `tools' directory.
 # -------------------------------------------------------------------------
 
