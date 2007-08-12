@@ -45,10 +45,9 @@ extern "C" {
 
 #include <fstream>
 
-#include <atf.hpp>
-
-#include "atfprivate/exceptions.hpp"
-#include "atfprivate/fs.hpp"
+#include "atf/exceptions.hpp"
+#include "atf/fs.hpp"
+#include "atf/macros.hpp"
 
 static
 void

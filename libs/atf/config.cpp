@@ -41,8 +41,8 @@
 #include <cassert>
 #include <map>
 
-#include "atfprivate/config.hpp"
-#include "atfprivate/env.hpp"
+#include "atf/config.hpp"
+#include "atf/env.hpp"
 
 static std::map< std::string, std::string > m_variables;
 

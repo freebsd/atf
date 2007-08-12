@@ -42,9 +42,9 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "atfprivate/application.hpp"
-#include "atfprivate/fs.hpp"
-#include "atfprivate/ui.hpp"
+#include "atf/application.hpp"
+#include "atf/fs.hpp"
+#include "atf/ui.hpp"
 
 class atf_cleanup : public atf::application {
     static const char* m_description;

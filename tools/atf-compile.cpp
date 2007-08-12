@@ -48,8 +48,8 @@ extern "C" {
 #include <fstream>
 #include <iostream>
 
-#include "atfprivate/application.hpp"
-#include "atfprivate/config.hpp"
+#include "atf/application.hpp"
+#include "atf/config.hpp"
 
 static
 void

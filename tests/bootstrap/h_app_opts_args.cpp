@@ -42,7 +42,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "atfprivate/application.hpp"
+#include "atf/application.hpp"
 
 class h_app_opts_args : public atf::application {
     static const char* m_description;

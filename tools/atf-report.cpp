@@ -40,10 +40,9 @@
 
 #include <iostream>
 
-#include "atfprivate/application.hpp"
-#include "atfprivate/serial.hpp"
-
+#include "atf/application.hpp"
 #include "atf/formats.hpp"
+#include "atf/serial.hpp"
 
 class atf_report : public atf::application {
     static const char* m_description;

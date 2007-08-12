@@ -45,7 +45,7 @@
 #include <set>
 #include <string>
 
-#include <atfprivate/exceptions.hpp>
+#include <atf/exceptions.hpp>
 
 namespace atf {
 

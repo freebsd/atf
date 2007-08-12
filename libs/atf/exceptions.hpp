@@ -38,26 +38,76 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "config.h"
+#if !defined(_ATF_EXCEPTIONS_HPP_)
+#define _ATF_EXCEPTIONS_HPP_
 
-extern "C" {
-#include <sys/types.h>
-#include <unistd.h>
-}
+#include <stdexcept>
 
-#include "atfprivate/user.hpp"
+namespace atf {
 
-namespace impl = atf::user;
-#define IMPL_NAME "atf::user"
-
-bool
-impl::is_root(void)
+template< class T >
+class not_found_error :
+    public std::runtime_error
 {
-    return ::geteuid() == 0;
+    T m_value;
+
+public:
+    not_found_error(const std::string& message, const T& value) throw();
+
+    virtual ~not_found_error(void) throw();
+
+    const T& get_value(void) const throw();
+};
+
+template< class T >
+inline
+not_found_error< T >::not_found_error(const std::string& message,
+                                      const T& value)
+    throw() :
+    std::runtime_error(message),
+    m_value(value)
+{
 }
 
-bool
-impl::is_unprivileged(void)
+template< class T >
+inline
+not_found_error< T >::~not_found_error(void)
+    throw()
 {
-    return ::geteuid() != 0;
 }
+
+template< class T >
+inline
+const T&
+not_found_error< T >::get_value(void)
+    const
+    throw()
+{
+    return m_value;
+}
+
+class system_error : public std::runtime_error {
+    int m_sys_err;
+    mutable std::string m_message;
+
+public:
+    system_error(const std::string&, const std::string&, int);
+    ~system_error(void) throw();
+
+    int code(void) const throw();
+    const char* what(void) const throw();
+};
+
+class usage_error : public std::runtime_error {
+    char m_text[4096];
+
+public:
+    usage_error(const char* fmt, ...) throw();
+    ~usage_error(void) throw();
+
+    const char* what(void) const throw();
+};
+
+} // namespace atf
+
+#endif // !defined(_ATF_EXCEPTIONS_HPP_)

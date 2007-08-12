@@ -76,36 +76,6 @@ EXTRA_DIST = admin/check-style-common.awk \
              admin/check-style.sh
 
 # -------------------------------------------------------------------------
-# `libs/atfprivate' directory.
-# -------------------------------------------------------------------------
-
-lib_LTLIBRARIES = libs/libatfprivate.la
-libs_libatfprivate_la_SOURCES = libs/atfprivate/application.cpp \
-                                libs/atfprivate/application.hpp \
-                                libs/atfprivate/atffile.cpp \
-                                libs/atfprivate/atffile.hpp \
-                                libs/atfprivate/config.cpp \
-                                libs/atfprivate/config.hpp \
-                                libs/atfprivate/env.cpp \
-                                libs/atfprivate/env.hpp \
-                                libs/atfprivate/expand.cpp \
-                                libs/atfprivate/expand.hpp \
-                                libs/atfprivate/exceptions.cpp \
-                                libs/atfprivate/exceptions.hpp \
-                                libs/atfprivate/fs.cpp \
-                                libs/atfprivate/fs.hpp \
-                                libs/atfprivate/io.cpp \
-                                libs/atfprivate/io.hpp \
-                                libs/atfprivate/serial.cpp \
-                                libs/atfprivate/serial.hpp \
-                                libs/atfprivate/text.cpp \
-                                libs/atfprivate/text.hpp \
-                                libs/atfprivate/ui.cpp \
-                                libs/atfprivate/ui.hpp \
-                                libs/atfprivate/user.cpp \
-                                libs/atfprivate/user.hpp
-
-# -------------------------------------------------------------------------
 # `libs/atf' directory.
 # -------------------------------------------------------------------------
 
@@ -133,17 +103,51 @@ EXTRA_DIST += libs/tc-meta-data.sh
 
 $(srcdir)/libs/atf/tests.cpp: libs/atf/tcenv.cpp libs/atf/tchead.cpp
 
-lib_LTLIBRARIES += libs/libatf.la
-libs_libatf_la_SOURCES = libs/atf/formats.cpp \
-                         libs/atf/tests.cpp
-libs_libatf_la_LDFLAGS = -Llibs
-libs_libatf_la_LIBADD = -latfprivate
+lib_LTLIBRARIES = libs/libatf.la
+libs_libatf_la_SOURCES = libs/atf/application.cpp \
+                         libs/atf/application.hpp \
+                         libs/atf/atffile.cpp \
+                         libs/atf/atffile.hpp \
+                         libs/atf/config.cpp \
+                         libs/atf/config.hpp \
+                         libs/atf/env.cpp \
+                         libs/atf/env.hpp \
+                         libs/atf/exceptions.cpp \
+                         libs/atf/exceptions.hpp \
+                         libs/atf/expand.cpp \
+                         libs/atf/expand.hpp \
+                         libs/atf/formats.cpp \
+                         libs/atf/formats.hpp \
+                         libs/atf/fs.cpp \
+                         libs/atf/fs.hpp \
+                         libs/atf/io.cpp \
+                         libs/atf/io.hpp \
+                         libs/atf/serial.cpp \
+                         libs/atf/serial.hpp \
+                         libs/atf/tests.cpp \
+                         libs/atf/tests.hpp \
+                         libs/atf/text.cpp \
+                         libs/atf/text.hpp \
+                         libs/atf/ui.cpp \
+                         libs/atf/ui.hpp \
+                         libs/atf/user.cpp \
+                         libs/atf/user.hpp
 
 include_HEADERS = libs/atf.hpp
-# XXX Including formats.hpp below is wrong; it relies on private headers.
-atf_HEADERS = libs/atf/formats.hpp \
-              libs/atf/macros.hpp \
-              libs/atf/tests.hpp
+atf_HEADERS = libs/atf/application.hpp \
+              libs/atf/atffile.hpp \
+              libs/atf/config.hpp \
+              libs/atf/env.hpp \
+              libs/atf/exceptions.hpp \
+              libs/atf/expand.hpp \
+              libs/atf/formats.hpp \
+              libs/atf/fs.hpp \
+              libs/atf/io.hpp \
+              libs/atf/serial.hpp \
+              libs/atf/tests.hpp \
+              libs/atf/text.hpp \
+              libs/atf/ui.hpp \
+              libs/atf/user.hpp
 atfdir = $(includedir)/atf
 
 # -------------------------------------------------------------------------
@@ -182,12 +186,12 @@ EXTRA_DIST += $(libs_shell_DATA)
 
 check_PROGRAMS = tests/bootstrap/h_app_empty
 tests_bootstrap_h_app_empty_SOURCES = tests/bootstrap/h_app_empty.cpp
-tests_bootstrap_h_app_empty_LDADD = -latfprivate
+tests_bootstrap_h_app_empty_LDADD = -latf
 tests_bootstrap_h_app_empty_LDFLAGS = -Llibs
 
 check_PROGRAMS += tests/bootstrap/h_app_opts_args
 tests_bootstrap_h_app_opts_args_SOURCES = tests/bootstrap/h_app_opts_args.cpp
-tests_bootstrap_h_app_opts_args_LDADD = -latfprivate
+tests_bootstrap_h_app_opts_args_LDADD = -latf
 tests_bootstrap_h_app_opts_args_LDFLAGS = -Llibs
 
 check_PROGRAMS += tests/bootstrap/h_tp_basic_cpp
@@ -447,7 +451,7 @@ tests_atf_units_t_user_LDFLAGS = -Llibs
 
 bin_PROGRAMS = tools/atf-config
 tools_atf_config_SOURCES = tools/atf-config.cpp
-tools_atf_config_LDADD = -latfprivate
+tools_atf_config_LDADD = -latf
 tools_atf_config_LDFLAGS = -Llibs
 
 tools/atf-host-compile: $(srcdir)/tools/atf-host-compile.sh
@@ -463,27 +467,27 @@ EXTRA_DIST += tools/atf-host-compile.sh
 
 libexec_PROGRAMS = tools/atf-cleanup
 tools_atf_cleanup_SOURCES = tools/atf-cleanup.cpp
-tools_atf_cleanup_LDADD = -latfprivate
+tools_atf_cleanup_LDADD = -latf
 tools_atf_cleanup_LDFLAGS = -Llibs
 
 bin_PROGRAMS += tools/atf-compile
 tools_atf_compile_SOURCES = tools/atf-compile.cpp
-tools_atf_compile_LDADD = -latfprivate
+tools_atf_compile_LDADD = -latf
 tools_atf_compile_LDFLAGS = -Llibs
 
 libexec_PROGRAMS += tools/atf-format
 tools_atf_format_SOURCES = tools/atf-format.cpp
-tools_atf_format_LDADD = -latfprivate
+tools_atf_format_LDADD = -latf
 tools_atf_format_LDFLAGS = -Llibs
 
 bin_PROGRAMS += tools/atf-report
 tools_atf_report_SOURCES = tools/atf-report.cpp
-tools_atf_report_LDADD = -latfprivate -latf
+tools_atf_report_LDADD = -latf
 tools_atf_report_LDFLAGS = -Llibs
 
 bin_PROGRAMS += tools/atf-run
 tools_atf_run_SOURCES = tools/atf-run.cpp
-tools_atf_run_LDADD = -latfprivate -latf
+tools_atf_run_LDADD = -latf
 tools_atf_run_LDFLAGS = -Llibs
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

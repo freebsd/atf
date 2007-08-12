@@ -40,7 +40,7 @@
 
 #include <cctype>
 
-#include "atfprivate/text.hpp"
+#include "atf/text.hpp"
 
 namespace impl = atf::text;
 #define IMPL_NAME "atf::text"

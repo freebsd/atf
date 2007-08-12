@@ -41,9 +41,8 @@
 #include <set>
 #include <vector>
 
-#include <atf.hpp>
-
-#include "atfprivate/text.hpp"
+#include "atf/macros.hpp"
+#include "atf/text.hpp"
 
 ATF_TEST_CASE(join);
 ATF_TEST_CASE_HEAD(join)

@@ -40,7 +40,7 @@
 
 #include <cstdlib>
 
-#include "atfprivate/application.hpp"
+#include "atf/application.hpp"
 
 class h_app_empty : public atf::application {
     static const char* m_description;

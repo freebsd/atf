@@ -40,9 +40,8 @@
 
 #include <sstream>
 
-#include <atf.hpp>
-
-#include "atfprivate/serial.hpp"
+#include "atf/macros.hpp"
+#include "atf/serial.hpp"
 
 // ------------------------------------------------------------------------
 // Tests for the "externalizer" class.

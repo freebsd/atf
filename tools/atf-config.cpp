@@ -44,8 +44,8 @@
 #include <map>
 #include <string>
 
-#include "atfprivate/application.hpp"
-#include "atfprivate/config.hpp"
+#include "atf/application.hpp"
+#include "atf/config.hpp"
 
 class atf_config : public atf::application {
     static const char* m_description;

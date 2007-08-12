@@ -52,9 +52,8 @@ extern "C" {
 #include <istream>
 #include <ostream>
 
-#include <atf.hpp>
-
-#include "atfprivate/io.hpp"
+#include "atf/io.hpp"
+#include "atf/macros.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.

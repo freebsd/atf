@@ -38,9 +38,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <atf.hpp>
-
-#include "atfprivate/env.hpp"
+#include "atf/env.hpp"
+#include "atf/macros.hpp"
 
 ATF_TEST_CASE(has_get);
 ATF_TEST_CASE_HEAD(has_get)

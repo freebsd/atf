@@ -38,11 +38,10 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <atf.hpp>
-
-#include "atfprivate/config.hpp"
-#include "atfprivate/env.hpp"
-#include "atfprivate/exceptions.hpp"
+#include "atf/config.hpp"
+#include "atf/env.hpp"
+#include "atf/exceptions.hpp"
+#include "atf/macros.hpp"
 
 namespace atf {
     namespace config {

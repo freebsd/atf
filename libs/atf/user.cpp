@@ -38,47 +38,26 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cassert>
-#include <fstream>
+#include "config.h"
 
-#include "atfprivate/atffile.hpp"
-#include "atfprivate/exceptions.hpp"
-#include "atfprivate/expand.hpp"
-#include "atfprivate/serial.hpp"
+extern "C" {
+#include <sys/types.h>
+#include <unistd.h>
+}
 
-atf::atffile::atffile(const atf::fs::path& filename)
+#include "atf/user.hpp"
+
+namespace impl = atf::user;
+#define IMPL_NAME "atf::user"
+
+bool
+impl::is_root(void)
 {
-    std::ifstream is(filename.c_str());
-    if (!is)
-        throw atf::not_found_error< fs::path >
-            ("Cannot open Atffile", filename);
-    serial::internalizer i(is, "application/X-atf-atffile", 0);
+    return ::geteuid() == 0;
+}
 
-    fs::directory dir(filename.branch_path());
-    dir.erase(filename.leaf_name());
-    for (fs::directory::iterator iter = dir.begin(); iter != dir.end();
-         iter++) {
-        const std::string& name = (*iter).first;
-        const fs::file_info& fi = (*iter).second;
-
-        if (name[0] == '.' || (!fi.is_owner_executable() &&
-                               !fi.is_group_executable()))
-            dir.erase(iter);
-    }
-
-    std::string line;
-    while (std::getline(is, line)) {
-        if (expand::is_glob(line)) {
-            std::set< std::string > ms =
-                expand::expand_glob(line, dir.names());
-            insert(end(), ms.begin(), ms.end());
-        } else {
-            if (dir.find(line) == dir.end())
-                throw atf::not_found_error< fs::path >
-                    ("Cannot locate the " + line + " file", fs::path(line));
-            push_back(line);
-        }
-    }
-
-    is.close();
+bool
+impl::is_unprivileged(void)
+{
+    return ::geteuid() != 0;
 }

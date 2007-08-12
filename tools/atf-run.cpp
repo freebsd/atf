@@ -50,13 +50,12 @@ extern "C" {
 #include <iostream>
 #include <string>
 
-#include "atfprivate/application.hpp"
-#include "atfprivate/atffile.hpp"
-#include "atfprivate/exceptions.hpp"
-#include "atfprivate/fs.hpp"
-#include "atfprivate/io.hpp"
-
+#include "atf/application.hpp"
+#include "atf/atffile.hpp"
+#include "atf/exceptions.hpp"
 #include "atf/formats.hpp"
+#include "atf/fs.hpp"
+#include "atf/io.hpp"
 #include "atf/tests.hpp"
 
 class muxer : public atf::formats::atf_tcs_reader {

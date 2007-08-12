@@ -38,76 +38,21 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if defined(HAVE_CONFIG_H)
-#include "config.h"
-#endif
+#if !defined(_ATF_ATFFILE_HPP_)
+#define _ATF_ATFFILE_HPP_
 
-#include <cassert>
-#include <cerrno>
-#include <cstdlib>
+#include <string>
+#include <vector>
 
-#include "atfprivate/env.hpp"
-#include "atfprivate/exceptions.hpp"
+#include <atf/fs.hpp>
 
-namespace std {
-#if !defined(HAVE_PUTENV_IN_STD)
-    using ::putenv;
-#endif
-#if !defined(HAVE_SETENV_IN_STD)
-    using ::setenv;
-#endif
-#if !defined(HAVE_UNSETENV_IN_STD)
-    using ::unsetenv;
-#endif
-}
+namespace atf {
 
-namespace impl = atf::env;
-#define IMPL_NAME "atf::env"
+class atffile : public std::vector< std::string > {
+public:
+    atffile(const fs::path& = fs::path("Atffile"));
+};
 
-// ------------------------------------------------------------------------
-// Free functions.
-// ------------------------------------------------------------------------
+} // namespace atf
 
-std::string
-impl::get(const std::string& name)
-{
-    const char* val = std::getenv(name.c_str());
-    assert(val != NULL);
-    return val;
-}
-
-bool
-impl::has(const std::string& name)
-{
-    return std::getenv(name.c_str()) != NULL;
-}
-
-void
-impl::set(const std::string& name, const std::string& val)
-{
-#if defined(HAVE_SETENV)
-    if (std::setenv(name.c_str(), val.c_str(), 1) == -1)
-        throw atf::system_error(IMPL_NAME "::set(" + name + ", " +
-                                val + ")", "setenv(3) failed", errno);
-#elif defined(HAVE_PUTENV)
-    if (std::putenv((name + "=" + val).c_str()) == -1)
-        throw atf::system_error(IMPL_NAME "::set(" + name + ", " +
-                                val + ")", "putenv(3) failed", errno);
-#else
-#   error "Don't know how to set an environment variable."
-#endif
-}
-
-void
-impl::unset(const std::string& name)
-{
-#if defined(HAVE_UNSETENV)
-    std::unsetenv(name.c_str());
-#elif defined(HAVE_PUTENV)
-    if (std::putenv((name + "=").c_str()) == -1)
-        throw atf::system_error(IMPL_NAME "::unset(" + name + ")",
-                                "putenv(3) failed", errno);
-#else
-#   error "Don't know how to unset an environment variable."
-#endif
-}
+#endif // !defined(_ATF_ATFFILE_HPP_)

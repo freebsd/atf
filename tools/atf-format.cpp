@@ -43,8 +43,8 @@
 #include <iostream>
 #include <sstream>
 
-#include "atfprivate/application.hpp"
-#include "atfprivate/ui.hpp"
+#include "atf/application.hpp"
+#include "atf/ui.hpp"
 
 class atf_format : public atf::application {
     static const char* m_description;

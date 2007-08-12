@@ -38,9 +38,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <atf.hpp>
-
-#include "atfprivate/expand.hpp"
+#include "atf/expand.hpp"
+#include "atf/macros.hpp"
 
 ATF_TEST_CASE(is_glob);
 ATF_TEST_CASE_HEAD(is_glob)

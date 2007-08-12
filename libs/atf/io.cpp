@@ -45,8 +45,8 @@ extern "C" {
 #include <cassert>
 #include <cerrno>
 
-#include "atfprivate/exceptions.hpp"
-#include "atfprivate/io.hpp"
+#include "atf/exceptions.hpp"
+#include "atf/io.hpp"
 
 namespace impl = atf::io;
 #define IMPL_NAME "atf::io"

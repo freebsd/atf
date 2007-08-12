@@ -54,20 +54,19 @@ extern "C" {
 #include <stdexcept>
 #include <vector>
 
-#include "atfprivate/application.hpp"
-#include "atfprivate/config.hpp"
-#include "atfprivate/env.hpp"
-#include "atfprivate/exceptions.hpp"
-#include "atfprivate/expand.hpp"
-#include "atfprivate/fs.hpp"
-#include "atfprivate/io.hpp"
-#include "atfprivate/serial.hpp"
-#include "atfprivate/text.hpp"
-#include "atfprivate/ui.hpp"
-#include "atfprivate/user.hpp"
-
+#include "atf/application.hpp"
+#include "atf/config.hpp"
+#include "atf/env.hpp"
+#include "atf/exceptions.hpp"
+#include "atf/expand.hpp"
 #include "atf/formats.hpp"
+#include "atf/fs.hpp"
+#include "atf/io.hpp"
+#include "atf/serial.hpp"
 #include "atf/tests.hpp"
+#include "atf/text.hpp"
+#include "atf/ui.hpp"
+#include "atf/user.hpp"
 
 namespace impl = atf::tests;
 #define IMPL_NAME "atf::tests"

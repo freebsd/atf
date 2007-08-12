@@ -44,7 +44,7 @@
 #include <cstdio>
 #include <cstring>
 
-#include "atfprivate/exceptions.hpp"
+#include "atf/exceptions.hpp"
 
 #if !defined(HAVE_VSNPRINTF_IN_STD)
 namespace std {

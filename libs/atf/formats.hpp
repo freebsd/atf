@@ -43,10 +43,9 @@
 
 #include <string>
 
-#include <atfprivate/fs.hpp>
-#include <atfprivate/io.hpp>
-#include <atfprivate/serial.hpp>
-
+#include <atf/fs.hpp>
+#include <atf/io.hpp>
+#include <atf/serial.hpp>
 #include <atf/tests.hpp>
 
 namespace atf {

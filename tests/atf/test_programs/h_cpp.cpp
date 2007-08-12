@@ -47,10 +47,9 @@ extern "C" {
 #include <fstream>
 #include <stdexcept>
 
-#include <atf.hpp>
-
-#include "atfprivate/env.hpp"
-#include "atfprivate/fs.hpp"
+#include "atf/env.hpp"
+#include "atf/fs.hpp"
+#include "atf/macros.hpp"
 
 static
 void

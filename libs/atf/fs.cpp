@@ -55,10 +55,10 @@ extern "C" {
 #include <cstdlib>
 #include <memory>
 
-#include "atfprivate/exceptions.hpp"
-#include "atfprivate/env.hpp"
-#include "atfprivate/fs.hpp"
-#include "atfprivate/text.hpp"
+#include "atf/exceptions.hpp"
+#include "atf/env.hpp"
+#include "atf/fs.hpp"
+#include "atf/text.hpp"
 
 namespace impl = atf::fs;
 #define IMPL_NAME "atf::fs"

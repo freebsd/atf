@@ -43,10 +43,9 @@ extern "C" {
 #include <unistd.h>
 }
 
-#include <atf.hpp>
-
-#include "atfprivate/exceptions.hpp"
-#include "atfprivate/user.hpp"
+#include "atf/exceptions.hpp"
+#include "atf/macros.hpp"
+#include "atf/user.hpp"
 
 // ------------------------------------------------------------------------
 // Test cases for the free functions.

@@ -50,8 +50,8 @@ extern "C" {
 
 #include <cassert>
 
-#include "atfprivate/exceptions.hpp"
-#include "atfprivate/expand.hpp"
+#include "atf/exceptions.hpp"
+#include "atf/expand.hpp"
 
 namespace impl = atf::expand;
 #define IMPL_NAME "atf::expand"

@@ -38,8 +38,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "atfprivate/serial.hpp"
-#include "atfprivate/text.hpp"
+#include "atf/serial.hpp"
+#include "atf/text.hpp"
 
 namespace impl = atf::serial;
 #define IMPL_NAME "atf::serial"

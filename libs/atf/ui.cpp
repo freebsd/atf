@@ -46,9 +46,9 @@ extern "C" {
 #include <cstdlib>
 #include <sstream>
 
-#include "atfprivate/env.hpp"
-#include "atfprivate/text.hpp"
-#include "atfprivate/ui.hpp"
+#include "atf/env.hpp"
+#include "atf/text.hpp"
+#include "atf/ui.hpp"
 
 namespace impl = atf::ui;
 #define IMPL_NAME "atf::ui"

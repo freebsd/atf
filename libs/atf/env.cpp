@@ -38,76 +38,76 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATFPRIVATE_EXCEPTIONS_HPP_)
-#define _ATFPRIVATE_EXCEPTIONS_HPP_
+#if defined(HAVE_CONFIG_H)
+#include "config.h"
+#endif
 
-#include <stdexcept>
+#include <cassert>
+#include <cerrno>
+#include <cstdlib>
 
-namespace atf {
+#include "atf/env.hpp"
+#include "atf/exceptions.hpp"
 
-template< class T >
-class not_found_error :
-    public std::runtime_error
-{
-    T m_value;
-
-public:
-    not_found_error(const std::string& message, const T& value) throw();
-
-    virtual ~not_found_error(void) throw();
-
-    const T& get_value(void) const throw();
-};
-
-template< class T >
-inline
-not_found_error< T >::not_found_error(const std::string& message,
-                                      const T& value)
-    throw() :
-    std::runtime_error(message),
-    m_value(value)
-{
+namespace std {
+#if !defined(HAVE_PUTENV_IN_STD)
+    using ::putenv;
+#endif
+#if !defined(HAVE_SETENV_IN_STD)
+    using ::setenv;
+#endif
+#if !defined(HAVE_UNSETENV_IN_STD)
+    using ::unsetenv;
+#endif
 }
 
-template< class T >
-inline
-not_found_error< T >::~not_found_error(void)
-    throw()
+namespace impl = atf::env;
+#define IMPL_NAME "atf::env"
+
+// ------------------------------------------------------------------------
+// Free functions.
+// ------------------------------------------------------------------------
+
+std::string
+impl::get(const std::string& name)
 {
+    const char* val = std::getenv(name.c_str());
+    assert(val != NULL);
+    return val;
 }
 
-template< class T >
-inline
-const T&
-not_found_error< T >::get_value(void)
-    const
-    throw()
+bool
+impl::has(const std::string& name)
 {
-    return m_value;
+    return std::getenv(name.c_str()) != NULL;
 }
 
-class system_error : public std::runtime_error {
-    int m_sys_err;
-    mutable std::string m_message;
+void
+impl::set(const std::string& name, const std::string& val)
+{
+#if defined(HAVE_SETENV)
+    if (std::setenv(name.c_str(), val.c_str(), 1) == -1)
+        throw atf::system_error(IMPL_NAME "::set(" + name + ", " +
+                                val + ")", "setenv(3) failed", errno);
+#elif defined(HAVE_PUTENV)
+    if (std::putenv((name + "=" + val).c_str()) == -1)
+        throw atf::system_error(IMPL_NAME "::set(" + name + ", " +
+                                val + ")", "putenv(3) failed", errno);
+#else
+#   error "Don't know how to set an environment variable."
+#endif
+}
 
-public:
-    system_error(const std::string&, const std::string&, int);
-    ~system_error(void) throw();
-
-    int code(void) const throw();
-    const char* what(void) const throw();
-};
-
-class usage_error : public std::runtime_error {
-    char m_text[4096];
-
-public:
-    usage_error(const char* fmt, ...) throw();
-    ~usage_error(void) throw();
-
-    const char* what(void) const throw();
-};
-
-} // namespace atf
-
-#endif // !defined(_ATFPRIVATE_EXCEPTIONS_HPP_)
+void
+impl::unset(const std::string& name)
+{
+#if defined(HAVE_UNSETENV)
+    std::unsetenv(name.c_str());
+#elif defined(HAVE_PUTENV)
+    if (std::putenv((name + "=").c_str()) == -1)
+        throw atf::system_error(IMPL_NAME "::unset(" + name + ")",
+                                "putenv(3) failed", errno);
+#else
+#   error "Don't know how to unset an environment variable."
+#endif
+}

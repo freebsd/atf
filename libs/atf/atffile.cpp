@@ -38,21 +38,47 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_ATFFILE_HPP_)
-#define _ATF_ATFFILE_HPP_
+#include <cassert>
+#include <fstream>
 
-#include <string>
-#include <vector>
+#include "atf/atffile.hpp"
+#include "atf/exceptions.hpp"
+#include "atf/expand.hpp"
+#include "atf/serial.hpp"
 
-#include <atfprivate/fs.hpp>
+atf::atffile::atffile(const atf::fs::path& filename)
+{
+    std::ifstream is(filename.c_str());
+    if (!is)
+        throw atf::not_found_error< fs::path >
+            ("Cannot open Atffile", filename);
+    serial::internalizer i(is, "application/X-atf-atffile", 0);
 
-namespace atf {
+    fs::directory dir(filename.branch_path());
+    dir.erase(filename.leaf_name());
+    for (fs::directory::iterator iter = dir.begin(); iter != dir.end();
+         iter++) {
+        const std::string& name = (*iter).first;
+        const fs::file_info& fi = (*iter).second;
 
-class atffile : public std::vector< std::string > {
-public:
-    atffile(const fs::path& = fs::path("Atffile"));
-};
+        if (name[0] == '.' || (!fi.is_owner_executable() &&
+                               !fi.is_group_executable()))
+            dir.erase(iter);
+    }
 
-} // namespace atf
+    std::string line;
+    while (std::getline(is, line)) {
+        if (expand::is_glob(line)) {
+            std::set< std::string > ms =
+                expand::expand_glob(line, dir.names());
+            insert(end(), ms.begin(), ms.end());
+        } else {
+            if (dir.find(line) == dir.end())
+                throw atf::not_found_error< fs::path >
+                    ("Cannot locate the " + line + " file", fs::path(line));
+            push_back(line);
+        }
+    }
 
-#endif // !defined(_ATF_ATFFILE_HPP_)
+    is.close();
+}
