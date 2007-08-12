@@ -41,28 +41,6 @@
 #if !defined(_ATF_HPP_)
 #define _ATF_HPP_
 
-#include <atf/exceptions.hpp>
-#include <atf/test_case.hpp>
-#include <atf/test_case_result.hpp>
-
-#include <vector>
-
-#define ATF_INIT_TEST_CASES(tcs) \
-    namespace atf { \
-        int run_test_program(int, char* const*, \
-                             const std::vector< atf::test_case * >&); \
-    } \
-    \
-    int \
-    main(int argc, char* const* argv) \
-    { \
-        void __atf_init_test_cases(std::vector< atf::test_case * >&); \
-        std::vector< atf::test_case * > tcs; \
-        __atf_init_test_cases(tcs); \
-        return atf::run_test_program(argc, argv, tcs); \
-    } \
-    \
-    void \
-    __atf_init_test_cases(std::vector< atf::test_case * >& tcs)
+#include <atf/macros.hpp>
 
 #endif // !defined(_ATF_HPP_)

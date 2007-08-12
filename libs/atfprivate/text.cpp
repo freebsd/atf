@@ -38,10 +38,22 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cctype>
+
 #include "atfprivate/text.hpp"
 
 namespace impl = atf::text;
 #define IMPL_NAME "atf::text"
+
+std::string
+impl::to_lower(const std::string& str)
+{
+    std::string lc;
+    for (std::string::const_iterator iter = str.begin(); iter != str.end();
+         iter++)
+        lc += std::tolower(*iter);
+    return lc;
+}
 
 std::vector< std::string >
 impl::split(const std::string& str, const std::string& delim)

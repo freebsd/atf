@@ -42,6 +42,7 @@
 #define _ATF_EXPAND_HPP_
 
 #include <set>
+#include <stdexcept>
 #include <string>
 
 namespace atf {

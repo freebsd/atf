@@ -47,7 +47,7 @@
 #include <atfprivate/io.hpp>
 #include <atfprivate/serial.hpp>
 
-#include <atf/test_case_result.hpp>
+#include <atf/tests.hpp>
 
 namespace atf {
 namespace formats {
@@ -63,7 +63,7 @@ class atf_tcs_reader {
 protected:
     virtual void got_ntcs(size_t);
     virtual void got_tc_start(const std::string&);
-    virtual void got_tc_end(const atf::test_case_result&);
+    virtual void got_tc_end(const atf::tests::tcr&);
     virtual void got_stdout_line(const std::string&);
     virtual void got_stderr_line(const std::string&);
     virtual void got_eof(void);
@@ -86,7 +86,7 @@ public:
     atf_tcs_writer(std::ostream&, size_t);
 
     void start_tc(const std::string&);
-    void end_tc(const atf::test_case_result&);
+    void end_tc(const atf::tests::tcr&);
 };
 
 // ------------------------------------------------------------------------
@@ -105,7 +105,7 @@ protected:
     virtual void got_tc_start(const std::string&);
     virtual void got_tc_stdout_line(const std::string&);
     virtual void got_tc_stderr_line(const std::string&);
-    virtual void got_tc_end(const atf::test_case_result&);
+    virtual void got_tc_end(const atf::tests::tcr&);
     virtual void got_eof(void);
 
 public:
@@ -131,7 +131,7 @@ public:
     void start_tc(const std::string&);
     void stdout_tc(const std::string&);
     void stderr_tc(const std::string&);
-    void end_tc(const atf::test_case_result&);
+    void end_tc(const atf::tests::tcr&);
 };
 
 } // namespace formats

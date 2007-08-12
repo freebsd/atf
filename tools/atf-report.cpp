@@ -95,16 +95,16 @@ class reader : public atf::formats::atf_tps_reader {
     }
 
     void
-    got_tc_end(const atf::test_case_result& tcr)
+    got_tc_end(const atf::tests::tcr& tcr)
     {
-        atf::test_case_result::status s = tcr.get_status();
-        if (s == atf::test_case_result::status_passed) {
+        atf::tests::tcr::status s = tcr.get_status();
+        if (s == atf::tests::tcr::status_passed) {
             std::cout << "Passed." << std::endl;
             m_tcs_passed++;
-        } else if (s == atf::test_case_result::status_failed) {
+        } else if (s == atf::tests::tcr::status_failed) {
             std::cout << "Failed: " << tcr.get_reason() << std::endl;
             m_tcs_failed++;
-        } else if (s == atf::test_case_result::status_skipped) {
+        } else if (s == atf::tests::tcr::status_skipped) {
             std::cout << "Skipped: " << tcr.get_reason() << std::endl;
             m_tcs_skipped++;
         }

@@ -38,50 +38,94 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_TEST_CASE_RESULT_HPP_)
-#define _ATF_TEST_CASE_RESULT_HPP_
+#include <sstream>
 
-#include <istream>
-#include <ostream>
-#include <string>
-
-namespace atf {
+#include <atf.hpp>
 
 // ------------------------------------------------------------------------
-// The "test_case_result" class.
+// Tests for the "tcr" class.
 // ------------------------------------------------------------------------
 
-//!
-//! \brief Holds the results of a test case's execution.
-//!
-//! The test_case_result class holds the information that describes the
-//! results of a test case's execution.  This is composed of an exit code
-//! and a reason for that exit code.
-//!
-//! TODO: Complete documentation for this class.  Not done yet because it
-//! is worth to investigate if this class could be rewritten as several
-//! different classes, one for each status.
-//!
-class test_case_result {
-public:
-    enum status { status_passed, status_skipped, status_failed };
+ATF_TEST_CASE(tcr_default_ctor);
+ATF_TEST_CASE_HEAD(tcr_default_ctor)
+{
+    set("descr", "Tests that the default constructor creates a failed "
+                 "result.");
+}
+ATF_TEST_CASE_BODY(tcr_default_ctor)
+{
+    using atf::tests::tcr;
 
-    test_case_result(void);
+    tcr tcr;
+    ATF_CHECK(tcr.get_status() == tcr::status_failed);
+}
 
-    static test_case_result passed(void);
-    static test_case_result skipped(const std::string&);
-    static test_case_result failed(const std::string&);
+ATF_TEST_CASE(tcr_passed_ctor);
+ATF_TEST_CASE_HEAD(tcr_passed_ctor)
+{
+    set("descr", "Tests that the passed pseudo-constructor works.");
+}
+ATF_TEST_CASE_BODY(tcr_passed_ctor)
+{
+    using atf::tests::tcr;
 
-    status get_status(void) const;
-    const std::string& get_reason(void) const;
+    tcr tcr = tcr::passed();
+    ATF_CHECK(tcr.get_status() == tcr::status_passed);
+}
 
-private:
-    status m_status;
-    std::string m_reason;
+ATF_TEST_CASE(tcr_skipped_ctor);
+ATF_TEST_CASE_HEAD(tcr_skipped_ctor)
+{
+    set("descr", "Tests that the skipped pseudo-constructor works.");
+}
+ATF_TEST_CASE_BODY(tcr_skipped_ctor)
+{
+    using atf::tests::tcr;
 
-    test_case_result(status, const std::string&);
-};
+    {
+        tcr tcr = tcr::skipped("Reason 1");
+        ATF_CHECK(tcr.get_status() == tcr::status_skipped);
+        ATF_CHECK_EQUAL(tcr.get_reason(), "Reason 1");
+    }
 
-} // namespace atf
+    {
+        tcr tcr = tcr::skipped("Reason 2");
+        ATF_CHECK(tcr.get_status() == tcr::status_skipped);
+        ATF_CHECK_EQUAL(tcr.get_reason(), "Reason 2");
+    }
+}
 
-#endif // !defined(_ATF_TEST_CASE_RESULT_HPP_)
+ATF_TEST_CASE(tcr_failed_ctor);
+ATF_TEST_CASE_HEAD(tcr_failed_ctor)
+{
+    set("descr", "Tests that the failed pseudo-constructor works.");
+}
+ATF_TEST_CASE_BODY(tcr_failed_ctor)
+{
+    using atf::tests::tcr;
+
+    {
+        tcr tcr = tcr::failed("Reason 1");
+        ATF_CHECK(tcr.get_status() == tcr::status_failed);
+        ATF_CHECK_EQUAL(tcr.get_reason(), "Reason 1");
+    }
+
+    {
+        tcr tcr = tcr::failed("Reason 2");
+        ATF_CHECK(tcr.get_status() == tcr::status_failed);
+        ATF_CHECK_EQUAL(tcr.get_reason(), "Reason 2");
+    }
+}
+
+// ------------------------------------------------------------------------
+// Main.
+// ------------------------------------------------------------------------
+
+ATF_INIT_TEST_CASES(tcs)
+{
+    // Add tests for the "tcr" class.
+    tcs.push_back(&tcr_default_ctor);
+    tcs.push_back(&tcr_passed_ctor);
+    tcs.push_back(&tcr_skipped_ctor);
+    tcs.push_back(&tcr_failed_ctor);
+}

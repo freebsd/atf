@@ -1,4 +1,4 @@
 Content-Type: application/X-atf-atffile; version="0"
 
-t_test_case
+t_tc
 t_atf_check

@@ -38,18 +38,55 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_TEST_CASE_HPP_)
-#define _ATF_TEST_CASE_HPP_
+#if !defined(_ATF_TESTS_HPP_)
+#define _ATF_TESTS_HPP_
 
 #include <map>
-#include <sstream>
-#include <utility>
-
-#include <atf/test_case_result.hpp>
+#include <string>
 
 namespace atf {
+namespace tests {
 
-class test_case {
+// ------------------------------------------------------------------------
+// The "tcr" class.
+// ------------------------------------------------------------------------
+
+//!
+//! \brief Holds the results of a test case's execution.
+//!
+//! The tcr class holds the information that describes the results of a
+//! test case's execution.  This is composed of an exit code and a reason
+//! for that exit code.
+//!
+//! TODO: Complete documentation for this class.  Not done yet because it
+//! is worth to investigate if this class could be rewritten as several
+//! different classes, one for each status.
+//!
+class tcr {
+public:
+    enum status { status_passed, status_skipped, status_failed };
+
+    tcr(void);
+
+    static tcr passed(void);
+    static tcr skipped(const std::string&);
+    static tcr failed(const std::string&);
+
+    status get_status(void) const;
+    const std::string& get_reason(void) const;
+
+private:
+    status m_status;
+    std::string m_reason;
+
+    tcr(status, const std::string&);
+};
+
+// ------------------------------------------------------------------------
+// The "tc" class.
+// ------------------------------------------------------------------------
+
+class tc {
     typedef std::map< std::string, std::string > variables_map;
 
     std::string m_ident;
@@ -61,8 +98,8 @@ class test_case {
     void ensure_boolean(const std::string&);
     void ensure_not_empty(const std::string&);
 
-    test_case_result safe_run(void) const;
-    test_case_result fork_body(const std::string&) const;
+    tcr safe_run(void) const;
+    tcr fork_body(const std::string&) const;
 
 protected:
     virtual void head(void) = 0;
@@ -71,8 +108,8 @@ protected:
     void require_prog(const std::string&) const;
 
 public:
-    test_case(const std::string&);
-    virtual ~test_case(void);
+    tc(const std::string&);
+    virtual ~tc(void);
 
     const std::string& get(const std::string&) const;
     bool get_bool(const std::string&) const;
@@ -82,61 +119,10 @@ public:
     const std::string& get_srcdir(void) const;
 
     void init(const std::string&, const std::string&);
-    test_case_result run(void) const;
+    tcr run(void) const;
 };
 
+} // namespace tests
 } // namespace atf
 
-#define ATF_TEST_CASE(name) \
-    class name : public atf::test_case { \
-        void head(void); \
-        void body(void) const; \
-    public: \
-        name(void) : atf::test_case(#name) {} \
-    }; \
-    static name name;
-
-#define ATF_TEST_CASE_HEAD(name) \
-    void \
-    name::head(void)
-
-#define ATF_TEST_CASE_BODY(name) \
-    void \
-    name::body(void) \
-        const
-
-#define ATF_FAIL(reason) \
-    throw atf::test_case_result::failed(reason)
-
-#define ATF_SKIP(reason) \
-    throw atf::test_case_result::skipped(reason)
-
-#define ATF_PASS() \
-    throw atf::test_case_result::passed()
-
-#define ATF_CHECK(x) \
-    if (!(x)) { \
-        std::ostringstream __atf_ss; \
-        __atf_ss << "Line " << __LINE__ << ": " << #x << " not met"; \
-        throw atf::test_case_result::failed(__atf_ss.str()); \
-    }
-
-#define ATF_CHECK_EQUAL(x, y) \
-    if ((x) != (y)) { \
-        std::ostringstream __atf_ss; \
-        __atf_ss << "Line " << __LINE__ << ": " << #x << " != " << #y \
-                 << " (" << (x) << " != " << (y) << ")"; \
-        throw atf::test_case_result::failed(__atf_ss.str()); \
-    }
-
-#define ATF_CHECK_THROW(x, e) \
-    try { \
-        x; \
-        std::ostringstream __atf_ss; \
-        __atf_ss << "Line " << __LINE__ << ": " #x " did not throw " \
-                    #e " as expected"; \
-        throw atf::test_case_result::failed(__atf_ss.str()); \
-    } catch (const e& __atf_eo) { \
-    }
-
-#endif // !defined(_ATF_TEST_CASE_HPP_)
+#endif // !defined(_ATF_TESTS_HPP_)

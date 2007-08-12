@@ -57,7 +57,7 @@ extern "C" {
 #include "atfprivate/io.hpp"
 
 #include "atf/formats.hpp"
-#include "atf/test_case.hpp"
+#include "atf/tests.hpp"
 
 class muxer : public atf::formats::atf_tcs_reader {
     atf::fs::path m_tp;
@@ -83,14 +83,14 @@ class muxer : public atf::formats::atf_tcs_reader {
     }
 
     void
-    got_tc_end(const atf::test_case_result& tcr)
+    got_tc_end(const atf::tests::tcr& tcr)
     {
-        const atf::test_case_result::status& s = tcr.get_status();
-        if (s == atf::test_case_result::status_passed) {
+        const atf::tests::tcr::status& s = tcr.get_status();
+        if (s == atf::tests::tcr::status_passed) {
             m_passed++;
-        } else if (s == atf::test_case_result::status_skipped) {
+        } else if (s == atf::tests::tcr::status_skipped) {
             m_skipped++;
-        } else if (s == atf::test_case_result::status_failed) {
+        } else if (s == atf::tests::tcr::status_failed) {
             m_failed++;
         } else {
             assert(false);

@@ -73,49 +73,49 @@ read_size_t(std::istream& is, const std::string& err)
 }
 
 static
-atf::test_case_result::status
+atf::tests::tcr::status
 string_to_tcr_status(const std::string& s)
 {
     if (s == "passed")
-        return atf::test_case_result::status_passed;
+        return atf::tests::tcr::status_passed;
     else if (s == "failed")
-        return atf::test_case_result::status_failed;
+        return atf::tests::tcr::status_failed;
     else if (s == "skipped")
-        return atf::test_case_result::status_skipped;
+        return atf::tests::tcr::status_skipped;
     else
         throw atf::serial::format_error("Invalid test case status `" + s +
                                         "'");
 }
 
 static
-atf::test_case_result
+atf::tests::tcr
 read_tcr(std::istream& is, const std::string& firstline)
 {
     std::string line;
 
-    atf::test_case_result tcr;
+    atf::tests::tcr tcr;
     {
         switch (string_to_tcr_status(firstline)) {
-        case atf::test_case_result::status_passed:
-            tcr = atf::test_case_result::passed();
+        case atf::tests::tcr::status_passed:
+            tcr = atf::tests::tcr::passed();
             break;
 
-        case atf::test_case_result::status_failed:
+        case atf::tests::tcr::status_failed:
             if (!is.good())
                 throw atf::serial::format_error("Missing reason for "
                                                 "failed test case result");
 
             std::getline(is, line);
-            tcr = atf::test_case_result::failed(line);
+            tcr = atf::tests::tcr::failed(line);
             break;
 
-        case atf::test_case_result::status_skipped:
+        case atf::tests::tcr::status_skipped:
             if (!is.good())
                 throw atf::serial::format_error("Missing reason for "
                                                 "skipped test case result");
 
             std::getline(is, line);
-            tcr = atf::test_case_result::skipped(line);
+            tcr = atf::tests::tcr::skipped(line);
             break;
 
         default:
@@ -126,13 +126,13 @@ read_tcr(std::istream& is, const std::string& firstline)
 }
 
 static
-atf::test_case_result
+atf::tests::tcr
 read_tcr(std::istream& is)
 {
     if (!is.good())
         throw atf::serial::format_error("Missing test case result");
 
-    atf::test_case_result tcr;
+    atf::tests::tcr tcr;
     {
         std::string line;
         std::getline(is, line);
@@ -179,7 +179,7 @@ impl::atf_tcs_reader::got_tc_start(const std::string& tcname)
 }
 
 void
-impl::atf_tcs_reader::got_tc_end(const atf::test_case_result& tcr)
+impl::atf_tcs_reader::got_tc_end(const atf::tests::tcr& tcr)
 {
 }
 
@@ -238,7 +238,7 @@ impl::atf_tcs_reader::read(atf::io::pistream& out, atf::io::pistream& err)
                     fds[0].events &= ~POLLIN;
                 }
             } else {
-                test_case_result tcr = read_tcr(m_int.get_stream());
+                tests::tcr tcr = read_tcr(m_int.get_stream());
                 read_terminator(m_int.get_stream(),
                                 "Missing test case terminator");
                 got_tc_end(tcr);
@@ -309,23 +309,23 @@ impl::atf_tcs_writer::start_tc(const std::string& tcname)
 }
 
 void
-impl::atf_tcs_writer::end_tc(const atf::test_case_result& tcr)
+impl::atf_tcs_writer::end_tc(const atf::tests::tcr& tcr)
 {
     std::cout << "__atf_stream_end__\n";
     std::cout.flush();
     std::cerr << "__atf_stream_end__\n";
     std::cerr.flush();
     switch (tcr.get_status()) {
-    case test_case_result::status_passed:
+    case tests::tcr::status_passed:
         m_ext << "passed\n";
         break;
 
-    case test_case_result::status_failed:
+    case tests::tcr::status_failed:
         m_ext << "failed\n"
               << tcr.get_reason() << '\n';
         break;
 
-    case test_case_result::status_skipped:
+    case tests::tcr::status_skipped:
         m_ext << "skipped\n"
               << tcr.get_reason() << '\n';
         break;
@@ -382,7 +382,7 @@ impl::atf_tps_reader::got_tc_stderr_line(const std::string& line)
 }
 
 void
-impl::atf_tps_reader::got_tc_end(const atf::test_case_result& tcr)
+impl::atf_tps_reader::got_tc_end(const atf::tests::tcr& tcr)
 {
 }
 
@@ -423,7 +423,7 @@ impl::atf_tps_reader::read(void)
                 } else if (line.substr(0, 4) == "se: ") {
                     got_tc_stderr_line(line.substr(5));
                 } else {
-                    test_case_result tcr = read_tcr(m_is, line);
+                    tests::tcr tcr = read_tcr(m_is, line);
                     read_terminator(m_int.get_stream(),
                                     "Missing test case terminator");
                     got_tc_end(tcr);
@@ -489,18 +489,18 @@ impl::atf_tps_writer::stderr_tc(const std::string& line)
 }
 
 void
-impl::atf_tps_writer::end_tc(const atf::test_case_result& tcr)
+impl::atf_tps_writer::end_tc(const atf::tests::tcr& tcr)
 {
     switch (tcr.get_status()) {
-    case atf::test_case_result::status_passed:
+    case atf::tests::tcr::status_passed:
         m_ext << "passed" << '\n';
         break;
 
-    case atf::test_case_result::status_skipped:
+    case atf::tests::tcr::status_skipped:
         m_ext << "skipped" << '\n' << tcr.get_reason() << '\n';
         break;
 
-    case atf::test_case_result::status_failed:
+    case atf::tests::tcr::status_failed:
         m_ext << "failed" << '\n' << tcr.get_reason() << '\n';
         break;
 

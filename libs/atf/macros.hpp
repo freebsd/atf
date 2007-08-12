@@ -38,76 +38,84 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_TEXT_HPP_)
-#define _ATF_TEXT_HPP_
+#if !defined(_ATF_MACROS_HPP_)
+#define _ATF_MACROS_HPP_
 
 #include <sstream>
-#include <string>
 #include <vector>
 
-namespace atf {
-namespace text {
+#include <atf/tests.hpp>
 
-//!
-//! \brief Joins multiple words into a string.
-//!
-//! Joins a list of words into a string, separating them using the provided
-//! separator.  Empty words are not omitted.
-//!
-template< class T >
-std::string
-join(const T& words, const std::string& separator)
-{
-    std::string str;
+#define ATF_TEST_CASE(name) \
+    class name : public atf::tests::tc { \
+        void head(void); \
+        void body(void) const; \
+    public: \
+        name(void) : atf::tests::tc(#name) {} \
+    }; \
+    static name name;
 
-    typename T::const_iterator iter = words.begin();
-    bool done = iter == words.end();
-    while (!done) {
-        str += *iter;
-        iter++;
-        if (iter != words.end())
-            str += separator;
-        else
-            done = true;
+#define ATF_TEST_CASE_HEAD(name) \
+    void \
+    name::head(void)
+
+#define ATF_TEST_CASE_BODY(name) \
+    void \
+    name::body(void) \
+        const
+
+#define ATF_FAIL(reason) \
+    throw atf::tests::tcr::failed(reason)
+
+#define ATF_SKIP(reason) \
+    throw atf::tests::tcr::skipped(reason)
+
+#define ATF_PASS() \
+    throw atf::tests::tcr::passed()
+
+#define ATF_CHECK(x) \
+    if (!(x)) { \
+        std::ostringstream __atf_ss; \
+        __atf_ss << "Line " << __LINE__ << ": " << #x << " not met"; \
+        throw atf::tests::tcr::failed(__atf_ss.str()); \
     }
 
-    return str;
-}
+#define ATF_CHECK_EQUAL(x, y) \
+    if ((x) != (y)) { \
+        std::ostringstream __atf_ss; \
+        __atf_ss << "Line " << __LINE__ << ": " << #x << " != " << #y \
+                 << " (" << (x) << " != " << (y) << ")"; \
+        throw atf::tests::tcr::failed(__atf_ss.str()); \
+    }
 
-//!
-//! \brief Splits a string into words.
-//!
-//! Splits the given string into multiple words, all separated by the
-//! given delimiter.  Multiple occurrences of the same delimiter are
-//! not condensed so that rejoining the words later on using the same
-//! delimiter results in the original string.
-//!
-std::vector< std::string > split(const std::string&, const std::string&);
+#define ATF_CHECK_THROW(x, e) \
+    try { \
+        x; \
+        std::ostringstream __atf_ss; \
+        __atf_ss << "Line " << __LINE__ << ": " #x " did not throw " \
+                    #e " as expected"; \
+        throw atf::tests::tcr::failed(__atf_ss.str()); \
+    } catch (const e& __atf_eo) { \
+    }
 
-//!
-//! \brief Changes the case of a string to lowercase.
-//!
-//! Returns a new string that is a lowercased version of the original
-//! one.
-//!
-std::string to_lower(const std::string&);
+#define ATF_INIT_TEST_CASES(tcs) \
+    namespace atf { \
+        namespace tests { \
+            int run_tp(int, char* const*, \
+                       const std::vector< atf::tests::tc * >&); \
+        } \
+    } \
+    \
+    int \
+    main(int argc, char* const* argv) \
+    { \
+        void __atf_init_tcs(std::vector< atf::tests::tc * >&); \
+        std::vector< atf::tests::tc * > tcs; \
+        __atf_init_tcs(tcs); \
+        return atf::tests::run_tp(argc, argv, tcs); \
+    } \
+    \
+    void \
+    __atf_init_tcs(std::vector< atf::tests::tc * >& tcs)
 
-//!
-//! \brief Converts the given object to a string.
-//!
-//! Returns a string with the representation of the given object.  There
-//! must exist an operator<< method for that object.
-//!
-template< class T >
-std::string
-to_string(const T& ob)
-{
-    std::ostringstream ss;
-    ss << ob;
-    return ss.str();
-}
-
-} // namespace text
-} // namespace atf
-
-#endif // !defined(_ATF_TEXT_HPP_)
+#endif // !defined(_ATF_MACROS_HPP_)

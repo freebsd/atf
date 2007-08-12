@@ -131,14 +131,11 @@ CLEANFILES += libs/atf/tchead.cpp
 EXTRA_DIST += libs/tc-meta-data.csv
 EXTRA_DIST += libs/tc-meta-data.sh
 
-$(srcdir)/libs/atf/test_case.cpp: libs/atf/tcenv.cpp libs/atf/tchead.cpp
+$(srcdir)/libs/atf/tests.cpp: libs/atf/tcenv.cpp libs/atf/tchead.cpp
 
 lib_LTLIBRARIES += libs/libatf.la
-libs_libatf_la_SOURCES = libs/atf/exceptions.hpp \
-                         libs/atf/formats.cpp \
-                         libs/atf/test_case.cpp \
-                         libs/atf/test_case_result.cpp \
-                         libs/atf/test_program.cpp
+libs_libatf_la_SOURCES = libs/atf/formats.cpp \
+                         libs/atf/tests.cpp
 libs_libatf_la_LDFLAGS = -Llibs
 libs_libatf_la_LIBADD = -latfprivate
 
@@ -146,8 +143,8 @@ include_HEADERS = libs/atf.hpp
 # XXX Including formats.hpp below is wrong; it relies on private headers.
 atf_HEADERS = libs/atf/exceptions.hpp \
               libs/atf/formats.hpp \
-              libs/atf/test_case.hpp \
-              libs/atf/test_case_result.hpp
+              libs/atf/macros.hpp \
+              libs/atf/tests.hpp
 atfdir = $(includedir)/atf
 
 # -------------------------------------------------------------------------
@@ -283,13 +280,13 @@ tests/atf/sh_interface/t_atf_check: \
 		$(ATF_COMPILE_DEPS)
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/sh_interface/t_atf_check.sh
 
-atf_sh_interface_SCRIPTS += tests/atf/sh_interface/t_test_case
-CLEANFILES += tests/atf/sh_interface/t_test_case
-EXTRA_DIST += tests/atf/sh_interface/t_test_case.sh
-tests/atf/sh_interface/t_test_case: \
-		$(srcdir)/tests/atf/sh_interface/t_test_case.sh \
+atf_sh_interface_SCRIPTS += tests/atf/sh_interface/t_tc
+CLEANFILES += tests/atf/sh_interface/t_tc
+EXTRA_DIST += tests/atf/sh_interface/t_tc.sh
+tests/atf/sh_interface/t_tc: \
+		$(srcdir)/tests/atf/sh_interface/t_tc.sh \
 		$(ATF_COMPILE_DEPS)
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/sh_interface/t_test_case.sh
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/sh_interface/t_tc.sh
 
 atf_test_programs_DATA = tests/atf/test_programs/Atffile
 atf_test_programsdir = $(pkgtestsdir)/test_programs
@@ -430,11 +427,10 @@ tests_atf_units_t_serial_SOURCES = tests/atf/units/t_serial.cpp
 tests_atf_units_t_serial_LDADD = -latf
 tests_atf_units_t_serial_LDFLAGS = -Llibs
 
-atf_units_PROGRAMS += tests/atf/units/t_test_case_result
-tests_atf_units_t_test_case_result_SOURCES = \
-    tests/atf/units/t_test_case_result.cpp
-tests_atf_units_t_test_case_result_LDADD = -latf
-tests_atf_units_t_test_case_result_LDFLAGS = -Llibs
+atf_units_PROGRAMS += tests/atf/units/t_tests
+tests_atf_units_t_tests_SOURCES = tests/atf/units/t_tests.cpp
+tests_atf_units_t_tests_LDADD = -latf
+tests_atf_units_t_tests_LDFLAGS = -Llibs
 
 atf_units_PROGRAMS += tests/atf/units/t_text
 tests_atf_units_t_text_SOURCES = tests/atf/units/t_text.cpp
