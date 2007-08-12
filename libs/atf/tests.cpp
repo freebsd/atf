@@ -66,7 +66,6 @@ extern "C" {
 #include "atfprivate/ui.hpp"
 #include "atfprivate/user.hpp"
 
-#include "atf/exceptions.hpp"
 #include "atf/formats.hpp"
 #include "atf/tests.hpp"
 

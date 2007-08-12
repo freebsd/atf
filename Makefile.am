@@ -141,8 +141,7 @@ libs_libatf_la_LIBADD = -latfprivate
 
 include_HEADERS = libs/atf.hpp
 # XXX Including formats.hpp below is wrong; it relies on private headers.
-atf_HEADERS = libs/atf/exceptions.hpp \
-              libs/atf/formats.hpp \
+atf_HEADERS = libs/atf/formats.hpp \
               libs/atf/macros.hpp \
               libs/atf/tests.hpp
 atfdir = $(includedir)/atf
