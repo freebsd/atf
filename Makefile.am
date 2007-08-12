@@ -122,6 +122,7 @@ libs_libatf_la_SOURCES = libs/atf/application.cpp \
                          libs/atf/fs.hpp \
                          libs/atf/io.cpp \
                          libs/atf/io.hpp \
+                         libs/atf/macros.hpp \
                          libs/atf/serial.cpp \
                          libs/atf/serial.hpp \
                          libs/atf/tests.cpp \
