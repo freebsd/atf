@@ -15,6 +15,14 @@ Configuration flags
 This section describes the non-standard flags added to the 'configure'
 script.
 
+* Variable: ATF_WORKDIR
+  Possible values: empty, an absolute path.
+  Default: /tmp or /var/tmp, depending on availability.
+
+  Specifies the directory that ATF will use to place its temporary files
+  and work directories for test cases.  This is just a default and can
+  be overriden at run time.
+
 * Flag: --enable-developer
   Possible values: yes, no
   Default: Depends on the version number.  Stable versions define this
