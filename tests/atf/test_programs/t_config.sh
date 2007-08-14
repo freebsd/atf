@@ -34,31 +34,39 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-mangle_fds_head()
+vflag_head()
 {
-    atf_set "descr" "Tests that mangling standard descriptors does not" \
-                    "affect the test case's reporting of status"
+    atf_set "descr" "Tests that the -v flag works correctly to set" \
+                    "configuration variables"
 }
-mangle_fds_body()
+vflag_body()
 {
     srcdir=$(atf_get_srcdir)
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
     for h in ${h_cpp} ${h_sh}; do
-        atf_check "${h} -s ${srcdir} -r3 -v isolated=no -v resfd=3 \
-                   fork_mangle_fds 3>resout" 0 ignore ignore
+        atf_check "${h} -s ${srcdir} -r3 \
+                   config_unset 3>resout" 0 ignore ignore
         atf_check "grep 'passed' resout" 0 ignore null
 
-        atf_check "${h} -s ${srcdir} -r3 -v isolated=yes -v resfd=3 \
-                   fork_mangle_fds 3>resout" 0 ignore ignore
+        atf_check "${h} -s ${srcdir} -r3 -v 'test=' \
+                   config_empty 3>resout" 0 ignore ignore
+        atf_check "grep 'passed' resout" 0 ignore null
+
+        atf_check "${h} -s ${srcdir} -r3 -v 'test=foo' \
+                   config_value 3>resout" 0 ignore ignore
+        atf_check "grep 'passed' resout" 0 ignore null
+
+        atf_check "${h} -s ${srcdir} -r3 -v 'test=foo bar' \
+                   config_multi_value 3>resout" 0 ignore ignore
         atf_check "grep 'passed' resout" 0 ignore null
     done
 }
 
 atf_init_test_cases()
 {
-    atf_add_test_case mangle_fds
+    atf_add_test_case vflag
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

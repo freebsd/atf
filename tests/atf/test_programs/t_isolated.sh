@@ -47,12 +47,12 @@ default_body()
     tmpdir=$(cd $(atf-config -t atf_workdir) && pwd -P)
 
     for h in ${h_cpp} ${h_sh}; do
-        atf_check "ISOLATED=no PATHFILE=$(pwd)/expout ${h} \
-                  -s ${srcdir} isolated_path" 0 ignore ignore
+        atf_check "${h} -s ${srcdir} -v isolated=no \
+                   -v pathfile=$(pwd)/expout isolated_path" 0 ignore ignore
         atf_check "pwd -P" 0 expout null
 
-        atf_check "ISOLATED=yes PATHFILE=$(pwd)/path ${h} \
-                  -s ${srcdir} isolated_path" 0 ignore ignore
+        atf_check "${h} -s ${srcdir} -v isolated=yes \
+                  -v pathfile=$(pwd)/path isolated_path" 0 ignore ignore
         atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore ignore
     done
 }
@@ -72,25 +72,23 @@ tmpdir_body()
     mkdir ${tmpdir}
 
     for h in ${h_cpp} ${h_sh}; do
-        atf_check "ISOLATED=no PATHFILE=$(pwd)/expout \
-                  ATF_WORKDIR=${tmpdir} ${h} \
-                  -s ${srcdir} isolated_path" 0 ignore ignore
+        atf_check "ATF_WORKDIR=${tmpdir} ${h} -s ${srcdir} -v isolated=no \
+                   -v pathfile=$(pwd)/expout isolated_path" 0 ignore ignore
         atf_check "pwd -P" 0 expout null
 
-        atf_check "ISOLATED=yes PATHFILE=$(pwd)/path \
-                  ATF_WORKDIR=${tmpdir} ${h} \
-                  -s ${srcdir} isolated_path" 0 ignore ignore
+        atf_check "ATF_WORKDIR=${tmpdir} ${h} -s ${srcdir} -v isolated=yes \
+                   -v pathfile=$(pwd)/path isolated_path" 0 ignore ignore
         atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore ignore
     done
 }
 
-wflag_head()
+conf_head()
 {
     atf_set "descr" "Tests that the 'isolated' test property works" \
                     "when the user overrides the work directory through" \
-                    "the test program's -w flag"
+                    "the test program's 'workdir' configuration option"
 }
-wflag_body()
+conf_body()
 {
     srcdir=$(atf_get_srcdir)
     h_cpp=${srcdir}/h_cpp
@@ -99,12 +97,14 @@ wflag_body()
     mkdir ${tmpdir}
 
     for h in ${h_cpp} ${h_sh}; do
-        atf_check "ISOLATED=no PATHFILE=$(pwd)/expout ${h} \
-                  -s ${srcdir} -w ${tmpdir} isolated_path" 0 ignore ignore
+        atf_check "${h} -s ${srcdir} -v isolated=no \
+                   -v pathfile=$(pwd)/expout -v workdir=${tmpdir} \
+                   isolated_path" 0 ignore ignore
         atf_check "pwd -P" 0 expout null
 
-        atf_check "ISOLATED=yes PATHFILE=$(pwd)/path ${h} \
-                  -s ${srcdir} -w ${tmpdir} isolated_path" 0 ignore ignore
+        atf_check "${h} -s ${srcdir} -v isolated=yes \
+                   -v pathfile=$(pwd)/path -v workdir=${tmpdir} \
+                   isolated_path" 0 ignore ignore
         atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore null
     done
 }
@@ -126,14 +126,15 @@ cleanup_body()
     for h in ${h_cpp} ${h_sh}; do
         # First try to clean a work directory that, supposedly, does not
         # have any subdirectories.
-        atf_check "ISOLATED=yes PATHFILE=$(pwd)/path ${h} \
-                  -s ${srcdir} -w ${tmpdir} isolated_path" 0 ignore ignore
+        atf_check "${h} -s ${srcdir} -v isolated=yes \
+                   -v pathfile=$(pwd)/path -v workdir=${tmpdir} \
+                   isolated_path" 0 ignore ignore
         atf_check "test -d $(cat path)" 1 null null
 
         # Now do the same but with a work directory that has subdirectories.
         # The program will have to recurse into them to clean them all.
-        atf_check "PATHFILE=$(pwd)/path ${h} \
-                  -s ${srcdir} -w ${tmpdir} isolated_cleanup" 0 ignore ignore
+        atf_check "${h} -s ${srcdir} -v pathfile=$(pwd)/path \
+                   -v workdir=${tmpdir} isolated_cleanup" 0 ignore ignore
         atf_check "test -d $(cat path)" 1 null null
     done
 }
@@ -142,7 +143,7 @@ atf_init_test_cases()
 {
     atf_add_test_case default
     atf_add_test_case tmpdir
-    atf_add_test_case wflag
+    atf_add_test_case conf
     atf_add_test_case cleanup
 }
 

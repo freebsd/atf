@@ -45,6 +45,7 @@ extern "C" {
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
@@ -66,6 +67,81 @@ extern "C" {
 
 namespace impl = atf::tests;
 #define IMPL_NAME "atf::tests"
+
+// ------------------------------------------------------------------------
+// The "vars_map" class.
+// ------------------------------------------------------------------------
+
+impl::vars_map::vars_map(void)
+{
+}
+
+const std::string&
+impl::vars_map::get(const std::string& key)
+    const
+{
+    const_iterator iter = find(key);
+    if (iter == end())
+        throw std::runtime_error("Could not find variable `" + key +
+                                 "' in map");
+    return (*iter).second;
+}
+
+const std::string&
+impl::vars_map::get(const std::string& key, const std::string& def)
+    const
+{
+    const_iterator iter = find(key);
+    return (iter == end()) ? def : (*iter).second;
+}
+
+bool
+impl::vars_map::get_bool(const std::string& key)
+    const
+{
+    bool val;
+
+    std::string str = text::to_lower(get(key));
+    if (str == "yes" || str == "true")
+        val = true;
+    else if (str == "no" || str == "false")
+        val = false;
+    else
+        throw std::runtime_error("Invalid value for boolean variable `" +
+                                 key + "'");
+
+    return val;
+}
+
+bool
+impl::vars_map::get_bool(const std::string& key, bool def)
+    const
+{
+    bool val;
+
+    const_iterator iter = find(key);
+    if (iter == end())
+        val = def;
+    else {
+        std::string str = text::to_lower((*iter).second);
+        if (str == "yes" || str == "true")
+            val = true;
+        else if (str == "no" || str == "false")
+            val = false;
+        else
+            throw std::runtime_error("Invalid value for boolean "
+                                     "variable `" + key + "'");
+    }
+
+    return val;
+}
+
+bool
+impl::vars_map::has(const std::string& key)
+    const
+{
+    return find(key) != end();
+}
 
 // ------------------------------------------------------------------------
 // The "tcr" class.
@@ -151,7 +227,7 @@ impl::tc::ensure_not_empty(const std::string& name)
         throw atf::not_found_error< std::string >
             ("Undefined or empty variable", name);
 
-    variables_map::const_iterator iter = m_meta_data.find(name);
+    vars_map::const_iterator iter = m_meta_data.find(name);
     assert(iter != m_meta_data.end());
 
     const std::string& val = (*iter).second;
@@ -170,7 +246,7 @@ const std::string&
 impl::tc::get(const std::string& var)
     const
 {
-    variables_map::const_iterator iter = m_meta_data.find(var);
+    vars_map::const_iterator iter = m_meta_data.find(var);
     assert(iter != m_meta_data.end());
     return (*iter).second;
 }
@@ -195,8 +271,15 @@ bool
 impl::tc::has(const std::string& var)
     const
 {
-    variables_map::const_iterator iter = m_meta_data.find(var);
+    vars_map::const_iterator iter = m_meta_data.find(var);
     return (iter != m_meta_data.end());
+}
+
+const impl::vars_map&
+impl::tc::config(void)
+    const
+{
+    return m_config;
 }
 
 const std::string&
@@ -207,12 +290,12 @@ impl::tc::get_srcdir(void)
 }
 
 void
-impl::tc::init(const std::string& srcdir, const std::string& workdirbase)
+impl::tc::init(const vars_map& c, const std::string& srcdir)
 {
     assert(m_meta_data.empty());
 
+    m_config = c; // XXX Uh, deep copy.  Should be a reference...
     m_srcdir = srcdir;
-    m_workdirbase = workdirbase;
 
     m_meta_data["ident"] = m_ident;
 #include "tchead.cpp"
@@ -225,11 +308,12 @@ enter_workdir(const impl::tc* tc, atf::fs::path& olddir,
               atf::fs::path& workdir, const std::string& base)
 {
     if (!tc->get_bool("isolated"))
-        return;
-
-    atf::fs::path pattern = atf::fs::path(base) / "atf.XXXXXX";
-    workdir = atf::fs::create_temp_dir(pattern);
-    olddir = atf::fs::change_directory(workdir);
+        workdir = atf::fs::path(base);
+    else {
+        atf::fs::path pattern = atf::fs::path(base) / "atf.XXXXXX";
+        workdir = atf::fs::create_temp_dir(pattern);
+        olddir = atf::fs::change_directory(workdir);
+    }
 }
 
 static
@@ -257,11 +341,10 @@ impl::tc::safe_run(void)
                 tcr = tcr::skipped("Requires root privileges");
         } else if (u == "unprivileged") {
             if (!user::is_unprivileged())
-                tcr = tcr::skipped("Requires an unprivileged "
-                                                "user");
+                tcr = tcr::skipped("Requires an unprivileged user");
         } else
-            tcr = tcr::skipped("Invalid value in the "
-                                            "require.user property");
+            tcr = tcr::skipped("Invalid value in the require.user "
+                               "property");
     }
 
     if (tcr.get_status() == tcr::status_passed) {
@@ -271,7 +354,7 @@ impl::tc::safe_run(void)
         fs::path workdir(".");
 
         try {
-            enter_workdir(this, olddir, workdir, m_workdirbase);
+            enter_workdir(this, olddir, workdir, m_config.get("workdir"));
             tcr = fork_body(workdir.str());
             leave_workdir(this, olddir, workdir);
         } catch (...) {
@@ -293,7 +376,7 @@ impl::tc::fork_body(const std::string& workdir)
     if (get_bool("isolated")) {
         result = fs::path(workdir) / "tc-result";
     } else {
-        result = fs::create_temp_file(fs::path(m_workdirbase) / "atf.XXXXXX");
+        result = fs::create_temp_file(fs::path(workdir) / "atf.XXXXXX");
     }
 
     pid_t pid = ::fork();
@@ -435,8 +518,11 @@ private:
     int m_results_fd;
     std::auto_ptr< std::ostream > m_results_os;
     atf::fs::path m_srcdir;
-    atf::fs::path m_workdir;
     std::set< std::string > m_tcnames;
+
+    atf::tests::vars_map m_vars;
+
+    static atf::tests::vars_map::value_type parse_var(const std::string&);
 
     std::string specific_args(void) const;
     options_set specific_options(void) const;
@@ -466,9 +552,9 @@ tp::tp(const tc_vector& tcs) :
     m_lflag(false),
     m_results_fd(STDOUT_FILENO),
     m_srcdir(atf::fs::get_current_dir()),
-    m_workdir(atf::config::get("atf_workdir")),
     m_tcs(tcs)
 {
+    m_vars["workdir"] = atf::config::get("atf_workdir");
 }
 
 std::string
@@ -489,8 +575,8 @@ tp::specific_options(void)
                                   "test cases"));
     opts.insert(option('s', "srcdir", "Directory where the test's data "
                                       "files are located"));
-    opts.insert(option('w', "workdir", "Base directory where the test cases "
-                                       "will put temporary files"));
+    opts.insert(option('v', "var=value", "Sets the configuration variable "
+                                         "`var' to `value'"));
     return opts;
 }
 
@@ -513,12 +599,33 @@ tp::process_option(int ch, const char* arg)
         m_srcdir = atf::fs::path(arg);
         break;
 
-    case 'w':
-        m_workdir = atf::fs::path(arg);
+    case 'v':
+        {
+            atf::tests::vars_map::value_type v = parse_var(arg);
+            m_vars[v.first] = v.second;
+        }
         break;
 
     default:
         assert(false);
+    }
+}
+
+atf::tests::vars_map::value_type
+tp::parse_var(const std::string& str)
+{
+    if (str.empty())
+        throw std::runtime_error("-v requires a non-empty argument");
+
+    std::vector< std::string > ws = atf::text::split(str, "=");
+    if (ws.size() == 1 && str[str.length() - 1] == '=') {
+        return atf::tests::vars_map::value_type(ws[0], "");
+    } else {
+        if (ws.size() != 2)
+            throw std::runtime_error("-v requires an argument of the form "
+                                     "var=value");
+
+        return atf::tests::vars_map::value_type(ws[0], ws[1]);
     }
 }
 
@@ -531,7 +638,7 @@ tp::init_tcs(void)
          iter != tcs.end(); iter++) {
         impl::tc* tc = *iter;
 
-        tc->init(m_srcdir.str(), m_workdir.str());
+        tc->init(m_vars, m_srcdir.str());
     }
 
     return tcs;
@@ -647,6 +754,10 @@ tp::run_tcs(void)
 {
     tc_vector tcs = filter_tcs(init_tcs(), m_tcnames);
 
+    if (!atf::fs::exists(atf::fs::path(m_vars.get("workdir"))))
+        throw std::runtime_error("Cannot find the work directory `" +
+                                 m_vars.get("workdir") + "'");
+
     int errcode = EXIT_SUCCESS;
 
     atf::formats::atf_tcs_writer w(results_stream(), tcs.size());
@@ -673,10 +784,6 @@ tp::main(void)
     if (!atf::fs::exists(m_srcdir / m_prog_name))
         throw std::runtime_error("Cannot find the test program in the "
                                  "source directory `" + m_srcdir.str() + "'");
-
-    if (!atf::fs::exists(m_workdir))
-        throw std::runtime_error("Cannot find the work directory `" +
-                                 m_workdir.str() + "'");
 
     for (int i = 0; i < m_argc; i++)
         m_tcnames.insert(m_argv[i]);

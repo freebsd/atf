@@ -75,9 +75,6 @@ Test_Cases=
 # The test case's work directory.
 Work_Dir=
 
-# The test program's base directory where it will put temporary files.
-Work_Dir_Base=$(atf-config -t atf_workdir)
-
 # ------------------------------------------------------------------------
 # PUBLIC INTERFACE
 # ------------------------------------------------------------------------
@@ -262,6 +259,40 @@ atf_check_equal()
 }
 
 #
+# atf_config_get varname [defvalue]
+#
+#   Prints the value of a configuration variable.  If it is not
+#   defined, prints the given default value.
+#
+atf_config_get()
+{
+    _varname="__tc_config_var_$(_atf_normalize ${1})"
+    if [ ${#} -eq 1 ]; then
+        eval _value=\"\${${_varname}-__unset__}\"
+        [ "${_value}" = __unset__ ] && \
+            _atf_error 1 "Could not find configuration variable \`${1}'"
+        echo ${_value}
+    elif [ ${#} -eq 2 ]; then
+        eval echo \${${_varname}-${2}}
+    else
+        _atf_error 1 "Incorrect number of parameters for atf_config_get"
+    fi
+}
+
+#
+# atf_config_has varname
+#
+#   Returns a boolean indicating if the given configuration variable is
+#   defined or not.
+#
+atf_config_has()
+{
+    _varname="__tc_config_var_$(_atf_normalize ${1})"
+    eval _value=\"\${${_varname}-__unset__}\"
+    [ "${_value}" != __unset__ ]
+}
+
+#
 # atf_fail msg1 [.. msgN]
 #
 #   Makes the test case fail with the given error message.  Multiple
@@ -379,6 +410,36 @@ atf_skip()
 # ------------------------------------------------------------------------
 # PRIVATE INTERFACE
 # ------------------------------------------------------------------------
+
+#
+# _atf_config_set varname val1 [.. valN]
+#
+#   Sets the test case's private variable 'varname' to the specified
+#   values which are concatenated using a single blank space.
+#
+_atf_config_set()
+{
+    _var=$(_atf_normalize ${1}); shift
+    eval __tc_config_var_${_var}=\"\${*}\"
+}
+
+#
+# _atf_config_set_str varname=val
+#
+#   Sets the test case's private variable 'varname' to the specified
+#   value.  The parameter is of the form 'varname=val'.
+#
+_atf_config_set_from_str()
+{
+    _oldifs=${IFS}
+    IFS='='
+    set -- ${*}
+    _var=${1}
+    shift
+    _val="${@}"
+    IFS=${_oldifs}
+    _atf_config_set "${_var}" "${_val}"
+}
 
 #
 # _atf_echo [-l indent] [-t tag] [msg1 [.. msgN]]
@@ -637,7 +698,7 @@ _atf_run_tc()
     _atf_internal_set srcdir "${Source_Dir}"
 
     if _atf_get_bool isolated; then
-        Work_Dir=$(mktemp -d ${Work_Dir_Base}/atf.XXXXXX)
+        Work_Dir=$(mktemp -d $(atf_config_get workdir)/atf.XXXXXX)
         if [ ${?} -eq 0 ]; then
             ( cd ${Work_Dir} ; _atf_run_body ${1} ; atf_pass )
             _ret=$?
@@ -674,9 +735,15 @@ _atf_run_tc()
 #
 _atf_run_tcs()
 {
+    # Now check that the base work directory exists.  We do not want to
+    # bother creating it.
+    [ -d $(atf_config_get workdir) ] || \
+        _atf_error 1 "Cannot find the work directory" \
+                     "\`$(atf_config_get workdir)'"
+
     # Initialize the status file here (instead of in _atf_run_tc) so that
     # we can reuse it for all test cases.
-    Status_File=$(mktemp ${Work_Dir_Base}/atf.XXXXXX)
+    Status_File=$(mktemp $(atf_config_get workdir)/atf.XXXXXX)
 
     _atf_init_output "${@}"
 
@@ -718,15 +785,15 @@ _atf_usage()
     _atf_echo "This is an independent atf test program."
     echo
     _atf_echo "Available options:"
-    _atf_echo -t "    -h            " "Shows this help message"
-    _atf_echo -t "    -l            " "List test cases and their purpose"
-    _atf_echo -t "    -r fd         " "The file descriptor to which the" \
-                                      "test program will send the results" \
-                                      "of the test cases"
-    _atf_echo -t "    -s srcdir     " "Directory where the test's data" \
-                                      "files are located"
-    _atf_echo -t "    -w workdir    " "Base directory where the test cases" \
-                                      "will put temporary files"
+    _atf_echo -t "    -h              " "Shows this help message"
+    _atf_echo -t "    -l              " "List test cases and their purpose"
+    _atf_echo -t "    -r fd           " "The file descriptor to which the" \
+                                        "test program will send the results" \
+                                        "of the test cases"
+    _atf_echo -t "    -s srcdir       " "Directory where the test's data" \
+                                        "files are located"
+    _atf_echo -t "    -v var=value    " "Sets the configuration variable" \
+                                        "\`var' to \`value'"
     echo
     exit 0
 }
@@ -752,9 +819,12 @@ _atf_warning()
 #
 main()
 {
+    # The test program's base directory where it will put temporary files.
+    _atf_config_set workdir $(atf-config -t atf_workdir)
+
     # Process command-line options first.
     _lflag=false
-    while getopts :hlr:s:w: arg; do
+    while getopts :hlr:s:v: arg; do
         case ${arg} in
         h)
             _atf_usage
@@ -773,8 +843,8 @@ main()
             Source_Dir=${OPTARG}
             ;;
 
-        w)
-            Work_Dir_Base=${OPTARG}
+        v)
+            _atf_config_set_from_str "${OPTARG}"
             ;;
 
         \?)
@@ -792,11 +862,6 @@ main()
     [ -f ${Source_Dir}/${Prog_Name} ] || \
         _atf_error 1 "Cannot find the test program in the source" \
                      "directory \`${Source_Dir}'"
-
-    # Now check that the base work directory exists.  We do not want to
-    # bother creating it.
-    [ -d ${Work_Dir_Base} ] || \
-        _atf_error 1 "Cannot find the work directory \`${Work_Dir_Base}'"
 
     # Call the test program's hook to register all available test cases.
     atf_init_test_cases

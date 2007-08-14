@@ -280,6 +280,14 @@ tests/atf/sh_interface/t_atf_check: \
 		$(ATF_COMPILE_DEPS)
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/sh_interface/t_atf_check.sh
 
+atf_sh_interface_SCRIPTS += tests/atf/sh_interface/t_config
+CLEANFILES += tests/atf/sh_interface/t_config
+EXTRA_DIST += tests/atf/sh_interface/t_config.sh
+tests/atf/sh_interface/t_config: \
+		$(srcdir)/tests/atf/sh_interface/t_config.sh \
+		$(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/sh_interface/t_config.sh
+
 atf_sh_interface_SCRIPTS += tests/atf/sh_interface/t_tc
 CLEANFILES += tests/atf/sh_interface/t_tc
 EXTRA_DIST += tests/atf/sh_interface/t_tc.sh
@@ -299,6 +307,14 @@ tests/atf/test_programs/h_sh: \
 		$(srcdir)/tests/atf/test_programs/h_sh.sh \
 		$(ATF_COMPILE_DEPS)
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/h_sh.sh
+
+atf_test_programs_SCRIPTS += tests/atf/test_programs/t_config
+CLEANFILES += tests/atf/test_programs/t_config
+EXTRA_DIST += tests/atf/test_programs/t_config.sh
+tests/atf/test_programs/t_config: \
+		$(srcdir)/tests/atf/test_programs/t_config.sh \
+		$(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_config.sh
 
 atf_test_programs_SCRIPTS += tests/atf/test_programs/t_env
 CLEANFILES += tests/atf/test_programs/t_env

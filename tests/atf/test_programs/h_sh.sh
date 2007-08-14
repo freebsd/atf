@@ -34,6 +34,50 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+# -------------------------------------------------------------------------
+# Helper tests for "t_require_config".
+# -------------------------------------------------------------------------
+
+config_unset_head()
+{
+    atf_set "descr" "Helper test case for the t_config test program"
+}
+config_unset_body()
+{
+    atf_config_has 'test' && atf_fail "Test variable already defined"
+}
+
+config_empty_head()
+{
+    atf_set "descr" "Helper test case for the t_config test program"
+}
+config_empty_body()
+{
+    atf_check_equal "$(atf_config_get 'test')" ""
+}
+
+config_value_head()
+{
+    atf_set "descr" "Helper test case for the t_config test program"
+}
+config_value_body()
+{
+    atf_check_equal "$(atf_config_get 'test')" "foo"
+}
+
+config_multi_value_head()
+{
+    atf_set "descr" "Helper test case for the t_config test program"
+}
+config_multi_value_body()
+{
+    atf_check_equal "$(atf_config_get 'test')" "foo bar"
+}
+
+# -------------------------------------------------------------------------
+# Helper tests for "t_require_env".
+# -------------------------------------------------------------------------
+
 env_undef_head()
 {
     atf_set "descr" "Helper test case for the t_mangle_fds test program"
@@ -44,40 +88,36 @@ env_undef_body()
     [ -n "${TZ}" ] && atf_fail "TZ is defined"
 }
 
+# -------------------------------------------------------------------------
+# Helper tests for "t_require_fork".
+# -------------------------------------------------------------------------
+
 fork_mangle_fds_head()
 {
     atf_set "descr" "Helper test case for the t_mangle_fds test program"
-
-    if [ -z "${ISOLATED}" ]; then
-        atf_set "isolated" "invalid-value"
-    else
-        atf_set "isolated" "${ISOLATED}"
-    fi
+    atf_set "isolated" "$(atf_config_get isolated)"
 }
 fork_mangle_fds_body()
 {
-    test -z "${RESFD}" && atf_fail "RESFD not defined"
     touch in
     0<&in
     1>&out
     2>&err
-    ${RESFD}>&res
+    $(atf_config_get resfd)>&res
 }
+
+# -------------------------------------------------------------------------
+# Helper tests for "t_require_isolated".
+# -------------------------------------------------------------------------
 
 isolated_path_head()
 {
     atf_set "descr" "Helper test case for the t_isolated test program"
-
-    if [ -z "${ISOLATED}" ]; then
-        atf_set "isolated" "invalid-value"
-    else
-        atf_set "isolated" "${ISOLATED}"
-    fi
+    atf_set "isolated" "$(atf_config_get isolated)"
 }
 isolated_path_body()
 {
-    test -z "${PATHFILE}" && atf_fail "PATHFILE not defined"
-    pwd -P >${PATHFILE}
+    pwd -P >$(atf_config_get pathfile)
 }
 
 isolated_cleanup_head()
@@ -87,8 +127,7 @@ isolated_cleanup_head()
 }
 isolated_cleanup_body()
 {
-    test -z "${PATHFILE}" && atf_fail "PATHFILE not defined"
-    pwd -P >${PATHFILE}
+    pwd -P >$(atf_config_get pathfile)
 
     mkdir 1
     mkdir 1/1
@@ -103,24 +142,34 @@ isolated_cleanup_body()
     touch 2/3/1
 }
 
+# -------------------------------------------------------------------------
+# Helper tests for "t_require_progs".
+# -------------------------------------------------------------------------
+
 require_progs_body_head()
 {
     atf_set "descr" "Helper test case for the t_require_progs test program"
 }
 require_progs_body_body()
 {
-    atf_require_prog ${PROGS}
+    for p in $(atf_config_get progs); do
+        atf_require_prog ${p}
+    done
 }
 
 require_progs_head_head()
 {
     atf_set "descr" "Helper test case for the t_require_progs test program"
-    atf_set "require.progs" "${PROGS}"
+    atf_set "require.progs" "$(atf_config_get progs)"
 }
 require_progs_head_body()
 {
     :
 }
+
+# -------------------------------------------------------------------------
+# Helper tests for "t_require_user".
+# -------------------------------------------------------------------------
 
 require_user_root_head()
 {
@@ -166,17 +215,38 @@ require_user_unprivileged2_body()
     :
 }
 
+# -------------------------------------------------------------------------
+# Main.
+# -------------------------------------------------------------------------
+
 atf_init_test_cases()
 {
+    # Add helper tests for t_config.
+    atf_add_test_case config_unset
+    atf_add_test_case config_empty
+    atf_add_test_case config_value
+    atf_add_test_case config_multi_value
+
+    # Add helper tests for t_env.
     atf_add_test_case env_undef
+
+    # Add helper tests for t_fork.
     atf_add_test_case fork_mangle_fds
+
+    # Add helper tests for t_isolated.
     atf_add_test_case isolated_path
     atf_add_test_case isolated_cleanup
+
+    # Add helper tests for t_srcdir.
     # srcdir_exists is not here (while it is in h_cpp.cpp) because of the
     # requirements of the t_srcdir test program (which cannot rely on -s
     # itself to find the source file).
+
+    # Add helper tests for t_require_progs.
     atf_add_test_case require_progs_body
     atf_add_test_case require_progs_head
+
+    # Add helper tests for t_require_user.
     atf_add_test_case require_user_root
     atf_add_test_case require_user_root2
     atf_add_test_case require_user_unprivileged

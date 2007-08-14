@@ -44,6 +44,23 @@ namespace atf {
 namespace tests {
 
 // ------------------------------------------------------------------------
+// The "vars_map" class.
+// ------------------------------------------------------------------------
+
+class vars_map : public std::map< std::string, std::string >
+{
+public:
+    vars_map(void);
+
+    const std::string& get(const std::string&) const;
+    const std::string& get(const std::string&, const std::string&) const;
+    bool get_bool(const std::string&) const;
+    bool get_bool(const std::string&, bool) const;
+
+    bool has(const std::string&) const;
+};
+
+// ------------------------------------------------------------------------
 // The "tcr" class.
 // ------------------------------------------------------------------------
 
@@ -83,13 +100,11 @@ private:
 // ------------------------------------------------------------------------
 
 class tc {
-    typedef std::map< std::string, std::string > variables_map;
-
     std::string m_ident;
-    variables_map m_meta_data;
+    vars_map m_meta_data;
+    vars_map m_config;
 
     std::string m_srcdir;
-    std::string m_workdirbase;
 
     void ensure_boolean(const std::string&);
     void ensure_not_empty(const std::string&);
@@ -112,9 +127,11 @@ public:
     bool has(const std::string&) const;
     void set(const std::string&, const std::string&);
 
+    const vars_map& config(void) const;
+
     const std::string& get_srcdir(void) const;
 
-    void init(const std::string&, const std::string&);
+    void init(const vars_map&, const std::string&);
     tcr run(void) const;
 };
 

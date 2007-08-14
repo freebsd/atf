@@ -1,4 +1,5 @@
 Content-Type: application/X-atf-atffile; version="0"
 
 t_tc
+t_config
 t_atf_check

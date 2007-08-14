@@ -34,31 +34,49 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-mangle_fds_head()
+has_head()
 {
-    atf_set "descr" "Tests that mangling standard descriptors does not" \
-                    "affect the test case's reporting of status"
+    atf_set "descr" "Verifies that atf_config_has works"
 }
-mangle_fds_body()
+has_body()
 {
-    srcdir=$(atf_get_srcdir)
-    h_cpp=${srcdir}/h_cpp
-    h_sh=${srcdir}/h_sh
+    atf_config_has "workdir" || atf_fail "Missing expected variable"
+    atf_config_has "undefined" && atf_fail "Found unexpected variable"
+}
 
-    for h in ${h_cpp} ${h_sh}; do
-        atf_check "${h} -s ${srcdir} -r3 -v isolated=no -v resfd=3 \
-                   fork_mangle_fds 3>resout" 0 ignore ignore
-        atf_check "grep 'passed' resout" 0 ignore null
+get_head()
+{
+    atf_set "descr" "Verifies that atf_config_get works"
+}
+get_body()
+{
+    echo "Querying an undefined variable"
+    ( atf_config_get "undefined" ) >out 2>err && \
+        atf_fail "Getting an undefined variable succeeded"
+    grep 'not find' err || \
+        atf_fail "Getting an undefined variable did not report an error"
 
-        atf_check "${h} -s ${srcdir} -r3 -v isolated=yes -v resfd=3 \
-                   fork_mangle_fds 3>resout" 0 ignore ignore
-        atf_check "grep 'passed' resout" 0 ignore null
-    done
+    echo "Querying an undefined variable using a default value"
+    v=$(atf_config_get "undefined" "the default value")
+    [ "${v}" = "the default value" ] || \
+        atf_fail "Default value does not work"
+
+    echo "Querying an known defined variable"
+    v=$(atf_config_get "workdir")
+    case "${v}" in
+        /*)
+            ;;
+
+        *)
+            atf_fail "Getting a known variable did not work"
+            ;;
+    esac
 }
 
 atf_init_test_cases()
 {
-    atf_add_test_case mangle_fds
+    atf_add_test_case has
+    atf_add_test_case get
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

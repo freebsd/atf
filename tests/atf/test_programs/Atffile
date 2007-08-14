@@ -1,5 +1,6 @@
 Content-Type: application/X-atf-atffile; version="0"
 
+t_config
 t_env
 t_fork
 t_isolated

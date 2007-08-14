@@ -47,6 +47,10 @@ extern "C" {
 #include "atf/fs.hpp"
 #include "atf/macros.hpp"
 
+// ------------------------------------------------------------------------
+// Auxiliary functions.
+// ------------------------------------------------------------------------
+
 static
 void
 safe_mkdir(const char* path)
@@ -65,6 +69,54 @@ touch(const char* path)
     os.close();
 }
 
+// ------------------------------------------------------------------------
+// Helper tests for "t_config".
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(config_unset);
+ATF_TEST_CASE_HEAD(config_unset)
+{
+    set("descr", "Helper test case for the t_config test program");
+}
+ATF_TEST_CASE_BODY(config_unset)
+{
+    ATF_CHECK(!config().has("test"));
+}
+
+ATF_TEST_CASE(config_empty);
+ATF_TEST_CASE_HEAD(config_empty)
+{
+    set("descr", "Helper test case for the t_config test program");
+}
+ATF_TEST_CASE_BODY(config_empty)
+{
+    ATF_CHECK_EQUAL(config().get("test"), "");
+}
+
+ATF_TEST_CASE(config_value);
+ATF_TEST_CASE_HEAD(config_value)
+{
+    set("descr", "Helper test case for the t_config test program");
+}
+ATF_TEST_CASE_BODY(config_value)
+{
+    ATF_CHECK_EQUAL(config().get("test"), "foo");
+}
+
+ATF_TEST_CASE(config_multi_value);
+ATF_TEST_CASE_HEAD(config_multi_value)
+{
+    set("descr", "Helper test case for the t_config test program");
+}
+ATF_TEST_CASE_BODY(config_multi_value)
+{
+    ATF_CHECK_EQUAL(config().get("test"), "foo bar");
+}
+
+// ------------------------------------------------------------------------
+// Helper tests for "t_env".
+// ------------------------------------------------------------------------
+
 ATF_TEST_CASE(env_undef);
 ATF_TEST_CASE_HEAD(env_undef)
 {
@@ -76,21 +128,19 @@ ATF_TEST_CASE_BODY(env_undef)
     ATF_CHECK(!atf::env::has("TZ"));
 }
 
+// ------------------------------------------------------------------------
+// Helper tests for "t_fork".
+// ------------------------------------------------------------------------
+
 ATF_TEST_CASE(fork_mangle_fds);
 ATF_TEST_CASE_HEAD(fork_mangle_fds)
 {
     set("descr", "Helper test case for the t_fork test program");
-
-    if (atf::env::has("ISOLATED"))
-        set("isolated", atf::env::get("ISOLATED"));
-    else
-        set("isolated", "yes");
+    set("isolated", config().get("isolated", "yes"));
 }
 ATF_TEST_CASE_BODY(fork_mangle_fds)
 {
-    if (!atf::env::has("RESFD"))
-        ATF_FAIL("RESFD not defined");
-    int resfd = std::atoi(atf::env::get("RESFD").c_str());
+    int resfd = std::atoi(config().get("resfd").c_str());
 
     if (::close(STDIN_FILENO) == -1)
         ATF_FAIL("Failed to close stdin");
@@ -107,21 +157,19 @@ ATF_TEST_CASE_BODY(fork_mangle_fds)
 #endif
 }
 
+// ------------------------------------------------------------------------
+// Helper tests for "t_isolated".
+// ------------------------------------------------------------------------
+
 ATF_TEST_CASE(isolated_path);
 ATF_TEST_CASE_HEAD(isolated_path)
 {
     set("descr", "Helper test case for the t_isolated test program");
-
-    if (atf::env::has("ISOLATED"))
-        set("isolated", atf::env::get("ISOLATED"));
-    else
-        set("isolated", "yes");
+    set("isolated", config().get("isolated", "yes"));
 }
 ATF_TEST_CASE_BODY(isolated_path)
 {
-    if (!atf::env::has("PATHFILE"))
-        ATF_FAIL("PATHFILE not defined");
-    const std::string& p = atf::env::get("PATHFILE");
+    const std::string& p = config().get("pathfile");
 
     std::ofstream os(p.c_str());
     if (!os)
@@ -140,9 +188,7 @@ ATF_TEST_CASE_HEAD(isolated_cleanup)
 }
 ATF_TEST_CASE_BODY(isolated_cleanup)
 {
-    if (!atf::env::has("PATHFILE"))
-        ATF_FAIL("PATHFILE not defined");
-    const std::string& p = atf::env::get("PATHFILE");
+    const std::string& p = config().get("pathfile");
 
     std::ofstream os(p.c_str());
     if (!os)
@@ -165,6 +211,10 @@ ATF_TEST_CASE_BODY(isolated_cleanup)
     touch("2/3/1");
 }
 
+// ------------------------------------------------------------------------
+// Helper tests for "t_srcdir".
+// ------------------------------------------------------------------------
+
 ATF_TEST_CASE(srcdir_exists);
 ATF_TEST_CASE_HEAD(srcdir_exists)
 {
@@ -176,6 +226,10 @@ ATF_TEST_CASE_BODY(srcdir_exists)
         ATF_FAIL("Cannot find datafile");
 }
 
+// ------------------------------------------------------------------------
+// Helper tests for "t_require_progs".
+// ------------------------------------------------------------------------
+
 ATF_TEST_CASE(require_progs_body);
 ATF_TEST_CASE_HEAD(require_progs_body)
 {
@@ -183,20 +237,22 @@ ATF_TEST_CASE_HEAD(require_progs_body)
 }
 ATF_TEST_CASE_BODY(require_progs_body)
 {
-    if (atf::env::has("PROGS"))
-        require_prog(atf::env::get("PROGS"));
+    require_prog(config().get("progs"));
 }
 
 ATF_TEST_CASE(require_progs_head);
 ATF_TEST_CASE_HEAD(require_progs_head)
 {
     set("descr", "Helper test case for the t_require_head test program");
-    if (atf::env::has("PROGS"))
-        set("require.progs", atf::env::get("PROGS"));
+    set("require.progs", config().get("progs", "not-set"));
 }
 ATF_TEST_CASE_BODY(require_progs_head)
 {
 }
+
+// ------------------------------------------------------------------------
+// Helper tests for "t_require_user".
+// ------------------------------------------------------------------------
 
 ATF_TEST_CASE(require_user_root);
 ATF_TEST_CASE_HEAD(require_user_root)
@@ -242,15 +298,36 @@ ATF_TEST_CASE_BODY(require_user_unprivileged2)
 {
 }
 
+// ------------------------------------------------------------------------
+// Main.
+// ------------------------------------------------------------------------
+
 ATF_INIT_TEST_CASES(tcs)
 {
+    // Add helper tests for t_config.
+    tcs.push_back(&config_unset);
+    tcs.push_back(&config_empty);
+    tcs.push_back(&config_value);
+    tcs.push_back(&config_multi_value);
+
+    // Add helper tests for t_env.
     tcs.push_back(&env_undef);
+
+    // Add helper tests for t_fork.
     tcs.push_back(&fork_mangle_fds);
+
+    // Add helper tests for t_isolated.
     tcs.push_back(&isolated_path);
     tcs.push_back(&isolated_cleanup);
+
+    // Add helper tests for t_srcdir.
     tcs.push_back(&srcdir_exists);
+
+    // Add helper tests for t_require_progs.
     tcs.push_back(&require_progs_body);
     tcs.push_back(&require_progs_head);
+
+    // Add helper tests for t_require_user.
     tcs.push_back(&require_user_root);
     tcs.push_back(&require_user_root2);
     tcs.push_back(&require_user_unprivileged);
