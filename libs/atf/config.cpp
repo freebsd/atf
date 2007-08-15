@@ -54,6 +54,15 @@ init_variables(void)
 {
     assert(m_variables.empty());
 
+    if (atf::env::has("ATF_CONFDIR")) {
+        const std::string& val = atf::env::get("ATF_CONFDIR");
+        if (!val.empty())
+            m_variables["atf_confdir"] = val;
+        else
+            m_variables["atf_confdir"] = ATF_CONFDIR;
+    } else
+        m_variables["atf_confdir"] = ATF_CONFDIR;
+
     if (atf::env::has("ATF_LIBEXECDIR")) {
         const std::string& val = atf::env::get("ATF_LIBEXECDIR");
         if (!val.empty())

@@ -34,8 +34,8 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-all_vars="atf_libexecdir atf_pkgdatadir atf_shell atf_workdir"
-all_vars_no=4
+all_vars="atf_confdir atf_libexecdir atf_pkgdatadir atf_shell atf_workdir"
+all_vars_no=5
 
 count_lines()
 {

@@ -151,6 +151,55 @@ read_terminator(std::istream& is, const std::string& err)
 }
 
 // ------------------------------------------------------------------------
+// The "atf_config_reader" class.
+// ------------------------------------------------------------------------
+
+impl::atf_config_reader::atf_config_reader(std::istream& is) :
+    m_is(is),
+    m_int(is, "application/X-atf-config", 0)
+{
+}
+
+impl::atf_config_reader::~atf_config_reader(void)
+{
+}
+
+void
+impl::atf_config_reader::got_var(const std::string& var,
+                                 const std::string& val)
+{
+}
+
+void
+impl::atf_config_reader::got_eof(void)
+{
+}
+
+void
+impl::atf_config_reader::read(void)
+{
+    using atf::serial::format_error;
+
+    std::string line;
+    while (std::getline(m_is, line).good()) {
+        if (line.empty())
+            continue;
+
+        if (line[0] == '#')
+            continue;
+
+        std::string::size_type pos = line.find('=');
+        if (pos == std::string::npos)
+            throw format_error("Syntax error: invalid variable "
+                               "definition `" + line + "'");
+
+        got_var(line.substr(0, pos), line.substr(pos + 1));
+    }
+
+    got_eof();
+}
+
+// ------------------------------------------------------------------------
 // The "atf_tcs_reader" class.
 // ------------------------------------------------------------------------
 

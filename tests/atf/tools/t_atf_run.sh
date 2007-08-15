@@ -34,23 +34,103 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-nothing_yet_head()
+create_helper()
 {
-    atf_set "descr" "XXX"
+    cat >helper.sh <<EOF
+tc_head()
+{
+    atf_set "descr" "A helper test case"
 }
-nothing_yet_body()
+tc_body()
 {
-    # XXX This test program had the "separator" test before, which
-    # checked if lines of the form "tcname, skipped, foo, bar" were
-    # treated correctly (foo, bar being the reason, not two different
-    # fields).  The file format does not use this format any more, so
-    # the test was removed.  Have to add real tests for atf-run.
-    :
+EOF
+    cat >>helper.sh
+    cat >>helper.sh <<EOF
 }
 
 atf_init_test_cases()
 {
-    atf_add_test_case nothing_yet
+    atf_add_test_case tc
+}
+EOF
+    atf-compile -o helper helper.sh
+
+    cat >Atffile <<EOF
+Content-Type: application/X-atf-atffile; version="0"
+
+helper
+EOF
+}
+
+config_common_head()
+{
+    atf_set "descr" "Tests that the common.conf configuration file is " \
+                    "properly read"
+}
+config_common_body()
+{
+    mkdir etc
+    cat >etc/common.conf <<EOF
+Content-Type: application/X-atf-config; version="0"
+
+foo=first test variable
+bar=second test variable
+EOF
+
+    create_helper <<EOF
+echo "foo: \$(atf_config_get foo)"
+echo "bar: \$(atf_config_get bar)"
+EOF
+
+    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
+    atf_check "grep 'foo: first test variable' stdout" 0 ignore ignore
+    atf_check "grep 'bar: second test variable' stdout" 0 ignore ignore
+}
+
+vflag_head()
+{
+    atf_set "descr" "Tests that the -v flag works and that it properly" \
+                    "overrides the values in configuration files"
+}
+vflag_body()
+{
+    create_helper <<EOF
+if ! atf_config_has testvar; then
+    atf_fail "testvar variable not defined"
+fi
+echo "testvar: \$(atf_config_get testvar)"
+EOF
+
+    echo "Checking that 'testvar' is not defined."
+    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 1 ignore ignore
+
+    echo "Checking that defining 'testvar' trough '-v' works."
+    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run -v testvar='a value' helper" \
+              0 stdout ignore
+    atf_check "grep 'testvar: a value' stdout" 0 ignore ignore
+
+    echo "Checking that defining 'testvar' trough the configuration" \
+         "file works."
+    mkdir etc
+    cat >etc/common.conf <<EOF
+Content-Type: application/X-atf-config; version="0"
+
+testvar=value in conf file
+EOF
+    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
+    atf_check "grep 'testvar: value in conf file' stdout" 0 ignore ignore
+
+    echo "Checking that defining 'testvar' trough -v overrides the" \
+         "configuration file."
+    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run -v testvar='a value' helper" \
+              0 stdout ignore
+    atf_check "grep 'testvar: a value' stdout" 0 ignore ignore
+}
+
+atf_init_test_cases()
+{
+    atf_add_test_case config_common
+    atf_add_test_case vflag
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

@@ -43,16 +43,43 @@ extern "C" {
 #include <cassert>
 #include <cerrno>
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
+#include <map>
 #include <string>
 
 #include "atf/application.hpp"
 #include "atf/atffile.hpp"
+#include "atf/config.hpp"
 #include "atf/exceptions.hpp"
 #include "atf/formats.hpp"
 #include "atf/fs.hpp"
 #include "atf/io.hpp"
 #include "atf/tests.hpp"
+#include "atf/text.hpp"
+
+class config : public atf::formats::atf_config_reader {
+    atf::tests::vars_map m_vars;
+
+    void
+    got_var(const std::string& var, const std::string& name)
+    {
+        m_vars[var] = name;
+    }
+
+public:
+    config(std::istream& is) :
+        atf::formats::atf_config_reader(is)
+    {
+    }
+
+    const atf::tests::vars_map&
+    get_vars(void)
+        const
+    {
+        return m_vars;
+    }
+};
 
 class muxer : public atf::formats::atf_tcs_reader {
     atf::fs::path m_tp;
@@ -124,10 +151,29 @@ public:
     }
 };
 
+template< class K, class V >
+void
+merge_maps(std::map< K, V >& dest, const std::map< K, V >& src)
+{
+    for (typename std::map< K, V >::const_iterator iter = src.begin();
+         iter != src.end(); iter++)
+        dest[(*iter).first] = (*iter).second;
+}
+
 class atf_run : public atf::application {
     static const char* m_description;
 
+    atf::tests::vars_map m_vars;
+    atf::tests::vars_map m_cmdline_vars;
+
+    static atf::tests::vars_map::value_type parse_var(const std::string&);
+
+    void process_option(int, const char*);
     std::string specific_args(void) const;
+    options_set specific_options(void) const;
+
+    void read_config(const atf::fs::path&);
+    std::vector< std::string > conf_args(void) const;
 
     size_t count_tps(std::vector< std::string >) const;
 
@@ -164,11 +210,57 @@ atf_run::atf_run(void) :
 {
 }
 
+// XXX Duplicate from libs/atf/tests.cpp.
+atf::tests::vars_map::value_type
+atf_run::parse_var(const std::string& str)
+{
+    if (str.empty())
+        throw std::runtime_error("-v requires a non-empty argument");
+
+    std::vector< std::string > ws = atf::text::split(str, "=");
+    if (ws.size() == 1 && str[str.length() - 1] == '=') {
+        return atf::tests::vars_map::value_type(ws[0], "");
+    } else {
+        if (ws.size() != 2)
+            throw std::runtime_error("-v requires an argument of the form "
+                                     "var=value");
+
+        return atf::tests::vars_map::value_type(ws[0], ws[1]);
+    }
+}
+
+void
+atf_run::process_option(int ch, const char* arg)
+{
+    switch (ch) {
+    case 'v':
+        {
+            atf::tests::vars_map::value_type v = parse_var(arg);
+            m_cmdline_vars[v.first] = v.second;
+        }
+        break;
+
+    default:
+        assert(false);
+    }
+}
+
 std::string
 atf_run::specific_args(void)
     const
 {
     return "[test-program1 .. test-programN]";
+}
+
+atf_run::options_set
+atf_run::specific_options(void)
+    const
+{
+    options_set opts;
+    opts.insert(option('v', "var=value", "Sets the configuration variable "
+                                         "`var' to `value'; overrides "
+                                         "values in configuration files"));
+    return opts;
 }
 
 int
@@ -198,6 +290,19 @@ atf_run::run_test_directory(const atf::fs::path& tp,
     return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+std::vector< std::string >
+atf_run::conf_args(void) const
+{
+    using atf::tests::vars_map;
+
+    std::vector< std::string > args;
+
+    for (vars_map::const_iterator i = m_vars.begin(); i != m_vars.end(); i++)
+        args.push_back("-v" + (*i).first + "=" + (*i).second);
+
+    return args;
+}
+
 void
 atf_run::run_test_program_child(const atf::fs::path& tp,
                                 atf::io::pipe& outpipe,
@@ -220,7 +325,8 @@ atf_run::run_test_program_child(const atf::fs::path& tp,
     // Prepare the test program's arguments.  We use dynamic memory and
     // do not care to release it.  We are going to die anyway very soon,
     // either due to exec(2) or to exit(3).
-    char* args[4];
+    std::vector< std::string > confargs = conf_args();
+    char* args[4 + confargs.size()];
     {
         // 0: Program name.
         const char* name = tp.leaf_name().c_str();
@@ -240,8 +346,16 @@ atf_run::run_test_program_child(const atf::fs::path& tp,
         std::strcpy(args[2], "-s");
         std::strcat(args[2], dir);
 
-        // 3: Terminator.
-        args[3] = NULL;
+        // [3..last - 1]: Configuration arguments.
+        std::vector< std::string >::size_type i;
+        for (i = 0; i < confargs.size(); i++) {
+            const char* str = confargs[i].c_str();
+            args[3 + i] = new char[std::strlen(str) + 1];
+            std::strcpy(args[3 + i], str);
+        }
+
+        // Last: Terminator.
+        args[3 + i] = NULL;
     }
 
     // Do the real exec and report any errors to the parent through the
@@ -345,6 +459,19 @@ atf_run::count_tps(std::vector< std::string > tps)
     return ntps;
 }
 
+void
+atf_run::read_config(const atf::fs::path& cfile)
+{
+    std::ifstream is(cfile.c_str());
+    if (!is)
+        return;
+
+    config reader(is);
+    reader.read();
+    const atf::tests::vars_map& vs = reader.get_vars();
+    merge_maps(m_vars, vs);
+}
+
 int
 atf_run::main(void)
 {
@@ -355,6 +482,17 @@ atf_run::main(void)
         for (int i = 0; i < m_argc; i++)
             tps.push_back(m_argv[i]);
     }
+
+    // Read configuration data shared among all test suites.
+    atf::fs::path confdir = atf::fs::path(atf::config::get("atf_confdir"));
+    read_config(confdir / "common.conf");
+
+    // TODO: Read a test-suite-specific configuration file that overrides any
+    // value in common.conf.  To do this, we need to know which test suite
+    // we are parsing, something that the Atffile will tell us.
+
+    // Override any configuration variables provided as flags by the user.
+    merge_maps(m_vars, m_cmdline_vars);
 
     atf::formats::atf_tps_writer w(std::cout, count_tps(tps));
 

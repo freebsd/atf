@@ -15,6 +15,14 @@ Configuration flags
 This section describes the non-standard flags added to the 'configure'
 script.
 
+* Variable: ATF_CONFSUBDIR
+  Possible values: empty, a relative path.
+  Default: atf.
+
+  Specifies the subdirectory of the configuration directory (given by the
+  --sysconfdir argument) under which ATF will search for its configuration
+  files.
+
 * Variable: ATF_WORKDIR
   Possible values: empty, an absolute path.
   Default: /tmp or /var/tmp, depending on availability.

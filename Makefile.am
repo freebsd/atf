@@ -44,7 +44,8 @@ endif # INSTALL_DOCS
 
 dist-hook: check-readme check-style
 
-AM_CPPFLAGS = -DATF_LIBEXECDIR=\"$(libexecdir)\" \
+AM_CPPFLAGS = -DATF_CONFDIR=\"$(atf_confdir)\" \
+              -DATF_LIBEXECDIR=\"$(libexecdir)\" \
               -DATF_PKGDATADIR=\"$(pkgdatadir)\" \
               -DATF_SHELL=\"$(ATF_SHELL)\" \
               -DATF_WORKDIR=\"$(ATF_WORKDIR)\" \
