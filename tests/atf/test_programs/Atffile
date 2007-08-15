@@ -1,5 +1,7 @@
 Content-Type: application/X-atf-atffile; version="0"
 
+test-suite: atf
+
 t_config
 t_env
 t_fork

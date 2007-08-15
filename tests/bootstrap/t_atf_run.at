@@ -80,6 +80,8 @@ AT_CHECK([mkdir top/dir2], [0], [], [])
 AT_DATA([top/Atffile],
 [Content-Type: application/X-atf-atffile; version="0"
 
+test-suite: atf
+
 dir1
 dir2
 test1
@@ -88,10 +90,14 @@ test2
 AT_DATA([top/dir1/Atffile],
 [Content-Type: application/X-atf-atffile; version="0"
 
+test-suite: atf
+
 test3
 ])
 AT_DATA([top/dir2/Atffile],
 [Content-Type: application/X-atf-atffile; version="0"
+
+test-suite: atf
 
 test4
 test5
@@ -128,6 +134,8 @@ dnl Repeat previous but using a glob that matches everything.
 AT_DATA([top/Atffile],
 [Content-Type: application/X-atf-atffile; version="0"
 
+test-suite: atf
+
 *
 ])
 AT_CHECK([cd top && atf-run], [1], [stdout], [stderr])
@@ -142,6 +150,8 @@ AT_CHECK([grep 'se: ignore-me' stdout], [0], [ignore], [])
 dnl Repeat previous but using a glob that matches directories only.
 AT_DATA([top/Atffile],
 [Content-Type: application/X-atf-atffile; version="0"
+
+test-suite: atf
 
 d*
 ])
@@ -165,6 +175,8 @@ CREATE_PASS_TEST([top/.test4], [tc_4])
 AT_CHECK([chmod -x top/.test4], [0], [], [])
 AT_DATA([top/Atffile],
 [Content-Type: application/X-atf-atffile; version="0"
+
+test-suite: atf
 
 *
 ])

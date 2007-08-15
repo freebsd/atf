@@ -170,6 +170,11 @@ impl::atf_atffile_reader::got_tp(const std::string& name)
 }
 
 void
+impl::atf_atffile_reader::got_ts(const std::string& name)
+{
+}
+
+void
 impl::atf_atffile_reader::got_var(const std::string& var,
                                   const std::string& val)
 {
@@ -185,6 +190,7 @@ impl::atf_atffile_reader::read(void)
 {
     using atf::serial::format_error;
 
+    bool seents = false;
     std::string line;
     while (std::getline(m_is, line).good()) {
         if (line.empty())
@@ -196,9 +202,25 @@ impl::atf_atffile_reader::read(void)
         std::string::size_type pos = line.find('=');
         if (pos != std::string::npos)
             got_var(line.substr(0, pos), line.substr(pos + 1));
-        else
-            got_tp(line);
+        else {
+            std::string::size_type pos2 = line.find(": ");
+            if (pos2 != std::string::npos) {
+                const std::string& name = line.substr(0, pos2);
+                const std::string& val = line.substr(pos2 + 2);
+
+                if (name == "test-suite") {
+                    got_ts(val);
+                    seents = true;
+                } else
+                    throw format_error("Unknown meta-data keyword " + name);
+            } else {
+                got_tp(line);
+            }
+        }
     }
+
+    if (!seents)
+        throw format_error("Test suite name not defined");
 
     got_eof();
 }

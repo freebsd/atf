@@ -1,5 +1,7 @@
 Content-Type: application/X-atf-atffile; version="0"
 
+test-suite: atf
+
 t_atf_config
 t_atf_compile
 t_atf_cleanup

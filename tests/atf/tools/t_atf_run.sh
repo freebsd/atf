@@ -59,6 +59,8 @@ EOF
     cat >Atffile <<EOF
 Content-Type: application/X-atf-atffile; version="0"
 
+test-suite: atf
+
 helper
 EOF
 }
@@ -85,6 +87,47 @@ EOF
 
     atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
     atf_check "grep 'foo: first test variable' stdout" 0 ignore ignore
+    atf_check "grep 'bar: second test variable' stdout" 0 ignore ignore
+}
+
+config_ts_head()
+{
+    atf_set "descr" "Tests that the test-suite-specific configuration " \
+                    "file is properly read"
+}
+config_ts_body()
+{
+    mkdir etc
+    cat >etc/common.conf <<EOF
+Content-Type: application/X-atf-config; version="0"
+
+foo=first test variable
+bar=second test variable
+EOF
+
+    create_helper <<EOF
+echo "foo: \$(atf_config_get foo)"
+echo "bar: \$(atf_config_get bar)"
+EOF
+
+    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
+    atf_check "grep 'foo: first test variable' stdout" 0 ignore ignore
+    atf_check "grep 'bar: second test variable' stdout" 0 ignore ignore
+
+    cat >etc/atf.conf <<EOF
+Content-Type: application/X-atf-config; version="0"
+
+foo=overridden value
+EOF
+
+    cat >etc/not-applicable.conf <<EOF
+Content-Type: application/X-atf-config; version="0"
+
+bar=overridden value
+EOF
+
+    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
+    atf_check "grep 'foo: overridden value' stdout" 0 ignore ignore
     atf_check "grep 'bar: second test variable' stdout" 0 ignore ignore
 }
 
@@ -189,6 +232,8 @@ EOF
     cat >Atffile <<EOF
 Content-Type: application/X-atf-atffile; version="0"
 
+test-suite: atf
+
 dir
 testvar=a value
 EOF
@@ -203,6 +248,7 @@ EOF
 atf_init_test_cases()
 {
     atf_add_test_case config_common
+    atf_add_test_case config_ts
     atf_add_test_case vflag
     atf_add_test_case atffile
     atf_add_test_case atffile_recursive

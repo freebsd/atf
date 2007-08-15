@@ -46,6 +46,7 @@
 // ------------------------------------------------------------------------
 
 class reader : public atf::formats::atf_atffile_reader {
+    std::string m_ts;
     const atf::fs::directory& m_dir;
     atf::tests::vars_map m_vars;
     std::vector< std::string > m_tps;
@@ -67,6 +68,12 @@ class reader : public atf::formats::atf_atffile_reader {
     }
 
     void
+    got_ts(const std::string& name)
+    {
+        m_ts = name;
+    }
+
+    void
     got_var(const std::string& var, const std::string& val)
     {
         m_vars[var] = val;
@@ -77,6 +84,13 @@ public:
         atf::formats::atf_atffile_reader(is),
         m_dir(dir)
     {
+    }
+
+    const std::string&
+    ts(void)
+        const
+    {
+        return m_ts;
     }
 
     const std::vector< std::string >&
@@ -126,6 +140,7 @@ atf::atffile::atffile(const atf::fs::path& filename)
     is.close();
 
     // Update the atffile with the data accumulated in the reader.
+    m_ts = r.ts();
     m_tps = r.tps();
     m_vars = r.vars();
 }
@@ -135,6 +150,13 @@ atf::atffile::tps(void)
     const
 {
     return m_tps;
+}
+
+const std::string&
+atf::atffile::ts(void)
+    const
+{
+    return m_ts;
 }
 
 const atf::tests::vars_map&

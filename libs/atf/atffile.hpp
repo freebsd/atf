@@ -46,12 +46,14 @@
 namespace atf {
 
 class atffile {
+    std::string m_ts;
     std::vector< std::string > m_tps;
     atf::tests::vars_map m_vars;
 
 public:
     atffile(const fs::path&);
 
+    const std::string& ts(void) const;
     const std::vector< std::string >& tps(void) const;
     const atf::tests::vars_map& vars(void) const;
 };

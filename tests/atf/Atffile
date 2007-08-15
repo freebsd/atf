@@ -1,5 +1,7 @@
 Content-Type: application/X-atf-atffile; version="0"
 
+test-suite: atf
+
 units
 sh_interface
 test_programs

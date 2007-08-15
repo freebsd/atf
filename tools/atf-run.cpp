@@ -163,8 +163,9 @@ merge_maps(std::map< K, V >& dest, const std::map< K, V >& src)
 class atf_run : public atf::application {
     static const char* m_description;
 
-    atf::tests::vars_map m_vars;
+    atf::tests::vars_map m_atffile_vars;
     atf::tests::vars_map m_cmdline_vars;
+    atf::tests::vars_map m_config_vars;
 
     static atf::tests::vars_map::value_type parse_var(const std::string&);
 
@@ -172,22 +173,19 @@ class atf_run : public atf::application {
     std::string specific_args(void) const;
     options_set specific_options(void) const;
 
-    void read_config(const atf::fs::path&);
-    std::vector< std::string > conf_args(const atf::tests::vars_map&) const;
+    void read_config(const std::string&);
+    std::vector< std::string > conf_args(void) const;
 
     size_t count_tps(std::vector< std::string >) const;
 
     int run_test(const atf::fs::path&,
-                 const atf::tests::vars_map&,
                  atf::formats::atf_tps_writer&);
     int run_test_directory(const atf::fs::path&,
                            atf::formats::atf_tps_writer&);
     int run_test_program(const atf::fs::path&,
-                         const atf::tests::vars_map&,
                          atf::formats::atf_tps_writer&);
 
     void run_test_program_child(const atf::fs::path&,
-                                const atf::tests::vars_map&,
                                 atf::io::pipe&,
                                 atf::io::pipe&,
                                 atf::io::pipe&);
@@ -268,7 +266,6 @@ atf_run::specific_options(void)
 
 int
 atf_run::run_test(const atf::fs::path& tp,
-                  const atf::tests::vars_map& vars,
                   atf::formats::atf_tps_writer& w)
 {
     atf::fs::file_info fi(tp);
@@ -277,7 +274,7 @@ atf_run::run_test(const atf::fs::path& tp,
     if (fi.get_type() == atf::fs::file_info::dir_type)
         errcode = run_test_directory(tp, w);
     else
-        errcode = run_test_program(tp, vars, w);
+        errcode = run_test_program(tp, w);
     return errcode;
 }
 
@@ -286,25 +283,34 @@ atf_run::run_test_directory(const atf::fs::path& tp,
                             atf::formats::atf_tps_writer& w)
 {
     atf::atffile af(tp / "Atffile");
+    m_atffile_vars = af.vars();
+
+    atf::tests::vars_map oldvars = m_config_vars;
+    read_config(af.ts());
 
     bool ok = true;
     for (std::vector< std::string >::const_iterator iter = af.tps().begin();
          iter != af.tps().end(); iter++)
-        ok &= (run_test(tp / *iter, af.vars(), w) == EXIT_SUCCESS);
+        ok &= (run_test(tp / *iter, w) == EXIT_SUCCESS);
+
+    m_config_vars = oldvars;
 
     return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 std::vector< std::string >
-atf_run::conf_args(const atf::tests::vars_map& vars) const
+atf_run::conf_args(void) const
 {
     using atf::tests::vars_map;
 
+    atf::tests::vars_map vars;
     std::vector< std::string > args;
 
+    merge_maps(vars, m_atffile_vars);
+    merge_maps(vars, m_config_vars);
+    merge_maps(vars, m_cmdline_vars);
+
     for (vars_map::const_iterator i = vars.begin(); i != vars.end(); i++)
-        args.push_back("-v" + (*i).first + "=" + (*i).second);
-    for (vars_map::const_iterator i = m_vars.begin(); i != m_vars.end(); i++)
         args.push_back("-v" + (*i).first + "=" + (*i).second);
 
     return args;
@@ -312,7 +318,6 @@ atf_run::conf_args(const atf::tests::vars_map& vars) const
 
 void
 atf_run::run_test_program_child(const atf::fs::path& tp,
-                                const atf::tests::vars_map& vars,
                                 atf::io::pipe& outpipe,
                                 atf::io::pipe& errpipe,
                                 atf::io::pipe& respipe)
@@ -333,7 +338,7 @@ atf_run::run_test_program_child(const atf::fs::path& tp,
     // Prepare the test program's arguments.  We use dynamic memory and
     // do not care to release it.  We are going to die anyway very soon,
     // either due to exec(2) or to exit(3).
-    std::vector< std::string > confargs = conf_args(vars);
+    std::vector< std::string > confargs = conf_args();
     char* args[4 + confargs.size()];
     {
         // 0: Program name.
@@ -421,7 +426,6 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
 
 int
 atf_run::run_test_program(const atf::fs::path& tp,
-                          const atf::tests::vars_map& vars,
                           atf::formats::atf_tps_writer& w)
 {
     int errcode;
@@ -432,7 +436,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
         throw atf::system_error("run_test_program",
                                 "fork(2) failed", errno);
     } else if (pid == 0) {
-        run_test_program_child(tp, vars, outpipe, errpipe, respipe);
+        run_test_program_child(tp, outpipe, errpipe, respipe);
         // NOTREACHED
         assert(false);
         errcode = EXIT_FAILURE;
@@ -470,22 +474,35 @@ atf_run::count_tps(std::vector< std::string > tps)
 }
 
 void
-atf_run::read_config(const atf::fs::path& cfile)
+atf_run::read_config(const std::string& name)
 {
-    std::ifstream is(cfile.c_str());
-    if (!is)
-        return;
+    atf::fs::path confdir = atf::fs::path(atf::config::get("atf_confdir"));
 
-    config reader(is);
-    reader.read();
-    const atf::tests::vars_map& vs = reader.get_vars();
-    merge_maps(m_vars, vs);
+    // Read configuration data shared among all test suites.
+    {
+        std::ifstream is((confdir / "common.conf").c_str());
+        if (!is)
+            return;
+        config reader(is);
+        reader.read();
+        m_config_vars = reader.get_vars();
+    }
+
+    {
+        std::ifstream is((confdir / (name + ".conf")).c_str());
+        if (!is)
+            return;
+        config reader(is);
+        reader.read();
+        merge_maps(m_config_vars, reader.get_vars());
+    }
 }
 
 int
 atf_run::main(void)
 {
     atf::atffile af(atf::fs::path("Atffile"));
+    m_atffile_vars = af.vars();
 
     std::vector< std::string > tps;
     tps = af.tps();
@@ -497,23 +514,15 @@ atf_run::main(void)
             tps.push_back(m_argv[i]);
     }
 
-    // Read configuration data shared among all test suites.
-    atf::fs::path confdir = atf::fs::path(atf::config::get("atf_confdir"));
-    read_config(confdir / "common.conf");
-
-    // TODO: Read a test-suite-specific configuration file that overrides any
-    // value in common.conf.  To do this, we need to know which test suite
-    // we are parsing, something that the Atffile will tell us.
-
-    // Override any configuration variables provided as flags by the user.
-    merge_maps(m_vars, m_cmdline_vars);
+    // Read configuration data for this test suite.
+    read_config(af.ts());
 
     atf::formats::atf_tps_writer w(std::cout, count_tps(tps));
 
     bool ok = true;
     for (std::vector< std::string >::const_iterator iter = tps.begin();
          iter != tps.end(); iter++)
-        ok &= (run_test(atf::fs::path(*iter), af.vars(), w) == EXIT_SUCCESS);
+        ok &= (run_test(atf::fs::path(*iter), w) == EXIT_SUCCESS);
 
     return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }

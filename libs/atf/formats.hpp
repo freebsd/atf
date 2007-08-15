@@ -57,6 +57,7 @@ class atf_atffile_reader {
 
 protected:
     virtual void got_tp(const std::string&);
+    virtual void got_ts(const std::string&);
     virtual void got_var(const std::string&, const std::string &);
     virtual void got_eof(void);
 
