@@ -10,6 +10,9 @@ This project is still in very early stages of development.  The list below
 is very incomplete, but it details some items that have to be addressed.
 Basically they are here so that they are not forgotten.
 
+* Must-do for 0.1: Properly define all the file and serialization formats
+  used by ATF, document them and set their version to '1'.
+
 * Make the shell library work with 'set -e'?
 
 * Add detection of signals in test cases and run the clean up routines

@@ -48,6 +48,26 @@ namespace atf {
 namespace formats {
 
 // ------------------------------------------------------------------------
+// The "atf_atffile_reader" class.
+// ------------------------------------------------------------------------
+
+class atf_atffile_reader {
+    std::istream& m_is;
+    atf::serial::internalizer m_int;
+
+protected:
+    virtual void got_tp(const std::string&);
+    virtual void got_var(const std::string&, const std::string &);
+    virtual void got_eof(void);
+
+public:
+    atf_atffile_reader(std::istream&);
+    virtual ~atf_atffile_reader(void);
+
+    void read(void);
+};
+
+// ------------------------------------------------------------------------
 // The "atf_config_reader" class.
 // ------------------------------------------------------------------------
 

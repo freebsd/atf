@@ -34,22 +34,74 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cassert>
 #include <fstream>
 
 #include "atf/atffile.hpp"
 #include "atf/exceptions.hpp"
 #include "atf/expand.hpp"
-#include "atf/serial.hpp"
+#include "atf/formats.hpp"
+
+// ------------------------------------------------------------------------
+// The "reader" helper class.
+// ------------------------------------------------------------------------
+
+class reader : public atf::formats::atf_atffile_reader {
+    const atf::fs::directory& m_dir;
+    atf::tests::vars_map m_vars;
+    std::vector< std::string > m_tps;
+
+    void
+    got_tp(const std::string& name)
+    {
+        if (atf::expand::is_glob(name)) {
+            std::set< std::string > ms =
+                atf::expand::expand_glob(name, m_dir.names());
+            m_tps.insert(m_tps.end(), ms.begin(), ms.end());
+        } else {
+            if (m_dir.find(name) == m_dir.end())
+                throw atf::not_found_error< atf::fs::path >
+                    ("Cannot locate the " + name + " file",
+                     atf::fs::path(name));
+            m_tps.push_back(name);
+        }
+    }
+
+    void
+    got_var(const std::string& var, const std::string& val)
+    {
+        m_vars[var] = val;
+    }
+
+public:
+    reader(std::istream& is, const atf::fs::directory& dir) :
+        atf::formats::atf_atffile_reader(is),
+        m_dir(dir)
+    {
+    }
+
+    const std::vector< std::string >&
+    tps(void)
+        const
+    {
+        return m_tps;
+    }
+
+    const atf::tests::vars_map&
+    vars(void)
+        const
+    {
+        return m_vars;
+    }
+};
+
+// ------------------------------------------------------------------------
+// The "atffile" class.
+// ------------------------------------------------------------------------
 
 atf::atffile::atffile(const atf::fs::path& filename)
 {
-    std::ifstream is(filename.c_str());
-    if (!is)
-        throw atf::not_found_error< fs::path >
-            ("Cannot open Atffile", filename);
-    serial::internalizer i(is, "application/X-atf-atffile", 0);
-
+    // Scan the directory where the atffile lives in to gather a list of
+    // all possible test programs in it.
     fs::directory dir(filename.branch_path());
     dir.erase(filename.leaf_name());
     for (fs::directory::iterator iter = dir.begin(); iter != dir.end();
@@ -57,24 +109,37 @@ atf::atffile::atffile(const atf::fs::path& filename)
         const std::string& name = (*iter).first;
         const fs::file_info& fi = (*iter).second;
 
+        // Discard hidden files and non-executable ones so that they are
+        // not candidates for glob matching.
         if (name[0] == '.' || (!fi.is_owner_executable() &&
                                !fi.is_group_executable()))
             dir.erase(iter);
     }
 
-    std::string line;
-    while (std::getline(is, line)) {
-        if (expand::is_glob(line)) {
-            std::set< std::string > ms =
-                expand::expand_glob(line, dir.names());
-            insert(end(), ms.begin(), ms.end());
-        } else {
-            if (dir.find(line) == dir.end())
-                throw atf::not_found_error< fs::path >
-                    ("Cannot locate the " + line + " file", fs::path(line));
-            push_back(line);
-        }
-    }
-
+    // Parse the atffile.
+    std::ifstream is(filename.c_str());
+    if (!is)
+        throw atf::not_found_error< fs::path >
+            ("Cannot open Atffile", filename);
+    reader r(is, dir);
+    r.read();
     is.close();
+
+    // Update the atffile with the data accumulated in the reader.
+    m_tps = r.tps();
+    m_vars = r.vars();
+}
+
+const std::vector< std::string >&
+atf::atffile::tps(void)
+    const
+{
+    return m_tps;
+}
+
+const atf::tests::vars_map&
+atf::atffile::vars(void)
+    const
+{
+    return m_vars;
 }

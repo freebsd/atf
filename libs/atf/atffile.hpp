@@ -41,12 +41,19 @@
 #include <vector>
 
 #include <atf/fs.hpp>
+#include <atf/tests.hpp>
 
 namespace atf {
 
-class atffile : public std::vector< std::string > {
+class atffile {
+    std::vector< std::string > m_tps;
+    atf::tests::vars_map m_vars;
+
 public:
-    atffile(const fs::path& = fs::path("Atffile"));
+    atffile(const fs::path&);
+
+    const std::vector< std::string >& tps(void) const;
+    const atf::tests::vars_map& vars(void) const;
 };
 
 } // namespace atf
