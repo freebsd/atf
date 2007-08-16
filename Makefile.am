@@ -398,6 +398,13 @@ tests/atf/tools/t_atf_config: $(srcdir)/tests/atf/tools/t_atf_config.sh \
                                $(ATF_COMPILE_DEPS)
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_config.sh
 
+atf_tools_SCRIPTS += tests/atf/tools/t_atf_report
+CLEANFILES += tests/atf/tools/t_atf_report
+EXTRA_DIST += tests/atf/tools/t_atf_report.sh
+tests/atf/tools/t_atf_report: $(srcdir)/tests/atf/tools/t_atf_report.sh \
+                           $(ATF_COMPILE_DEPS)
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_report.sh
+
 atf_tools_SCRIPTS += tests/atf/tools/t_atf_run
 CLEANFILES += tests/atf/tools/t_atf_run
 EXTRA_DIST += tests/atf/tools/t_atf_run.sh

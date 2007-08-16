@@ -34,14 +34,347 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cassert>
+#include <fstream>
 #include <iostream>
+#include <memory>
+#include <utility>
+#include <vector>
 
 #include "atf/application.hpp"
 #include "atf/formats.hpp"
-#include "atf/serial.hpp"
+#include "atf/text.hpp"
+#include "atf/ui.hpp"
+
+typedef std::auto_ptr< std::ostream > ostream_ptr;
+
+ostream_ptr
+open_outfile(const atf::fs::path& path)
+{
+    ostream_ptr osp;
+    if (path.str() == "-")
+        osp = ostream_ptr(new std::ofstream("/dev/stdout"));
+    else
+        osp = ostream_ptr(new std::ofstream(path.c_str()));
+    if (!(*osp))
+        throw std::runtime_error("Could not create file " + path.str());
+    return osp;
+}
+
+// ------------------------------------------------------------------------
+// The "writer" interface.
+// ------------------------------------------------------------------------
+
+//!
+//! \brief A base class that defines an output format.
+//!
+//! The writer base class defines a generic interface to output formats.
+//! This is meant to be subclassed, and each subclass can redefine any
+//! method to format the information as it wishes.
+//!
+//! This class is not tied to a output stream nor a file because, depending
+//! on the output format, we will want to write to a single file or to
+//! multiple ones.
+//!
+class writer {
+public:
+    writer(void) {}
+    virtual ~writer(void) {}
+
+    virtual void write_ntps(size_t) {}
+    virtual void write_tp_start(const atf::fs::path&, size_t) {}
+    virtual void write_tp_end(void) {}
+    virtual void write_tc_start(const std::string&) {}
+    virtual void write_tc_stdout_line(const std::string&) {}
+    virtual void write_tc_stderr_line(const std::string&) {}
+    virtual void write_tc_end(const atf::tests::tcr&) {}
+    virtual void write_eof(void) {}
+};
+
+// ------------------------------------------------------------------------
+// The "csv_writer" class.
+// ------------------------------------------------------------------------
+
+//!
+//! \brief A very simple plain-text output format.
+//!
+//! The csv_writer class implements a very simple plain-text output
+//! format that summarizes the results of each executed test case.  The
+//! results are meant to be easily parseable by third-party tools, hence
+//! they are formatted as a CSV file.
+//!
+class csv_writer : public writer {
+    ostream_ptr m_os;
+
+    std::string m_tpname;
+    std::string m_tcname;
+
+public:
+    csv_writer(const atf::fs::path& p) :
+        m_os(open_outfile(p))
+    {
+    }
+
+    virtual
+    void
+    write_tp_start(const atf::fs::path& name, size_t ntcs)
+    {
+        m_tpname = name.str();
+    }
+
+    virtual
+    void
+    write_tc_start(const std::string& name)
+    {
+        m_tcname = name;
+    }
+
+    virtual
+    void
+    write_tc_end(const atf::tests::tcr& tcr)
+    {
+        std::string str;
+        if (tcr.get_status() == atf::tests::tcr::status_passed) {
+            str = m_tpname + ", " + m_tcname + ", passed";
+        } else if (tcr.get_status() == atf::tests::tcr::status_failed) {
+            str = m_tpname + ", " + m_tcname + ", failed, " +
+                  tcr.get_reason();
+        } else if (tcr.get_status() == atf::tests::tcr::status_skipped) {
+            str = m_tpname + ", " + m_tcname + ", skipped, " +
+                  tcr.get_reason();
+        } else
+            assert(false);
+        (*m_os) << str << std::endl;
+    }
+};
+
+// ------------------------------------------------------------------------
+// The "ticker_writer" class.
+// ------------------------------------------------------------------------
+
+//!
+//! \brief A console-friendly output format.
+//!
+//! The ticker_writer class implements a formatter that is user-friendly
+//! in the sense that it shows the execution of test cases in an easy to
+//! read format.  It is not meant to be parseable and its format can
+//! freely change across releases.
+//!
+class ticker_writer : public writer {
+    ostream_ptr m_os;
+
+    size_t m_curtp, m_ntps;
+    size_t m_tcs_passed, m_tcs_failed, m_tcs_skipped;
+    std::string m_tcname, m_tpname;
+    std::vector< std::string > m_failed;
+
+    void
+    write_ntps(size_t ntps)
+    {
+        m_curtp = 1;
+        m_tcs_passed = 0;
+        m_tcs_failed = 0;
+        m_tcs_skipped = 0;
+        m_ntps = ntps;
+    }
+
+    void
+    write_tp_start(const atf::fs::path& tp, size_t ntcs)
+    {
+        using atf::text::to_string;
+        using atf::ui::format_text;
+
+        m_tpname = tp.str();
+
+        (*m_os) << format_text(tp.str() + " (" + to_string(m_curtp) +
+                               "/" + to_string(m_ntps) + "): " +
+                               to_string(ntcs) + " test cases")
+                << std::endl;
+        (*m_os).flush();
+    }
+
+    void
+    write_tp_end(void)
+    {
+        m_curtp++;
+
+        (*m_os) << std::endl;
+        (*m_os).flush();
+    }
+
+    void
+    write_tc_start(const std::string& tcname)
+    {
+        m_tcname = tcname;
+
+        (*m_os) << "    " + tcname + ": ";
+        (*m_os).flush();
+    }
+
+    void
+    write_tc_end(const atf::tests::tcr& tcr)
+    {
+        std::string str;
+
+        atf::tests::tcr::status s = tcr.get_status();
+        if (s == atf::tests::tcr::status_passed) {
+            str = "Passed.";
+            m_tcs_passed++;
+        } else if (s == atf::tests::tcr::status_failed) {
+            str = "Failed: " + tcr.get_reason();
+            m_tcs_failed++;
+            m_failed.push_back(m_tpname + ":" + m_tcname);
+        } else if (s == atf::tests::tcr::status_skipped) {
+            str = "Skipped: " + tcr.get_reason();
+            m_tcs_skipped++;
+        } else
+            assert(false);
+
+        // XXX Wrap text.  format_text_with_tag does not currently allow
+        // to specify the current column, which is needed because we have
+        // already printed the tc's name.
+        (*m_os) << str << std::endl;
+    }
+
+    void
+    write_eof(void)
+    {
+        using atf::text::join;
+        using atf::text::to_string;
+        using atf::ui::format_text;
+        using atf::ui::format_text_with_tag;
+
+        if (!m_failed.empty()) {
+            (*m_os) << format_text("Failed test cases:") << std::endl;
+            (*m_os) << format_text_with_tag(join(m_failed, ", "),
+                                            "    ", false) << std::endl
+                    << std::endl;
+        }
+
+        (*m_os) << format_text("Summary for " + to_string(m_ntps) +
+                               " test programs:")
+                << std::endl;
+        (*m_os) << format_text_with_tag(to_string(m_tcs_passed) +
+                                        " passed test cases.",
+                                        "    ", false)
+                << std::endl;
+        (*m_os) << format_text_with_tag(to_string(m_tcs_failed) +
+                                        " failed test cases.",
+                                        "    ", false)
+                << std::endl;
+        (*m_os) << format_text_with_tag(to_string(m_tcs_skipped) +
+                                        " skipped test cases.",
+                                        "    ", false)
+                << std::endl;
+    }
+
+public:
+    ticker_writer(const atf::fs::path& p) :
+        m_os(open_outfile(p))
+    {
+    }
+};
+
+// ------------------------------------------------------------------------
+// The "converter" class.
+// ------------------------------------------------------------------------
+
+//!
+//! \brief A reader that redirects events to multiple writers.
+//!
+//! The converter class implements an atf_tps_reader that, for each event
+//! raised by the parser, redirects it to multiple writers so that they
+//! can reformat it according to their output rules.
+//!
+class converter : public atf::formats::atf_tps_reader {
+    typedef std::vector< writer* > outs_vector;
+    outs_vector m_outs;
+
+    void
+    got_ntps(size_t ntps)
+    {
+        for (outs_vector::iterator iter = m_outs.begin();
+             iter != m_outs.end(); iter++)
+            (*iter)->write_ntps(ntps);
+    }
+
+    void
+    got_tp_start(const atf::fs::path& tp, size_t ntcs)
+    {
+        for (outs_vector::iterator iter = m_outs.begin();
+             iter != m_outs.end(); iter++)
+            (*iter)->write_tp_start(tp, ntcs);
+    }
+
+    void
+    got_tp_end(void)
+    {
+        for (outs_vector::iterator iter = m_outs.begin();
+             iter != m_outs.end(); iter++)
+            (*iter)->write_tp_end();
+    }
+
+    void
+    got_tc_start(const std::string& tcname)
+    {
+        for (outs_vector::iterator iter = m_outs.begin();
+             iter != m_outs.end(); iter++)
+            (*iter)->write_tc_start(tcname);
+    }
+
+    void
+    got_tc_end(const atf::tests::tcr& tcr)
+    {
+        for (outs_vector::iterator iter = m_outs.begin();
+             iter != m_outs.end(); iter++)
+            (*iter)->write_tc_end(tcr);
+    }
+
+    void
+    got_eof(void)
+    {
+        for (outs_vector::iterator iter = m_outs.begin();
+             iter != m_outs.end(); iter++)
+            (*iter)->write_eof();
+    }
+
+public:
+    converter(std::istream& is) :
+        atf::formats::atf_tps_reader(is)
+    {
+    }
+
+    ~converter(void)
+    {
+        for (outs_vector::iterator iter = m_outs.begin();
+             iter != m_outs.end(); iter++)
+            delete *iter;
+    }
+
+    void
+    add_output(const std::string& fmt, const atf::fs::path& p)
+    {
+        if (fmt == "csv") {
+            m_outs.push_back(new csv_writer(p));
+        } else if (fmt == "ticker") {
+            m_outs.push_back(new ticker_writer(p));
+        } else
+            throw std::runtime_error("Unknown format `" + fmt + "'");
+    }
+};
+
+// ------------------------------------------------------------------------
+// The "atf_report" class.
+// ------------------------------------------------------------------------
 
 class atf_report : public atf::application {
     static const char* m_description;
+
+    typedef std::pair< std::string, atf::fs::path > fmt_path_pair;
+    std::vector< fmt_path_pair > m_oflags;
+
+    void process_option(int, const char*);
+    options_set specific_options(void) const;
 
 public:
     atf_report(void);
@@ -58,81 +391,65 @@ atf_report::atf_report(void) :
 {
 }
 
-class reader : public atf::formats::atf_tps_reader {
-    size_t m_ntps;
-    size_t m_tcs_passed, m_tcs_failed, m_tcs_skipped;
-
-    void
-    got_ntps(size_t ntps)
-    {
-        m_ntps = ntps;
-        std::cout << "Running " << ntps << " test programs" << std::endl
-                  << std::endl;
-    }
-
-    void
-    got_tp_start(const atf::fs::path& tp, size_t ntcs)
-    {
-        std::cout << tp.str() << ": " << ntcs << " test cases" << std::endl;
-    }
-
-    void
-    got_tp_end(void)
-    {
-        std::cout << std::endl;
-    }
-
-    void
-    got_tc_start(const std::string& tcname)
-    {
-        std::cout << "    " << tcname << ": ";
-        std::cout.flush();
-    }
-
-    void
-    got_tc_end(const atf::tests::tcr& tcr)
-    {
-        atf::tests::tcr::status s = tcr.get_status();
-        if (s == atf::tests::tcr::status_passed) {
-            std::cout << "Passed." << std::endl;
-            m_tcs_passed++;
-        } else if (s == atf::tests::tcr::status_failed) {
-            std::cout << "Failed: " << tcr.get_reason() << std::endl;
-            m_tcs_failed++;
-        } else if (s == atf::tests::tcr::status_skipped) {
-            std::cout << "Skipped: " << tcr.get_reason() << std::endl;
-            m_tcs_skipped++;
+void
+atf_report::process_option(int ch, const char* arg)
+{
+    switch (ch) {
+    case 'o':
+        {
+            std::string str(arg);
+            std::string::size_type pos = str.find(':');
+            if (pos == std::string::npos)
+                throw std::runtime_error("Syntax error in -o option");
+            else {
+                std::string fmt = str.substr(0, pos);
+                atf::fs::path path = atf::fs::path(str.substr(pos + 1));
+                m_oflags.push_back(fmt_path_pair(fmt, path));
+            }
         }
-    }
+        break;
 
-    void
-    got_eof(void)
-    {
-        std::cout << "Summary for " << m_ntps << " test programs:"
-                  << std::endl;
-        std::cout << "    " << m_tcs_passed << " passed test cases."
-                  << std::endl;
-        std::cout << "    " << m_tcs_failed << " failed test cases."
-                  << std::endl;
-        std::cout << "    " << m_tcs_skipped << " skipped test cases."
-                  << std::endl;
+    default:
+        assert(false);
     }
+}
 
-public:
-    reader(std::istream& is) :
-        atf::formats::atf_tps_reader(is),
-        m_ntps(0),
-        m_tcs_passed(0),
-        m_tcs_failed(0),
-        m_tcs_skipped(0)
-    {
-    }
-};
+atf_report::options_set
+atf_report::specific_options(void)
+    const
+{
+    options_set opts;
+    opts.insert(option('o', "fmt:path", "Adds a new output file; multiple "
+                                        "ones can be specified, and a - "
+                                        "path means stdout"));
+    return opts;
+}
 
 int
 atf_report::main(void)
 {
-    reader(std::cin).read();
+    if (m_oflags.empty())
+        m_oflags.push_back(fmt_path_pair("ticker", atf::fs::path("-")));
+
+    // Look for path duplicates.
+    std::set< atf::fs::path > paths;
+    for (std::vector< fmt_path_pair >::const_iterator iter = m_oflags.begin();
+         iter != m_oflags.end(); iter++) {
+        atf::fs::path p = (*iter).second;
+        if (p == atf::fs::path("/dev/stdout"))
+            p = atf::fs::path("-");
+        if (paths.find(p) != paths.end())
+            throw std::runtime_error("The file `" + p.str() + "' was "
+                                     "specified more than once");
+        paths.insert((*iter).second);
+    }
+
+    // Generate the output files.
+    converter cnv(std::cin);
+    for (std::vector< fmt_path_pair >::const_iterator iter = m_oflags.begin();
+         iter != m_oflags.end(); iter++)
+        cnv.add_output((*iter).first, (*iter).second);
+    cnv.read();
 
     return EXIT_SUCCESS;
 }
