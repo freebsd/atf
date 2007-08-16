@@ -66,6 +66,7 @@ default_head()
 {
     atf_set "descr" "Checks that the program can find its files if" \
                     "executed from the same directory"
+    atf_set "require.progs" "atf-compile" # XXX
 }
 default_body()
 {
@@ -86,6 +87,7 @@ sflag_head()
 {
     atf_set "descr" "Checks that the program can find its files when" \
                     "using the -s flag"
+    atf_set "require.progs" "atf-compile" # XXX
 }
 sflag_body()
 {

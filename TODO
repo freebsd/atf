@@ -13,6 +13,11 @@ Basically they are here so that they are not forgotten.
 * Must-do for 0.1: Properly define all the file and serialization formats
   used by ATF, document them and set their version to '1'.
 
+* The test suite should not use atf-compile to generate helper test cases.
+  Reason: NetBSD will include atf-compile in the comp.tgz set.  If it is
+  not installed, a lot of tests will be skipped without a "real" reason.
+  Use real helpers instead.
+
 * Make the shell library work with 'set -e'?
 
 * Add detection of signals in test cases and run the clean up routines

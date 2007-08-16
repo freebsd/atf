@@ -42,6 +42,7 @@ tc_includes_head()
 {
     atf_set "descr" "Tests that the resulting file includes the correct" \
                     "shell subroutines"
+    atf_set "require.progs" "atf-compile"
 }
 tc_includes_body()
 {
@@ -57,6 +58,7 @@ EOF
 tc_oflag_head()
 {
     atf_set "descr" "Tests that the -o flag works"
+    atf_set "require.progs" "atf-compile"
 }
 tc_oflag_body()
 {

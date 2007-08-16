@@ -105,6 +105,7 @@ default_head()
 {
     atf_set "descr" "Checks that the default output uses the ticker" \
                     "format"
+    atf_set "require.progs" "atf-compile" # XXX
 }
 default_body()
 {
@@ -121,6 +122,7 @@ default_body()
 oflag_head()
 {
     atf_set "descr" "Checks that the -o flag works"
+    atf_set "require.progs" "atf-compile" # XXX
 }
 oflag_body()
 {

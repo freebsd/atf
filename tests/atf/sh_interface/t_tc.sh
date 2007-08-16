@@ -38,6 +38,7 @@ default_status_head()
 {
     atf_set "descr" "Verifies that test cases get the correct default" \
                     "status if they did not provide any"
+    atf_set "require.progs" "atf-compile" # XXX
 }
 default_status_body()
 {

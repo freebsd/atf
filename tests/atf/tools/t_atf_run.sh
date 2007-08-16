@@ -69,6 +69,7 @@ config_common_head()
 {
     atf_set "descr" "Tests that the common.conf configuration file is " \
                     "properly read"
+    atf_set "require.progs" "atf-compile" # XXX
 }
 config_common_body()
 {
@@ -94,6 +95,7 @@ config_ts_head()
 {
     atf_set "descr" "Tests that the test-suite-specific configuration " \
                     "file is properly read"
+    atf_set "require.progs" "atf-compile" # XXX
 }
 config_ts_body()
 {
@@ -135,6 +137,7 @@ vflag_head()
 {
     atf_set "descr" "Tests that the -v flag works and that it properly" \
                     "overrides the values in configuration files"
+    atf_set "require.progs" "atf-compile" # XXX
 }
 vflag_body()
 {
@@ -175,6 +178,7 @@ atffile_head()
 {
     atf_set "descr" "Tests that the variables defined by the Atffile" \
                     "are recognized and that they take the lowest priority"
+    atf_set "require.progs" "atf-compile" # XXX
 }
 atffile_body()
 {
@@ -216,6 +220,7 @@ atffile_recursive_head()
 {
     atf_set "descr" "Tests that variables defined by an Atffile are not" \
                     "inherited by other Atffiles."
+    atf_set "require.progs" "atf-compile" # XXX
 }
 atffile_recursive_body()
 {
