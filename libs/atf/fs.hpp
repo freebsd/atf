@@ -177,6 +177,12 @@ public:
     //! introduced between the two components if needed.
     //!
     path operator/(const path&) const;
+
+    //!
+    //! \brief Checks if a path has to be sorted before another one
+    //!        lexicographically.
+    //!
+    bool operator<(const path&) const;
 };
 
 // ------------------------------------------------------------------------

@@ -245,6 +245,23 @@ ATF_TEST_CASE_BODY(path_to_absolute)
     }
 }
 
+ATF_TEST_CASE(path_op_less);
+ATF_TEST_CASE_HEAD(path_op_less)
+{
+    set("descr", "Tests that the path's less-than operator works");
+}
+ATF_TEST_CASE_BODY(path_op_less)
+{
+    using atf::fs::path;
+
+    create_files();
+
+    ATF_CHECK(!(path("aaa") < path("aaa")));
+
+    ATF_CHECK(  path("aab") < path("abc"));
+    ATF_CHECK(!(path("abc") < path("aab")));
+}
+
 // ------------------------------------------------------------------------
 // Test cases for the "directory" class.
 // ------------------------------------------------------------------------
@@ -613,6 +630,7 @@ ATF_INIT_TEST_CASES(tcs)
     tcs.push_back(&path_compare_different);
     tcs.push_back(&path_concat);
     tcs.push_back(&path_to_absolute);
+    tcs.push_back(&path_op_less);
 
     // Add the tests for the "file_info" class.
     tcs.push_back(&file_info_stat);

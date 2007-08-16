@@ -236,6 +236,13 @@ impl::path::operator/(const path& p)
     return path(m_data + "/" + p.m_data);
 }
 
+bool
+impl::path::operator<(const path& p)
+    const
+{
+    return m_data < p.m_data;
+}
+
 // ------------------------------------------------------------------------
 // The "file_info" class.
 // ------------------------------------------------------------------------
