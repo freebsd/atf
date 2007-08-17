@@ -144,7 +144,7 @@ dnl -----------------------------------------------------------------------
 
 AC_ARG_VAR([ATF_CONFSUBDIR],
            [Subdirectory of sysconfdir under which to look for files])
-if test x"${ATF_CONFSUBDIR}" = x""; then
+if test x"${ATF_CONFSUBDIR-unset}" = x"unset"; then
     ATF_CONFSUBDIR=atf
 else
     case ${ATF_CONFSUBDIR} in
@@ -155,7 +155,11 @@ else
         ;;
     esac
 fi
-AC_SUBST(atf_confdir, ${sysconfdir}/${ATF_CONFSUBDIR})
+if test x"${ATF_CONFSUBDIR}" = x""; then
+    AC_SUBST(atf_confdir, \${sysconfdir})
+else
+    AC_SUBST(atf_confdir, \${sysconfdir}/${ATF_CONFSUBDIR})
+fi
 
 AC_ARG_VAR([ATF_WORKDIR],
            [Default location to use for ATF work directories])
