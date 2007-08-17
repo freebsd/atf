@@ -95,15 +95,15 @@ env_undef_body()
 fork_mangle_fds_head()
 {
     atf_set "descr" "Helper test case for the t_mangle_fds test program"
-    atf_set "isolated" "$(atf_config_get isolated)"
 }
 fork_mangle_fds_body()
 {
+    resfd=$(atf_config_get resfd)
     touch in
-    0<&in
-    1>&out
-    2>&err
-    $(atf_config_get resfd)>&res
+    exec 0<in
+    exec 1>out
+    exec 2>err
+    eval "exec ${resfd}>res"
 }
 
 # -------------------------------------------------------------------------

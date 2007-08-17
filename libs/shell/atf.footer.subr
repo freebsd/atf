@@ -57,9 +57,8 @@ Parsing_Head=false
 # the test cases.
 Results_Fd=1
 
-# A temporary file used to determine if a test case explicitly reported
-# its exit status or not.
-Status_File=
+# The file to which the test case will print its result.
+Results_File=
 
 # The test program's source directory: i.e. where its auxiliary data files
 # and helper utilities can be found.  Defaults to the current directory
@@ -305,10 +304,9 @@ atf_config_has()
 #
 atf_fail()
 {
-    echo "failed" >&${Results_Fd}
-    echo "${@}" >&${Results_Fd}
-    echo "." >&${Results_Fd}
-    echo yes >${Status_File}
+    echo "failed" >>${Results_File}
+    echo "${@}" >>${Results_File}
+    echo "." >>${Results_File}
     exit 1
 }
 
@@ -342,9 +340,8 @@ atf_get_srcdir()
 #
 atf_pass()
 {
-    echo "passed" >&${Results_Fd}
-    echo "." >&${Results_Fd}
-    echo yes >${Status_File}
+    echo "passed" >>${Results_File}
+    echo "." >>${Results_File}
     exit 0
 }
 
@@ -404,10 +401,9 @@ atf_set()
 #
 atf_skip()
 {
-    echo "skipped" >&${Results_Fd}
-    echo "${@}" >&${Results_Fd}
-    echo "." >&${Results_Fd}
-    echo yes >${Status_File}
+    echo "skipped" >>${Results_File}
+    echo "${@}" >>${Results_File}
+    echo "." >>${Results_File}
     exit 0
 }
 
@@ -695,11 +691,9 @@ _atf_run_tc()
 
     echo "${Test_Case}" >&${Results_Fd}
 
-    # Assume that the test case has not reported any exit status so that
-    # we can apply the 'pass' default later on.
-    echo no >${Status_File}
-
     _atf_internal_set srcdir "${Source_Dir}"
+
+    Results_File=$(mktemp $(atf_config_get workdir)/atf.XXXXXX)
 
     if _atf_get_bool isolated; then
         Work_Dir=$(mktemp -d $(atf_config_get workdir)/atf.XXXXXX)
@@ -724,9 +718,14 @@ _atf_run_tc()
     _atf_internal_set srcdir ""
 
     # Set a default exit status if the test case did not report any.
-    if [ "$(cat ${Status_File})" != yes ]; then
+    if [ -z "$(cat ${Results_File})" ]; then
         ( atf_fail "Test case did not report any status; bogus test" )
     fi
+
+    # Print the result of the test case and clean up the temporary file.
+    cat ${Results_File} 1>&${Results_Fd}
+    rm -f ${Results_File}
+    Results_File=
 
     return ${_ret}
 }
@@ -745,10 +744,6 @@ _atf_run_tcs()
         _atf_error 1 "Cannot find the work directory" \
                      "\`$(atf_config_get workdir)'"
 
-    # Initialize the status file here (instead of in _atf_run_tc) so that
-    # we can reuse it for all test cases.
-    Status_File=$(mktemp $(atf_config_get workdir)/atf.XXXXXX)
-
     _atf_init_output "${@}"
 
     _ok=true
@@ -756,8 +751,6 @@ _atf_run_tcs()
         _atf_run_tc ${1} || _ok=false
         shift
     done
-
-    rm -f ${Status_File}
 
     ${_ok}
 }

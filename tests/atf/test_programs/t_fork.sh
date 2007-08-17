@@ -46,11 +46,7 @@ mangle_fds_body()
     h_sh=${srcdir}/h_sh
 
     for h in ${h_cpp} ${h_sh}; do
-        atf_check "${h} -s ${srcdir} -r3 -v isolated=no -v resfd=3 \
-                   fork_mangle_fds 3>resout" 0 ignore ignore
-        atf_check "grep 'passed' resout" 0 ignore null
-
-        atf_check "${h} -s ${srcdir} -r3 -v isolated=yes -v resfd=3 \
+        atf_check "${h} -s ${srcdir} -r3 -v resfd=3 \
                    fork_mangle_fds 3>resout" 0 ignore ignore
         atf_check "grep 'passed' resout" 0 ignore null
     done
