@@ -169,6 +169,10 @@ atf_check()
 
     # Check the command's error code.
     if [ ${_code} -ne ${_expcode} ]; then
+        echo "stdout:"
+        cat aux-stdout
+        echo "stderr:"
+        cat aux-stderr
         atf_fail "Exit code ${_code} does not match the expected" \
                  "code ${_expcode}"
     fi
