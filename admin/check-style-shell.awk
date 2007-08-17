@@ -98,6 +98,10 @@ BEGIN {
     warn("Use [ instead of test");
 }
 
+/[ \t]+(test|\[).*==/ {
+    warn("test(1)'s == operator is not portable");
+}
+
 /if.*;[ \t]*fi$/ {
     warn("Avoid using a single-line if conditional");
 }

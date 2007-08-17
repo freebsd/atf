@@ -58,7 +58,7 @@ main()
         err "Could not find ${Atf_Pkgdatadir}/atf.init.subr"
 
     [ ${#} -ge 1 ] || usage "No -o option specified"
-    [ ${1} == '-o' ] || usage "No -o option specified"
+    [ ${1} = '-o' ] || usage "No -o option specified"
     [ ${#} -ge 2 ] || usage "No target file specified"
     [ ${#} -ge 3 ] || usage "No source file specified"
 
