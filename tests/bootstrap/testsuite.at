@@ -38,7 +38,7 @@ AT_INIT([bootstrap tests])
 
 m4_define([GUESS_TOPDIR], {
     old=$(pwd)
-    while test $(pwd) != '/' -a ! -e ./libs/atf.hpp; do
+    while test $(pwd) != '/' -a ! -e ./Makefile; do
         cd ..
     done
     topdir=$(pwd)

@@ -55,6 +55,12 @@ How to sanity-check a distribution file
 
 * Run 'make check'.
 
+* Check that building the release with both NetBSD's bmake and GNU Make
+  works.
+
+* Check that building the release outside the source tree (using a build
+  directory) works.
+
 * Build a complete release of NetBSD/i386 current, install it and run all
   the tests in it.  Store the output of this run.
 
