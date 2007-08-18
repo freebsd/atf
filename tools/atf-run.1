@@ -117,6 +117,16 @@ configuration file.
 This lives in
 .Pa ${ATF_CONFDIR}/<test-suite>.conf .
 .It
+Configuration variables defined in the user-specific configuration file
+shared among all test suites.
+This lives in
+.Pa ${HOME}/.atf/common.conf .
+.It
+Configuration variables defined in the user-specific test-suite-specific
+configuration file.
+This lives in
+.Pa ${HOME}/.atf/<test-suite>.conf .
+.It
 Configuration variables provided as part of the command line through the
 .Fl v
 option.

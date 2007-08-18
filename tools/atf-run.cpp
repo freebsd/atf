@@ -51,6 +51,7 @@ extern "C" {
 #include "atf/application.hpp"
 #include "atf/atffile.hpp"
 #include "atf/config.hpp"
+#include "atf/env.hpp"
 #include "atf/exceptions.hpp"
 #include "atf/formats.hpp"
 #include "atf/fs.hpp"
@@ -173,6 +174,7 @@ class atf_run : public atf::application {
     std::string specific_args(void) const;
     options_set specific_options(void) const;
 
+    void read_one_config(const atf::fs::path&);
     void read_config(const std::string&);
     std::vector< std::string > conf_args(void) const;
 
@@ -474,27 +476,29 @@ atf_run::count_tps(std::vector< std::string > tps)
 }
 
 void
-atf_run::read_config(const std::string& name)
+atf_run::read_one_config(const atf::fs::path& p)
 {
-    atf::fs::path confdir = atf::fs::path(atf::config::get("atf_confdir"));
-
-    // Read configuration data shared among all test suites.
-    {
-        std::ifstream is((confdir / "common.conf").c_str());
-        if (!is)
-            return;
-        config reader(is);
-        reader.read();
-        m_config_vars = reader.get_vars();
-    }
-
-    {
-        std::ifstream is((confdir / (name + ".conf")).c_str());
-        if (!is)
-            return;
+    std::ifstream is(p.c_str());
+    if (is) {
         config reader(is);
         reader.read();
         merge_maps(m_config_vars, reader.get_vars());
+    }
+}
+
+void
+atf_run::read_config(const std::string& name)
+{
+    std::vector< atf::fs::path > dirs;
+    dirs.push_back(atf::fs::path(atf::config::get("atf_confdir")));
+    if (atf::env::has("HOME"))
+        dirs.push_back(atf::fs::path(atf::env::get("HOME")) / ".atf");
+
+    m_config_vars.clear();
+    for (std::vector< atf::fs::path >::const_iterator iter = dirs.begin();
+         iter != dirs.end(); iter++) {
+        read_one_config((*iter) / "common.conf");
+        read_one_config((*iter) / (name + ".conf"));
     }
 }
 

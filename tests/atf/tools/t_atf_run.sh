@@ -65,72 +65,78 @@ helper
 EOF
 }
 
-config_common_head()
+config_head()
 {
-    atf_set "descr" "Tests that the common.conf configuration file is " \
-                    "properly read"
+    atf_set "descr" "Tests that the config files are read in the correct" \
+                    "order"
     atf_set "require.progs" "atf-compile" # XXX
 }
-config_common_body()
+config_body()
 {
+    create_helper <<EOF
+echo "1st: \$(atf_config_get 1st)"
+echo "2nd: \$(atf_config_get 2nd)"
+echo "3rd: \$(atf_config_get 3rd)"
+echo "4th: \$(atf_config_get 4th)"
+EOF
+
     mkdir etc
+    mkdir .atf
+
+    echo "First: read system-wide common.conf."
     cat >etc/common.conf <<EOF
 Content-Type: application/X-atf-config; version="0"
 
-foo=first test variable
-bar=second test variable
+1st=sw common
+2nd=sw common
+3rd=sw common
+4th=sw common
 EOF
+    atf_check "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper" \
+              0 stdout ignore
+    atf_check "grep '1st: sw common' stdout" 0 ignore ignore
+    atf_check "grep '2nd: sw common' stdout" 0 ignore ignore
+    atf_check "grep '3rd: sw common' stdout" 0 ignore ignore
+    atf_check "grep '4th: sw common' stdout" 0 ignore ignore
 
-    create_helper <<EOF
-echo "foo: \$(atf_config_get foo)"
-echo "bar: \$(atf_config_get bar)"
-EOF
-
-    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
-    atf_check "grep 'foo: first test variable' stdout" 0 ignore ignore
-    atf_check "grep 'bar: second test variable' stdout" 0 ignore ignore
-}
-
-config_ts_head()
-{
-    atf_set "descr" "Tests that the test-suite-specific configuration " \
-                    "file is properly read"
-    atf_set "require.progs" "atf-compile" # XXX
-}
-config_ts_body()
-{
-    mkdir etc
-    cat >etc/common.conf <<EOF
-Content-Type: application/X-atf-config; version="0"
-
-foo=first test variable
-bar=second test variable
-EOF
-
-    create_helper <<EOF
-echo "foo: \$(atf_config_get foo)"
-echo "bar: \$(atf_config_get bar)"
-EOF
-
-    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
-    atf_check "grep 'foo: first test variable' stdout" 0 ignore ignore
-    atf_check "grep 'bar: second test variable' stdout" 0 ignore ignore
-
+    echo "Second: read system-wide <test-suite>.conf."
     cat >etc/atf.conf <<EOF
 Content-Type: application/X-atf-config; version="0"
 
-foo=overridden value
+1st=sw atf
 EOF
+    atf_check "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper" \
+              0 stdout ignore
+    atf_check "grep '1st: sw atf' stdout" 0 ignore ignore
+    atf_check "grep '2nd: sw common' stdout" 0 ignore ignore
+    atf_check "grep '3rd: sw common' stdout" 0 ignore ignore
+    atf_check "grep '4th: sw common' stdout" 0 ignore ignore
 
-    cat >etc/not-applicable.conf <<EOF
+    echo "Third: read user-specific common.conf."
+    cat >.atf/common.conf <<EOF
 Content-Type: application/X-atf-config; version="0"
 
-bar=overridden value
+2nd=us common
 EOF
+    atf_check "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper" \
+              0 stdout ignore
+    atf_check "grep '1st: sw atf' stdout" 0 ignore ignore
+    atf_check "grep '2nd: us common' stdout" 0 ignore ignore
+    atf_check "grep '3rd: sw common' stdout" 0 ignore ignore
+    atf_check "grep '4th: sw common' stdout" 0 ignore ignore
 
-    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
-    atf_check "grep 'foo: overridden value' stdout" 0 ignore ignore
-    atf_check "grep 'bar: second test variable' stdout" 0 ignore ignore
+    echo "Fourth: read user-specific <test-suite>.conf."
+    cat >.atf/atf.conf <<EOF
+Content-Type: application/X-atf-config; version="0"
+
+3rd=us atf
+EOF
+    atf_check "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper" \
+              0 stdout ignore
+    atf_check "grep '1st: sw atf' stdout" 0 ignore ignore
+    atf_check "grep '2nd: us common' stdout" 0 ignore ignore
+    atf_check "grep '3rd: us atf' stdout" 0 ignore ignore
+    atf_check "grep '4th: sw common' stdout" 0 ignore ignore
 }
 
 vflag_head()
@@ -252,8 +258,7 @@ EOF
 
 atf_init_test_cases()
 {
-    atf_add_test_case config_common
-    atf_add_test_case config_ts
+    atf_add_test_case config
     atf_add_test_case vflag
     atf_add_test_case atffile
     atf_add_test_case atffile_recursive
