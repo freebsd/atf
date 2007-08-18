@@ -100,7 +100,8 @@ find_sources() {
               -name "*.hpp" -o \
               -name "*.sh" \
            \) -a \( \
-              \! -path "*autom4te*" \
+              \! -path "*autom4te*" -a \
+              -type f \
            \)
 }
 
