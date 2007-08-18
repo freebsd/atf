@@ -39,6 +39,7 @@
 # -------------------------------------------------------------------------
 
 doc_DATA = AUTHORS COPYING NEWS README ROADMAP
+EXTRA_DIST = $(doc_DATA)
 
 dist-hook: check-readme check-style
 
@@ -66,10 +67,10 @@ check-readme:
 check-style:
 	$(srcdir)/admin/check-style.sh
 
-EXTRA_DIST = admin/check-style-common.awk \
-             admin/check-style-cpp.awk \
-             admin/check-style-shell.awk \
-             admin/check-style.sh
+EXTRA_DIST += admin/check-style-common.awk \
+              admin/check-style-cpp.awk \
+              admin/check-style-shell.awk \
+              admin/check-style.sh
 
 # -------------------------------------------------------------------------
 # `doc' directory.
