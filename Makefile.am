@@ -532,6 +532,7 @@ bin_PROGRAMS = tools/atf-config
 tools_atf_config_SOURCES = tools/atf-config.cpp
 tools_atf_config_LDADD = -latf
 tools_atf_config_LDFLAGS = -Llibs
+dist_man_MANS += tools/atf-config.1
 
 tools/atf-host-compile: $(srcdir)/tools/atf-host-compile.sh
 	sed -e 's,__ATF_PKGDATADIR__,$(srcdir)/libs/shell,g' \
