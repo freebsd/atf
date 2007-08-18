@@ -383,7 +383,7 @@ public:
 };
 
 const char* atf_report::m_description =
-    "atf-report is a tool that parses the output of atf-report and "
+    "atf-report is a tool that parses the output of atf-run and "
     "generates user-friendly reports in multiple different formats.";
 
 atf_report::atf_report(void) :

@@ -91,6 +91,7 @@ find_sources() {
               -name "NEWS" -o \
               -name "README" -o \
               -name "TODO" -o \
+              -name "*.[0-9]" -o \
               -name "*.ac" -o \
               -name "*.am" -o \
               -name "*.at" -o \
@@ -98,7 +99,9 @@ find_sources() {
               -name "*.cpp" -o \
               -name "*.hpp" -o \
               -name "*.sh" \
-           \) -a \( \! -name "*.svn*" \)
+           \) -a \( \
+              \! -path "*autom4te*" \
+           \)
 }
 
 #
@@ -111,7 +114,9 @@ guess_formats() {
     case ${1} in
         */ltmain.sh)
             ;;
-
+        *.[0-9])
+            echo common man
+            ;;
         *.cpp|*.hpp)
             echo common cpp
             ;;

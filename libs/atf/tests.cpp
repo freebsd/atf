@@ -548,7 +548,7 @@ const char* tp::m_description =
     "This is an independent atf test program.";
 
 tp::tp(const tc_vector& tcs) :
-    application(m_description),
+    application(m_description, "atf-test-program(1)"),
     m_lflag(false),
     m_results_fd(STDOUT_FILENO),
     m_srcdir(atf::fs::get_current_dir()),

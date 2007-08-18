@@ -792,6 +792,8 @@ _atf_usage()
     _atf_echo -t "    -v var=value    " "Sets the configuration variable" \
                                         "\`var' to \`value'"
     echo
+    _atf_echo "For more details please see atf-test-program(1)."
+    echo
     exit 0
 }
 

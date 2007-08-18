@@ -52,7 +52,7 @@ const char* h_app_empty::m_description =
     "on its own and redefines no methods.";
 
 h_app_empty::h_app_empty(void) :
-    application(m_description)
+    application(m_description, "h_app_empty(1)")
 {
 }
 

@@ -269,16 +269,6 @@ done
 CXXFLAGS="${CXXFLAGS} ${valid}"
 
 dnl -----------------------------------------------------------------------
-dnl Installation of documentation.
-dnl -----------------------------------------------------------------------
-
-AC_ARG_ENABLE(docs,
-              AS_HELP_STRING(--disable-docs,
-                             [do not install documentation files]),,
-              enable_docs=yes)
-AM_CONDITIONAL(INSTALL_DOCS, test ${enable_docs} != no)
-
-dnl -----------------------------------------------------------------------
 dnl Finally, generate output.
 dnl -----------------------------------------------------------------------
 

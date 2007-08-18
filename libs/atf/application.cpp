@@ -195,9 +195,8 @@ atf::application::usage(std::ostream& os)
     }
     os << std::endl;
 
-    if (!m_manpage.empty())
-        os << ui::format_text("For more details please see " + m_manpage + ".")
-           << std::endl << std::endl;
+    os << ui::format_text("For more details please see " + m_manpage + ".")
+       << std::endl << std::endl;
 }
 
 int

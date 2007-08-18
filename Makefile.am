@@ -38,9 +38,7 @@
 # Top directory.
 # -------------------------------------------------------------------------
 
-if INSTALL_DOCS
 doc_DATA = AUTHORS COPYING NEWS README TODO
-endif # INSTALL_DOCS
 
 dist-hook: check-readme check-style
 
@@ -64,7 +62,7 @@ ATF_COMPILE_SH = ./tools/atf-host-compile
 check-readme:
 	$(srcdir)/admin/check-readme.sh $(srcdir)/README
 
-.PHONY: check-style
+.phony: check-style
 check-style:
 	$(srcdir)/admin/check-style.sh
 
@@ -72,6 +70,21 @@ EXTRA_DIST = admin/check-style-common.awk \
              admin/check-style-cpp.awk \
              admin/check-style-shell.awk \
              admin/check-style.sh
+
+# -------------------------------------------------------------------------
+# `doc' directory.
+# -------------------------------------------------------------------------
+
+man_MANS = doc/atf.7
+EXTRA_DIST += doc/atf.7.in
+
+dist_man_MANS = doc/atf-formats.5 \
+                doc/atf-test-program.1
+
+doc/atf.7: $(srcdir)/doc/atf.7.in
+	sed -e 's,__DOCDIR__,$(docdir),g' \
+	    <$(srcdir)/doc/atf.7.in >doc/atf.7.tmp
+	mv doc/atf.7.tmp doc/atf.7
 
 # -------------------------------------------------------------------------
 # `libs/atf' directory.
@@ -535,25 +548,30 @@ libexec_PROGRAMS = tools/atf-cleanup
 tools_atf_cleanup_SOURCES = tools/atf-cleanup.cpp
 tools_atf_cleanup_LDADD = -latf
 tools_atf_cleanup_LDFLAGS = -Llibs
+dist_man_MANS += tools/atf-cleanup.1
 
 bin_PROGRAMS += tools/atf-compile
 tools_atf_compile_SOURCES = tools/atf-compile.cpp
 tools_atf_compile_LDADD = -latf
 tools_atf_compile_LDFLAGS = -Llibs
+dist_man_MANS += tools/atf-compile.1
 
 libexec_PROGRAMS += tools/atf-format
 tools_atf_format_SOURCES = tools/atf-format.cpp
 tools_atf_format_LDADD = -latf
 tools_atf_format_LDFLAGS = -Llibs
+dist_man_MANS += tools/atf-format.1
 
 bin_PROGRAMS += tools/atf-report
 tools_atf_report_SOURCES = tools/atf-report.cpp
 tools_atf_report_LDADD = -latf
 tools_atf_report_LDFLAGS = -Llibs
+dist_man_MANS += tools/atf-report.1
 
 bin_PROGRAMS += tools/atf-run
 tools_atf_run_SOURCES = tools/atf-run.cpp
 tools_atf_run_LDADD = -latf
 tools_atf_run_LDFLAGS = -Llibs
+dist_man_MANS += tools/atf-run.1
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
