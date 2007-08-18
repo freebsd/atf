@@ -3,14 +3,16 @@ Copyright (c) 2007 The NetBSD Foundation, Inc.
 All rights reserved.
 
 
-Version 0.0-not-released
-========================
+Version 0.1
+===========
 
-NOT RELEASED YET!
+Release date: August 20th, 2007
+Status:       Experimental
 
 Changes:
 
-* First public version.
+* First public version.  This was released coinciding with the end of the
+  Google Summer of Code 2007 program.
 
 
 -- EOF
