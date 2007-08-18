@@ -38,7 +38,7 @@
 # Top directory.
 # -------------------------------------------------------------------------
 
-doc_DATA = AUTHORS COPYING NEWS README TODO
+doc_DATA = AUTHORS COPYING NEWS README ROADMAP
 
 dist-hook: check-readme check-style
 

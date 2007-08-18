@@ -3,15 +3,61 @@ Copyright (c) 2007 The NetBSD Foundation, Inc.
 All rights reserved.
 
 
-Things to do
+Introduction
 ============
 
-This project is still in very early stages of development.  The list below
-is very incomplete, but it details some items that have to be addressed.
-Basically they are here so that they are not forgotten.
+This document contains a *non-exhaustive* list of things that should be
+addressed in ATF before it can be considered stable.  Some of the items
+are planned for specific future releases, but take this with a big grain
+of salt: the focus of a specific release may change completely depending
+on how things develop.
 
-* Must-do for 0.1: Properly define all the file and serialization formats
-  used by ATF, document them and set their version to '1'.
+
+Plans for 0.2
+=============
+
+* Properly define all the file and serialization formats used by ATF,
+  document them and set their version to '1'.
+
+* Add detection of signals in test cases and run the clean up routines
+  afterwards.
+
+* Set the umask to a known value before running a test case.
+
+* Fix atf-run to show an error if a test program did not execute any test
+  case.
+
+* Fix atf-run to show an error if a test program did not provide a result
+  message for those test cases that failed or were skipped.
+
+
+Plans for 0.3
+=============
+
+* Add a way to specify which bug/issue/whatever a given test case is
+  stress-testing.  This information is useful when detecting regressions.
+
+* Implement custom XML output in atf-report.  Need to create a DTD too.
+
+* Maybe implement direct HTML output in atf-report to avoid a dependency
+  on xsltproc.  Or maybe not.  Evaluate this idea and decide later.
+
+
+Plans for 0.4
+=============
+
+* Add a way to add an upper-bound limit for test run times.  Otherwise a
+  test that enters an infinite loop can stall the whole process.
+
+* Add a class, similar in idea to boost::noncopyable, to easily mark some
+  classes as not copyable.  Or, failing to do that, any other way to do
+  the same.
+
+
+Plans for pre-1.0
+=================
+
+* Fix all occurrences of XXX, TODO and FIXME.
 
 * The test suite should not use atf-compile to generate helper test cases.
   Reason: NetBSD will include atf-compile in the comp.tgz set.  If it is
@@ -19,9 +65,6 @@ Basically they are here so that they are not forgotten.
   Use real helpers instead.
 
 * Make the shell library work with 'set -e'?
-
-* Add detection of signals in test cases and run the clean up routines
-  afterwards.
 
 * Shell test programs dynamically locate where the shell library is by
   calling atf-config (done by atf.init.subr).  Contrarywise, binary test
@@ -34,47 +77,29 @@ Basically they are here so that they are not forgotten.
   there are no regressions even with older tests.  Just a crazy idea, as
   maybe what the shell test programs currently do is stupid.
 
-* Set the umask to a known value before running a test case.
-
-* Make atf-report account for the total executed test programs and how many
-  of them failed.  Possibly also collect their names.
-
-* Fix atf-run to show an error if a test program did not execute any test
-  case.
-
-* Fix atf-run to show an error if a test program did not provide a result
-  message for those test cases that failed or were skipped.
-
-* Add a way to specify which bug/issue/whatever a given test case is
-  stress-testing.  This information is useful when detecting regressions.
-
 * Allow users to customize the build of atf by defining additional meta-data
   for test cases.  At the moment this is possible because the meta-data is
   not sanity-checked, but I think it should be.  Following the previous
   item, NetBSD could add a 'netbsd.pr' variable and then use this data when
   generating reports to add direct links to the appropriate PRs.
 
-* Add a class, similar in idea to boost::noncopyable, to easily mark some
-  classes as not copyable.  Or, failing to do that, any other way to do
-  the same.
-
-* Implement custom XML output in atf-report.  Need to create a DTD too.
-
-* Maybe implement direct HTML output in atf-report to avoid a dependency
-  on xsltproc.  Or maybe not.  Evaluate this idea and decide later.
-
 * Make sure that the tests in tests/atf have, at the very least, the same
   coverage as the ones in tests/bootstrap.
 
-* Add manual pages for the tools and the library interfaces.
+* Add manual pages for the library interfaces.
 
 * Document the code.
 
-* Add a way to add an upper-bound limit for test run times.  Otherwise a
-  test that enters an infinite loop can stall the whole process.
-
 * Possibly add a way to automatically gain or drop privileges when
   require.user is set.
+
+
+Plans for post-1.0
+==================
+
+* Allow the parallel execution of tests.  Achieving this with a test
+  program granularity is easy: only need to change atf-run.  Lowering it
+  to a finer granularity (test cases) is harder and maybe not worth it.
 
 
 Things to we will not do
