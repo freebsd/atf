@@ -53,6 +53,8 @@ Plans for 0.4
   classes as not copyable.  Or, failing to do that, any other way to do
   the same.
 
+* Add a .pc file for libatf.
+
 
 Plans for pre-1.0
 =================
@@ -92,6 +94,12 @@ Plans for pre-1.0
 
 * Possibly add a way to automatically gain or drop privileges when
   require.user is set.
+
+
+Plans for 1.0-RC1
+=================
+
+* Build libatf as a shared library and set -version-info accordingly.
 
 
 Plans for post-1.0

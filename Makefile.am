@@ -114,8 +114,8 @@ CLEANFILES += libs/atf/tchead.cpp
 EXTRA_DIST += libs/tc-meta-data.csv
 EXTRA_DIST += libs/tc-meta-data.sh
 
-lib_LTLIBRARIES = libs/libatf.la
-libs_libatf_la_SOURCES = libs/atf/application.cpp \
+lib_LIBRARIES = libs/libatf.a
+libs_libatf_a_SOURCES =  libs/atf/application.cpp \
                          libs/atf/application.hpp \
                          libs/atf/atffile.cpp \
                          libs/atf/atffile.hpp \
