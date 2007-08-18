@@ -76,6 +76,7 @@ EXTRA_DIST = admin/check-style-common.awk \
 # -------------------------------------------------------------------------
 
 man_MANS = doc/atf.7
+CLEANFILES = doc/atf.7
 EXTRA_DIST += doc/atf.7.in
 
 dist_man_MANS = doc/atf-formats.5 \
@@ -97,7 +98,7 @@ libs/atf/tcenv.cpp: $(srcdir)/libs/tc-env.sh \
 	    <$(srcdir)/libs/tc-env.csv \
 	    >libs/atf/tcenv.cpp.tmp
 	mv libs/atf/tcenv.cpp.tmp libs/atf/tcenv.cpp
-CLEANFILES = libs/atf/tcenv.cpp.tmp
+CLEANFILES += libs/atf/tcenv.cpp.tmp
 CLEANFILES += libs/atf/tcenv.cpp
 EXTRA_DIST += libs/tc-env.csv
 EXTRA_DIST += libs/tc-env.sh
