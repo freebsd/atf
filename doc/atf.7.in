@@ -120,6 +120,7 @@ framework itself did not need to be tied to a specific operating system.
 For more details on this subject, please see:
 .Bd -literal -offset indent
 .Pa __DOCDIR__/NEWS
+.Pa __DOCDIR__/ROADMAP
 .Ed
 .Sh AUTHORS
 For more details on the people that made
