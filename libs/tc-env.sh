@@ -53,7 +53,14 @@ process_cpp()
     name=${1} defined=${2} default=${3}
 
     if [ ${defined} = yes ]; then
-        echo "atf::env::set(\"${name}\", \"${default}\");"
+        case ${default} in
+        __WORKDIR__)
+            echo "atf::env::set(\"${name}\", workdir);"
+            ;;
+        *)
+            echo "atf::env::set(\"${name}\", \"${default}\");"
+            ;;
+        esac
     else
         echo "atf::env::unset(\"${name}\");"
     fi
@@ -68,7 +75,14 @@ process_sh()
     name=${1} defined=${2} default=${3}
 
     if [ ${defined} = yes ]; then
-        echo "${name}=\"${default}\")"
+        case ${default} in
+        __WORKDIR__)
+            echo "${name}=\$(pwd)"
+            ;;
+        *)
+            echo "${name}=\"${default}\")"
+            ;;
+        esac
         echo "export ${name}"
     else
         echo "unset ${name}"

@@ -78,6 +78,17 @@ config_multi_value_body()
 # Helper tests for "t_require_env".
 # -------------------------------------------------------------------------
 
+env_home_head()
+{
+    atf_set "descr" "Helper test case for the t_mangle_fds test program"
+}
+env_home_body()
+{
+    [ -n "${HOME}" ] || atf_fail "HOME is undefined"
+    h=$(cd ${HOME} && pwd -P)
+    [ "${h}" = "$(pwd -P)" ] || atf_fail "HOME is invalid"
+}
+
 env_undef_head()
 {
     atf_set "descr" "Helper test case for the t_mangle_fds test program"
@@ -228,6 +239,7 @@ atf_init_test_cases()
     atf_add_test_case config_multi_value
 
     # Add helper tests for t_env.
+    atf_add_test_case env_home
     atf_add_test_case env_undef
 
     # Add helper tests for t_fork.

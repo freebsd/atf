@@ -117,6 +117,20 @@ ATF_TEST_CASE_BODY(config_multi_value)
 // Helper tests for "t_env".
 // ------------------------------------------------------------------------
 
+ATF_TEST_CASE(env_home);
+ATF_TEST_CASE_HEAD(env_home)
+{
+    set("descr", "Helper test case for the t_env test program");
+}
+ATF_TEST_CASE_BODY(env_home)
+{
+    ATF_CHECK(atf::env::has("HOME"));
+    atf::fs::file_info fi1(atf::fs::path(atf::env::get("HOME")));
+    atf::fs::file_info fi2(atf::fs::get_current_dir());
+    ATF_CHECK_EQUAL(fi1.get_device(), fi2.get_device());
+    ATF_CHECK_EQUAL(fi1.get_inode(), fi2.get_inode());
+}
+
 ATF_TEST_CASE(env_undef);
 ATF_TEST_CASE_HEAD(env_undef)
 {
@@ -311,6 +325,7 @@ ATF_INIT_TEST_CASES(tcs)
     tcs.push_back(&config_multi_value);
 
     // Add helper tests for t_env.
+    tcs.push_back(&env_home);
     tcs.push_back(&env_undef);
 
     // Add helper tests for t_fork.

@@ -1,4 +1,5 @@
 # Name ! Defined ! Default value
+HOME!yes!__WORKDIR__
 LANG!no!
 LC_ALL!no!
 LC_COLLATE!no!

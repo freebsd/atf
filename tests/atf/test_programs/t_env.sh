@@ -51,9 +51,25 @@ clean_body()
     done
 }
 
+home_head()
+{
+    atf_set "descr" "Tests that HOME has a sane and valid value"
+}
+home_body()
+{
+    srcdir=$(atf_get_srcdir)
+    h_cpp=${srcdir}/h_cpp
+    h_sh=${srcdir}/h_sh
+
+    for h in ${h_cpp} ${h_sh}; do
+        atf_check "${h} -s ${srcdir} env_home" 0 ignore ignore
+    done
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case clean
+    atf_add_test_case home
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
