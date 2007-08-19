@@ -372,53 +372,15 @@ tests/atf/test_programs/t_fork: \
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_fork.sh
 
-atf_test_programs_SCRIPTS += tests/atf/test_programs/t_ident
-CLEANFILES += tests/atf/test_programs/t_ident
-EXTRA_DIST += tests/atf/test_programs/t_ident.sh
-tests/atf/test_programs/t_ident: \
-		$(srcdir)/tests/atf/test_programs/t_ident.sh \
-		$(ATF_COMPILE_DEPS)
-	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_ident.sh
-
-atf_test_programs_SCRIPTS += tests/atf/test_programs/t_isolated
-CLEANFILES += tests/atf/test_programs/t_isolated
-EXTRA_DIST += tests/atf/test_programs/t_isolated.sh
-tests/atf/test_programs/t_isolated: \
-		$(srcdir)/tests/atf/test_programs/t_isolated.sh \
-		$(ATF_COMPILE_DEPS)
-	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_isolated.sh
-
-atf_test_programs_SCRIPTS += tests/atf/test_programs/t_require_config
-CLEANFILES += tests/atf/test_programs/t_require_config
-EXTRA_DIST += tests/atf/test_programs/t_require_config.sh
-tests/atf/test_programs/t_require_config: \
-		$(srcdir)/tests/atf/test_programs/t_require_config.sh \
+atf_test_programs_SCRIPTS += tests/atf/test_programs/t_meta_data
+CLEANFILES += tests/atf/test_programs/t_meta_data
+EXTRA_DIST += tests/atf/test_programs/t_meta_data.sh
+tests/atf/test_programs/t_meta_data: \
+		$(srcdir)/tests/atf/test_programs/t_meta_data.sh \
 		$(ATF_COMPILE_DEPS)
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
 	$(ATF_COMPILE_SH) -o $@ \
-	    $(srcdir)/tests/atf/test_programs/t_require_config.sh
-
-atf_test_programs_SCRIPTS += tests/atf/test_programs/t_require_progs
-CLEANFILES += tests/atf/test_programs/t_require_progs
-EXTRA_DIST += tests/atf/test_programs/t_require_progs.sh
-tests/atf/test_programs/t_require_progs: \
-		$(srcdir)/tests/atf/test_programs/t_require_progs.sh \
-		$(ATF_COMPILE_DEPS)
-	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
-	$(ATF_COMPILE_SH) -o $@ \
-	    $(srcdir)/tests/atf/test_programs/t_require_progs.sh
-
-atf_test_programs_SCRIPTS += tests/atf/test_programs/t_require_user
-CLEANFILES += tests/atf/test_programs/t_require_user
-EXTRA_DIST += tests/atf/test_programs/t_require_user.sh
-tests/atf/test_programs/t_require_user: \
-		$(srcdir)/tests/atf/test_programs/t_require_user.sh \
-		$(ATF_COMPILE_DEPS)
-	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
-	$(ATF_COMPILE_SH) -o $@ \
-	    $(srcdir)/tests/atf/test_programs/t_require_user.sh
+	    $(srcdir)/tests/atf/test_programs/t_meta_data.sh
 
 atf_test_programs_SCRIPTS += tests/atf/test_programs/t_srcdir
 CLEANFILES += tests/atf/test_programs/t_srcdir

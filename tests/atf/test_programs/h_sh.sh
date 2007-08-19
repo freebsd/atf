@@ -104,7 +104,7 @@ env_list_body()
 
 fork_mangle_fds_head()
 {
-    atf_set "descr" "Helper test case for the t_mangle_fds test program"
+    atf_set "descr" "Helper test case for the t_fork test program"
 }
 fork_mangle_fds_body()
 {
@@ -117,12 +117,12 @@ fork_mangle_fds_body()
 }
 
 # -------------------------------------------------------------------------
-# Helper tests for "t_ident".
+# Helper tests for "t_meta_data".
 # -------------------------------------------------------------------------
 
 ident_1_head()
 {
-    atf_set "descr" "Helper test case for the t_ident test program"
+    atf_set "descr" "Helper test case for the t_meta_data test program"
 }
 ident_1_body()
 {
@@ -131,20 +131,16 @@ ident_1_body()
 
 ident_2_head()
 {
-    atf_set "descr" "Helper test case for the t_ident test program"
+    atf_set "descr" "Helper test case for the t_meta_data test program"
 }
 ident_2_body()
 {
     atf_check_equal '$(atf_get ident)' ident_2
 }
 
-# -------------------------------------------------------------------------
-# Helper tests for "t_isolated".
-# -------------------------------------------------------------------------
-
 isolated_path_head()
 {
-    atf_set "descr" "Helper test case for the t_isolated test program"
+    atf_set "descr" "Helper test case for the t_meta_data test program"
     atf_set "isolated" "$(atf_config_get isolated)"
 }
 isolated_path_body()
@@ -154,7 +150,7 @@ isolated_path_body()
 
 isolated_cleanup_head()
 {
-    atf_set "descr" "Helper test case for the t_isolated test program"
+    atf_set "descr" "Helper test case for the t_meta_data test program"
     atf_set "isolated" "yes"
 }
 isolated_cleanup_body()
@@ -174,13 +170,9 @@ isolated_cleanup_body()
     touch 2/3/1
 }
 
-# -------------------------------------------------------------------------
-# Helper tests for "t_require_config".
-# -------------------------------------------------------------------------
-
 require_config_head()
 {
-    atf_set "descr" "Helper test case for the t_require_config test program"
+    atf_set "descr" "Helper test case for the t_meta_data test program"
     atf_set "require.config" "var1 var2"
 }
 require_config_body()
@@ -189,13 +181,9 @@ require_config_body()
     echo "var2: $(atf_config_get var2)"
 }
 
-# -------------------------------------------------------------------------
-# Helper tests for "t_require_progs".
-# -------------------------------------------------------------------------
-
 require_progs_body_head()
 {
-    atf_set "descr" "Helper test case for the t_require_progs test program"
+    atf_set "descr" "Helper test case for the t_meta_data test program"
 }
 require_progs_body_body()
 {
@@ -206,7 +194,7 @@ require_progs_body_body()
 
 require_progs_head_head()
 {
-    atf_set "descr" "Helper test case for the t_require_progs test program"
+    atf_set "descr" "Helper test case for the t_meta_data test program"
     atf_set "require.progs" "$(atf_config_get progs)"
 }
 require_progs_head_body()
@@ -214,13 +202,9 @@ require_progs_head_body()
     :
 }
 
-# -------------------------------------------------------------------------
-# Helper tests for "t_require_user".
-# -------------------------------------------------------------------------
-
 require_user_root_head()
 {
-    atf_set "descr" "Helper test case for the t_require_user test program"
+    atf_set "descr" "Helper test case for the t_meta_data test program"
     atf_set "isolated" "no"
     atf_set "require.user" "root"
 }
@@ -231,7 +215,7 @@ require_user_root_body()
 
 require_user_root2_head()
 {
-    atf_set "descr" "Helper test case for the t_require_user test program"
+    atf_set "descr" "Helper test case for the t_meta_data test program"
     atf_set "isolated" "no"
     atf_set "require.user" "root"
 }
@@ -242,7 +226,7 @@ require_user_root2_body()
 
 require_user_unprivileged_head()
 {
-    atf_set "descr" "Helper test case for the t_require_user test program"
+    atf_set "descr" "Helper test case for the t_meta_data test program"
     atf_set "isolated" "no"
     atf_set "require.user" "unprivileged"
 }
@@ -253,7 +237,7 @@ require_user_unprivileged_body()
 
 require_user_unprivileged2_head()
 {
-    atf_set "descr" "Helper test case for the t_require_user test program"
+    atf_set "descr" "Helper test case for the t_meta_data test program"
     atf_set "isolated" "no"
     atf_set "require.user" "unprivileged"
 }
@@ -281,31 +265,23 @@ atf_init_test_cases()
     # Add helper tests for t_fork.
     atf_add_test_case fork_mangle_fds
 
-    # Add helper tests for t_ident.
+    # Add helper tests for t_meta_data.
     atf_add_test_case ident_1
     atf_add_test_case ident_2
-
-    # Add helper tests for t_isolated.
     atf_add_test_case isolated_path
     atf_add_test_case isolated_cleanup
+    atf_add_test_case require_config
+    atf_add_test_case require_progs_body
+    atf_add_test_case require_progs_head
+    atf_add_test_case require_user_root
+    atf_add_test_case require_user_root2
+    atf_add_test_case require_user_unprivileged
+    atf_add_test_case require_user_unprivileged2
 
     # Add helper tests for t_srcdir.
     # srcdir_exists is not here (while it is in h_cpp.cpp) because of the
     # requirements of the t_srcdir test program (which cannot rely on -s
     # itself to find the source file).
-
-    # Add helper tests for t_require_config.
-    atf_add_test_case require_config
-
-    # Add helper tests for t_require_progs.
-    atf_add_test_case require_progs_body
-    atf_add_test_case require_progs_head
-
-    # Add helper tests for t_require_user.
-    atf_add_test_case require_user_root
-    atf_add_test_case require_user_root2
-    atf_add_test_case require_user_unprivileged
-    atf_add_test_case require_user_unprivileged2
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

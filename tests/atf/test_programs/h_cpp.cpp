@@ -179,7 +179,7 @@ ATF_TEST_CASE_BODY(fork_mangle_fds)
 ATF_TEST_CASE(ident_1);
 ATF_TEST_CASE_HEAD(ident_1)
 {
-    set("descr", "Helper test case for the t_ident test program");
+    set("descr", "Helper test case for the t_meta_data test program");
 }
 ATF_TEST_CASE_BODY(ident_1)
 {
@@ -189,21 +189,17 @@ ATF_TEST_CASE_BODY(ident_1)
 ATF_TEST_CASE(ident_2);
 ATF_TEST_CASE_HEAD(ident_2)
 {
-    set("descr", "Helper test case for the t_ident test program");
+    set("descr", "Helper test case for the t_meta_data test program");
 }
 ATF_TEST_CASE_BODY(ident_2)
 {
     ATF_CHECK_EQUAL(get("ident"), "ident_2");
 }
 
-// ------------------------------------------------------------------------
-// Helper tests for "t_isolated".
-// ------------------------------------------------------------------------
-
 ATF_TEST_CASE(isolated_path);
 ATF_TEST_CASE_HEAD(isolated_path)
 {
-    set("descr", "Helper test case for the t_isolated test program");
+    set("descr", "Helper test case for the t_meta_data test program");
     set("isolated", config().get("isolated", "yes"));
 }
 ATF_TEST_CASE_BODY(isolated_path)
@@ -222,7 +218,7 @@ ATF_TEST_CASE_BODY(isolated_path)
 ATF_TEST_CASE(isolated_cleanup);
 ATF_TEST_CASE_HEAD(isolated_cleanup)
 {
-    set("descr", "Helper test case for the t_isolated test program");
+    set("descr", "Helper test case for the t_meta_data test program");
     set("isolated", "yes");
 }
 ATF_TEST_CASE_BODY(isolated_cleanup)
@@ -250,6 +246,82 @@ ATF_TEST_CASE_BODY(isolated_cleanup)
     touch("2/3/1");
 }
 
+ATF_TEST_CASE(require_config);
+ATF_TEST_CASE_HEAD(require_config)
+{
+    set("descr", "Helper test case for the t_meta_data test program");
+    set("require.config", "var1 var2");
+}
+ATF_TEST_CASE_BODY(require_config)
+{
+    std::cout << "var1: " << config().get("var1") << std::endl;
+    std::cout << "var2: " << config().get("var2") << std::endl;
+}
+
+ATF_TEST_CASE(require_progs_body);
+ATF_TEST_CASE_HEAD(require_progs_body)
+{
+    set("descr", "Helper test case for the t_meta_data test program");
+}
+ATF_TEST_CASE_BODY(require_progs_body)
+{
+    require_prog(config().get("progs"));
+}
+
+ATF_TEST_CASE(require_progs_head);
+ATF_TEST_CASE_HEAD(require_progs_head)
+{
+    set("descr", "Helper test case for the t_meta_data test program");
+    set("require.progs", config().get("progs", "not-set"));
+}
+ATF_TEST_CASE_BODY(require_progs_head)
+{
+}
+
+ATF_TEST_CASE(require_user_root);
+ATF_TEST_CASE_HEAD(require_user_root)
+{
+    set("descr", "Helper test case for the t_meta_data test program");
+    set("isolated", "no");
+    set("require.user", "root");
+}
+ATF_TEST_CASE_BODY(require_user_root)
+{
+}
+
+ATF_TEST_CASE(require_user_root2);
+ATF_TEST_CASE_HEAD(require_user_root2)
+{
+    set("descr", "Helper test case for the t_meta_data test program");
+    set("isolated", "no");
+    set("require.user", "root");
+}
+ATF_TEST_CASE_BODY(require_user_root2)
+{
+}
+
+ATF_TEST_CASE(require_user_unprivileged);
+ATF_TEST_CASE_HEAD(require_user_unprivileged)
+{
+    set("descr", "Helper test case for the t_meta_data test program");
+    set("isolated", "no");
+    set("require.user", "unprivileged");
+}
+ATF_TEST_CASE_BODY(require_user_unprivileged)
+{
+}
+
+ATF_TEST_CASE(require_user_unprivileged2);
+ATF_TEST_CASE_HEAD(require_user_unprivileged2)
+{
+    set("descr", "Helper test case for the t_meta_data test program");
+    set("isolated", "no");
+    set("require.user", "unprivileged");
+}
+ATF_TEST_CASE_BODY(require_user_unprivileged2)
+{
+}
+
 // ------------------------------------------------------------------------
 // Helper tests for "t_srcdir".
 // ------------------------------------------------------------------------
@@ -263,94 +335,6 @@ ATF_TEST_CASE_BODY(srcdir_exists)
 {
     if (!atf::fs::exists(atf::fs::path(get_srcdir()) / "datafile"))
         ATF_FAIL("Cannot find datafile");
-}
-
-// ------------------------------------------------------------------------
-// Helper tests for "t_require_config".
-// ------------------------------------------------------------------------
-
-ATF_TEST_CASE(require_config);
-ATF_TEST_CASE_HEAD(require_config)
-{
-    set("descr", "Helper test case for the t_require_config test program");
-    set("require.config", "var1 var2");
-}
-ATF_TEST_CASE_BODY(require_config)
-{
-    std::cout << "var1: " << config().get("var1") << std::endl;
-    std::cout << "var2: " << config().get("var2") << std::endl;
-}
-
-// ------------------------------------------------------------------------
-// Helper tests for "t_require_progs".
-// ------------------------------------------------------------------------
-
-ATF_TEST_CASE(require_progs_body);
-ATF_TEST_CASE_HEAD(require_progs_body)
-{
-    set("descr", "Helper test case for the t_require_progs test program");
-}
-ATF_TEST_CASE_BODY(require_progs_body)
-{
-    require_prog(config().get("progs"));
-}
-
-ATF_TEST_CASE(require_progs_head);
-ATF_TEST_CASE_HEAD(require_progs_head)
-{
-    set("descr", "Helper test case for the t_require_head test program");
-    set("require.progs", config().get("progs", "not-set"));
-}
-ATF_TEST_CASE_BODY(require_progs_head)
-{
-}
-
-// ------------------------------------------------------------------------
-// Helper tests for "t_require_user".
-// ------------------------------------------------------------------------
-
-ATF_TEST_CASE(require_user_root);
-ATF_TEST_CASE_HEAD(require_user_root)
-{
-    set("descr", "Helper test case for the t_require_user test program");
-    set("isolated", "no");
-    set("require.user", "root");
-}
-ATF_TEST_CASE_BODY(require_user_root)
-{
-}
-
-ATF_TEST_CASE(require_user_root2);
-ATF_TEST_CASE_HEAD(require_user_root2)
-{
-    set("descr", "Helper test case for the t_require_user test program");
-    set("isolated", "no");
-    set("require.user", "root");
-}
-ATF_TEST_CASE_BODY(require_user_root2)
-{
-}
-
-ATF_TEST_CASE(require_user_unprivileged);
-ATF_TEST_CASE_HEAD(require_user_unprivileged)
-{
-    set("descr", "Helper test case for the t_require_user test program");
-    set("isolated", "no");
-    set("require.user", "unprivileged");
-}
-ATF_TEST_CASE_BODY(require_user_unprivileged)
-{
-}
-
-ATF_TEST_CASE(require_user_unprivileged2);
-ATF_TEST_CASE_HEAD(require_user_unprivileged2)
-{
-    set("descr", "Helper test case for the t_require_user test program");
-    set("isolated", "no");
-    set("require.user", "unprivileged");
-}
-ATF_TEST_CASE_BODY(require_user_unprivileged2)
-{
 }
 
 // ------------------------------------------------------------------------
@@ -372,27 +356,19 @@ ATF_INIT_TEST_CASES(tcs)
     // Add helper tests for t_fork.
     tcs.push_back(&fork_mangle_fds);
 
-    // Add helper tests for t_ident.
+    // Add helper tests for t_meta_data.
     tcs.push_back(&ident_1);
     tcs.push_back(&ident_2);
-
-    // Add helper tests for t_isolated.
     tcs.push_back(&isolated_path);
     tcs.push_back(&isolated_cleanup);
-
-    // Add helper tests for t_srcdir.
-    tcs.push_back(&srcdir_exists);
-
-    // Add helper tests for t_require_config.
     tcs.push_back(&require_config);
-
-    // Add helper tests for t_require_progs.
     tcs.push_back(&require_progs_body);
     tcs.push_back(&require_progs_head);
-
-    // Add helper tests for t_require_user.
     tcs.push_back(&require_user_root);
     tcs.push_back(&require_user_root2);
     tcs.push_back(&require_user_unprivileged);
     tcs.push_back(&require_user_unprivileged2);
+
+    // Add helper tests for t_srcdir.
+    tcs.push_back(&srcdir_exists);
 }
