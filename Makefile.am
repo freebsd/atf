@@ -94,6 +94,7 @@ doc/atf.7: $(srcdir)/doc/atf.7.in
 # -------------------------------------------------------------------------
 
 libs/atf/tests.cpp: libs/atf/tcenv.cpp
+$(srcdir)/libs/atf/tests.cpp: libs/atf/tcenv.cpp
 libs/atf/tcenv.cpp: $(srcdir)/libs/tc-env.sh \
                      $(srcdir)/libs/tc-env.csv
 	$(ATF_SHELL) $(srcdir)/libs/tc-env.sh cpp \
@@ -105,6 +106,7 @@ CLEANFILES += libs/atf/tcenv.cpp
 EXTRA_DIST += libs/tc-env.csv
 EXTRA_DIST += libs/tc-env.sh
 
+$(srcdir)/libs/atf/tests.cpp: libs/atf/tchead.cpp
 libs/atf/tests.cpp: libs/atf/tchead.cpp
 libs/atf/tchead.cpp: $(srcdir)/libs/tc-meta-data.sh \
                      $(srcdir)/libs/tc-meta-data.csv
