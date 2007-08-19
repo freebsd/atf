@@ -40,6 +40,7 @@ extern "C" {
 #include <fcntl.h>
 }
 
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
@@ -132,15 +133,14 @@ ATF_TEST_CASE_BODY(env_home)
     ATF_CHECK_EQUAL(fi1.get_inode(), fi2.get_inode());
 }
 
-ATF_TEST_CASE(env_undef);
-ATF_TEST_CASE_HEAD(env_undef)
+ATF_TEST_CASE(env_list);
+ATF_TEST_CASE_HEAD(env_list)
 {
     set("descr", "Helper test case for the t_env test program");
 }
-ATF_TEST_CASE_BODY(env_undef)
+ATF_TEST_CASE_BODY(env_list)
 {
-    ATF_CHECK(!atf::env::has("LC_COLLATE"));
-    ATF_CHECK(!atf::env::has("TZ"));
+    std::system("env");
 }
 
 // ------------------------------------------------------------------------
@@ -343,7 +343,7 @@ ATF_INIT_TEST_CASES(tcs)
 
     // Add helper tests for t_env.
     tcs.push_back(&env_home);
-    tcs.push_back(&env_undef);
+    tcs.push_back(&env_list);
 
     // Add helper tests for t_fork.
     tcs.push_back(&fork_mangle_fds);

@@ -80,7 +80,7 @@ config_multi_value_body()
 
 env_home_head()
 {
-    atf_set "descr" "Helper test case for the t_mangle_fds test program"
+    atf_set "descr" "Helper test case for the t_env test program"
 }
 env_home_body()
 {
@@ -89,14 +89,13 @@ env_home_body()
     [ "${h}" = "$(pwd -P)" ] || atf_fail "HOME is invalid"
 }
 
-env_undef_head()
+env_list_head()
 {
-    atf_set "descr" "Helper test case for the t_mangle_fds test program"
+    atf_set "descr" "Helper test case for the t_env test program"
 }
-env_undef_body()
+env_list_body()
 {
-    [ -n "${LC_COLLATE}" ] && atf_fail "LC_COLLATE is defined"
-    [ -n "${TZ}" ] && atf_fail "TZ is defined"
+    env
 }
 
 # -------------------------------------------------------------------------
@@ -255,7 +254,7 @@ atf_init_test_cases()
 
     # Add helper tests for t_env.
     atf_add_test_case env_home
-    atf_add_test_case env_undef
+    atf_add_test_case env_list
 
     # Add helper tests for t_fork.
     atf_add_test_case fork_mangle_fds
