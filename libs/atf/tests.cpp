@@ -298,7 +298,11 @@ impl::tc::init(const vars_map& c, const std::string& srcdir)
     m_srcdir = srcdir;
 
     m_meta_data["ident"] = m_ident;
-#include "tchead.cpp"
+    m_meta_data["isolated"] = "yes";
+    head();
+    ensure_not_empty("descr");
+    ensure_not_empty("ident");
+    ensure_boolean("isolated");
     assert(m_meta_data["ident"] == m_ident);
 }
 
@@ -401,7 +405,16 @@ impl::tc::fork_body(const std::string& workdir)
         // This is specially useful in those cases where these errors
         // cannot be directed to the parent process.
         try {
-#include "tcenv.cpp"
+            atf::env::set("HOME", workdir);
+            atf::env::unset("LANG");
+            atf::env::unset("LC_ALL");
+            atf::env::unset("LC_COLLATE");
+            atf::env::unset("LC_CTYPE");
+            atf::env::unset("LC_MESSAGES");
+            atf::env::unset("LC_MONETARY");
+            atf::env::unset("LC_NUMERIC");
+            atf::env::unset("LC_TIME");
+            atf::env::unset("TZ");
 
             // This is here because require_progs can assert if the user
             // gave bad input.  Having it here lets us capture the abort

@@ -93,32 +93,6 @@ doc/atf.7: $(srcdir)/doc/atf.7.in
 # `libs/atf' directory.
 # -------------------------------------------------------------------------
 
-libs/atf/tests.cpp: libs/atf/tcenv.cpp
-$(srcdir)/libs/atf/tests.cpp: libs/atf/tcenv.cpp
-libs/atf/tcenv.cpp: $(srcdir)/libs/tc-env.sh \
-                     $(srcdir)/libs/tc-env.csv
-	$(ATF_SHELL) $(srcdir)/libs/tc-env.sh cpp \
-	    <$(srcdir)/libs/tc-env.csv \
-	    >libs/atf/tcenv.cpp.tmp
-	mv libs/atf/tcenv.cpp.tmp libs/atf/tcenv.cpp
-CLEANFILES += libs/atf/tcenv.cpp.tmp
-CLEANFILES += libs/atf/tcenv.cpp
-EXTRA_DIST += libs/tc-env.csv
-EXTRA_DIST += libs/tc-env.sh
-
-$(srcdir)/libs/atf/tests.cpp: libs/atf/tchead.cpp
-libs/atf/tests.cpp: libs/atf/tchead.cpp
-libs/atf/tchead.cpp: $(srcdir)/libs/tc-meta-data.sh \
-                     $(srcdir)/libs/tc-meta-data.csv
-	$(ATF_SHELL) $(srcdir)/libs/tc-meta-data.sh cpp \
-	    <$(srcdir)/libs/tc-meta-data.csv \
-	    >libs/atf/tchead.cpp.tmp
-	mv libs/atf/tchead.cpp.tmp libs/atf/tchead.cpp
-CLEANFILES += libs/atf/tchead.cpp.tmp
-CLEANFILES += libs/atf/tchead.cpp
-EXTRA_DIST += libs/tc-meta-data.csv
-EXTRA_DIST += libs/tc-meta-data.sh
-
 lib_LIBRARIES = libs/libatf.a
 libs_libatf_a_SOURCES =  libs/atf/application.cpp \
                          libs/atf/application.hpp \
@@ -171,31 +145,9 @@ atfdir = $(includedir)/atf
 # `libs/shell' directory.
 # -------------------------------------------------------------------------
 
-libs/shell/atf.tcenv.subr: $(srcdir)/libs/tc-env.sh \
-                            $(srcdir)/libs/tc-env.csv
-	test -d libs/shell || mkdir -p libs/shell
-	$(ATF_SHELL) $(srcdir)/libs/tc-env.sh sh \
-	    <$(srcdir)/libs/tc-env.csv \
-	    >libs/shell/atf.tcenv.subr.tmp
-	mv libs/shell/atf.tcenv.subr.tmp libs/shell/atf.tcenv.subr
-CLEANFILES += libs/shell/atf.tcenv.subr.tmp
-CLEANFILES += libs/shell/atf.tcenv.subr
-
-libs/shell/atf.tchead.subr: $(srcdir)/libs/tc-meta-data.sh \
-                            $(srcdir)/libs/tc-meta-data.csv
-	test -d libs/shell || mkdir -p libs/shell
-	$(ATF_SHELL) $(srcdir)/libs/tc-meta-data.sh sh \
-	    <$(srcdir)/libs/tc-meta-data.csv \
-	    >libs/shell/atf.tchead.subr.tmp
-	mv libs/shell/atf.tchead.subr.tmp libs/shell/atf.tchead.subr
-CLEANFILES += libs/shell/atf.tchead.subr.tmp
-CLEANFILES += libs/shell/atf.tchead.subr
-
 libs_shell_DATA = libs/shell/atf.footer.subr \
                   libs/shell/atf.header.subr \
-                  libs/shell/atf.init.subr \
-                  libs/shell/atf.tcenv.subr \
-                  libs/shell/atf.tchead.subr
+                  libs/shell/atf.init.subr
 libs_shelldir = $(pkgdatadir)
 EXTRA_DIST += $(libs_shell_DATA)
 

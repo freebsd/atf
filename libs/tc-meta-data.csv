@@ -1,7 +1,0 @@
-# Name ! Type | Can be empty? | Default value
-descr!text!no!
-ident!text!no!
-isolated!boolean!no!yes
-require.config!text!yes
-require.progs!text!yes
-require.user!text!yes

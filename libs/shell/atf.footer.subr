@@ -633,7 +633,11 @@ _atf_parse_head()
     Test_Case="${1}"
 
     atf_set ident "${1}"
-    . ${Atf_Pkgdatadir}/atf.tchead.subr
+    atf_set isolated yes
+    ${1}_head
+    _atf_ensure_not_empty descr
+    _atf_ensure_not_empty ident
+    _atf_ensure_boolean isolated
     test $(atf_get ident) = "${1}" || \
         _atf_error 128 "Test case redefined ident"
 
@@ -650,7 +654,17 @@ _atf_parse_head()
 #
 _atf_run_body()
 {
-    . ${Atf_Pkgdatadir}/atf.tcenv.subr
+    HOME=$(pwd)
+    export HOME
+    unset LANG
+    unset LC_ALL
+    unset LC_COLLATE
+    unset LC_CTYPE
+    unset LC_MESSAGES
+    unset LC_MONETARY
+    unset LC_NUMERIC
+    unset LC_TIME
+    unset TZ
 
     _vars="$(atf_get require.config)"
     if [ -n "${_vars}" ]; then
