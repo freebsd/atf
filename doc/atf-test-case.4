@@ -116,18 +116,22 @@ You are free to define new properties in your test cases and use them as
 you wish.
 .Bl -tag -width requireXconfigXX
 .It descr
-Type: textual.  Required.
+Type: textual.
+Required.
 .Pp
 A brief textual description of the test case's purpose.
 Will be shown to the user in reports.
 Also good for documentation purposes.
 .It ident
-Type: textual.  Required.
+Type: textual.
+Required.
 .Pp
 The test case's identifier.
 Must be unique inside the test program and should be short but descriptive.
 .It isolated
-Type: boolean.  Optional.  Default: true.
+Type: boolean.
+Optional.
+Default: true.
 .Pp
 Whether the test case has to be executed in a separate work directory or
 not.
@@ -141,14 +145,16 @@ Allowing a test case to bypass the work directories may be too error-prone.
 This was only added to provide a small performance speed-up for all
 those test cases that need not touch the current directory at all.
 .It require.config
-Type: textual.  Optional.
+Type: textual.
+Optional.
 .Pp
 A whitespace separated list of configuration variables that must be defined
 to execute the test case.
 If any of the required variables is not defined, the test case is
 .Em skipped .
 .It require.progs
-Type: textual.  Optional.
+Type: textual.
+Optional.
 .Pp
 A whitespace separated list of programs that must be present to execute
 the test case.
@@ -159,7 +165,8 @@ or as absolute paths.
 If any of the required programs is not found, the test case is
 .Em skipped .
 .It require.user
-Type: textual.  Optional.
+Type: textual.
+Optional.
 .Pp
 The required privileges to execute the test case.
 Can be one of
