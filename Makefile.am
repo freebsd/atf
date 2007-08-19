@@ -81,6 +81,7 @@ CLEANFILES = doc/atf.7
 EXTRA_DIST += doc/atf.7.in
 
 dist_man_MANS = doc/atf-formats.5 \
+                doc/atf-test-case.4 \
                 doc/atf-test-program.1
 
 doc/atf.7: $(srcdir)/doc/atf.7.in
