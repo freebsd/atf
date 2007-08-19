@@ -652,6 +652,15 @@ _atf_run_body()
 {
     . ${Atf_Pkgdatadir}/atf.tcenv.subr
 
+    _vars="$(atf_get require.config)"
+    if [ -n "${_vars}" ]; then
+        for _v in ${_vars}; do
+            if ! atf_config_has ${_v}; then
+                atf_skip "Required configuration variable ${_v} not defined"
+            fi
+        done
+    fi
+
     _progs="$(atf_get require.progs)"
     if [ -n "${_progs}" ]; then
         for _p in ${_progs}; do

@@ -35,7 +35,7 @@
 #
 
 # -------------------------------------------------------------------------
-# Helper tests for "t_require_config".
+# Helper tests for "t_config".
 # -------------------------------------------------------------------------
 
 config_unset_head()
@@ -75,7 +75,7 @@ config_multi_value_body()
 }
 
 # -------------------------------------------------------------------------
-# Helper tests for "t_require_env".
+# Helper tests for "t_env".
 # -------------------------------------------------------------------------
 
 env_home_head()
@@ -100,7 +100,7 @@ env_undef_body()
 }
 
 # -------------------------------------------------------------------------
-# Helper tests for "t_require_fork".
+# Helper tests for "t_fork".
 # -------------------------------------------------------------------------
 
 fork_mangle_fds_head()
@@ -118,7 +118,7 @@ fork_mangle_fds_body()
 }
 
 # -------------------------------------------------------------------------
-# Helper tests for "t_require_isolated".
+# Helper tests for "t_isolated".
 # -------------------------------------------------------------------------
 
 isolated_path_head()
@@ -151,6 +151,21 @@ isolated_cleanup_body()
     touch 2/2
     mkdir 2/3
     touch 2/3/1
+}
+
+# -------------------------------------------------------------------------
+# Helper tests for "t_require_config".
+# -------------------------------------------------------------------------
+
+require_config_head()
+{
+    atf_set "descr" "Helper test case for the t_require_config test program"
+    atf_set "require.config" "var1 var2"
+}
+require_config_body()
+{
+    echo "var1: $(atf_config_get var1)"
+    echo "var2: $(atf_config_get var2)"
 }
 
 # -------------------------------------------------------------------------
@@ -253,6 +268,9 @@ atf_init_test_cases()
     # srcdir_exists is not here (while it is in h_cpp.cpp) because of the
     # requirements of the t_srcdir test program (which cannot rely on -s
     # itself to find the source file).
+
+    # Add helper tests for t_require_config.
+    atf_add_test_case require_config
 
     # Add helper tests for t_require_progs.
     atf_add_test_case require_progs_body

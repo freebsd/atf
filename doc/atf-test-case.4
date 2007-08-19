@@ -114,7 +114,7 @@ The following list describes all meta-data properties interpreted
 internally by ATF.
 You are free to define new properties in your test cases and use them as
 you wish.
-.Bl -tag -width requireXprogsXX
+.Bl -tag -width requireXconfigXX
 .It descr
 Type: textual.  Required.
 .Pp
@@ -140,6 +140,13 @@ This property may disappear.
 Allowing a test case to bypass the work directories may be too error-prone.
 This was only added to provide a small performance speed-up for all
 those test cases that need not touch the current directory at all.
+.It require.config
+Type: textual.  Optional.
+.Pp
+A whitespace separated list of configuration variables that must be defined
+to execute the test case.
+If any of the required variables is not defined, the test case is
+.Em skipped .
 .It require.progs
 Type: textual.  Optional.
 .Pp

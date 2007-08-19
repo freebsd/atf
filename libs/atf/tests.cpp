@@ -334,7 +334,20 @@ impl::tc::safe_run(void)
 {
     tcr tcr = tcr::passed();
 
-    if (has("require.user")) {
+    if (has("require.config")) {
+        const std::string& c = get("require.config");
+        std::vector< std::string > vars = text::split(c, " ");
+        for (std::vector< std::string >::const_iterator iter = vars.begin();
+             iter != vars.end(); iter++) {
+            if (!m_config.has(*iter)) {
+                tcr = tcr::skipped("Required configuration variable " +
+                                   *iter + " not defined");
+                break;
+            }
+        }
+    }
+
+    if (tcr.get_status() == tcr::status_passed && has("require.user")) {
         const std::string& u = get("require.user");
         if (u == "root") {
             if (!user::is_root())

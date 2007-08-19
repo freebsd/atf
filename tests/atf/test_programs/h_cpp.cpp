@@ -41,6 +41,7 @@ extern "C" {
 }
 
 #include <fstream>
+#include <iostream>
 #include <stdexcept>
 
 #include "atf/env.hpp"
@@ -241,6 +242,22 @@ ATF_TEST_CASE_BODY(srcdir_exists)
 }
 
 // ------------------------------------------------------------------------
+// Helper tests for "t_require_config".
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(require_config);
+ATF_TEST_CASE_HEAD(require_config)
+{
+    set("descr", "Helper test case for the t_require_config test program");
+    set("require.config", "var1 var2");
+}
+ATF_TEST_CASE_BODY(require_config)
+{
+    std::cout << "var1: " << config().get("var1") << std::endl;
+    std::cout << "var2: " << config().get("var2") << std::endl;
+}
+
+// ------------------------------------------------------------------------
 // Helper tests for "t_require_progs".
 // ------------------------------------------------------------------------
 
@@ -337,6 +354,9 @@ ATF_INIT_TEST_CASES(tcs)
 
     // Add helper tests for t_srcdir.
     tcs.push_back(&srcdir_exists);
+
+    // Add helper tests for t_require_config.
+    tcs.push_back(&require_config);
 
     // Add helper tests for t_require_progs.
     tcs.push_back(&require_progs_body);
