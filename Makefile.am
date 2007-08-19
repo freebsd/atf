@@ -372,6 +372,15 @@ tests/atf/test_programs/t_fork: \
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_fork.sh
 
+atf_test_programs_SCRIPTS += tests/atf/test_programs/t_ident
+CLEANFILES += tests/atf/test_programs/t_ident
+EXTRA_DIST += tests/atf/test_programs/t_ident.sh
+tests/atf/test_programs/t_ident: \
+		$(srcdir)/tests/atf/test_programs/t_ident.sh \
+		$(ATF_COMPILE_DEPS)
+	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_ident.sh
+
 atf_test_programs_SCRIPTS += tests/atf/test_programs/t_isolated
 CLEANFILES += tests/atf/test_programs/t_isolated
 EXTRA_DIST += tests/atf/test_programs/t_isolated.sh

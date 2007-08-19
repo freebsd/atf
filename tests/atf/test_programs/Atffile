@@ -5,6 +5,7 @@ test-suite: atf
 t_config
 t_env
 t_fork
+t_ident
 t_isolated
 t_srcdir
 t_require_progs

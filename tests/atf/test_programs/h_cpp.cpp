@@ -173,6 +173,30 @@ ATF_TEST_CASE_BODY(fork_mangle_fds)
 }
 
 // ------------------------------------------------------------------------
+// Helper tests for "t_ident".
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(ident_1);
+ATF_TEST_CASE_HEAD(ident_1)
+{
+    set("descr", "Helper test case for the t_ident test program");
+}
+ATF_TEST_CASE_BODY(ident_1)
+{
+    ATF_CHECK_EQUAL(get("ident"), "ident_1");
+}
+
+ATF_TEST_CASE(ident_2);
+ATF_TEST_CASE_HEAD(ident_2)
+{
+    set("descr", "Helper test case for the t_ident test program");
+}
+ATF_TEST_CASE_BODY(ident_2)
+{
+    ATF_CHECK_EQUAL(get("ident"), "ident_2");
+}
+
+// ------------------------------------------------------------------------
 // Helper tests for "t_isolated".
 // ------------------------------------------------------------------------
 
@@ -347,6 +371,10 @@ ATF_INIT_TEST_CASES(tcs)
 
     // Add helper tests for t_fork.
     tcs.push_back(&fork_mangle_fds);
+
+    // Add helper tests for t_ident.
+    tcs.push_back(&ident_1);
+    tcs.push_back(&ident_2);
 
     // Add helper tests for t_isolated.
     tcs.push_back(&isolated_path);

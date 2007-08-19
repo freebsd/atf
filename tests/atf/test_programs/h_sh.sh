@@ -117,6 +117,28 @@ fork_mangle_fds_body()
 }
 
 # -------------------------------------------------------------------------
+# Helper tests for "t_ident".
+# -------------------------------------------------------------------------
+
+ident_1_head()
+{
+    atf_set "descr" "Helper test case for the t_ident test program"
+}
+ident_1_body()
+{
+    atf_check_equal '$(atf_get ident)' ident_1
+}
+
+ident_2_head()
+{
+    atf_set "descr" "Helper test case for the t_ident test program"
+}
+ident_2_body()
+{
+    atf_check_equal '$(atf_get ident)' ident_2
+}
+
+# -------------------------------------------------------------------------
 # Helper tests for "t_isolated".
 # -------------------------------------------------------------------------
 
@@ -258,6 +280,10 @@ atf_init_test_cases()
 
     # Add helper tests for t_fork.
     atf_add_test_case fork_mangle_fds
+
+    # Add helper tests for t_ident.
+    atf_add_test_case ident_1
+    atf_add_test_case ident_2
 
     # Add helper tests for t_isolated.
     atf_add_test_case isolated_path
