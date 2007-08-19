@@ -47,11 +47,9 @@ AM_CPPFLAGS = -DATF_CONFDIR=\"$(atf_confdir)\" \
               -DATF_LIBEXECDIR=\"$(libexecdir)\" \
               -DATF_PKGDATADIR=\"$(pkgdatadir)\" \
               -DATF_SHELL=\"$(ATF_SHELL)\" \
-              -DATF_WORKDIR=\"$(ATF_WORKDIR)\" \
-              -I$(srcdir)/libs \
-              -Ilibs/atf
+              -DATF_WORKDIR=\"$(ATF_WORKDIR)\"
 
-ATF_COMPILE_DEPS = $(srcdir)/libs/shell/atf.init.subr
+ATF_COMPILE_DEPS = $(srcdir)/subrs/atf.init.subr
 ATF_COMPILE_DEPS += tools/atf-host-compile
 ATF_COMPILE_SH = ./tools/atf-host-compile
 
@@ -73,6 +71,58 @@ EXTRA_DIST += admin/check-style-common.awk \
               admin/check-style.sh
 
 # -------------------------------------------------------------------------
+# `atf' directory.
+# -------------------------------------------------------------------------
+
+lib_LIBRARIES = libatf.a
+libatf_a_SOURCES =  atf/application.cpp \
+                    atf/application.hpp \
+                    atf/atffile.cpp \
+                    atf/atffile.hpp \
+                    atf/config.cpp \
+                    atf/config.hpp \
+                    atf/env.cpp \
+                    atf/env.hpp \
+                    atf/exceptions.cpp \
+                    atf/exceptions.hpp \
+                    atf/expand.cpp \
+                    atf/expand.hpp \
+                    atf/formats.cpp \
+                    atf/formats.hpp \
+                    atf/fs.cpp \
+                    atf/fs.hpp \
+                    atf/io.cpp \
+                    atf/io.hpp \
+                    atf/macros.hpp \
+                    atf/serial.cpp \
+                    atf/serial.hpp \
+                    atf/tests.cpp \
+                    atf/tests.hpp \
+                    atf/text.cpp \
+                    atf/text.hpp \
+                    atf/ui.cpp \
+                    atf/ui.hpp \
+                    atf/user.cpp \
+                    atf/user.hpp
+
+include_HEADERS = atf.hpp
+atf_HEADERS = atf/application.hpp \
+              atf/atffile.hpp \
+              atf/config.hpp \
+              atf/env.hpp \
+              atf/exceptions.hpp \
+              atf/expand.hpp \
+              atf/formats.hpp \
+              atf/fs.hpp \
+              atf/io.hpp \
+              atf/serial.hpp \
+              atf/tests.hpp \
+              atf/text.hpp \
+              atf/ui.hpp \
+              atf/user.hpp
+atfdir = $(includedir)/atf
+
+# -------------------------------------------------------------------------
 # `doc' directory.
 # -------------------------------------------------------------------------
 
@@ -90,66 +140,14 @@ doc/atf.7: $(srcdir)/doc/atf.7.in
 	mv doc/atf.7.tmp doc/atf.7
 
 # -------------------------------------------------------------------------
-# `libs/atf' directory.
+# `subrs' directory.
 # -------------------------------------------------------------------------
 
-lib_LIBRARIES = libs/libatf.a
-libs_libatf_a_SOURCES =  libs/atf/application.cpp \
-                         libs/atf/application.hpp \
-                         libs/atf/atffile.cpp \
-                         libs/atf/atffile.hpp \
-                         libs/atf/config.cpp \
-                         libs/atf/config.hpp \
-                         libs/atf/env.cpp \
-                         libs/atf/env.hpp \
-                         libs/atf/exceptions.cpp \
-                         libs/atf/exceptions.hpp \
-                         libs/atf/expand.cpp \
-                         libs/atf/expand.hpp \
-                         libs/atf/formats.cpp \
-                         libs/atf/formats.hpp \
-                         libs/atf/fs.cpp \
-                         libs/atf/fs.hpp \
-                         libs/atf/io.cpp \
-                         libs/atf/io.hpp \
-                         libs/atf/macros.hpp \
-                         libs/atf/serial.cpp \
-                         libs/atf/serial.hpp \
-                         libs/atf/tests.cpp \
-                         libs/atf/tests.hpp \
-                         libs/atf/text.cpp \
-                         libs/atf/text.hpp \
-                         libs/atf/ui.cpp \
-                         libs/atf/ui.hpp \
-                         libs/atf/user.cpp \
-                         libs/atf/user.hpp
-
-include_HEADERS = libs/atf.hpp
-atf_HEADERS = libs/atf/application.hpp \
-              libs/atf/atffile.hpp \
-              libs/atf/config.hpp \
-              libs/atf/env.hpp \
-              libs/atf/exceptions.hpp \
-              libs/atf/expand.hpp \
-              libs/atf/formats.hpp \
-              libs/atf/fs.hpp \
-              libs/atf/io.hpp \
-              libs/atf/serial.hpp \
-              libs/atf/tests.hpp \
-              libs/atf/text.hpp \
-              libs/atf/ui.hpp \
-              libs/atf/user.hpp
-atfdir = $(includedir)/atf
-
-# -------------------------------------------------------------------------
-# `libs/shell' directory.
-# -------------------------------------------------------------------------
-
-libs_shell_DATA = libs/shell/atf.footer.subr \
-                  libs/shell/atf.header.subr \
-                  libs/shell/atf.init.subr
-libs_shelldir = $(pkgdatadir)
-EXTRA_DIST += $(libs_shell_DATA)
+subrs_DATA = subrs/atf.footer.subr \
+             subrs/atf.header.subr \
+             subrs/atf.init.subr
+subrsdir = $(pkgdatadir)
+EXTRA_DIST += $(subrs_DATA)
 
 # -------------------------------------------------------------------------
 # `tests/bootstrap' directory.
@@ -158,17 +156,17 @@ EXTRA_DIST += $(libs_shell_DATA)
 check_PROGRAMS = tests/bootstrap/h_app_empty
 tests_bootstrap_h_app_empty_SOURCES = tests/bootstrap/h_app_empty.cpp
 tests_bootstrap_h_app_empty_LDADD = -latf
-tests_bootstrap_h_app_empty_LDFLAGS = -Llibs
+tests_bootstrap_h_app_empty_LDFLAGS = -L.
 
 check_PROGRAMS += tests/bootstrap/h_app_opts_args
 tests_bootstrap_h_app_opts_args_SOURCES = tests/bootstrap/h_app_opts_args.cpp
 tests_bootstrap_h_app_opts_args_LDADD = -latf
-tests_bootstrap_h_app_opts_args_LDFLAGS = -Llibs
+tests_bootstrap_h_app_opts_args_LDFLAGS = -L.
 
 check_PROGRAMS += tests/bootstrap/h_tp_basic_cpp
 tests_bootstrap_h_tp_basic_cpp_SOURCES = tests/bootstrap/h_tp_basic_cpp.cpp
 tests_bootstrap_h_tp_basic_cpp_LDADD = -latf
-tests_bootstrap_h_tp_basic_cpp_LDFLAGS = -Llibs
+tests_bootstrap_h_tp_basic_cpp_LDFLAGS = -L.
 
 check_SCRIPTS = tests/bootstrap/h_tp_basic_sh
 CLEANFILES += tests/bootstrap/h_tp_basic_sh
@@ -346,7 +344,7 @@ tests/atf/test_programs/t_srcdir: \
 atf_test_programs_PROGRAMS = tests/atf/test_programs/h_cpp
 tests_atf_test_programs_h_cpp_SOURCES = tests/atf/test_programs/h_cpp.cpp
 tests_atf_test_programs_h_cpp_LDADD = -latf
-tests_atf_test_programs_h_cpp_LDFLAGS = -Llibs
+tests_atf_test_programs_h_cpp_LDFLAGS = -L.
 
 atf_tools_DATA = tests/atf/tools/Atffile
 atf_toolsdir = $(pkgtestsdir)/tools
@@ -400,52 +398,52 @@ EXTRA_DIST += $(atf_units_DATA)
 atf_units_PROGRAMS = tests/atf/units/t_config
 tests_atf_units_t_config_SOURCES = tests/atf/units/t_config.cpp
 tests_atf_units_t_config_LDADD = -latf
-tests_atf_units_t_config_LDFLAGS = -Llibs
+tests_atf_units_t_config_LDFLAGS = -L.
 
 atf_units_PROGRAMS += tests/atf/units/t_env
 tests_atf_units_t_env_SOURCES = tests/atf/units/t_env.cpp
 tests_atf_units_t_env_LDADD = -latf
-tests_atf_units_t_env_LDFLAGS = -Llibs
+tests_atf_units_t_env_LDFLAGS = -L.
 
 atf_units_PROGRAMS += tests/atf/units/t_expand
 tests_atf_units_t_expand_SOURCES = tests/atf/units/t_expand.cpp
 tests_atf_units_t_expand_LDADD = -latf
-tests_atf_units_t_expand_LDFLAGS = -Llibs
+tests_atf_units_t_expand_LDFLAGS = -L.
 
 atf_units_PROGRAMS += tests/atf/units/t_formats
 tests_atf_units_t_formats_SOURCES = tests/atf/units/t_formats.cpp
 tests_atf_units_t_formats_LDADD = -latf
-tests_atf_units_t_formats_LDFLAGS = -Llibs
+tests_atf_units_t_formats_LDFLAGS = -L.
 
 atf_units_PROGRAMS += tests/atf/units/t_fs
 tests_atf_units_t_fs_SOURCES = tests/atf/units/t_fs.cpp
 tests_atf_units_t_fs_LDADD = -latf
-tests_atf_units_t_fs_LDFLAGS = -Llibs
+tests_atf_units_t_fs_LDFLAGS = -L.
 
 atf_units_PROGRAMS += tests/atf/units/t_io
 tests_atf_units_t_io_SOURCES = tests/atf/units/t_io.cpp
 tests_atf_units_t_io_LDADD = -latf
-tests_atf_units_t_io_LDFLAGS = -Llibs
+tests_atf_units_t_io_LDFLAGS = -L.
 
 atf_units_PROGRAMS += tests/atf/units/t_serial
 tests_atf_units_t_serial_SOURCES = tests/atf/units/t_serial.cpp
 tests_atf_units_t_serial_LDADD = -latf
-tests_atf_units_t_serial_LDFLAGS = -Llibs
+tests_atf_units_t_serial_LDFLAGS = -L.
 
 atf_units_PROGRAMS += tests/atf/units/t_tests
 tests_atf_units_t_tests_SOURCES = tests/atf/units/t_tests.cpp
 tests_atf_units_t_tests_LDADD = -latf
-tests_atf_units_t_tests_LDFLAGS = -Llibs
+tests_atf_units_t_tests_LDFLAGS = -L.
 
 atf_units_PROGRAMS += tests/atf/units/t_text
 tests_atf_units_t_text_SOURCES = tests/atf/units/t_text.cpp
 tests_atf_units_t_text_LDADD = -latf
-tests_atf_units_t_text_LDFLAGS = -Llibs
+tests_atf_units_t_text_LDFLAGS = -L.
 
 atf_units_PROGRAMS += tests/atf/units/t_user
 tests_atf_units_t_user_SOURCES = tests/atf/units/t_user.cpp
 tests_atf_units_t_user_LDADD = -latf
-tests_atf_units_t_user_LDFLAGS = -Llibs
+tests_atf_units_t_user_LDFLAGS = -L.
 
 # -------------------------------------------------------------------------
 # `tests/build' directory.
@@ -478,11 +476,11 @@ tests_build_libuseless_a_SOURCES = \
 bin_PROGRAMS = tools/atf-config
 tools_atf_config_SOURCES = tools/atf-config.cpp
 tools_atf_config_LDADD = -latf
-tools_atf_config_LDFLAGS = -Llibs
+tools_atf_config_LDFLAGS = -L.
 dist_man_MANS += tools/atf-config.1
 
 tools/atf-host-compile: $(srcdir)/tools/atf-host-compile.sh
-	sed -e 's,__ATF_PKGDATADIR__,$(srcdir)/libs/shell,g' \
+	sed -e 's,__ATF_PKGDATADIR__,$(srcdir)/subrs,g' \
 	    -e 's,__ATF_SHELL__,$(ATF_SHELL),g' \
 	    <$(srcdir)/tools/atf-host-compile.sh \
 	    >tools/atf-host-compile.tmp
@@ -495,31 +493,31 @@ EXTRA_DIST += tools/atf-host-compile.sh
 libexec_PROGRAMS = tools/atf-cleanup
 tools_atf_cleanup_SOURCES = tools/atf-cleanup.cpp
 tools_atf_cleanup_LDADD = -latf
-tools_atf_cleanup_LDFLAGS = -Llibs
+tools_atf_cleanup_LDFLAGS = -L.
 dist_man_MANS += tools/atf-cleanup.1
 
 bin_PROGRAMS += tools/atf-compile
 tools_atf_compile_SOURCES = tools/atf-compile.cpp
 tools_atf_compile_LDADD = -latf
-tools_atf_compile_LDFLAGS = -Llibs
+tools_atf_compile_LDFLAGS = -L.
 dist_man_MANS += tools/atf-compile.1
 
 libexec_PROGRAMS += tools/atf-format
 tools_atf_format_SOURCES = tools/atf-format.cpp
 tools_atf_format_LDADD = -latf
-tools_atf_format_LDFLAGS = -Llibs
+tools_atf_format_LDFLAGS = -L.
 dist_man_MANS += tools/atf-format.1
 
 bin_PROGRAMS += tools/atf-report
 tools_atf_report_SOURCES = tools/atf-report.cpp
 tools_atf_report_LDADD = -latf
-tools_atf_report_LDFLAGS = -Llibs
+tools_atf_report_LDFLAGS = -L.
 dist_man_MANS += tools/atf-report.1
 
 bin_PROGRAMS += tools/atf-run
 tools_atf_run_SOURCES = tools/atf-run.cpp
 tools_atf_run_LDADD = -latf
-tools_atf_run_LDFLAGS = -Llibs
+tools_atf_run_LDFLAGS = -L.
 dist_man_MANS += tools/atf-run.1
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

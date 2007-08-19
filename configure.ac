@@ -46,7 +46,7 @@ AC_SUBST(PACKAGE_COPYRIGHT,
 AC_CONFIG_AUX_DIR([admin])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([admin])
-AC_CONFIG_SRCDIR([libs/atf.hpp])
+AC_CONFIG_SRCDIR([atf.hpp])
 AC_CONFIG_TESTDIR([tests/bootstrap])
 
 AM_INIT_AUTOMAKE([1.10 check-news subdir-objects -Wall])

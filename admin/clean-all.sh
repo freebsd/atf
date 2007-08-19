@@ -37,7 +37,7 @@
 
 Prog_Name=${0##*/}
 
-if [ ! -f ./libs/atf.hpp ]; then
+if [ ! -f ./atf.hpp ]; then
     echo "${Prog_Name}: must be run from atf source's top directory" 1>&2
     exit 1
 fi

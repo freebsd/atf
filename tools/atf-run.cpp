@@ -213,7 +213,7 @@ atf_run::atf_run(void) :
 {
 }
 
-// XXX Duplicate from libs/atf/tests.cpp.
+// XXX Duplicate from atf/tests.cpp.
 atf::tests::vars_map::value_type
 atf_run::parse_var(const std::string& str)
 {
