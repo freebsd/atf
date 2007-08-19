@@ -312,6 +312,15 @@ tests/atf/sh_interface/t_config: \
 	test -d tests/atf/sh_interface || mkdir -p tests/atf/sh_interface
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/sh_interface/t_config.sh
 
+atf_sh_interface_SCRIPTS += tests/atf/sh_interface/t_normalize
+CLEANFILES += tests/atf/sh_interface/t_normalize
+EXTRA_DIST += tests/atf/sh_interface/t_normalize.sh
+tests/atf/sh_interface/t_normalize: \
+		$(srcdir)/tests/atf/sh_interface/t_normalize.sh \
+		$(ATF_COMPILE_DEPS)
+	test -d tests/atf/sh_interface || mkdir -p tests/atf/sh_interface
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/sh_interface/t_normalize.sh
+
 atf_sh_interface_SCRIPTS += tests/atf/sh_interface/t_tc
 CLEANFILES += tests/atf/sh_interface/t_tc
 EXTRA_DIST += tests/atf/sh_interface/t_tc.sh

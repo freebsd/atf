@@ -616,7 +616,7 @@ _atf_list_tcs()
 #
 _atf_normalize()
 {
-    echo ${1} | tr . _
+    echo ${1} | tr .- __
 }
 
 #
