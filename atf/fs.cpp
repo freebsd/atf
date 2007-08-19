@@ -264,7 +264,9 @@ impl::file_info::file_info(const path& p) :
     case S_IFLNK:  m_type = lnk_type;  break;
     case S_IFREG:  m_type = reg_type;  break;
     case S_IFSOCK: m_type = sock_type; break;
+#if defined(S_IFWHT)
     case S_IFWHT:  m_type = wht_type;  break;
+#endif
     default:
         throw std::runtime_error(IMPL_NAME "::file_info(" + p.str() + "): "
                                  "lstat(2) returned an unknown file type");
@@ -588,9 +590,17 @@ impl::cleanup(const path& p)
     for (std::vector< path >::const_iterator iter = mntpts.begin();
          iter != mntpts.end(); iter++) {
         const path& p2 = *iter;
+#if defined(HAVE_UMOUNT)
+        if (::umount(p2.c_str()) == -1)
+            throw system_error(IMPL_NAME "::cleanup(" + p.str() + ")",
+                               "umount(" + p2.str() + ") failed", errno);
+#elif defined(HAVE_UNMOUNT)
         if (::unmount(p2.c_str(), 0) == -1)
             throw system_error(IMPL_NAME "::cleanup(" + p.str() + ")",
                                "unmount(" + p2.str() + ") failed", errno);
+#else
+#   error "Don't know how to unmount a file system."
+#endif
     }
     rm_rf(p);
 }

@@ -137,6 +137,8 @@ AC_COMPILE_IFELSE(
               [Define to 1 if vnsprintf is in std]),
     AC_MSG_RESULT(no))
 
+AC_CHECK_FUNCS([umount unmount])
+
 dnl -----------------------------------------------------------------------
 dnl User-customizable variables.
 dnl -----------------------------------------------------------------------
