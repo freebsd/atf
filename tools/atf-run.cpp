@@ -392,11 +392,11 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
 {
     // Get the file descriptor and input stream of stdout.
     outpipe.wend().close();
-    atf::io::pistream outin(outpipe.rend());
+    atf::io::unbuffered_istream outin(outpipe.rend());
 
     // Get the file descriptor and input stream of stderr.
     errpipe.wend().close();
-    atf::io::pistream errin(errpipe.rend());
+    atf::io::unbuffered_istream errin(errpipe.rend());
 
     // Get the file descriptor and input stream of the results channel.
     respipe.wend().close();

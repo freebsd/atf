@@ -256,12 +256,34 @@ EOF
     atf_check "grep 'testvar: a value' stdout" 0 ignore ignore
 }
 
+fds_head()
+{
+    atf_set "descr" "Tests that all streams are properly captured"
+    atf_set "require.progs" "atf-compile" # XXX
+}
+fds_body()
+{
+    create_helper <<EOF
+echo "msg1 to stdout"
+echo "msg2 to stdout"
+echo "msg1 to stderr" 1>&2
+echo "msg2 to stderr" 1>&2
+EOF
+
+    atf_check "atf-run" 0 stdout null
+    atf_check "grep '^so: msg1 to stdout$' stdout" 0 ignore null
+    atf_check "grep '^so: msg2 to stdout$' stdout" 0 ignore null
+    atf_check "grep '^se: msg1 to stderr$' stdout" 0 ignore null
+    atf_check "grep '^se: msg2 to stderr$' stdout" 0 ignore null
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case config
     atf_add_test_case vflag
     atf_add_test_case atffile
     atf_add_test_case atffile_recursive
+    atf_add_test_case fds
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

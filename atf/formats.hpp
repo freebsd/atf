@@ -92,8 +92,11 @@ public:
 // ------------------------------------------------------------------------
 
 class atf_tcs_reader {
-    atf::io::pistream& m_is;
+    std::istream& m_is;
     atf::serial::internalizer m_int;
+
+    void read_out_err(atf::io::unbuffered_istream&,
+                      atf::io::unbuffered_istream&);
 
 protected:
     virtual void got_ntcs(size_t);
@@ -104,10 +107,10 @@ protected:
     virtual void got_eof(void);
 
 public:
-    atf_tcs_reader(atf::io::pistream&);
+    atf_tcs_reader(std::istream&);
     virtual ~atf_tcs_reader(void);
 
-    void read(atf::io::pistream&, atf::io::pistream&);
+    void read(atf::io::unbuffered_istream&, atf::io::unbuffered_istream&);
 };
 
 // ------------------------------------------------------------------------

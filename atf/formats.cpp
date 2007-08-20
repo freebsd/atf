@@ -278,7 +278,7 @@ impl::atf_config_reader::read(void)
 // The "atf_tcs_reader" class.
 // ------------------------------------------------------------------------
 
-impl::atf_tcs_reader::atf_tcs_reader(atf::io::pistream& is) :
+impl::atf_tcs_reader::atf_tcs_reader(std::istream& is) :
     m_is(is),
     m_int(is, "application/X-atf-tcs", 0)
 {
@@ -319,92 +319,71 @@ impl::atf_tcs_reader::got_eof(void)
 }
 
 void
-impl::atf_tcs_reader::read(atf::io::pistream& out, atf::io::pistream& err)
+impl::atf_tcs_reader::read_out_err(atf::io::unbuffered_istream& out,
+                                   atf::io::unbuffered_istream& err)
+{
+    struct pollfd fds[2];
+    fds[0].fd = out.get_fh().get();
+    fds[0].events = POLLIN;
+    fds[1].fd = err.get_fh().get();
+    fds[1].events = POLLIN;
+
+    do {
+        fds[0].revents = 0;
+        fds[1].revents = 0;
+        if (::poll(fds, 2, -1) == -1)
+            break;
+
+        if (fds[0].revents & POLLIN) {
+            std::string line;
+            if (atf::io::getline(out, line).good()) {
+                if (line == "__atf_stream_end__")
+                    fds[0].events &= ~POLLIN;
+                else
+                    got_stdout_line(line);
+            } else
+                fds[0].events &= ~POLLIN;
+        }
+
+        if (fds[1].revents & POLLIN) {
+            std::string line;
+            if (atf::io::getline(err, line).good()) {
+                if (line == "__atf_stream_end__")
+                    fds[1].events &= ~POLLIN;
+                else
+                    got_stderr_line(line);
+            } else
+                fds[1].events &= ~POLLIN;
+        }
+    } while (fds[0].events & POLLIN || fds[1].events & POLLIN);
+
+    if ((!out.good() || !err.good()))
+        throw serial::format_error("Missing terminators in stdout or stderr");
+}
+
+void
+impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
+                           atf::io::unbuffered_istream& err)
 {
     std::string line;
 
     size_t ntcs = read_size_t(m_is, "Failed to read number of test cases");
     got_ntcs(ntcs);
 
-    struct pollfd fds[3];
-    fds[0].fd = m_is.handle().get();
-    fds[0].events = POLLIN;
-    fds[1].fd = out.handle().get();
-    fds[1].events = 0;
-    fds[2].fd = err.handle().get();
-    fds[2].events = 0;
-
     std::string tcname;
-    do {
-        fds[0].revents = 0;
-        fds[1].revents = 0;
-        fds[2].revents = 0;
-        if (::poll(fds, 3, -1) == -1)
-            break;
+    for (size_t i = 0; i < ntcs; i++) {
+        std::getline(m_int.get_stream(), line);
+        tcname = line;
+        got_tc_start(tcname);
 
-        if (fds[0].revents & POLLIN) {
-            if (tcname.empty()) {
-                if (std::getline(m_int.get_stream(), line).good()) {
-                    tcname = line;
-                    got_tc_start(tcname);
-                } else
-                    fds[0].events &= ~POLLIN;
+        read_out_err(out, err);
 
-                if (out.good() || err.good()) {
-                    if (out.good())
-                        fds[1].events |= POLLIN;
-                    if (err.good())
-                        fds[2].events |= POLLIN;
-                    fds[0].events &= ~POLLIN;
-                }
-            } else {
-                tests::tcr tcr = read_tcr(m_int.get_stream());
-                read_terminator(m_int.get_stream(),
-                                "Missing test case terminator");
-                got_tc_end(tcr);
+        tests::tcr tcr = read_tcr(m_int.get_stream());
+        read_terminator(m_int.get_stream(),
+                        "Missing test case terminator");
+        got_tc_end(tcr);
 
-                tcname.clear();
-
-                if (!m_int.get_stream().good())
-                    fds[0].events &= ~POLLIN;
-
-                assert(!(fds[1].events & POLLIN));
-                assert(!(fds[2].events & POLLIN));
-            }
-        }
-
-        if (fds[1].revents & POLLIN) {
-            if (std::getline(out, line).good()) {
-                if (line == "__atf_stream_end__") {
-                    fds[1].events &= ~POLLIN;
-                    if (!(fds[2].events & POLLIN))
-                        fds[0].events |= POLLIN;
-                } else
-                    got_stdout_line(line);
-            } else
-                fds[1].events &= ~POLLIN;
-        }
-
-        if (fds[2].revents & POLLIN) {
-            if (std::getline(err, line).good()) {
-                if (line == "__atf_stream_end__") {
-                    fds[2].events &= ~POLLIN;
-
-                    if (!(fds[1].events & POLLIN))
-                        fds[0].events |= POLLIN;
-                } else
-                    got_stderr_line(line);
-            } else
-                fds[2].events &= ~POLLIN;
-        }
-    } while (((fds[0].events & POLLIN) && m_int.get_stream().good()) ||
-             (((fds[1].events & POLLIN) && out.good()) ||
-              ((fds[2].events & POLLIN) && err.good())));
-
-    if (!(fds[0].events & POLLIN) && m_int.get_stream().good()) {
-        assert(!tcname.empty());
-        throw serial::format_error("Missing terminators in stdout or "
-                                   "stderr for test case " + tcname);
+        tcname.clear();
     }
 
     got_eof();
