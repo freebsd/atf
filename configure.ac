@@ -49,7 +49,7 @@ AC_CONFIG_MACRO_DIR([admin])
 AC_CONFIG_SRCDIR([atf.hpp])
 AC_CONFIG_TESTDIR([tests/bootstrap])
 
-AM_INIT_AUTOMAKE([1.10 check-news subdir-objects -Wall])
+AM_INIT_AUTOMAKE([1.9 check-news subdir-objects -Wall])
 
 AC_PROG_LIBTOOL
 

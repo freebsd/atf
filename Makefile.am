@@ -135,6 +135,7 @@ dist_man_MANS = doc/atf-formats.5 \
                 doc/atf-test-program.1
 
 doc/atf.7: $(srcdir)/doc/atf.7.in
+	test -d doc || mkdir -p doc
 	sed -e 's,__DOCDIR__,$(docdir),g' \
 	    <$(srcdir)/doc/atf.7.in >doc/atf.7.tmp
 	mv doc/atf.7.tmp doc/atf.7
