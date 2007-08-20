@@ -590,16 +590,20 @@ impl::cleanup(const path& p)
     for (std::vector< path >::const_iterator iter = mntpts.begin();
          iter != mntpts.end(); iter++) {
         const path& p2 = *iter;
-#if defined(HAVE_UMOUNT)
-        if (::umount(p2.c_str()) == -1)
-            throw system_error(IMPL_NAME "::cleanup(" + p.str() + ")",
-                               "umount(" + p2.str() + ") failed", errno);
-#elif defined(HAVE_UNMOUNT)
+#if defined(HAVE_UNMOUNT)
         if (::unmount(p2.c_str(), 0) == -1)
             throw system_error(IMPL_NAME "::cleanup(" + p.str() + ")",
                                "unmount(" + p2.str() + ") failed", errno);
 #else
-#   error "Don't know how to unmount a file system."
+        // We could use umount(2) instead if it was available... but
+        // trying to do so under, e.g. Linux, is a nightmare because we
+        // also have to update /etc/mtab to match what we did.  It is
+        // simpler to just leave the system-specific umount(8) tool deal
+        // with it, at least for now.
+        int res = std::system(("umount '" + p2.str() + "'").c_str());
+        if (res == -1 || !WIFEXITED(res) || WEXITSTATUS(res) != EXIT_SUCCESS)
+            throw std::runtime_error("Failed to execute umount '" +
+                                     p2.str() + "'");
 #endif
     }
     rm_rf(p);

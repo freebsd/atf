@@ -85,7 +85,7 @@ mount_body()
 {
     platform=$(uname)
     case ${platform} in
-    NetBSD)
+    Linux|NetBSD)
         mkdir foo
         mkdir foo/bar
         mkdir foo/bar/mnt
@@ -119,7 +119,7 @@ symlink_body()
 {
     platform=$(uname)
     case ${platform} in
-    NetBSD)
+    Linux|NetBSD)
         atf_check 'mkdir foo' 0 null null
         atf_check 'mkdir foo/bar' 0 null null
         atf_check 'mount -t tmpfs tmpfs foo/bar' 0 null null
