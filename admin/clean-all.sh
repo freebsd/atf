@@ -59,6 +59,7 @@ rm -rf autom4te.cache
 rm -f config.h.in
 rm -f configure
 rm -f mkinstalldirs
+rm -f atf-*.tar.gz
 
 # `admin' directory.
 rm -f admin/compile
