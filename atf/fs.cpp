@@ -41,6 +41,7 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/mount.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <dirent.h>
 #include <libgen.h>
 #include <unistd.h>
