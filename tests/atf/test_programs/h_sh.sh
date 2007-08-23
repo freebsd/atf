@@ -116,6 +116,15 @@ fork_mangle_fds_body()
     eval "exec ${resfd}>res"
 }
 
+fork_umask_head()
+{
+    atf_set "descr" "Helper test case for the t_fork test program"
+}
+fork_umask_body()
+{
+    echo "umask: $(umask)"
+}
+
 # -------------------------------------------------------------------------
 # Helper tests for "t_meta_data".
 # -------------------------------------------------------------------------
@@ -264,6 +273,7 @@ atf_init_test_cases()
 
     # Add helper tests for t_fork.
     atf_add_test_case fork_mangle_fds
+    atf_add_test_case fork_umask
 
     # Add helper tests for t_meta_data.
     atf_add_test_case ident_1

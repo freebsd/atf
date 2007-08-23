@@ -36,6 +36,7 @@
 
 extern "C" {
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
 }
@@ -415,6 +416,8 @@ impl::tc::fork_body(const std::string& workdir)
             atf::env::unset("LC_NUMERIC");
             atf::env::unset("LC_TIME");
             atf::env::unset("TZ");
+
+            ::umask(S_IWGRP | S_IWOTH);
 
             // This is here because require_progs can assert if the user
             // gave bad input.  Having it here lets us capture the abort

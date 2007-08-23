@@ -22,8 +22,6 @@ Plans for 0.2
 * Add detection of signals in test cases and run the clean up routines
   afterwards.
 
-* Set the umask to a known value before running a test case.
-
 * Fix atf-run to show an error if a test program did not execute any test
   case.
 

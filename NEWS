@@ -3,6 +3,17 @@ Copyright (c) 2007 The NetBSD Foundation, Inc.
 All rights reserved.
 
 
+Version 0.2
+===========
+
+Release date: STILL UNDER DEVELOPMENT; NOT RELEASED
+Status:       Experimental
+
+Changes:
+
+* Test cases now get a known umask on entry.
+
+
 Version 0.1
 ===========
 

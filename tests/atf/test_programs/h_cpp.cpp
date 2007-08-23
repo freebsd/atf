@@ -42,6 +42,7 @@ extern "C" {
 
 #include <cstdlib>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 
@@ -170,6 +171,19 @@ ATF_TEST_CASE_BODY(fork_mangle_fds)
     if (::fcntl(0, F_CLOSEM) == -1)
         ATF_FAIL("Failed to close everything");
 #endif
+}
+
+ATF_TEST_CASE(fork_umask);
+ATF_TEST_CASE_HEAD(fork_umask)
+{
+    set("descr", "Helper test case for the t_fork test program");
+}
+ATF_TEST_CASE_BODY(fork_umask)
+{
+    mode_t m = ::umask(0);
+    std::cout << "umask: " << std::setw(4) << std::setfill('0')
+              << std::oct << m << std::endl;
+    (void)::umask(m);
 }
 
 // ------------------------------------------------------------------------
@@ -355,6 +369,7 @@ ATF_INIT_TEST_CASES(tcs)
 
     // Add helper tests for t_fork.
     tcs.push_back(&fork_mangle_fds);
+    tcs.push_back(&fork_umask);
 
     // Add helper tests for t_meta_data.
     tcs.push_back(&ident_1);

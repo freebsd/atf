@@ -34,6 +34,9 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+# TODO: This test program is about checking the test case's "environment"
+# (not the variables).  Should be named something else than t_fork.
+
 mangle_fds_head()
 {
     atf_set "descr" "Tests that mangling standard descriptors does not" \
@@ -52,9 +55,34 @@ mangle_fds_body()
     done
 }
 
+umask_head()
+{
+    atf_set "descr" "Tests that the umask is properly set in the test" \
+                    "cases"
+}
+umask_body()
+{
+    srcdir=$(atf_get_srcdir)
+    h_cpp=${srcdir}/h_cpp
+    h_sh=${srcdir}/h_sh
+
+    echo 0022 >expout
+    atf_check 'umask' 0 expout null
+
+    for h in ${h_cpp} ${h_sh}; do
+        umask 0000
+        atf_check "${h} -s ${srcdir} -r3 fork_umask 3>resout" \
+                  0 stdout ignore
+        atf_check "grep 'umask: 0022' stdout" 0 ignore null
+        atf_check "grep 'passed' resout" 0 ignore null
+        umask 0022
+    done
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case mangle_fds
+    atf_add_test_case umask
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

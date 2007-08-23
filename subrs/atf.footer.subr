@@ -666,6 +666,8 @@ _atf_run_body()
     unset LC_TIME
     unset TZ
 
+    umask 0022
+
     _vars="$(atf_get require.config)"
     if [ -n "${_vars}" ]; then
         for _v in ${_vars}; do
