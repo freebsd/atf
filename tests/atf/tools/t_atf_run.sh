@@ -277,6 +277,36 @@ EOF
     atf_check "grep '^se: msg2 to stderr$' stdout" 0 ignore null
 }
 
+zero_tcs_head()
+{
+    atf_set "descr" "Ensures that atf-run reports test programs without" \
+                    "test cases as errors"
+}
+zero_tcs_body()
+{
+    cat >helper <<EOF
+#! $(atf-config -t atf_shell)
+echo 'Content-Type: application/X-atf-tcs; version="0"' 1>&9
+echo 1>&9
+echo 0 1>&9
+echo __atf_stream_end__
+echo __atf_stream_end__ 1>&2
+exit 0
+EOF
+    chmod +x helper
+
+    cat >Atffile <<EOF
+Content-Type: application/X-atf-atffile; version="0"
+
+test-suite: atf
+
+helper
+EOF
+
+    atf_check "atf-run" 1 ignore stderr
+    atf_check "grep 'ERROR.*0 test cases' stderr" 0 ignore null
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case config
@@ -284,6 +314,7 @@ atf_init_test_cases()
     atf_add_test_case atffile
     atf_add_test_case atffile_recursive
     atf_add_test_case fds
+    atf_add_test_case zero_tcs
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

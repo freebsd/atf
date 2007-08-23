@@ -95,6 +95,9 @@ class muxer : public atf::formats::atf_tcs_reader {
     void
     got_ntcs(size_t ntcs)
     {
+        if (ntcs == 0)
+            throw std::runtime_error("Bogus test program: reported 0 "
+                                     "test cases");
         m_writer.start_tp(m_tp, ntcs);
     }
 
