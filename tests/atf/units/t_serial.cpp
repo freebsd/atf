@@ -129,8 +129,8 @@ ATF_TEST_CASE_BODY(ext_data)
 
     std::ostringstream ss;
     externalizer e(ss, "text/X-test", 0);
-    e << "This is a line\n";
-    e << 123 << '\n';
+    e.putline("This is a line");
+    e.putline(123);
 
     std::string str;
     str += "Content-Type: text/X-test; version=\"0\"\n";
@@ -260,13 +260,18 @@ ATF_TEST_CASE_BODY(int_data)
     ATF_CHECK(ct.has_attr("version"));
     ATF_CHECK_EQUAL(ct.get_attr("version"), "0");
 
-    std::string word;
-    i >> word;
-    ATF_CHECK_EQUAL(word, "Word");
+    std::string line;
 
-    int num;
-    i >> num;
-    ATF_CHECK_EQUAL(num, 123);
+    i.getline(line);
+    ATF_CHECK(i.good());
+    ATF_CHECK_EQUAL(line, "Word");
+
+    i.getline(line);
+    ATF_CHECK(i.good());
+    ATF_CHECK_EQUAL(line, "123");
+
+    i.getline(line);
+    ATF_CHECK(!i.good());
 }
 
 ATF_TEST_CASE(int_errors);
@@ -380,6 +385,55 @@ ATF_TEST_CASE_BODY(int_errors)
     }
 }
 
+ATF_TEST_CASE(int_lineno);
+ATF_TEST_CASE_HEAD(int_lineno)
+{
+    set("descr", "Tests that the internalizer properlykeeps track of the "
+                 "current line number");
+}
+ATF_TEST_CASE_BODY(int_lineno)
+{
+    using atf::serial::format_error;
+    using atf::serial::internalizer;
+
+    {
+        std::string str;
+        str += "Content-Type: text/X-test; version=\"0\"\n\n";
+
+        std::istringstream ss(str);
+        internalizer i(ss, "text/X-test", 0);
+        ATF_CHECK_EQUAL(i.lineno(), 3);
+    }
+
+    {
+        std::string str;
+        str += "Content-Type: text/X-test; version=\"0\"\n";
+        str += "Another-Heaader: foo-bar\n\n";
+
+        std::istringstream ss(str);
+        internalizer i(ss, "text/X-test", 0);
+        ATF_CHECK_EQUAL(i.lineno(), 4);
+    }
+
+    {
+        std::string str;
+        str += "Content-Type: text/X-test; version=\"0\"\n\n";
+        str += "foo\n";
+        str += "bar\n";
+        str += "baz";
+
+        std::istringstream ss(str);
+        internalizer i(ss, "text/X-test", 0);
+        ATF_CHECK_EQUAL(i.lineno(), 3);
+
+        std::string tmp;
+        ATF_CHECK_EQUAL(i.getline(tmp).lineno(), 4);
+        ATF_CHECK_EQUAL(i.getline(tmp).lineno(), 5);
+        ATF_CHECK_EQUAL(i.getline(tmp).lineno(), 6);
+        ATF_CHECK_EQUAL(i.getline(tmp).lineno(), 6);
+    }
+}
+
 // ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
@@ -396,4 +450,5 @@ ATF_INIT_TEST_CASES(tcs)
     tcs.push_back(&int_attrs);
     tcs.push_back(&int_data);
     tcs.push_back(&int_errors);
+    tcs.push_back(&int_lineno);
 }

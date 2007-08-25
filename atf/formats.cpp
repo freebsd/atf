@@ -53,13 +53,13 @@ namespace impl = atf::formats;
 
 static
 size_t
-read_size_t(std::istream& is, const std::string& err)
+read_size_t(atf::serial::internalizer& is, const std::string& err)
 {
     if (!is.good())
         throw atf::serial::format_error(err);
 
     std::string line;
-    std::getline(is, line);
+    is.getline(line);
 
     std::istringstream ss(line);
     size_t s;
@@ -85,7 +85,7 @@ string_to_tcr_status(const std::string& s)
 
 static
 atf::tests::tcr
-read_tcr(std::istream& is, const std::string& firstline)
+read_tcr(atf::serial::internalizer& is, const std::string& firstline)
 {
     std::string line;
 
@@ -101,7 +101,7 @@ read_tcr(std::istream& is, const std::string& firstline)
                 throw atf::serial::format_error("Missing reason for "
                                                 "failed test case result");
 
-            std::getline(is, line);
+            is.getline(line);
             tcr = atf::tests::tcr::failed(line);
             break;
 
@@ -110,7 +110,7 @@ read_tcr(std::istream& is, const std::string& firstline)
                 throw atf::serial::format_error("Missing reason for "
                                                 "skipped test case result");
 
-            std::getline(is, line);
+            is.getline(line);
             tcr = atf::tests::tcr::skipped(line);
             break;
 
@@ -123,7 +123,7 @@ read_tcr(std::istream& is, const std::string& firstline)
 
 static
 atf::tests::tcr
-read_tcr(std::istream& is)
+read_tcr(atf::serial::internalizer& is)
 {
     if (!is.good())
         throw atf::serial::format_error("Missing test case result");
@@ -131,7 +131,7 @@ read_tcr(std::istream& is)
     atf::tests::tcr tcr;
     {
         std::string line;
-        std::getline(is, line);
+        is.getline(line);
         tcr = read_tcr(is, line);
     }
     return tcr;
@@ -139,13 +139,13 @@ read_tcr(std::istream& is)
 
 static
 void
-read_terminator(std::istream& is, const std::string& err)
+read_terminator(atf::serial::internalizer& is, const std::string& err)
 {
     if (!is.good())
         throw atf::serial::format_error(err);
 
     std::string line;
-    std::getline(is, line);
+    is.getline(line);
     if (line != ".")
         throw atf::serial::format_error(err);
 }
@@ -155,7 +155,6 @@ read_terminator(std::istream& is, const std::string& err)
 // ------------------------------------------------------------------------
 
 impl::atf_atffile_reader::atf_atffile_reader(std::istream& is) :
-    m_is(is),
     m_int(is, "application/X-atf-atffile", 0)
 {
 }
@@ -192,7 +191,7 @@ impl::atf_atffile_reader::read(void)
 
     bool seents = false;
     std::string line;
-    while (std::getline(m_is, line).good()) {
+    while (m_int.getline(line).good()) {
         if (line.empty())
             continue;
 
@@ -230,7 +229,6 @@ impl::atf_atffile_reader::read(void)
 // ------------------------------------------------------------------------
 
 impl::atf_config_reader::atf_config_reader(std::istream& is) :
-    m_is(is),
     m_int(is, "application/X-atf-config", 0)
 {
 }
@@ -256,7 +254,7 @@ impl::atf_config_reader::read(void)
     using atf::serial::format_error;
 
     std::string line;
-    while (std::getline(m_is, line).good()) {
+    while (m_int.getline(line).good()) {
         if (line.empty())
             continue;
 
@@ -279,7 +277,6 @@ impl::atf_config_reader::read(void)
 // ------------------------------------------------------------------------
 
 impl::atf_tcs_reader::atf_tcs_reader(std::istream& is) :
-    m_is(is),
     m_int(is, "application/X-atf-tcs", 0)
 {
 }
@@ -367,20 +364,19 @@ impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
 {
     std::string line;
 
-    size_t ntcs = read_size_t(m_is, "Failed to read number of test cases");
+    size_t ntcs = read_size_t(m_int, "Failed to read number of test cases");
     got_ntcs(ntcs);
 
     std::string tcname;
     for (size_t i = 0; i < ntcs; i++) {
-        std::getline(m_int.get_stream(), line);
+        m_int.getline(line);
         tcname = line;
         got_tc_start(tcname);
 
         read_out_err(out, err);
 
-        tests::tcr tcr = read_tcr(m_int.get_stream());
-        read_terminator(m_int.get_stream(),
-                        "Missing test case terminator");
+        tests::tcr tcr = read_tcr(m_int);
+        read_terminator(m_int, "Missing test case terminator");
         got_tc_end(tcr);
 
         tcname.clear();
@@ -396,14 +392,14 @@ impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
 impl::atf_tcs_writer::atf_tcs_writer(std::ostream& os, size_t ntcs) :
     m_ext(os, "application/X-atf-tcs", 0)
 {
-    m_ext << ntcs << '\n';
+    m_ext.putline(ntcs);
     m_ext.flush();
 }
 
 void
 impl::atf_tcs_writer::start_tc(const std::string& tcname)
 {
-    m_ext << tcname << '\n';
+    m_ext.putline(tcname);
     m_ext.flush();
 }
 
@@ -416,23 +412,23 @@ impl::atf_tcs_writer::end_tc(const atf::tests::tcr& tcr)
     std::cerr.flush();
     switch (tcr.get_status()) {
     case tests::tcr::status_passed:
-        m_ext << "passed\n";
+        m_ext.putline("passed");
         break;
 
     case tests::tcr::status_failed:
-        m_ext << "failed\n"
-              << tcr.get_reason() << '\n';
+        m_ext.putline("failed");
+        m_ext.putline(tcr.get_reason());
         break;
 
     case tests::tcr::status_skipped:
-        m_ext << "skipped\n"
-              << tcr.get_reason() << '\n';
+        m_ext.putline("skipped");
+        m_ext.putline(tcr.get_reason());
         break;
 
     default:
         assert(false);
     }
-    m_ext << ".\n";
+    m_ext.putline(".");
     m_ext.flush();
 }
 
@@ -441,7 +437,6 @@ impl::atf_tcs_writer::end_tc(const atf::tests::tcr& tcr)
 // ------------------------------------------------------------------------
 
 impl::atf_tps_reader::atf_tps_reader(std::istream& is) :
-    m_is(is),
     m_int(is, "application/X-atf-tps", 0)
 {
 }
@@ -495,13 +490,13 @@ impl::atf_tps_reader::read(void)
 {
     std::string line;
 
-    size_t ntps = read_size_t(m_is, "Failed to read number of test programs");
+    size_t ntps = read_size_t(m_int, "Failed to read number of test programs");
     got_ntps(ntps);
 
-    while (std::getline(m_is, line).good()) {
+    while (m_int.getline(line).good()) {
         atf::fs::path tp(line);
 
-        std::getline(m_is, line);
+        m_int.getline(line);
         size_t ntcs;
         {
             std::istringstream ss;
@@ -512,19 +507,18 @@ impl::atf_tps_reader::read(void)
         got_tp_start(tp, ntcs);
 
         for (size_t i = 0; i < ntcs; i++) {
-            std::getline(m_is, line);
+            m_int.getline(line);
             got_tc_start(line);
 
             bool done = false;
-            while (!done && std::getline(m_is, line).good()) {
+            while (!done && m_int.getline(line).good()) {
                 if (line.substr(0, 4) == "so: ") {
                     got_tc_stdout_line(line.substr(5));
                 } else if (line.substr(0, 4) == "se: ") {
                     got_tc_stderr_line(line.substr(5));
                 } else {
-                    tests::tcr tcr = read_tcr(m_is, line);
-                    read_terminator(m_int.get_stream(),
-                                    "Missing test case terminator");
+                    tests::tcr tcr = read_tcr(m_int, line);
+                    read_terminator(m_int, "Missing test case terminator");
                     got_tc_end(tcr);
 
                     done = true;
@@ -532,8 +526,7 @@ impl::atf_tps_reader::read(void)
             }
         }
 
-        read_terminator(m_int.get_stream(),
-                        "Missing test program terminator");
+        read_terminator(m_int, "Missing test program terminator");
 
         got_tp_end();
     }
@@ -548,42 +541,43 @@ impl::atf_tps_reader::read(void)
 impl::atf_tps_writer::atf_tps_writer(std::ostream& os, size_t ntps) :
     m_ext(os, "application/X-atf-tps", 0)
 {
-    m_ext << ntps << '\n';
+    m_ext.putline(ntps);
     m_ext.flush();
 }
 
 void
 impl::atf_tps_writer::start_tp(const atf::fs::path& tp, size_t ntcs)
 {
-    m_ext << tp.str() << '\n' << ntcs << '\n';
+    m_ext.putline(tp.str());
+    m_ext.putline(ntcs);
     m_ext.flush();
 }
 
 void
 impl::atf_tps_writer::end_tp(void)
 {
-    m_ext << ".\n";
+    m_ext.putline(".");
     m_ext.flush();
 }
 
 void
 impl::atf_tps_writer::start_tc(const std::string& tcname)
 {
-    m_ext << tcname << '\n';
+    m_ext.putline(tcname);
     m_ext.flush();
 }
 
 void
 impl::atf_tps_writer::stdout_tc(const std::string& line)
 {
-    m_ext << "so: " << line << '\n';
+    m_ext.putline("so: " + line);
     m_ext.flush();
 }
 
 void
 impl::atf_tps_writer::stderr_tc(const std::string& line)
 {
-    m_ext << "se: " << line << '\n';
+    m_ext.putline("se: " + line);
     m_ext.flush();
 }
 
@@ -592,20 +586,22 @@ impl::atf_tps_writer::end_tc(const atf::tests::tcr& tcr)
 {
     switch (tcr.get_status()) {
     case atf::tests::tcr::status_passed:
-        m_ext << "passed" << '\n';
+        m_ext.putline("passed");
         break;
 
     case atf::tests::tcr::status_skipped:
-        m_ext << "skipped" << '\n' << tcr.get_reason() << '\n';
+        m_ext.putline("skipped");
+        m_ext.putline(tcr.get_reason());
         break;
 
     case atf::tests::tcr::status_failed:
-        m_ext << "failed" << '\n' << tcr.get_reason() << '\n';
+        m_ext.putline("failed");
+        m_ext.putline(tcr.get_reason());
         break;
 
     default:
         assert(false);
     }
-    m_ext << ".\n";
+    m_ext.putline(".");
     m_ext.flush();
 }

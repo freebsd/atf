@@ -52,7 +52,6 @@ namespace formats {
 // ------------------------------------------------------------------------
 
 class atf_atffile_reader {
-    std::istream& m_is;
     atf::serial::internalizer m_int;
 
 protected:
@@ -73,7 +72,6 @@ public:
 // ------------------------------------------------------------------------
 
 class atf_config_reader {
-    std::istream& m_is;
     atf::serial::internalizer m_int;
 
 protected:
@@ -92,7 +90,6 @@ public:
 // ------------------------------------------------------------------------
 
 class atf_tcs_reader {
-    std::istream& m_is;
     atf::serial::internalizer m_int;
 
     void read_out_err(atf::io::unbuffered_istream&,
@@ -132,7 +129,6 @@ public:
 // ------------------------------------------------------------------------
 
 class atf_tps_reader {
-    std::istream& m_is;
     atf::serial::internalizer m_int;
 
 protected:

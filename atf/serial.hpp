@@ -40,6 +40,7 @@
 #include <istream>
 #include <map>
 #include <ostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -100,20 +101,22 @@ public:
 
     void add_header(const header_entry&);
     void flush(void);
-    std::ostream& get_stream(void);
 
     template< class T >
-    std::ostream& operator<<(const T&);
+    externalizer& putline(const T&);
 };
 
 template< class T >
-std::ostream&
-externalizer::operator<<(const T& t)
+externalizer&
+externalizer::putline(const T& l)
 {
     if (!m_inited)
         write_headers();
 
-    return (m_os << t);
+    std::ostringstream ss;
+    ss << l << '\n';
+    m_os << ss.str();
+    return *this;
 }
 
 // ------------------------------------------------------------------------
@@ -122,6 +125,8 @@ externalizer::operator<<(const T& t)
 
 class internalizer {
     std::istream& m_is;
+    size_t m_lineno;
+
     std::map< std::string, header_entry > m_headers;
 
     void read_headers(void);
@@ -129,20 +134,18 @@ class internalizer {
 public:
     internalizer(std::istream&, const std::string&, int);
 
+    size_t lineno(void) const;
+
     bool has_header(const std::string&) const;
     const header_entry& get_header(const std::string&) const;
-    std::istream& get_stream(void);
 
-    template< class T >
-    std::istream& operator>>(T&);
+    internalizer& getline(std::string&);
+
+    internalizer& get(char&);
+    internalizer& unget(void);
+    int peek(void) const;
+    bool good(void) const;
 };
-
-template< class T >
-std::istream&
-internalizer::operator>>(T& t)
-{
-    return (m_is >> t);
-}
 
 } // namespace serial
 } // namespace atf

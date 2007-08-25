@@ -59,11 +59,11 @@ enum tokens {
 
 typedef atf::parser::token< tokens > token;
 
-class tokenizer : public atf::parser::tokenizer< tokens, std::istream > {
+class tokenizer : public atf::parser::tokenizer< tokens, impl::internalizer > {
 public:
-    tokenizer(std::istream& is, char quotech) :
-        atf::parser::tokenizer< tokens, std::istream >(is, false, eof,
-                                                       nl, text)
+    tokenizer(impl::internalizer& is, char quotech) :
+        atf::parser::tokenizer< tokens, impl::internalizer >
+            (is, false, eof, nl, text)
     {
         add_delim('\\', escape);
         add_delim(quotech, quote);
@@ -78,7 +78,7 @@ public:
 //
 static
 std::string
-read(std::istream& is, char quotech)
+read(impl::internalizer& is, char quotech)
 {
     tokenizer tkz(is, quotech);
 
@@ -143,11 +143,11 @@ enum tokens {
 
 typedef atf::parser::token< tokens > token;
 
-class tokenizer : public atf::parser::tokenizer< tokens, std::istream > {
+class tokenizer : public atf::parser::tokenizer< tokens, impl::internalizer > {
 public:
-    tokenizer(std::istream& is) :
-        atf::parser::tokenizer< tokens, std::istream >(is, true, eof,
-                                                       nl, text)
+    tokenizer(impl::internalizer& is) :
+        atf::parser::tokenizer< tokens, impl::internalizer >
+            (is, true, eof, nl, text)
     {
         add_delim(';', semicolon);
         add_delim(':', colon);
@@ -174,11 +174,9 @@ expect(token t, tokens type1, tokens type2, const std::string& textual)
                                  "expected " + textual);
 }
 
-} // namespace header
-
 static
-std::istream&
-operator>>(std::istream& is, impl::header_entry& he)
+impl::internalizer&
+read(impl::internalizer& is, impl::header_entry& he)
 {
     using header::expect;
 
@@ -234,19 +232,23 @@ operator>>(std::istream& is, impl::header_entry& he)
 }
 
 static
-std::ostream&
-operator<<(std::ostream& os, const impl::header_entry& he)
+impl::externalizer&
+write(impl::externalizer& os, const impl::header_entry& he)
 {
-    os << he.name() << ": " << he.value();
+    std::string line = he.name() + ": " + he.value();
     impl::attrs_map as = he.attrs();
     for (impl::attrs_map::const_iterator iter = as.begin();
          iter != as.end(); iter++) {
-        os << "; " << (*iter).first << "=\"" << (*iter).second << "\"";
+        assert((*iter).second.find('\"') == std::string::npos);
+        line += "; " + (*iter).first + "=\"" + (*iter).second + "\"";
     }
-    os << "\n";
+
+    os.putline(line);
 
     return os;
 }
+
+} // namespace header
 
 // ------------------------------------------------------------------------
 // The "format_error" class.
@@ -330,17 +332,16 @@ void
 impl::externalizer::write_headers(void)
 {
     assert(!m_inited);
+    m_inited = true;
 
     assert(!m_headers.empty());
-    m_os << m_headers["Content-Type"];
+    header::write(*this, m_headers["Content-Type"]);
     for (std::map< std::string, header_entry >::const_iterator iter =
          m_headers.begin(); iter != m_headers.end(); iter++) {
         if ((*iter).first != "Content-Type")
-            m_os << (*iter).second;
+            header::write(*this, (*iter).second);
     }
-    m_os << '\n';
-
-    m_inited = true;
+    putline("");
 }
 
 void
@@ -359,12 +360,6 @@ impl::externalizer::flush(void)
     m_os.flush();
 }
 
-std::ostream&
-impl::externalizer::get_stream(void)
-{
-    return m_os;
-}
-
 // ------------------------------------------------------------------------
 // The "internalizer" class.
 // ------------------------------------------------------------------------
@@ -372,7 +367,8 @@ impl::externalizer::get_stream(void)
 impl::internalizer::internalizer(std::istream& is,
                                  const std::string& fmt,
                                  int version) :
-    m_is(is)
+    m_is(is),
+    m_lineno(1)
 {
     read_headers();
 
@@ -408,7 +404,7 @@ impl::internalizer::read_headers(void)
     //
 
     header_entry he;
-    while ((m_is >> he).good() && !he.name().empty()) {
+    while (header::read(*this, he).good() && !he.name().empty()) {
         if (first && he.name() != "Content-Type")
             throw impl::format_error("Could not determine content type");
         else
@@ -417,8 +413,15 @@ impl::internalizer::read_headers(void)
         m_headers[he.name()] = he;
     }
 
-    if (!m_is.good())
-        throw format_error("Unexpected end of stream ");
+    if (!good())
+        throw format_error("Unexpected end of stream");
+}
+
+size_t
+impl::internalizer::lineno(void)
+    const
+{
+    return m_lineno;
 }
 
 bool
@@ -438,8 +441,44 @@ impl::internalizer::get_header(const std::string& name)
     return (*iter).second;
 }
 
-std::istream&
-impl::internalizer::get_stream(void)
+impl::internalizer&
+impl::internalizer::getline(std::string& str)
 {
-    return m_is;
+    if (m_is.good()) {
+        m_lineno++;
+        (void)std::getline(m_is, str);
+    }
+    return *this;
+}
+
+impl::internalizer&
+impl::internalizer::get(char& ch)
+{
+    if (m_is.get(ch).good() && ch == '\n')
+        m_lineno++;
+    return *this;
+}
+
+impl::internalizer&
+impl::internalizer::unget(void)
+{
+    m_is.unget();
+    if (m_is.peek() == '\n')
+        m_lineno--;
+    return *this;
+}
+
+
+int
+impl::internalizer::peek(void)
+    const
+{
+    return m_is.peek();
+}
+
+bool
+impl::internalizer::good(void)
+    const
+{
+    return m_is.good();
 }
