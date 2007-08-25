@@ -56,6 +56,12 @@ Plans for pre-1.0
 
 * Fix all occurrences of XXX, TODO and FIXME.
 
+* Add a way to get atf's version number.  Should this be part of each
+  tool (i.e. a -v flag)?  Should this be a property printed by atf-config?
+  Should this be an independent tool (atf-version) that is able to print
+  much more information (such as the repository's revision used to build
+  the code)?
+
 * The test suite should not use atf-compile to generate helper test cases.
   Reason: NetBSD will include atf-compile in the comp.tgz set.  If it is
   not installed, a lot of tests will be skipped without a "real" reason.
