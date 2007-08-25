@@ -37,65 +37,215 @@
 #include <cassert>
 
 #include "atf/serial.hpp"
+#include "atf/parser.hpp"
 #include "atf/text.hpp"
 
 namespace impl = atf::serial;
 #define IMPL_NAME "atf::serial"
 
 // ------------------------------------------------------------------------
-// Auxiliary functions.
+// The quoted_string parser.
 // ------------------------------------------------------------------------
 
+namespace quoted_string {
+
+enum tokens {
+    eof,
+    nl,
+    text,
+    quote,
+    escape,
+};
+
+typedef atf::parser::token< tokens > token;
+
+class tokenizer : public atf::parser::tokenizer< tokens, std::istream > {
+public:
+    tokenizer(std::istream& is, char quotech) :
+        atf::parser::tokenizer< tokens, std::istream >(is, false, eof,
+                                                       nl, text)
+    {
+        add_delim('\\', escape);
+        add_delim(quotech, quote);
+    }
+};
+
+//
+// Reads a quoted string.  The stream is supposed to be placed just after
+// the initial quote character, provided as the quotech parameter.  All
+// text after it until the matching closing quote is returned.  Quotes can
+// be embedded inside the text by prefixing them with the escape character.
+//
 static
-impl::header_entry
-parse_value(const std::string& name, const std::string& str)
+std::string
+read(std::istream& is, char quotech)
 {
-    using impl::format_error;
+    tokenizer tkz(is, quotech);
 
-    std::string::size_type pos = str.find("; ");
-    const std::string& value = str.substr(0, pos);
+    std::string str;
 
-    impl::attrs_map attrs;
-    if (pos != std::string::npos) {
-        std::vector< std::string > ws =
-            atf::text::split(str.substr(pos + 2), "; ");
+    bool done = false;
+    token tprev = token(eof);
+    token t = tkz.next();
+    while (!done) {
+        switch (t.type()) {
+        case nl:
+            throw impl::format_error("Missing double quotes before end "
+                                     "of line");
 
-        for (std::vector< std::string >::const_iterator iter = ws.begin();
-             iter != ws.end(); iter++) {
-            const std::string& attr = *iter;
+        case eof:
+            throw impl::format_error("Missing double quotes before end "
+                                     "of file");
 
-            std::string::size_type pos2 = attr.find("=");
-
-            if (pos2 == std::string::npos)
-                throw format_error("Invalid attribute `" + attr + "' "
-                                   "in header field `" + name + "'");
-
-            if (pos2 == attr.length() - 1)
-                throw format_error("Empty attribute `" + attr + "' "
-                                   "in header field `" + name + "'");
-
-            if (pos2 < attr.length() - 1 &&
-                attr[pos2 + 1] == '"' && attr[attr.length() - 1] != '"')
-                throw format_error("Incorrectly balanced quotes in "
-                                   "attribute `" + attr + "' "
-                                   "in header field `" + name + "'");
-
-            if (attr[pos2 + 1] != '"' && attr[attr.length() - 1] == '"')
-                throw format_error("Incorrectly balanced quotes in "
-                                   "attribute `" + attr + "' "
-                                   "in header field `" + name + "'");
-
-            const std::string& attrname = attr.substr(0, pos2);
-            const std::string& attrval = attr.substr(pos2 + 1);
-
-            if (attr[pos2] != '"' && attr[attr.length() - 1] != '"')
-                attrs[attrname] = attrval;
+        case quote:
+            if (tprev.type() == escape)
+                str += quotech;
             else
-                attrs[attrname] = attrval.substr(1, attrval.length() - 2);
+                done = true;
+            break;
+
+        case escape:
+            if (tprev.type() == escape)
+                str += '\\';
+            break;
+
+        default:
+            assert(t.type() == text);
+            str += t.text();
+        }
+
+        if (!done) {
+            tprev = t;
+            t = tkz.next();
         }
     }
 
-    return impl::header_entry(name, value, attrs);
+    return str;
+}
+
+} // namespace quoted_string
+
+// ------------------------------------------------------------------------
+// The header tokenizer.
+// ------------------------------------------------------------------------
+
+namespace header {
+
+enum tokens {
+    eof,
+    nl,
+    text,
+    colon,
+    semicolon,
+    dblquote,
+    equal
+};
+
+typedef atf::parser::token< tokens > token;
+
+class tokenizer : public atf::parser::tokenizer< tokens, std::istream > {
+public:
+    tokenizer(std::istream& is) :
+        atf::parser::tokenizer< tokens, std::istream >(is, true, eof,
+                                                       nl, text)
+    {
+        add_delim(';', semicolon);
+        add_delim(':', colon);
+        add_delim('"', dblquote);
+        add_delim('=', equal);
+    }
+};
+
+inline
+void
+expect(token t, tokens type, const std::string& textual)
+{
+    if (t.type() != type)
+        throw impl::format_error("Unexpected token `" + t.text() + "'; "
+                                 "expected " + textual);
+}
+
+inline
+void
+expect(token t, tokens type1, tokens type2, const std::string& textual)
+{
+    if (t.type() != type1 && t.type() != type2)
+        throw impl::format_error("Unexpected token `" + t.text() + "'; "
+                                 "expected " + textual);
+}
+
+} // namespace header
+
+static
+std::istream&
+operator>>(std::istream& is, impl::header_entry& he)
+{
+    using header::expect;
+
+    header::tokenizer tkz(is);
+
+    header::token t = tkz.next();
+    if (t.type() == header::nl) {
+        he = impl::header_entry();
+        return is;
+    }
+    expect(t, header::text, "a header name");
+    std::string hdr_name = t.text();
+
+    t = tkz.next();
+    expect(t, header::colon, "`:'");
+
+    t = tkz.next();
+    expect(t, header::text, "a textual value");
+    std::string hdr_value = t.text();
+
+    impl::attrs_map attrs;
+
+    t = tkz.next();
+    while (t.type() != header::nl) {
+        expect(t, header::semicolon, "`;'");
+
+        t = tkz.next();
+        expect(t, header::text, "an attribute name");
+        std::string attr_name = t.text();
+
+        t = tkz.next();
+        expect(t, header::equal, "`='");
+
+        t = tkz.next();
+        expect(t, header::text, header::dblquote, "an attribute value");
+        if (t.type() == header::text) {
+            std::string attr_value = t.text();
+            attrs[attr_name] = attr_value;
+        } else {
+            assert(t.type() == header::dblquote);
+            std::string attr_value = quoted_string::read(is, '"');
+            attrs[attr_name] = attr_value;
+        }
+
+        t = tkz.next();
+    }
+
+    expect(t, header::nl, "end of header (blank line)");
+
+    he = impl::header_entry(hdr_name, hdr_value, attrs);
+
+    return is;
+}
+
+static
+std::ostream&
+operator<<(std::ostream& os, const impl::header_entry& he)
+{
+    os << he.name() << ": " << he.value();
+    impl::attrs_map as = he.attrs();
+    for (impl::attrs_map::const_iterator iter = as.begin();
+         iter != as.end(); iter++) {
+        os << "; " << (*iter).first << "=\"" << (*iter).second << "\"";
+    }
+    os << "\n";
+
+    return os;
 }
 
 // ------------------------------------------------------------------------
@@ -247,6 +397,16 @@ impl::internalizer::read_headers(void)
 {
     bool first = true;
 
+    //
+    // Grammar
+    //
+    // header = entry+ nl
+    // entry = line nl
+    // line = text colon text
+    //        (semicolon (text equal (text | dblquote string dblquote)))*
+    // string = quoted_string
+    //
+
     header_entry he;
     while ((m_is >> he).good() && !he.name().empty()) {
         if (first && he.name() != "Content-Type")
@@ -282,47 +442,4 @@ std::istream&
 impl::internalizer::get_stream(void)
 {
     return m_is;
-}
-
-// ------------------------------------------------------------------------
-// Free functions.
-// ------------------------------------------------------------------------
-
-std::istream&
-operator>>(std::istream& is, impl::header_entry& he)
-{
-    if (!is.good())
-        return is;
-
-    std::string line;
-    std::getline(is, line);
-
-    if (line.empty())
-        he = impl::header_entry();
-    else {
-        std::string::size_type pos = line.find(": ");
-        if (pos == std::string::npos)
-            throw impl::format_error("Invalid header entry: `" + line +
-                                     "'");
-
-        const std::string& name = line.substr(0, pos);
-        const std::string& val = line.substr(pos + 2);
-        he = parse_value(name, val);
-    }
-
-    return is;
-}
-
-std::ostream&
-operator<<(std::ostream& os, const impl::header_entry& he)
-{
-    os << he.name() << ": " << he.value();
-    impl::attrs_map as = he.attrs();
-    for (impl::attrs_map::const_iterator iter = as.begin();
-         iter != as.end(); iter++) {
-        os << "; " << (*iter).first << "=\"" << (*iter).second << "\"";
-    }
-    os << "\n";
-
-    return os;
 }

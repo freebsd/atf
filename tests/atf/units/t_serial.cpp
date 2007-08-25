@@ -200,6 +200,7 @@ ATF_TEST_CASE_BODY(int_attrs)
     std::string str;
     str += "Content-Type: text/X-test; version=\"0\"\n";
     str += "Test: value; a=b; foo=\"bar\"; some=\"thing\"\n";
+    str += "Quoting: value; a=\"b\\\"c\"; d=\"e\\\\f\"\n";
     str += "\n";
 
     std::istringstream ss(str);
@@ -211,15 +212,27 @@ ATF_TEST_CASE_BODY(int_attrs)
     ATF_CHECK(ct.has_attr("version"));
     ATF_CHECK_EQUAL(ct.get_attr("version"), "0");
 
-    ATF_CHECK(i.has_header("Test"));
-    const header_entry& he = i.get_header("Test");
-    ATF_CHECK_EQUAL(he.value(), "value");
-    ATF_CHECK(he.has_attr("a"));
-    ATF_CHECK_EQUAL(he.get_attr("a"), "b");
-    ATF_CHECK(he.has_attr("foo"));
-    ATF_CHECK_EQUAL(he.get_attr("foo"), "bar");
-    ATF_CHECK(he.has_attr("some"));
-    ATF_CHECK_EQUAL(he.get_attr("some"), "thing");
+    {
+        ATF_CHECK(i.has_header("Test"));
+        const header_entry& he = i.get_header("Test");
+        ATF_CHECK_EQUAL(he.value(), "value");
+        ATF_CHECK(he.has_attr("a"));
+        ATF_CHECK_EQUAL(he.get_attr("a"), "b");
+        ATF_CHECK(he.has_attr("foo"));
+        ATF_CHECK_EQUAL(he.get_attr("foo"), "bar");
+        ATF_CHECK(he.has_attr("some"));
+        ATF_CHECK_EQUAL(he.get_attr("some"), "thing");
+    }
+
+    {
+        ATF_CHECK(i.has_header("Quoting"));
+        const header_entry& he = i.get_header("Quoting");
+        ATF_CHECK_EQUAL(he.value(), "value");
+        ATF_CHECK(he.has_attr("a"));
+        ATF_CHECK_EQUAL(he.get_attr("a"), "b\"c");
+        ATF_CHECK(he.has_attr("d"));
+        ATF_CHECK_EQUAL(he.get_attr("d"), "e\\f");
+    }
 }
 
 ATF_TEST_CASE(int_data);
@@ -290,6 +303,16 @@ ATF_TEST_CASE_BODY(int_errors)
         std::string str;
         str += "Content-Type: text/X-test\n";
         str += "\n";
+
+        std::istringstream ss(str);
+        ATF_CHECK_THROW(internalizer(ss, "text/X-test", 0), format_error);
+    }
+
+    // Multi-word header name.
+    {
+        std::string str;
+        str += "Content-Type: text/X-test; version=\"0\"\n";
+        str += "Foo bar: baz\n\n";
 
         std::istringstream ss(str);
         ATF_CHECK_THROW(internalizer(ss, "text/X-test", 0), format_error);

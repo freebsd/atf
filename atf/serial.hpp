@@ -147,11 +147,4 @@ internalizer::operator>>(T& t)
 } // namespace serial
 } // namespace atf
 
-// ------------------------------------------------------------------------
-// Free functions.
-// ------------------------------------------------------------------------
-
-std::istream& operator>>(std::istream&, atf::serial::header_entry&);
-std::ostream& operator<<(std::ostream&, const atf::serial::header_entry&);
-
 #endif // !defined(_ATF_SERIAL_HPP_)
