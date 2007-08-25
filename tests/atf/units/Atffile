@@ -9,6 +9,7 @@ t_fs
 t_io
 t_expand
 t_user
+t_parser
 t_serial
 t_formats
 t_tests
