@@ -64,92 +64,10 @@ string_to_size_t(const std::string& str)
     return s;
 }
 
-static
-size_t
-read_size_t(atf::serial::internalizer& is, const std::string& err)
-{
-    if (!is.good())
-        throw atf::serial::format_error(err);
-
-    std::string line;
-    is.getline(line);
-
-    std::istringstream ss(line);
-    size_t s;
-    ss >> s;
-
-    return s;
-}
-
-static
-atf::tests::tcr::status
-string_to_tcr_status(const std::string& s)
-{
-    if (s == "passed")
-        return atf::tests::tcr::status_passed;
-    else if (s == "failed")
-        return atf::tests::tcr::status_failed;
-    else if (s == "skipped")
-        return atf::tests::tcr::status_skipped;
-    else
-        throw atf::serial::format_error("Invalid test case status `" + s +
-                                        "'");
-}
-
-static
-atf::tests::tcr
-read_tcr(atf::serial::internalizer& is, const std::string& firstline)
-{
-    std::string line;
-
-    atf::tests::tcr tcr;
-    {
-        switch (string_to_tcr_status(firstline)) {
-        case atf::tests::tcr::status_passed:
-            tcr = atf::tests::tcr::passed();
-            break;
-
-        case atf::tests::tcr::status_failed:
-            if (!is.good())
-                throw atf::serial::format_error("Missing reason for "
-                                                "failed test case result");
-
-            is.getline(line);
-            tcr = atf::tests::tcr::failed(line);
-            break;
-
-        case atf::tests::tcr::status_skipped:
-            if (!is.good())
-                throw atf::serial::format_error("Missing reason for "
-                                                "skipped test case result");
-
-            is.getline(line);
-            tcr = atf::tests::tcr::skipped(line);
-            break;
-
-        default:
-            assert(false);
-        }
-    }
-    return tcr;
-}
-
-static
-void
-read_terminator(atf::serial::internalizer& is, const std::string& err)
-{
-    if (!is.good())
-        throw atf::serial::format_error(err);
-
-    std::string line;
-    is.getline(line);
-    if (line != ".")
-        throw atf::serial::format_error(err);
-}
-
 // ------------------------------------------------------------------------
 // The "atf_tcs" auxiliary parser.
 // ------------------------------------------------------------------------
+
 namespace atf_tcs {
 
 enum tokens {
@@ -179,6 +97,65 @@ public:
         add_delim(',', comma);
         add_keyword("tcs-count", tcs_count);
         add_keyword("tc-start", tc_start);
+        add_keyword("tc-end", tc_end);
+        add_keyword("passed", passed);
+        add_keyword("failed", failed);
+        add_keyword("skipped", skipped);
+    }
+};
+
+inline
+void
+expect(token t, tokens type, const std::string& textual)
+{
+    if (t.type() != type)
+        throw atf::serial::format_error("Unexpected token `" + t.text() +
+                                        "'; expected " + textual);
+}
+
+} // namespace atf_tcs
+
+// ------------------------------------------------------------------------
+// The "atf_tps" auxiliary parser.
+// ------------------------------------------------------------------------
+
+namespace atf_tps {
+
+enum tokens {
+    eof,
+    nl,
+    text,
+    colon,
+    comma,
+    tps_count,
+    tp_start,
+    tp_end,
+    tc_start,
+    tc_so,
+    tc_se,
+    tc_end,
+    passed,
+    failed,
+    skipped,
+};
+
+typedef atf::parser::token< tokens > token;
+
+class tokenizer : public atf::parser::tokenizer
+    < tokens, atf::serial::internalizer > {
+public:
+    tokenizer(atf::serial::internalizer& is) :
+        atf::parser::tokenizer< tokens, atf::serial::internalizer >
+            (is, true, eof, nl, text)
+    {
+        add_delim(':', colon);
+        add_delim(',', comma);
+        add_keyword("tps-count", tps_count);
+        add_keyword("tp-start", tp_start);
+        add_keyword("tp-end", tp_end);
+        add_keyword("tc-start", tc_start);
+        add_keyword("tc-so", tc_so);
+        add_keyword("tc-se", tc_se);
         add_keyword("tc-end", tc_end);
         add_keyword("passed", passed);
         add_keyword("failed", failed);
@@ -547,7 +524,7 @@ impl::atf_tcs_writer::end_tc(const atf::tests::tcr& tcr)
 // ------------------------------------------------------------------------
 
 impl::atf_tps_reader::atf_tps_reader(std::istream& is) :
-    m_int(is, "application/X-atf-tps", 0)
+    m_int(is, "application/X-atf-tps", 1)
 {
 }
 
@@ -561,12 +538,12 @@ impl::atf_tps_reader::got_ntps(size_t ntps)
 }
 
 void
-impl::atf_tps_reader::got_tp_start(const atf::fs::path& tp, size_t ntcs)
+impl::atf_tps_reader::got_tp_start(const std::string& tp, size_t ntcs)
 {
 }
 
 void
-impl::atf_tps_reader::got_tp_end(void)
+impl::atf_tps_reader::got_tp_end(const std::string& reason)
 {
 }
 
@@ -596,51 +573,166 @@ impl::atf_tps_reader::got_eof(void)
 }
 
 void
-impl::atf_tps_reader::read(void)
+impl::atf_tps_reader::read_tp(void)
 {
-    std::string line;
+    atf_tps::tokenizer tkz(m_int);
 
-    size_t ntps = read_size_t(m_int, "Failed to read number of test programs");
-    got_ntps(ntps);
+    atf_tps::token t = tkz.next();
+    atf_tps::expect(t, atf_tps::tp_start, "start of test program");
 
-    while (m_int.getline(line).good()) {
-        atf::fs::path tp(line);
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::colon, "`:'");
 
-        m_int.getline(line);
-        size_t ntcs;
-        {
-            std::istringstream ss;
-            ss.str(line);
-            ss >> ntcs;
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::text, "test program name");
+    std::string tpname = t.text();
+
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::comma, "`,'");
+
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::text, "number of test programs");
+    size_t ntcs = string_to_size_t(t.text());
+
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::nl, "new line");
+
+    got_tp_start(tpname, ntcs);
+
+    for (size_t i = 0; i < ntcs; i++)
+        read_tc();
+
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::tp_end, "end of test program");
+
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::colon, "`:'");
+
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::text, "test program name");
+    if (t.text() != tpname)
+        throw atf::serial::format_error("Test program name used in "
+                                        "terminator does not match "
+                                        "opening");
+
+    t = tkz.next();
+    std::string reason;
+    if (t.type() == atf_tps::comma) {
+        t = tkz.next();
+        reason = text::trim(tkz.rest_of_line());
+        t = tkz.next();
+    }
+    atf_tps::expect(t, atf_tps::nl, "new line");
+
+    got_tp_end(reason);
+}
+
+void
+impl::atf_tps_reader::read_tc(void)
+{
+    atf_tps::tokenizer tkz(m_int);
+
+    atf_tps::token t = tkz.next();
+    atf_tps::expect(t, atf_tps::tc_start, "start of test case");
+
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::colon, "`:'");
+
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::text, "test case name");
+    std::string tcname = t.text();
+    got_tc_start(tcname);
+
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::nl, "new line");
+
+    t = tkz.next();
+    while (t.type() != atf_tps::tc_end &&
+           (t.type() == atf_tps::tc_so || t.type() == atf_tps::tc_se)) {
+        atf_tps::token t2 = t;
+
+        t = tkz.next();
+        atf_tps::expect(t, atf_tps::colon, "`:'");
+
+        std::string line = text::trim(tkz.rest_of_line());
+
+        if (t2.type() == atf_tps::tc_so) {
+            got_tc_stdout_line(line);
+        } else {
+            assert(t2.type() == atf_tps::tc_se);
+            got_tc_stderr_line(line);
         }
 
-        got_tp_start(tp, ntcs);
+        t = tkz.next();
+        atf_tps::expect(t, atf_tps::nl, "new line");
 
-        for (size_t i = 0; i < ntcs; i++) {
-            m_int.getline(line);
-            got_tc_start(line);
+        t = tkz.next();
+    }
+    atf_tps::expect(t, atf_tps::tc_end, "end of test case");
 
-            bool done = false;
-            while (!done && m_int.getline(line).good()) {
-                if (line.substr(0, 4) == "so: ") {
-                    got_tc_stdout_line(line.substr(5));
-                } else if (line.substr(0, 4) == "se: ") {
-                    got_tc_stderr_line(line.substr(5));
-                } else {
-                    tests::tcr tcr = read_tcr(m_int, line);
-                    read_terminator(m_int, "Missing test case terminator");
-                    got_tc_end(tcr);
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::colon, "`:'");
 
-                    done = true;
-                }
-            }
-        }
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::text, "test case name");
+    if (t.text() != tcname)
+        throw atf::serial::format_error("Test case name used in "
+                                        "terminator does not match "
+                                        "opening");
 
-        read_terminator(m_int, "Missing test program terminator");
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::comma, "`,'");
 
-        got_tp_end();
+    t = tkz.next();
+    switch (t.type()) {
+    case atf_tps::passed:
+        got_tc_end(tests::tcr::passed());
+        break;
+
+    case atf_tps::failed:
+        t = tkz.next();
+        atf_tps::expect(t, atf_tps::comma, "`,'");
+        got_tc_end(tests::tcr::failed(text::trim(tkz.rest_of_line())));
+        break;
+
+    case atf_tps::skipped:
+        t = tkz.next();
+        atf_tps::expect(t, atf_tps::comma, "`,'");
+        got_tc_end(tests::tcr::skipped(text::trim(tkz.rest_of_line())));
+        break;
+
+    default:
+        atf_tps::expect(t, atf_tps::passed, "passed, failed or skipped");
     }
 
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::nl, "new line");
+}
+
+void
+impl::atf_tps_reader::read(void)
+{
+    atf_tps::tokenizer tkz(m_int);
+
+    atf_tps::token t = tkz.next();
+    atf_tps::expect(t, atf_tps::tps_count, "tps-count field");
+
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::colon, "`:'");
+
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::text, "number of test programs");
+    size_t ntps = string_to_size_t(t.text());
+    got_ntps(ntps);
+
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::nl, "new line");
+
+    for (size_t i = 0; i < ntps; i++)
+        read_tp();
+
+    t = tkz.next();
+    atf_tps::expect(t, atf_tps::eof, "end of stream");
     got_eof();
 }
 
@@ -649,69 +741,72 @@ impl::atf_tps_reader::read(void)
 // ------------------------------------------------------------------------
 
 impl::atf_tps_writer::atf_tps_writer(std::ostream& os, size_t ntps) :
-    m_ext(os, "application/X-atf-tps", 0)
+    m_ext(os, "application/X-atf-tps", 1)
 {
-    m_ext.putline(ntps);
+    m_ext.putline("tps-count: " + text::to_string(ntps));
     m_ext.flush();
 }
 
 void
-impl::atf_tps_writer::start_tp(const atf::fs::path& tp, size_t ntcs)
+impl::atf_tps_writer::start_tp(const std::string& tp, size_t ntcs)
 {
-    m_ext.putline(tp.str());
-    m_ext.putline(ntcs);
+    m_tpname = tp;
+    m_ext.putline("tp-start: " + tp + ", " + text::to_string(ntcs));
     m_ext.flush();
 }
 
 void
-impl::atf_tps_writer::end_tp(void)
+impl::atf_tps_writer::end_tp(const std::string& reason)
 {
-    m_ext.putline(".");
+    if (reason.empty())
+        m_ext.putline("tp-end: " + m_tpname);
+    else
+        m_ext.putline("tp-end: " + m_tpname + ", " + reason);
     m_ext.flush();
 }
 
 void
 impl::atf_tps_writer::start_tc(const std::string& tcname)
 {
-    m_ext.putline(tcname);
+    m_tcname = tcname;
+    m_ext.putline("tc-start: " + tcname);
     m_ext.flush();
 }
 
 void
 impl::atf_tps_writer::stdout_tc(const std::string& line)
 {
-    m_ext.putline("so: " + line);
+    m_ext.putline("tc-so: " + line);
     m_ext.flush();
 }
 
 void
 impl::atf_tps_writer::stderr_tc(const std::string& line)
 {
-    m_ext.putline("se: " + line);
+    m_ext.putline("tc-se: " + line);
     m_ext.flush();
 }
 
 void
 impl::atf_tps_writer::end_tc(const atf::tests::tcr& tcr)
 {
+    std::string str = "tc-end: " + m_tcname + ", ";
     switch (tcr.get_status()) {
     case atf::tests::tcr::status_passed:
-        m_ext.putline("passed");
+        str += "passed";
         break;
 
     case atf::tests::tcr::status_skipped:
-        m_ext.putline("skipped");
-        m_ext.putline(tcr.get_reason());
+        str += "skipped, " + tcr.get_reason();
         break;
 
     case atf::tests::tcr::status_failed:
-        m_ext.putline("failed");
-        m_ext.putline(tcr.get_reason());
+        str += "failed, " + tcr.get_reason();
         break;
 
     default:
         assert(false);
     }
-    m_ext.putline(".");
+    m_ext.putline(str);
     m_ext.flush();
 }

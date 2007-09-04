@@ -39,7 +39,6 @@
 
 #include <string>
 
-#include <atf/fs.hpp>
 #include <atf/io.hpp>
 #include <atf/serial.hpp>
 #include <atf/tests.hpp>
@@ -134,10 +133,13 @@ public:
 class atf_tps_reader {
     atf::serial::internalizer m_int;
 
+    void read_tp(void);
+    void read_tc(void);
+
 protected:
     virtual void got_ntps(size_t);
-    virtual void got_tp_start(const atf::fs::path&, size_t);
-    virtual void got_tp_end(void);
+    virtual void got_tp_start(const std::string&, size_t);
+    virtual void got_tp_end(const std::string&);
 
     virtual void got_tc_start(const std::string&);
     virtual void got_tc_stdout_line(const std::string&);
@@ -159,11 +161,13 @@ public:
 class atf_tps_writer {
     atf::serial::externalizer m_ext;
 
+    std::string m_tpname, m_tcname;
+
 public:
     atf_tps_writer(std::ostream&, size_t);
 
-    void start_tp(const atf::fs::path&, size_t);
-    void end_tp(void);
+    void start_tp(const std::string&, size_t);
+    void end_tp(const std::string&);
 
     void start_tc(const std::string&);
     void stdout_tc(const std::string&);

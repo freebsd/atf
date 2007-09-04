@@ -183,7 +183,78 @@ This string is
 and it must printed on a line of its own.
 The last test case should not be followed by this line because the end of
 file marker takes its role.
-.Ss Format: application/X-atf-tps, version: 0
-Still too unstable; not described.
+.Ss Format: application/X-atf-tps, version: 1
+The
+.Sq application/X-atf-tps
+format multiplexes the standard output, standard error and results output
+streams from multiple test programs into a single data file.
+This format is used by
+.Xr atf-run 1
+to report the execution of several test programs and is later parsed by
+.Xr atf-report 1
+to inform the user of this process.
+It has the following grammar:
+.Bd -literal -offset indent
+DATA ::= TPS-COUNT TP-STANZA* EOF
+TPS-COUNT ::= 'tps-count' COLON POSITIVE-NUMBER NEWLINE
+TP-STANZA ::= TP-START TC-STANZA* TC-END
+TP-START ::= 'tp-start' COLON STRING COMMA POSITIVE-NUMBER NEWLINE
+TP-END ::= 'tc-end' COLON STRING (COMMA STRING)?
+TC-STANZA ::= TC-START (TC-SO | TC-SE)* TC-END
+TC-START ::= 'tc-start' COLON STRING NEWLINE
+TC-SO ::= 'tc-so' COLON STRING NEWLINE
+TC-SE ::= 'tc-se' COLON STRING NEWLINE
+TC-END ::= 'tc-end' COLON STRING COMMA TCR NEWLINE
+TCR ::= 'passed' | ('failed' | 'skipped') COMMA STRING
+.Ed
+.Pp
+The meaning of the constructions above is:
+.Bl -tag -indent -width TPSXCOUNTXX
+.It TPS-COUNT
+Indicates the number of test programs that will be executed.
+There will be this exact amount of
+.Sq TP-STANZA
+constructions following it.
+.It TP-START
+Indicates the beginning of a test program.
+This includes the program's name and the amount of test cases that
+will follow.
+.It TP-END
+Indicates the completion of a test program.
+This is followed by the program's name and, if the program ended
+prematurely, an error message indicating the reason of its failure.
+A successful execution of a test program (regardless of the status of its
+test cases) must not be accompanied by any reason.
+.It TC-START
+Indicates the beginning of a test case.
+This is accompanied by the test case's name.
+.It TC-SO
+Contains a text line sent to the standard output stream during the
+execution of the test case.
+.It TC-SE
+Contains a text line sent to the standard error stream during the
+execution of the test case.
+.It TC-END
+Indicates the completion of a test case.
+This is accompanied by the test case's name, its result and the reason
+associated with this result (if applicable).
+.El
+.Pp
+An example:
+.Bd -literal -offset indent
+tps-count: 2
+tp-start: calculator, 2
+tc-start: add
+tc-end: add, passed
+tc-start: subtract
+tc-so: 3-2 expected to return 1 but got 0
+tc-end: subtract, failed, Calculated an unexpected value
+tp-end: calculator
+tp-start: files, 1
+tc-start: copy
+tc-se: could not find the cp(1) utility
+tc-end: copy, skipped
+tp-end: files
+.Ed
 .Sh SEE ALSO
 .Xr atf 1

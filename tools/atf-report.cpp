@@ -42,6 +42,7 @@
 #include <vector>
 
 #include "atf/application.hpp"
+#include "atf/fs.hpp"
 #include "atf/formats.hpp"
 #include "atf/text.hpp"
 #include "atf/ui.hpp"
@@ -82,7 +83,7 @@ public:
     virtual ~writer(void) {}
 
     virtual void write_ntps(size_t) {}
-    virtual void write_tp_start(const atf::fs::path&, size_t) {}
+    virtual void write_tp_start(const std::string&, size_t) {}
     virtual void write_tp_end(void) {}
     virtual void write_tc_start(const std::string&) {}
     virtual void write_tc_stdout_line(const std::string&) {}
@@ -117,9 +118,9 @@ public:
 
     virtual
     void
-    write_tp_start(const atf::fs::path& name, size_t ntcs)
+    write_tp_start(const std::string& name, size_t ntcs)
     {
-        m_tpname = name.str();
+        m_tpname = name;
     }
 
     virtual
@@ -179,14 +180,14 @@ class ticker_writer : public writer {
     }
 
     void
-    write_tp_start(const atf::fs::path& tp, size_t ntcs)
+    write_tp_start(const std::string& tp, size_t ntcs)
     {
         using atf::text::to_string;
         using atf::ui::format_text;
 
-        m_tpname = tp.str();
+        m_tpname = tp;
 
-        (*m_os) << format_text(tp.str() + " (" + to_string(m_curtp) +
+        (*m_os) << format_text(tp + " (" + to_string(m_curtp) +
                                "/" + to_string(m_ntps) + "): " +
                                to_string(ntcs) + " test cases")
                 << std::endl;
@@ -299,7 +300,7 @@ class converter : public atf::formats::atf_tps_reader {
     }
 
     void
-    got_tp_start(const atf::fs::path& tp, size_t ntcs)
+    got_tp_start(const std::string& tp, size_t ntcs)
     {
         for (outs_vector::iterator iter = m_outs.begin();
              iter != m_outs.end(); iter++)
@@ -307,8 +308,9 @@ class converter : public atf::formats::atf_tps_reader {
     }
 
     void
-    got_tp_end(void)
+    got_tp_end(const std::string& reason)
     {
+        // TODO: Handle failure reason, if any.
         for (outs_vector::iterator iter = m_outs.begin();
              iter != m_outs.end(); iter++)
             (*iter)->write_tp_end();

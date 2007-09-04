@@ -271,10 +271,10 @@ echo "msg2 to stderr" 1>&2
 EOF
 
     atf_check "atf-run" 0 stdout null
-    atf_check "grep '^so: msg1 to stdout$' stdout" 0 ignore null
-    atf_check "grep '^so: msg2 to stdout$' stdout" 0 ignore null
-    atf_check "grep '^se: msg1 to stderr$' stdout" 0 ignore null
-    atf_check "grep '^se: msg2 to stderr$' stdout" 0 ignore null
+    atf_check "grep '^tc-so: msg1 to stdout$' stdout" 0 ignore null
+    atf_check "grep '^tc-so: msg2 to stdout$' stdout" 0 ignore null
+    atf_check "grep '^tc-se: msg1 to stderr$' stdout" 0 ignore null
+    atf_check "grep '^tc-se: msg2 to stderr$' stdout" 0 ignore null
 }
 
 zero_tcs_head()
