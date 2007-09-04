@@ -134,7 +134,7 @@ class atf_tps_reader {
     atf::serial::internalizer m_int;
 
     void read_tp(void);
-    void read_tc(void);
+    bool read_tc(void);
 
 protected:
     virtual void got_ntps(size_t);

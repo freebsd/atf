@@ -599,11 +599,13 @@ impl::atf_tps_reader::read_tp(void)
 
     got_tp_start(tpname, ntcs);
 
-    for (size_t i = 0; i < ntcs; i++)
-        read_tc();
-
-    t = tkz.next();
-    atf_tps::expect(t, atf_tps::tp_end, "end of test program");
+    bool ok = true;
+    for (size_t i = 0; ok && i < ntcs; i++)
+        ok &= read_tc();
+    if (ok) {
+        t = tkz.next();
+        atf_tps::expect(t, atf_tps::tp_end, "end of test program");
+    }
 
     t = tkz.next();
     atf_tps::expect(t, atf_tps::colon, "`:'");
@@ -618,7 +620,6 @@ impl::atf_tps_reader::read_tp(void)
     t = tkz.next();
     std::string reason;
     if (t.type() == atf_tps::comma) {
-        t = tkz.next();
         reason = text::trim(tkz.rest_of_line());
         t = tkz.next();
     }
@@ -627,12 +628,14 @@ impl::atf_tps_reader::read_tp(void)
     got_tp_end(reason);
 }
 
-void
+bool
 impl::atf_tps_reader::read_tc(void)
 {
     atf_tps::tokenizer tkz(m_int);
 
     atf_tps::token t = tkz.next();
+    if (t.type() == atf_tps::tp_end)
+        return false;
     atf_tps::expect(t, atf_tps::tc_start, "start of test case");
 
     t = tkz.next();
@@ -707,6 +710,8 @@ impl::atf_tps_reader::read_tc(void)
 
     t = tkz.next();
     atf_tps::expect(t, atf_tps::nl, "new line");
+
+    return true;
 }
 
 void

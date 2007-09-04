@@ -84,7 +84,7 @@ public:
 
     virtual void write_ntps(size_t) {}
     virtual void write_tp_start(const std::string&, size_t) {}
-    virtual void write_tp_end(void) {}
+    virtual void write_tp_end(const std::string&) {}
     virtual void write_tc_start(const std::string&) {}
     virtual void write_tc_stdout_line(const std::string&) {}
     virtual void write_tc_stderr_line(const std::string&) {}
@@ -121,6 +121,13 @@ public:
     write_tp_start(const std::string& name, size_t ntcs)
     {
         m_tpname = name;
+    }
+
+    virtual
+    void
+    write_tp_end(const std::string& reason)
+    {
+        // TODO: Report failed test programs in some way.
     }
 
     virtual
@@ -195,12 +202,22 @@ class ticker_writer : public writer {
     }
 
     void
-    write_tp_end(void)
+    write_tp_end(const std::string& reason)
     {
+        using atf::ui::format_text_with_tag;
+
         m_curtp++;
 
+        if (!reason.empty())
+            (*m_os) << format_text_with_tag("BOGUS TEST PROGRAM: Cannot "
+                                            "trust its results because "
+                                            "of `" + reason + "'",
+                                            m_tpname + ": ", false)
+                    << std::endl;
         (*m_os) << std::endl;
         (*m_os).flush();
+
+        m_tpname.clear();
     }
 
     void
@@ -235,6 +252,8 @@ class ticker_writer : public writer {
         // to specify the current column, which is needed because we have
         // already printed the tc's name.
         (*m_os) << str << std::endl;
+
+        m_tcname = "";
     }
 
     void
@@ -310,10 +329,9 @@ class converter : public atf::formats::atf_tps_reader {
     void
     got_tp_end(const std::string& reason)
     {
-        // TODO: Handle failure reason, if any.
         for (outs_vector::iterator iter = m_outs.begin();
              iter != m_outs.end(); iter++)
-            (*iter)->write_tp_end();
+            (*iter)->write_tp_end(reason);
     }
 
     void

@@ -34,6 +34,20 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+create_atffile()
+{
+    cat >Atffile <<EOF
+Content-Type: application/X-atf-atffile; version="0"
+
+test-suite: atf
+
+EOF
+    [ ${#} -eq 0 ] && set -- helper
+    for f in "${@}"; do
+        echo ${f} >>Atffile
+    done
+}
+
 create_helper()
 {
     cat >helper.sh <<EOF
@@ -56,13 +70,7 @@ EOF
     atf-compile -o helper helper.sh
     rm -f helper.sh
 
-    cat >Atffile <<EOF
-Content-Type: application/X-atf-atffile; version="0"
-
-test-suite: atf
-
-helper
-EOF
+    create_atffile
 }
 
 config_head()
@@ -240,14 +248,8 @@ EOF
     mv Atffile helper dir
 
     echo "Checking that 'testvar' is not inherited."
-    cat >Atffile <<EOF
-Content-Type: application/X-atf-atffile; version="0"
-
-test-suite: atf
-
-dir
-testvar=a value
-EOF
+    create_atffile dir
+    echo 'testvar=a value' >> Atffile
     atf_check "ATF_CONFDIR=$(pwd)/etc atf-run" 1 ignore ignore
 
     echo "Checking that defining 'testvar' in the correct Atffile works."
@@ -293,16 +295,90 @@ exit 0
 EOF
     chmod +x helper
 
-    cat >Atffile <<EOF
-Content-Type: application/X-atf-atffile; version="0"
+    create_atffile
 
-test-suite: atf
+    atf_check "atf-run" 1 stdout null
+    atf_check "grep '^tp-end: helper, ' stdout" 0 stdout null
+    atf_check "grep '0 test cases' stdout" 0 ignore null
+}
 
-helper
+exit_codes_head()
+{
+    atf_set "descr" "Ensures that atf-run reports bogus exit codes for" \
+                    "programs correctly"
+}
+exit_codes_body()
+{
+    cat >helper <<EOF
+#! $(atf-config -t atf_shell)
+echo 'Content-Type: application/X-atf-tcs; version="1"' 1>&9
+echo 1>&9
+echo "tcs-count: 1" 1>&9
+echo "tc-start: foo" 1>&9
+echo "tc-end: foo, failed, Yes, it failed" 1>&9
+true
 EOF
+    chmod +x helper
 
-    atf_check "atf-run" 1 ignore stderr
-    atf_check "grep 'ERROR.*0 test cases' stderr" 0 ignore null
+    create_atffile
+
+    atf_check "atf-run" 1 stdout null
+    atf_check "grep '^tp-end: helper, ' stdout" 0 stdout null
+    atf_check "grep 'success.*test cases failed' stdout" 0 ignore null
+}
+
+signaled_head()
+{
+    atf_set "descr" "Ensures that atf-run reports test program's crashes" \
+                    "correctly"
+}
+signaled_body()
+{
+    cat >helper <<EOF
+#! $(atf-config -t atf_shell)
+echo 'Content-Type: application/X-atf-tcs; version="1"' 1>&9
+echo 1>&9
+echo "tcs-count: 1" 1>&9
+echo "tc-start: foo" 1>&9
+echo "tc-end: foo, failed, Will fail" 1>&9
+kill -9 \$\$
+EOF
+    chmod +x helper
+
+    create_atffile
+
+    atf_check "atf-run" 1 stdout null
+    atf_check "grep '^tp-end: helper, ' stdout" 0 stdout null
+    atf_check "grep 'received signal 9' stdout" 0 ignore null
+}
+
+no_reason_head()
+{
+    atf_set "descr" "Ensures that atf-run reports bogus test programs " \
+                    "that do not provide a reason for failed or skipped " \
+                    "test cases"
+}
+no_reason_body()
+{
+    for r in failed skipped; do
+        cat >helper <<EOF
+#! $(atf-config -t atf_shell)
+echo 'Content-Type: application/X-atf-tcs; version="1"' 1>&9
+echo 1>&9
+echo "tcs-count: 1" 1>&9
+echo "tc-start: foo" 1>&9
+echo "tc-end: foo, ${r}" 1>&9
+false
+EOF
+        chmod +x helper
+
+        create_atffile
+
+        atf_check "atf-run" 1 stdout null
+        atf_check "grep '^tp-end: helper, ' stdout" 0 stdout null
+        atf_check "grep 'Unexpected.*NEWLINE' stdout" 0 ignore null
+        cat stdout
+    done
 }
 
 atf_init_test_cases()
@@ -313,6 +389,9 @@ atf_init_test_cases()
     atf_add_test_case atffile_recursive
     atf_add_test_case fds
     atf_add_test_case zero_tcs
+    atf_add_test_case exit_codes
+    atf_add_test_case signaled
+    atf_add_test_case no_reason
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

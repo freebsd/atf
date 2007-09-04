@@ -86,6 +86,7 @@ class muxer : public atf::formats::atf_tcs_reader {
     atf::fs::path m_tp;
     atf::formats::atf_tps_writer m_writer;
 
+    bool m_finalized;
     size_t m_ntcs;
     std::string m_tcname;
 
@@ -95,10 +96,10 @@ class muxer : public atf::formats::atf_tcs_reader {
     void
     got_ntcs(size_t ntcs)
     {
-        if (ntcs == 0)
-            throw std::runtime_error("Bogus test program: reported 0 "
-                                     "test cases");
         m_writer.start_tp(m_tp.str(), ntcs);
+        if (ntcs == 0)
+            throw atf::serial::format_error("Bogus test program: reported "
+                                            "0 test cases");
     }
 
     void
@@ -123,6 +124,7 @@ class muxer : public atf::formats::atf_tcs_reader {
         }
 
         m_writer.end_tc(tcr);
+        m_tcname = "";
     }
 
     void
@@ -143,15 +145,36 @@ public:
         atf::formats::atf_tcs_reader(is),
         m_tp(tp),
         m_writer(w),
+        m_finalized(false),
         m_passed(0),
         m_failed(0),
         m_skipped(0)
     {
     }
 
+    size_t
+    failed(void)
+        const
+    {
+        return m_failed;
+    }
+
+    void
+    finalize(const std::string& reason = "")
+    {
+        if (!m_tcname.empty()) {
+            assert(!reason.empty());
+            got_tc_end(atf::tests::tcr::failed("Bogus test program"));
+        }
+
+        assert(!m_finalized);
+        m_writer.end_tp(reason);
+        m_finalized = true;
+    }
+
     ~muxer(void)
     {
-        m_writer.end_tp("");
+        assert(m_finalized);
     }
 };
 
@@ -407,7 +430,13 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
 
     // Process the test case's output and multiplex it into our output
     // stream as we read it.
-    muxer(tp, w, resin).read(outin, errin);
+    muxer m(tp, w, resin);
+    std::string fmterr;
+    try {
+        m.read(outin, errin);
+    } catch (const atf::serial::format_error& e) {
+        fmterr = e.what();
+    }
 
     outin.close();
     errin.close();
@@ -421,11 +450,28 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
     int code;
     if (WIFEXITED(status)) {
         code = WEXITSTATUS(status);
-        //if (failed > 0 && code == EXIT_SUCCESS) {
-            // XXX Bogus test.
-        //}
-    } else
+        if (m.failed() > 0 && code == EXIT_SUCCESS) {
+            code = EXIT_FAILURE;
+            m.finalize("Test program returned success but some test "
+                       "cases failed" +
+                       (fmterr.empty() ? "" : (".  " + fmterr)));
+        } else {
+            code = fmterr.empty() ? code : EXIT_FAILURE;
+            m.finalize(fmterr);
+        }
+    } else if (WIFSIGNALED(status)) {
         code = EXIT_FAILURE;
+        m.finalize("Test program received signal " +
+                   atf::text::to_string(WTERMSIG(status)) +
+                   (WCOREDUMP(status) ? " (core dumped)" : "") +
+                   (fmterr.empty() ? "" : (".  " + fmterr)));
+    } else if (WIFSTOPPED(status)) {
+        code = EXIT_FAILURE;
+        m.finalize("Test program stopped due to signal " +
+                   atf::text::to_string(WSTOPSIG(status)) +
+                   (fmterr.empty() ? "" : (".  " + fmterr)));
+    } else
+        assert(false);
     return code;
 }
 

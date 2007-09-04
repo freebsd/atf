@@ -13,6 +13,10 @@ Changes:
 
 * Test cases now get a known umask on entry.
 
+* atf-run now detects many unexpected failures caused by test programs
+  and reports them as bogus tests.  atf-report is able to handle these
+  new errors and nicely reports them to the user.
+
 
 Version 0.1
 ===========
