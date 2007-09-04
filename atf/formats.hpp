@@ -117,6 +117,9 @@ public:
 class atf_tcs_writer {
     atf::serial::externalizer m_ext;
 
+    size_t m_ntcs, m_curtc;
+    std::string m_tcname;
+
 public:
     atf_tcs_writer(std::ostream&, size_t);
 

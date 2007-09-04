@@ -81,6 +81,11 @@ join(const T& words, const std::string& separator)
 std::vector< std::string > split(const std::string&, const std::string&);
 
 //!
+//! \brief Removes whitespace from the beginning and end of a string.
+//!
+std::string trim(const std::string&);
+
+//!
 //! \brief Changes the case of a string to lowercase.
 //!
 //! Returns a new string that is a lowercased version of the original

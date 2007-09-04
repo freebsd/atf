@@ -304,9 +304,7 @@ atf_config_has()
 #
 atf_fail()
 {
-    echo "failed" >>${Results_File}
-    echo "${@}" >>${Results_File}
-    echo "." >>${Results_File}
+    echo "failed, ${*}" >>${Results_File}
     exit 1
 }
 
@@ -341,7 +339,6 @@ atf_get_srcdir()
 atf_pass()
 {
     echo "passed" >>${Results_File}
-    echo "." >>${Results_File}
     exit 0
 }
 
@@ -401,9 +398,7 @@ atf_set()
 #
 atf_skip()
 {
-    echo "skipped" >>${Results_File}
-    echo "${@}" >>${Results_File}
-    echo "." >>${Results_File}
+    echo "skipped, ${*}" >>${Results_File}
     exit 0
 }
 
@@ -554,10 +549,10 @@ _atf_get_bool()
 #
 _atf_init_output()
 {
-    echo "Content-Type: application/X-atf-tcs; version=\"0\"" \
+    echo "Content-Type: application/X-atf-tcs; version=\"1\"" \
         >&${Results_Fd}
     echo "" >&${Results_Fd}
-    echo ${#} >&${Results_Fd}
+    echo "tcs-count: ${#}" >&${Results_Fd}
 }
 
 #
@@ -704,17 +699,18 @@ _atf_run_body()
 }
 
 #
-# _atf_run_tc tc
+# _atf_run_tc tc nrest
 #
 #   Runs the specified test case.  Prints its exit status to the
 #   standard output and returns a boolean indicating if the test was
-#   successful or not.
+#   successful or not.  The 'nrest' parameter indicates how many test
+#   cases are left for execution.
 #
 _atf_run_tc()
 {
     _atf_parse_head ${1}
 
-    echo "${Test_Case}" >&${Results_Fd}
+    echo "tc-start: ${Test_Case}" >&${Results_Fd}
 
     _atf_internal_set srcdir "${Source_Dir}"
 
@@ -725,8 +721,10 @@ _atf_run_tc()
         if [ ${?} -eq 0 ]; then
             ( cd ${Work_Dir} ; _atf_run_body ${1} ; atf_pass )
             _ret=$?
-            echo __atf_stream_end__
-            echo __atf_stream_end__ 1>&2
+            if [ ${2} -gt 1 ]; then
+                echo __atf_tc_separator__
+                echo __atf_tc_separator__ 1>&2
+            fi
             ${Atf_Cleanup} ${Work_Dir}
         else
             ( atf_fail "Could not create the work directory" )
@@ -736,8 +734,10 @@ _atf_run_tc()
     else
         ( _atf_run_body ${1} ; atf_pass )
         _ret=${?}
-        echo __atf_stream_end__
-        echo __atf_stream_end__ 1>&2
+        if [ ${2} -gt 1 ]; then
+            echo __atf_tc_separator__
+            echo __atf_tc_separator__ 1>&2
+        fi
     fi
 
     _atf_internal_set srcdir ""
@@ -748,7 +748,7 @@ _atf_run_tc()
     fi
 
     # Print the result of the test case and clean up the temporary file.
-    cat ${Results_File} 1>&${Results_Fd}
+    echo "tc-end: ${Test_Case}, $(cat ${Results_File})" >&${Results_Fd}
     rm -f ${Results_File}
     Results_File=
 
@@ -773,7 +773,7 @@ _atf_run_tcs()
 
     _ok=true
     while [ ${#} -gt 0 ]; do
-        _atf_run_tc ${1} || _ok=false
+        _atf_run_tc ${1} ${#} || _ok=false
         shift
     done
 

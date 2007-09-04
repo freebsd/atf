@@ -141,6 +141,7 @@ public:
 
     internalizer& getline(std::string&);
 
+    int get(void);
     internalizer& get(char&);
     internalizer& unget(void);
     int peek(void) const;

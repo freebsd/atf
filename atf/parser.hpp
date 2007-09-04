@@ -122,6 +122,7 @@ public:
     void add_keyword(const std::string&, T);
 
     token< T > next(void);
+    std::string rest_of_line(void);
 };
 
 template< class T, class IS >
@@ -191,6 +192,16 @@ tokenizer< T, IS >::next(void)
     }
 
     return t;
+}
+
+template< class T, class IS >
+std::string
+tokenizer< T, IS >::rest_of_line(void)
+{
+    std::string str;
+    while (m_is.good() && m_is.peek() != '\n')
+        str += m_is.get();
+    return str;
 }
 
 } // namespace parser

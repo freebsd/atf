@@ -56,7 +56,10 @@ m4_define(COUNT_IN_LINES,
 
 m4_define(COUNT_LINES, [test @S|@[(wc -l $1 | awk '{ print @S|@1 }')] = $2])
 
-m4_define(CHECK_TCR,
+m4_define(CHECK_TCS_TCR,
+          [AT_CHECK([grep '^tc-end: $1, $2' $3], [0], [ignore], [])])
+
+m4_define(CHECK_TPS_TCR,
 [AT_CHECK([awk 'BEGIN {
     sawname = 0
     found = 0

@@ -286,11 +286,9 @@ zero_tcs_body()
 {
     cat >helper <<EOF
 #! $(atf-config -t atf_shell)
-echo 'Content-Type: application/X-atf-tcs; version="0"' 1>&9
+echo 'Content-Type: application/X-atf-tcs; version="1"' 1>&9
 echo 1>&9
-echo 0 1>&9
-echo __atf_stream_end__
-echo __atf_stream_end__ 1>&2
+echo "tcs-count: 0" 1>&9
 exit 0
 EOF
     chmod +x helper

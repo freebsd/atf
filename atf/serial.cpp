@@ -451,6 +451,12 @@ impl::internalizer::getline(std::string& str)
     return *this;
 }
 
+int
+impl::internalizer::get(void)
+{
+    return m_is.get();
+}
+
 impl::internalizer&
 impl::internalizer::get(char& ch)
 {

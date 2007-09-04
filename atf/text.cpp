@@ -66,3 +66,19 @@ impl::split(const std::string& str, const std::string& delim)
 
     return words;
 }
+
+std::string
+impl::trim(const std::string& str)
+{
+    std::string::size_type pos1 = str.find_first_not_of(" \t");
+    std::string::size_type pos2 = str.find_last_not_of(" \t");
+
+    if (pos1 == std::string::npos && pos2 == std::string::npos)
+        return "";
+    else if (pos1 == std::string::npos)
+        return str.substr(0, str.length() - pos2);
+    else if (pos2 == std::string::npos)
+        return str.substr(pos1);
+    else
+        return str.substr(pos1, pos2 - pos1 + 1);
+}
