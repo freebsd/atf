@@ -111,7 +111,46 @@ expect(token t, tokens type, const std::string& textual)
                                         "'; expected " + textual);
 }
 
-} // namespace atf_tcs
+} // namespace atf_atffile
+
+// ------------------------------------------------------------------------
+// The "atf_config" auxiliary parser.
+// ------------------------------------------------------------------------
+
+namespace atf_config {
+
+enum tokens {
+    eof,
+    nl,
+    text,
+    equal,
+    hash,
+};
+
+typedef atf::parser::token< tokens > token;
+
+class tokenizer : public atf::parser::tokenizer
+    < tokens, atf::serial::internalizer > {
+public:
+    tokenizer(atf::serial::internalizer& is) :
+        atf::parser::tokenizer< tokens, atf::serial::internalizer >
+            (is, true, eof, nl, text)
+    {
+        add_delim('=', equal);
+        add_delim('#', hash);
+    }
+};
+
+inline
+void
+expect(token t, tokens type, const std::string& textual)
+{
+    if (t.type() != type)
+        throw atf::serial::format_error("Unexpected token `" + t.text() +
+                                        "'; expected " + textual);
+}
+
+} // namespace atf_config
 
 // ------------------------------------------------------------------------
 // The "atf_tcs" auxiliary parser.
@@ -221,7 +260,7 @@ expect(token t, tokens type, const std::string& textual)
                                         "'; expected " + textual);
 }
 
-} // namespace atf_tcs
+} // namespace atf_tps
 
 // ------------------------------------------------------------------------
 // The "atf_atffile_reader" class.
@@ -328,7 +367,7 @@ impl::atf_atffile_reader::read(void)
 // ------------------------------------------------------------------------
 
 impl::atf_config_reader::atf_config_reader(std::istream& is) :
-    m_int(is, "application/X-atf-config", 0)
+    m_int(is, "application/X-atf-config", 1)
 {
 }
 
@@ -350,23 +389,37 @@ impl::atf_config_reader::got_eof(void)
 void
 impl::atf_config_reader::read(void)
 {
-    using atf::serial::format_error;
+    atf_config::tokenizer tkz(m_int);
 
-    std::string line;
-    while (m_int.getline(line).good()) {
-        if (line.empty())
+    atf_config::token t = tkz.next();
+    while (t.type() != atf_config::eof) {
+        if (t.type() == atf_config::hash) {
+            (void)tkz.rest_of_line();
+        } else if (t.type() == atf_config::text) {
+            std::string name = t.text();
+
+            t = tkz.next();
+            atf_config::expect(t, atf_config::equal, "equal sign");
+
+            got_var(name, text::trim(tkz.rest_of_line()));
+        } else if (t.type() == atf_config::nl) {
+            t = tkz.next();
             continue;
+        } else {
+            throw atf::serial::format_error("Unexpected token `" +
+                                            t.text() + "'");
+        }
 
-        if (line[0] == '#')
-            continue;
+        t = tkz.next();
+        if (t.type() == atf_config::hash) {
+            (void)tkz.rest_of_line();
+            t = tkz.next();
+        }
+        atf_config::expect(t, atf_config::nl, "new line");
 
-        std::string::size_type pos = line.find('=');
-        if (pos == std::string::npos)
-            throw format_error("Syntax error: invalid variable "
-                               "definition `" + line + "'");
-
-        got_var(line.substr(0, pos), line.substr(pos + 1));
+        t = tkz.next();
     }
+    atf_config::expect(t, atf_config::eof, "end of stream");
 
     got_eof();
 }

@@ -93,12 +93,12 @@ EOF
 
     echo "First: read system-wide common.conf."
     cat >etc/common.conf <<EOF
-Content-Type: application/X-atf-config; version="0"
+Content-Type: application/X-atf-config; version="1"
 
-1st=sw common
-2nd=sw common
-3rd=sw common
-4th=sw common
+1st = sw common
+2nd = sw common
+3rd = sw common
+4th = sw common
 EOF
     atf_check "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper" \
               0 stdout ignore
@@ -109,9 +109,9 @@ EOF
 
     echo "Second: read system-wide <test-suite>.conf."
     cat >etc/atf.conf <<EOF
-Content-Type: application/X-atf-config; version="0"
+Content-Type: application/X-atf-config; version="1"
 
-1st=sw atf
+1st = sw atf
 EOF
     atf_check "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper" \
               0 stdout ignore
@@ -122,9 +122,9 @@ EOF
 
     echo "Third: read user-specific common.conf."
     cat >.atf/common.conf <<EOF
-Content-Type: application/X-atf-config; version="0"
+Content-Type: application/X-atf-config; version="1"
 
-2nd=us common
+2nd = us common
 EOF
     atf_check "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper" \
               0 stdout ignore
@@ -135,9 +135,9 @@ EOF
 
     echo "Fourth: read user-specific <test-suite>.conf."
     cat >.atf/atf.conf <<EOF
-Content-Type: application/X-atf-config; version="0"
+Content-Type: application/X-atf-config; version="1"
 
-3rd=us atf
+3rd = us atf
 EOF
     atf_check "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper" \
               0 stdout ignore
@@ -174,9 +174,9 @@ EOF
          "file works."
     mkdir etc
     cat >etc/common.conf <<EOF
-Content-Type: application/X-atf-config; version="0"
+Content-Type: application/X-atf-config; version="1"
 
-testvar=value in conf file
+testvar = value in conf file
 EOF
     atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
     atf_check "grep 'testvar: value in conf file' stdout" 0 ignore ignore
@@ -215,9 +215,9 @@ EOF
          "file overrides the one in the Atffile."
     mkdir etc
     cat >etc/common.conf <<EOF
-Content-Type: application/X-atf-config; version="0"
+Content-Type: application/X-atf-config; version="1"
 
-testvar=value in conf file
+testvar = value in conf file
 EOF
     atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
     atf_check "grep 'testvar: value in conf file' stdout" 0 ignore ignore

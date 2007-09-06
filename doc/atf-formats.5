@@ -101,12 +101,12 @@ can be overridden through configuration files or the command line.
 .Pp
 The grammar for Atffiles is the following:
 .Bd -literal -offset indent
-DATA ::= ( CONF | PROP | TP )* EOF
-CONF ::= 'conf:' STRING EQUAL STRING NEWLINE
-PROP ::= 'prop:' STRING EQUAL STRING NEWLINE
+DATA ::= ( ( CONF | PROP | TP )? COMMENT? NEWLINE )* EOF
+CONF ::= 'conf:' STRING EQUAL STRING
+PROP ::= 'prop:' STRING EQUAL STRING
 TP ::= TPFILE | TPGLOB
-TPFILE ::= 'tp: ' STRING NEWLINE
-TPGLOB ::= 'tp-glob: ' STRING NEWLINE
+TPFILE ::= 'tp: ' STRING
+TPGLOB ::= 'tp-glob: ' STRING
 .Ed
 .Pp
 The meaning of the constructions above is:
@@ -136,8 +136,24 @@ tp: t_mv
 tp: t_df
 tp-glob: t_dir_*
 .Ed
-.Ss Format: application/X-atf-config, version: 0
-Still too unstable; not described.
+.Ss Format: application/X-atf-config, version: 1
+Configuration files are very simple: they only contain a list of variable
+name/variable value pairs.
+Their grammar is:
+.Bd -literal -offset indent
+DATA ::= ( VAR? COMMENT? NEWLINE )* EOF
+VAR ::= STRING EQUAL STRING
+COMMENT ::= HASH STRING
+.Ed
+.Pp
+An example:
+.Bd -literal -offset indent
+# This is the system-wide configuration file for ATF.
+# The above and this line are comments placed on their own line.
+
+var1 = this is a variable value
+var2 = this is another one      # Optional comment at the end.
+.Ed
 .Ss Format: application/X-atf-tcs, version: 1
 The
 .Sq application/X-atf-tcs
