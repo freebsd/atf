@@ -65,6 +65,55 @@ string_to_size_t(const std::string& str)
 }
 
 // ------------------------------------------------------------------------
+// The "atf_atffile" auxiliary parser.
+// ------------------------------------------------------------------------
+
+namespace atf_atffile {
+
+enum tokens {
+    eof,
+    nl,
+    text,
+    equal,
+    colon,
+    hash,
+    conf,
+    prop,
+    tp,
+    tp_glob,
+};
+
+typedef atf::parser::token< tokens > token;
+
+class tokenizer : public atf::parser::tokenizer
+    < tokens, atf::serial::internalizer > {
+public:
+    tokenizer(atf::serial::internalizer& is) :
+        atf::parser::tokenizer< tokens, atf::serial::internalizer >
+            (is, true, eof, nl, text)
+    {
+        add_delim(':', colon);
+        add_delim('=', equal);
+        add_delim('#', hash);
+        add_keyword("conf", conf);
+        add_keyword("prop", prop);
+        add_keyword("tp", tp);
+        add_keyword("tp-glob", tp_glob);
+    }
+};
+
+inline
+void
+expect(token t, tokens type, const std::string& textual)
+{
+    if (t.type() != type)
+        throw atf::serial::format_error("Unexpected token `" + t.text() +
+                                        "'; expected " + textual);
+}
+
+} // namespace atf_tcs
+
+// ------------------------------------------------------------------------
 // The "atf_tcs" auxiliary parser.
 // ------------------------------------------------------------------------
 
@@ -179,7 +228,7 @@ expect(token t, tokens type, const std::string& textual)
 // ------------------------------------------------------------------------
 
 impl::atf_atffile_reader::atf_atffile_reader(std::istream& is) :
-    m_int(is, "application/X-atf-atffile", 0)
+    m_int(is, "application/X-atf-atffile", 1)
 {
 }
 
@@ -188,18 +237,19 @@ impl::atf_atffile_reader::~atf_atffile_reader(void)
 }
 
 void
-impl::atf_atffile_reader::got_tp(const std::string& name)
+impl::atf_atffile_reader::got_conf(const std::string& name,
+                                   const std::string& val)
 {
 }
 
 void
-impl::atf_atffile_reader::got_ts(const std::string& name)
+impl::atf_atffile_reader::got_prop(const std::string& name,
+                                   const std::string& val)
 {
 }
 
 void
-impl::atf_atffile_reader::got_var(const std::string& var,
-                                  const std::string& val)
+impl::atf_atffile_reader::got_tp(const std::string& name, bool isglob)
 {
 }
 
@@ -211,39 +261,64 @@ impl::atf_atffile_reader::got_eof(void)
 void
 impl::atf_atffile_reader::read(void)
 {
-    using atf::serial::format_error;
+    atf_atffile::tokenizer tkz(m_int);
 
-    bool seents = false;
-    std::string line;
-    while (m_int.getline(line).good()) {
-        if (line.empty())
+    atf_atffile::token t = tkz.next();
+    while (t.type() != atf_atffile::eof) {
+        if (t.type() == atf_atffile::conf) {
+            t = tkz.next();
+            atf_atffile::expect(t, atf_atffile::colon, "`:'");
+
+            t = tkz.next();
+            atf_atffile::expect(t, atf_atffile::text, "variable name");
+            std::string var = t.text();
+
+            t = tkz.next();
+            atf_atffile::expect(t, atf_atffile::equal, "equal sign");
+
+            got_conf(var, text::trim(tkz.rest_of_line()));
+        } else if (t.type() == atf_atffile::hash) {
+            (void)tkz.rest_of_line();
+        } else if (t.type() == atf_atffile::prop) {
+            t = tkz.next();
+            atf_atffile::expect(t, atf_atffile::colon, "`:'");
+
+            t = tkz.next();
+            atf_atffile::expect(t, atf_atffile::text, "property name");
+            std::string name = t.text();
+
+            t = tkz.next();
+            atf_atffile::expect(t, atf_atffile::equal, "equal sign");
+
+            got_prop(name, text::trim(tkz.rest_of_line()));
+        } else if (t.type() == atf_atffile::tp) {
+            t = tkz.next();
+            atf_atffile::expect(t, atf_atffile::colon, "`:'");
+
+            got_tp(text::trim(tkz.rest_of_line()), false);
+        } else if (t.type() == atf_atffile::tp_glob) {
+            t = tkz.next();
+            atf_atffile::expect(t, atf_atffile::colon, "`:'");
+
+            got_tp(text::trim(tkz.rest_of_line()), true);
+        } else if (t.type() == atf_atffile::nl) {
+            t = tkz.next();
             continue;
-
-        if (line[0] == '#')
-            continue;
-
-        std::string::size_type pos = line.find('=');
-        if (pos != std::string::npos)
-            got_var(line.substr(0, pos), line.substr(pos + 1));
-        else {
-            std::string::size_type pos2 = line.find(": ");
-            if (pos2 != std::string::npos) {
-                const std::string& name = line.substr(0, pos2);
-                const std::string& val = line.substr(pos2 + 2);
-
-                if (name == "test-suite") {
-                    got_ts(val);
-                    seents = true;
-                } else
-                    throw format_error("Unknown meta-data keyword " + name);
-            } else {
-                got_tp(line);
-            }
+        } else {
+            throw atf::serial::format_error("Unexpected token `" +
+                                            t.text() + "'");
         }
-    }
 
-    if (!seents)
-        throw format_error("Test suite name not defined");
+        t = tkz.next();
+        if (t.type() == atf_atffile::hash) {
+            (void)tkz.rest_of_line();
+            t = tkz.next();
+        }
+        atf_atffile::expect(t, atf_atffile::nl, "new line");
+
+        t = tkz.next();
+    }
+    atf_atffile::expect(t, atf_atffile::eof, "end of stream");
 
     got_eof();
 }

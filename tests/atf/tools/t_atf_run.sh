@@ -37,14 +37,14 @@
 create_atffile()
 {
     cat >Atffile <<EOF
-Content-Type: application/X-atf-atffile; version="0"
+Content-Type: application/X-atf-atffile; version="1"
 
-test-suite: atf
+prop: test-suite = atf
 
 EOF
     [ ${#} -eq 0 ] && set -- helper
     for f in "${@}"; do
-        echo ${f} >>Atffile
+        echo "tp: ${f}" >>Atffile
     done
 }
 
@@ -207,7 +207,7 @@ EOF
     atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 1 ignore ignore
 
     echo "Checking that defining 'testvar' trough the Atffile works."
-    echo "testvar=a value" >>Atffile
+    echo "conf: testvar = a value" >>Atffile
     atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
     atf_check "grep 'testvar: a value' stdout" 0 ignore ignore
 
@@ -249,11 +249,11 @@ EOF
 
     echo "Checking that 'testvar' is not inherited."
     create_atffile dir
-    echo 'testvar=a value' >> Atffile
+    echo 'conf: testvar = a value' >> Atffile
     atf_check "ATF_CONFDIR=$(pwd)/etc atf-run" 1 ignore ignore
 
     echo "Checking that defining 'testvar' in the correct Atffile works."
-    echo 'testvar=a value' >>dir/Atffile
+    echo 'conf: testvar = a value' >>dir/Atffile
     atf_check "ATF_CONFDIR=$(pwd)/etc atf-run" 0 stdout ignore
     atf_check "grep 'testvar: a value' stdout" 0 ignore ignore
 }

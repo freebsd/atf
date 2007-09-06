@@ -54,9 +54,9 @@ class atf_atffile_reader {
     atf::serial::internalizer m_int;
 
 protected:
-    virtual void got_tp(const std::string&);
-    virtual void got_ts(const std::string&);
-    virtual void got_var(const std::string&, const std::string &);
+    virtual void got_conf(const std::string&, const std::string &);
+    virtual void got_prop(const std::string&, const std::string &);
+    virtual void got_tp(const std::string&, bool);
     virtual void got_eof(void);
 
 public:

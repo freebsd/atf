@@ -1,8 +1,8 @@
-Content-Type: application/X-atf-atffile; version="0"
+Content-Type: application/X-atf-atffile; version="1"
 
-test-suite: atf
+prop: test-suite = atf
 
-t_tc
-t_normalize
-t_config
-t_atf_check
+tp: t_tc
+tp: t_normalize
+tp: t_config
+tp: t_atf_check

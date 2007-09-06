@@ -1,9 +1,9 @@
-Content-Type: application/X-atf-atffile; version="0"
+Content-Type: application/X-atf-atffile; version="1"
 
-test-suite: atf
+prop: test-suite = atf
 
-t_config
-t_meta_data
-t_env
-t_fork
-t_srcdir
+tp: t_config
+tp: t_meta_data
+tp: t_env
+tp: t_fork
+tp: t_srcdir

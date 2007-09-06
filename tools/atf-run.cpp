@@ -311,10 +311,15 @@ atf_run::run_test_directory(const atf::fs::path& tp,
                             atf::formats::atf_tps_writer& w)
 {
     atf::atffile af(tp / "Atffile");
-    m_atffile_vars = af.vars();
+    m_atffile_vars = af.conf();
 
     atf::tests::vars_map oldvars = m_config_vars;
-    read_config(af.ts());
+    {
+        atf::tests::vars_map::const_iterator iter =
+            af.props().find("test-suite");
+        assert(iter != af.props().end());
+        read_config((*iter).second);
+    }
 
     bool ok = true;
     for (std::vector< std::string >::const_iterator iter = af.tps().begin();
@@ -555,7 +560,7 @@ int
 atf_run::main(void)
 {
     atf::atffile af(atf::fs::path("Atffile"));
-    m_atffile_vars = af.vars();
+    m_atffile_vars = af.conf();
 
     std::vector< std::string > tps;
     tps = af.tps();
@@ -568,7 +573,12 @@ atf_run::main(void)
     }
 
     // Read configuration data for this test suite.
-    read_config(af.ts());
+    {
+        atf::tests::vars_map::const_iterator iter =
+            af.props().find("test-suite");
+        assert(iter != af.props().end());
+        read_config((*iter).second);
+    }
 
     atf::formats::atf_tps_writer w(std::cout, count_tps(tps));
 
