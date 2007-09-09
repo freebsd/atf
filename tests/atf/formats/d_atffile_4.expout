@@ -1,0 +1,8 @@
+got_prop(var1, value1)
+got_prop(var2, value2)
+got_prop(var3, value3)
+got_prop(var4, value4)
+got_prop(var5, value5)
+got_prop(var6, value6)
+got_prop(var7, This is a long value.)
+got_eof()

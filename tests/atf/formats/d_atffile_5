@@ -1,0 +1,13 @@
+Content-Type: application/X-atf-atffile; version="1"
+
+tp:foo
+tp: foo
+tp:  foo
+tp:	foo
+tp:	    foo
+
+tp-glob:foo*?bar
+tp-glob: foo*?bar
+tp-glob:  foo*?bar
+tp-glob:	foo*?bar
+tp-glob:	    foo*?bar

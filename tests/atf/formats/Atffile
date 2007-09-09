@@ -2,8 +2,4 @@ Content-Type: application/X-atf-atffile; version="1"
 
 prop: test-suite = atf
 
-tp: units
-tp: sh_interface
-tp: test_programs
-tp: tools
-tp: formats
+tp-glob: t_parsers

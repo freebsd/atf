@@ -245,6 +245,70 @@ pkgtestsdir = $(exec_prefix)/tests/atf
 pkgtests_DATA = tests/atf/Atffile
 EXTRA_DIST += $(pkgtests_DATA)
 
+atf_formats_DATA = tests/atf/formats/Atffile \
+                   tests/atf/formats/d_atffile_1 \
+                   tests/atf/formats/d_atffile_1.expout \
+                   tests/atf/formats/d_atffile_2 \
+                   tests/atf/formats/d_atffile_2.expout \
+                   tests/atf/formats/d_atffile_3 \
+                   tests/atf/formats/d_atffile_3.expout \
+                   tests/atf/formats/d_atffile_4 \
+                   tests/atf/formats/d_atffile_4.expout \
+                   tests/atf/formats/d_atffile_5 \
+                   tests/atf/formats/d_atffile_5.expout \
+                   tests/atf/formats/d_atffile_6 \
+                   tests/atf/formats/d_atffile_6.expout \
+                   tests/atf/formats/d_config_1 \
+                   tests/atf/formats/d_config_1.expout \
+                   tests/atf/formats/d_config_2 \
+                   tests/atf/formats/d_config_2.expout \
+                   tests/atf/formats/d_config_3 \
+                   tests/atf/formats/d_config_3.expout \
+                   tests/atf/formats/d_config_4 \
+                   tests/atf/formats/d_config_4.expout \
+                   tests/atf/formats/d_tcs_1 \
+                   tests/atf/formats/d_tcs_1.errin \
+                   tests/atf/formats/d_tcs_1.expout \
+                   tests/atf/formats/d_tcs_1.outin \
+                   tests/atf/formats/d_tcs_2 \
+                   tests/atf/formats/d_tcs_2.errin \
+                   tests/atf/formats/d_tcs_2.expout \
+                   tests/atf/formats/d_tcs_2.outin \
+                   tests/atf/formats/d_tcs_3 \
+                   tests/atf/formats/d_tcs_3.errin \
+                   tests/atf/formats/d_tcs_3.expout \
+                   tests/atf/formats/d_tcs_3.outin \
+                   tests/atf/formats/d_tcs_4 \
+                   tests/atf/formats/d_tcs_4.errin \
+                   tests/atf/formats/d_tcs_4.expout \
+                   tests/atf/formats/d_tcs_4.outin \
+                   tests/atf/formats/d_tcs_5 \
+                   tests/atf/formats/d_tcs_5.errin \
+                   tests/atf/formats/d_tcs_5.expout \
+                   tests/atf/formats/d_tcs_5.outin \
+                   tests/atf/formats/d_tps_1 \
+                   tests/atf/formats/d_tps_1.expout \
+                   tests/atf/formats/d_tps_2 \
+                   tests/atf/formats/d_tps_2.expout \
+                   tests/atf/formats/d_tps_3 \
+                   tests/atf/formats/d_tps_3.expout
+atf_formatsdir = $(pkgtestsdir)/formats
+EXTRA_DIST += $(atf_formats_DATA)
+
+atf_formats_PROGRAMS = tests/atf/formats/h_parser
+tests_atf_formats_h_parser_SOURCES = tests/atf/formats/h_parser.cpp
+tests_atf_formats_h_parser_LDADD = -latf
+tests_atf_formats_h_parser_LDFLAGS = -L.
+
+atf_formats_SCRIPTS = tests/atf/formats/t_parsers
+CLEANFILES += tests/atf/formats/t_parsers
+EXTRA_DIST += tests/atf/formats/t_parsers.sh
+tests/atf/formats/t_parsers: \
+		$(srcdir)/tests/atf/formats/t_parsers.sh \
+		$(ATF_COMPILE_DEPS)
+	test -d tests/atf/formats || mkdir -p tests/atf/formats
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/formats/t_parsers.sh
+
 atf_sh_interface_DATA = tests/atf/sh_interface/Atffile
 atf_sh_interfacedir = $(pkgtestsdir)/sh_interface
 EXTRA_DIST += $(atf_sh_interface_DATA)
