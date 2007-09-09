@@ -8,4 +8,7 @@ conf: var4	    =	    value4
 conf:var5=value5
     conf:var6=value6
 
-conf: var7 = This is a long value.
+conf: var7 = "This is a long value."
+conf: var8 = "Single-word"
+conf: var9 = "    Single-word	"
+conf: var10 = Single-word

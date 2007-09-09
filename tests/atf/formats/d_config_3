@@ -8,4 +8,7 @@ var4	    =	    value4
 var5=value5
     var6=value6
 
-var7 = This is a long value.
+var7 = "This is a long value."
+var8 = "Single-word"
+var9 = "    Single-word	"
+var10 = Single-word

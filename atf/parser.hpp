@@ -38,6 +38,7 @@
 #define _ATF_PARSER_HPP_
 
 #include <map>
+#include <stdexcept>
 #include <string>
 
 namespace atf {
@@ -114,6 +115,11 @@ class tokenizer {
     std::string m_delims_str;
 
     std::map< std::string, T > m_keywords_map;
+
+    template< class TKZ, class T2 >
+    friend
+    std::string
+    read_literal(TKZ&, const T2&, char);
 
 public:
     tokenizer(IS&, bool, T, T, T);
@@ -202,6 +208,114 @@ tokenizer< T, IS >::rest_of_line(void)
     while (m_is.good() && m_is.peek() != '\n')
         str += m_is.get();
     return str;
+}
+
+// ------------------------------------------------------------------------
+// The quoted_string private parser.
+// ------------------------------------------------------------------------
+
+//
+// IMPORTANT: Do not use this parser directly.  Call it through the
+// read_literal free function defined below.
+//
+
+namespace quoted_string {
+
+enum tokens {
+    eof,
+    nl,
+    text,
+    quote,
+    escape,
+};
+
+typedef atf::parser::token< tokens > token;
+
+template< class IS >
+class tokenizer : public atf::parser::tokenizer< tokens, IS > {
+public:
+    tokenizer(IS& is, char quotech) :
+        atf::parser::tokenizer< tokens, IS >(is, false, eof, nl, text)
+    {
+        atf::parser::tokenizer< tokens, IS >::add_delim('\\', escape);
+        atf::parser::tokenizer< tokens, IS >::add_delim(quotech, quote);
+    }
+};
+
+//
+// Reads a quoted string.  The stream is supposed to be placed just after
+// the initial quote character, provided as the quotech parameter.  All
+// text after it until the matching closing quote is returned.  Quotes can
+// be embedded inside the text by prefixing them with the escape character.
+//
+template< class IS >
+std::string
+read(IS& is, char quotech)
+{
+    using namespace quoted_string;
+
+    tokenizer< IS > tkz(is, quotech);
+
+    std::string str;
+
+    bool done = false;
+    token tprev = token(eof);
+    token t = tkz.next();
+    while (!done) {
+        switch (t.type()) {
+        case nl:
+            throw std::runtime_error("Missing double quotes before end "
+                                     "of line");
+
+        case eof:
+            throw std::runtime_error("Missing double quotes before end "
+                                     "of file");
+
+        case quote:
+            if (tprev.type() == escape)
+                str += quotech;
+            else
+                done = true;
+            break;
+
+        case escape:
+            if (tprev.type() == escape)
+                str += '\\';
+            break;
+
+        default:
+            assert(t.type() == text);
+            str += t.text();
+        }
+
+        if (!done) {
+            tprev = t;
+            t = tkz.next();
+        }
+    }
+
+    return str;
+}
+
+} // namespace quoted_string
+
+// ------------------------------------------------------------------------
+// Free functions.
+// ------------------------------------------------------------------------
+
+template< class TKZ, class T >
+std::string
+read_literal(TKZ& tkz, const T& quotetype, char quotechar)
+{
+    atf::parser::token< T > t = tkz.next();
+    if (t.type() == tkz.m_texttype)
+        return t.text();
+    else if (t.type() == quotetype)
+        return quoted_string::read(tkz.m_is, quotechar);
+    else
+        throw std::runtime_error(std::string("Expected word or quoted "
+                                             "string (") +
+                                 quotechar + ")");
 }
 
 } // namespace parser

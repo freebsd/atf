@@ -44,88 +44,6 @@ namespace impl = atf::serial;
 #define IMPL_NAME "atf::serial"
 
 // ------------------------------------------------------------------------
-// The quoted_string parser.
-// ------------------------------------------------------------------------
-
-namespace quoted_string {
-
-enum tokens {
-    eof,
-    nl,
-    text,
-    quote,
-    escape,
-};
-
-typedef atf::parser::token< tokens > token;
-
-class tokenizer : public atf::parser::tokenizer< tokens, impl::internalizer > {
-public:
-    tokenizer(impl::internalizer& is, char quotech) :
-        atf::parser::tokenizer< tokens, impl::internalizer >
-            (is, false, eof, nl, text)
-    {
-        add_delim('\\', escape);
-        add_delim(quotech, quote);
-    }
-};
-
-//
-// Reads a quoted string.  The stream is supposed to be placed just after
-// the initial quote character, provided as the quotech parameter.  All
-// text after it until the matching closing quote is returned.  Quotes can
-// be embedded inside the text by prefixing them with the escape character.
-//
-static
-std::string
-read(impl::internalizer& is, char quotech)
-{
-    tokenizer tkz(is, quotech);
-
-    std::string str;
-
-    bool done = false;
-    token tprev = token(eof);
-    token t = tkz.next();
-    while (!done) {
-        switch (t.type()) {
-        case nl:
-            throw impl::format_error("Missing double quotes before end "
-                                     "of line");
-
-        case eof:
-            throw impl::format_error("Missing double quotes before end "
-                                     "of file");
-
-        case quote:
-            if (tprev.type() == escape)
-                str += quotech;
-            else
-                done = true;
-            break;
-
-        case escape:
-            if (tprev.type() == escape)
-                str += '\\';
-            break;
-
-        default:
-            assert(t.type() == text);
-            str += t.text();
-        }
-
-        if (!done) {
-            tprev = t;
-            t = tkz.next();
-        }
-    }
-
-    return str;
-}
-
-} // namespace quoted_string
-
-// ------------------------------------------------------------------------
 // The header tokenizer.
 // ------------------------------------------------------------------------
 
@@ -210,16 +128,8 @@ read(impl::internalizer& is, impl::header_entry& he)
         t = tkz.next();
         expect(t, header::equal, "`='");
 
-        t = tkz.next();
-        expect(t, header::text, header::dblquote, "an attribute value");
-        if (t.type() == header::text) {
-            std::string attr_value = t.text();
-            attrs[attr_name] = attr_value;
-        } else {
-            assert(t.type() == header::dblquote);
-            std::string attr_value = quoted_string::read(is, '"');
-            attrs[attr_name] = attr_value;
-        }
+        std::string attr_value = read_literal(tkz, header::dblquote, '"');
+        attrs[attr_name] = attr_value;
 
         t = tkz.next();
     }

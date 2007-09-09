@@ -74,6 +74,7 @@ enum tokens {
     eof,
     nl,
     text,
+    dblquote,
     equal,
     colon,
     hash,
@@ -93,6 +94,7 @@ public:
             (is, true, eof, nl, text)
     {
         add_delim(':', colon);
+        add_delim('"', dblquote);
         add_delim('=', equal);
         add_delim('#', hash);
         add_keyword("conf", conf);
@@ -123,6 +125,7 @@ enum tokens {
     eof,
     nl,
     text,
+    dblquote,
     equal,
     hash,
 };
@@ -136,6 +139,7 @@ public:
         atf::parser::tokenizer< tokens, atf::serial::internalizer >
             (is, true, eof, nl, text)
     {
+        add_delim('"', dblquote);
         add_delim('=', equal);
         add_delim('#', hash);
     }
@@ -315,7 +319,7 @@ impl::atf_atffile_reader::read(void)
             t = tkz.next();
             atf_atffile::expect(t, atf_atffile::equal, "equal sign");
 
-            got_conf(var, text::trim(tkz.rest_of_line()));
+            got_conf(var, read_literal(tkz, atf_atffile::dblquote, '"'));
         } else if (t.type() == atf_atffile::hash) {
             (void)tkz.rest_of_line();
         } else if (t.type() == atf_atffile::prop) {
@@ -329,17 +333,17 @@ impl::atf_atffile_reader::read(void)
             t = tkz.next();
             atf_atffile::expect(t, atf_atffile::equal, "equal sign");
 
-            got_prop(name, text::trim(tkz.rest_of_line()));
+            got_prop(name, read_literal(tkz, atf_atffile::dblquote, '"'));
         } else if (t.type() == atf_atffile::tp) {
             t = tkz.next();
             atf_atffile::expect(t, atf_atffile::colon, "`:'");
 
-            got_tp(text::trim(tkz.rest_of_line()), false);
+            got_tp(read_literal(tkz, atf_atffile::dblquote, '"'), false);
         } else if (t.type() == atf_atffile::tp_glob) {
             t = tkz.next();
             atf_atffile::expect(t, atf_atffile::colon, "`:'");
 
-            got_tp(text::trim(tkz.rest_of_line()), true);
+            got_tp(read_literal(tkz, atf_atffile::dblquote, '"'), true);
         } else if (t.type() == atf_atffile::nl) {
             t = tkz.next();
             continue;
@@ -401,7 +405,7 @@ impl::atf_config_reader::read(void)
             t = tkz.next();
             atf_config::expect(t, atf_config::equal, "equal sign");
 
-            got_var(name, text::trim(tkz.rest_of_line()));
+            got_var(name, read_literal(tkz, atf_config::dblquote, '"'));
         } else if (t.type() == atf_config::nl) {
             t = tkz.next();
             continue;

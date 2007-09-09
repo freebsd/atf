@@ -5,9 +5,15 @@ tp: foo
 tp:  foo
 tp:	foo
 tp:	    foo
+tp: "name with spaces"
+tp: "single-word"
+tp: single-word
 
 tp-glob:foo*?bar
 tp-glob: foo*?bar
 tp-glob:  foo*?bar
 tp-glob:	foo*?bar
 tp-glob:	    foo*?bar
+tp-glob: "glob * with ? spaces"
+tp-glob: "single-*-word"
+tp-glob: single-*-word
