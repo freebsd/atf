@@ -175,6 +175,7 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_nows)
         tokenizer mt(iss, false);
 
         EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
     {
@@ -182,6 +183,7 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_nows)
         tokenizer mt(iss, false);
 
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
@@ -193,6 +195,7 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_nows)
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
     {
@@ -200,6 +203,7 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_nows)
         tokenizer mt(iss, false);
 
         EXPECT(mt, tokens, word, "line 1");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
@@ -210,6 +214,7 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_nows)
         EXPECT(mt, tokens, word, "line 1");
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
     {
@@ -219,6 +224,7 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_nows)
         EXPECT(mt, tokens, word, "line 1");
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
         EXPECT(mt, tokens, word, "line 2");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
@@ -232,6 +238,7 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_nows)
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
         EXPECT(mt, tokens, word, "line 3");
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 }
@@ -251,12 +258,14 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_ws)
         minimal::tokenizer mt(iss, true);
 
         EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
     {
         std::istringstream iss(" \t ");
         tokenizer mt(iss, true);
 
+        EXPECT(mt, tokens, eof, "<<EOF>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
@@ -266,6 +275,7 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_ws)
 
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
     {
@@ -273,6 +283,7 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_ws)
         tokenizer mt(iss, true);
 
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
@@ -284,6 +295,7 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_ws)
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
     {
@@ -292,6 +304,7 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_ws)
 
         EXPECT(mt, tokens, word, "line");
         EXPECT(mt, tokens, word, "1");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
@@ -302,6 +315,7 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_ws)
         EXPECT(mt, tokens, word, "line");
         EXPECT(mt, tokens, word, "1");
         EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
     {
@@ -311,6 +325,7 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_ws)
         EXPECT(mt, tokens, word, "line");
         EXPECT(mt, tokens, word, "1");
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
@@ -323,6 +338,7 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_ws)
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
         EXPECT(mt, tokens, word, "line");
         EXPECT(mt, tokens, word, "2");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
@@ -340,6 +356,7 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_ws)
         EXPECT(mt, tokens, word, "3");
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
     {
@@ -355,6 +372,7 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_ws)
         EXPECT(mt, tokens, word, "line");
         EXPECT(mt, tokens, word, "3");
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 }
@@ -377,6 +395,7 @@ ATF_TEST_CASE_BODY(tokenizer_delims_nows)
         EXPECT(mt, tokens, minus, "-");
         EXPECT(mt, tokens, equal, "=");
         EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
     {
@@ -386,6 +405,7 @@ ATF_TEST_CASE_BODY(tokenizer_delims_nows)
         EXPECT(mt, tokens, plus, "+");
         EXPECT(mt, tokens, plus, "+");
         EXPECT(mt, tokens, plus, "+");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
@@ -400,6 +420,7 @@ ATF_TEST_CASE_BODY(tokenizer_delims_nows)
         EXPECT(mt, tokens, plus, "+");
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
     {
@@ -412,6 +433,7 @@ ATF_TEST_CASE_BODY(tokenizer_delims_nows)
         EXPECT(mt, tokens, equal, "=");
         EXPECT(mt, tokens, word, "baz");
         EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
     {
@@ -423,6 +445,7 @@ ATF_TEST_CASE_BODY(tokenizer_delims_nows)
         EXPECT(mt, tokens, word, "\tbar ");
         EXPECT(mt, tokens, equal, "=");
         EXPECT(mt, tokens, word, " baz ");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 }
@@ -447,6 +470,7 @@ ATF_TEST_CASE_BODY(tokenizer_delims_ws)
         EXPECT(mt, tokens, equal, "=");
         EXPECT(mt, tokens, word, "baz");
         EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 }
 
@@ -466,6 +490,7 @@ ATF_TEST_CASE_BODY(tokenizer_keywords_nows)
 
         EXPECT(mt, tokens, var, "var");
         EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
     {
@@ -473,6 +498,7 @@ ATF_TEST_CASE_BODY(tokenizer_keywords_nows)
         tokenizer mt(iss, false);
 
         EXPECT(mt, tokens, word, "va");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
@@ -482,6 +508,7 @@ ATF_TEST_CASE_BODY(tokenizer_keywords_nows)
 
         EXPECT(mt, tokens, word, "vara");
         EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
     {
@@ -489,6 +516,7 @@ ATF_TEST_CASE_BODY(tokenizer_keywords_nows)
         tokenizer mt(iss, false);
 
         EXPECT(mt, tokens, word, "var ");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
@@ -501,6 +529,7 @@ ATF_TEST_CASE_BODY(tokenizer_keywords_nows)
         EXPECT(mt, tokens, loop, "loop");
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
         EXPECT(mt, tokens, endloop, "endloop");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 }
@@ -521,6 +550,7 @@ ATF_TEST_CASE_BODY(tokenizer_keywords_ws)
 
         EXPECT(mt, tokens, var, "var");
         EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
     {
@@ -533,6 +563,7 @@ ATF_TEST_CASE_BODY(tokenizer_keywords_ws)
         EXPECT(mt, tokens, nl, "<<NEWLINE>>");
         EXPECT(mt, tokens, endloop, "endloop");
         EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 
     {
@@ -542,6 +573,7 @@ ATF_TEST_CASE_BODY(tokenizer_keywords_ws)
         EXPECT(mt, tokens, var, "var");
         EXPECT(mt, tokens, loop, "loop");
         EXPECT(mt, tokens, endloop, "endloop");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
         EXPECT(mt, tokens, eof, "<<EOF>>");
     }
 }
