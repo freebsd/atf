@@ -74,21 +74,10 @@ public:
     }
 };
 
-inline
-void
-expect(token t, tokens type, const std::string& textual)
-{
-    if (t.type() != type)
-        throw impl::format_error("Unexpected token `" + t.text() + "'; "
-                                 "expected " + textual);
-}
-
 static
 impl::internalizer&
 read(impl::internalizer& is, impl::header_entry& he)
 {
-    using header::expect;
-
     header::tokenizer tkz(is);
     atf::parser::parser< header::tokenizer > p(tkz);
 
