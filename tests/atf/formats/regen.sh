@@ -53,9 +53,21 @@ main()
     fmt="${1}"
     file="${2}"
 
-    ./h_parser ${fmt} ${file} ${file}.outin ${file}.errin \
-        >${file}.expout 2>${file}.experr
+    if [ -f ${file}.outin ]; then
+        outin=${file}.outin
+    else
+        outin=empty
+    fi
+
+    if [ -f ${file}.errin ]; then
+        errin=${file}.errin
+    else
+        errin=empty
+    fi
+
     touch empty
+    ./h_parser ${fmt} ${file} ${outin} ${errin} \
+        >${file}.expout 2>${file}.experr
     cmp -s ${file}.expout empty && rm ${file}.expout
     cmp -s ${file}.experr empty && rm ${file}.experr
     rm empty
@@ -64,3 +76,5 @@ main()
 }
 
 main "${@}"
+
+# vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

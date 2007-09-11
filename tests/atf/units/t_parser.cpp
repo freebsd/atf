@@ -53,25 +53,29 @@ ATF_TEST_CASE_BODY(token_getters)
     using atf::parser::token;
 
     {
-        token< int > t(0);
+        token< int > t(10, 0);
+        ATF_CHECK_EQUAL(t.lineno(), 10);
         ATF_CHECK_EQUAL(t.type(), 0);
         ATF_CHECK(t.text().empty());
     }
 
     {
-        token< int > t(0, "foo");
+        token< int > t(10, 0, "foo");
+        ATF_CHECK_EQUAL(t.lineno(), 10);
         ATF_CHECK_EQUAL(t.type(), 0);
         ATF_CHECK_EQUAL(t.text(), "foo");
     }
 
     {
-        token< int > t(1);
+        token< int > t(20, 1);
+        ATF_CHECK_EQUAL(t.lineno(), 20);
         ATF_CHECK_EQUAL(t.type(), 1);
         ATF_CHECK(t.text().empty());
     }
 
     {
-        token< int > t(1, "bar");
+        token< int > t(20, 1, "bar");
+        ATF_CHECK_EQUAL(t.lineno(), 20);
         ATF_CHECK_EQUAL(t.type(), 1);
         ATF_CHECK_EQUAL(t.text(), "bar");
     }
@@ -155,6 +159,28 @@ namespace keywords {
             add_keyword("var", var);
             add_keyword("loop", loop);
             add_keyword("endloop", endloop);
+        }
+    };
+
+}
+
+namespace quotes {
+
+    enum tokens {
+        eof,
+        nl,
+        word,
+        dblquote,
+    };
+
+    class tokenizer : public atf::parser::tokenizer< tokens,
+                                                     std::istream > {
+    public:
+        tokenizer(std::istream& is, bool skipws) :
+            atf::parser::tokenizer< tokens, std::istream >
+                (is, skipws, eof, nl, word)
+        {
+            add_quote('"', dblquote);
         }
     };
 
@@ -578,6 +604,104 @@ ATF_TEST_CASE_BODY(tokenizer_keywords_ws)
     }
 }
 
+ATF_TEST_CASE(tokenizer_quotes_nows);
+ATF_TEST_CASE_HEAD(tokenizer_quotes_nows)
+{
+    set("descr", "Tests the tokenizer class using a parser with "
+                 "quoted strings and not skipping whitespace");
+}
+ATF_TEST_CASE_BODY(tokenizer_quotes_nows)
+{
+    using namespace quotes;
+
+    {
+        std::istringstream iss("var");
+        tokenizer mt(iss, false);
+
+        EXPECT(mt, tokens, word, "var");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
+    }
+
+    {
+        std::istringstream iss("\"var\"");
+        tokenizer mt(iss, false);
+
+        EXPECT(mt, tokens, word, "var");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
+    }
+
+    {
+        std::istringstream iss("var1\"var2\"");
+        tokenizer mt(iss, false);
+
+        EXPECT(mt, tokens, word, "var1");
+        EXPECT(mt, tokens, word, "var2");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
+    }
+
+    {
+        std::istringstream iss("var1\"  var2  \"");
+        tokenizer mt(iss, false);
+
+        EXPECT(mt, tokens, word, "var1");
+        EXPECT(mt, tokens, word, "  var2  ");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
+    }
+}
+
+ATF_TEST_CASE(tokenizer_quotes_ws);
+ATF_TEST_CASE_HEAD(tokenizer_quotes_ws)
+{
+    set("descr", "Tests the tokenizer class using a parser with "
+                 "quoted strings and skipping whitespace");
+}
+ATF_TEST_CASE_BODY(tokenizer_quotes_ws)
+{
+    using namespace quotes;
+
+    {
+        std::istringstream iss("  var  ");
+        tokenizer mt(iss, true);
+
+        EXPECT(mt, tokens, word, "var");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
+    }
+
+    {
+        std::istringstream iss("  \"var\"  ");
+        tokenizer mt(iss, true);
+
+        EXPECT(mt, tokens, word, "var");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
+    }
+
+    {
+        std::istringstream iss("  var1  \"var2\"  ");
+        tokenizer mt(iss, true);
+
+        EXPECT(mt, tokens, word, "var1");
+        EXPECT(mt, tokens, word, "var2");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
+    }
+
+    {
+        std::istringstream iss("  var1  \"  var2  \"  ");
+        tokenizer mt(iss, true);
+
+        EXPECT(mt, tokens, word, "var1");
+        EXPECT(mt, tokens, word, "  var2  ");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, tokens, eof, "<<EOF>>");
+    }
+}
+
 // ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
@@ -594,4 +718,6 @@ ATF_INIT_TEST_CASES(tcs)
     tcs.push_back(&tokenizer_delims_ws);
     tcs.push_back(&tokenizer_keywords_nows);
     tcs.push_back(&tokenizer_keywords_ws);
+    tcs.push_back(&tokenizer_quotes_nows);
+    tcs.push_back(&tokenizer_quotes_ws);
 }

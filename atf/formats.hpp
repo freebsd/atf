@@ -91,7 +91,8 @@ public:
 class atf_tcs_reader {
     atf::serial::internalizer m_int;
 
-    void read_out_err(atf::io::unbuffered_istream&,
+    void read_out_err(void*,
+                      atf::io::unbuffered_istream&,
                       atf::io::unbuffered_istream&);
 
 protected:
@@ -133,8 +134,8 @@ public:
 class atf_tps_reader {
     atf::serial::internalizer m_int;
 
-    void read_tp(void);
-    bool read_tc(void);
+    void read_tp(void*);
+    void read_tc(void*);
 
 protected:
     virtual void got_ntps(size_t);

@@ -69,8 +69,8 @@ public:
     {
         add_delim(';', semicolon);
         add_delim(':', colon);
-        add_delim('"', dblquote);
         add_delim('=', equal);
+        add_quote('"', dblquote);
     }
 };
 
@@ -83,15 +83,6 @@ expect(token t, tokens type, const std::string& textual)
                                  "expected " + textual);
 }
 
-inline
-void
-expect(token t, tokens type1, tokens type2, const std::string& textual)
-{
-    if (t.type() != type1 && t.type() != type2)
-        throw impl::format_error("Unexpected token `" + t.text() + "'; "
-                                 "expected " + textual);
-}
-
 static
 impl::internalizer&
 read(impl::internalizer& is, impl::header_entry& he)
@@ -99,42 +90,37 @@ read(impl::internalizer& is, impl::header_entry& he)
     using header::expect;
 
     header::tokenizer tkz(is);
+    atf::parser::parser< header::tokenizer > p(tkz);
 
-    header::token t = tkz.next();
+    header::token t = p.expect(header::text, header::nl, "a header name");
     if (t.type() == header::nl) {
         he = impl::header_entry();
         return is;
     }
-    expect(t, header::text, "a header name");
     std::string hdr_name = t.text();
 
-    t = tkz.next();
-    expect(t, header::colon, "`:'");
+    t = p.expect(header::colon, "`:'");
 
-    t = tkz.next();
-    expect(t, header::text, "a textual value");
+    t = p.expect(header::text, "a textual value");
     std::string hdr_value = t.text();
 
     impl::attrs_map attrs;
 
-    t = tkz.next();
+    t = p.expect(header::semicolon, header::nl, "`;' or new line");
     while (t.type() != header::nl) {
-        expect(t, header::semicolon, "`;'");
-
-        t = tkz.next();
-        expect(t, header::text, "an attribute name");
+        t = p.expect(header::text, "an attribute name");
         std::string attr_name = t.text();
 
-        t = tkz.next();
-        expect(t, header::equal, "`='");
+        t = p.expect(header::equal, "`='");
 
-        std::string attr_value = read_literal(tkz, header::dblquote, '"');
+        t = p.expect(header::text, "word or quoted string");
+        std::string attr_value = t.text();
         attrs[attr_name] = attr_value;
 
-        t = tkz.next();
+        t = p.expect(header::semicolon, header::nl, "`;' or new line");
     }
 
-    expect(t, header::nl, "end of header (blank line)");
+    //p.expect(header::nl, "end of header (blank line)");
 
     he = impl::header_entry(hdr_name, hdr_value, attrs);
 

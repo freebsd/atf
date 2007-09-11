@@ -40,9 +40,35 @@
 #include <map>
 #include <stdexcept>
 #include <string>
+#include <utility>
+#include <vector>
+
+namespace atf {
+    namespace serial {
+        class internalizer;
+    }
+}
 
 namespace atf {
 namespace parser {
+
+// ------------------------------------------------------------------------
+// The "parse_errors" class.
+// ------------------------------------------------------------------------
+
+typedef std::pair< size_t, std::string > parse_error;
+
+class parse_errors : public std::runtime_error,
+                      public std::vector< parse_error > {
+    std::vector< parse_error > m_errors;
+    mutable std::string m_msg;
+
+public:
+    parse_errors(void);
+    ~parse_errors(void) throw();
+
+    const char* what(void) const throw();
+};
 
 // ------------------------------------------------------------------------
 // The "token" class.
@@ -56,21 +82,44 @@ namespace parser {
 //!
 template< class T >
 struct token {
+    bool m_inited;
+    size_t m_line;
     T m_type;
     std::string m_text;
 
 public:
-    token(T, const std::string& = "");
+    token(void);
+    token(size_t, T, const std::string& = "");
 
+    size_t lineno(void) const;
     T type(void) const;
     const std::string& text(void) const;
+
+    operator bool(void) const;
+    bool operator!(void) const;
 };
 
 template< class T >
-token< T >::token(T p_type, const std::string& p_text) :
+token< T >::token(void) :
+    m_inited(false)
+{
+}
+
+template< class T >
+token< T >::token(size_t p_line, T p_type, const std::string& p_text) :
+    m_inited(true),
+    m_line(p_line),
     m_type(p_type),
     m_text(p_text)
 {
+}
+
+template< class T >
+size_t
+token< T >::lineno(void)
+    const
+{
+    return m_line;
 }
 
 template< class T >
@@ -87,6 +136,21 @@ token< T >::text(void)
     const
 {
     return m_text;
+}
+
+template< class T >
+token< T >::operator bool(void)
+    const
+{
+    return m_inited;
+}
+
+template< class T >
+bool
+token< T >::operator!(void)
+    const
+{
+    return !m_inited;
 }
 
 // ------------------------------------------------------------------------
@@ -107,6 +171,8 @@ token< T >::text(void)
 template< class T, class IS >
 class tokenizer {
     IS& m_is;
+    size_t m_lineno;
+    token< T > m_la;
 
     bool m_skipws;
     T m_eoftype, m_nltype, m_texttype;
@@ -114,18 +180,25 @@ class tokenizer {
     std::map< char, T > m_delims_map;
     std::string m_delims_str;
 
+    char m_quotech;
+    T m_quotetype;
+
     std::map< std::string, T > m_keywords_map;
 
-    template< class TKZ, class T2 >
+    template< class TKZ >
     friend
-    std::string
-    read_literal(TKZ&, const T2&, char);
+    class parser;
 
 public:
-    tokenizer(IS&, bool, T, T, T);
+    typedef T token_type;
+
+    tokenizer(IS&, bool, T, T, T, size_t = 1);
+
+    size_t lineno(void) const;
 
     void add_delim(char, T);
     void add_keyword(const std::string&, T);
+    void add_quote(char, T);
 
     token< T > next(void);
     std::string rest_of_line(void);
@@ -133,13 +206,23 @@ public:
 
 template< class T, class IS >
 tokenizer< T, IS >::tokenizer(IS& is, bool skipws, T eoftype, T nltype,
-                              T texttype) :
+                              T texttype, size_t p_lineno) :
     m_is(is),
+    m_lineno(p_lineno),
     m_skipws(skipws),
     m_eoftype(eoftype),
     m_nltype(nltype),
-    m_texttype(texttype)
+    m_texttype(texttype),
+    m_quotech(-1)
 {
+}
+
+template< class T, class IS >
+size_t
+tokenizer< T, IS >::lineno(void)
+    const
+{
+    return m_lineno;
 }
 
 template< class T, class IS >
@@ -158,44 +241,94 @@ tokenizer< T, IS >::add_keyword(const std::string& keyword, T type)
 }
 
 template< class T, class IS >
+void
+tokenizer< T, IS >::add_quote(char ch, T type)
+{
+    m_quotech = ch;
+    m_quotetype = type;
+}
+
+template< class T, class IS >
 token< T >
 tokenizer< T, IS >::next(void)
 {
+    if (m_la) {
+        token< T > t = m_la;
+        m_la = token< T >();
+        if (t.type() == m_nltype)
+            m_lineno++;
+        return t;
+    }
+
     char ch;
     std::string text;
 
-    bool done = false;
-    token< T > t(m_eoftype, "<<EOF>>");
+    bool done = false, quoted = false;
+    token< T > t(m_lineno, m_eoftype, "<<EOF>>");
     while (!done && m_is.get(ch).good()) {
-        typename std::map< char, T >::const_iterator idelim;
-        idelim = m_delims_map.find(ch);
-        if (idelim != m_delims_map.end()) {
-            done = true;
-            if (text.empty())
-                t = token< T >((*idelim).second, std::string("") + ch);
-            else
-                m_is.unget();
-        } else if (ch == '\n') {
-            done = true;
-            if (text.empty())
-                t = token< T >(m_nltype, "<<NEWLINE>>");
-            else
-                m_is.unget();
-        } else if (m_skipws && (ch == ' ' || ch == '\t')) {
-            if (!text.empty())
+        if (ch == m_quotech) {
+            if (text.empty()) {
+                bool skipnext = false;
+                while (!done && m_is.get(ch).good()) {
+                    if (!skipnext) {
+                        if (ch == '\\')
+                            skipnext = true;
+                        else if (ch == '\n') {
+                            m_la = token< T >(m_lineno, m_nltype,
+                                              "<<NEWLINE>>");
+                            throw parse_error(t.lineno(),
+                                              "Missing double quotes before "
+                                              "end of line");
+                        } else if (ch == m_quotech)
+                            done = true;
+                        else
+                            text += ch;
+                    } else
+                        skipnext = false;
+                }
+                if (!m_is.good())
+                    throw parse_error(t.lineno(),
+                                      "Missing double quotes before "
+                                      "end of file");
+                t = token< T >(m_lineno, m_texttype, text);
+                quoted = true;
+            } else
                 done = true;
-        } else
-            text += ch;
+        } else {
+            typename std::map< char, T >::const_iterator idelim;
+            idelim = m_delims_map.find(ch);
+            if (idelim != m_delims_map.end()) {
+                done = true;
+                if (text.empty())
+                    t = token< T >(m_lineno, (*idelim).second,
+                                   std::string("") + ch);
+                else
+                    m_is.unget();
+            } else if (ch == '\n') {
+                done = true;
+                if (text.empty())
+                    t = token< T >(m_lineno, m_nltype, "<<NEWLINE>>");
+                else
+                    m_is.unget();
+            } else if (m_skipws && (ch == ' ' || ch == '\t')) {
+                if (!text.empty())
+                    done = true;
+            } else
+                text += ch;
+        }
     }
 
-    if (!text.empty()) {
+    if (!quoted && !text.empty()) {
         typename std::map< std::string, T >::const_iterator ikw;
         ikw = m_keywords_map.find(text);
         if (ikw != m_keywords_map.end())
-            t = token< T >((*ikw).second, text);
+            t = token< T >(m_lineno, (*ikw).second, text);
         else
-            t = token< T >(m_texttype, text);
+            t = token< T >(m_lineno, m_texttype, text);
     }
+
+    if (t.type() == m_nltype)
+        m_lineno++;
 
     return t;
 }
@@ -211,112 +344,150 @@ tokenizer< T, IS >::rest_of_line(void)
 }
 
 // ------------------------------------------------------------------------
-// The quoted_string private parser.
+// The "parser" class.
 // ------------------------------------------------------------------------
 
-//
-// IMPORTANT: Do not use this parser directly.  Call it through the
-// read_literal free function defined below.
-//
+template< class TKZ >
+class parser {
+    TKZ& m_tkz;
+    token< typename TKZ::token_type > m_last;
+    parse_errors m_errors;
+    bool m_thrown;
 
-namespace quoted_string {
-
-enum tokens {
-    eof,
-    nl,
-    text,
-    quote,
-    escape,
-};
-
-typedef atf::parser::token< tokens > token;
-
-template< class IS >
-class tokenizer : public atf::parser::tokenizer< tokens, IS > {
 public:
-    tokenizer(IS& is, char quotech) :
-        atf::parser::tokenizer< tokens, IS >(is, false, eof, nl, text)
+    parser(TKZ& tkz) :
+        m_tkz(tkz),
+        m_thrown(false)
     {
-        atf::parser::tokenizer< tokens, IS >::add_delim('\\', escape);
-        atf::parser::tokenizer< tokens, IS >::add_delim(quotech, quote);
+    }
+
+    ~parser(void)
+    {
+        if (!m_errors.empty() && !m_thrown)
+            throw m_errors;
+    }
+
+    bool
+    good(void)
+        const
+    {
+        return m_tkz.m_is.good();
+    }
+
+    void
+    add_error(const parse_error& pe)
+    {
+        m_errors.push_back(pe);
+    }
+
+    bool
+    has_errors(void)
+        const
+    {
+        return !m_errors.empty();
+    }
+
+    token< typename TKZ::token_type >
+    next(void)
+    {
+        token< typename TKZ::token_type > t = m_tkz.next();
+
+        m_last = t;
+
+        if (t.type() == m_tkz.m_eoftype) {
+            if (!m_errors.empty()) {
+                m_thrown = true;
+                throw m_errors;
+            }
+        }
+
+        return t;
+    }
+
+    token< typename TKZ::token_type >
+    expect(const typename TKZ::token_type& t1,
+           const std::string& textual)
+    {
+        token< typename TKZ::token_type > t = next();
+
+        if (t.type() != t1)
+            throw parse_error(t.lineno(),
+                              "Unexpected token `" + t.text() +
+                              "'; expected " + textual);
+
+        return t;
+    }
+
+    token< typename TKZ::token_type >
+    expect(const typename TKZ::token_type& t1,
+           const typename TKZ::token_type& t2,
+           const std::string& textual)
+    {
+        token< typename TKZ::token_type > t = next();
+
+        if (t.type() != t1 && t.type() != t2)
+            throw parse_error(t.lineno(),
+                              "Unexpected token `" + t.text() +
+                              "'; expected " + textual);
+
+        return t;
+    }
+
+    token< typename TKZ::token_type >
+    expect(const typename TKZ::token_type& t1,
+           const typename TKZ::token_type& t2,
+           const typename TKZ::token_type& t3,
+           const std::string& textual)
+    {
+        token< typename TKZ::token_type > t = next();
+
+        if (t.type() != t1 && t.type() != t2 && t.type() != t3)
+            throw parse_error(t.lineno(),
+                              "Unexpected token `" + t.text() +
+                              "'; expected " + textual);
+
+        return t;
+    }
+
+    token< typename TKZ::token_type >
+    expect(const typename TKZ::token_type& t1,
+           const typename TKZ::token_type& t2,
+           const typename TKZ::token_type& t3,
+           const typename TKZ::token_type& t4,
+           const typename TKZ::token_type& t5,
+           const typename TKZ::token_type& t6,
+           const typename TKZ::token_type& t7,
+           const std::string& textual)
+    {
+        token< typename TKZ::token_type > t = next();
+
+        if (t.type() != t1 && t.type() != t2 && t.type() != t3 &&
+            t.type() != t4 && t.type() != t5 && t.type() != t6 &&
+            t.type() != t7)
+            throw parse_error(t.lineno(),
+                              "Unexpected token `" + t.text() +
+                              "'; expected " + textual);
+
+        return t;
+    }
+
+    std::string
+    rest_of_line(void)
+    {
+        return m_tkz.rest_of_line();
+    }
+
+    token< typename TKZ::token_type >
+    reset(const typename TKZ::token_type& stop)
+    {
+        token< typename TKZ::token_type > t = m_last;
+
+        while (t.type() != m_tkz.m_eoftype && t.type() != stop)
+            t = next();
+
+        return t;
     }
 };
-
-//
-// Reads a quoted string.  The stream is supposed to be placed just after
-// the initial quote character, provided as the quotech parameter.  All
-// text after it until the matching closing quote is returned.  Quotes can
-// be embedded inside the text by prefixing them with the escape character.
-//
-template< class IS >
-std::string
-read(IS& is, char quotech)
-{
-    using namespace quoted_string;
-
-    tokenizer< IS > tkz(is, quotech);
-
-    std::string str;
-
-    bool done = false;
-    token tprev = token(eof);
-    token t = tkz.next();
-    while (!done) {
-        switch (t.type()) {
-        case nl:
-            throw std::runtime_error("Missing double quotes before end "
-                                     "of line");
-
-        case eof:
-            throw std::runtime_error("Missing double quotes before end "
-                                     "of file");
-
-        case quote:
-            if (tprev.type() == escape)
-                str += quotech;
-            else
-                done = true;
-            break;
-
-        case escape:
-            if (tprev.type() == escape)
-                str += '\\';
-            break;
-
-        default:
-            assert(t.type() == text);
-            str += t.text();
-        }
-
-        if (!done) {
-            tprev = t;
-            t = tkz.next();
-        }
-    }
-
-    return str;
-}
-
-} // namespace quoted_string
-
-// ------------------------------------------------------------------------
-// Free functions.
-// ------------------------------------------------------------------------
-
-template< class TKZ, class T >
-std::string
-read_literal(TKZ& tkz, const T& quotetype, char quotechar)
-{
-    atf::parser::token< T > t = tkz.next();
-    if (t.type() == tkz.m_texttype)
-        return t.text();
-    else if (t.type() == quotetype)
-        return quoted_string::read(tkz.m_is, quotechar);
-    else
-        throw std::runtime_error(std::string("Expected word or quoted "
-                                             "string (") +
-                                 quotechar + ")");
-}
 
 } // namespace parser
 } // namespace atf

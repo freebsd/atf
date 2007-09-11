@@ -39,6 +39,8 @@ run_tests()
     type=${1}; shift
     sd=$(atf_get_srcdir)
     while [ ${#} -gt 0 ]; do
+        rm -f expout experr outin errin
+
         if [ -f ${sd}/${1}.expout ]; then
             cp ${sd}/${1}.expout expout
         else
@@ -65,7 +67,6 @@ run_tests()
 
         atf_check "${sd}/h_parser ${type} ${sd}/${1} outin errin" \
                   0 expout experr
-        rm -f expout experr
 
         shift
     done
@@ -83,7 +84,12 @@ atffile_body()
         d_atffile_3 \
         d_atffile_4 \
         d_atffile_5 \
-        d_atffile_6
+        d_atffile_6 \
+        d_atffile_50 \
+        d_atffile_51 \
+        d_atffile_52 \
+        d_atffile_53 \
+        d_atffile_54
 }
 
 config_head()
@@ -96,7 +102,12 @@ config_body()
         d_config_1 \
         d_config_2 \
         d_config_3 \
-        d_config_4
+        d_config_4 \
+        d_config_50 \
+        d_config_51 \
+        d_config_52 \
+        d_config_53 \
+        d_config_54
 }
 
 tcs_head()
@@ -110,7 +121,15 @@ tcs_body()
         d_tcs_2 \
         d_tcs_3 \
         d_tcs_4 \
-        d_tcs_5
+        d_tcs_5 \
+        d_tcs_50 \
+        d_tcs_51 \
+        d_tcs_52 \
+        d_tcs_53 \
+        d_tcs_54 \
+        d_tcs_55 \
+        d_tcs_56 \
+        d_tcs_57
 }
 
 tps_head()
@@ -122,7 +141,16 @@ tps_body()
     run_tests application/X-atf-tps \
         d_tps_1 \
         d_tps_2 \
-        d_tps_3
+        d_tps_3 \
+        d_tps_50 \
+        d_tps_51 \
+        d_tps_52 \
+        d_tps_53 \
+        d_tps_54 \
+        d_tps_55 \
+        d_tps_56 \
+        d_tps_57 \
+        d_tps_58
 }
 
 atf_init_test_cases()
