@@ -53,13 +53,26 @@ namespace atf {
 namespace parser {
 
 // ------------------------------------------------------------------------
+// The "parse_error" class.
+// ------------------------------------------------------------------------
+
+class parse_error : public std::runtime_error,
+                    public std::pair< size_t, std::string > {
+    mutable std::string m_msg;
+
+public:
+    parse_error(size_t, std::string);
+    ~parse_error(void) throw();
+
+    const char* what(void) const throw();
+};
+
+// ------------------------------------------------------------------------
 // The "parse_errors" class.
 // ------------------------------------------------------------------------
 
-typedef std::pair< size_t, std::string > parse_error;
-
 class parse_errors : public std::runtime_error,
-                      public std::vector< parse_error > {
+                     public std::vector< parse_error > {
     std::vector< parse_error > m_errors;
     mutable std::string m_msg;
 
@@ -268,11 +281,11 @@ tokenizer< T, IS >::next(void)
     while (!done && m_is.get(ch).good()) {
         if (ch == m_quotech) {
             if (text.empty()) {
-                bool skipnext = false;
+                bool escaped = false;
                 while (!done && m_is.get(ch).good()) {
-                    if (!skipnext) {
+                    if (!escaped) {
                         if (ch == '\\')
-                            skipnext = true;
+                            escaped = true;
                         else if (ch == '\n') {
                             m_la = token< T >(m_lineno, m_nltype,
                                               "<<NEWLINE>>");
@@ -283,8 +296,10 @@ tokenizer< T, IS >::next(void)
                             done = true;
                         else
                             text += ch;
-                    } else
-                        skipnext = false;
+                    } else {
+                        text += ch;
+                        escaped = false;
+                    }
                 }
                 if (!m_is.good())
                     throw parse_error(t.lineno(),
@@ -292,8 +307,10 @@ tokenizer< T, IS >::next(void)
                                       "end of file");
                 t = token< T >(m_lineno, m_texttype, text);
                 quoted = true;
-            } else
+            } else {
+                m_is.unget();
                 done = true;
+            }
         } else {
             typename std::map< char, T >::const_iterator idelim;
             idelim = m_delims_map.find(ch);

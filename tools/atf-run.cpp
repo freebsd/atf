@@ -56,6 +56,7 @@ extern "C" {
 #include "atf/formats.hpp"
 #include "atf/fs.hpp"
 #include "atf/io.hpp"
+#include "atf/parser.hpp"
 #include "atf/tests.hpp"
 #include "atf/text.hpp"
 
@@ -439,6 +440,8 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
     std::string fmterr;
     try {
         m.read(outin, errin);
+    } catch (const atf::parser::parse_errors& e) {
+        fmterr = e.what();
     } catch (const atf::serial::format_error& e) {
         fmterr = e.what();
     }
@@ -447,36 +450,38 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
     errin.close();
     resin.close();
 
-    int status;
-    if (::waitpid(pid, &status, 0) == -1)
-        throw atf::system_error("atf_run::run_test_program(" + tp.str() +
-                                ")", "waitpid(2) failed", errno);
-
-    int code;
-    if (WIFEXITED(status)) {
-        code = WEXITSTATUS(status);
-        if (m.failed() > 0 && code == EXIT_SUCCESS) {
+    int code, status;
+    if (::waitpid(pid, &status, 0) == -1) {
+        m.finalize("waitpid(2) on the child process " +
+                   atf::text::to_string(pid) + " failed" +
+                   (fmterr.empty() ? "" : (".  " + fmterr)));
+        code = EXIT_FAILURE;
+    } else {
+        if (WIFEXITED(status)) {
+            code = WEXITSTATUS(status);
+            if (m.failed() > 0 && code == EXIT_SUCCESS) {
+                code = EXIT_FAILURE;
+                m.finalize("Test program returned success but some test "
+                           "cases failed" +
+                           (fmterr.empty() ? "" : (".  " + fmterr)));
+            } else {
+                code = fmterr.empty() ? code : EXIT_FAILURE;
+                m.finalize(fmterr);
+            }
+        } else if (WIFSIGNALED(status)) {
             code = EXIT_FAILURE;
-            m.finalize("Test program returned success but some test "
-                       "cases failed" +
+            m.finalize("Test program received signal " +
+                       atf::text::to_string(WTERMSIG(status)) +
+                       (WCOREDUMP(status) ? " (core dumped)" : "") +
                        (fmterr.empty() ? "" : (".  " + fmterr)));
-        } else {
-            code = fmterr.empty() ? code : EXIT_FAILURE;
-            m.finalize(fmterr);
-        }
-    } else if (WIFSIGNALED(status)) {
-        code = EXIT_FAILURE;
-        m.finalize("Test program received signal " +
-                   atf::text::to_string(WTERMSIG(status)) +
-                   (WCOREDUMP(status) ? " (core dumped)" : "") +
-                   (fmterr.empty() ? "" : (".  " + fmterr)));
-    } else if (WIFSTOPPED(status)) {
-        code = EXIT_FAILURE;
-        m.finalize("Test program stopped due to signal " +
-                   atf::text::to_string(WSTOPSIG(status)) +
-                   (fmterr.empty() ? "" : (".  " + fmterr)));
-    } else
-        assert(false);
+        } else if (WIFSTOPPED(status)) {
+            code = EXIT_FAILURE;
+            m.finalize("Test program stopped due to signal " +
+                       atf::text::to_string(WSTOPSIG(status)) +
+                       (fmterr.empty() ? "" : (".  " + fmterr)));
+        } else
+            assert(false);
+    }
     return code;
 }
 

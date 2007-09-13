@@ -44,6 +44,35 @@ namespace impl = atf::parser;
 #define IMPL_NAME "atf::parser"
 
 // ------------------------------------------------------------------------
+// The "parse_error" class.
+// ------------------------------------------------------------------------
+
+impl::parse_error::parse_error(size_t line, std::string msg) :
+    std::runtime_error(msg),
+    std::pair< size_t, std::string >(line, msg)
+{
+}
+
+impl::parse_error::~parse_error(void)
+    throw()
+{
+}
+
+const char*
+impl::parse_error::what(void)
+    const throw()
+{
+    try {
+        std::ostringstream oss;
+        oss << "LONELY PARSE ERROR: " << first << ": " << second;
+        m_msg = oss.str();
+        return m_msg.c_str();
+    } catch (...) {
+        return "Could not format message for parsing error.";
+    }
+}
+
+// ------------------------------------------------------------------------
 // The "parse_errors" class.
 // ------------------------------------------------------------------------
 
