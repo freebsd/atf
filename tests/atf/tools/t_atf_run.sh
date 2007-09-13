@@ -377,7 +377,6 @@ EOF
         atf_check "atf-run" 1 stdout null
         atf_check "grep '^tp-end: helper, ' stdout" 0 stdout null
         atf_check "grep 'Unexpected.*NEWLINE' stdout" 0 ignore null
-        cat stdout
     done
 }
 
