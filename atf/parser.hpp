@@ -372,139 +372,187 @@ class parser {
     bool m_thrown;
 
 public:
-    parser(TKZ& tkz) :
-        m_tkz(tkz),
-        m_thrown(false)
-    {
-    }
+    parser(TKZ& tkz);
+    ~parser(void);
 
-    ~parser(void)
-    {
-        if (!m_errors.empty() && !m_thrown)
-            throw m_errors;
-    }
+    bool good(void) const;
+    void add_error(const parse_error&);
+    bool has_errors(void) const;
 
-    bool
-    good(void)
-        const
-    {
-        return m_tkz.m_is.good();
-    }
-
-    void
-    add_error(const parse_error& pe)
-    {
-        m_errors.push_back(pe);
-    }
-
-    bool
-    has_errors(void)
-        const
-    {
-        return !m_errors.empty();
-    }
+    token< typename TKZ::token_type > next(void);
+    std::string rest_of_line(void);
+    token< typename TKZ::token_type > reset(const typename TKZ::token_type&);
 
     token< typename TKZ::token_type >
-    next(void)
-    {
-        token< typename TKZ::token_type > t = m_tkz.next();
-
-        m_last = t;
-
-        if (t.type() == m_tkz.m_eoftype) {
-            if (!m_errors.empty()) {
-                m_thrown = true;
-                throw m_errors;
-            }
-        }
-
-        return t;
-    }
+    expect(const typename TKZ::token_type&,
+           const std::string&);
 
     token< typename TKZ::token_type >
-    expect(const typename TKZ::token_type& t1,
-           const std::string& textual)
-    {
-        token< typename TKZ::token_type > t = next();
-
-        if (t.type() != t1)
-            throw parse_error(t.lineno(),
-                              "Unexpected token `" + t.text() +
-                              "'; expected " + textual);
-
-        return t;
-    }
+    expect(const typename TKZ::token_type&,
+           const typename TKZ::token_type&,
+           const std::string&);
 
     token< typename TKZ::token_type >
-    expect(const typename TKZ::token_type& t1,
-           const typename TKZ::token_type& t2,
-           const std::string& textual)
-    {
-        token< typename TKZ::token_type > t = next();
-
-        if (t.type() != t1 && t.type() != t2)
-            throw parse_error(t.lineno(),
-                              "Unexpected token `" + t.text() +
-                              "'; expected " + textual);
-
-        return t;
-    }
+    expect(const typename TKZ::token_type&,
+           const typename TKZ::token_type&,
+           const typename TKZ::token_type&,
+           const std::string&);
 
     token< typename TKZ::token_type >
-    expect(const typename TKZ::token_type& t1,
-           const typename TKZ::token_type& t2,
-           const typename TKZ::token_type& t3,
-           const std::string& textual)
-    {
-        token< typename TKZ::token_type > t = next();
-
-        if (t.type() != t1 && t.type() != t2 && t.type() != t3)
-            throw parse_error(t.lineno(),
-                              "Unexpected token `" + t.text() +
-                              "'; expected " + textual);
-
-        return t;
-    }
-
-    token< typename TKZ::token_type >
-    expect(const typename TKZ::token_type& t1,
-           const typename TKZ::token_type& t2,
-           const typename TKZ::token_type& t3,
-           const typename TKZ::token_type& t4,
-           const typename TKZ::token_type& t5,
-           const typename TKZ::token_type& t6,
-           const typename TKZ::token_type& t7,
-           const std::string& textual)
-    {
-        token< typename TKZ::token_type > t = next();
-
-        if (t.type() != t1 && t.type() != t2 && t.type() != t3 &&
-            t.type() != t4 && t.type() != t5 && t.type() != t6 &&
-            t.type() != t7)
-            throw parse_error(t.lineno(),
-                              "Unexpected token `" + t.text() +
-                              "'; expected " + textual);
-
-        return t;
-    }
-
-    std::string
-    rest_of_line(void)
-    {
-        return m_tkz.rest_of_line();
-    }
-
-    token< typename TKZ::token_type >
-    reset(const typename TKZ::token_type& stop)
-    {
-        token< typename TKZ::token_type > t = m_last;
-
-        while (t.type() != m_tkz.m_eoftype && t.type() != stop)
-            t = next();
-
-        return t;
-    }
+    expect(const typename TKZ::token_type&,
+           const typename TKZ::token_type&,
+           const typename TKZ::token_type&,
+           const typename TKZ::token_type&,
+           const typename TKZ::token_type&,
+           const typename TKZ::token_type&,
+           const typename TKZ::token_type&,
+           const std::string&);
 };
+
+template< class TKZ >
+parser< TKZ >::parser(TKZ& tkz) :
+    m_tkz(tkz),
+    m_thrown(false)
+{
+}
+
+template< class TKZ >
+parser< TKZ >::~parser(void)
+{
+    if (!m_errors.empty() && !m_thrown)
+        throw m_errors;
+}
+
+template< class TKZ >
+bool
+parser< TKZ >::good(void)
+    const
+{
+    return m_tkz.m_is.good();
+}
+
+template< class TKZ >
+void
+parser< TKZ >::add_error(const parse_error& pe)
+{
+    m_errors.push_back(pe);
+}
+
+template< class TKZ >
+bool
+parser< TKZ >::has_errors(void)
+    const
+{
+    return !m_errors.empty();
+}
+
+template< class TKZ >
+token< typename TKZ::token_type >
+parser< TKZ >::next(void)
+{
+    token< typename TKZ::token_type > t = m_tkz.next();
+
+    m_last = t;
+
+    if (t.type() == m_tkz.m_eoftype) {
+        if (!m_errors.empty()) {
+            m_thrown = true;
+            throw m_errors;
+        }
+    }
+
+    return t;
+}
+
+template< class TKZ >
+std::string
+parser< TKZ >::rest_of_line(void)
+{
+    return m_tkz.rest_of_line();
+}
+
+template< class TKZ >
+token< typename TKZ::token_type >
+parser< TKZ >::reset(const typename TKZ::token_type& stop)
+{
+    token< typename TKZ::token_type > t = m_last;
+
+    while (t.type() != m_tkz.m_eoftype && t.type() != stop)
+        t = next();
+
+    return t;
+}
+
+template< class TKZ >
+token< typename TKZ::token_type >
+parser< TKZ >::expect(const typename TKZ::token_type& t1,
+                      const std::string& textual)
+{
+    token< typename TKZ::token_type > t = next();
+
+    if (t.type() != t1)
+        throw parse_error(t.lineno(),
+                          "Unexpected token `" + t.text() +
+                          "'; expected " + textual);
+
+    return t;
+}
+
+template< class TKZ >
+token< typename TKZ::token_type >
+parser< TKZ >::expect(const typename TKZ::token_type& t1,
+                      const typename TKZ::token_type& t2,
+                      const std::string& textual)
+{
+    token< typename TKZ::token_type > t = next();
+
+    if (t.type() != t1 && t.type() != t2)
+        throw parse_error(t.lineno(),
+                          "Unexpected token `" + t.text() +
+                          "'; expected " + textual);
+
+    return t;
+}
+
+template< class TKZ >
+token< typename TKZ::token_type >
+parser< TKZ >::expect(const typename TKZ::token_type& t1,
+                      const typename TKZ::token_type& t2,
+                      const typename TKZ::token_type& t3,
+                      const std::string& textual)
+{
+    token< typename TKZ::token_type > t = next();
+
+    if (t.type() != t1 && t.type() != t2 && t.type() != t3)
+        throw parse_error(t.lineno(),
+                          "Unexpected token `" + t.text() +
+                          "'; expected " + textual);
+
+    return t;
+}
+
+template< class TKZ >
+token< typename TKZ::token_type >
+parser< TKZ >::expect(const typename TKZ::token_type& t1,
+                      const typename TKZ::token_type& t2,
+                      const typename TKZ::token_type& t3,
+                      const typename TKZ::token_type& t4,
+                      const typename TKZ::token_type& t5,
+                      const typename TKZ::token_type& t6,
+                      const typename TKZ::token_type& t7,
+                      const std::string& textual)
+{
+    token< typename TKZ::token_type > t = next();
+
+    if (t.type() != t1 && t.type() != t2 && t.type() != t3 &&
+        t.type() != t4 && t.type() != t5 && t.type() != t6 &&
+        t.type() != t7)
+        throw parse_error(t.lineno(),
+                          "Unexpected token `" + t.text() +
+                          "'; expected " + textual);
+
+    return t;
+}
 
 } // namespace parser
 } // namespace atf
