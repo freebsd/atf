@@ -103,3 +103,56 @@ impl::parse_errors::what(void)
         return "Could not format messages for parsing errors.";
     }
 }
+
+// ------------------------------------------------------------------------
+// The "token" class.
+// ------------------------------------------------------------------------
+
+impl::token::token(void) :
+    m_inited(false)
+{
+}
+
+impl::token::token(size_t p_line,
+                   const token_type& p_type,
+                   const std::string& p_text) :
+    m_inited(true),
+    m_line(p_line),
+    m_type(p_type),
+    m_text(p_text)
+{
+}
+
+size_t
+impl::token::lineno(void)
+    const
+{
+    return m_line;
+}
+
+const impl::token_type&
+impl::token::type(void)
+    const
+{
+    return m_type;
+}
+
+const std::string&
+impl::token::text(void)
+    const
+{
+    return m_text;
+}
+
+impl::token::operator bool(void)
+    const
+{
+    return m_inited;
+}
+
+bool
+impl::token::operator!(void)
+    const
+{
+    return !m_inited;
+}

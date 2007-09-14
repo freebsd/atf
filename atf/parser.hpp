@@ -87,84 +87,31 @@ public:
 // The "token" class.
 // ------------------------------------------------------------------------
 
+typedef int token_type;
+
 //!
 //! \brief Representation of a read token.
 //!
 //! A pair that contains the information of a token read from a stream.
 //! It contains the token's type and its associated data, if any.
 //!
-template< class T >
 struct token {
     bool m_inited;
     size_t m_line;
-    T m_type;
+    token_type m_type;
     std::string m_text;
 
 public:
     token(void);
-    token(size_t, T, const std::string& = "");
+    token(size_t, const token_type&, const std::string& = "");
 
     size_t lineno(void) const;
-    T type(void) const;
+    const token_type& type(void) const;
     const std::string& text(void) const;
 
     operator bool(void) const;
     bool operator!(void) const;
 };
-
-template< class T >
-token< T >::token(void) :
-    m_inited(false)
-{
-}
-
-template< class T >
-token< T >::token(size_t p_line, T p_type, const std::string& p_text) :
-    m_inited(true),
-    m_line(p_line),
-    m_type(p_type),
-    m_text(p_text)
-{
-}
-
-template< class T >
-size_t
-token< T >::lineno(void)
-    const
-{
-    return m_line;
-}
-
-template< class T >
-T
-token< T >::type(void)
-    const
-{
-    return m_type;
-}
-
-template< class T >
-const std::string&
-token< T >::text(void)
-    const
-{
-    return m_text;
-}
-
-template< class T >
-token< T >::operator bool(void)
-    const
-{
-    return m_inited;
-}
-
-template< class T >
-bool
-token< T >::operator!(void)
-    const
-{
-    return !m_inited;
-}
 
 // ------------------------------------------------------------------------
 // The "tokenizer" class.
@@ -178,97 +125,102 @@ token< T >::operator!(void)
 //! random-length keywords, skip whitespace and, anything that does not
 //! match these rules is supposed to be a word.
 //!
-//! Parameter T: The token's type.  Typically an enum.
 //! Parameter IS: The input stream's type.
 //!
-template< class T, class IS >
+template< class IS >
 class tokenizer {
     IS& m_is;
     size_t m_lineno;
-    token< T > m_la;
+    token m_la;
 
     bool m_skipws;
-    T m_eoftype, m_nltype, m_texttype;
+    token_type m_eof_type, m_nl_type, m_text_type;
 
-    std::map< char, T > m_delims_map;
+    std::map< char, token_type > m_delims_map;
     std::string m_delims_str;
 
     char m_quotech;
-    T m_quotetype;
+    token_type m_quotetype;
 
-    std::map< std::string, T > m_keywords_map;
+    std::map< std::string, token_type > m_keywords_map;
+
+    token_type alloc_type(void);
 
     template< class TKZ >
     friend
     class parser;
 
 public:
-    typedef T token_type;
-
-    tokenizer(IS&, bool, T, T, T, size_t = 1);
+    tokenizer(IS&, bool, const token_type&, const token_type&,
+              const token_type&, size_t = 1);
 
     size_t lineno(void) const;
 
-    void add_delim(char, T);
-    void add_keyword(const std::string&, T);
-    void add_quote(char, T);
+    void add_delim(char, const token_type&);
+    void add_keyword(const std::string&, const token_type&);
+    void add_quote(char, const token_type&);
 
-    token< T > next(void);
+    token next(void);
     std::string rest_of_line(void);
 };
 
-template< class T, class IS >
-tokenizer< T, IS >::tokenizer(IS& is, bool skipws, T eoftype, T nltype,
-                              T texttype, size_t p_lineno) :
-    m_is(is),
+template< class IS >
+tokenizer< IS >::tokenizer(IS& p_is,
+                           bool p_skipws,
+                           const token_type& p_eof_type,
+                           const token_type& p_nl_type,
+                           const token_type& p_text_type,
+                           size_t p_lineno) :
+    m_is(p_is),
     m_lineno(p_lineno),
-    m_skipws(skipws),
-    m_eoftype(eoftype),
-    m_nltype(nltype),
-    m_texttype(texttype),
+    m_skipws(p_skipws),
+    m_eof_type(p_eof_type),
+    m_nl_type(p_nl_type),
+    m_text_type(p_text_type),
     m_quotech(-1)
 {
 }
 
-template< class T, class IS >
+template< class IS >
 size_t
-tokenizer< T, IS >::lineno(void)
+tokenizer< IS >::lineno(void)
     const
 {
     return m_lineno;
 }
 
-template< class T, class IS >
+template< class IS >
 void
-tokenizer< T, IS >::add_delim(char delim, T type)
+tokenizer< IS >::add_delim(char delim, const token_type& type)
 {
     m_delims_map[delim] = type;
     m_delims_str += delim;
 }
 
-template< class T, class IS >
+template< class IS >
 void
-tokenizer< T, IS >::add_keyword(const std::string& keyword, T type)
+tokenizer< IS >::add_keyword(const std::string& keyword,
+                             const token_type& type)
 {
     m_keywords_map[keyword] = type;
 }
 
-template< class T, class IS >
+template< class IS >
 void
-tokenizer< T, IS >::add_quote(char ch, T type)
+tokenizer< IS >::add_quote(char ch, const token_type& type)
 {
     m_quotech = ch;
     m_quotetype = type;
 }
 
-template< class T, class IS >
-token< T >
-tokenizer< T, IS >::next(void)
+template< class IS >
+token
+tokenizer< IS >::next(void)
 {
     if (m_la) {
-        token< T > t = m_la;
-        m_la = token< T >();
-        if (t.type() == m_nltype)
+        token t = m_la;
+        m_la = token();
+        if (t.type() == m_nl_type)
             m_lineno++;
         return t;
     }
@@ -277,7 +229,7 @@ tokenizer< T, IS >::next(void)
     std::string text;
 
     bool done = false, quoted = false;
-    token< T > t(m_lineno, m_eoftype, "<<EOF>>");
+    token t(m_lineno, m_eof_type, "<<EOF>>");
     while (!done && m_is.get(ch).good()) {
         if (ch == m_quotech) {
             if (text.empty()) {
@@ -287,8 +239,7 @@ tokenizer< T, IS >::next(void)
                         if (ch == '\\')
                             escaped = true;
                         else if (ch == '\n') {
-                            m_la = token< T >(m_lineno, m_nltype,
-                                              "<<NEWLINE>>");
+                            m_la = token(m_lineno, m_nl_type, "<<NEWLINE>>");
                             throw parse_error(t.lineno(),
                                               "Missing double quotes before "
                                               "end of line");
@@ -305,26 +256,26 @@ tokenizer< T, IS >::next(void)
                     throw parse_error(t.lineno(),
                                       "Missing double quotes before "
                                       "end of file");
-                t = token< T >(m_lineno, m_texttype, text);
+                t = token(m_lineno, m_text_type, text);
                 quoted = true;
             } else {
                 m_is.unget();
                 done = true;
             }
         } else {
-            typename std::map< char, T >::const_iterator idelim;
+            typename std::map< char, token_type >::const_iterator idelim;
             idelim = m_delims_map.find(ch);
             if (idelim != m_delims_map.end()) {
                 done = true;
                 if (text.empty())
-                    t = token< T >(m_lineno, (*idelim).second,
+                    t = token(m_lineno, (*idelim).second,
                                    std::string("") + ch);
                 else
                     m_is.unget();
             } else if (ch == '\n') {
                 done = true;
                 if (text.empty())
-                    t = token< T >(m_lineno, m_nltype, "<<NEWLINE>>");
+                    t = token(m_lineno, m_nl_type, "<<NEWLINE>>");
                 else
                     m_is.unget();
             } else if (m_skipws && (ch == ' ' || ch == '\t')) {
@@ -336,23 +287,23 @@ tokenizer< T, IS >::next(void)
     }
 
     if (!quoted && !text.empty()) {
-        typename std::map< std::string, T >::const_iterator ikw;
+        typename std::map< std::string, token_type >::const_iterator ikw;
         ikw = m_keywords_map.find(text);
         if (ikw != m_keywords_map.end())
-            t = token< T >(m_lineno, (*ikw).second, text);
+            t = token(m_lineno, (*ikw).second, text);
         else
-            t = token< T >(m_lineno, m_texttype, text);
+            t = token(m_lineno, m_text_type, text);
     }
 
-    if (t.type() == m_nltype)
+    if (t.type() == m_nl_type)
         m_lineno++;
 
     return t;
 }
 
-template< class T, class IS >
+template< class IS >
 std::string
-tokenizer< T, IS >::rest_of_line(void)
+tokenizer< IS >::rest_of_line(void)
 {
     std::string str;
     while (m_is.good() && m_is.peek() != '\n')
@@ -367,7 +318,7 @@ tokenizer< T, IS >::rest_of_line(void)
 template< class TKZ >
 class parser {
     TKZ& m_tkz;
-    token< typename TKZ::token_type > m_last;
+    token m_last;
     parse_errors m_errors;
     bool m_thrown;
 
@@ -379,33 +330,33 @@ public:
     void add_error(const parse_error&);
     bool has_errors(void) const;
 
-    token< typename TKZ::token_type > next(void);
+    token next(void);
     std::string rest_of_line(void);
-    token< typename TKZ::token_type > reset(const typename TKZ::token_type&);
+    token reset(const token_type&);
 
-    token< typename TKZ::token_type >
-    expect(const typename TKZ::token_type&,
+    token
+    expect(const token_type&,
            const std::string&);
 
-    token< typename TKZ::token_type >
-    expect(const typename TKZ::token_type&,
-           const typename TKZ::token_type&,
+    token
+    expect(const token_type&,
+           const token_type&,
            const std::string&);
 
-    token< typename TKZ::token_type >
-    expect(const typename TKZ::token_type&,
-           const typename TKZ::token_type&,
-           const typename TKZ::token_type&,
+    token
+    expect(const token_type&,
+           const token_type&,
+           const token_type&,
            const std::string&);
 
-    token< typename TKZ::token_type >
-    expect(const typename TKZ::token_type&,
-           const typename TKZ::token_type&,
-           const typename TKZ::token_type&,
-           const typename TKZ::token_type&,
-           const typename TKZ::token_type&,
-           const typename TKZ::token_type&,
-           const typename TKZ::token_type&,
+    token
+    expect(const token_type&,
+           const token_type&,
+           const token_type&,
+           const token_type&,
+           const token_type&,
+           const token_type&,
+           const token_type&,
            const std::string&);
 };
 
@@ -447,14 +398,14 @@ parser< TKZ >::has_errors(void)
 }
 
 template< class TKZ >
-token< typename TKZ::token_type >
+token
 parser< TKZ >::next(void)
 {
-    token< typename TKZ::token_type > t = m_tkz.next();
+    token t = m_tkz.next();
 
     m_last = t;
 
-    if (t.type() == m_tkz.m_eoftype) {
+    if (t.type() == m_tkz.m_eof_type) {
         if (!m_errors.empty()) {
             m_thrown = true;
             throw m_errors;
@@ -472,23 +423,23 @@ parser< TKZ >::rest_of_line(void)
 }
 
 template< class TKZ >
-token< typename TKZ::token_type >
-parser< TKZ >::reset(const typename TKZ::token_type& stop)
+token
+parser< TKZ >::reset(const token_type& stop)
 {
-    token< typename TKZ::token_type > t = m_last;
+    token t = m_last;
 
-    while (t.type() != m_tkz.m_eoftype && t.type() != stop)
+    while (t.type() != m_tkz.m_eof_type && t.type() != stop)
         t = next();
 
     return t;
 }
 
 template< class TKZ >
-token< typename TKZ::token_type >
-parser< TKZ >::expect(const typename TKZ::token_type& t1,
+token
+parser< TKZ >::expect(const token_type& t1,
                       const std::string& textual)
 {
-    token< typename TKZ::token_type > t = next();
+    token t = next();
 
     if (t.type() != t1)
         throw parse_error(t.lineno(),
@@ -499,12 +450,12 @@ parser< TKZ >::expect(const typename TKZ::token_type& t1,
 }
 
 template< class TKZ >
-token< typename TKZ::token_type >
-parser< TKZ >::expect(const typename TKZ::token_type& t1,
-                      const typename TKZ::token_type& t2,
+token
+parser< TKZ >::expect(const token_type& t1,
+                      const token_type& t2,
                       const std::string& textual)
 {
-    token< typename TKZ::token_type > t = next();
+    token t = next();
 
     if (t.type() != t1 && t.type() != t2)
         throw parse_error(t.lineno(),
@@ -515,13 +466,13 @@ parser< TKZ >::expect(const typename TKZ::token_type& t1,
 }
 
 template< class TKZ >
-token< typename TKZ::token_type >
-parser< TKZ >::expect(const typename TKZ::token_type& t1,
-                      const typename TKZ::token_type& t2,
-                      const typename TKZ::token_type& t3,
+token
+parser< TKZ >::expect(const token_type& t1,
+                      const token_type& t2,
+                      const token_type& t3,
                       const std::string& textual)
 {
-    token< typename TKZ::token_type > t = next();
+    token t = next();
 
     if (t.type() != t1 && t.type() != t2 && t.type() != t3)
         throw parse_error(t.lineno(),
@@ -532,17 +483,17 @@ parser< TKZ >::expect(const typename TKZ::token_type& t1,
 }
 
 template< class TKZ >
-token< typename TKZ::token_type >
-parser< TKZ >::expect(const typename TKZ::token_type& t1,
-                      const typename TKZ::token_type& t2,
-                      const typename TKZ::token_type& t3,
-                      const typename TKZ::token_type& t4,
-                      const typename TKZ::token_type& t5,
-                      const typename TKZ::token_type& t6,
-                      const typename TKZ::token_type& t7,
+token
+parser< TKZ >::expect(const token_type& t1,
+                      const token_type& t2,
+                      const token_type& t3,
+                      const token_type& t4,
+                      const token_type& t5,
+                      const token_type& t6,
+                      const token_type& t7,
                       const std::string& textual)
 {
-    token< typename TKZ::token_type > t = next();
+    token t = next();
 
     if (t.type() != t1 && t.type() != t2 && t.type() != t3 &&
         t.type() != t4 && t.type() != t5 && t.type() != t6 &&

@@ -49,28 +49,24 @@ namespace impl = atf::serial;
 
 namespace header {
 
-enum tokens {
-    eof,
-    nl,
-    text,
-    colon,
-    semicolon,
-    dblquote,
-    equal
-};
+static const atf::parser::token_type& eof_type = 0;
+static const atf::parser::token_type& nl_type = 1;
+static const atf::parser::token_type& text_type = 2;
+static const atf::parser::token_type& colon_type = 3;
+static const atf::parser::token_type& semicolon_type = 4;
+static const atf::parser::token_type& dblquote_type = 5;
+static const atf::parser::token_type& equal_type = 6;
 
-typedef atf::parser::token< tokens > token;
-
-class tokenizer : public atf::parser::tokenizer< tokens, impl::internalizer > {
+class tokenizer : public atf::parser::tokenizer< impl::internalizer > {
 public:
     tokenizer(impl::internalizer& is) :
-        atf::parser::tokenizer< tokens, impl::internalizer >
-            (is, true, eof, nl, text)
+        atf::parser::tokenizer< impl::internalizer >
+            (is, true, eof_type, nl_type, text_type)
     {
-        add_delim(';', semicolon);
-        add_delim(':', colon);
-        add_delim('=', equal);
-        add_quote('"', dblquote);
+        add_delim(';', semicolon_type);
+        add_delim(':', colon_type);
+        add_delim('=', equal_type);
+        add_quote('"', dblquote_type);
     }
 };
 
@@ -78,38 +74,40 @@ static
 impl::internalizer&
 read(impl::internalizer& is, impl::header_entry& he)
 {
-    header::tokenizer tkz(is);
-    atf::parser::parser< header::tokenizer > p(tkz);
+    using namespace header;
 
-    header::token t = p.expect(header::text, header::nl, "a header name");
-    if (t.type() == header::nl) {
+    tokenizer tkz(is);
+    atf::parser::parser< tokenizer > p(tkz);
+
+    atf::parser::token t = p.expect(text_type, nl_type, "a header name");
+    if (t.type() == nl_type) {
         he = impl::header_entry();
         return is;
     }
     std::string hdr_name = t.text();
 
-    t = p.expect(header::colon, "`:'");
+    t = p.expect(colon_type, "`:'");
 
-    t = p.expect(header::text, "a textual value");
+    t = p.expect(text_type, "a textual value");
     std::string hdr_value = t.text();
 
     impl::attrs_map attrs;
 
-    t = p.expect(header::semicolon, header::nl, "`;' or new line");
-    while (t.type() != header::nl) {
-        t = p.expect(header::text, "an attribute name");
+    t = p.expect(semicolon_type, nl_type, "`;' or new line");
+    while (t.type() != nl_type) {
+        t = p.expect(text_type, "an attribute name");
         std::string attr_name = t.text();
 
-        t = p.expect(header::equal, "`='");
+        t = p.expect(equal_type, "`='");
 
-        t = p.expect(header::text, "word or quoted string");
+        t = p.expect(text_type, "word or quoted string");
         std::string attr_value = t.text();
         attrs[attr_name] = attr_value;
 
-        t = p.expect(header::semicolon, header::nl, "`;' or new line");
+        t = p.expect(semicolon_type, nl_type, "`;' or new line");
     }
 
-    //p.expect(header::nl, "end of header (blank line)");
+    //p.expect(nl_type, "end of header (blank line)");
 
     he = impl::header_entry(hdr_name, hdr_value, attrs);
 
