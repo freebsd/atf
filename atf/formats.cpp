@@ -147,9 +147,9 @@ static const atf::parser::token_type& nl_type = 1;
 static const atf::parser::token_type& text_type = 2;
 static const atf::parser::token_type& colon_type = 3;
 static const atf::parser::token_type& comma_type = 4;
-static const atf::parser::token_type& tcs_count = 5;
-static const atf::parser::token_type& tc_start = 6;
-static const atf::parser::token_type& tc_end = 7;
+static const atf::parser::token_type& tcs_count_type = 5;
+static const atf::parser::token_type& tc_start_type = 6;
+static const atf::parser::token_type& tc_end_type = 7;
 static const atf::parser::token_type& passed_type = 8;
 static const atf::parser::token_type& failed_type = 9;
 static const atf::parser::token_type& skipped_type = 10;
@@ -163,9 +163,9 @@ public:
     {
         add_delim(':', colon_type);
         add_delim(',', comma_type);
-        add_keyword("tcs-count", tcs_count);
-        add_keyword("tc-start", tc_start);
-        add_keyword("tc-end", tc_end);
+        add_keyword("tcs-count", tcs_count_type);
+        add_keyword("tc-start", tc_start_type);
+        add_keyword("tc-end", tc_end_type);
         add_keyword("passed", passed_type);
         add_keyword("failed", failed_type);
         add_keyword("skipped", skipped_type);
@@ -188,10 +188,10 @@ static const atf::parser::token_type& comma_type = 4;
 static const atf::parser::token_type& tps_count = 5;
 static const atf::parser::token_type& tp_start = 6;
 static const atf::parser::token_type& tp_end = 7;
-static const atf::parser::token_type& tc_start = 8;
-static const atf::parser::token_type& tc_so = 9;
-static const atf::parser::token_type& tc_se = 10;
-static const atf::parser::token_type& tc_end = 11;
+static const atf::parser::token_type& tc_start_type = 8;
+static const atf::parser::token_type& tc_so_type = 9;
+static const atf::parser::token_type& tc_se_type = 10;
+static const atf::parser::token_type& tc_end_type = 11;
 static const atf::parser::token_type& passed_type = 12;
 static const atf::parser::token_type& failed_type = 13;
 static const atf::parser::token_type& skipped_type = 14;
@@ -208,10 +208,10 @@ public:
         add_keyword("tps-count", tps_count);
         add_keyword("tp-start", tp_start);
         add_keyword("tp-end", tp_end);
-        add_keyword("tc-start", tc_start);
-        add_keyword("tc-so", tc_so);
-        add_keyword("tc-se", tc_se);
-        add_keyword("tc-end", tc_end);
+        add_keyword("tc-start", tc_start_type);
+        add_keyword("tc-so", tc_so_type);
+        add_keyword("tc-se", tc_se_type);
+        add_keyword("tc-end", tc_end_type);
         add_keyword("passed", passed_type);
         add_keyword("failed", failed_type);
         add_keyword("skipped", skipped_type);
@@ -495,7 +495,7 @@ impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
     atf::parser::parser< tokenizer > p(tkz);
 
     try {
-        atf::parser::token t = p.expect(tcs_count, "tcs-count field");
+        atf::parser::token t = p.expect(tcs_count_type, "tcs-count field");
         t = p.expect(colon_type, "`:'");
 
         t = p.expect(text_type, "number of test cases");
@@ -507,7 +507,7 @@ impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
         size_t i = 0;
         while (m_int.good() && i < ntcs) {
             try {
-                t = p.expect(tc_start, "start of test case");
+                t = p.expect(tc_start_type, "start of test case");
 
                 t = p.expect(colon_type, "`:'");
 
@@ -522,7 +522,7 @@ impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
                     p.add_error(parse_error(0, "Missing terminators in "
                                                "stdout or stderr"));
 
-                t = p.expect(tc_end, "end of test case");
+                t = p.expect(tc_end_type, "end of test case");
 
                 t = p.expect(colon_type, "`:'");
 
@@ -751,7 +751,7 @@ impl::atf_tps_reader::read_tc(void* pptr)
         *reinterpret_cast< atf::parser::parser< tokenizer >* >
         (pptr);
 
-    atf::parser::token t = p.expect(tc_start, "start of test case");
+    atf::parser::token t = p.expect(tc_start_type, "start of test case");
 
     t = p.expect(colon_type, "`:'");
 
@@ -761,26 +761,26 @@ impl::atf_tps_reader::read_tc(void* pptr)
 
     t = p.expect(nl_type, "new line");
 
-    t = p.expect(tc_end, tc_so, tc_se,
+    t = p.expect(tc_end_type, tc_so_type, tc_se_type,
                  "end of test case or test case's stdout/stderr line");
-    while (t.type() != tc_end &&
-           (t.type() == tc_so || t.type() == tc_se)) {
+    while (t.type() != tc_end_type &&
+           (t.type() == tc_so_type || t.type() == tc_se_type)) {
         atf::parser::token t2 = t;
 
         t = p.expect(colon_type, "`:'");
 
         std::string line = text::trim(p.rest_of_line());
 
-        if (t2.type() == tc_so) {
+        if (t2.type() == tc_so_type) {
             CALLBACK(p, got_tc_stdout_line(line));
         } else {
-            assert(t2.type() == tc_se);
+            assert(t2.type() == tc_se_type);
             CALLBACK(p, got_tc_stderr_line(line));
         }
 
         t = p.expect(nl_type, "new line");
 
-        t = p.expect(tc_end, tc_so, tc_se,
+        t = p.expect(tc_end_type, tc_so_type, tc_se_type,
                      "end of test case or test case's stdout/stderr line");
     }
 
