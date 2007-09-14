@@ -259,67 +259,65 @@ void
 impl::atf_atffile_reader::read(void)
 {
     using atf::parser::parse_error;
+    using namespace atf_atffile;
 
-    atf_atffile::tokenizer tkz(m_int);
-    atf::parser::parser< atf_atffile::tokenizer > p(tkz);
+    tokenizer tkz(m_int);
+    atf::parser::parser< tokenizer > p(tkz);
 
     for (;;) {
         try {
             atf::parser::token t =
-                p.expect(atf_atffile::conf_type, atf_atffile::hash_type,
-                         atf_atffile::prop_type, atf_atffile::tp_type,
-                         atf_atffile::tp_glob_type, atf_atffile::nl_type,
-                         atf_atffile::eof_type,
+                p.expect(conf_type, hash_type, prop_type, tp_type,
+                         tp_glob_type, nl_type, eof_type,
                          "conf, #, prop, tp, tp-glob, a new line or eof");
-            if (t.type() == atf_atffile::eof_type)
+            if (t.type() == eof_type)
                 break;
 
-            if (t.type() == atf_atffile::conf_type) {
-                t = p.expect(atf_atffile::colon_type, "`:'");
+            if (t.type() == conf_type) {
+                t = p.expect(colon_type, "`:'");
 
-                t = p.expect(atf_atffile::text_type, "variable name");
+                t = p.expect(text_type, "variable name");
                 std::string var = t.text();
 
-                t = p.expect(atf_atffile::equal_type, "equal sign");
+                t = p.expect(equal_type, "equal sign");
 
-                t = p.expect(atf_atffile::text_type, "word or quoted string");
+                t = p.expect(text_type, "word or quoted string");
                 CALLBACK(p, got_conf(var, t.text()));
-            } else if (t.type() == atf_atffile::hash_type) {
+            } else if (t.type() == hash_type) {
                 (void)p.rest_of_line();
-            } else if (t.type() == atf_atffile::prop_type) {
-                t = p.expect(atf_atffile::colon_type, "`:'");
+            } else if (t.type() == prop_type) {
+                t = p.expect(colon_type, "`:'");
 
-                t = p.expect(atf_atffile::text_type, "property name");
+                t = p.expect(text_type, "property name");
                 std::string name = t.text();
 
-                t = p.expect(atf_atffile::equal_type, "equal sign");
+                t = p.expect(equal_type, "equale sign");
 
-                t = p.expect(atf_atffile::text_type, "word or quoted string");
+                t = p.expect(text_type, "word or quoted string");
                 CALLBACK(p, got_prop(name, t.text()));
-            } else if (t.type() == atf_atffile::tp_type) {
-                t = p.expect(atf_atffile::colon_type, "`:'");
+            } else if (t.type() == tp_type) {
+                t = p.expect(colon_type, "`:'");
 
-                t = p.expect(atf_atffile::text_type, "word or quoted string");
+                t = p.expect(text_type, "word or quoted string");
                 CALLBACK(p, got_tp(t.text(), false));
-            } else if (t.type() == atf_atffile::tp_glob_type) {
-                t = p.expect(atf_atffile::colon_type, "`:'");
+            } else if (t.type() == tp_glob_type) {
+                t = p.expect(colon_type, "`:'");
 
-                t = p.expect(atf_atffile::text_type, "word or quoted string");
+                t = p.expect(text_type, "word or quoted string");
                 CALLBACK(p, got_tp(t.text(), true));
-            } else if (t.type() == atf_atffile::nl_type) {
+            } else if (t.type() == nl_type) {
                 continue;
             } else
                 assert(false);
 
-            t = p.expect(atf_atffile::nl_type, atf_atffile::hash_type,
-                         "new line or comment");
-            if (t.type() == atf_atffile::hash_type) {
+            t = p.expect(nl_type, hash_type, "new line or comment");
+            if (t.type() == hash_type) {
                 (void)p.rest_of_line();
                 t = p.next();
             }
         } catch (const parse_error& pe) {
             p.add_error(pe);
-            p.reset(atf_atffile::nl_type);
+            p.reset(nl_type);
         }
     }
 
@@ -354,23 +352,24 @@ void
 impl::atf_config_reader::read(void)
 {
     using atf::parser::parse_error;
+    using namespace atf_config;
 
-    atf_config::tokenizer tkz(m_int);
-    atf::parser::parser< atf_config::tokenizer > p(tkz);
+    tokenizer tkz(m_int);
+    atf::parser::parser< tokenizer > p(tkz);
 
     atf::parser::token t = p.next();
-    while (t.type() != atf_config::eof_type) {
+    while (t.type() != eof_type) {
         try {
-            if (t.type() == atf_config::hash_type) {
+            if (t.type() == hash_type) {
                 (void)p.rest_of_line();
-            } else if (t.type() == atf_config::text_type) {
+            } else if (t.type() == text_type) {
                 std::string name = t.text();
 
-                t = p.expect(atf_config::equal_type, "equal sign");
+                t = p.expect(equal_type, "equal sign");
 
-                t = p.expect(atf_config::text_type, "word or quoted string");
+                t = p.expect(text_type, "word or quoted string");
                 CALLBACK(p, got_var(name, t.text()));
-            } else if (t.type() == atf_config::nl_type) {
+            } else if (t.type() == nl_type) {
                 t = p.next();
                 continue;
             } else {
@@ -378,20 +377,19 @@ impl::atf_config_reader::read(void)
                                   t.text() + "'");
             }
 
-            t = p.expect(atf_config::nl_type, atf_config::hash_type,
-                         "new line or comment");
-            if (t.type() == atf_config::hash_type) {
+            t = p.expect(nl_type, hash_type, "new line or comment");
+            if (t.type() == hash_type) {
                 (void)p.rest_of_line();
                 t = p.next();
             }
         } catch (const parse_error& pe) {
             p.add_error(pe);
-            t = p.reset(atf_config::nl_type);
+            t = p.reset(nl_type);
         }
 
         t = p.next();
     }
-    //p.expect(atf_config::eof, "end of stream");
+    //p.expect(eof, "end of stream");
 
     CALLBACK(p, got_eof());
 }
@@ -444,8 +442,10 @@ impl::atf_tcs_reader::read_out_err(void* pptr,
                                    atf::io::unbuffered_istream& out,
                                    atf::io::unbuffered_istream& err)
 {
-    atf::parser::parser< atf_tps::tokenizer >& p =
-        *reinterpret_cast< atf::parser::parser< atf_tps::tokenizer >* >
+    using namespace atf_tps;
+
+    atf::parser::parser< tokenizer >& p =
+        *reinterpret_cast< atf::parser::parser< tokenizer >* >
         (pptr);
 
     struct pollfd fds[2];
@@ -489,66 +489,65 @@ impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
                            atf::io::unbuffered_istream& err)
 {
     using atf::parser::parse_error;
+    using namespace atf_tcs;
 
-    atf_tcs::tokenizer tkz(m_int);
-    atf::parser::parser< atf_tcs::tokenizer > p(tkz);
+    tokenizer tkz(m_int);
+    atf::parser::parser< tokenizer > p(tkz);
 
     try {
-        atf::parser::token t = p.expect(atf_tcs::tcs_count,
-                                        "tcs-count field");
-        t = p.expect(atf_tcs::colon_type, "`:'");
+        atf::parser::token t = p.expect(tcs_count, "tcs-count field");
+        t = p.expect(colon_type, "`:'");
 
-        t = p.expect(atf_tcs::text_type, "number of test cases");
+        t = p.expect(text_type, "number of test cases");
         size_t ntcs = string_to_size_t(t.text());
         CALLBACK(p, got_ntcs(ntcs));
 
-        t = p.expect(atf_tcs::nl_type, "new line");
+        t = p.expect(nl_type, "new line");
 
         size_t i = 0;
         while (m_int.good() && i < ntcs) {
             try {
-                t = p.expect(atf_tcs::tc_start, "start of test case");
+                t = p.expect(tc_start, "start of test case");
 
-                t = p.expect(atf_tcs::colon_type, "`:'");
+                t = p.expect(colon_type, "`:'");
 
-                t = p.expect(atf_tcs::text_type, "test case name");
+                t = p.expect(text_type, "test case name");
                 std::string tcname = t.text();
                 CALLBACK(p, got_tc_start(tcname));
 
-                t = p.expect(atf_tcs::nl_type, "new line");
+                t = p.expect(nl_type, "new line");
 
                 read_out_err(&p, out, err);
                 if (i < ntcs - 1 && (!out.good() || !err.good()))
                     p.add_error(parse_error(0, "Missing terminators in "
                                                "stdout or stderr"));
 
-                t = p.expect(atf_tcs::tc_end, "end of test case");
+                t = p.expect(tc_end, "end of test case");
 
-                t = p.expect(atf_tcs::colon_type, "`:'");
+                t = p.expect(colon_type, "`:'");
 
-                t = p.expect(atf_tcs::text_type, "test case name");
+                t = p.expect(text_type, "test case name");
                 if (t.text() != tcname)
                     throw parse_error(t.lineno(), "Test case name used in "
                                                   "terminator does not match "
                                                   "opening");
 
-                t = p.expect(atf_tcs::comma_type, "`,'");
+                t = p.expect(comma_type, "`,'");
 
-                t = p.expect(atf_tcs::passed_type, atf_tcs::skipped_type,
-                             atf_tcs::failed_type,
+                t = p.expect(passed_type, skipped_type, failed_type,
                              "passed, failed or skipped");
-                if (t.type() == atf_tcs::passed_type) {
+                if (t.type() == passed_type) {
                     CALLBACK(p, got_tc_end(tests::tcr::passed()));
-                } else if (t.type() == atf_tcs::failed_type) {
-                    t = p.expect(atf_tcs::comma_type, "`,'");
+                } else if (t.type() == failed_type) {
+                    t = p.expect(comma_type, "`,'");
                     std::string reason = text::trim(p.rest_of_line());
                     if (reason.empty())
                         throw parse_error(t.lineno(),
                                           "Empty reason for failed "
                                           "test case result");
                     CALLBACK(p, got_tc_end(tests::tcr::failed(reason)));
-                } else if (t.type() == atf_tcs::skipped_type) {
-                    t = p.expect(atf_tcs::comma_type, "`,'");
+                } else if (t.type() == skipped_type) {
+                    t = p.expect(comma_type, "`,'");
                     std::string reason = text::trim(p.rest_of_line());
                     if (reason.empty())
                         throw parse_error(t.lineno(),
@@ -558,19 +557,19 @@ impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
                 } else
                     assert(false);
 
-                t = p.expect(atf_tcs::nl_type, "new line");
+                t = p.expect(nl_type, "new line");
                 i++;
             } catch (const parse_error& pe) {
                 p.add_error(pe);
-                p.reset(atf_tcs::nl_type);
+                p.reset(nl_type);
             }
         }
 
-        t = p.expect(atf_tcs::eof_type, "end of stream");
+        t = p.expect(eof_type, "end of stream");
         CALLBACK(p, got_eof());
     } catch (const parse_error& pe) {
         p.add_error(pe);
-        p.reset(atf_tcs::nl_type);
+        p.reset(nl_type);
     }
 }
 
@@ -685,25 +684,26 @@ void
 impl::atf_tps_reader::read_tp(void* pptr)
 {
     using atf::parser::parse_error;
+    using namespace atf_tps;
 
-    atf::parser::parser< atf_tps::tokenizer >& p =
-        *reinterpret_cast< atf::parser::parser< atf_tps::tokenizer >* >
+    atf::parser::parser< tokenizer >& p =
+        *reinterpret_cast< atf::parser::parser< tokenizer >* >
         (pptr);
 
-    atf::parser::token t = p.expect(atf_tps::tp_start,
+    atf::parser::token t = p.expect(tp_start,
                                     "start of test program");
 
-    t = p.expect(atf_tps::colon_type, "`:'");
+    t = p.expect(colon_type, "`:'");
 
-    t = p.expect(atf_tps::text_type, "test program name");
+    t = p.expect(text_type, "test program name");
     std::string tpname = t.text();
 
-    t = p.expect(atf_tps::comma_type, "`,'");
+    t = p.expect(comma_type, "`,'");
 
-    t = p.expect(atf_tps::text_type, "number of test programs");
+    t = p.expect(text_type, "number of test programs");
     size_t ntcs = string_to_size_t(t.text());
 
-    t = p.expect(atf_tps::nl_type, "new line");
+    t = p.expect(nl_type, "new line");
 
     CALLBACK(p, got_tp_start(tpname, ntcs));
 
@@ -714,23 +714,23 @@ impl::atf_tps_reader::read_tp(void* pptr)
             i++;
         } catch (const parse_error& pe) {
             p.add_error(pe);
-            p.reset(atf_tps::nl_type);
+            p.reset(nl_type);
         }
     }
-    t = p.expect(atf_tps::tp_end, "end of test program");
+    t = p.expect(tp_end, "end of test program");
 
-    t = p.expect(atf_tps::colon_type, "`:'");
+    t = p.expect(colon_type, "`:'");
 
-    t = p.expect(atf_tps::text_type, "test program name");
+    t = p.expect(text_type, "test program name");
     if (t.text() != tpname)
         throw parse_error(t.lineno(), "Test program name used in "
                                       "terminator does not match "
                                       "opening");
 
-    t = p.expect(atf_tps::nl_type, atf_tps::comma_type,
+    t = p.expect(nl_type, comma_type,
                  "new line or comma_type");
     std::string reason;
-    if (t.type() == atf_tps::comma_type) {
+    if (t.type() == comma_type) {
         reason = text::trim(p.rest_of_line());
         if (reason.empty())
             throw parse_error(t.lineno(),
@@ -745,68 +745,68 @@ void
 impl::atf_tps_reader::read_tc(void* pptr)
 {
     using atf::parser::parse_error;
+    using namespace atf_tps;
 
-    atf::parser::parser< atf_tps::tokenizer >& p =
-        *reinterpret_cast< atf::parser::parser< atf_tps::tokenizer >* >
+    atf::parser::parser< tokenizer >& p =
+        *reinterpret_cast< atf::parser::parser< tokenizer >* >
         (pptr);
 
-    atf::parser::token t = p.expect(atf_tps::tc_start,
-                                    "start of test case");
+    atf::parser::token t = p.expect(tc_start, "start of test case");
 
-    t = p.expect(atf_tps::colon_type, "`:'");
+    t = p.expect(colon_type, "`:'");
 
-    t = p.expect(atf_tps::text_type, "test case name");
+    t = p.expect(text_type, "test case name");
     std::string tcname = t.text();
     CALLBACK(p, got_tc_start(tcname));
 
-    t = p.expect(atf_tps::nl_type, "new line");
+    t = p.expect(nl_type, "new line");
 
-    t = p.expect(atf_tps::tc_end, atf_tps::tc_so, atf_tps::tc_se,
+    t = p.expect(tc_end, tc_so, tc_se,
                  "end of test case or test case's stdout/stderr line");
-    while (t.type() != atf_tps::tc_end &&
-           (t.type() == atf_tps::tc_so || t.type() == atf_tps::tc_se)) {
+    while (t.type() != tc_end &&
+           (t.type() == tc_so || t.type() == tc_se)) {
         atf::parser::token t2 = t;
 
-        t = p.expect(atf_tps::colon_type, "`:'");
+        t = p.expect(colon_type, "`:'");
 
         std::string line = text::trim(p.rest_of_line());
 
-        if (t2.type() == atf_tps::tc_so) {
+        if (t2.type() == tc_so) {
             CALLBACK(p, got_tc_stdout_line(line));
         } else {
-            assert(t2.type() == atf_tps::tc_se);
+            assert(t2.type() == tc_se);
             CALLBACK(p, got_tc_stderr_line(line));
         }
 
-        t = p.expect(atf_tps::nl_type, "new line");
+        t = p.expect(nl_type, "new line");
 
-        t = p.expect(atf_tps::tc_end, atf_tps::tc_so, atf_tps::tc_se,
+        t = p.expect(tc_end, tc_so, tc_se,
                      "end of test case or test case's stdout/stderr line");
     }
 
-    t = p.expect(atf_tps::colon_type, "`:'");
+    t = p.expect(colon_type, "`:'");
 
-    t = p.expect(atf_tps::text_type, "test case name");
+    t = p.expect(text_type, "test case name");
     if (t.text() != tcname)
         throw parse_error(t.lineno(),
                           "Test case name used in terminator does not "
                           "match opening");
 
-    t = p.expect(atf_tps::comma_type, "`,'");
+    t = p.expect(comma_type, "`,'");
 
-    t = p.expect(atf_tps::passed_type, atf_tps::failed_type,
-                 atf_tps::skipped_type, "passed, failed or skipped");
-    if (t.type() == atf_tps::passed_type) {
+    t = p.expect(passed_type, failed_type, skipped_type,
+                 "passed, failed or skipped");
+    if (t.type() == passed_type) {
         CALLBACK(p, got_tc_end(tests::tcr::passed()));
-    } else if (t.type() == atf_tps::failed_type) {
-        t = p.expect(atf_tps::comma_type, "`,'");
+    } else if (t.type() == failed_type) {
+        t = p.expect(comma_type, "`,'");
         std::string reason = text::trim(p.rest_of_line());
         if (reason.empty())
             throw parse_error(t.lineno(),
                               "Empty reason for failed test case result");
         CALLBACK(p, got_tc_end(tests::tcr::failed(reason)));
-    } else if (t.type() == atf_tps::skipped_type) {
-        t = p.expect(atf_tps::comma_type, "`,'");
+    } else if (t.type() == skipped_type) {
+        t = p.expect(comma_type, "`,'");
         std::string reason = text::trim(p.rest_of_line());
         if (reason.empty())
             throw parse_error(t.lineno(),
@@ -815,28 +815,28 @@ impl::atf_tps_reader::read_tc(void* pptr)
     } else
         assert(false);
 
-    t = p.expect(atf_tps::nl_type, "new line");
+    t = p.expect(nl_type, "new line");
 }
 
 void
 impl::atf_tps_reader::read(void)
 {
     using atf::parser::parse_error;
+    using namespace atf_tps;
 
-    atf_tps::tokenizer tkz(m_int);
-    atf::parser::parser< atf_tps::tokenizer > p(tkz);
+    tokenizer tkz(m_int);
+    atf::parser::parser< tokenizer > p(tkz);
 
     try {
-        atf::parser::token t = p.expect(atf_tps::tps_count,
-                                        "tps-count field");
+        atf::parser::token t = p.expect(tps_count, "tps-count field");
 
-        t = p.expect(atf_tps::colon_type, "`:'");
+        t = p.expect(colon_type, "`:'");
 
-        t = p.expect(atf_tps::text_type, "number of test programs");
+        t = p.expect(text_type, "number of test programs");
         size_t ntps = string_to_size_t(t.text());
         CALLBACK(p, got_ntps(ntps));
 
-        t = p.expect(atf_tps::nl_type, "new line");
+        t = p.expect(nl_type, "new line");
 
         size_t i = 0;
         while (p.good() && i < ntps) {
@@ -845,15 +845,15 @@ impl::atf_tps_reader::read(void)
                 i++;
             } catch (const parse_error& pe) {
                 p.add_error(pe);
-                p.reset(atf_tps::nl_type);
+                p.reset(nl_type);
             }
         }
 
-        t = p.expect(atf_tps::eof_type, "end of stream");
+        t = p.expect(eof_type, "end of stream");
         CALLBACK(p, got_eof());
     } catch (const parse_error& pe) {
         p.add_error(pe);
-        p.reset(atf_tps::nl_type);
+        p.reset(nl_type);
     }
 }
 
