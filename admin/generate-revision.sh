@@ -35,51 +35,49 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+#
+# Generates a header file with information about the revision used to
+# build ATF.
+#
+
 Prog_Name=${0##*/}
 
-if [ ! -f ./atf.hpp ]; then
-    echo "${Prog_Name}: must be run from atf source's top directory" 1>&2
+#
+# err message
+#
+err() {
+    echo "${Prog_Name}: ${@}" 1>&2
     exit 1
-fi
+}
 
-if [ ! -f configure ]; then
-    echo "${Prog_Name}: nothing to clean" 1>&2
-    exit 1
-fi
+#
+# call_mtn args
+#
+call_mtn() {
+    ${MTN} --root=${ROOT} "${@}"
+}
 
-[ -f Makefile ] || ./configure
-make distclean
+#
+# main readme_file
+#
+# Entry point.
+#
+main() {
+    [ -n "${MTN}" ] || return 0
+    [ -n "${ROOT}" ] || err "ROOT not defined"
 
-# Top-level directory.
-rm -f .gdb_history
-rm -f INSTALL
-rm -f Makefile.in
-rm -f aclocal.m4
-rm -rf autom4te.cache
-rm -f config.h.in
-rm -f configure
-rm -f mkinstalldirs
-rm -f atf-*.tar.gz
+    base_revision_id=$(call_mtn automate get_base_revision_id)
+    echo "#define PACKAGE_REVISION_BASE \"${base_revision_id}\""
 
-# `admin' directory.
-rm -f admin/compile
-rm -f admin/config.guess
-rm -f admin/config.sub
-rm -f admin/depcomp
-rm -f admin/install-sh
-rm -f admin/ltmain.sh
-rm -f admin/missing
-rm -f admin/revision*
+    if call_mtn status | grep "no changes" >/dev/null; then
+        :
+    else
+        echo "#define PACKAGE_REVISION_MODIFIED 1"
+    fi
 
-# `tests/bootstrap' directory.
-rm -f tests/bootstrap/package.m4
-rm -f tests/bootstrap/testsuite
+    true
+}
 
-# Files and directories spread all around the tree.
-find . -name '#*' | xargs rm -rf
-find . -name '*~' | xargs rm -rf
-find . -name .deps | xargs rm -rf
-find . -name .gdb_history | xargs rm -rf
-find . -name .libs | xargs rm -rf
+main "${@}"
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

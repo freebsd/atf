@@ -23,6 +23,9 @@ Changes:
   of files written by the developers and users: the Atffiles and the
   configuration files.
 
+* Added the atf-version tool, a utility that displays information about the
+  currently installed version of ATF.
+
 
 Version 0.1
 ===========

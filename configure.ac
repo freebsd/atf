@@ -41,8 +41,9 @@ dnl -----------------------------------------------------------------------
 AC_INIT([Automated Testing Framework], [0.2], [jmmv@NetBSD.org], [atf])
 AC_PREREQ([2.60])
 AC_COPYRIGHT([Copyright (c) 2007 The NetBSD Foundation, Inc.])
-AC_SUBST(PACKAGE_COPYRIGHT,
-         ["Copyright (c) 2007 The NetBSD Foundation, Inc."])
+AC_DEFINE(PACKAGE_COPYRIGHT,
+          ["Copyright (c) 2007 The NetBSD Foundation, Inc."],
+          [Define to the copyright string applicable to this package.])
 AC_CONFIG_AUX_DIR([admin])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([admin])
@@ -203,6 +204,8 @@ fi
 if test x"${ATF_SHELL}" = x""; then
     AC_MSG_ERROR([No POSIX shell interpreter found; maybe set ATF_SHELL?])
 fi
+
+AC_PATH_PROG([MTN], [mtn])
 
 dnl -----------------------------------------------------------------------
 dnl Set up the developer mode
