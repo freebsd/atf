@@ -502,8 +502,20 @@ atf_run::run_test_program(const atf::fs::path& tp,
         assert(false);
         errcode = EXIT_FAILURE;
     } else {
-        errcode = run_test_program_parent(tp, w, outpipe, errpipe, respipe,
-                                          pid);
+        try {
+            errcode = run_test_program_parent(tp, w, outpipe, errpipe,
+                                              respipe, pid);
+        } catch (const atf::parser::parse_errors& e) {
+            // Parse errors captured here were caused by errors in the
+            // child's header, which were not handled by the function.
+            std::string fmterr = e.what();
+            for (std::string::size_type i = 0; i < fmterr.length(); i++)
+                if (fmterr[i] == '\n' || fmterr[i] == '\r')
+                    fmterr[i] = ' ';
+            w.start_tp(tp.str(), 0);
+            w.end_tp(fmterr);
+            errcode = EXIT_FAILURE;
+        }
     }
 
     return errcode;

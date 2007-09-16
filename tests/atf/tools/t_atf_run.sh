@@ -279,6 +279,27 @@ EOF
     atf_check "grep '^tc-se: msg2 to stderr$' stdout" 0 ignore null
 }
 
+broken_tp_hdr_head()
+{
+    atf_set "descr" "Ensures that atf-run reports test programs that" \
+                    "provide a bogus header as broken programs"
+}
+broken_tp_hdr_body()
+{
+    cat >helper <<EOF
+#! $(atf-config -t atf_shell)
+echo 'foo' 1>&9
+exit 0
+EOF
+    chmod +x helper
+
+    create_atffile
+
+    atf_check "atf-run" 1 stdout null
+    atf_check "grep '^tp-start: helper, 0' stdout" 0 ignore null
+    atf_check "grep '^tp-end: helper,.*token.*expected' stdout" 0 ignore null
+}
+
 zero_tcs_head()
 {
     atf_set "descr" "Ensures that atf-run reports test programs without" \
@@ -387,6 +408,7 @@ atf_init_test_cases()
     atf_add_test_case atffile
     atf_add_test_case atffile_recursive
     atf_add_test_case fds
+    atf_add_test_case broken_tp_hdr
     atf_add_test_case zero_tcs
     atf_add_test_case exit_codes
     atf_add_test_case signaled
