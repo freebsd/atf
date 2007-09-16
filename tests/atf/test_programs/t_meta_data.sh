@@ -135,6 +135,14 @@ isolated_conf_body()
     done
 }
 
+check_emptydir()
+{
+    dir=${1} what=${2}
+    set -- ${dir}/atf.*
+    [ -f ${1} ] && \
+        atf_fail "${what} did not properly remove all temporary files"
+}
+
 isolated_cleanup_head()
 {
     atf_set "descr" "Tests that the directories used to isolate test" \
@@ -151,11 +159,18 @@ isolated_cleanup_body()
 
     for h in ${h_cpp} ${h_sh}; do
         # First try to clean a work directory that, supposedly, does not
-        # have any subdirectories.
+        # have any subdirectories.  Do this for both isolated set to yes
+        # and no, as there used to be a bug that make the latter case
+        # leave a temporary file behind.
+        atf_check "${h} -s ${srcdir} -v isolated=no \
+                   -v pathfile=$(pwd)/path -v workdir=${tmpdir} \
+                   isolated_path" 0 ignore ignore
+        check_emptydir ${tmpdir} isolated=no
         atf_check "${h} -s ${srcdir} -v isolated=yes \
                    -v pathfile=$(pwd)/path -v workdir=${tmpdir} \
                    isolated_path" 0 ignore ignore
         atf_check "test -d $(cat path)" 1 null null
+        check_emptydir ${tmpdir} isolated=yes
 
         # Now do the same but with a work directory that has subdirectories.
         # The program will have to recurse into them to clean them all.

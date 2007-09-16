@@ -420,7 +420,6 @@ bool is_executable(const path&);
 //! any is found, an attempt is made to unmount it.  Later on, the
 //! directory is removed alongside all of its contents.
 //!
-
 void cleanup(const path&);
 
 } // namespace fs

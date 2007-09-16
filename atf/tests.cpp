@@ -471,8 +471,8 @@ impl::tc::fork_body(const std::string& workdir)
         else {
             std::ifstream is(result.c_str());
             if (!is) {
-                tcr = tcr::failed("Could not open results file "
-                                               "for reading");
+                tcr = tcr::failed("Could not open results file for "
+                                  "reading");
             } else {
                 std::string line;
                 std::getline(is, line);
@@ -485,8 +485,8 @@ impl::tc::fork_body(const std::string& workdir)
                     std::getline(is, line);
                     tcr = tcr::skipped(line);
                 } else {
-                    tcr = tcr::failed("Test case failed to "
-                                                   "report its status");
+                    tcr = tcr::failed("Test case failed to report its "
+                                      "status");
                 }
                 is.close();
             }
