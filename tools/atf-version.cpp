@@ -76,9 +76,9 @@ atf_version::main(void)
 
     std::cout << format_text_with_tag(PACKAGE_REVISION_BASE
 #if PACKAGE_REVISION_MODIFIED
-                                      " (locally modified)",
+                                      " (locally modified)"
 #endif
-                                      "Base revision: ", false)
+                                      , "Base revision: ", false)
               << std::endl;
 #if PACKAGE_REVISION_CACHED
     std::cout << format_text("Information gathered from data cached in "
