@@ -401,6 +401,8 @@ impl::tc::fork_body(const std::string& workdir)
     if (pid == -1) {
         tcr = tcr::failed("Coult not fork to run test case");
     } else if (pid == 0) {
+        int errcode;
+
         // Unexpected errors detected in the child process are mentioned
         // in stderr to give the user a chance to see what happened.
         // This is specially useful in those cases where these errors
@@ -443,23 +445,25 @@ impl::tc::fork_body(const std::string& workdir)
                 std::cerr << "Could not open the temporary file " +
                              result.str() + " to leave the results in it"
                           << std::endl;
-                std::exit(EXIT_FAILURE);
+                errcode = EXIT_FAILURE;
+            } else {
+                if (tcre.get_status() == impl::tcr::status_passed)
+                    os << "passed\n";
+                else if (tcre.get_status() == impl::tcr::status_failed)
+                    os << "failed\n" << tcre.get_reason() << '\n';
+                else if (tcre.get_status() == impl::tcr::status_skipped)
+                    os << "skipped\n" << tcre.get_reason() << '\n';
+                os.close();
+                errcode = EXIT_SUCCESS;
             }
-            if (tcre.get_status() == impl::tcr::status_passed)
-                os << "passed\n";
-            else if (tcre.get_status() == impl::tcr::status_failed)
-                os << "failed\n" << tcre.get_reason() << '\n';
-            else if (tcre.get_status() == impl::tcr::status_skipped)
-                os << "skipped\n" << tcre.get_reason() << '\n';
-            os.close();
         } catch (const std::runtime_error& e) {
             std::cerr << "Caught unexpected error: " << e.what() << std::endl;
-            std::exit(EXIT_FAILURE);
+            errcode = EXIT_FAILURE;
         } catch (...) {
             std::cerr << "Caught unexpected error" << std::endl;
-            std::exit(EXIT_FAILURE);
+            errcode = EXIT_FAILURE;
         }
-        std::exit(EXIT_SUCCESS);
+        std::exit(errcode);
     } else {
         int status;
         if (::waitpid(pid, &status, 0) == -1)
