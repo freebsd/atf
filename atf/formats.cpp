@@ -310,11 +310,13 @@ impl::atf_atffile_reader::read(void)
             } else
                 assert(false);
 
-            t = p.expect(nl_type, hash_type, "new line or comment");
+            t = p.expect(nl_type, hash_type, eof_type,
+                         "new line or comment");
             if (t.type() == hash_type) {
                 (void)p.rest_of_line();
                 t = p.next();
-            }
+            } else if (t.type() == eof_type)
+                break;
         } catch (const parse_error& pe) {
             p.add_error(pe);
             p.reset(nl_type);
@@ -357,11 +359,17 @@ impl::atf_config_reader::read(void)
     tokenizer tkz(m_int);
     atf::parser::parser< tokenizer > p(tkz);
 
-    atf::parser::token t = p.next();
-    while (t.type() != eof_type) {
+    for (;;) {
         try {
+            atf::parser::token t = p.expect(eof_type, hash_type, text_type,
+                                            nl_type,
+                                            "eof, #, new line or text");
+            if (t.type() == eof_type)
+                break;
+
             if (t.type() == hash_type) {
                 (void)p.rest_of_line();
+                t = p.expect(nl_type, "new line");
             } else if (t.type() == text_type) {
                 std::string name = t.text();
 
@@ -369,27 +377,20 @@ impl::atf_config_reader::read(void)
 
                 t = p.expect(text_type, "word or quoted string");
                 CALLBACK(p, got_var(name, t.text()));
-            } else if (t.type() == nl_type) {
-                t = p.next();
-                continue;
-            } else {
-                throw parse_error(t.lineno(), "Unexpected token `" +
-                                  t.text() + "'");
-            }
 
-            t = p.expect(nl_type, hash_type, "new line or comment");
-            if (t.type() == hash_type) {
-                (void)p.rest_of_line();
-                t = p.next();
-            }
+                t = p.expect(nl_type, hash_type, "new line or comment");
+                if (t.type() == hash_type) {
+                    (void)p.rest_of_line();
+                    t = p.expect(nl_type, "new line");
+                }
+            } else if (t.type() == nl_type) {
+            } else
+                assert(false);
         } catch (const parse_error& pe) {
             p.add_error(pe);
-            t = p.reset(nl_type);
+            p.reset(nl_type);
         }
-
-        t = p.next();
     }
-    //p.expect(eof, "end of stream");
 
     CALLBACK(p, got_eof());
 }

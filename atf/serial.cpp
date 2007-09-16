@@ -93,8 +93,12 @@ read(impl::internalizer& is, impl::header_entry& he)
 
     impl::attrs_map attrs;
 
-    t = p.expect(semicolon_type, nl_type, "`;' or new line");
-    while (t.type() != nl_type) {
+    for (;;) {
+        t = p.expect(eof_type, semicolon_type, nl_type,
+                     "eof, `;' or new line");
+        if (t.type() == eof_type || t.type() == nl_type)
+            break;
+
         t = p.expect(text_type, "an attribute name");
         std::string attr_name = t.text();
 
@@ -103,11 +107,7 @@ read(impl::internalizer& is, impl::header_entry& he)
         t = p.expect(text_type, "word or quoted string");
         std::string attr_value = t.text();
         attrs[attr_name] = attr_value;
-
-        t = p.expect(semicolon_type, nl_type, "`;' or new line");
     }
-
-    //p.expect(nl_type, "end of header (blank line)");
 
     he = impl::header_entry(hdr_name, hdr_value, attrs);
 
