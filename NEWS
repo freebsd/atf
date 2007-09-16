@@ -17,6 +17,12 @@ Changes:
   and reports them as bogus tests.  atf-report is able to handle these
   new errors and nicely reports them to the user.
 
+* All the data formats read and written by the tools have been documented
+  and cleaned up.  These include those grammars that define how the
+  different components communicate with each other as well as the format
+  of files written by the developers and users: the Atffiles and the
+  configuration files.
+
 
 Version 0.1
 ===========
