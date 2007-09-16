@@ -71,18 +71,15 @@ public:
 };
 
 static
-impl::internalizer&
-read(impl::internalizer& is, impl::header_entry& he)
+atf::parser::parser< header::tokenizer >&
+read(atf::parser::parser< header::tokenizer >& p, impl::header_entry& he)
 {
     using namespace header;
-
-    tokenizer tkz(is);
-    atf::parser::parser< tokenizer > p(tkz);
 
     atf::parser::token t = p.expect(text_type, nl_type, "a header name");
     if (t.type() == nl_type) {
         he = impl::header_entry();
-        return is;
+        return p;
     }
     std::string hdr_name = t.text();
 
@@ -111,7 +108,7 @@ read(impl::internalizer& is, impl::header_entry& he)
 
     he = impl::header_entry(hdr_name, hdr_value, attrs);
 
-    return is;
+    return p;
 }
 
 static
@@ -286,14 +283,25 @@ impl::internalizer::read_headers(void)
     // string = quoted_string
     //
 
-    header_entry he;
-    while (header::read(*this, he).good() && !he.name().empty()) {
-        if (first && he.name() != "Content-Type")
-            throw impl::format_error("Could not determine content type");
-        else
-            first = false;
+    header::tokenizer tkz(*this);
+    atf::parser::parser< header::tokenizer > p(tkz);
 
-        m_headers[he.name()] = he;
+    for (;;) {
+        try {
+            header_entry he;
+            if (!header::read(p, he).good() || he.name().empty())
+                break;
+
+            if (first && he.name() != "Content-Type")
+                throw format_error("Could not determine content type");
+            else
+                first = false;
+
+            m_headers[he.name()] = he;
+        } catch (const atf::parser::parse_error& pe) {
+            p.add_error(pe);
+            p.reset(header::nl_type);
+        }
     }
 
     if (!good())

@@ -309,6 +309,30 @@ atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_config_53.expout \
                    tests/atf/formats/d_config_54 \
                    tests/atf/formats/d_config_54.experr \
+                   tests/atf/formats/d_headers_1 \
+                   tests/atf/formats/d_headers_1.experr \
+                   tests/atf/formats/d_headers_10 \
+                   tests/atf/formats/d_headers_10.experr \
+                   tests/atf/formats/d_headers_11 \
+                   tests/atf/formats/d_headers_11.experr \
+                   tests/atf/formats/d_headers_12 \
+                   tests/atf/formats/d_headers_12.experr \
+                   tests/atf/formats/d_headers_2 \
+                   tests/atf/formats/d_headers_2.experr \
+                   tests/atf/formats/d_headers_3 \
+                   tests/atf/formats/d_headers_3.experr \
+                   tests/atf/formats/d_headers_4 \
+                   tests/atf/formats/d_headers_4.experr \
+                   tests/atf/formats/d_headers_5 \
+                   tests/atf/formats/d_headers_5.experr \
+                   tests/atf/formats/d_headers_6 \
+                   tests/atf/formats/d_headers_6.experr \
+                   tests/atf/formats/d_headers_7 \
+                   tests/atf/formats/d_headers_7.experr \
+                   tests/atf/formats/d_headers_8 \
+                   tests/atf/formats/d_headers_8.experr \
+                   tests/atf/formats/d_headers_9 \
+                   tests/atf/formats/d_headers_9.experr \
                    tests/atf/formats/d_tcs_1 \
                    tests/atf/formats/d_tcs_1.errin \
                    tests/atf/formats/d_tcs_1.expout \

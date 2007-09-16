@@ -34,12 +34,37 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+run_header_tests()
+{
+    sd=$(atf_get_srcdir)
+    for f in d_headers_1 \
+             d_headers_2 \
+             d_headers_3 \
+             d_headers_4 \
+             d_headers_5 \
+             d_headers_6 \
+             d_headers_7 \
+             d_headers_8 \
+             d_headers_9 \
+             d_headers_10 \
+             d_headers_11 \
+             d_headers_12
+    do
+        sed -e "s,@CONTENT_TYPE@,${1},g" \
+            -e "s,@CONTENT_VERSION@,${2},g" \
+            <${sd}/${f} >${f}
+        run_tests ${1} ${f}
+    done
+}
+
 run_tests()
 {
     type=${1}; shift
     sd=$(atf_get_srcdir)
     while [ ${#} -gt 0 ]; do
         rm -f expout experr outin errin
+
+        [ -f ${1} ] || cp ${sd}/${1} ${1}
 
         if [ -f ${sd}/${1}.expout ]; then
             cp ${sd}/${1}.expout expout
@@ -65,8 +90,7 @@ run_tests()
             touch errin
         fi
 
-        atf_check "${sd}/h_parser ${type} ${sd}/${1} outin errin" \
-                  0 expout experr
+        atf_check "${sd}/h_parser ${type} ${1} outin errin" 0 expout experr
 
         shift
     done
@@ -78,6 +102,7 @@ atffile_head()
 }
 atffile_body()
 {
+    run_header_tests application/X-atf-atffile 1
     run_tests application/X-atf-atffile \
         d_atffile_1 \
         d_atffile_2 \
@@ -98,6 +123,7 @@ config_head()
 }
 config_body()
 {
+    run_header_tests application/X-atf-config 1
     run_tests application/X-atf-config \
         d_config_1 \
         d_config_2 \
@@ -116,6 +142,7 @@ tcs_head()
 }
 tcs_body()
 {
+    run_header_tests application/X-atf-tcs 1
     run_tests application/X-atf-tcs \
         d_tcs_1 \
         d_tcs_2 \
@@ -138,6 +165,7 @@ tps_head()
 }
 tps_body()
 {
+    run_header_tests application/X-atf-tps 1
     run_tests application/X-atf-tps \
         d_tps_1 \
         d_tps_2 \

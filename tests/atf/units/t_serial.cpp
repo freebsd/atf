@@ -282,7 +282,7 @@ ATF_TEST_CASE_HEAD(int_errors)
 }
 ATF_TEST_CASE_BODY(int_errors)
 {
-    using atf::parser::parse_error;
+    using atf::parser::parse_errors;
     using atf::serial::format_error;
     using atf::serial::internalizer;
 
@@ -292,7 +292,7 @@ ATF_TEST_CASE_BODY(int_errors)
         str += "Content-Type: text/X-test; version=\"0\"\n";
 
         std::istringstream ss(str);
-        ATF_CHECK_THROW(internalizer(ss, "text/X-test", 0), parse_error);
+        ATF_CHECK_THROW(internalizer(ss, "text/X-test", 0), parse_errors);
     }
 
     // Missing content type.
@@ -322,7 +322,7 @@ ATF_TEST_CASE_BODY(int_errors)
         str += "Foo bar: baz\n\n";
 
         std::istringstream ss(str);
-        ATF_CHECK_THROW(internalizer(ss, "text/X-test", 0), parse_error);
+        ATF_CHECK_THROW(internalizer(ss, "text/X-test", 0), parse_errors);
     }
 
     // Out of order content type.
@@ -363,7 +363,7 @@ ATF_TEST_CASE_BODY(int_errors)
         str += "\n";
 
         std::istringstream ss(str);
-        ATF_CHECK_THROW(internalizer(ss, "text/X-test", 0), parse_error);
+        ATF_CHECK_THROW(internalizer(ss, "text/X-test", 0), parse_errors);
     }
 
     // Missing start quotes.
@@ -373,7 +373,7 @@ ATF_TEST_CASE_BODY(int_errors)
         str += "\n";
 
         std::istringstream ss(str);
-        ATF_CHECK_THROW(internalizer(ss, "text/X-test", 0), parse_error);
+        ATF_CHECK_THROW(internalizer(ss, "text/X-test", 0), parse_errors);
     }
 
     // Missing end quotes.
@@ -383,7 +383,7 @@ ATF_TEST_CASE_BODY(int_errors)
         str += "\n";
 
         std::istringstream ss(str);
-        ATF_CHECK_THROW(internalizer(ss, "text/X-test", 0), parse_error);
+        ATF_CHECK_THROW(internalizer(ss, "text/X-test", 0), parse_errors);
     }
 }
 

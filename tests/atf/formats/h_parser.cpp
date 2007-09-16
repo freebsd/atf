@@ -321,6 +321,8 @@ main(int argc, char* argv[])
         } else {
             std::cerr << "Unknown format " << format << std::endl;
         }
+    } catch (const atf::serial::format_error& e) {
+        std::cerr << "Header format error: " << e.what() << std::endl;
     } catch (const std::runtime_error& e) {
         std::cerr << "UNEXPECTED ERROR: " << e.what() << std::endl;
     } catch (...) {
