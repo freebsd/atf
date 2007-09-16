@@ -390,6 +390,9 @@ impl::tc::fork_body(const std::string& workdir)
 {
     tcr tcr;
 
+    // XXX To handle this correctly, we should have a RAII model to deal
+    // with temporary files.  Otherwise, there are chances that the
+    // explicit file removal at the end of this function is missed.
     fs::path result(".");
     if (get_bool("isolated")) {
         result = fs::path(workdir) / "tc-result";
@@ -492,6 +495,8 @@ impl::tc::fork_body(const std::string& workdir)
             }
         }
     }
+
+    atf::fs::remove(result);
 
     return tcr;
 }

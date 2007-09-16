@@ -614,6 +614,30 @@ ATF_TEST_CASE_BODY(cleanup)
     ATF_CHECK(!exists(p));
 }
 
+// XXX Fix ATF_TEST_CASE to prefix names with some private string and then
+// rename this to remove.
+ATF_TEST_CASE(removefunc);
+ATF_TEST_CASE_HEAD(removefunc)
+{
+    set("descr", "Tests the remove function");
+}
+ATF_TEST_CASE_BODY(removefunc)
+{
+    using atf::fs::exists;
+    using atf::fs::path;
+    using atf::fs::remove;
+
+    create_files();
+
+    ATF_CHECK( exists(path("files/reg")));
+    remove(path("files/reg"));
+    ATF_CHECK(!exists(path("files/reg")));
+
+    ATF_CHECK( exists(path("files/dir")));
+    ATF_CHECK_THROW(remove(path("files/dir")), atf::system_error);
+    ATF_CHECK( exists(path("files/dir")));
+}
+
 // ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
@@ -648,4 +672,5 @@ ATF_INIT_TEST_CASES(tcs)
     tcs.push_back(&change_directory);
     tcs.push_back(&create_temp_dir);
     tcs.push_back(&cleanup);
+    tcs.push_back(&removefunc);
 }
