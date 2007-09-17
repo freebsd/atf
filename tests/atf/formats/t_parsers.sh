@@ -96,6 +96,7 @@ run_tests()
     done
 }
 
+atf_test_case atffile
 atffile_head()
 {
     atf_set "descr" "Verifies the application/X-atf-atffile parser"
@@ -117,6 +118,7 @@ atffile_body()
         d_atffile_54
 }
 
+atf_test_case config
 config_head()
 {
     atf_set "descr" "Verifies the application/X-atf-config parser"
@@ -136,6 +138,7 @@ config_body()
         d_config_54
 }
 
+atf_test_case tcs
 tcs_head()
 {
     atf_set "descr" "Verifies the application/X-atf-tcs parser"
@@ -159,6 +162,7 @@ tcs_body()
         d_tcs_57
 }
 
+atf_test_case tps
 tps_head()
 {
     atf_set "descr" "Verifies the application/X-atf-tps parser"

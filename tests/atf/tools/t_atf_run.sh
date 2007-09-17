@@ -51,6 +51,7 @@ EOF
 create_helper()
 {
     cat >helper.sh <<EOF
+atf_test_case tc
 tc_head()
 {
     atf_set "descr" "A helper test case"
@@ -73,6 +74,7 @@ EOF
     create_atffile
 }
 
+atf_test_case config
 config_head()
 {
     atf_set "descr" "Tests that the config files are read in the correct" \
@@ -147,6 +149,7 @@ EOF
     atf_check "grep '4th: sw common' stdout" 0 ignore ignore
 }
 
+atf_test_case vflag
 vflag_head()
 {
     atf_set "descr" "Tests that the -v flag works and that it properly" \
@@ -188,6 +191,7 @@ EOF
     atf_check "grep 'testvar: a value' stdout" 0 ignore ignore
 }
 
+atf_test_case atffile
 atffile_head()
 {
     atf_set "descr" "Tests that the variables defined by the Atffile" \
@@ -230,6 +234,7 @@ EOF
     atf_check "grep 'testvar: new value' stdout" 0 ignore ignore
 }
 
+atf_test_case atffile_recursive
 atffile_recursive_head()
 {
     atf_set "descr" "Tests that variables defined by an Atffile are not" \
@@ -258,6 +263,7 @@ EOF
     atf_check "grep 'testvar: a value' stdout" 0 ignore ignore
 }
 
+atf_test_case fds
 fds_head()
 {
     atf_set "descr" "Tests that all streams are properly captured"
@@ -279,6 +285,7 @@ EOF
     atf_check "grep '^tc-se: msg2 to stderr$' stdout" 0 ignore null
 }
 
+atf_test_case broken_tp_hdr
 broken_tp_hdr_head()
 {
     atf_set "descr" "Ensures that atf-run reports test programs that" \
@@ -300,6 +307,7 @@ EOF
     atf_check "grep '^tp-end: helper,.*token.*expected' stdout" 0 ignore null
 }
 
+atf_test_case zero_tcs
 zero_tcs_head()
 {
     atf_set "descr" "Ensures that atf-run reports test programs without" \
@@ -323,6 +331,7 @@ EOF
     atf_check "grep '0 test cases' stdout" 0 ignore null
 }
 
+atf_test_case exit_codes
 exit_codes_head()
 {
     atf_set "descr" "Ensures that atf-run reports bogus exit codes for" \
@@ -348,6 +357,7 @@ EOF
     atf_check "grep 'success.*test cases failed' stdout" 0 ignore null
 }
 
+atf_test_case signaled
 signaled_head()
 {
     atf_set "descr" "Ensures that atf-run reports test program's crashes" \
@@ -373,6 +383,7 @@ EOF
     atf_check "grep 'received signal 9' stdout" 0 ignore null
 }
 
+atf_test_case no_reason
 no_reason_head()
 {
     atf_set "descr" "Ensures that atf-run reports bogus test programs " \

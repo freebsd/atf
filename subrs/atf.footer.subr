@@ -69,6 +69,7 @@ Source_Dir=$(pwd)
 Test_Case=
 
 # The list of all test cases provided by the test program.
+# Subset of ${Defined_Test_Cases}.
 Test_Cases=
 
 # The test case's work directory.
@@ -87,6 +88,9 @@ Work_Dir=
 #
 atf_add_test_case()
 {
+    _atf_is_tc_defined "${1}" || \
+        _atf_error 128 "Test case ${1} was not correctly defined by" \
+                       "this test program"
     Test_Cases="${Test_Cases} ${1}"
 }
 
@@ -792,6 +796,20 @@ _atf_syntax_error()
     _atf_echo -r -t "${Prog_Name}: " "Type \`${Prog_Name} -h' for more" \
                                      "details." 1>&2
     exit 1
+}
+
+#
+# _atf_is_tc_defined tc-name
+#
+#   Returns a boolean indicating if the given test case was defined by the
+#   test program or not.
+#
+_atf_is_tc_defined()
+{
+    for _tc in ${Defined_Test_Cases}; do
+        [ ${_tc} = ${1} ] && return 0
+    done
+    return 1
 }
 
 #

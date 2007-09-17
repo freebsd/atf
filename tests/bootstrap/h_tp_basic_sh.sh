@@ -34,42 +34,42 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+atf_test_case tc_pass
 tc_pass_head()
 {
     atf_set "descr" "An empty test case that always passes"
 }
-
 tc_pass_body()
 {
     atf_pass
 }
 
+atf_test_case tc_fail
 tc_fail_head()
 {
     atf_set "descr" "An empty test case that always fails"
 }
-
 tc_fail_body()
 {
     atf_fail "On purpose"
 }
 
+atf_test_case tc_skip
 tc_skip_head()
 {
     atf_set "descr" "An empty test case that is always skipped"
 }
-
 tc_skip_body()
 {
     atf_skip "By design"
 }
 
+atf_test_case tc_default
 tc_default_head()
 {
     atf_set "descr" "A test case that passes without explicitly" \
                     "stating it"
 }
-
 tc_default_body()
 {
     :

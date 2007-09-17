@@ -34,6 +34,7 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+atf_test_case def_undef
 def_undef_head()
 {
     atf_set "descr" "Tests that the test case sets and unsets a set of" \
@@ -68,6 +69,7 @@ def_undef_body()
     done
 }
 
+atf_test_case home
 home_head()
 {
     atf_set "descr" "Tests that HOME has a sane and valid value"

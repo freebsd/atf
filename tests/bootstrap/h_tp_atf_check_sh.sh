@@ -34,6 +34,7 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+atf_test_case tc_exitcode_0_0
 tc_exitcode_0_0_head()
 {
     atf_set "descr" "Runs a program that returns true and expects true"
@@ -43,6 +44,7 @@ tc_exitcode_0_0_body()
     atf_check 'true' 0 null null
 }
 
+atf_test_case tc_exitcode_0_1
 tc_exitcode_0_1_head()
 {
     atf_set "descr" "Runs a program that returns true and expects false"
@@ -52,6 +54,7 @@ tc_exitcode_0_1_body()
     atf_check 'true' 1 null null
 }
 
+atf_test_case tc_exitcode_1_0
 tc_exitcode_1_0_head()
 {
     atf_set "descr" "Runs a program that returns false and expects true"
@@ -61,6 +64,7 @@ tc_exitcode_1_0_body()
     atf_check 'false' 0 null null
 }
 
+atf_test_case tc_exitcode_1_1
 tc_exitcode_1_1_head()
 {
     atf_set "descr" "Runs a program that returns false and expects false"
@@ -70,6 +74,7 @@ tc_exitcode_1_1_body()
     atf_check 'false' 1 null null
 }
 
+atf_test_case tc_stdout_expout_pass
 tc_stdout_expout_pass_head()
 {
     atf_set "descr" "Runs a program with stdout set to expout and passes"
@@ -80,6 +85,7 @@ tc_stdout_expout_pass_body()
     atf_check 'echo foo' 0 expout null
 }
 
+atf_test_case tc_stdout_expout_fail
 tc_stdout_expout_fail_head()
 {
     atf_set "descr" "Runs a program with stdout set to expout and fails"
@@ -90,6 +96,7 @@ tc_stdout_expout_fail_body()
     atf_check 'echo bar' 0 expout null
 }
 
+atf_test_case tc_stdout_ignore_empty
 tc_stdout_ignore_empty_head()
 {
     atf_set "descr" "Runs a program with stdout set to ignore and" \
@@ -100,6 +107,7 @@ tc_stdout_ignore_empty_body()
     atf_check 'true' 0 ignore null
 }
 
+atf_test_case tc_stdout_ignore_sth
 tc_stdout_ignore_sth_head()
 {
     atf_set "descr" "Runs a program with stdout set to ignore and" \
@@ -110,6 +118,7 @@ tc_stdout_ignore_sth_body()
     atf_check 'echo foo' 0 ignore null
 }
 
+atf_test_case tc_stdout_null_empty
 tc_stdout_null_empty_head()
 {
     atf_set "descr" "Runs a program with stdout set to null and" \
@@ -120,6 +129,7 @@ tc_stdout_null_empty_body()
     atf_check 'true' 0 null null
 }
 
+atf_test_case tc_stdout_null_sth
 tc_stdout_null_sth_head()
 {
     atf_set "descr" "Runs a program with stdout set to null and" \
@@ -130,6 +140,7 @@ tc_stdout_null_sth_body()
     atf_check 'echo foo' 0 null null
 }
 
+atf_test_case tc_stdout_stdout_written
 tc_stdout_stdout_written_head()
 {
     atf_set "descr" "Runs a program with stdout set to stdout and" \
@@ -142,6 +153,7 @@ tc_stdout_stdout_written_body()
     cmp -s stdout aux || atf_fail "Test failed"
 }
 
+atf_test_case tc_stdout_stdout_noclobber
 tc_stdout_stdout_noclobber_head()
 {
     atf_set "descr" "Runs a program multiple times with different stdout" \
@@ -166,6 +178,7 @@ tc_stdout_stdout_noclobber_body()
     atf_check "cat stdout" 0 expout null
 }
 
+atf_test_case tc_stderr_experr_pass
 tc_stderr_experr_pass_head()
 {
     atf_set "descr" "Runs a program with stderr set to experr and passes"
@@ -176,6 +189,7 @@ tc_stderr_experr_pass_body()
     atf_check 'echo foo 1>&2' 0 null experr
 }
 
+atf_test_case tc_stderr_experr_fail
 tc_stderr_experr_fail_head()
 {
     atf_set "descr" "Runs a program with stderr set to experr and fails"
@@ -186,6 +200,7 @@ tc_stderr_experr_fail_body()
     atf_check 'echo bar 1>&2' 0 null experr
 }
 
+atf_test_case tc_stderr_ignore_empty
 tc_stderr_ignore_empty_head()
 {
     atf_set "descr" "Runs a program with stderr set to ignore and" \
@@ -196,6 +211,7 @@ tc_stderr_ignore_empty_body()
     atf_check 'true 1>&2' 0 null ignore
 }
 
+atf_test_case tc_stderr_ignore_sth
 tc_stderr_ignore_sth_head()
 {
     atf_set "descr" "Runs a program with stderr set to ignore and" \
@@ -206,6 +222,7 @@ tc_stderr_ignore_sth_body()
     atf_check 'echo foo 1>&2' 0 null ignore
 }
 
+atf_test_case tc_stderr_null_empty
 tc_stderr_null_empty_head()
 {
     atf_set "descr" "Runs a program with stderr set to null and" \
@@ -216,6 +233,7 @@ tc_stderr_null_empty_body()
     atf_check 'true 1>&2' 0 null null
 }
 
+atf_test_case tc_stderr_null_sth
 tc_stderr_null_sth_head()
 {
     atf_set "descr" "Runs a program with stderr set to null and" \
@@ -226,6 +244,7 @@ tc_stderr_null_sth_body()
     atf_check 'echo foo 1>&2' 0 null null
 }
 
+atf_test_case tc_stderr_stderr_written
 tc_stderr_stderr_written_head()
 {
     atf_set "descr" "Runs a program with stderr set to stderr and" \
@@ -238,6 +257,7 @@ tc_stderr_stderr_written_body()
     cmp -s stderr aux || atf_fail "Test failed"
 }
 
+atf_test_case tc_stderr_stderr_noclobber
 tc_stderr_stderr_noclobber_head()
 {
     atf_set "descr" "Runs a program multiple times with different stderr" \

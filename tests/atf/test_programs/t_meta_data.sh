@@ -38,6 +38,7 @@
 # Tests for the "ident" meta-data property.
 # -------------------------------------------------------------------------
 
+atf_test_case ident
 ident_head()
 {
     atf_set "descr" "Tests that the ident property works"
@@ -60,6 +61,7 @@ ident_body()
 # Tests for the "isolated" meta-data property.
 # -------------------------------------------------------------------------
 
+atf_test_case isolated_default
 isolated_default_head()
 {
     atf_set "descr" "Tests that the 'isolated' test property works" \
@@ -83,6 +85,7 @@ isolated_default_body()
     done
 }
 
+atf_test_case isolated_tmpdir
 isolated_tmpdir_head()
 {
     atf_set "descr" "Tests that the 'isolated' test property works" \
@@ -108,6 +111,7 @@ isolated_tmpdir_body()
     done
 }
 
+atf_test_case isolated_conf
 isolated_conf_head()
 {
     atf_set "descr" "Tests that the 'isolated' test property works" \
@@ -143,6 +147,7 @@ check_emptydir()
         atf_fail "${what} did not properly remove all temporary files"
 }
 
+atf_test_case isolated_cleanup
 isolated_cleanup_head()
 {
     atf_set "descr" "Tests that the directories used to isolate test" \
@@ -184,6 +189,7 @@ isolated_cleanup_body()
 # Tests for the "require_config" meta-data property.
 # -------------------------------------------------------------------------
 
+atf_test_case require_config
 require_config_head()
 {
     atf_set "descr" "Tests that the require.config property works"
@@ -248,6 +254,7 @@ common_tests() {
 }
 
 # XXX This does not belong here.  This is a unit test.
+atf_test_case require_progs_func
 require_progs_func_head()
 {
     atf_set "descr" "Tests that atf_require_prog works"
@@ -257,6 +264,7 @@ require_progs_func_body()
     common_tests body
 }
 
+atf_test_case require_progs_header
 require_progs_header_head()
 {
     atf_set "descr" "Tests that require.progs works"
@@ -314,6 +322,7 @@ count_lines()
     wc -l $1 | awk '{ print $1 }'
 }
 
+atf_test_case require_user_root
 require_user_root_head()
 {
     atf_set "descr" "Tests that 'require.user=root' works"
@@ -335,6 +344,7 @@ require_user_root_body()
     done
 }
 
+atf_test_case require_user_unprivileged
 require_user_unprivileged_head()
 {
     atf_set "descr" "Tests that 'require.user=unprivileged' works"
@@ -356,6 +366,7 @@ require_user_unprivileged_body()
     done
 }
 
+atf_test_case require_user_multiple
 require_user_multiple_head()
 {
     atf_set "descr" "Tests that multiple skip results raised by the" \
