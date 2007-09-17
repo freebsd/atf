@@ -19,10 +19,6 @@ Plans for 0.2
 * Add detection of signals in test cases and run the clean up routines
   afterwards.
 
-* Make atf-report summarize bogus test programs; otherwise this information
-  can get lost in long outputs as it is not accounted as part of test case
-  failures.
-
 
 Plans for 0.3
 =============

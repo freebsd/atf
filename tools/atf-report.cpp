@@ -174,7 +174,8 @@ class ticker_writer : public writer {
     size_t m_curtp, m_ntps;
     size_t m_tcs_passed, m_tcs_failed, m_tcs_skipped;
     std::string m_tcname, m_tpname;
-    std::vector< std::string > m_failed;
+    std::vector< std::string > m_failed_tcs;
+    std::vector< std::string > m_failed_tps;
 
     void
     write_ntps(size_t ntps)
@@ -208,12 +209,14 @@ class ticker_writer : public writer {
 
         m_curtp++;
 
-        if (!reason.empty())
+        if (!reason.empty()) {
             (*m_os) << format_text_with_tag("BOGUS TEST PROGRAM: Cannot "
                                             "trust its results because "
                                             "of `" + reason + "'",
                                             m_tpname + ": ", false)
                     << std::endl;
+            m_failed_tps.push_back(m_tpname);
+        }
         (*m_os) << std::endl;
         (*m_os).flush();
 
@@ -241,7 +244,7 @@ class ticker_writer : public writer {
         } else if (s == atf::tests::tcr::status_failed) {
             str = "Failed: " + tcr.get_reason();
             m_tcs_failed++;
-            m_failed.push_back(m_tpname + ":" + m_tcname);
+            m_failed_tcs.push_back(m_tpname + ":" + m_tcname);
         } else if (s == atf::tests::tcr::status_skipped) {
             str = "Skipped: " + tcr.get_reason();
             m_tcs_skipped++;
@@ -264,9 +267,17 @@ class ticker_writer : public writer {
         using atf::ui::format_text;
         using atf::ui::format_text_with_tag;
 
-        if (!m_failed.empty()) {
+        if (!m_failed_tps.empty()) {
+            (*m_os) << format_text("Failed (bogus) test programs:")
+                    << std::endl;
+            (*m_os) << format_text_with_tag(join(m_failed_tps, ", "),
+                                            "    ", false) << std::endl
+                    << std::endl;
+        }
+
+        if (!m_failed_tcs.empty()) {
             (*m_os) << format_text("Failed test cases:") << std::endl;
-            (*m_os) << format_text_with_tag(join(m_failed, ", "),
+            (*m_os) << format_text_with_tag(join(m_failed_tcs, ", "),
                                             "    ", false) << std::endl
                     << std::endl;
         }

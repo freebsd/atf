@@ -29,6 +29,9 @@ Changes:
 * Test cases can now define an optional cleanup routine to undo their
   actions regardless of their exit status.
 
+* atf-report now summarizes the list of failed (bogus) test programs when
+  using the ticker output format.
+
 
 Version 0.1
 ===========
