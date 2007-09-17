@@ -26,6 +26,9 @@ Changes:
 * Added the atf-version tool, a utility that displays information about the
   currently installed version of ATF.
 
+* Test cases can now define an optional cleanup routine to undo their
+  actions regardless of their exit status.
+
 
 Version 0.1
 ===========

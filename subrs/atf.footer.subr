@@ -84,7 +84,8 @@ Work_Dir=
 #
 #   Adds the given test case to the list of test cases that form the test
 #   program.  The name provided here must be accompanied by two functions
-#   named after it: <tc-name>_head and <tc-name>_body.
+#   named after it: <tc-name>_head and <tc-name>_body, and optionally by
+#   a <tc-name>_cleanup function.
 #
 atf_add_test_case()
 {
@@ -725,6 +726,7 @@ _atf_run_tc()
         if [ ${?} -eq 0 ]; then
             ( cd ${Work_Dir} ; _atf_run_body ${1} ; atf_pass )
             _ret=$?
+            ${1}_cleanup
             if [ ${2} -gt 1 ]; then
                 echo __atf_tc_separator__
                 echo __atf_tc_separator__ 1>&2
@@ -738,6 +740,7 @@ _atf_run_tc()
     else
         ( _atf_run_body ${1} ; atf_pass )
         _ret=${?}
+        ${1}_cleanup
         if [ ${2} -gt 1 ]; then
             echo __atf_tc_separator__
             echo __atf_tc_separator__ 1>&2

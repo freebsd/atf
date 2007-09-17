@@ -115,6 +115,7 @@ class tc {
 protected:
     virtual void head(void) = 0;
     virtual void body(void) const = 0;
+    virtual void cleanup(void) const;
 
     void require_prog(const std::string&) const;
 

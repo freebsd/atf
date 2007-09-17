@@ -64,12 +64,63 @@ safe_mkdir(const char* path)
 
 static
 void
-touch(const char* path)
+touch(const std::string& path)
 {
-    std::ofstream os(path);
+    std::ofstream os(path.c_str());
     if (!os)
-        ATF_FAIL(std::string("Could not create file ") + path);
+        ATF_FAIL("Could not create file " + path);
     os.close();
+}
+
+// ------------------------------------------------------------------------
+// Helper tests for "t_cleanup".
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_pass);
+ATF_TEST_CASE_HEAD(cleanup_pass)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_pass)
+{
+    touch(config().get("tmpfile"));
+}
+ATF_TEST_CASE_CLEANUP(cleanup_pass)
+{
+    if (config().get_bool("cleanup"))
+        atf::fs::remove(atf::fs::path(config().get("tmpfile")));
+}
+
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_fail);
+ATF_TEST_CASE_HEAD(cleanup_fail)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_fail)
+{
+    touch(config().get("tmpfile"));
+    ATF_FAIL("On purpose");
+}
+ATF_TEST_CASE_CLEANUP(cleanup_fail)
+{
+    if (config().get_bool("cleanup"))
+        atf::fs::remove(atf::fs::path(config().get("tmpfile")));
+}
+
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_skip);
+ATF_TEST_CASE_HEAD(cleanup_skip)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_skip)
+{
+    touch(config().get("tmpfile"));
+    ATF_SKIP("On purpose");
+}
+ATF_TEST_CASE_CLEANUP(cleanup_skip)
+{
+    if (config().get_bool("cleanup"))
+        atf::fs::remove(atf::fs::path(config().get("tmpfile")));
 }
 
 // ------------------------------------------------------------------------
@@ -357,6 +408,11 @@ ATF_TEST_CASE_BODY(srcdir_exists)
 
 ATF_INIT_TEST_CASES(tcs)
 {
+    // Add helper tests for t_cleanup.
+    tcs.push_back(&cleanup_pass);
+    tcs.push_back(&cleanup_fail);
+    tcs.push_back(&cleanup_skip);
+
     // Add helper tests for t_config.
     tcs.push_back(&config_unset);
     tcs.push_back(&config_empty);

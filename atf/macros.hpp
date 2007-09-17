@@ -52,6 +52,16 @@
     }; \
     static name name;
 
+#define ATF_TEST_CASE_WITH_CLEANUP(name) \
+    class name : public atf::tests::tc { \
+        void head(void); \
+        void body(void) const; \
+        void cleanup(void) const; \
+    public: \
+        name(void) : atf::tests::tc(#name) {} \
+    }; \
+    static name name;
+
 #define ATF_TEST_CASE_HEAD(name) \
     void \
     name::head(void)
@@ -59,6 +69,11 @@
 #define ATF_TEST_CASE_BODY(name) \
     void \
     name::body(void) \
+        const
+
+#define ATF_TEST_CASE_CLEANUP(name) \
+    void \
+    name::cleanup(void) \
         const
 
 #define ATF_FAIL(reason) \

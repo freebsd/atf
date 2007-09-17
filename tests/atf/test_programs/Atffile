@@ -7,3 +7,4 @@ tp: t_meta_data
 tp: t_env
 tp: t_fork
 tp: t_srcdir
+tp: t_cleanup

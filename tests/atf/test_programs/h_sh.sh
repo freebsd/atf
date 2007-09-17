@@ -35,6 +35,60 @@
 #
 
 # -------------------------------------------------------------------------
+# Helper tests for "t_cleanup".
+# -------------------------------------------------------------------------
+
+atf_test_case cleanup_pass
+cleanup_pass_head()
+{
+    atf_set "descr" "Helper test case for the t_cleanup test program"
+}
+cleanup_pass_body()
+{
+    touch $(atf_config_get tmpfile)
+}
+cleanup_pass_cleanup()
+{
+    if [ $(atf_config_get cleanup no) = yes ]; then
+        rm $(atf_config_get tmpfile)
+    fi
+}
+
+atf_test_case cleanup_fail
+cleanup_fail_head()
+{
+    atf_set "descr" "Helper test case for the t_cleanup test program"
+}
+cleanup_fail_body()
+{
+    touch $(atf_config_get tmpfile)
+    atf_fail "On purpose"
+}
+cleanup_fail_cleanup()
+{
+    if [ $(atf_config_get cleanup no) = yes ]; then
+        rm $(atf_config_get tmpfile)
+    fi
+}
+
+atf_test_case cleanup_skip
+cleanup_skip_head()
+{
+    atf_set "descr" "Helper test case for the t_cleanup test program"
+}
+cleanup_skip_body()
+{
+    touch $(atf_config_get tmpfile)
+    atf_skip "On purpose"
+}
+cleanup_skip_cleanup()
+{
+    if [ $(atf_config_get cleanup no) = yes ]; then
+        rm $(atf_config_get tmpfile)
+    fi
+}
+
+# -------------------------------------------------------------------------
 # Helper tests for "t_config".
 # -------------------------------------------------------------------------
 
@@ -280,6 +334,11 @@ require_user_unprivileged2_body()
 
 atf_init_test_cases()
 {
+    # Add helper tests for t_cleanup.
+    atf_add_test_case cleanup_pass
+    atf_add_test_case cleanup_fail
+    atf_add_test_case cleanup_skip
+
     # Add helper tests for t_config.
     atf_add_test_case config_unset
     atf_add_test_case config_empty

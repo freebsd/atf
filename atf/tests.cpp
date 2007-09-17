@@ -374,6 +374,7 @@ impl::tc::safe_run(void)
         try {
             enter_workdir(this, olddir, workdir, m_config.get("workdir"));
             tcr = fork_body(workdir.str());
+            cleanup();
             leave_workdir(this, olddir, workdir);
         } catch (...) {
             leave_workdir(this, olddir, workdir);
@@ -519,6 +520,12 @@ impl::tc::run(void)
     }
 
     return tcr;
+}
+
+void
+impl::tc::cleanup(void)
+    const
+{
 }
 
 void

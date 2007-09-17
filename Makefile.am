@@ -478,6 +478,15 @@ tests/atf/test_programs/h_sh: \
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/h_sh.sh
 
+atf_test_programs_SCRIPTS += tests/atf/test_programs/t_cleanup
+CLEANFILES += tests/atf/test_programs/t_cleanup
+EXTRA_DIST += tests/atf/test_programs/t_cleanup.sh
+tests/atf/test_programs/t_cleanup: \
+		$(srcdir)/tests/atf/test_programs/t_cleanup.sh \
+		$(ATF_COMPILE_DEPS)
+	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_cleanup.sh
+
 atf_test_programs_SCRIPTS += tests/atf/test_programs/t_config
 CLEANFILES += tests/atf/test_programs/t_config
 EXTRA_DIST += tests/atf/test_programs/t_config.sh
