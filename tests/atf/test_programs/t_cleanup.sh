@@ -52,12 +52,12 @@ run_tests()
     atf_check "test -f tmpfile" 1 null null
 }
 
-atf_test_case main
-main_head()
+atf_test_case hook
+hook_head()
 {
     atf_set "descr" "Tests that the cleanup hook works"
 }
-main_body()
+hook_body()
 {
     srcdir=$(atf_get_srcdir)
     h_cpp=${srcdir}/h_cpp
@@ -70,9 +70,31 @@ main_body()
     done
 }
 
+atf_test_case on_signal
+on_signal_head()
+{
+    atf_set "descr" "Tests that the cleanup routines are executed when" \
+                    "test cases receive a signal during execution"
+}
+on_signal_body()
+{
+    srcdir=$(atf_get_srcdir)
+    h_cpp=${srcdir}/h_cpp
+    h_sh= # ${srcdir}/h_sh XXX The test is broken; disabled for now.
+
+    for h in ${h_cpp} ${h_sh}; do
+        ${h} -s ${srcdir} -r3 -v "tmpfile=$(pwd)/tmpfile" \
+            cleanup_sigterm 3>resout
+        atf_check "grep 'cleanup_sigterm, failed' resout" 0 ignore null
+        atf_check "test -f tmpfile" 1 null null
+        atf_check "test -f tmpfile.no" 1 null null
+    done
+}
+
 atf_init_test_cases()
 {
-    atf_add_test_case main
+    atf_add_test_case hook
+    atf_add_test_case on_signal
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

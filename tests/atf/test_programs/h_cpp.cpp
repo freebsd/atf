@@ -38,6 +38,8 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <signal.h>
+#include <unistd.h>
 }
 
 #include <cstdlib>
@@ -121,6 +123,22 @@ ATF_TEST_CASE_CLEANUP(cleanup_skip)
 {
     if (config().get_bool("cleanup"))
         atf::fs::remove(atf::fs::path(config().get("tmpfile")));
+}
+
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_sigterm);
+ATF_TEST_CASE_HEAD(cleanup_sigterm)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_sigterm)
+{
+    touch(config().get("tmpfile"));
+    ::kill(::getpid(), SIGTERM);
+    touch(config().get("tmpfile") + ".no");
+}
+ATF_TEST_CASE_CLEANUP(cleanup_sigterm)
+{
+    atf::fs::remove(atf::fs::path(config().get("tmpfile")));
 }
 
 // ------------------------------------------------------------------------
@@ -412,6 +430,7 @@ ATF_INIT_TEST_CASES(tcs)
     tcs.push_back(&cleanup_pass);
     tcs.push_back(&cleanup_fail);
     tcs.push_back(&cleanup_skip);
+    tcs.push_back(&cleanup_sigterm);
 
     // Add helper tests for t_config.
     tcs.push_back(&config_unset);

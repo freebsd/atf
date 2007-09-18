@@ -38,12 +38,15 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <signal.h>
 #include <unistd.h>
 }
 
 #include <algorithm>
 #include <cassert>
+#include <cerrno>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -68,6 +71,96 @@ extern "C" {
 
 namespace impl = atf::tests;
 #define IMPL_NAME "atf::tests"
+
+//
+// Define LAST_SIGNAL to the last signal number valid for the system.
+// This is tricky.  For example, NetBSD defines SIGPWR as the last valid
+// number, whereas Mac OS X defines it as SIGTHR.  Both share the same
+// signal number (32).  If none of these are available, we assume that
+// the highest signal is SIGUSR2.
+//
+#if defined(SIGTHR) && defined(SIGPWR)
+#   if SIGTHR > SIGPWR
+#       define LAST_SIGNAL SIGTHR
+#   elif SIGPWR < SIGTHR
+#       define LAST_SIGNAL SIGPWR
+#   else
+#       define LAST_SIGNAL SIGPWR
+#   endif
+#elif defined(SIGTHR)
+#   define LAST_SIGNAL SIGTHR
+#elif defined(SIGPWR)
+#   define LAST_SIGNAL SIGPWR
+#else
+#   define LAST_SIGNAL SIGUSR2
+#endif
+
+// ------------------------------------------------------------------------
+// The auxiliary "signal_holder" class.
+// ------------------------------------------------------------------------
+
+//
+// A RAII model to hold a signal while the object is alive.
+//
+class signal_holder {
+    int m_signal;
+    bool m_happened;
+    struct sigaction m_saold;
+
+    static std::map< int, signal_holder* > m_holders;
+    static void handler(int s)
+    {
+        m_holders[s]->m_happened = true;
+    }
+
+    void program(void)
+    {
+        const struct sigaction sanew = { { handler }, 0, 0 };
+        if (::sigaction(m_signal, &sanew, &m_saold) == -1)
+            throw atf::system_error("signal_holder::signal_holder",
+                                    "sigaction(2) failed", errno);
+    }
+
+public:
+    signal_holder(int s) :
+        m_signal(s),
+        m_happened(false)
+    {
+        program();
+        assert(m_holders.find(m_signal) == m_holders.end());
+        m_holders[m_signal] = this;
+    }
+
+    ~signal_holder(void)
+    {
+        int res = ::sigaction(m_signal, &m_saold, NULL);
+        try {
+            process();
+
+            if (res == -1)
+                throw atf::system_error("signal_holder::signal_holder",
+                                        "sigaction(2) failed", errno);
+        } catch (...) {
+            if (res == -1)
+                throw atf::system_error("signal_holder::signal_holder",
+                                        "sigaction(2) failed", errno);
+        }
+    }
+
+    void process(void)
+    {
+        if (m_happened) {
+            int res = ::sigaction(m_signal, &m_saold, NULL);
+            ::kill(0, m_signal);
+            if (res == -1)
+                throw atf::system_error("signal_holder::signal_holder",
+                                        "sigaction(2) failed", errno);
+            program();
+        }
+    }
+};
+
+std::map< int, signal_holder* > signal_holder::m_holders;
 
 // ------------------------------------------------------------------------
 // The "vars_map" class.
@@ -407,6 +500,10 @@ impl::tc::fork_body(const std::string& workdir)
     } else if (pid == 0) {
         int errcode;
 
+        static const struct sigaction sadfl = { { SIG_DFL }, 0, 0 };
+        for (int i = 0; i < LAST_SIGNAL; i++)
+            ::sigaction(i, &sadfl, NULL);
+
         // Unexpected errors detected in the child process are mentioned
         // in stderr to give the user a chance to see what happened.
         // This is specially useful in those cases where these errors
@@ -470,34 +567,51 @@ impl::tc::fork_body(const std::string& workdir)
         std::exit(errcode);
     } else {
         int status;
-        if (::waitpid(pid, &status, 0) == -1)
-            tcr = tcr::failed("waitpid failed");
-        else {
-            std::ifstream is(result.c_str());
-            if (!is) {
-                tcr = tcr::failed("Could not open results file for "
-                                  "reading");
-            } else {
-                std::string line;
-                std::getline(is, line);
-                if (line == "passed") {
-                    tcr = tcr::passed();
-                } else if (line == "failed") {
-                    std::getline(is, line);
-                    tcr = tcr::failed(line);
-                } else if (line == "skipped") {
-                    std::getline(is, line);
-                    tcr = tcr::skipped(line);
-                } else {
-                    tcr = tcr::failed("Test case failed to report its "
-                                      "status");
-                }
-                is.close();
-            }
+        if (::waitpid(pid, &status, 0) == -1) {
+            tcr = tcr::failed("Error while waiting for process " +
+                              atf::text::to_string(pid) + ": " +
+                              ::strerror(errno));
+        } else {
+            if (WIFEXITED(status)) {
+                if (WEXITSTATUS(status) == EXIT_SUCCESS) {
+                    std::ifstream is(result.c_str());
+                    if (!is) {
+                        tcr = tcr::failed("Could not open results file for "
+                                          "reading");
+                    } else {
+                        std::string line;
+                        std::getline(is, line);
+                        if (line == "passed") {
+                            tcr = tcr::passed();
+                        } else if (line == "failed") {
+                            std::getline(is, line);
+                            tcr = tcr::failed(line);
+                        } else if (line == "skipped") {
+                            std::getline(is, line);
+                            tcr = tcr::skipped(line);
+                        } else {
+                            tcr = tcr::failed("Test case failed to report its "
+                                              "status");
+                        }
+                        is.close();
+                    }
+                } else
+                    tcr = tcr::failed("Test case returned non-OK status; "
+                                      "see its stderr output for more "
+                                      "details");
+            } else if (WIFSIGNALED(status)) {
+                tcr = tcr::failed("Test case received signal " +
+                                  atf::text::to_string(WTERMSIG(status)));
+            } else if (WIFSTOPPED(status)) {
+                tcr = tcr::failed("Test case received stop signal " +
+                                  atf::text::to_string(WSTOPSIG(status)));
+            } else
+                assert(false);
         }
     }
 
-    atf::fs::remove(result);
+    if (atf::fs::exists(result))
+        atf::fs::remove(result);
 
     return tcr;
 }
@@ -805,6 +919,10 @@ tp::run_tcs(void)
 
     int errcode = EXIT_SUCCESS;
 
+    signal_holder sighup(SIGHUP);
+    signal_holder sigint(SIGINT);
+    signal_holder sigterm(SIGTERM);
+
     atf::formats::atf_tcs_writer w(results_stream(), tcs.size());
     for (tc_vector::iterator iter = tcs.begin();
          iter != tcs.end(); iter++) {
@@ -813,6 +931,10 @@ tp::run_tcs(void)
         w.start_tc(tc->get("ident"));
         impl::tcr tcr = tc->run();
         w.end_tc(tcr);
+
+        sighup.process();
+        sigint.process();
+        sigterm.process();
 
         if (tcr.get_status() == impl::tcr::status_failed)
             errcode = EXIT_FAILURE;

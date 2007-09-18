@@ -32,6 +32,9 @@ Changes:
 * atf-report now summarizes the list of failed (bogus) test programs when
   using the ticker output format.
 
+* Test programs now capture some termination signals and clean up any
+  temporary files before exiting the program.
+
 
 Version 0.1
 ===========

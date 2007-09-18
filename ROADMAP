@@ -13,13 +13,6 @@ of salt: the focus of a specific release may change completely depending
 on how things develop.
 
 
-Plans for 0.2
-=============
-
-* Add detection of signals in test cases and run the clean up routines
-  afterwards.
-
-
 Plans for 0.3
 =============
 
