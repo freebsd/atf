@@ -105,7 +105,7 @@ namespace impl = atf::tests;
 class signal_holder {
     int m_signal;
     bool m_happened;
-    struct sigaction m_saold;
+    struct sigaction m_sanew, m_saold;
 
     static std::map< int, signal_holder* > m_holders;
     static void handler(int s)
@@ -115,8 +115,7 @@ class signal_holder {
 
     void program(void)
     {
-        const struct sigaction sanew = { { handler }, 0, 0 };
-        if (::sigaction(m_signal, &sanew, &m_saold) == -1)
+        if (::sigaction(m_signal, &m_sanew, &m_saold) == -1)
             throw atf::system_error("signal_holder::signal_holder",
                                     "sigaction(2) failed", errno);
     }
@@ -126,6 +125,10 @@ public:
         m_signal(s),
         m_happened(false)
     {
+        m_sanew.sa_handler = handler;
+        sigemptyset(&m_sanew.sa_mask);
+        m_sanew.sa_flags = 0;
+
         program();
         assert(m_holders.find(m_signal) == m_holders.end());
         m_holders[m_signal] = this;
@@ -500,7 +503,10 @@ impl::tc::fork_body(const std::string& workdir)
     } else if (pid == 0) {
         int errcode;
 
-        static const struct sigaction sadfl = { { SIG_DFL }, 0, 0 };
+        struct sigaction sadfl;
+        sadfl.sa_handler = SIG_DFL;
+        sigemptyset(&sadfl.sa_mask);
+        sadfl.sa_flags = 0;
         for (int i = 0; i < LAST_SIGNAL; i++)
             ::sigaction(i, &sadfl, NULL);
 
