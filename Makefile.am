@@ -722,13 +722,12 @@ tools_atf_run_LDFLAGS = -L.
 dist_man_MANS += tools/atf-run.1
 
 bin_PROGRAMS += tools/atf-version
-tools_atf_version_SOURCES = tools/atf-version.cpp
+tools_atf_version_SOURCES = tools/atf-version.cpp revision.h
 tools_atf_version_LDADD = -latf
 tools_atf_version_LDFLAGS = -L.
 dist_man_MANS += tools/atf-version.1
 
-$(srcdir)/tools/atf-version.cpp: revision.h
-
+BUILT_SOURCES = revision.h
 revision.h: admin/revision.h admin/revision-dist.h
 	@if [ -f admin/revision.h ]; then \
 	    cmp -s admin/revision.h revision.h || \
