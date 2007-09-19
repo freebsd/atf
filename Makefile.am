@@ -65,14 +65,17 @@ check-readme:
 check-style:
 	$(srcdir)/admin/check-style.sh
 
-EXTRA_DIST += admin/check-style-common.awk \
+EXTRA_DIST += admin/check-readme.sh \
+              admin/check-style-common.awk \
               admin/check-style-cpp.awk \
+              admin/check-style-man.awk \
               admin/check-style-shell.awk \
               admin/check-style.sh
 
 .PHONY: admin/revision.h
 admin/revision.h:
 	@if [ -n "$(MTN)" -a -d $(top_srcdir)/_MTN ]; then \
+	    test -d admin || mkdir -p admin; \
 	    MTN="$(MTN)" ROOT="$(top_srcdir)" \
 	        $(top_srcdir)/admin/generate-revision.sh >admin/revision.h; \
 	else \
@@ -80,13 +83,13 @@ admin/revision.h:
 	fi
 CLEANFILES = admin/revision.h
 
-admin/revision-dist.h: admin/revision.h
+$(srcdir)/admin/revision-dist.h: admin/revision.h
 	@if [ -f admin/revision.h ]; then \
-	    cp admin/revision.h admin/revision-dist.h; \
+	    cp admin/revision.h $(srcdir)/admin/revision-dist.h; \
 	    echo '#define PACKAGE_REVISION_CACHED 1' \
-	        >>admin/revision-dist.h; \
+	        >>$(srcdir)/admin/revision-dist.h; \
 	else \
-	    [ -f admin/revision-dist.h ]; \
+	    [ -f $(srcdir)/admin/revision-dist.h ]; \
 	fi
 EXTRA_DIST += admin/revision-dist.h
 
@@ -257,11 +260,11 @@ $(srcdir)/tests/bootstrap/testsuite: $(srcdir)/tests/bootstrap/testsuite.at \
 # `tests/atf' directory.
 # -------------------------------------------------------------------------
 
-check-local:
-	cd tests/atf && $(TESTS_ENVIRONMENT) atf-run | atf-report
-
 testsdir = $(exec_prefix)/tests
 pkgtestsdir = $(exec_prefix)/tests/atf
+
+installcheck-local:
+	cd $(pkgtestsdir) && $(TESTS_ENVIRONMENT) atf-run | atf-report
 
 pkgtests_DATA = tests/atf/Atffile
 EXTRA_DIST += $(pkgtests_DATA)
@@ -724,16 +727,16 @@ tools_atf_version_LDADD = -latf
 tools_atf_version_LDFLAGS = -L.
 dist_man_MANS += tools/atf-version.1
 
-tools/atf-version.cpp: tools/revision.h
+$(srcdir)/tools/atf-version.cpp: revision.h
 
-tools/revision.h: admin/revision.h admin/revision-dist.h
+revision.h: admin/revision.h admin/revision-dist.h
 	@if [ -f admin/revision.h ]; then \
-	    cmp -s admin/revision.h tools/revision.h || \
-	        cp admin/revision.h tools/revision.h; \
+	    cmp -s admin/revision.h revision.h || \
+	        cp admin/revision.h revision.h; \
 	else \
-	    cmp -s admin/revision-dist.h tools/revision.h || \
-	        cp admin/revision-dist.h tools/revision.h; \
+	    cmp -s $(srcdir)/admin/revision-dist.h revision.h || \
+	        cp $(srcdir)/admin/revision-dist.h revision.h; \
 	fi
-CLEANFILES += tools/revision.h
+CLEANFILES += revision.h
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
