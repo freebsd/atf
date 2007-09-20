@@ -470,7 +470,8 @@ impl::atf_tcs_reader::read_out_err(void* pptr,
                     CALLBACK(p, got_stdout_line(line));
             } else
                 fds[0].events &= ~POLLIN;
-        }
+        } else if (fds[0].revents & POLLHUP)
+            fds[0].events &= ~POLLIN;
 
         if (fds[1].revents & POLLIN) {
             std::string line;
@@ -481,7 +482,8 @@ impl::atf_tcs_reader::read_out_err(void* pptr,
                     CALLBACK(p, got_stderr_line(line));
             } else
                 fds[1].events &= ~POLLIN;
-        }
+        } else if (fds[1].revents & POLLHUP)
+            fds[1].events &= ~POLLIN;
     } while (fds[0].events & POLLIN || fds[1].events & POLLIN);
 }
 
