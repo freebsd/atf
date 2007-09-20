@@ -704,7 +704,13 @@ _atf_run_body()
     esac
 
     # Restore all signals to their default behavior for the child process.
-    trap -
+    if [ ${SH_TRAP_DASH} = yes ]; then
+        trap -- -
+    else
+        # We don't have an easy way to reset all signals to their default
+        # behavior, so simply revert those that we modified.
+        trap SIGHUP SIGINT SIGTERM
+    fi
 
     ${1}_body
 }

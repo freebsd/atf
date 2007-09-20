@@ -1,4 +1,3 @@
-#! __ATF_SHELL__
 #
 # Automated Testing Framework (atf)
 #
@@ -35,60 +34,16 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-Prog_Name=${0##*/}
-Atf_Pkgdatadir="__ATF_PKGDATADIR__"
-Atf_Shell="__ATF_SHELL__"
+#
+# File: atf.config.subr
+#
+#   Build-time configuration for ATF shell code.
+#
 
-err()
-{
-    echo "${Prog_Name}: ${@}" 1>&2
-    exit 1
-}
-
-usage()
-{
-    echo "${Prog_Name}: ${@}" 1>&2
-    echo "Usage: ${Prog_Name} -o outfile srcfile" 1>&2
-    exit 1
-}
-
-main()
-{
-    [ -f "${Atf_Pkgdatadir}/atf.init.subr" ] || \
-        err "Could not find ${Atf_Pkgdatadir}/atf.init.subr"
-
-    [ ${#} -ge 1 ] || usage "No -o option specified"
-    [ ${1} = '-o' ] || usage "No -o option specified"
-    [ ${#} -ge 2 ] || usage "No target file specified"
-    [ ${#} -ge 3 ] || usage "No source file specified"
-
-    shift # Strip -o
-    tfile=${1}; shift
-    sfiles="${@}"
-
-    for sfile in ${sfiles}; do
-        [ "${tfile}" != "${sfile}" ] || \
-            err "Source file and target file must not be the same"
-
-        [ -f "${sfile}" ] || err "Source file ${sfile} does not exist"
-    done
-
-    echo "#! ${Atf_Shell}" >${tfile}
-    cat ${Atf_Pkgdatadir}/atf.init.subr >>${tfile}
-    echo >>${tfile}
-    echo '. ${Atf_Pkgdatadir}/atf.config.subr' >>${tfile}
-    echo '. ${Atf_Pkgdatadir}/atf.header.subr' >>${tfile}
-    echo >>${tfile}
-    cat ${sfiles} >>${tfile}
-    echo '. ${Atf_Pkgdatadir}/atf.footer.subr' >>${tfile}
-    echo >>${tfile}
-    echo "main \"\${@}\"" >>${tfile}
-
-    chmod +x ${tfile}
-
-    exit 0
-}
-
-main "${@}"
+# Set to `yes' if sh(1) supports 'trap -'.
+#
+# The bash 3.00.16(1) shipped with Solaris SXDE 200705 complains about
+# that and raises errors everytime we try to use this valid call.
+SH_TRAP_DASH=@SH_TRAP_DASH@
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

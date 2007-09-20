@@ -171,7 +171,8 @@ doc/atf.7: $(srcdir)/doc/atf.7.in
 # `subrs' directory.
 # -------------------------------------------------------------------------
 
-subrs_DATA = subrs/atf.footer.subr \
+subrs_DATA = subrs/atf.config.subr \
+             subrs/atf.footer.subr \
              subrs/atf.header.subr \
              subrs/atf.init.subr
 subrsdir = $(pkgdatadir)

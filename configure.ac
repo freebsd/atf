@@ -186,7 +186,7 @@ else
 fi
 
 dnl -----------------------------------------------------------------------
-dnl Check for required tools.
+dnl Check for the shell and portability problems.
 dnl -----------------------------------------------------------------------
 
 AC_ARG_VAR([ATF_SHELL], [Location of the POSIX shell interpreter to use])
@@ -204,6 +204,20 @@ fi
 if test x"${ATF_SHELL}" = x""; then
     AC_MSG_ERROR([No POSIX shell interpreter found; maybe set ATF_SHELL?])
 fi
+
+AC_MSG_CHECKING([whether ${ATF_SHELL} supports trap -])
+output=`${ATF_SHELL} -c 'trap -- -' 2>&1`
+if test x"${output}" != x""; then
+    AC_SUBST([SH_TRAP_DASH], [no])
+    AC_MSG_RESULT([no])
+else
+    AC_SUBST([SH_TRAP_DASH], [yes])
+    AC_MSG_RESULT([yes])
+fi
+
+dnl -----------------------------------------------------------------------
+dnl Check for required tools.
+dnl -----------------------------------------------------------------------
 
 AC_PATH_PROG([MTN], [mtn])
 
@@ -276,6 +290,6 @@ dnl -----------------------------------------------------------------------
 dnl Finally, generate output.
 dnl -----------------------------------------------------------------------
 
-AC_OUTPUT([Makefile])
+AC_OUTPUT([Makefile subrs/atf.config.subr])
 
 dnl vim: syntax=m4:expandtab:shiftwidth=4:softtabstop=4
