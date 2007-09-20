@@ -41,7 +41,7 @@
 doc_DATA = AUTHORS COPYING NEWS README ROADMAP
 EXTRA_DIST = $(doc_DATA)
 
-dist-hook: check-readme check-style
+dist-hook: admin/revision-dist.h check-readme check-style
 
 AM_CPPFLAGS = -DATF_CONFDIR=\"$(atf_confdir)\" \
               -DATF_LIBEXECDIR=\"$(libexecdir)\" \
