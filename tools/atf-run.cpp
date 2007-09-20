@@ -480,7 +480,10 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
                        atf::text::to_string(WSTOPSIG(status)) +
                        (fmterr.empty() ? "" : (".  " + fmterr)));
         } else
-            assert(false);
+            throw std::runtime_error
+                ("Child process " + atf::text::to_string(pid) +
+                 " terminated with an unknown status condition " +
+                 atf::text::to_string(status));
     }
     return code;
 }
