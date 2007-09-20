@@ -6,7 +6,7 @@ All rights reserved.
 Version 0.2
 ===========
 
-Release date: STILL UNDER DEVELOPMENT; NOT RELEASED
+Release date: September 20th, 2007
 Status:       Experimental
 
 Changes:
@@ -34,6 +34,8 @@ Changes:
 
 * Test programs now capture some termination signals and clean up any
   temporary files before exiting the program.
+
+* Multiple bug fixes and improvements all around.
 
 
 Version 0.1
