@@ -140,6 +140,7 @@ atf_HEADERS = atf/application.hpp \
               atf/formats.hpp \
               atf/fs.hpp \
               atf/io.hpp \
+              atf/macros.hpp \
               atf/parser.hpp \
               atf/serial.hpp \
               atf/tests.hpp \
