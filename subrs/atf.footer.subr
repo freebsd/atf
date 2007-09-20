@@ -739,7 +739,7 @@ _atf_run_tc()
         if [ ${?} -eq 0 ]; then
             ( cd ${Work_Dir} ; _atf_run_body ${1} ; atf_pass )
             _ret=$?
-            ${1}_cleanup
+            ( cd ${Work_Dir} ; ${1}_cleanup )
             if [ ${2} -gt 1 ]; then
                 echo __atf_tc_separator__
                 echo __atf_tc_separator__ 1>&2
@@ -753,7 +753,7 @@ _atf_run_tc()
     else
         ( _atf_run_body ${1} ; atf_pass )
         _ret=${?}
-        ${1}_cleanup
+        ( ${1}_cleanup )
         if [ ${2} -gt 1 ]; then
             echo __atf_tc_separator__
             echo __atf_tc_separator__ 1>&2

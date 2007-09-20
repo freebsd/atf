@@ -125,6 +125,30 @@ ATF_TEST_CASE_CLEANUP(cleanup_skip)
         atf::fs::remove(atf::fs::path(config().get("tmpfile")));
 }
 
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_curdir);
+ATF_TEST_CASE_HEAD(cleanup_curdir)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_curdir)
+{
+    std::ofstream os("oldvalue");
+    if (!os)
+        ATF_FAIL("Failed to create oldvalue file");
+    os << 1234;
+    os.close();
+}
+ATF_TEST_CASE_CLEANUP(cleanup_curdir)
+{
+    std::ifstream is("oldvalue");
+    if (is) {
+        int i;
+        is >> i;
+        std::cout << "Old value: " << i << std::endl;
+        is.close();
+    }
+}
+
 ATF_TEST_CASE_WITH_CLEANUP(cleanup_sigterm);
 ATF_TEST_CASE_HEAD(cleanup_sigterm)
 {
@@ -430,6 +454,7 @@ ATF_INIT_TEST_CASES(tcs)
     tcs.push_back(&cleanup_pass);
     tcs.push_back(&cleanup_fail);
     tcs.push_back(&cleanup_skip);
+    tcs.push_back(&cleanup_curdir);
     tcs.push_back(&cleanup_sigterm);
 
     // Add helper tests for t_config.

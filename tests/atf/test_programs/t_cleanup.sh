@@ -70,6 +70,26 @@ hook_body()
     done
 }
 
+atf_test_case curdir
+curdir_head()
+{
+    atf_set "descr" "Tests that the cleanup hook is executed in the same" \
+                    "directory as the test case so that they can share" \
+                    "information"
+}
+curdir_body()
+{
+    srcdir=$(atf_get_srcdir)
+    h_cpp=${srcdir}/h_cpp
+    h_sh=${srcdir}/h_sh
+
+    for h in ${h_cpp} ${h_sh}; do
+        atf_check '${h} -s ${srcdir} -r3 cleanup_curdir 3>resout' \
+                  0 stdout ignore
+        atf_check 'grep "Old value: 1234" stdout' 0 ignore null
+    done
+}
+
 atf_test_case on_signal
 on_signal_head()
 {
@@ -94,6 +114,7 @@ on_signal_body()
 atf_init_test_cases()
 {
     atf_add_test_case hook
+    atf_add_test_case curdir
     atf_add_test_case on_signal
 }
 
