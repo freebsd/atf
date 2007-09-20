@@ -79,7 +79,7 @@ done
 
 dnl Override every variable through the environment.
 for v in ${all_vars}; do
-    V=$(echo ${v} | tr a-z A-Z)
+    V=$(echo ${v} | tr '[a-z]' '[A-Z]')
     AT_CHECK([env ${V}=testval atf-config], [0], [stdout], [])
     AT_CHECK([mv stdout all], [0], [], [])
 
