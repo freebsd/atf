@@ -436,56 +436,70 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
 
     // Process the test case's output and multiplex it into our output
     // stream as we read it.
-    muxer m(tp, w, resin);
-    std::string fmterr;
     try {
-        m.read(outin, errin);
-    } catch (const atf::parser::parse_errors& e) {
-        fmterr = e.what();
-    } catch (const atf::serial::format_error& e) {
-        fmterr = e.what();
-    }
+        muxer m(tp, w, resin);
+        std::string fmterr;
+        try {
+            m.read(outin, errin);
+        } catch (const atf::parser::parse_errors& e) {
+            fmterr = e.what();
+        } catch (const atf::serial::format_error& e) {
+            fmterr = e.what();
+        }
 
-    outin.close();
-    errin.close();
-    resin.close();
+        outin.close();
+        errin.close();
+        resin.close();
 
-    int code, status;
-    if (::waitpid(pid, &status, 0) == -1) {
-        m.finalize("waitpid(2) on the child process " +
-                   atf::text::to_string(pid) + " failed" +
-                   (fmterr.empty() ? "" : (".  " + fmterr)));
-        code = EXIT_FAILURE;
-    } else {
-        if (WIFEXITED(status)) {
-            code = WEXITSTATUS(status);
-            if (m.failed() > 0 && code == EXIT_SUCCESS) {
+        int code, status;
+        if (::waitpid(pid, &status, 0) == -1) {
+            m.finalize("waitpid(2) on the child process " +
+                       atf::text::to_string(pid) + " failed" +
+                       (fmterr.empty() ? "" : (".  " + fmterr)));
+            code = EXIT_FAILURE;
+        } else {
+            if (WIFEXITED(status)) {
+                code = WEXITSTATUS(status);
+                if (m.failed() > 0 && code == EXIT_SUCCESS) {
+                    code = EXIT_FAILURE;
+                    m.finalize("Test program returned success but some test "
+                               "cases failed" +
+                               (fmterr.empty() ? "" : (".  " + fmterr)));
+                } else {
+                    code = fmterr.empty() ? code : EXIT_FAILURE;
+                    m.finalize(fmterr);
+                }
+            } else if (WIFSIGNALED(status)) {
                 code = EXIT_FAILURE;
-                m.finalize("Test program returned success but some test "
-                           "cases failed" +
+                m.finalize("Test program received signal " +
+                           atf::text::to_string(WTERMSIG(status)) +
+                           (WCOREDUMP(status) ? " (core dumped)" : "") +
                            (fmterr.empty() ? "" : (".  " + fmterr)));
-            } else {
-                code = fmterr.empty() ? code : EXIT_FAILURE;
-                m.finalize(fmterr);
-            }
-        } else if (WIFSIGNALED(status)) {
-            code = EXIT_FAILURE;
-            m.finalize("Test program received signal " +
-                       atf::text::to_string(WTERMSIG(status)) +
-                       (WCOREDUMP(status) ? " (core dumped)" : "") +
-                       (fmterr.empty() ? "" : (".  " + fmterr)));
-        } else if (WIFSTOPPED(status)) {
-            code = EXIT_FAILURE;
-            m.finalize("Test program stopped due to signal " +
-                       atf::text::to_string(WSTOPSIG(status)) +
-                       (fmterr.empty() ? "" : (".  " + fmterr)));
-        } else
-            throw std::runtime_error
-                ("Child process " + atf::text::to_string(pid) +
-                 " terminated with an unknown status condition " +
-                 atf::text::to_string(status));
+            } else if (WIFSTOPPED(status)) {
+                code = EXIT_FAILURE;
+                m.finalize("Test program stopped due to signal " +
+                           atf::text::to_string(WSTOPSIG(status)) +
+                           (fmterr.empty() ? "" : (".  " + fmterr)));
+            } else
+                throw std::runtime_error
+                    ("Child process " + atf::text::to_string(pid) +
+                     " terminated with an unknown status condition " +
+                     atf::text::to_string(status));
+        }
+        return code;
+    } catch (...) {
+        // XXX This catch block is here to prevent a SIGPIPE in FreeBSD 6.2
+        // when the construction of the muxer fails.  This should be handled
+        // by the other try block inside this one, but at the moment we do
+        // some reads straight from the constructor which is proving to be
+        // a very annoying approach.
+        outin.close();
+        errin.close();
+        resin.close();
+        int status;
+        (void)::waitpid(pid, &status, 0);
+        throw;
     }
-    return code;
 }
 
 int
