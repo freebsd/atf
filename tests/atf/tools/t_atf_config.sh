@@ -139,7 +139,7 @@ override_env_head()
 override_env_body()
 {
     for v in ${all_vars}; do
-        V=$(echo ${v} | tr a-z A-Z)
+        V=$(echo ${v} | tr '[a-z]' '[A-Z]')
         atf_check "${V}=testval atf-config" 0 stdout null
         atf_check "mv stdout all" 0 null null
 
