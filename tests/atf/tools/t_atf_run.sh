@@ -293,18 +293,29 @@ broken_tp_hdr_head()
 }
 broken_tp_hdr_body()
 {
+    # We produce two errors from the header to ensure that the parse
+    # errors are printed on a single line on the output file.  Printing
+    # them on separate lines would be incorrect.
     cat >helper <<EOF
 #! $(atf-config -t atf_shell)
 echo 'foo' 1>&9
+echo 'bar' 1>&9
 exit 0
 EOF
     chmod +x helper
 
     create_atffile
 
-    atf_check "atf-run" 1 stdout null
-    atf_check "grep '^tp-start: helper, 0' stdout" 0 ignore null
-    atf_check "grep '^tp-end: helper,.*token.*expected' stdout" 0 ignore null
+    # NO_CHECK_STYLE_BEGIN
+    cat >expout <<EOF
+Content-Type: application/X-atf-tps; version="1"
+
+tps-count: 1
+tp-start: helper, 0
+tp-end: helper, There were errors parsing the output of the test program: Line 1: Unexpected token \`<<NEWLINE>>'; expected \`:'. Line 2: Unexpected token \`<<NEWLINE>>'; expected \`:'.
+EOF
+    # NO_CHECK_STYLE_END
+    atf_check "atf-run" 1 expout null
 }
 
 atf_test_case zero_tcs

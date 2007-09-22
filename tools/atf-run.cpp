@@ -445,7 +445,13 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
     try {
         m.read(outin, errin);
     } catch (const atf::parser::parse_errors& e) {
-        fmterr = e.what();
+        fmterr = "There were errors parsing the output of the test "
+                 "program:";
+        for (atf::parser::parse_errors::const_iterator iter = e.begin();
+             iter != e.end(); iter++) {
+            fmterr += " Line " + atf::text::to_string((*iter).first) +
+                      ": " + (*iter).second + ".";
+        }
     } catch (const atf::formats::format_error& e) {
         fmterr = e.what();
     } catch (...) {
