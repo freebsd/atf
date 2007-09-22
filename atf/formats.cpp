@@ -40,7 +40,9 @@ extern "C" {
 
 #include <cassert>
 #include <iostream>
+#include <map>
 #include <sstream>
+#include <utility>
 
 #include "atf/formats.hpp"
 #include "atf/parser.hpp"
@@ -56,6 +58,177 @@ namespace impl = atf::formats;
     } while (false);
 
 // ------------------------------------------------------------------------
+// The "format_error" class.
+// ------------------------------------------------------------------------
+
+impl::format_error::format_error(const std::string& w) :
+    std::runtime_error(w.c_str())
+{
+}
+
+// ------------------------------------------------------------------------
+// The "header_entry" class.
+// ------------------------------------------------------------------------
+
+typedef std::map< std::string, std::string > attrs_map;
+
+class header_entry {
+    std::string m_name;
+    std::string m_value;
+    attrs_map m_attrs;
+
+public:
+    header_entry(void);
+    header_entry(const std::string&, const std::string&,
+                 attrs_map = attrs_map());
+
+    const std::string& name(void) const;
+    const std::string& value(void) const;
+    const attrs_map& attrs(void) const;
+    bool has_attr(const std::string&) const;
+    const std::string& get_attr(const std::string&) const;
+};
+
+typedef std::map< std::string, header_entry > headers_map;
+
+header_entry::header_entry(void)
+{
+}
+
+header_entry::header_entry(const std::string& n,
+                                 const std::string& v,
+                                 attrs_map as) :
+    m_name(n),
+    m_value(v),
+    m_attrs(as)
+{
+}
+
+const std::string&
+header_entry::name(void)
+    const
+{
+    return m_name;
+}
+
+const std::string&
+header_entry::value(void)
+    const
+{
+    return m_value;
+}
+
+const attrs_map&
+header_entry::attrs(void)
+    const
+{
+    return m_attrs;
+}
+
+bool
+header_entry::has_attr(const std::string& n)
+    const
+{
+    return m_attrs.find(n) != m_attrs.end();
+}
+
+const std::string&
+header_entry::get_attr(const std::string& n)
+    const
+{
+    attrs_map::const_iterator iter = m_attrs.find(n);
+    assert(iter != m_attrs.end());
+    return (*iter).second;
+}
+
+// ------------------------------------------------------------------------
+// The header tokenizer.
+// ------------------------------------------------------------------------
+
+namespace header {
+
+static const atf::parser::token_type& eof_type = 0;
+static const atf::parser::token_type& nl_type = 1;
+static const atf::parser::token_type& text_type = 2;
+static const atf::parser::token_type& colon_type = 3;
+static const atf::parser::token_type& semicolon_type = 4;
+static const atf::parser::token_type& dblquote_type = 5;
+static const atf::parser::token_type& equal_type = 6;
+
+class tokenizer : public atf::parser::tokenizer< std::istream > {
+public:
+    tokenizer(std::istream& is, size_t curline) :
+        atf::parser::tokenizer< std::istream >
+            (is, true, eof_type, nl_type, text_type, curline)
+    {
+        add_delim(';', semicolon_type);
+        add_delim(':', colon_type);
+        add_delim('=', equal_type);
+        add_quote('"', dblquote_type);
+    }
+};
+
+static
+atf::parser::parser< header::tokenizer >&
+read(atf::parser::parser< header::tokenizer >& p, header_entry& he)
+{
+    using namespace header;
+
+    atf::parser::token t = p.expect(text_type, nl_type, "a header name");
+    if (t.type() == nl_type) {
+        he = header_entry();
+        return p;
+    }
+    std::string hdr_name = t.text();
+
+    t = p.expect(colon_type, "`:'");
+
+    t = p.expect(text_type, "a textual value");
+    std::string hdr_value = t.text();
+
+    attrs_map attrs;
+
+    for (;;) {
+        t = p.expect(eof_type, semicolon_type, nl_type,
+                     "eof, `;' or new line");
+        if (t.type() == eof_type || t.type() == nl_type)
+            break;
+
+        t = p.expect(text_type, "an attribute name");
+        std::string attr_name = t.text();
+
+        t = p.expect(equal_type, "`='");
+
+        t = p.expect(text_type, "word or quoted string");
+        std::string attr_value = t.text();
+        attrs[attr_name] = attr_value;
+    }
+
+    he = header_entry(hdr_name, hdr_value, attrs);
+
+    return p;
+}
+
+static
+std::ostream&
+write(std::ostream& os, const header_entry& he)
+{
+    std::string line = he.name() + ": " + he.value();
+    attrs_map as = he.attrs();
+    for (attrs_map::const_iterator iter = as.begin();
+         iter != as.end(); iter++) {
+        assert((*iter).second.find('\"') == std::string::npos);
+        line += "; " + (*iter).first + "=\"" + (*iter).second + "\"";
+    }
+
+    os << line << std::endl;
+
+    return os;
+}
+
+} // namespace header
+
+// ------------------------------------------------------------------------
 // Auxiliary functions.
 // ------------------------------------------------------------------------
 
@@ -68,6 +241,95 @@ string_to_size_t(const std::string& str)
     ss >> s;
 
     return s;
+}
+
+static
+std::pair< size_t, headers_map >
+read_headers(std::istream& is, size_t curline)
+{
+    using impl::format_error;
+
+    headers_map hm;
+
+    //
+    // Grammar
+    //
+    // header = entry+ nl
+    // entry = line nl
+    // line = text colon text
+    //        (semicolon (text equal (text | dblquote string dblquote)))*
+    // string = quoted_string
+    //
+
+    header::tokenizer tkz(is, curline);
+    atf::parser::parser< header::tokenizer > p(tkz);
+
+    bool first = true;
+    for (;;) {
+        try {
+            header_entry he;
+            if (!header::read(p, he).good() || he.name().empty())
+                break;
+
+            if (first && he.name() != "Content-Type")
+                throw format_error("Could not determine content type");
+            else
+                first = false;
+
+            hm[he.name()] = he;
+        } catch (const atf::parser::parse_error& pe) {
+            p.add_error(pe);
+            p.reset(header::nl_type);
+        }
+    }
+
+    if (!is.good())
+        throw format_error("Unexpected end of stream");
+
+    return std::pair< size_t, headers_map >(tkz.lineno(), hm);
+}
+
+static
+void
+write_headers(const headers_map& hm,
+              std::ostream& os)
+{
+    assert(!hm.empty());
+    headers_map::const_iterator ct = hm.find("Content-Type");
+    assert(ct != hm.end());
+    header::write(os, (*ct).second);
+    for (headers_map::const_iterator iter = hm.begin(); iter != hm.end();
+         iter++) {
+        if ((*iter).first != "Content-Type")
+            header::write(os, (*iter).second);
+    }
+    os << std::endl;
+}
+
+static
+void
+validate_content_type(const headers_map& hm,
+                      const std::string& fmt,
+                      int version)
+{
+    using impl::format_error;
+
+    headers_map::const_iterator iter = hm.find("Content-Type");
+    if (iter == hm.end())
+        throw format_error("Could not determine content type");
+
+    const header_entry& he = (*iter).second;
+    if (he.value() != fmt)
+        throw format_error("Mismatched content type: expected `" + fmt +
+                           "' but got `" + he.value() + "'");
+
+    if (!he.has_attr("version"))
+        throw format_error("Could not determine version");
+    const std::string& vstr = atf::text::to_string(version);
+    if (he.get_attr("version") != vstr)
+        throw format_error("Mismatched version: expected `" +
+                           vstr + "' but got `" +
+                           he.get_attr("version") + "'");
 }
 
 // ------------------------------------------------------------------------
@@ -88,12 +350,11 @@ static const atf::parser::token_type prop_type = 8;
 static const atf::parser::token_type tp_type = 9;
 static const atf::parser::token_type tp_glob_type = 10;
 
-class tokenizer : public atf::parser::tokenizer
-    < atf::serial::internalizer > {
+class tokenizer : public atf::parser::tokenizer< std::istream > {
 public:
-    tokenizer(atf::serial::internalizer& is) :
-        atf::parser::tokenizer< atf::serial::internalizer >
-            (is, true, eof_type, nl_type, text_type, is.lineno())
+    tokenizer(std::istream& is, size_t curline) :
+        atf::parser::tokenizer< std::istream >
+            (is, true, eof_type, nl_type, text_type, curline)
     {
         add_delim(':', colon_type);
         add_delim('=', equal_type);
@@ -121,12 +382,11 @@ static const atf::parser::token_type& dblquote_type = 3;
 static const atf::parser::token_type& equal_type = 4;
 static const atf::parser::token_type& hash_type = 5;
 
-class tokenizer : public atf::parser::tokenizer
-    < atf::serial::internalizer > {
+class tokenizer : public atf::parser::tokenizer< std::istream > {
 public:
-    tokenizer(atf::serial::internalizer& is) :
-        atf::parser::tokenizer< atf::serial::internalizer >
-            (is, true, eof_type, nl_type, text_type, is.lineno())
+    tokenizer(std::istream& is, size_t curline) :
+        atf::parser::tokenizer< std::istream >
+            (is, true, eof_type, nl_type, text_type, curline)
     {
         add_delim('=', equal_type);
         add_delim('#', hash_type);
@@ -154,12 +414,11 @@ static const atf::parser::token_type& passed_type = 8;
 static const atf::parser::token_type& failed_type = 9;
 static const atf::parser::token_type& skipped_type = 10;
 
-class tokenizer : public atf::parser::tokenizer
-    < atf::serial::internalizer > {
+class tokenizer : public atf::parser::tokenizer< std::istream > {
 public:
-    tokenizer(atf::serial::internalizer& is) :
-        atf::parser::tokenizer< atf::serial::internalizer >
-            (is, true, eof_type, nl_type, text_type, is.lineno())
+    tokenizer(std::istream& is, size_t curline) :
+        atf::parser::tokenizer< std::istream >
+            (is, true, eof_type, nl_type, text_type, curline)
     {
         add_delim(':', colon_type);
         add_delim(',', comma_type);
@@ -196,12 +455,11 @@ static const atf::parser::token_type& passed_type = 12;
 static const atf::parser::token_type& failed_type = 13;
 static const atf::parser::token_type& skipped_type = 14;
 
-class tokenizer : public atf::parser::tokenizer
-    < atf::serial::internalizer > {
+class tokenizer : public atf::parser::tokenizer< std::istream > {
 public:
-    tokenizer(atf::serial::internalizer& is) :
-        atf::parser::tokenizer< atf::serial::internalizer >
-            (is, true, eof_type, nl_type, text_type, is.lineno())
+    tokenizer(std::istream& is, size_t curline) :
+        atf::parser::tokenizer< std::istream >
+            (is, true, eof_type, nl_type, text_type, curline)
     {
         add_delim(':', colon_type);
         add_delim(',', comma_type);
@@ -225,7 +483,7 @@ public:
 // ------------------------------------------------------------------------
 
 impl::atf_atffile_reader::atf_atffile_reader(std::istream& is) :
-    m_int(is, "application/X-atf-atffile", 1)
+    m_is(is)
 {
 }
 
@@ -261,7 +519,10 @@ impl::atf_atffile_reader::read(void)
     using atf::parser::parse_error;
     using namespace atf_atffile;
 
-    tokenizer tkz(m_int);
+    std::pair< size_t, headers_map > hml = read_headers(m_is, 1);
+    validate_content_type(hml.second, "application/X-atf-atffile", 1);
+
+    tokenizer tkz(m_is, hml.first);
     atf::parser::parser< tokenizer > p(tkz);
 
     for (;;) {
@@ -331,7 +592,7 @@ impl::atf_atffile_reader::read(void)
 // ------------------------------------------------------------------------
 
 impl::atf_config_reader::atf_config_reader(std::istream& is) :
-    m_int(is, "application/X-atf-config", 1)
+    m_is(is)
 {
 }
 
@@ -356,7 +617,10 @@ impl::atf_config_reader::read(void)
     using atf::parser::parse_error;
     using namespace atf_config;
 
-    tokenizer tkz(m_int);
+    std::pair< size_t, headers_map > hml = read_headers(m_is, 1);
+    validate_content_type(hml.second, "application/X-atf-config", 1);
+
+    tokenizer tkz(m_is, hml.first);
     atf::parser::parser< tokenizer > p(tkz);
 
     for (;;) {
@@ -400,7 +664,7 @@ impl::atf_config_reader::read(void)
 // ------------------------------------------------------------------------
 
 impl::atf_tcs_reader::atf_tcs_reader(std::istream& is) :
-    m_int(is, "application/X-atf-tcs", 1)
+    m_is(is)
 {
 }
 
@@ -494,7 +758,10 @@ impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
     using atf::parser::parse_error;
     using namespace atf_tcs;
 
-    tokenizer tkz(m_int);
+    std::pair< size_t, headers_map > hml = read_headers(m_is, 1);
+    validate_content_type(hml.second, "application/X-atf-tcs", 1);
+
+    tokenizer tkz(m_is, hml.first);
     atf::parser::parser< tokenizer > p(tkz);
 
     try {
@@ -508,7 +775,7 @@ impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
         t = p.expect(nl_type, "new line");
 
         size_t i = 0;
-        while (m_int.good() && i < ntcs) {
+        while (m_is.good() && i < ntcs) {
             try {
                 t = p.expect(tc_start_type, "start of test case");
 
@@ -581,20 +848,27 @@ impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
 // ------------------------------------------------------------------------
 
 impl::atf_tcs_writer::atf_tcs_writer(std::ostream& os, size_t ntcs) :
-    m_ext(os, "application/X-atf-tcs", 1),
+    m_os(os),
     m_ntcs(ntcs),
     m_curtc(0)
 {
-    m_ext.putline("tcs-count: " + text::to_string(ntcs));
-    m_ext.flush();
+    headers_map hm;
+    attrs_map ct_attrs;
+    ct_attrs["version"] = "1";
+    hm["Content-Type"] =
+        header_entry("Content-Type", "application/X-atf-tcs", ct_attrs);
+    write_headers(hm, m_os);
+
+    m_os << "tcs-count: " << ntcs << std::endl;
+    m_os.flush();
 }
 
 void
 impl::atf_tcs_writer::start_tc(const std::string& tcname)
 {
     m_tcname = tcname;
-    m_ext.putline("tc-start: " + tcname);
-    m_ext.flush();
+    m_os << "tc-start: " << tcname << std::endl;
+    m_os.flush();
 }
 
 void
@@ -626,8 +900,8 @@ impl::atf_tcs_writer::end_tc(const atf::tests::tcr& tcr)
     default:
         assert(false);
     }
-    m_ext.putline(end);
-    m_ext.flush();
+    m_os << end << std::endl;
+    m_os.flush();
 }
 
 // ------------------------------------------------------------------------
@@ -635,7 +909,7 @@ impl::atf_tcs_writer::end_tc(const atf::tests::tcr& tcr)
 // ------------------------------------------------------------------------
 
 impl::atf_tps_reader::atf_tps_reader(std::istream& is) :
-    m_int(is, "application/X-atf-tps", 1)
+    m_is(is)
 {
 }
 
@@ -827,7 +1101,10 @@ impl::atf_tps_reader::read(void)
     using atf::parser::parse_error;
     using namespace atf_tps;
 
-    tokenizer tkz(m_int);
+    std::pair< size_t, headers_map > hml = read_headers(m_is, 1);
+    validate_content_type(hml.second, "application/X-atf-tps", 1);
+
+    tokenizer tkz(m_is, hml.first);
     atf::parser::parser< tokenizer > p(tkz);
 
     try {
@@ -865,50 +1142,57 @@ impl::atf_tps_reader::read(void)
 // ------------------------------------------------------------------------
 
 impl::atf_tps_writer::atf_tps_writer(std::ostream& os, size_t ntps) :
-    m_ext(os, "application/X-atf-tps", 1)
+    m_os(os)
 {
-    m_ext.putline("tps-count: " + text::to_string(ntps));
-    m_ext.flush();
+    headers_map hm;
+    attrs_map ct_attrs;
+    ct_attrs["version"] = "1";
+    hm["Content-Type"] =
+        header_entry("Content-Type", "application/X-atf-tps", ct_attrs);
+    write_headers(hm, m_os);
+
+    m_os << "tps-count: " << ntps << std::endl;
+    m_os.flush();
 }
 
 void
 impl::atf_tps_writer::start_tp(const std::string& tp, size_t ntcs)
 {
     m_tpname = tp;
-    m_ext.putline("tp-start: " + tp + ", " + text::to_string(ntcs));
-    m_ext.flush();
+    m_os << "tp-start: " << tp << ", " << ntcs << std::endl;
+    m_os.flush();
 }
 
 void
 impl::atf_tps_writer::end_tp(const std::string& reason)
 {
     if (reason.empty())
-        m_ext.putline("tp-end: " + m_tpname);
+        m_os << "tp-end: " << m_tpname << std::endl;
     else
-        m_ext.putline("tp-end: " + m_tpname + ", " + reason);
-    m_ext.flush();
+        m_os << "tp-end: " << m_tpname << ", " << reason << std::endl;
+    m_os.flush();
 }
 
 void
 impl::atf_tps_writer::start_tc(const std::string& tcname)
 {
     m_tcname = tcname;
-    m_ext.putline("tc-start: " + tcname);
-    m_ext.flush();
+    m_os << "tc-start: " << tcname << std::endl;
+    m_os.flush();
 }
 
 void
 impl::atf_tps_writer::stdout_tc(const std::string& line)
 {
-    m_ext.putline("tc-so: " + line);
-    m_ext.flush();
+    m_os << "tc-so: " << line << std::endl;
+    m_os.flush();
 }
 
 void
 impl::atf_tps_writer::stderr_tc(const std::string& line)
 {
-    m_ext.putline("tc-se: " + line);
-    m_ext.flush();
+    m_os << "tc-se: " << line << std::endl;
+    m_os.flush();
 }
 
 void
@@ -931,6 +1215,6 @@ impl::atf_tps_writer::end_tc(const atf::tests::tcr& tcr)
     default:
         assert(false);
     }
-    m_ext.putline(str);
-    m_ext.flush();
+    m_os << str << std::endl;
+    m_os.flush();
 }

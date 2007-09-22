@@ -38,7 +38,6 @@
 #include <sstream>
 
 #include "atf/parser.hpp"
-#include "atf/serial.hpp"
 
 namespace impl = atf::parser;
 #define IMPL_NAME "atf::parser"

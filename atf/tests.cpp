@@ -63,7 +63,6 @@ extern "C" {
 #include "atf/formats.hpp"
 #include "atf/fs.hpp"
 #include "atf/io.hpp"
-#include "atf/serial.hpp"
 #include "atf/tests.hpp"
 #include "atf/text.hpp"
 #include "atf/ui.hpp"
