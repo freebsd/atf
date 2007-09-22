@@ -1166,6 +1166,7 @@ impl::atf_tps_writer::start_tp(const std::string& tp, size_t ntcs)
 void
 impl::atf_tps_writer::end_tp(const std::string& reason)
 {
+    assert(reason.find('\n') == std::string::npos);
     if (reason.empty())
         m_os << "tp-end: " << m_tpname << std::endl;
     else

@@ -445,6 +445,30 @@ ATF_TEST_CASE_BODY(srcdir_exists)
 }
 
 // ------------------------------------------------------------------------
+// Helper tests for "t_status".
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(status_newlines_fail);
+ATF_TEST_CASE_HEAD(status_newlines_fail)
+{
+    set("descr", "Helper test case for the t_status test program");
+}
+ATF_TEST_CASE_BODY(status_newlines_fail)
+{
+    ATF_FAIL("First line\nSecond line");
+}
+
+ATF_TEST_CASE(status_newlines_skip);
+ATF_TEST_CASE_HEAD(status_newlines_skip)
+{
+    set("descr", "Helper test case for the t_status test program");
+}
+ATF_TEST_CASE_BODY(status_newlines_skip)
+{
+    ATF_SKIP("First line\nSecond line");
+}
+
+// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -486,4 +510,8 @@ ATF_INIT_TEST_CASES(tcs)
 
     // Add helper tests for t_srcdir.
     tcs.push_back(&srcdir_exists);
+
+    // Add helper tests for t_status.
+    tcs.push_back(&status_newlines_fail);
+    tcs.push_back(&status_newlines_skip);
 }

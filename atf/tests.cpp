@@ -250,10 +250,19 @@ impl::tcr::tcr(void) :
 }
 
 impl::tcr::tcr(impl::tcr::status s, const std::string& r) :
-    m_status(s),
-    m_reason(r)
+    m_status(s)
 {
-    assert(m_reason.find('\n') == std::string::npos);
+    if (r.find('\n') == std::string::npos)
+        m_reason = r;
+    else {
+        m_reason = "BOGUS REASON (THE ORIGINAL HAD NEWLINES): ";
+        for (std::string::size_type i = 0; i < r.length(); i++) {
+            if (r[i] == '\n')
+                m_reason += "<<NEWLINE>>";
+            else if (r[i] != '\r')
+                m_reason += r[i];
+        }
+    }
 }
 
 impl::tcr
