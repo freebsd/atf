@@ -185,6 +185,10 @@ else
     esac
 fi
 
+AC_SUBST(atf_cssdir, \${datadir}/examples/atf)
+AC_SUBST(atf_dtddir, \${datadir}/xml/atf)
+AC_SUBST(atf_xsldir, \${datadir}/xsl/atf)
+
 dnl -----------------------------------------------------------------------
 dnl Check for the shell and portability problems.
 dnl -----------------------------------------------------------------------

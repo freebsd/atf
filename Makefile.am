@@ -147,6 +147,19 @@ atf_HEADERS = atf/application.hpp \
 atfdir = $(includedir)/atf
 
 # -------------------------------------------------------------------------
+# `data' directory.
+# -------------------------------------------------------------------------
+
+cssdir = $(atf_cssdir)
+css_DATA = data/tests-results.css
+
+dtddir = $(atf_dtddir)
+dtd_DATA = data/tests-results.dtd
+
+xsldir = $(atf_xsldir)
+xsl_DATA = data/tests-results.xsl
+
+# -------------------------------------------------------------------------
 # `doc' directory.
 # -------------------------------------------------------------------------
 

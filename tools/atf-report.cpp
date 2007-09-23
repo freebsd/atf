@@ -307,6 +307,127 @@ public:
 };
 
 // ------------------------------------------------------------------------
+// The "xml" class.
+// ------------------------------------------------------------------------
+
+//!
+//! \brief A single-file XML output format.
+//!
+//! The xml_writer class implements a formatter that prints the results
+//! of test cases in an XML format easily parseable later on by other
+//! utilities.
+//!
+class xml_writer : public writer {
+    ostream_ptr m_os;
+
+    size_t m_curtp, m_ntps;
+    size_t m_tcs_passed, m_tcs_failed, m_tcs_skipped;
+    std::string m_tcname, m_tpname;
+    std::vector< std::string > m_failed_tcs;
+    std::vector< std::string > m_failed_tps;
+
+    static
+    std::string
+    attrval(const std::string& str)
+    {
+        return str;
+    }
+
+    static
+    std::string
+    elemval(const std::string& str)
+    {
+        std::string ostr;
+        for (std::string::const_iterator iter = str.begin();
+             iter != str.end(); iter++) {
+            switch (*iter) {
+            case '&': ostr += "&amp;"; break;
+            case '<': ostr += "&lt;"; break;
+            case '>': ostr += "&gt;"; break;
+            default:  ostr += *iter;
+            }
+        }
+        return ostr;
+    }
+
+    void
+    write_ntps(size_t ntps)
+    {
+        (*m_os) << "<?xml version=\"1.0\"?>" << std::endl
+                << "<!DOCTYPE tests-results PUBLIC "
+                   "\"-//NetBSD//DTD ATF Tests Results 0.1//EN\" "
+                   "\"http://www.NetBSD.org/XML/atf/tests-results.dtd\">"
+                << std::endl
+                << std::endl
+                << "<tests-results>" << std::endl;
+    }
+
+    void
+    write_tp_start(const std::string& tp, size_t ntcs)
+    {
+        (*m_os) << "<tp id=\"" << attrval(tp) << "\">" << std::endl;
+    }
+
+    void
+    write_tp_end(const std::string& reason)
+    {
+        if (!reason.empty())
+            (*m_os) << "<failed>" << elemval(reason) << "</failed>"
+                    << std::endl;
+        (*m_os) << "</tp>" << std::endl;
+    }
+
+    void
+    write_tc_start(const std::string& tcname)
+    {
+        (*m_os) << "<tc id=\"" << attrval(tcname) << "\">" << std::endl;
+    }
+
+    void
+    write_tc_stdout_line(const std::string& line)
+    {
+        (*m_os) << "<so>" << elemval(line) << "</so>" << std::endl;
+    }
+
+    void
+    write_tc_stderr_line(const std::string& line)
+    {
+        (*m_os) << "<se>" << elemval(line) << "</se>" << std::endl;
+    }
+
+    void
+    write_tc_end(const atf::tests::tcr& tcr)
+    {
+        std::string str;
+
+        atf::tests::tcr::status s = tcr.get_status();
+        if (s == atf::tests::tcr::status_passed) {
+            (*m_os) << "<passed />" << std::endl;
+        } else if (s == atf::tests::tcr::status_failed) {
+            (*m_os) << "<failed>" << elemval(tcr.get_reason())
+                    << "</failed>" << std::endl;
+        } else if (s == atf::tests::tcr::status_skipped) {
+            (*m_os) << "<skipped>" << elemval(tcr.get_reason())
+                    << "</skipped>" << std::endl;
+        } else
+            assert(false);
+        (*m_os) << "</tc>" << std::endl;
+    }
+
+    void
+    write_eof(void)
+    {
+        (*m_os) << "</tests-results>" << std::endl;
+    }
+
+public:
+    xml_writer(const atf::fs::path& p) :
+        m_os(open_outfile(p))
+    {
+    }
+};
+
+// ------------------------------------------------------------------------
 // The "converter" class.
 // ------------------------------------------------------------------------
 
@@ -354,6 +475,22 @@ class converter : public atf::formats::atf_tps_reader {
     }
 
     void
+    got_tc_stdout_line(const std::string& line)
+    {
+        for (outs_vector::iterator iter = m_outs.begin();
+             iter != m_outs.end(); iter++)
+            (*iter)->write_tc_stdout_line(line);
+    }
+
+    void
+    got_tc_stderr_line(const std::string& line)
+    {
+        for (outs_vector::iterator iter = m_outs.begin();
+             iter != m_outs.end(); iter++)
+            (*iter)->write_tc_stderr_line(line);
+    }
+
+    void
     got_tc_end(const atf::tests::tcr& tcr)
     {
         for (outs_vector::iterator iter = m_outs.begin();
@@ -389,6 +526,8 @@ public:
             m_outs.push_back(new csv_writer(p));
         } else if (fmt == "ticker") {
             m_outs.push_back(new ticker_writer(p));
+        } else if (fmt == "xml") {
+            m_outs.push_back(new xml_writer(p));
         } else
             throw std::runtime_error("Unknown format `" + fmt + "'");
     }

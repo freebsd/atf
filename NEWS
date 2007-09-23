@@ -11,7 +11,9 @@ Status:       Experimental
 
 Changes:
 
-* None yet.
+* Added XML output support to atf-report.  This is accompanied by a DTD for
+  the format's structure and sample XSLT/CSS files to post-process this
+  output and convert it to a plain HTML report.
 
 
 Version 0.2

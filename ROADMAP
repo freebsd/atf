@@ -19,8 +19,6 @@ Plans for 0.3
 * Add a way to specify which bug/issue/whatever a given test case is
   stress-testing.  This information is useful when detecting regressions.
 
-* Implement custom XML output in atf-report.  Need to create a DTD too.
-
 * Maybe implement direct HTML output in atf-report to avoid a dependency
   on xsltproc.  Or maybe not.  Evaluate this idea and decide later.
 
@@ -86,6 +84,8 @@ Plans for 1.0-RC1
 =================
 
 * Build libatf as a shared library and set -version-info accordingly.
+
+* Set the DTDs' versions to 1.0.
 
 
 Plans for post-1.0
