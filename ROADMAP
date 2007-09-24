@@ -45,6 +45,12 @@ Plans for pre-1.0
   implies adding more error cases to give them more semantic meaning at the
   source code level..
 
+* Add a C-only binding so that we don't needlessly propagate the requirement
+  of a C++ compiler to third-party test programs.
+
+* Add an atf_check-like function to the C++ binding to allow easy testing
+  of executables.
+
 * The test suite should not use atf-compile to generate helper test cases.
   Reason: NetBSD will include atf-compile in the comp.tgz set.  If it is
   not installed, a lot of tests will be skipped without a "real" reason.
