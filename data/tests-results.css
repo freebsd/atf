@@ -63,6 +63,11 @@ h3 {
     padding: 3pt;
 }
 
+p.term {
+    margin-left: 40pt;
+    margin-right: 40pt;
+}
+
 p.so {
     margin-left: 40pt;
     margin-right: 40pt;

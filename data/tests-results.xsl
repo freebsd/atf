@@ -339,7 +339,14 @@
     <xsl:if test="$chosen = 'yes'">
       <tr>
         <td class="tc-id">
-          <p><a href="#{$full-id}"><xsl:value-of select="@id" /></a></p>
+          <xsl:choose>
+            <xsl:when test="failed|skipped">
+              <p><a href="#{$full-id}"><xsl:value-of select="@id" /></a></p>
+            </xsl:when>
+            <xsl:otherwise>
+              <p><xsl:value-of select="@id" /></p>
+            </xsl:otherwise>
+          </xsl:choose>
         </td>
         <xsl:apply-templates select="passed|failed|skipped" mode="tc" />
       </tr>
@@ -362,7 +369,15 @@
   </xsl:template>
 
   <xsl:template match="tp" mode="details">
-    <xsl:apply-templates select="tc" mode="details" />
+    <xsl:apply-templates select="tc[failed|skipped]" mode="details" />
+  </xsl:template>
+
+  <xsl:template match="failed" mode="details">
+    <p class="term"><strong>FAILED</strong>: <xsl:apply-templates /></p>
+  </xsl:template>
+
+  <xsl:template match="skipped" mode="details">
+    <p class="term"><strong>SKIPPED</strong>: <xsl:apply-templates /></p>
   </xsl:template>
 
   <xsl:template match="tc" mode="details">
@@ -373,6 +388,9 @@
     <h2 id="{$full-id}">Test case:
     <xsl:value-of select="../@id" /><xsl:text>/</xsl:text>
     <xsl:value-of select="@id" /></h2>
+
+    <h3>Termination reason</h3>
+    <xsl:apply-templates select="failed|skipped" mode="details" />
 
     <h3>Standard output stream</h3>
     <p class="so"><xsl:apply-templates select="so" mode="details" /></p>
