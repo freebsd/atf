@@ -44,6 +44,19 @@
   <xsl:param name="global.css">tests-results.css</xsl:param>
   <xsl:param name="global.title">ATF Tests Results</xsl:param>
 
+  <xsl:variable name="ntps"
+                select="count(tests-results/tp)" />
+  <xsl:variable name="ntps-failed"
+                select="count(tests-results/tp/failed)" />
+  <xsl:variable name="ntcs"
+                select="count(tests-results/tp/tc)" />
+  <xsl:variable name="ntcs-passed"
+                select="count(tests-results/tp/tc/passed)" />
+  <xsl:variable name="ntcs-failed"
+                select="count(tests-results/tp/tc/failed)" />
+  <xsl:variable name="ntcs-skipped"
+                select="count(tests-results/tp/tc/skipped)" />
+
   <xsl:template match="/">
     <xsl:copy>
       <xsl:apply-templates select="@*|node()" />
@@ -65,6 +78,12 @@
 
         <xsl:call-template name="info-top" />
         <xsl:call-template name="tcs-summary" />
+        <xsl:if test="$ntcs-failed > 0">
+          <xsl:call-template name="failed-tcs-summary" />
+        </xsl:if>
+        <xsl:if test="$ntcs-skipped > 0">
+          <xsl:call-template name="skipped-tcs-summary" />
+        </xsl:if>
         <xsl:call-template name="info-bottom" />
 
         <xsl:apply-templates select="tp" mode="details" />
@@ -73,13 +92,6 @@
   </xsl:template>
 
   <xsl:template name="info-top">
-    <xsl:variable name="ntps" select="count(tp)" />
-    <xsl:variable name="ntps-failed" select="count(tp/failed)" />
-    <xsl:variable name="ntcs" select="count(tp/tc)" />
-    <xsl:variable name="ntcs-passed" select="count(tp/tc/passed)" />
-    <xsl:variable name="ntcs-failed" select="count(tp/tc/failed)" />
-    <xsl:variable name="ntcs-skipped" select="count(tp/tc/skipped)" />
-
     <h2>Execution summary</h2>
 
     <table class="summary">
@@ -171,14 +183,16 @@
         <td class="numeric"><p><xsl:value-of select="$ntcs-passed" /></p></td>
       </tr>
       <tr class="entry">
-        <td><p>Failed test cases</p></td>
         <xsl:choose>
           <xsl:when test="$ntcs-failed > 0">
+            <td><p><a href="#failed-tcs-summary">Failed test
+            cases</a></p></td>
             <td class="numeric-error">
               <p><xsl:value-of select="$ntcs-failed" /></p>
             </td>
           </xsl:when>
           <xsl:otherwise>
+            <td><p>Failed test cases</p></td>
             <td class="numeric">
               <p><xsl:value-of select="$ntcs-failed" /></p>
             </td>
@@ -186,14 +200,16 @@
         </xsl:choose>
       </tr>
       <tr class="entry">
-        <td><p>Skipped test cases</p></td>
         <xsl:choose>
           <xsl:when test="$ntcs-skipped > 0">
+            <td><p><a href="#skipped-tcs-summary">Skipped test
+            cases</a></p></td>
             <td class="numeric-warning">
               <p><xsl:value-of select="$ntcs-skipped" /></p>
             </td>
           </xsl:when>
           <xsl:otherwise>
+            <td><p>Skipped test cases</p></td>
             <td class="numeric">
               <p><xsl:value-of select="$ntcs-skipped" /></p>
             </td>
@@ -236,28 +252,93 @@
         <th><p>Result</p></th>
         <th><p>Reason</p></th>
       </tr>
-      <xsl:apply-templates select="tp" mode="summary" />
+      <xsl:apply-templates select="tp" mode="summary">
+        <xsl:with-param name="which">all</xsl:with-param>
+      </xsl:apply-templates>
+    </table>
+  </xsl:template>
+
+  <xsl:template name="failed-tcs-summary">
+    <a name="failed-tcs-summary" />
+    <h2 id="failed-tcs-summary">Failed test cases summary</h2>
+
+    <table class="tcs-summary">
+      <tr>
+        <th><p>Test case</p></th>
+        <th><p>Result</p></th>
+        <th><p>Reason</p></th>
+      </tr>
+      <xsl:apply-templates select="tp" mode="summary">
+        <xsl:with-param name="which">failed</xsl:with-param>
+      </xsl:apply-templates>
+    </table>
+  </xsl:template>
+
+  <xsl:template name="skipped-tcs-summary">
+    <a name="skipped-tcs-summary" />
+    <h2 id="skipped-tcs-summary">Skipped test cases summary</h2>
+
+    <table class="tcs-summary">
+      <tr>
+        <th><p>Test case</p></th>
+        <th><p>Result</p></th>
+        <th><p>Reason</p></th>
+      </tr>
+      <xsl:apply-templates select="tp" mode="summary">
+        <xsl:with-param name="which">skipped</xsl:with-param>
+      </xsl:apply-templates>
     </table>
   </xsl:template>
 
   <xsl:template match="tp" mode="summary">
-    <tr>
-      <td class="tp-id" colspan="3">
-        <p><xsl:value-of select="@id" /></p>
-      </td>
-    </tr>
-    <p><xsl:apply-templates select="tc" mode="summary" /></p>
+    <xsl:param name="which" />
+
+    <xsl:variable name="chosen">
+      <xsl:choose>
+        <xsl:when test="$which = 'passed' and tc/passed">yes</xsl:when>
+        <xsl:when test="$which = 'failed' and tc/failed">yes</xsl:when>
+        <xsl:when test="$which = 'skipped' and tc/skipped">yes</xsl:when>
+        <xsl:when test="$which = 'all'">yes</xsl:when>
+        <xsl:otherwise>no</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:if test="$chosen = 'yes'">
+      <tr>
+        <td class="tp-id" colspan="3">
+          <p><xsl:value-of select="@id" /></p>
+        </td>
+      </tr>
+      <xsl:apply-templates select="tc" mode="summary">
+        <xsl:with-param name="which" select="$which" />
+      </xsl:apply-templates>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="tc" mode="summary">
+    <xsl:param name="which" />
+
     <xsl:variable name="full-id"
                   select="concat(translate(../@id, '/', '_'), '_', @id)" />
-    <tr>
-      <td class="tc-id">
-        <p><a href="#{$full-id}"><xsl:value-of select="@id" /></a></p>
-      </td>
-      <xsl:apply-templates select="passed|failed|skipped" mode="tc" />
-    </tr>
+
+    <xsl:variable name="chosen">
+      <xsl:choose>
+        <xsl:when test="$which = 'passed' and ./passed">yes</xsl:when>
+        <xsl:when test="$which = 'failed' and ./failed">yes</xsl:when>
+        <xsl:when test="$which = 'skipped' and ./skipped">yes</xsl:when>
+        <xsl:when test="$which = 'all'">yes</xsl:when>
+        <xsl:otherwise>no</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:if test="$chosen = 'yes'">
+      <tr>
+        <td class="tc-id">
+          <p><a href="#{$full-id}"><xsl:value-of select="@id" /></a></p>
+        </td>
+        <xsl:apply-templates select="passed|failed|skipped" mode="tc" />
+      </tr>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="passed" mode="tc">
