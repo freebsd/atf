@@ -578,6 +578,7 @@ void
 atf_run::write_start_info(atf::formats::atf_tps_writer& w)
 {
     w.info("atf.version", PACKAGE_VERSION);
+    w.info("tests.root", atf::fs::get_current_dir().str());
 
     w.info("time.start", get_time_str());
 

@@ -156,6 +156,11 @@
         <td colspan="2"><p>Tests results</p></td>
       </tr>
       <tr class="entry">
+        <td><p>Root</p></td>
+        <td><p><xsl:value-of
+        select="info[@class = 'tests.dir']" /></p></td>
+      </tr>
+      <tr class="entry">
         <td><p>Test programs</p></td>
         <td class="numeric"><p><xsl:value-of select="$ntps" /></p></td>
       </tr>

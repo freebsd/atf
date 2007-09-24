@@ -179,6 +179,15 @@ class ticker_writer : public writer {
     std::vector< std::string > m_failed_tps;
 
     void
+    write_info(const std::string& what, const std::string& val)
+    {
+        if (what == "tests.root") {
+            (*m_os) << "Tests root: " << val << std::endl
+                    << std::endl;
+        }
+    }
+
+    void
     write_ntps(size_t ntps)
     {
         m_curtp = 1;
