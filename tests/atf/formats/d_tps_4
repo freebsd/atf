@@ -1,5 +1,8 @@
 Content-Type: application/X-atf-tps; version="2"
 
+info: a, foo
+info: b, bar
+info: c, baz
 tps-count: 2
 tp-start: first-prog, 3
 tc-start: first-test
@@ -29,3 +32,6 @@ tc-so: second stdout line for 3rd test
 tc-se: second stderr line for 3rd test
 tc-end: third-test, failed, Testing failed reason
 tp-end: second-prog, This program failed
+info: d, foo
+info: e, bar
+info: f, baz

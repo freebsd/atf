@@ -197,6 +197,12 @@ public:
 
 class tps_reader : protected atf::formats::atf_tps_reader {
     void
+    got_info(const std::string& what, const std::string& val)
+    {
+        std::cout << "got_info(" << what << ", " << val << ")" << std::endl;
+    }
+
+    void
     got_ntps(size_t ntps)
     {
         std::cout << "got_ntps(" << ntps << ")" << std::endl;

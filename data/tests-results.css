@@ -73,7 +73,7 @@ p.se {
     margin-right: 40pt;
 }
 
-table.results-summary {
+table.summary {
     border-collapse: collapse;
     border-color: black;
     border-style: solid;
@@ -82,44 +82,38 @@ table.results-summary {
     margin-right: auto;
 }
 
-table.results-summary th {
+table.summary th {
     background: #aaaadd;
     border-style: solid;
     border-width: 1pt;
     padding: 3pt 6pt 3pt 6pt;
 }
 
-table.results-summary td {
+table.summary td {
     border-style: solid;
     border-width: 1pt;
     padding: 3pt 6pt 3pt 6pt;
 }
 
-table.results-summary td.numeric p {
+table.summary td.numeric p {
     text-align: right;
 }
 
-table.results-summary td.numeric-error p {
+table.summary td.numeric-error p {
     text-align: right;
+    color: red;
 }
 
-table.results-summary td.numeric-warning p {
+table.summary td.numeric-warning p {
     text-align: right;
+    color: #aaaa00;
 }
 
-table.results-summary td.numeric-error {
-    background: #ffaaaa;
+table.summary tr.group {
+    background: #dddddd;
 }
 
-table.results-summary td.numeric-warning {
-    background: #ffffaa;
-}
-
-table.results-summary tr.group {
-    background: #eeeeee;
-}
-
-table.results-summary tr.entry td p {
+table.summary tr.entry td p {
     margin-left: 10pt;
 }
 
@@ -147,7 +141,7 @@ table.tcs-summary th {
 }
 
 table.tcs-summary td.tp-id {
-    background: #eeeeee;
+    background: #dddddd;
     font-weight: bold;
 }
 

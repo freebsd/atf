@@ -399,6 +399,8 @@ atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_tps_2.expout \
                    tests/atf/formats/d_tps_3 \
                    tests/atf/formats/d_tps_3.expout \
+                   tests/atf/formats/d_tps_4 \
+                   tests/atf/formats/d_tps_4.expout \
                    tests/atf/formats/d_tps_50 \
                    tests/atf/formats/d_tps_50.experr \
                    tests/atf/formats/d_tps_51 \
@@ -422,7 +424,28 @@ atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_tps_57.expout \
                    tests/atf/formats/d_tps_58 \
                    tests/atf/formats/d_tps_58.experr \
-                   tests/atf/formats/d_tps_58.expout
+                   tests/atf/formats/d_tps_58.expout \
+                   tests/atf/formats/d_tps_59 \
+                   tests/atf/formats/d_tps_59.experr \
+                   tests/atf/formats/d_tps_60 \
+                   tests/atf/formats/d_tps_60.experr \
+                   tests/atf/formats/d_tps_61 \
+                   tests/atf/formats/d_tps_61.experr \
+                   tests/atf/formats/d_tps_62 \
+                   tests/atf/formats/d_tps_62.experr \
+                   tests/atf/formats/d_tps_62.expout \
+                   tests/atf/formats/d_tps_63 \
+                   tests/atf/formats/d_tps_63.experr \
+                   tests/atf/formats/d_tps_63.expout \
+                   tests/atf/formats/d_tps_64 \
+                   tests/atf/formats/d_tps_64.experr \
+                   tests/atf/formats/d_tps_64.expout \
+                   tests/atf/formats/d_tps_65 \
+                   tests/atf/formats/d_tps_65.experr \
+                   tests/atf/formats/d_tps_65.expout \
+                   tests/atf/formats/d_tps_66 \
+                   tests/atf/formats/d_tps_66.experr \
+                   tests/atf/formats/d_tps_66.expout
 atf_formatsdir = $(pkgtestsdir)/formats
 EXTRA_DIST += $(atf_formats_DATA)
 

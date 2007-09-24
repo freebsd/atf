@@ -63,17 +63,16 @@
       <body>
         <h1><xsl:value-of select="$global.title" /></h1>
 
-        <xsl:call-template name="results-summary" />
+        <xsl:call-template name="info-top" />
         <xsl:call-template name="tcs-summary" />
+        <xsl:call-template name="info-bottom" />
 
-        <xsl:apply-templates mode="details" />
+        <xsl:apply-templates select="tp" mode="details" />
       </body>
     </html>
   </xsl:template>
 
-  <xsl:template name="results-summary">
-    <h2>Results summary</h2>
-
+  <xsl:template name="info-top">
     <xsl:variable name="ntps" select="count(tp)" />
     <xsl:variable name="ntps-failed" select="count(tp/failed)" />
     <xsl:variable name="ntcs" select="count(tp/tc)" />
@@ -81,12 +80,70 @@
     <xsl:variable name="ntcs-failed" select="count(tp/tc/failed)" />
     <xsl:variable name="ntcs-skipped" select="count(tp/tc/skipped)" />
 
-    <table class="results-summary">
+    <h2>Execution summary</h2>
+
+    <table class="summary">
       <tr>
-        <th>Item</th>
-        <th>Count</th>
+        <th><p>Item</p></th>
+        <th><p>Value</p></th>
       </tr>
+
       <tr class="group">
+        <td colspan="2"><p>ATF</p></td>
+      </tr>
+      <tr class="entry">
+        <td><p>Version</p></td>
+        <td><p><xsl:apply-templates
+        select="info[@class = 'atf.version']" /></p></td>
+      </tr>
+
+      <tr class="group">
+        <td colspan="2"><p>Timings</p></td>
+      </tr>
+      <tr class="entry">
+        <td><p>Start time of tests</p></td>
+        <td><p><xsl:apply-templates
+        select="info[@class = 'time.start']" /></p></td>
+      </tr>
+      <tr class="entry">
+        <td><p>End time of tests</p></td>
+        <td><p><xsl:apply-templates
+        select="info[@class = 'time.end']" /></p></td>
+      </tr>
+
+      <tr class="group">
+        <td colspan="2"><p>System information</p></td>
+      </tr>
+      <tr class="entry">
+        <td><p>Host name</p></td>
+        <td><p><xsl:apply-templates
+        select="info[@class = 'uname.nodename']" /></p></td>
+      </tr>
+      <tr class="entry">
+        <td><p>Operating system</p></td>
+        <td><p><xsl:apply-templates
+        select="info[@class = 'uname.sysname']" /></p></td>
+      </tr>
+      <tr class="entry">
+        <td><p>Operating system release</p></td>
+        <td><p><xsl:apply-templates
+        select="info[@class = 'uname.release']" /></p></td>
+      </tr>
+      <tr class="entry">
+        <td><p>Operating system version</p></td>
+        <td><p><xsl:apply-templates
+        select="info[@class = 'uname.version']" /></p></td>
+      </tr>
+      <tr class="entry">
+        <td><p>Platform</p></td>
+        <td><p><xsl:apply-templates
+        select="info[@class = 'uname.machine']" /></p></td>
+      </tr>
+
+      <tr class="group">
+        <td colspan="2"><p>Tests results</p></td>
+      </tr>
+      <tr class="entry">
         <td><p>Test programs</p></td>
         <td class="numeric"><p><xsl:value-of select="$ntps" /></p></td>
       </tr>
@@ -105,7 +162,7 @@
           </xsl:otherwise>
         </xsl:choose>
       </tr>
-      <tr class="group">
+      <tr class="entry">
         <td><p>Test cases</p></td>
         <td class="numeric"><p><xsl:value-of select="$ntcs" /></p></td>
       </tr>
@@ -143,7 +200,31 @@
           </xsl:otherwise>
         </xsl:choose>
       </tr>
+
+      <tr class="group">
+        <td colspan="2"><p><a href="#execution-details">See more execution
+        details</a></p></td>
+      </tr>
     </table>
+  </xsl:template>
+
+  <xsl:template name="info-bottom">
+    <a name="execution-details" />
+    <h2 id="execution-details">Execution details</h2>
+
+    <h3>Environment variables</h3>
+
+    <ul>
+      <xsl:apply-templates select="info[@class = 'env']">
+        <xsl:sort />
+      </xsl:apply-templates>
+    </ul>
+  </xsl:template>
+
+  <xsl:template match="info[@class = 'env']">
+    <li>
+      <p><xsl:apply-templates /></p>
+    </li>
   </xsl:template>
 
   <xsl:template name="tcs-summary">
@@ -155,7 +236,7 @@
         <th><p>Result</p></th>
         <th><p>Reason</p></th>
       </tr>
-      <xsl:apply-templates mode="summary" />
+      <xsl:apply-templates select="tp" mode="summary" />
     </table>
   </xsl:template>
 

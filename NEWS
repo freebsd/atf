@@ -15,6 +15,10 @@ Changes:
   the format's structure and sample XSLT/CSS files to post-process this
   output and convert it to a plain HTML report.
 
+* Changed atf-run to add system information to the report it generates.
+  This is currently only used by atf-report's XML output, and later printed
+  in the HTML reports in a nice and useful summary table.
+
 
 Version 0.2
 ===========

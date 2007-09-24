@@ -174,6 +174,7 @@ tps_body()
         d_tps_1 \
         d_tps_2 \
         d_tps_3 \
+        d_tps_4 \
         d_tps_50 \
         d_tps_51 \
         d_tps_52 \
@@ -182,7 +183,15 @@ tps_body()
         d_tps_55 \
         d_tps_56 \
         d_tps_57 \
-        d_tps_58
+        d_tps_58 \
+        d_tps_59 \
+        d_tps_60 \
+        d_tps_61 \
+        d_tps_62 \
+        d_tps_63 \
+        d_tps_64 \
+        d_tps_65 \
+        d_tps_66
 }
 
 atf_init_test_cases()

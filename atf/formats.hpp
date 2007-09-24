@@ -151,10 +151,12 @@ public:
 class atf_tps_reader {
     std::istream& m_is;
 
+    void read_info(void*);
     void read_tp(void*);
     void read_tc(void*);
 
 protected:
+    virtual void got_info(const std::string&, const std::string&);
     virtual void got_ntps(size_t);
     virtual void got_tp_start(const std::string&, size_t);
     virtual void got_tp_end(const std::string&);
@@ -182,7 +184,10 @@ class atf_tps_writer {
     std::string m_tpname, m_tcname;
 
 public:
-    atf_tps_writer(std::ostream&, size_t);
+    atf_tps_writer(std::ostream&);
+
+    void info(const std::string&, const std::string&);
+    void ntps(size_t);
 
     void start_tp(const std::string&, size_t);
     void end_tp(const std::string&);

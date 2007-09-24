@@ -82,6 +82,7 @@ public:
     writer(void) {}
     virtual ~writer(void) {}
 
+    virtual void write_info(const std::string&, const std::string&) {}
     virtual void write_ntps(size_t) {}
     virtual void write_tp_start(const std::string&, size_t) {}
     virtual void write_tp_end(const std::string&) {}
@@ -351,15 +352,10 @@ class xml_writer : public writer {
     }
 
     void
-    write_ntps(size_t ntps)
+    write_info(const std::string& what, const std::string& val)
     {
-        (*m_os) << "<?xml version=\"1.0\"?>" << std::endl
-                << "<!DOCTYPE tests-results PUBLIC "
-                   "\"-//NetBSD//DTD ATF Tests Results 0.1//EN\" "
-                   "\"http://www.NetBSD.org/XML/atf/tests-results.dtd\">"
-                << std::endl
-                << std::endl
-                << "<tests-results>" << std::endl;
+        (*m_os) << "<info class=\"" << what << "\">" << val << "</info>"
+                << std::endl;
     }
 
     void
@@ -424,6 +420,13 @@ public:
     xml_writer(const atf::fs::path& p) :
         m_os(open_outfile(p))
     {
+        (*m_os) << "<?xml version=\"1.0\"?>" << std::endl
+                << "<!DOCTYPE tests-results PUBLIC "
+                   "\"-//NetBSD//DTD ATF Tests Results 0.1//EN\" "
+                   "\"http://www.NetBSD.org/XML/atf/tests-results.dtd\">"
+                << std::endl
+                << std::endl
+                << "<tests-results>" << std::endl;
     }
 };
 
@@ -441,6 +444,14 @@ public:
 class converter : public atf::formats::atf_tps_reader {
     typedef std::vector< writer* > outs_vector;
     outs_vector m_outs;
+
+    void
+    got_info(const std::string& what, const std::string& val)
+    {
+        for (outs_vector::iterator iter = m_outs.begin();
+             iter != m_outs.end(); iter++)
+            (*iter)->write_info(what, val);
+    }
 
     void
     got_ntps(size_t ntps)

@@ -454,6 +454,7 @@ static const atf::parser::token_type& tc_end_type = 11;
 static const atf::parser::token_type& passed_type = 12;
 static const atf::parser::token_type& failed_type = 13;
 static const atf::parser::token_type& skipped_type = 14;
+static const atf::parser::token_type& info_type = 16;
 
 class tokenizer : public atf::parser::tokenizer< std::istream > {
 public:
@@ -473,6 +474,7 @@ public:
         add_keyword("passed", passed_type);
         add_keyword("failed", failed_type);
         add_keyword("skipped", skipped_type);
+        add_keyword("info", info_type);
     }
 };
 
@@ -918,6 +920,12 @@ impl::atf_tps_reader::~atf_tps_reader(void)
 }
 
 void
+impl::atf_tps_reader::got_info(const std::string& what,
+                               const std::string& val)
+{
+}
+
+void
 impl::atf_tps_reader::got_ntps(size_t ntps)
 {
 }
@@ -955,6 +963,25 @@ impl::atf_tps_reader::got_tc_end(const atf::tests::tcr& tcr)
 void
 impl::atf_tps_reader::got_eof(void)
 {
+}
+
+void
+impl::atf_tps_reader::read_info(void* pptr)
+{
+    using atf::parser::parse_error;
+    using namespace atf_tps;
+
+    atf::parser::parser< tokenizer >& p =
+        *reinterpret_cast< atf::parser::parser< tokenizer >* >
+        (pptr);
+
+    (void)p.expect(colon_type, "`:'");
+
+    atf::parser::token t = p.expect(text_type, "info property name");
+    (void)p.expect(comma_type, "`,'");
+    got_info(t.text(), atf::text::trim(p.rest_of_line()));
+
+    (void)p.expect(nl_type, "new line");
 }
 
 void
@@ -1102,13 +1129,17 @@ impl::atf_tps_reader::read(void)
     using namespace atf_tps;
 
     std::pair< size_t, headers_map > hml = read_headers(m_is, 1);
-    validate_content_type(hml.second, "application/X-atf-tps", 1);
+    validate_content_type(hml.second, "application/X-atf-tps", 2);
 
     tokenizer tkz(m_is, hml.first);
     atf::parser::parser< tokenizer > p(tkz);
 
     try {
-        atf::parser::token t = p.expect(tps_count, "tps-count field");
+        atf::parser::token t;
+
+        while ((t = p.expect(tps_count, info_type, "tps-count or info "
+                             "field")).type() == info_type)
+            read_info(&p);
 
         t = p.expect(colon_type, "`:'");
 
@@ -1129,7 +1160,9 @@ impl::atf_tps_reader::read(void)
             }
         }
 
-        t = p.expect(eof_type, "end of stream");
+        while ((t = p.expect(eof_type, info_type, "end of stream or info "
+                             "field")).type() == info_type)
+            read_info(&p);
         CALLBACK(p, got_eof());
     } catch (const parse_error& pe) {
         p.add_error(pe);
@@ -1141,17 +1174,28 @@ impl::atf_tps_reader::read(void)
 // The "atf_tps_writer" class.
 // ------------------------------------------------------------------------
 
-impl::atf_tps_writer::atf_tps_writer(std::ostream& os, size_t ntps) :
+impl::atf_tps_writer::atf_tps_writer(std::ostream& os) :
     m_os(os)
 {
     headers_map hm;
     attrs_map ct_attrs;
-    ct_attrs["version"] = "1";
+    ct_attrs["version"] = "2";
     hm["Content-Type"] =
         header_entry("Content-Type", "application/X-atf-tps", ct_attrs);
     write_headers(hm, m_os);
+}
 
-    m_os << "tps-count: " << ntps << std::endl;
+void
+impl::atf_tps_writer::info(const std::string& what, const std::string& val)
+{
+    m_os << "info: " << what << ", " << val << std::endl;
+    m_os.flush();
+}
+
+void
+impl::atf_tps_writer::ntps(size_t p_ntps)
+{
+    m_os << "tps-count: " << p_ntps << std::endl;
     m_os.flush();
 }
 
