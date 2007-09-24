@@ -39,7 +39,10 @@
   ++ URI:    http://www.NetBSD.org/XML/atf/tests-results.dtd
   -->
 
-<!ELEMENT tests-results (tp*)>
+<!ELEMENT tests-results (info*, tp*, info*)>
+
+<!ELEMENT info (#PCDATA)>
+<!ATTLIST info class CDATA #REQUIRED>
 
 <!ELEMENT tp (tc*, failed?)>
 <!ATTLIST tp id ID #REQUIRED>
