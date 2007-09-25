@@ -354,8 +354,8 @@ EOF
 
 no_reason_head()
 {
-    atf_set "descr" "Ensures that atf-run reports bogus test programs " \
-                    "that do not provide a reason for failed or skipped " \
+    atf_set "descr" "Ensures that atf-run reports bogus test programs" \
+                    "that do not provide a reason for failed or skipped" \
                     "test cases"
 }
 no_reason_body()
