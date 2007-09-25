@@ -46,15 +46,14 @@
 // ------------------------------------------------------------------------
 
 class reader : public atf::formats::atf_atffile_reader {
-    std::string m_ts;
     const atf::fs::directory& m_dir;
-    atf::tests::vars_map m_vars;
+    atf::tests::vars_map m_conf, m_props;
     std::vector< std::string > m_tps;
 
     void
-    got_tp(const std::string& name)
+    got_tp(const std::string& name, bool isglob)
     {
-        if (atf::expand::is_glob(name)) {
+        if (isglob) {
             std::set< std::string > ms =
                 atf::expand::expand_glob(name, m_dir.names());
             m_tps.insert(m_tps.end(), ms.begin(), ms.end());
@@ -68,15 +67,15 @@ class reader : public atf::formats::atf_atffile_reader {
     }
 
     void
-    got_ts(const std::string& name)
+    got_prop(const std::string& name, const std::string& val)
     {
-        m_ts = name;
+        m_props[name] = val;
     }
 
     void
-    got_var(const std::string& var, const std::string& val)
+    got_conf(const std::string& var, const std::string& val)
     {
-        m_vars[var] = val;
+        m_conf[var] = val;
     }
 
 public:
@@ -86,11 +85,18 @@ public:
     {
     }
 
-    const std::string&
-    ts(void)
+    const atf::tests::vars_map&
+    conf(void)
         const
     {
-        return m_ts;
+        return m_conf;
+    }
+
+    const atf::tests::vars_map&
+    props(void)
+        const
+    {
+        return m_props;
     }
 
     const std::vector< std::string >&
@@ -98,13 +104,6 @@ public:
         const
     {
         return m_tps;
-    }
-
-    const atf::tests::vars_map&
-    vars(void)
-        const
-    {
-        return m_vars;
     }
 };
 
@@ -140,9 +139,13 @@ atf::atffile::atffile(const atf::fs::path& filename)
     is.close();
 
     // Update the atffile with the data accumulated in the reader.
-    m_ts = r.ts();
+    m_conf = r.conf();
+    m_props = r.props();
     m_tps = r.tps();
-    m_vars = r.vars();
+
+    // Sanity checks.
+    if (m_props.find("test-suite") == m_props.end())
+        throw std::runtime_error("Undefined property `test-suite'");
 }
 
 const std::vector< std::string >&
@@ -152,16 +155,16 @@ atf::atffile::tps(void)
     return m_tps;
 }
 
-const std::string&
-atf::atffile::ts(void)
+const atf::tests::vars_map&
+atf::atffile::conf(void)
     const
 {
-    return m_ts;
+    return m_conf;
 }
 
 const atf::tests::vars_map&
-atf::atffile::vars(void)
+atf::atffile::props(void)
     const
 {
-    return m_vars;
+    return m_props;
 }

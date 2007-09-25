@@ -38,6 +38,7 @@
 # to demonstrate the utility of the atf_check function.  Inspect its
 # current status and complete it.
 
+atf_test_case tc_includes
 tc_includes_head()
 {
     atf_set "descr" "Tests that the resulting file includes the correct" \
@@ -55,6 +56,7 @@ EOF
     atf_check 'grep ^\..*/atf.footer.subr tp_test' 0 ignore null
 }
 
+atf_test_case tc_oflag
 tc_oflag_head()
 {
     atf_set "descr" "Tests that the -o flag works"

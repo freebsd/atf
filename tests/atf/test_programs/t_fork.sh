@@ -37,6 +37,7 @@
 # TODO: This test program is about checking the test case's "environment"
 # (not the variables).  Should be named something else than t_fork.
 
+atf_test_case mangle_fds
 mangle_fds_head()
 {
     atf_set "descr" "Tests that mangling standard descriptors does not" \
@@ -55,6 +56,7 @@ mangle_fds_body()
     done
 }
 
+atf_test_case umask
 umask_head()
 {
     atf_set "descr" "Tests that the umask is properly set in the test" \

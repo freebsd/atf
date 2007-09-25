@@ -49,6 +49,9 @@
 Atf_Cleanup=$(atf-config -t atf_libexecdir)/atf-cleanup
 Atf_Format=$(atf-config -t atf_libexecdir)/atf-format
 
+# List of blocked signals, to be processed when unblocked.
+Held_Signals=
+
 # A boolean variable that indicates whether we are parsing a test case's
 # head or not.
 Parsing_Head=false
@@ -69,6 +72,7 @@ Source_Dir=$(pwd)
 Test_Case=
 
 # The list of all test cases provided by the test program.
+# Subset of ${Defined_Test_Cases}.
 Test_Cases=
 
 # The test case's work directory.
@@ -83,10 +87,14 @@ Work_Dir=
 #
 #   Adds the given test case to the list of test cases that form the test
 #   program.  The name provided here must be accompanied by two functions
-#   named after it: <tc-name>_head and <tc-name>_body.
+#   named after it: <tc-name>_head and <tc-name>_body, and optionally by
+#   a <tc-name>_cleanup function.
 #
 atf_add_test_case()
 {
+    _atf_is_tc_defined "${1}" || \
+        _atf_error 128 "Test case ${1} was not correctly defined by" \
+                       "this test program"
     Test_Cases="${Test_Cases} ${1}"
 }
 
@@ -695,6 +703,15 @@ _atf_run_body()
         ;;
     esac
 
+    # Restore all signals to their default behavior for the child process.
+    if [ ${SH_TRAP_DASH} = yes ]; then
+        trap -- -
+    else
+        # We don't have an easy way to reset all signals to their default
+        # behavior, so simply revert those that we modified.
+        trap SIGHUP SIGINT SIGTERM
+    fi
+
     ${1}_body
 }
 
@@ -710,6 +727,13 @@ _atf_run_tc()
 {
     _atf_parse_head ${1}
 
+    # Block some signals while we mess with temporary files so that we can
+    # clean them up later on.
+    Held_Signals=
+    trap _atf_sighup_handler SIGHUP
+    trap _atf_sigint_handler SIGINT
+    trap _atf_sigterm_handler SIGTERM
+
     echo "tc-start: ${Test_Case}" >&${Results_Fd}
 
     _atf_internal_set srcdir "${Source_Dir}"
@@ -721,6 +745,7 @@ _atf_run_tc()
         if [ ${?} -eq 0 ]; then
             ( cd ${Work_Dir} ; _atf_run_body ${1} ; atf_pass )
             _ret=$?
+            ( cd ${Work_Dir} ; ${1}_cleanup )
             if [ ${2} -gt 1 ]; then
                 echo __atf_tc_separator__
                 echo __atf_tc_separator__ 1>&2
@@ -734,6 +759,7 @@ _atf_run_tc()
     else
         ( _atf_run_body ${1} ; atf_pass )
         _ret=${?}
+        ( ${1}_cleanup )
         if [ ${2} -gt 1 ]; then
             echo __atf_tc_separator__
             echo __atf_tc_separator__ 1>&2
@@ -744,13 +770,23 @@ _atf_run_tc()
 
     # Set a default exit status if the test case did not report any.
     if [ -z "$(cat ${Results_File})" ]; then
-        ( atf_fail "Test case did not report any status; bogus test" )
+        if [ -n "${Held_Signals}" ]; then
+            ( atf_fail "Test case was interrupted by${Held_Signals}" )
+        else
+            ( atf_fail "Test case did not report any status; bogus test" )
+        fi
     fi
 
     # Print the result of the test case and clean up the temporary file.
     echo "tc-end: ${Test_Case}, $(cat ${Results_File})" >&${Results_Fd}
     rm -f ${Results_File}
     Results_File=
+
+    # Restore blocked signals and process them.
+    trap - SIGHUP SIGINT SIGTERM
+    for s in ${Held_Signals}; do
+        kill -s ${s} $$
+    done
 
     return ${_ret}
 }
@@ -781,6 +817,39 @@ _atf_run_tcs()
 }
 
 #
+# _atf_sighup_handler
+#
+#   Handler for the SIGHUP signal that registers its occurrence so that
+#   it can be processed at a later stage.
+#
+_atf_sighup_handler()
+{
+    Held_Signals="${Held_Signals} SIGHUP"
+}
+
+#
+# _atf_sigint_handler
+#
+#   Handler for the SIGINT signal that registers its occurrence so that
+#   it can be processed at a later stage.
+#
+_atf_sigint_handler()
+{
+    Held_Signals="${Held_Signals} SIGINT"
+}
+
+#
+# _atf_sigterm_handler
+#
+#   Handler for the SIGTERM signal that registers its occurrence so that
+#   it can be processed at a later stage.
+#
+_atf_sigterm_handler()
+{
+    Held_Signals="${Held_Signals} SIGTERM"
+}
+
+#
 # _atf_syntax_error msg1 [.. msgN]
 #
 #   Formats and prints a syntax error message and terminates the
@@ -792,6 +861,20 @@ _atf_syntax_error()
     _atf_echo -r -t "${Prog_Name}: " "Type \`${Prog_Name} -h' for more" \
                                      "details." 1>&2
     exit 1
+}
+
+#
+# _atf_is_tc_defined tc-name
+#
+#   Returns a boolean indicating if the given test case was defined by the
+#   test program or not.
+#
+_atf_is_tc_defined()
+{
+    for _tc in ${Defined_Test_Cases}; do
+        [ ${_tc} = ${1} ] && return 0
+    done
+    return 1
 }
 
 #

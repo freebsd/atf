@@ -38,6 +38,8 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <signal.h>
+#include <unistd.h>
 }
 
 #include <cstdlib>
@@ -64,12 +66,103 @@ safe_mkdir(const char* path)
 
 static
 void
-touch(const char* path)
+touch(const std::string& path)
 {
-    std::ofstream os(path);
+    std::ofstream os(path.c_str());
     if (!os)
-        ATF_FAIL(std::string("Could not create file ") + path);
+        ATF_FAIL("Could not create file " + path);
     os.close();
+}
+
+// ------------------------------------------------------------------------
+// Helper tests for "t_cleanup".
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_pass);
+ATF_TEST_CASE_HEAD(cleanup_pass)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_pass)
+{
+    touch(config().get("tmpfile"));
+}
+ATF_TEST_CASE_CLEANUP(cleanup_pass)
+{
+    if (config().get_bool("cleanup"))
+        atf::fs::remove(atf::fs::path(config().get("tmpfile")));
+}
+
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_fail);
+ATF_TEST_CASE_HEAD(cleanup_fail)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_fail)
+{
+    touch(config().get("tmpfile"));
+    ATF_FAIL("On purpose");
+}
+ATF_TEST_CASE_CLEANUP(cleanup_fail)
+{
+    if (config().get_bool("cleanup"))
+        atf::fs::remove(atf::fs::path(config().get("tmpfile")));
+}
+
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_skip);
+ATF_TEST_CASE_HEAD(cleanup_skip)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_skip)
+{
+    touch(config().get("tmpfile"));
+    ATF_SKIP("On purpose");
+}
+ATF_TEST_CASE_CLEANUP(cleanup_skip)
+{
+    if (config().get_bool("cleanup"))
+        atf::fs::remove(atf::fs::path(config().get("tmpfile")));
+}
+
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_curdir);
+ATF_TEST_CASE_HEAD(cleanup_curdir)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_curdir)
+{
+    std::ofstream os("oldvalue");
+    if (!os)
+        ATF_FAIL("Failed to create oldvalue file");
+    os << 1234;
+    os.close();
+}
+ATF_TEST_CASE_CLEANUP(cleanup_curdir)
+{
+    std::ifstream is("oldvalue");
+    if (is) {
+        int i;
+        is >> i;
+        std::cout << "Old value: " << i << std::endl;
+        is.close();
+    }
+}
+
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_sigterm);
+ATF_TEST_CASE_HEAD(cleanup_sigterm)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_sigterm)
+{
+    touch(config().get("tmpfile"));
+    ::kill(::getpid(), SIGTERM);
+    touch(config().get("tmpfile") + ".no");
+}
+ATF_TEST_CASE_CLEANUP(cleanup_sigterm)
+{
+    atf::fs::remove(atf::fs::path(config().get("tmpfile")));
 }
 
 // ------------------------------------------------------------------------
@@ -352,11 +445,42 @@ ATF_TEST_CASE_BODY(srcdir_exists)
 }
 
 // ------------------------------------------------------------------------
+// Helper tests for "t_status".
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(status_newlines_fail);
+ATF_TEST_CASE_HEAD(status_newlines_fail)
+{
+    set("descr", "Helper test case for the t_status test program");
+}
+ATF_TEST_CASE_BODY(status_newlines_fail)
+{
+    ATF_FAIL("First line\nSecond line");
+}
+
+ATF_TEST_CASE(status_newlines_skip);
+ATF_TEST_CASE_HEAD(status_newlines_skip)
+{
+    set("descr", "Helper test case for the t_status test program");
+}
+ATF_TEST_CASE_BODY(status_newlines_skip)
+{
+    ATF_SKIP("First line\nSecond line");
+}
+
+// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
 ATF_INIT_TEST_CASES(tcs)
 {
+    // Add helper tests for t_cleanup.
+    tcs.push_back(&cleanup_pass);
+    tcs.push_back(&cleanup_fail);
+    tcs.push_back(&cleanup_skip);
+    tcs.push_back(&cleanup_curdir);
+    tcs.push_back(&cleanup_sigterm);
+
     // Add helper tests for t_config.
     tcs.push_back(&config_unset);
     tcs.push_back(&config_empty);
@@ -386,4 +510,8 @@ ATF_INIT_TEST_CASES(tcs)
 
     // Add helper tests for t_srcdir.
     tcs.push_back(&srcdir_exists);
+
+    // Add helper tests for t_status.
+    tcs.push_back(&status_newlines_fail);
+    tcs.push_back(&status_newlines_skip);
 }

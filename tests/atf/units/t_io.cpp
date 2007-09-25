@@ -440,19 +440,25 @@ ATF_TEST_CASE_BODY(postream)
 
     pipe p;
     int fh = p.wend().get();
-    systembuf rbuf(p.rend().get());
-    std::istream rend(&rbuf);
     postream wend(p.wend());
     ATF_CHECK_EQUAL(fh, wend.handle().get());
 
-    // XXX This assumes that the pipe's buffer is big enough to accept
-    // the data written without blocking!
-    wend << "1Test 1message" << std::endl;
-    std::string tmp;
-    rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "1Test");
-    rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "1message");
+    // The following block is to ensure that the read end is closed
+    // before the write one.  Otherwise we get a SIGPIPE, at least
+    // under FreeBSD 6.2.
+    {
+        systembuf rbuf(p.rend().get());
+        std::istream rend(&rbuf);
+
+        // XXX This assumes that the pipe's buffer is big enough to accept
+        // the data written without blocking!
+        wend << "1Test 1message" << std::endl;
+        std::string tmp;
+        rend >> tmp;
+        ATF_CHECK_EQUAL(tmp, "1Test");
+        rend >> tmp;
+        ATF_CHECK_EQUAL(tmp, "1message");
+    }
 }
 
 // ------------------------------------------------------------------------

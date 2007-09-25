@@ -38,8 +38,20 @@
 # File: atf.header.subr
 #
 #   This file provides default contents for the hooks that must be
-#   redefined by test programs.
+#   redefined by test programs and other stuff that has to be defined
+#   before the test program's code is parsed.
 #
+
+# ------------------------------------------------------------------------
+# GLOBAL VARIABLES
+# ------------------------------------------------------------------------
+
+# The list of all test cases defined by the test program.
+Defined_Test_Cases=
+
+# ------------------------------------------------------------------------
+# PUBLIC INTERFACE
+# ------------------------------------------------------------------------
 
 #
 # atf_init_test_cases
@@ -50,6 +62,23 @@
 atf_init_test_cases()
 {
     _atf_error 128 "No test cases defined"
+}
+
+#
+# atf_test_case tc-name
+#
+#   Defines a new test case named tc-name.  The name provided here must be
+#   accompanied by two functions named after it: <tc-name>_head and
+#   <tc-name>_body, and may also be accompanied by a <tc-name>_cleanup
+#   function.
+#
+atf_test_case()
+{
+    Defined_Test_Cases="${Defined_Test_Cases} ${1}"
+
+    eval "${1}_head() { _atf_error 128 '${1}_head not defined'; }"
+    eval "${1}_body() { :; }"
+    eval "${1}_cleanup() { :; }"
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

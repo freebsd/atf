@@ -413,6 +413,11 @@ path get_current_dir(void);
 bool is_executable(const path&);
 
 //!
+//! \brief Removes a given file.
+//!
+void remove(const path&);
+
+//!
 //! \brief Recursively cleans up a directory.
 //!
 //! This function cleans up a directory hierarchy.  First of all, it looks
@@ -420,7 +425,6 @@ bool is_executable(const path&);
 //! any is found, an attempt is made to unmount it.  Later on, the
 //! directory is removed alongside all of its contents.
 //!
-
 void cleanup(const path&);
 
 } // namespace fs

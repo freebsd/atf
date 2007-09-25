@@ -53,25 +53,29 @@ ATF_TEST_CASE_BODY(token_getters)
     using atf::parser::token;
 
     {
-        token< int > t(0);
+        token t(10, 0);
+        ATF_CHECK_EQUAL(t.lineno(), 10);
         ATF_CHECK_EQUAL(t.type(), 0);
         ATF_CHECK(t.text().empty());
     }
 
     {
-        token< int > t(0, "foo");
+        token t(10, 0, "foo");
+        ATF_CHECK_EQUAL(t.lineno(), 10);
         ATF_CHECK_EQUAL(t.type(), 0);
         ATF_CHECK_EQUAL(t.text(), "foo");
     }
 
     {
-        token< int > t(1);
+        token t(20, 1);
+        ATF_CHECK_EQUAL(t.lineno(), 20);
         ATF_CHECK_EQUAL(t.type(), 1);
         ATF_CHECK(t.text().empty());
     }
 
     {
-        token< int > t(1, "bar");
+        token t(20, 1, "bar");
+        ATF_CHECK_EQUAL(t.lineno(), 20);
         ATF_CHECK_EQUAL(t.type(), 1);
         ATF_CHECK_EQUAL(t.text(), "bar");
     }
@@ -81,27 +85,24 @@ ATF_TEST_CASE_BODY(token_getters)
 // Tests for the "tokenizer" class.
 // ------------------------------------------------------------------------
 
-#define EXPECT(tkz, enumtype, ttype, ttext) \
+#define EXPECT(tkz, ttype, ttext) \
     do { \
-        atf::parser::token< enumtype > t = tkz.next(); \
+        atf::parser::token t = tkz.next(); \
         ATF_CHECK(t.type() == ttype); \
         ATF_CHECK_EQUAL(t.text(), ttext); \
     } while (false);
 
 namespace minimal {
 
-    enum tokens {
-        eof,
-        nl,
-        word,
-    };
+    static const atf::parser::token_type& eof_type = 0;
+    static const atf::parser::token_type& nl_type = 1;
+    static const atf::parser::token_type& word_type = 2;
 
-    class tokenizer : public atf::parser::tokenizer< tokens,
-                                                     std::istream > {
+    class tokenizer : public atf::parser::tokenizer< std::istream > {
     public:
         tokenizer(std::istream& is, bool skipws) :
-            atf::parser::tokenizer< tokens, std::istream >
-                (is, skipws, eof, nl, word)
+            atf::parser::tokenizer< std::istream >
+                (is, skipws, eof_type, nl_type, word_type)
         {
         }
     };
@@ -110,25 +111,22 @@ namespace minimal {
 
 namespace delims {
 
-    enum tokens {
-        eof,
-        nl,
-        word,
-        plus,
-        minus,
-        equal,
-    };
+    static const atf::parser::token_type& eof_type = 0;
+    static const atf::parser::token_type& nl_type = 1;
+    static const atf::parser::token_type& word_type = 2;
+    static const atf::parser::token_type& plus_type = 3;
+    static const atf::parser::token_type& minus_type = 4;
+    static const atf::parser::token_type& equal_type = 5;
 
-    class tokenizer : public atf::parser::tokenizer< tokens,
-                                                     std::istream > {
+    class tokenizer : public atf::parser::tokenizer< std::istream > {
     public:
         tokenizer(std::istream& is, bool skipws) :
-            atf::parser::tokenizer< tokens, std::istream >
-                (is, skipws, eof, nl, word)
+            atf::parser::tokenizer< std::istream >
+                (is, skipws, eof_type, nl_type, word_type)
         {
-            add_delim('+', plus);
-            add_delim('-', minus);
-            add_delim('=', equal);
+            add_delim('+', plus_type);
+            add_delim('-', minus_type);
+            add_delim('=', equal_type);
         }
     };
 
@@ -136,25 +134,41 @@ namespace delims {
 
 namespace keywords {
 
-    enum tokens {
-        eof,
-        nl,
-        word,
-        var,
-        loop,
-        endloop,
-    };
+    static const atf::parser::token_type& eof_type = 0;
+    static const atf::parser::token_type& nl_type = 1;
+    static const atf::parser::token_type& word_type = 2;
+    static const atf::parser::token_type& var_type = 3;
+    static const atf::parser::token_type& loop_type = 4;
+    static const atf::parser::token_type& endloop_type = 5;
 
-    class tokenizer : public atf::parser::tokenizer< tokens,
-                                                     std::istream > {
+    class tokenizer : public atf::parser::tokenizer< std::istream > {
     public:
         tokenizer(std::istream& is, bool skipws) :
-            atf::parser::tokenizer< tokens, std::istream >
-                (is, skipws, eof, nl, word)
+            atf::parser::tokenizer< std::istream >
+                (is, skipws, eof_type, nl_type, word_type)
         {
-            add_keyword("var", var);
-            add_keyword("loop", loop);
-            add_keyword("endloop", endloop);
+            add_keyword("var", var_type);
+            add_keyword("loop", loop_type);
+            add_keyword("endloop", endloop_type);
+        }
+    };
+
+}
+
+namespace quotes {
+
+    static const atf::parser::token_type& eof_type = 0;
+    static const atf::parser::token_type& nl_type = 1;
+    static const atf::parser::token_type& word_type = 2;
+    static const atf::parser::token_type& dblquote_type = 3;
+
+    class tokenizer : public atf::parser::tokenizer< std::istream > {
+    public:
+        tokenizer(std::istream& is, bool skipws) :
+            atf::parser::tokenizer< std::istream >
+                (is, skipws, eof_type, nl_type, word_type)
+        {
+            add_quote('"', dblquote_type);
         }
     };
 
@@ -174,65 +188,72 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_nows)
         std::istringstream iss("");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("\n");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("\n\n\n");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("line 1");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, word, "line 1");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, word_type, "line 1");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("line 1\n");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, word, "line 1");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, word_type, "line 1");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("line 1\nline 2");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, word, "line 1");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, word, "line 2");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, word_type, "line 1");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, word_type, "line 2");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("line 1\nline 2\nline 3\n");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, word, "line 1");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, word, "line 2");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, word, "line 3");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, word_type, "line 1");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, word_type, "line 2");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, word_type, "line 3");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 }
 
@@ -250,112 +271,123 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_ws)
         std::istringstream iss("");
         minimal::tokenizer mt(iss, true);
 
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss(" \t ");
         tokenizer mt(iss, true);
 
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("\n");
         tokenizer mt(iss, true);
 
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss(" \t \n \t ");
         tokenizer mt(iss, true);
 
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("\n\n\n");
         tokenizer mt(iss, true);
 
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("line 1");
         tokenizer mt(iss, true);
 
-        EXPECT(mt, tokens, word, "line");
-        EXPECT(mt, tokens, word, "1");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, word_type, "line");
+        EXPECT(mt, word_type, "1");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("   \tline\t   1\t");
         tokenizer mt(iss, true);
 
-        EXPECT(mt, tokens, word, "line");
-        EXPECT(mt, tokens, word, "1");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, word_type, "line");
+        EXPECT(mt, word_type, "1");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("line 1\n");
         tokenizer mt(iss, true);
 
-        EXPECT(mt, tokens, word, "line");
-        EXPECT(mt, tokens, word, "1");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, word_type, "line");
+        EXPECT(mt, word_type, "1");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("line 1\nline 2");
         tokenizer mt(iss, true);
 
-        EXPECT(mt, tokens, word, "line");
-        EXPECT(mt, tokens, word, "1");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, word, "line");
-        EXPECT(mt, tokens, word, "2");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, word_type, "line");
+        EXPECT(mt, word_type, "1");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, word_type, "line");
+        EXPECT(mt, word_type, "2");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("line 1\nline 2\nline 3\n");
         tokenizer mt(iss, true);
 
-        EXPECT(mt, tokens, word, "line");
-        EXPECT(mt, tokens, word, "1");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, word, "line");
-        EXPECT(mt, tokens, word, "2");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, word, "line");
-        EXPECT(mt, tokens, word, "3");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, word_type, "line");
+        EXPECT(mt, word_type, "1");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, word_type, "line");
+        EXPECT(mt, word_type, "2");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, word_type, "line");
+        EXPECT(mt, word_type, "3");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss(" \t line \t 1\n\tline\t2\n line 3 \n");
         tokenizer mt(iss, true);
 
-        EXPECT(mt, tokens, word, "line");
-        EXPECT(mt, tokens, word, "1");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, word, "line");
-        EXPECT(mt, tokens, word, "2");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, word, "line");
-        EXPECT(mt, tokens, word, "3");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, word_type, "line");
+        EXPECT(mt, word_type, "1");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, word_type, "line");
+        EXPECT(mt, word_type, "2");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, word_type, "line");
+        EXPECT(mt, word_type, "3");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 }
 
@@ -373,57 +405,62 @@ ATF_TEST_CASE_BODY(tokenizer_delims_nows)
         std::istringstream iss("+-=");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, plus, "+");
-        EXPECT(mt, tokens, minus, "-");
-        EXPECT(mt, tokens, equal, "=");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, plus_type, "+");
+        EXPECT(mt, minus_type, "-");
+        EXPECT(mt, equal_type, "=");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("+++");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, plus, "+");
-        EXPECT(mt, tokens, plus, "+");
-        EXPECT(mt, tokens, plus, "+");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, plus_type, "+");
+        EXPECT(mt, plus_type, "+");
+        EXPECT(mt, plus_type, "+");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("\n+\n++\n");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, plus, "+");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, plus, "+");
-        EXPECT(mt, tokens, plus, "+");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, plus_type, "+");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, plus_type, "+");
+        EXPECT(mt, plus_type, "+");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("foo+bar=baz");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, word, "foo");
-        EXPECT(mt, tokens, plus, "+");
-        EXPECT(mt, tokens, word, "bar");
-        EXPECT(mt, tokens, equal, "=");
-        EXPECT(mt, tokens, word, "baz");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, word_type, "foo");
+        EXPECT(mt, plus_type, "+");
+        EXPECT(mt, word_type, "bar");
+        EXPECT(mt, equal_type, "=");
+        EXPECT(mt, word_type, "baz");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss(" foo\t+\tbar = baz ");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, word, " foo\t");
-        EXPECT(mt, tokens, plus, "+");
-        EXPECT(mt, tokens, word, "\tbar ");
-        EXPECT(mt, tokens, equal, "=");
-        EXPECT(mt, tokens, word, " baz ");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, word_type, " foo\t");
+        EXPECT(mt, plus_type, "+");
+        EXPECT(mt, word_type, "\tbar ");
+        EXPECT(mt, equal_type, "=");
+        EXPECT(mt, word_type, " baz ");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 }
 
@@ -441,12 +478,13 @@ ATF_TEST_CASE_BODY(tokenizer_delims_ws)
         std::istringstream iss(" foo\t+\tbar = baz ");
         tokenizer mt(iss, true);
 
-        EXPECT(mt, tokens, word, "foo");
-        EXPECT(mt, tokens, plus, "+");
-        EXPECT(mt, tokens, word, "bar");
-        EXPECT(mt, tokens, equal, "=");
-        EXPECT(mt, tokens, word, "baz");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, word_type, "foo");
+        EXPECT(mt, plus_type, "+");
+        EXPECT(mt, word_type, "bar");
+        EXPECT(mt, equal_type, "=");
+        EXPECT(mt, word_type, "baz");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 }
 
@@ -464,44 +502,49 @@ ATF_TEST_CASE_BODY(tokenizer_keywords_nows)
         std::istringstream iss("var");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, var, "var");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, var_type, "var");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("va");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, word, "va");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, word_type, "va");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("vara");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, word, "vara");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, word_type, "vara");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("var ");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, word, "var ");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, word_type, "var ");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("var\nloop\nendloop");
         tokenizer mt(iss, false);
 
-        EXPECT(mt, tokens, var, "var");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, loop, "loop");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, endloop, "endloop");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, var_type, "var");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, loop_type, "loop");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, endloop_type, "endloop");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 }
 
@@ -519,30 +562,131 @@ ATF_TEST_CASE_BODY(tokenizer_keywords_ws)
         std::istringstream iss("var ");
         tokenizer mt(iss, true);
 
-        EXPECT(mt, tokens, var, "var");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, var_type, "var");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss(" var \n\tloop\t\n \tendloop \t");
         tokenizer mt(iss, true);
 
-        EXPECT(mt, tokens, var, "var");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, loop, "loop");
-        EXPECT(mt, tokens, nl, "<<NEWLINE>>");
-        EXPECT(mt, tokens, endloop, "endloop");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, var_type, "var");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, loop_type, "loop");
+        EXPECT(mt, nl_type, "<<NEWLINE>>");
+        EXPECT(mt, endloop_type, "endloop");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 
     {
         std::istringstream iss("var loop endloop");
         tokenizer mt(iss, true);
 
-        EXPECT(mt, tokens, var, "var");
-        EXPECT(mt, tokens, loop, "loop");
-        EXPECT(mt, tokens, endloop, "endloop");
-        EXPECT(mt, tokens, eof, "<<EOF>>");
+        EXPECT(mt, var_type, "var");
+        EXPECT(mt, loop_type, "loop");
+        EXPECT(mt, endloop_type, "endloop");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+    }
+}
+
+ATF_TEST_CASE(tokenizer_quotes_nows);
+ATF_TEST_CASE_HEAD(tokenizer_quotes_nows)
+{
+    set("descr", "Tests the tokenizer class using a parser with "
+                 "quoted strings and not skipping whitespace");
+}
+ATF_TEST_CASE_BODY(tokenizer_quotes_nows)
+{
+    using namespace quotes;
+
+    {
+        std::istringstream iss("var");
+        tokenizer mt(iss, false);
+
+        EXPECT(mt, word_type, "var");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+    }
+
+    {
+        std::istringstream iss("\"var\"");
+        tokenizer mt(iss, false);
+
+        EXPECT(mt, word_type, "var");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+    }
+
+    {
+        std::istringstream iss("var1\"var2\"");
+        tokenizer mt(iss, false);
+
+        EXPECT(mt, word_type, "var1");
+        EXPECT(mt, word_type, "var2");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+    }
+
+    {
+        std::istringstream iss("var1\"  var2  \"");
+        tokenizer mt(iss, false);
+
+        EXPECT(mt, word_type, "var1");
+        EXPECT(mt, word_type, "  var2  ");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+    }
+}
+
+ATF_TEST_CASE(tokenizer_quotes_ws);
+ATF_TEST_CASE_HEAD(tokenizer_quotes_ws)
+{
+    set("descr", "Tests the tokenizer class using a parser with "
+                 "quoted strings and skipping whitespace");
+}
+ATF_TEST_CASE_BODY(tokenizer_quotes_ws)
+{
+    using namespace quotes;
+
+    {
+        std::istringstream iss("  var  ");
+        tokenizer mt(iss, true);
+
+        EXPECT(mt, word_type, "var");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+    }
+
+    {
+        std::istringstream iss("  \"var\"  ");
+        tokenizer mt(iss, true);
+
+        EXPECT(mt, word_type, "var");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+    }
+
+    {
+        std::istringstream iss("  var1  \"var2\"  ");
+        tokenizer mt(iss, true);
+
+        EXPECT(mt, word_type, "var1");
+        EXPECT(mt, word_type, "var2");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
+    }
+
+    {
+        std::istringstream iss("  var1  \"  var2  \"  ");
+        tokenizer mt(iss, true);
+
+        EXPECT(mt, word_type, "var1");
+        EXPECT(mt, word_type, "  var2  ");
+        EXPECT(mt, eof_type, "<<EOF>>");
+        EXPECT(mt, eof_type, "<<EOF>>");
     }
 }
 
@@ -562,4 +706,6 @@ ATF_INIT_TEST_CASES(tcs)
     tcs.push_back(&tokenizer_delims_ws);
     tcs.push_back(&tokenizer_keywords_nows);
     tcs.push_back(&tokenizer_keywords_ws);
+    tcs.push_back(&tokenizer_quotes_nows);
+    tcs.push_back(&tokenizer_quotes_ws);
 }

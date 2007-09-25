@@ -13,23 +13,11 @@ of salt: the focus of a specific release may change completely depending
 on how things develop.
 
 
-Plans for 0.2
-=============
-
-* Properly define all the file and serialization formats used by ATF,
-  document them and set their version to '1'.
-
-* Add detection of signals in test cases and run the clean up routines
-  afterwards.
-
-
 Plans for 0.3
 =============
 
 * Add a way to specify which bug/issue/whatever a given test case is
   stress-testing.  This information is useful when detecting regressions.
-
-* Implement custom XML output in atf-report.  Need to create a DTD too.
 
 * Maybe implement direct HTML output in atf-report to avoid a dependency
   on xsltproc.  Or maybe not.  Evaluate this idea and decide later.
@@ -57,11 +45,11 @@ Plans for pre-1.0
   implies adding more error cases to give them more semantic meaning at the
   source code level..
 
-* Add a way to get atf's version number.  Should this be part of each
-  tool (i.e. a -v flag)?  Should this be a property printed by atf-config?
-  Should this be an independent tool (atf-version) that is able to print
-  much more information (such as the repository's revision used to build
-  the code)?
+* Add a C-only binding so that we don't needlessly propagate the requirement
+  of a C++ compiler to third-party test programs.
+
+* Add an atf_check-like function to the C++ binding to allow easy testing
+  of executables.
 
 * The test suite should not use atf-compile to generate helper test cases.
   Reason: NetBSD will include atf-compile in the comp.tgz set.  If it is
@@ -102,6 +90,8 @@ Plans for 1.0-RC1
 =================
 
 * Build libatf as a shared library and set -version-info accordingly.
+
+* Set the DTDs' versions to 1.0.
 
 
 Plans for post-1.0

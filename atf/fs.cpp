@@ -503,6 +503,15 @@ impl::is_executable(const path& p)
     return safe_access(p, X_OK, EACCES);
 }
 
+void
+impl::remove(const path& p)
+{
+    if (::unlink(p.c_str()) == -1)
+        throw atf::system_error(IMPL_NAME "::remove(" + p.str() + ")",
+                                "unlink(" + p.str() + ") failed",
+                                errno);
+}
+
 static
 void
 rm_rf_aux(const impl::path& p, const impl::path& root,
@@ -514,12 +523,9 @@ rm_rf_aux(const impl::path& p, const impl::path& root,
                                  p.str() + " while removing " +
                                  root.str());
 
-    if (pinfo.get_type() != impl::file_info::dir_type) {
-        if (::unlink(p.c_str()) == -1)
-            throw atf::system_error(IMPL_NAME "::rm_rf(" + p.str() + ")",
-                                    "unlink(" + p.str() + ") failed",
-                                    errno);
-    } else {
+    if (pinfo.get_type() != impl::file_info::dir_type)
+        remove(p);
+    else {
         impl::directory dir(p);
         dir.erase(".");
         dir.erase("..");

@@ -40,6 +40,7 @@ create_helper()
 {
     echo "Creating helper.sh"
     cat >helper.sh <<EOF
+atf_test_case main
 main_head()
 {
     atf_set "descr" "Helper test case"
@@ -61,6 +62,7 @@ EOF
     atf-compile -o helper helper.sh
 }
 
+atf_test_case info_ok
 info_ok_head()
 {
     atf_set "descr" "Verifies that atf_check prints an informative" \
@@ -84,6 +86,7 @@ EOF
         atf_fail "atf_check does not print an informative message"
 }
 
+atf_test_case expout_mismatch
 expout_mismatch_head()
 {
     atf_set "descr" "Verifies that atf_check prints a diff of the" \
@@ -112,6 +115,7 @@ EOF
         atf_fail "atf_check does not print the stdout's diff"
 }
 
+atf_test_case experr_mismatch
 experr_mismatch_head()
 {
     atf_set "descr" "Verifies that atf_check prints a diff of the" \
@@ -140,6 +144,7 @@ EOF
         atf_fail "atf_check does not print the stderr's diff"
 }
 
+atf_test_case null_stdout
 null_stdout_head()
 {
     atf_set "descr" "Verifies that atf_check prints a the stdout it got" \
@@ -162,6 +167,7 @@ EOF
         atf_fail "atf_check does not print stdout's contents"
 }
 
+atf_test_case null_stderr
 null_stderr_head()
 {
     atf_set "descr" "Verifies that atf_check prints a the stderr it got" \
@@ -184,6 +190,7 @@ EOF
         atf_fail "atf_check does not print stderr's contents"
 }
 
+atf_test_case no_isolated
 no_isolated_head()
 {
     atf_set "descr" "Verifies that atf_check fails if isolated=no"
@@ -192,6 +199,7 @@ no_isolated_head()
 no_isolated_body()
 {
     cat >helper.sh <<EOF
+atf_test_case main
 main_head()
 {
     atf_set "descr" "Helper test case"
@@ -213,6 +221,7 @@ EOF
     atf_check 'grep "isolated=no" stderr' 0 ignore null
 }
 
+atf_test_case change_cwd
 change_cwd_head()
 {
     atf_set "descr" "Verifies that atf_check uses the correct work" \
@@ -235,6 +244,7 @@ EOF
     atf_check 'grep -i passed resout' 0 ignore null
 }
 
+atf_test_case equal
 equal_head()
 {
     atf_set "descr" "Verifies that atf_check_equal works"

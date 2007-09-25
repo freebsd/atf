@@ -36,10 +36,11 @@
 
 extern "C" {
 #include <sys/ioctl.h>
+#include <termios.h>
+#include <unistd.h>
 }
 
 #include <cassert>
-#include <cstdlib>
 #include <sstream>
 
 #include "atf/env.hpp"

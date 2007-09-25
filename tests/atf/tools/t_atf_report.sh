@@ -37,6 +37,7 @@
 create_helper()
 {
     cat >helper.sh <<EOF
+atf_test_case tc
 tc_head()
 {
     atf_set "descr" "A helper test case"
@@ -82,25 +83,26 @@ create_helpers()
     create_fail_helper tp4
 
     cat >Atffile <<EOF
-Content-Type: application/X-atf-atffile; version="0"
+Content-Type: application/X-atf-atffile; version="1"
 
-test-suite: atf
+prop: test-suite = atf
 
-dir1
-tp3
-tp4
+tp: dir1
+tp: tp3
+tp: tp4
 EOF
 
     cat >dir1/Atffile <<EOF
-Content-Type: application/X-atf-atffile; version="0"
+Content-Type: application/X-atf-atffile; version="1"
 
-test-suite: atf
+prop: test-suite = atf
 
-tp1
-tp2
+tp: tp1
+tp: tp2
 EOF
 }
 
+atf_test_case default
 default_head()
 {
     atf_set "descr" "Checks that the default output uses the ticker" \
@@ -119,6 +121,7 @@ default_body()
     atf_check 'grep "Summary for" stdout' 0 ignore null
 }
 
+atf_test_case oflag
 oflag_head()
 {
     atf_set "descr" "Checks that the -o flag works"

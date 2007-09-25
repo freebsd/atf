@@ -37,26 +37,43 @@
 #if !defined(_ATF_FORMATS_HPP_)
 #define _ATF_FORMATS_HPP_
 
+#include <istream>
+#include <ostream>
+#include <stdexcept>
 #include <string>
 
 #include <atf/io.hpp>
-#include <atf/serial.hpp>
 #include <atf/tests.hpp>
 
 namespace atf {
 namespace formats {
 
 // ------------------------------------------------------------------------
+// The "format_error" class.
+// ------------------------------------------------------------------------
+
+//!
+//! \brief A class to signal format errors in external data formats.
+//!
+//! This error class is used to signal format errors while parsing some
+//! externalized representation of a data structure.
+//!
+class format_error : public std::runtime_error {
+public:
+    format_error(const std::string&);
+};
+
+// ------------------------------------------------------------------------
 // The "atf_atffile_reader" class.
 // ------------------------------------------------------------------------
 
 class atf_atffile_reader {
-    atf::serial::internalizer m_int;
+    std::istream& m_is;
 
 protected:
-    virtual void got_tp(const std::string&);
-    virtual void got_ts(const std::string&);
-    virtual void got_var(const std::string&, const std::string &);
+    virtual void got_conf(const std::string&, const std::string &);
+    virtual void got_prop(const std::string&, const std::string &);
+    virtual void got_tp(const std::string&, bool);
     virtual void got_eof(void);
 
 public:
@@ -71,7 +88,7 @@ public:
 // ------------------------------------------------------------------------
 
 class atf_config_reader {
-    atf::serial::internalizer m_int;
+    std::istream& m_is;
 
 protected:
     virtual void got_var(const std::string&, const std::string &);
@@ -89,9 +106,10 @@ public:
 // ------------------------------------------------------------------------
 
 class atf_tcs_reader {
-    atf::serial::internalizer m_int;
+    std::istream& m_is;
 
-    void read_out_err(atf::io::unbuffered_istream&,
+    void read_out_err(void*,
+                      atf::io::unbuffered_istream&,
                       atf::io::unbuffered_istream&);
 
 protected:
@@ -114,7 +132,7 @@ public:
 // ------------------------------------------------------------------------
 
 class atf_tcs_writer {
-    atf::serial::externalizer m_ext;
+    std::ostream& m_os;
 
     size_t m_ntcs, m_curtc;
     std::string m_tcname;
@@ -131,12 +149,14 @@ public:
 // ------------------------------------------------------------------------
 
 class atf_tps_reader {
-    atf::serial::internalizer m_int;
+    std::istream& m_is;
 
-    void read_tp(void);
-    bool read_tc(void);
+    void read_info(void*);
+    void read_tp(void*);
+    void read_tc(void*);
 
 protected:
+    virtual void got_info(const std::string&, const std::string&);
     virtual void got_ntps(size_t);
     virtual void got_tp_start(const std::string&, size_t);
     virtual void got_tp_end(const std::string&);
@@ -159,12 +179,15 @@ public:
 // ------------------------------------------------------------------------
 
 class atf_tps_writer {
-    atf::serial::externalizer m_ext;
+    std::ostream& m_os;
 
     std::string m_tpname, m_tcname;
 
 public:
-    atf_tps_writer(std::ostream&, size_t);
+    atf_tps_writer(std::ostream&);
+
+    void info(const std::string&, const std::string&);
+    void ntps(size_t);
 
     void start_tp(const std::string&, size_t);
     void end_tp(const std::string&);
