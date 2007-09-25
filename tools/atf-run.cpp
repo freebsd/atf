@@ -40,7 +40,6 @@
 
 extern "C" {
 #include <sys/types.h>
-#include <sys/utsname.h>
 #include <sys/wait.h>
 #include <unistd.h>
 }
@@ -48,7 +47,6 @@ extern "C" {
 #include <cassert>
 #include <cerrno>
 #include <cstdlib>
-#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -216,9 +214,6 @@ class atf_run : public atf::application {
     std::vector< std::string > conf_args(void) const;
 
     size_t count_tps(std::vector< std::string >) const;
-
-    void write_start_info(atf::formats::atf_tps_writer&);
-    void write_end_info(atf::formats::atf_tps_writer&);
 
     int run_test(const atf::fs::path&,
                  atf::formats::atf_tps_writer&);
@@ -564,52 +559,6 @@ atf_run::count_tps(std::vector< std::string > tps)
     return ntps;
 }
 
-static
-std::string
-get_time_str(void)
-{
-    time_t t = std::time(NULL);
-    std::string tstr = std::ctime(&t);
-    tstr.erase(tstr.find('\n'));
-    return tstr;
-}
-
-void
-atf_run::write_start_info(atf::formats::atf_tps_writer& w)
-{
-    w.info("atf.version", PACKAGE_VERSION);
-    w.info("tests.root", atf::fs::get_current_dir().str());
-
-    w.info("time.start", get_time_str());
-
-    struct utsname name;
-    if (::uname(&name) != -1) {
-        w.info("uname.sysname", name.sysname);
-        w.info("uname.nodename", name.nodename);
-        w.info("uname.release", name.release);
-        w.info("uname.version", name.version);
-        w.info("uname.machine", name.machine);
-    }
-
-    extern char **environ;
-    char **eptr = environ;
-    while (*eptr != NULL) {
-        std::string e(*eptr);
-        for (std::string::iterator iter = e.begin(); iter != e.end();
-             iter++)
-            if (*iter == '\n')
-                *iter = ' ';
-        w.info("env", e);
-        eptr++;
-    }
-}
-
-void
-atf_run::write_end_info(atf::formats::atf_tps_writer& w)
-{
-    w.info("time.end", get_time_str());
-}
-
 void
 atf_run::read_one_config(const atf::fs::path& p)
 {
@@ -637,6 +586,17 @@ atf_run::read_config(const std::string& name)
     }
 }
 
+static
+void
+call_hook(const std::string& tool, const std::string& hook)
+{
+    std::string sh = atf::config::get("atf_shell");
+    atf::fs::path p = atf::fs::path(atf::config::get("atf_pkgdatadir")) /
+                      (tool + ".hooks");
+    std::string cmd = sh + " '" + p.str() + "' '" + hook + "'";
+    std::system(cmd.c_str());
+}
+
 int
 atf_run::main(void)
 {
@@ -662,7 +622,7 @@ atf_run::main(void)
     }
 
     atf::formats::atf_tps_writer w(std::cout);
-    write_start_info(w);
+    call_hook("atf-run", "info_start_hook");
     w.ntps(count_tps(tps));
 
     bool ok = true;
@@ -670,7 +630,7 @@ atf_run::main(void)
          iter != tps.end(); iter++)
         ok &= (run_test(atf::fs::path(*iter), w) == EXIT_SUCCESS);
 
-    write_end_info(w);
+    call_hook("atf-run", "info_end_hook");
 
     return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }

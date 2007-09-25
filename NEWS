@@ -17,7 +17,8 @@ Changes:
 
 * Changed atf-run to add system information to the report it generates.
   This is currently only used by atf-report's XML output, and later printed
-  in the HTML reports in a nice and useful summary table.
+  in the HTML reports in a nice and useful summary table.  The user and
+  system administrator are allowed to tune this feature by means of hooks.
 
 
 Version 0.2

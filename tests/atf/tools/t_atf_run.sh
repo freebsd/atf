@@ -306,16 +306,8 @@ EOF
 
     create_atffile
 
-    # NO_CHECK_STYLE_BEGIN
-    cat >expout <<EOF
-Content-Type: application/X-atf-tps; version="1"
-
-tps-count: 1
-tp-start: helper, 0
-tp-end: helper, There were errors parsing the output of the test program: Line 1: Unexpected token \`<<NEWLINE>>'; expected \`:'. Line 2: Unexpected token \`<<NEWLINE>>'; expected \`:'.
-EOF
-    # NO_CHECK_STYLE_END
-    atf_check "atf-run" 1 expout null
+    atf_check "atf-run" 1 stdout null
+    atf_check "grep '^tp-end: helper, .*Line 1.*Line 2' stdout" 0 ignore null
 }
 
 atf_test_case zero_tcs
@@ -423,6 +415,78 @@ EOF
     done
 }
 
+atf_test_case hooks
+hooks_head()
+{
+    atf_set "descr" "Checks that the default hooks work and that they" \
+                    "can be overriden by the user"
+}
+hooks_body()
+{
+    create_helper <<EOF
+true
+EOF
+
+    mkdir atf
+    mkdir .atf
+
+    echo "Checking default hooks"
+    atf_check "ATF_CONFDIR=$(pwd)/atf atf-run" 0 stdout null
+    atf_check "grep '^info: time.start, ' stdout" 0 ignore null
+    atf_check "grep '^info: time.end, ' stdout" 0 ignore null
+
+    echo "Checking the system-wide info_start hook"
+    cat >atf/atf-run.hooks <<EOF
+info_start_hook()
+{
+    atf_tps_writer_info "test" "sw value"
+}
+EOF
+    atf_check "ATF_CONFDIR=$(pwd)/atf atf-run" 0 stdout null
+    atf_check "grep '^info: test, sw value' stdout" 0 ignore null
+    atf_check "grep '^info: time.start, ' stdout" 1 null null
+    atf_check "grep '^info: time.end, ' stdout" 0 ignore null
+
+    echo "Checking the user-specific info_start hook"
+    cat >.atf/atf-run.hooks <<EOF
+info_start_hook()
+{
+    atf_tps_writer_info "test" "user value"
+}
+EOF
+    atf_check "ATF_CONFDIR=$(pwd)/atf atf-run" 0 stdout null
+    atf_check "grep '^info: test, user value' stdout" 0 ignore null
+    atf_check "grep '^info: time.start, ' stdout" 1 null null
+    atf_check "grep '^info: time.end, ' stdout" 0 ignore null
+
+    rm atf/atf-run.hooks
+    rm .atf/atf-run.hooks
+
+    echo "Checking the system-wide info_end hook"
+    cat >atf/atf-run.hooks <<EOF
+info_end_hook()
+{
+    atf_tps_writer_info "test" "sw value"
+}
+EOF
+    atf_check "ATF_CONFDIR=$(pwd)/atf atf-run" 0 stdout null
+    atf_check "grep '^info: time.start, ' stdout" 0 ignore null
+    atf_check "grep '^info: time.end, ' stdout" 1 null null
+    atf_check "grep '^info: test, sw value' stdout" 0 ignore null
+
+    echo "Checking the user-specific info_end hook"
+    cat >.atf/atf-run.hooks <<EOF
+info_end_hook()
+{
+    atf_tps_writer_info "test" "user value"
+}
+EOF
+    atf_check "ATF_CONFDIR=$(pwd)/atf atf-run" 0 stdout null
+    atf_check "grep '^info: time.start, ' stdout" 0 ignore null
+    atf_check "grep '^info: time.end, ' stdout" 1 null null
+    atf_check "grep '^info: test, user value' stdout" 0 ignore null
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case config
@@ -435,6 +499,7 @@ atf_init_test_cases()
     atf_add_test_case exit_codes
     atf_add_test_case signaled
     atf_add_test_case no_reason
+    atf_add_test_case hooks
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

@@ -156,6 +156,9 @@ css_DATA = data/tests-results.css
 dtddir = $(atf_dtddir)
 dtd_DATA = data/tests-results.dtd
 
+egdir = $(atf_egdir)
+eg_DATA = data/atf-run.hooks
+
 xsldir = $(atf_xsldir)
 xsl_DATA = data/tests-results.xsl
 
@@ -775,5 +778,8 @@ revision.h: admin/revision.h admin/revision-dist.h
 	        cp $(srcdir)/admin/revision-dist.h revision.h; \
 	fi
 CLEANFILES += revision.h
+
+hooksdir = $(pkgdatadir)
+hooks_DATA = tools/atf-run.hooks
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
