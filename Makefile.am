@@ -152,15 +152,19 @@ atfdir = $(includedir)/atf
 
 cssdir = $(atf_cssdir)
 css_DATA = data/tests-results.css
+EXTRA_DIST += $(css_DATA)
 
 dtddir = $(atf_dtddir)
 dtd_DATA = data/tests-results.dtd
+EXTRA_DIST += $(dtd_DATA)
 
 egdir = $(atf_egdir)
 eg_DATA = data/atf-run.hooks
+EXTRA_DIST += $(eg_DATA)
 
 xsldir = $(atf_xsldir)
 xsl_DATA = data/tests-results.xsl
+EXTRA_DIST += $(xsl_DATA)
 
 # -------------------------------------------------------------------------
 # `doc' directory.
@@ -781,5 +785,6 @@ CLEANFILES += revision.h
 
 hooksdir = $(pkgdatadir)
 hooks_DATA = tools/atf-run.hooks
+EXTRA_DIST += $(hooks_DATA)
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
