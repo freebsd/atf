@@ -37,6 +37,7 @@
 #if !defined(_ATF_EXPAND_HPP_)
 #define _ATF_EXPAND_HPP_
 
+#include <memory>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -54,17 +55,32 @@ namespace expand {
 //! The pattern_error class is used to represent an error when parsing
 //! or comparing a pattern against a string.
 //!
-//! TODO Mark non-copyable.
-//!
 class pattern_error : public std::runtime_error {
+    struct shared_data {
+        //!
+        //! \brief Number of live references to this shared_data.
+        //!
+        size_t m_refs;
+
+        //!
+        //! \brief A pointer to the error message.
+        //!
+        //! This variable holds a pointer to the error message describing
+        //! why the pattern failed.  This is a pointer to dynamic memory
+        //! allocated by the code that constructed this class.
+        //!
+        char *m_what;
+    };
+    mutable shared_data* m_sd;
+
     //!
-    //! \brief A pointer to the error message.
+    //! \brief Assignment operator for pattern_error.
     //!
-    //! This variable holds a pointer to the error message describing
-    //! why the pattern failed.  This is a pointer to dynamic memory
-    //! allocated by the code that constructed this class.
+    //! This assignment operator is made private to prevent its usage.
+    //! We cannot modify the parent's message once constructed, so we
+    //! cannot safely implement this method.
     //!
-    char *m_what;
+    pattern_error& operator=(const pattern_error&);
 
 public:
     //!
@@ -75,7 +91,12 @@ public:
     //! pointer to dynamically allocated memory, obtained by using the
     //! 'new char[...]' construction.
     //!
-    pattern_error(char *);
+    pattern_error(std::auto_ptr< char >);
+
+    //!
+    //! \brief Copy-constructor for pattern_error.
+    //!
+    pattern_error(const pattern_error&);
 
     //!
     //! \brief Destroys the pattern_error.

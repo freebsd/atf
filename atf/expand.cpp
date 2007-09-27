@@ -101,8 +101,8 @@ throw_pattern_error(int errcode, const regex_t* preg)
 
     // Allocate a big-enough buffer to hold the complete error message and
     // throw an exception containing it.
-    char* buf = new char[len];
-    size_t len2 = ::regerror(errcode, preg, buf, len);
+    std::auto_ptr< char > buf(new char[len]);
+    size_t len2 = ::regerror(errcode, preg, buf.get(), len);
     assert(len == len2);
     throw impl::pattern_error(buf);
 }
@@ -111,16 +111,37 @@ throw_pattern_error(int errcode, const regex_t* preg)
 // The "pattern_error" class.
 // ------------------------------------------------------------------------
 
-impl::pattern_error::pattern_error(char* w) :
-    std::runtime_error(w),
-    m_what(w)
+impl::pattern_error::pattern_error(std::auto_ptr< char > w) :
+    std::runtime_error(w.get())
 {
+    m_sd = new shared_data();
+    m_sd->m_refs = 1;
+    m_sd->m_what = w.release();
+}
+
+impl::pattern_error::pattern_error(const pattern_error& pe) :
+    std::runtime_error(pe.m_sd->m_what),
+    m_sd(pe.m_sd)
+{
+    m_sd->m_refs++;
 }
 
 impl::pattern_error::~pattern_error(void)
     throw()
 {
-    delete [] m_what;
+    if (m_sd->m_refs > 0)
+        m_sd->m_refs--;
+    else {
+        delete [] m_sd->m_what;
+        m_sd->m_what = NULL;
+        delete m_sd;
+    }
+}
+
+impl::pattern_error&
+impl::pattern_error::operator=(const pattern_error& pe)
+{
+    assert(false);
 }
 
 // ------------------------------------------------------------------------
