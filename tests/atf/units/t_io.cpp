@@ -183,39 +183,6 @@ ATF_TEST_CASE_BODY(file_handle_get)
     ATF_CHECK_EQUAL(fh1.get(), STDOUT_FILENO);
 }
 
-ATF_TEST_CASE(file_handle_posix_dup);
-ATF_TEST_CASE_HEAD(file_handle_posix_dup)
-{
-    set("descr", "Tests the file_handle::posix_dup method");
-}
-ATF_TEST_CASE_BODY(file_handle_posix_dup)
-{
-    using atf::io::file_handle;
-
-    int pfd[2];
-
-    ATF_CHECK(::pipe(pfd) != -1);
-    file_handle rend(pfd[0]);
-    file_handle wend(pfd[1]);
-
-    ATF_CHECK(rend.get() != 10);
-    ATF_CHECK(wend.get() != 10);
-    file_handle fh1 = file_handle::posix_dup(wend.get(), 10);
-    ATF_CHECK_EQUAL(fh1.get(), 10);
-
-    ATF_CHECK(::write(wend.get(), "test-posix-dup", 14) != -1);
-    char buf1[15];
-    ATF_CHECK_EQUAL(::read(rend.get(), buf1, sizeof(buf1)), 14);
-    buf1[14] = '\0';
-    ATF_CHECK(std::strcmp(buf1, "test-posix-dup") == 0);
-
-    ATF_CHECK(::write(fh1.get(), "test-posix-dup", 14) != -1);
-    char buf2[15];
-    ATF_CHECK_EQUAL(::read(rend.get(), buf2, sizeof(buf2)), 14);
-    buf2[14] = '\0';
-    ATF_CHECK(std::strcmp(buf2, "test-posix-dup") == 0);
-}
-
 ATF_TEST_CASE(file_handle_posix_remap);
 ATF_TEST_CASE_HEAD(file_handle_posix_remap)
 {
@@ -471,7 +438,6 @@ ATF_INIT_TEST_CASES(tcs)
     tcs.push_back(&file_handle_ctor);
     tcs.push_back(&file_handle_copy);
     tcs.push_back(&file_handle_get);
-    tcs.push_back(&file_handle_posix_dup);
     tcs.push_back(&file_handle_posix_remap);
 
     // Add the tests for the "systembuf" class.

@@ -218,28 +218,6 @@ public:
     //!
     void posix_remap(handle_type h);
 
-    // TODO: Copy documentation from posix_dup below and adjust it.
-    static file_handle posix_dup(int h1);
-
-    //!
-    //! \brief Duplicates an open native file handle.
-    //!
-    //! Given a native file handle \a h1, this routine duplicates it so
-    //! that it ends up being identified by the native file handle \a h2
-    //! and returns a new \a file_handle owning \a h2.
-    //!
-    //! This operation is only available in POSIX systems.
-    //!
-    //! \pre The native file handle \a h1 is open.
-    //! \pre The native file handle \a h2 is valid (non-negative).
-    //! \post The native file handle \a h1 is closed.
-    //! \post The native file handle \a h2 is the same as the old \a h1
-    //!       from the operating system's point of view.
-    //! \return A new \a file_handle object that owns \a h2.
-    //! \throw system_error If dup2() fails.
-    //!
-    static file_handle posix_dup(int h1, int h2);
-
 private:
     //!
     //! \brief Internal handle value.

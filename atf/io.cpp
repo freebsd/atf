@@ -140,27 +140,6 @@ impl::file_handle::posix_remap(handle_type h)
     m_handle = h;
 }
 
-impl::file_handle
-impl::file_handle::posix_dup(int h1)
-{
-    int h2 = ::dup(h1);
-    if (h2 == -1)
-        throw system_error(IMPL_NAME "::file_handle::posix_dup",
-                           "dup2(2) failed", errno);
-
-    return file_handle(h2);
-}
-
-impl::file_handle
-impl::file_handle::posix_dup(int h1, int h2)
-{
-    if (::dup2(h1, h2) == -1)
-        throw system_error(IMPL_NAME "::file_handle::posix_dup",
-                           "dup2(2) failed", errno);
-
-    return file_handle(h2);
-}
-
 const impl::file_handle::handle_type
 impl::file_handle::invalid_value(void)
 {
