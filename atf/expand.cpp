@@ -138,12 +138,6 @@ impl::pattern_error::~pattern_error(void)
     }
 }
 
-impl::pattern_error&
-impl::pattern_error::operator=(const pattern_error& pe)
-{
-    assert(false);
-}
-
 // ------------------------------------------------------------------------
 // Free functions.
 // ------------------------------------------------------------------------
