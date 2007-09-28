@@ -12,3 +12,4 @@ tp: t_user
 tp: t_parser
 tp: t_formats
 tp: t_tests
+tp: t_utils

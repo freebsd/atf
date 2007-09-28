@@ -37,10 +37,11 @@
 #if !defined(_ATF_EXPAND_HPP_)
 #define _ATF_EXPAND_HPP_
 
-#include <memory>
 #include <set>
 #include <stdexcept>
 #include <string>
+
+#include <atf/utils.hpp>
 
 namespace atf {
 namespace expand {
@@ -91,7 +92,7 @@ public:
     //! pointer to dynamically allocated memory, obtained by using the
     //! 'new char[...]' construction.
     //!
-    pattern_error(std::auto_ptr< char >);
+    pattern_error(atf::utils::auto_array< char >&);
 
     //!
     //! \brief Copy-constructor for pattern_error.

@@ -35,7 +35,6 @@
 //
 
 #include <cstring>
-#include <memory>
 
 #include "atf/expand.hpp"
 #include "atf/macros.hpp"
@@ -53,7 +52,7 @@ ATF_TEST_CASE_BODY(pattern_error)
 {
     using atf::expand::pattern_error;
 
-    std::auto_ptr< char > buf(new char[80]);
+    atf::utils::auto_array< char > buf(new char[80]);
     std::strcpy(buf.get(), "Test string.");
 
     pattern_error pe1(buf);

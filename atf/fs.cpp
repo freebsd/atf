@@ -50,12 +50,12 @@ extern "C" {
 #include <cassert>
 #include <cerrno>
 #include <cstdlib>
-#include <memory>
 
 #include "atf/exceptions.hpp"
 #include "atf/env.hpp"
 #include "atf/fs.hpp"
 #include "atf/text.hpp"
+#include "atf/utils.hpp"
 
 namespace impl = atf::fs;
 #define IMPL_NAME "atf::fs"
@@ -424,7 +424,7 @@ impl::change_directory(const path& dir)
 impl::path
 impl::create_temp_dir(const path& tmpl)
 {
-    std::auto_ptr< char > buf(new char[tmpl.str().length() + 1]);
+    atf::utils::auto_array< char > buf(new char[tmpl.str().length() + 1]);
     std::strcpy(buf.get(), tmpl.c_str());
     if (::mkdtemp(buf.get()) == NULL)
         throw system_error(IMPL_NAME "::create_temp_dir(" +
@@ -436,7 +436,7 @@ impl::create_temp_dir(const path& tmpl)
 impl::path
 impl::create_temp_file(const path& tmpl)
 {
-    std::auto_ptr< char > buf(new char[tmpl.str().length() + 1]);
+    atf::utils::auto_array< char > buf(new char[tmpl.str().length() + 1]);
     std::strcpy(buf.get(), tmpl.c_str());
     // XXX This usage of mktemp is NOT safe.  I have not bothered to do
     // this correctly yet because the test case's 'isolated' property

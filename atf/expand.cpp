@@ -101,7 +101,7 @@ throw_pattern_error(int errcode, const regex_t* preg)
 
     // Allocate a big-enough buffer to hold the complete error message and
     // throw an exception containing it.
-    std::auto_ptr< char > buf(new char[len]);
+    atf::utils::auto_array< char > buf(new char[len]);
     size_t len2 = ::regerror(errcode, preg, buf.get(), len);
     assert(len == len2);
     throw impl::pattern_error(buf);
@@ -111,7 +111,7 @@ throw_pattern_error(int errcode, const regex_t* preg)
 // The "pattern_error" class.
 // ------------------------------------------------------------------------
 
-impl::pattern_error::pattern_error(std::auto_ptr< char > w) :
+impl::pattern_error::pattern_error(atf::utils::auto_array< char >& w) :
     std::runtime_error(w.get())
 {
     m_sd = new shared_data();

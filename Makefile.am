@@ -126,7 +126,8 @@ libatf_a_SOURCES =  atf/application.cpp \
                     atf/ui.cpp \
                     atf/ui.hpp \
                     atf/user.cpp \
-                    atf/user.hpp
+                    atf/user.hpp \
+                    atf/utils.hpp
 
 include_HEADERS = atf.hpp
 atf_HEADERS = atf/application.hpp \
@@ -143,7 +144,8 @@ atf_HEADERS = atf/application.hpp \
               atf/tests.hpp \
               atf/text.hpp \
               atf/ui.hpp \
-              atf/user.hpp
+              atf/user.hpp \
+              atf/utils.hpp
 atfdir = $(includedir)/atf
 
 # -------------------------------------------------------------------------
@@ -691,6 +693,11 @@ tests_atf_units_t_user_SOURCES = tests/atf/units/t_user.cpp
 tests_atf_units_t_user_LDADD = -latf
 tests_atf_units_t_user_LDFLAGS = -L.
 
+atf_units_PROGRAMS += tests/atf/units/t_utils
+tests_atf_units_t_utils_SOURCES = tests/atf/units/t_utils.cpp
+tests_atf_units_t_utils_LDADD = -latf
+tests_atf_units_t_utils_LDFLAGS = -L.
+
 # -------------------------------------------------------------------------
 # `tests/build' directory.
 # -------------------------------------------------------------------------
@@ -713,7 +720,8 @@ tests_build_libuseless_a_SOURCES = \
     tests/build/t_include_tests_hpp.cpp \
     tests/build/t_include_text_hpp.cpp \
     tests/build/t_include_ui_hpp.cpp \
-    tests/build/t_include_user_hpp.cpp
+    tests/build/t_include_user_hpp.cpp \
+    tests/build/t_include_utils_hpp.cpp
 
 # -------------------------------------------------------------------------
 # `tools' directory.
