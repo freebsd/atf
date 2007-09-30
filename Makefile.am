@@ -589,6 +589,15 @@ tests/atf/test_programs/t_status: \
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_status.sh
 
+atf_test_programs_SCRIPTS += tests/atf/test_programs/t_workdir
+CLEANFILES += tests/atf/test_programs/t_workdir
+EXTRA_DIST += tests/atf/test_programs/t_workdir.sh
+tests/atf/test_programs/t_workdir: \
+		$(srcdir)/tests/atf/test_programs/t_workdir.sh \
+		$(ATF_COMPILE_DEPS)
+	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_workdir.sh
+
 atf_test_programs_PROGRAMS = tests/atf/test_programs/h_cpp
 tests_atf_test_programs_h_cpp_SOURCES = tests/atf/test_programs/h_cpp.cpp
 tests_atf_test_programs_h_cpp_LDADD = -latf

@@ -20,6 +20,12 @@ Changes:
   in the HTML reports in a nice and useful summary table.  The user and
   system administrator are allowed to tune this feature by means of hooks.
 
+* Removed the test cases' 'isolated' property.  This was intended to avoid
+  touching the file system at all when running the related test case, but
+  this has not been true for a long while given that some control files are
+  unconditionally required for several purposes.  This way we get rid of
+  several critical and delicate code.
+
 
 Version 0.2
 ===========

@@ -190,37 +190,6 @@ EOF
         atf_fail "atf_check does not print stderr's contents"
 }
 
-atf_test_case no_isolated
-no_isolated_head()
-{
-    atf_set "descr" "Verifies that atf_check fails if isolated=no"
-    atf_set "require.progs" "atf-compile" # XXX
-}
-no_isolated_body()
-{
-    cat >helper.sh <<EOF
-atf_test_case main
-main_head()
-{
-    atf_set "descr" "Helper test case"
-    atf_set "isolated" "no"
-}
-main_body()
-{
-    atf_check 'true' 0 null null
-}
-
-atf_init_test_cases()
-{
-    atf_add_test_case main
-}
-EOF
-    atf-compile -o helper helper.sh
-
-    atf_check './helper' 1 ignore stderr
-    atf_check 'grep "isolated=no" stderr' 0 ignore null
-}
-
 atf_test_case change_cwd
 change_cwd_head()
 {
@@ -286,7 +255,6 @@ atf_init_test_cases()
     atf_add_test_case experr_mismatch
     atf_add_test_case null_stdout
     atf_add_test_case null_stderr
-    atf_add_test_case no_isolated
     atf_add_test_case change_cwd
     atf_add_test_case equal
 }

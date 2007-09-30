@@ -245,7 +245,6 @@ ATF_TEST_CASE(fork_mangle_fds);
 ATF_TEST_CASE_HEAD(fork_mangle_fds)
 {
     set("descr", "Helper test case for the t_fork test program");
-    set("isolated", config().get("isolated", "yes"));
 }
 ATF_TEST_CASE_BODY(fork_mangle_fds)
 {
@@ -280,7 +279,7 @@ ATF_TEST_CASE_BODY(fork_umask)
 }
 
 // ------------------------------------------------------------------------
-// Helper tests for "t_ident".
+// Helper tests for "t_meta_data".
 // ------------------------------------------------------------------------
 
 ATF_TEST_CASE(ident_1);
@@ -301,56 +300,6 @@ ATF_TEST_CASE_HEAD(ident_2)
 ATF_TEST_CASE_BODY(ident_2)
 {
     ATF_CHECK_EQUAL(get("ident"), "ident_2");
-}
-
-ATF_TEST_CASE(isolated_path);
-ATF_TEST_CASE_HEAD(isolated_path)
-{
-    set("descr", "Helper test case for the t_meta_data test program");
-    set("isolated", config().get("isolated", "yes"));
-}
-ATF_TEST_CASE_BODY(isolated_path)
-{
-    const std::string& p = config().get("pathfile");
-
-    std::ofstream os(p.c_str());
-    if (!os)
-        ATF_FAIL("Could not open " + p + " for writing");
-
-    os << atf::fs::get_current_dir().str() << std::endl;
-
-    os.close();
-}
-
-ATF_TEST_CASE(isolated_cleanup);
-ATF_TEST_CASE_HEAD(isolated_cleanup)
-{
-    set("descr", "Helper test case for the t_meta_data test program");
-    set("isolated", "yes");
-}
-ATF_TEST_CASE_BODY(isolated_cleanup)
-{
-    const std::string& p = config().get("pathfile");
-
-    std::ofstream os(p.c_str());
-    if (!os)
-        ATF_FAIL("Could not open " + p + " for writing");
-
-    os << atf::fs::get_current_dir().str() << std::endl;
-
-    os.close();
-
-    safe_mkdir("1");
-    safe_mkdir("1/1");
-    safe_mkdir("1/2");
-    safe_mkdir("1/3");
-    safe_mkdir("1/3/1");
-    safe_mkdir("1/3/2");
-    safe_mkdir("2");
-    touch("2/1");
-    touch("2/2");
-    safe_mkdir("2/3");
-    touch("2/3/1");
 }
 
 ATF_TEST_CASE(require_config);
@@ -389,7 +338,6 @@ ATF_TEST_CASE(require_user_root);
 ATF_TEST_CASE_HEAD(require_user_root)
 {
     set("descr", "Helper test case for the t_meta_data test program");
-    set("isolated", "no");
     set("require.user", "root");
 }
 ATF_TEST_CASE_BODY(require_user_root)
@@ -400,7 +348,6 @@ ATF_TEST_CASE(require_user_root2);
 ATF_TEST_CASE_HEAD(require_user_root2)
 {
     set("descr", "Helper test case for the t_meta_data test program");
-    set("isolated", "no");
     set("require.user", "root");
 }
 ATF_TEST_CASE_BODY(require_user_root2)
@@ -411,7 +358,6 @@ ATF_TEST_CASE(require_user_unprivileged);
 ATF_TEST_CASE_HEAD(require_user_unprivileged)
 {
     set("descr", "Helper test case for the t_meta_data test program");
-    set("isolated", "no");
     set("require.user", "unprivileged");
 }
 ATF_TEST_CASE_BODY(require_user_unprivileged)
@@ -422,7 +368,6 @@ ATF_TEST_CASE(require_user_unprivileged2);
 ATF_TEST_CASE_HEAD(require_user_unprivileged2)
 {
     set("descr", "Helper test case for the t_meta_data test program");
-    set("isolated", "no");
     set("require.user", "unprivileged");
 }
 ATF_TEST_CASE_BODY(require_user_unprivileged2)
@@ -469,6 +414,58 @@ ATF_TEST_CASE_BODY(status_newlines_skip)
 }
 
 // ------------------------------------------------------------------------
+// Helper tests for "t_workdir".
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(workdir_path);
+ATF_TEST_CASE_HEAD(workdir_path)
+{
+    set("descr", "Helper test case for the t_workdir test program");
+}
+ATF_TEST_CASE_BODY(workdir_path)
+{
+    const std::string& p = config().get("pathfile");
+
+    std::ofstream os(p.c_str());
+    if (!os)
+        ATF_FAIL("Could not open " + p + " for writing");
+
+    os << atf::fs::get_current_dir().str() << std::endl;
+
+    os.close();
+}
+
+ATF_TEST_CASE(workdir_cleanup);
+ATF_TEST_CASE_HEAD(workdir_cleanup)
+{
+    set("descr", "Helper test case for the t_workdir test program");
+}
+ATF_TEST_CASE_BODY(workdir_cleanup)
+{
+    const std::string& p = config().get("pathfile");
+
+    std::ofstream os(p.c_str());
+    if (!os)
+        ATF_FAIL("Could not open " + p + " for writing");
+
+    os << atf::fs::get_current_dir().str() << std::endl;
+
+    os.close();
+
+    safe_mkdir("1");
+    safe_mkdir("1/1");
+    safe_mkdir("1/2");
+    safe_mkdir("1/3");
+    safe_mkdir("1/3/1");
+    safe_mkdir("1/3/2");
+    safe_mkdir("2");
+    touch("2/1");
+    touch("2/2");
+    safe_mkdir("2/3");
+    touch("2/3/1");
+}
+
+// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -498,8 +495,6 @@ ATF_INIT_TEST_CASES(tcs)
     // Add helper tests for t_meta_data.
     tcs.push_back(&ident_1);
     tcs.push_back(&ident_2);
-    tcs.push_back(&isolated_path);
-    tcs.push_back(&isolated_cleanup);
     tcs.push_back(&require_config);
     tcs.push_back(&require_progs_body);
     tcs.push_back(&require_progs_head);
@@ -514,4 +509,8 @@ ATF_INIT_TEST_CASES(tcs)
     // Add helper tests for t_status.
     tcs.push_back(&status_newlines_fail);
     tcs.push_back(&status_newlines_skip);
+
+    // Add helper tests for t_workdir.
+    tcs.push_back(&workdir_path);
+    tcs.push_back(&workdir_cleanup);
 }

@@ -33,7 +33,7 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd August 23, 2007
+.Dd September 30, 2007
 .Dt ATF-TEST-CASE 8
 .Os
 .Sh NAME
@@ -128,22 +128,6 @@ Required.
 .Pp
 The test case's identifier.
 Must be unique inside the test program and should be short but descriptive.
-.It isolated
-Type: boolean.
-Optional.
-Default: true.
-.Pp
-Whether the test case has to be executed in a separate work directory or
-not.
-See
-.Sx Work directories
-below for more details.
-.Pp
-.Em WARNING :
-This property may disappear.
-Allowing a test case to bypass the work directories may be too error-prone.
-This was only added to provide a small performance speed-up for all
-those test cases that need not touch the current directory at all.
 .It require.config
 Type: textual.
 Optional.
@@ -210,9 +194,7 @@ Undefined.
 Undefined.
 .El
 .Ss Work directories
-Unless the test case sets the
-.Sq isolated
-property to false, the test program always creates a temporary directory
+The test program always creates a temporary directory
 and switches to it before running the test case's body.
 This way the test case is free to modify its current directory as it
 wishes, and the test program will be able to clean it up later on in a

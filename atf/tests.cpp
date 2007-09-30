@@ -403,11 +403,9 @@ impl::tc::init(const vars_map& c, const std::string& srcdir)
     m_srcdir = srcdir;
 
     m_meta_data["ident"] = m_ident;
-    m_meta_data["isolated"] = "yes";
     head();
     ensure_not_empty("descr");
     ensure_not_empty("ident");
-    ensure_boolean("isolated");
     assert(m_meta_data["ident"] == m_ident);
 }
 
@@ -416,13 +414,9 @@ void
 enter_workdir(const impl::tc* tc, atf::fs::path& olddir,
               atf::fs::path& workdir, const std::string& base)
 {
-    if (!tc->get_bool("isolated"))
-        workdir = atf::fs::path(base);
-    else {
-        atf::fs::path pattern = atf::fs::path(base) / "atf.XXXXXX";
-        workdir = atf::fs::create_temp_dir(pattern);
-        olddir = atf::fs::change_directory(workdir);
-    }
+    atf::fs::path pattern = atf::fs::path(base) / "atf.XXXXXX";
+    workdir = atf::fs::create_temp_dir(pattern);
+    olddir = atf::fs::change_directory(workdir);
 }
 
 static
@@ -430,9 +424,6 @@ void
 leave_workdir(const impl::tc* tc, atf::fs::path& olddir,
               atf::fs::path& workdir)
 {
-    if (!tc->get_bool("isolated"))
-        return;
-
     atf::fs::change_directory(olddir);
     atf::fs::cleanup(workdir);
 }
@@ -495,15 +486,7 @@ impl::tc::fork_body(const std::string& workdir)
 {
     tcr tcr;
 
-    // XXX To handle this correctly, we should have a RAII model to deal
-    // with temporary files.  Otherwise, there are chances that the
-    // explicit file removal at the end of this function is missed.
-    fs::path result(".");
-    if (get_bool("isolated")) {
-        result = fs::path(workdir) / "tc-result";
-    } else {
-        result = fs::create_temp_file(fs::path(workdir) / "atf.XXXXXX");
-    }
+    fs::path result(fs::path(workdir) / "tc-result");
 
     pid_t pid = ::fork();
     if (pid == -1) {
@@ -623,9 +606,6 @@ impl::tc::fork_body(const std::string& workdir)
                 assert(false);
         }
     }
-
-    if (atf::fs::exists(result))
-        atf::fs::remove(result);
 
     return tcr;
 }

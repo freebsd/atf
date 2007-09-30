@@ -125,9 +125,6 @@ atf_check()
 {
     test ${#} -eq 4 || atf_fail "Incorrect number of parameters"
 
-    [ -z "${Work_Dir}" ] && \
-        _atf_error 128 "atf_check cannot be used with isolated=no"
-
     _cmd="${1}"
     _expcode="${2}"
     _expout="${3}"
@@ -636,11 +633,9 @@ _atf_parse_head()
     Test_Case="${1}"
 
     atf_set ident "${1}"
-    atf_set isolated yes
     ${1}_head
     _atf_ensure_not_empty descr
     _atf_ensure_not_empty ident
-    _atf_ensure_boolean isolated
     test $(atf_get ident) = "${1}" || \
         _atf_error 128 "Test case redefined ident"
 
@@ -740,31 +735,21 @@ _atf_run_tc()
 
     Results_File=$(mktemp $(atf_config_get workdir)/atf.XXXXXX)
 
-    if _atf_get_bool isolated; then
-        Work_Dir=$(mktemp -d $(atf_config_get workdir)/atf.XXXXXX)
-        if [ ${?} -eq 0 ]; then
-            ( cd ${Work_Dir} ; _atf_run_body ${1} ; atf_pass )
-            _ret=$?
-            ( cd ${Work_Dir} ; ${1}_cleanup )
-            if [ ${2} -gt 1 ]; then
-                echo __atf_tc_separator__
-                echo __atf_tc_separator__ 1>&2
-            fi
-            ${Atf_Cleanup} ${Work_Dir}
-        else
-            ( atf_fail "Could not create the work directory" )
-            _ret=${?}
-        fi
-        Work_Dir=
-    else
-        ( _atf_run_body ${1} ; atf_pass )
-        _ret=${?}
-        ( ${1}_cleanup )
+    Work_Dir=$(mktemp -d $(atf_config_get workdir)/atf.XXXXXX)
+    if [ ${?} -eq 0 ]; then
+        ( cd ${Work_Dir} ; _atf_run_body ${1} ; atf_pass )
+        _ret=$?
+        ( cd ${Work_Dir} ; ${1}_cleanup )
         if [ ${2} -gt 1 ]; then
             echo __atf_tc_separator__
             echo __atf_tc_separator__ 1>&2
         fi
+        ${Atf_Cleanup} ${Work_Dir}
+    else
+        ( atf_fail "Could not create the work directory" )
+        _ret=${?}
     fi
+    Work_Dir=
 
     _atf_internal_set srcdir ""
 

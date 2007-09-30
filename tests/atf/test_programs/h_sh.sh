@@ -241,40 +241,6 @@ ident_2_body()
     atf_check_equal '$(atf_get ident)' ident_2
 }
 
-atf_test_case isolated_path
-isolated_path_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "isolated" "$(atf_config_get isolated)"
-}
-isolated_path_body()
-{
-    pwd -P >$(atf_config_get pathfile)
-}
-
-atf_test_case isolated_cleanup
-isolated_cleanup_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "isolated" "yes"
-}
-isolated_cleanup_body()
-{
-    pwd -P >$(atf_config_get pathfile)
-
-    mkdir 1
-    mkdir 1/1
-    mkdir 1/2
-    mkdir 1/3
-    mkdir 1/3/1
-    mkdir 1/3/2
-    mkdir 2
-    touch 2/1
-    touch 2/2
-    mkdir 2/3
-    touch 2/3/1
-}
-
 atf_test_case require_config
 require_config_head()
 {
@@ -314,7 +280,6 @@ atf_test_case require_user_root
 require_user_root_head()
 {
     atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "isolated" "no"
     atf_set "require.user" "root"
 }
 require_user_root_body()
@@ -326,7 +291,6 @@ atf_test_case require_user_root2
 require_user_root2_head()
 {
     atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "isolated" "no"
     atf_set "require.user" "root"
 }
 require_user_root2_body()
@@ -338,7 +302,6 @@ atf_test_case require_user_unprivileged
 require_user_unprivileged_head()
 {
     atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "isolated" "no"
     atf_set "require.user" "unprivileged"
 }
 require_user_unprivileged_body()
@@ -350,12 +313,47 @@ atf_test_case require_user_unprivileged2
 require_user_unprivileged2_head()
 {
     atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "isolated" "no"
     atf_set "require.user" "unprivileged"
 }
 require_user_unprivileged2_body()
 {
     :
+}
+
+# -------------------------------------------------------------------------
+# Helper tests for "t_workdir".
+# -------------------------------------------------------------------------
+
+atf_test_case workdir_path
+workdir_path_head()
+{
+    atf_set "descr" "Helper test case for the t_meta_data test program"
+}
+workdir_path_body()
+{
+    pwd -P >$(atf_config_get pathfile)
+}
+
+atf_test_case workdir_cleanup
+workdir_cleanup_head()
+{
+    atf_set "descr" "Helper test case for the t_meta_data test program"
+}
+workdir_cleanup_body()
+{
+    pwd -P >$(atf_config_get pathfile)
+
+    mkdir 1
+    mkdir 1/1
+    mkdir 1/2
+    mkdir 1/3
+    mkdir 1/3/1
+    mkdir 1/3/2
+    mkdir 2
+    touch 2/1
+    touch 2/2
+    mkdir 2/3
+    touch 2/3/1
 }
 
 # -------------------------------------------------------------------------
@@ -388,8 +386,6 @@ atf_init_test_cases()
     # Add helper tests for t_meta_data.
     atf_add_test_case ident_1
     atf_add_test_case ident_2
-    atf_add_test_case isolated_path
-    atf_add_test_case isolated_cleanup
     atf_add_test_case require_config
     atf_add_test_case require_progs_body
     atf_add_test_case require_progs_head
@@ -402,6 +398,10 @@ atf_init_test_cases()
     # srcdir_exists is not here (while it is in h_cpp.cpp) because of the
     # requirements of the t_srcdir test program (which cannot rely on -s
     # itself to find the source file).
+
+    # Add helper tests for t_workdir.
+    atf_add_test_case workdir_path
+    atf_add_test_case workdir_cleanup
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
