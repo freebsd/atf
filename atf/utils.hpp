@@ -37,6 +37,8 @@
 #if !defined(_ATF_UTILS_HPP_)
 #define _ATF_UTILS_HPP_
 
+#include <cstddef>
+
 namespace atf {
 namespace utils {
 
