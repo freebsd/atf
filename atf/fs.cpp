@@ -404,6 +404,34 @@ impl::directory::names(void)
 }
 
 // ------------------------------------------------------------------------
+// The "temp_dir" class.
+// ------------------------------------------------------------------------
+
+impl::temp_dir::temp_dir(const path& p) :
+    m_path(".") // XXX
+{
+    atf::utils::auto_array< char > buf(new char[p.str().length() + 1]);
+    std::strcpy(buf.get(), p.c_str());
+    if (::mkdtemp(buf.get()) == NULL)
+        throw system_error(IMPL_NAME "::temp_dir::temp_dir(" +
+                           p.str() + ")", "mkdtemp(3) failed",
+                           errno);
+    m_path = path(buf.get());
+}
+
+impl::temp_dir::~temp_dir(void)
+{
+    cleanup(m_path);
+}
+
+const impl::path&
+impl::temp_dir::get_path(void)
+    const
+{
+    return m_path;
+}
+
+// ------------------------------------------------------------------------
 // Free functions.
 // ------------------------------------------------------------------------
 
@@ -419,18 +447,6 @@ impl::change_directory(const path& dir)
     }
 
     return olddir;
-}
-
-impl::path
-impl::create_temp_dir(const path& tmpl)
-{
-    atf::utils::auto_array< char > buf(new char[tmpl.str().length() + 1]);
-    std::strcpy(buf.get(), tmpl.c_str());
-    if (::mkdtemp(buf.get()) == NULL)
-        throw system_error(IMPL_NAME "::create_temp_dir(" +
-                           tmpl.str() + "/", "mkdtemp(3) failed",
-                           errno);
-    return path(buf.get());
 }
 
 bool

@@ -444,19 +444,10 @@ impl::tc::safe_run(void)
     if (tcr.get_status() == tcr::status_passed) {
         // Previous checks have not made the test fail, so run it now.
 
-        using atf::fs::path;
-        path workdir =
-            atf::fs::create_temp_dir(path(m_config.get("workdir")) /
-                                     "atf.XXXXXX");
-
-        try {
-            tcr = fork_body(workdir.str());
-            fork_cleanup(workdir.str());
-            atf::fs::cleanup(workdir);
-        } catch (...) {
-            atf::fs::cleanup(workdir);
-            throw;
-        }
+        atf::fs::temp_dir workdir
+            (atf::fs::path(m_config.get("workdir")) / "atf.XXXXXX");
+        tcr = fork_body(workdir.get_path().str());
+        fork_cleanup(workdir.get_path().str());
     }
 
     return tcr;

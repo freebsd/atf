@@ -351,6 +351,49 @@ public:
 };
 
 // ------------------------------------------------------------------------
+// The "temp_dir" class.
+// ------------------------------------------------------------------------
+
+//!
+//! \brief A RAII model for temporary directories.
+//!
+//! The temp_dir class provides a RAII model for temporary directories.
+//! During construction, a safe temporary directory is created and during
+//! destruction it is carefully removed by making use of the cleanup
+//! function.
+//!
+class temp_dir {
+    //!
+    //! \brief The path to this temporary directory.
+    //!
+    path m_path;
+
+public:
+    //!
+    //! \brief Creates a new temporary directory.
+    //!
+    //! Creates a new temporary directory based on the provided name
+    //! template.  The template must end with six X characters preceded
+    //! by a dot.  These characters are replaced with a unique name on
+    //! the file system as described in mkdtemp(3).
+    //!
+    temp_dir(const path&);
+
+    //!
+    //! \brief Destroys the temporary directory.
+    //!
+    //! Destroys this temporary directory object as well as its file
+    //! system representation.
+    //!
+    ~temp_dir(void);
+
+    //!
+    //! \brief Returns the path to this temporary directory.
+    //!
+    const path& get_path(void) const;
+};
+
+// ------------------------------------------------------------------------
 // Free functions.
 // ------------------------------------------------------------------------
 
@@ -363,15 +406,6 @@ public:
 //! \throw system_error If ::chdir failed.
 //!
 path change_directory(const path&);
-
-//!
-//! \brief Creates a safe temporary directory.
-//!
-//! Given a name template, which must end in six X characters, generates a
-//! unique file name by replacing those Xs with alphanumeric characters and
-//! creates a directory with the resulting name.
-//!
-path create_temp_dir(const path&);
 
 //!
 //! \brief Checks if the given path exists.

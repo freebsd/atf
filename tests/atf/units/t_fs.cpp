@@ -445,6 +445,65 @@ ATF_TEST_CASE_BODY(file_info_perms)
 }
 
 // ------------------------------------------------------------------------
+// Test cases for the "temp_dir" class.
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(temp_dir_raii);
+ATF_TEST_CASE_HEAD(temp_dir_raii)
+{
+    set("descr", "Tests the RAII behavior of the temp_dir class");
+}
+ATF_TEST_CASE_BODY(temp_dir_raii)
+{
+    using atf::fs::exists;
+    using atf::fs::file_info;
+    using atf::fs::path;
+    using atf::fs::temp_dir;
+
+    path t1(".");
+    path t2(".");
+
+    {
+        path tmpl("testdir.XXXXXX");
+        temp_dir td1(tmpl);
+        temp_dir td2(tmpl);
+        t1 = td1.get_path();
+        t2 = td2.get_path();
+        ATF_CHECK(t1.str().find("XXXXXX") == std::string::npos);
+        ATF_CHECK(t2.str().find("XXXXXX") == std::string::npos);
+        ATF_CHECK(t1 != t2);
+        ATF_CHECK(!exists(tmpl));
+        ATF_CHECK( exists(t1));
+        ATF_CHECK( exists(t2));
+
+        file_info fi1(t1);
+        ATF_CHECK( fi1.is_owner_readable());
+        ATF_CHECK( fi1.is_owner_writable());
+        ATF_CHECK( fi1.is_owner_executable());
+        ATF_CHECK(!fi1.is_group_readable());
+        ATF_CHECK(!fi1.is_group_writable());
+        ATF_CHECK(!fi1.is_group_executable());
+        ATF_CHECK(!fi1.is_other_readable());
+        ATF_CHECK(!fi1.is_other_writable());
+        ATF_CHECK(!fi1.is_other_executable());
+
+        file_info fi2(t2);
+        ATF_CHECK( fi2.is_owner_readable());
+        ATF_CHECK( fi2.is_owner_writable());
+        ATF_CHECK( fi2.is_owner_executable());
+        ATF_CHECK(!fi2.is_group_readable());
+        ATF_CHECK(!fi2.is_group_writable());
+        ATF_CHECK(!fi2.is_group_executable());
+        ATF_CHECK(!fi2.is_other_readable());
+        ATF_CHECK(!fi2.is_other_writable());
+        ATF_CHECK(!fi2.is_other_executable());
+    }
+
+    ATF_CHECK(!exists(t1));
+    ATF_CHECK(!exists(t2));
+}
+
+// ------------------------------------------------------------------------
 // Test cases for the free functions.
 // ------------------------------------------------------------------------
 
@@ -472,51 +531,6 @@ ATF_TEST_CASE_BODY(change_directory)
     path old4 = change_directory(path("../.."));
     ATF_CHECK(old4 == old3 / "dir");
     ATF_CHECK(get_current_dir() == old);
-}
-
-ATF_TEST_CASE(create_temp_dir);
-ATF_TEST_CASE_HEAD(create_temp_dir)
-{
-    set("descr", "Tests the create_temp_dir function");
-}
-ATF_TEST_CASE_BODY(create_temp_dir)
-{
-    using atf::fs::create_temp_dir;
-    using atf::fs::exists;
-    using atf::fs::file_info;
-    using atf::fs::path;
-
-    path tmpl("testdir.XXXXXX");
-    path t1 = create_temp_dir(tmpl);
-    path t2 = create_temp_dir(tmpl);
-    ATF_CHECK(t1.str().find("XXXXXX") == std::string::npos);
-    ATF_CHECK(t2.str().find("XXXXXX") == std::string::npos);
-    ATF_CHECK(t1 != t2);
-    ATF_CHECK(!exists(tmpl));
-    ATF_CHECK( exists(t1));
-    ATF_CHECK( exists(t2));
-
-    file_info fi1(t1);
-    ATF_CHECK( fi1.is_owner_readable());
-    ATF_CHECK( fi1.is_owner_writable());
-    ATF_CHECK( fi1.is_owner_executable());
-    ATF_CHECK(!fi1.is_group_readable());
-    ATF_CHECK(!fi1.is_group_writable());
-    ATF_CHECK(!fi1.is_group_executable());
-    ATF_CHECK(!fi1.is_other_readable());
-    ATF_CHECK(!fi1.is_other_writable());
-    ATF_CHECK(!fi1.is_other_executable());
-
-    file_info fi2(t2);
-    ATF_CHECK( fi2.is_owner_readable());
-    ATF_CHECK( fi2.is_owner_writable());
-    ATF_CHECK( fi2.is_owner_executable());
-    ATF_CHECK(!fi2.is_group_readable());
-    ATF_CHECK(!fi2.is_group_writable());
-    ATF_CHECK(!fi2.is_group_executable());
-    ATF_CHECK(!fi2.is_other_readable());
-    ATF_CHECK(!fi2.is_other_writable());
-    ATF_CHECK(!fi2.is_other_executable());
 }
 
 ATF_TEST_CASE(exists);
@@ -665,12 +679,14 @@ ATF_INIT_TEST_CASES(tcs)
     tcs.push_back(&directory_names);
     tcs.push_back(&directory_file_info);
 
+    // Add the tests for the "temp_dir" class.
+    tcs.push_back(&temp_dir_raii);
+
     // Add the tests for the free functions.
     tcs.push_back(&get_current_dir);
     tcs.push_back(&exists);
     tcs.push_back(&is_executable);
     tcs.push_back(&change_directory);
-    tcs.push_back(&create_temp_dir);
     tcs.push_back(&cleanup);
     tcs.push_back(&removefunc);
 }
