@@ -409,25 +409,6 @@ impl::tc::init(const vars_map& c, const std::string& srcdir)
     assert(m_meta_data["ident"] == m_ident);
 }
 
-static
-void
-enter_workdir(const impl::tc* tc, atf::fs::path& olddir,
-              atf::fs::path& workdir, const std::string& base)
-{
-    atf::fs::path pattern = atf::fs::path(base) / "atf.XXXXXX";
-    workdir = atf::fs::create_temp_dir(pattern);
-    olddir = atf::fs::change_directory(workdir);
-}
-
-static
-void
-leave_workdir(const impl::tc* tc, atf::fs::path& olddir,
-              atf::fs::path& workdir)
-{
-    atf::fs::change_directory(olddir);
-    atf::fs::cleanup(workdir);
-}
-
 impl::tcr
 impl::tc::safe_run(void)
     const
@@ -463,21 +444,52 @@ impl::tc::safe_run(void)
     if (tcr.get_status() == tcr::status_passed) {
         // Previous checks have not made the test fail, so run it now.
 
-        fs::path olddir(".");
-        fs::path workdir(".");
+        using atf::fs::path;
+        path workdir =
+            atf::fs::create_temp_dir(path(m_config.get("workdir")) /
+                                     "atf.XXXXXX");
 
         try {
-            enter_workdir(this, olddir, workdir, m_config.get("workdir"));
             tcr = fork_body(workdir.str());
             fork_cleanup(workdir.str());
-            leave_workdir(this, olddir, workdir);
+            atf::fs::cleanup(workdir);
         } catch (...) {
-            leave_workdir(this, olddir, workdir);
+            atf::fs::cleanup(workdir);
             throw;
         }
     }
 
     return tcr;
+}
+
+static void
+sanitize_process(const atf::fs::path& workdir)
+{
+    // Reset all signal handlers to their default behavior.
+    struct sigaction sadfl;
+    sadfl.sa_handler = SIG_DFL;
+    sigemptyset(&sadfl.sa_mask);
+    sadfl.sa_flags = 0;
+    for (int i = 0; i < LAST_SIGNAL; i++)
+        ::sigaction(i, &sadfl, NULL);
+
+    // Reset critical environment variables to known values.
+    atf::env::set("HOME", workdir.str());
+    atf::env::unset("LANG");
+    atf::env::unset("LC_ALL");
+    atf::env::unset("LC_COLLATE");
+    atf::env::unset("LC_CTYPE");
+    atf::env::unset("LC_MESSAGES");
+    atf::env::unset("LC_MONETARY");
+    atf::env::unset("LC_NUMERIC");
+    atf::env::unset("LC_TIME");
+    atf::env::unset("TZ");
+
+    // Reset the umask.
+    ::umask(S_IWGRP | S_IWOTH);
+
+    // Set the work directory.
+    atf::fs::change_directory(workdir);
 }
 
 impl::tcr
@@ -494,30 +506,12 @@ impl::tc::fork_body(const std::string& workdir)
     } else if (pid == 0) {
         int errcode;
 
-        struct sigaction sadfl;
-        sadfl.sa_handler = SIG_DFL;
-        sigemptyset(&sadfl.sa_mask);
-        sadfl.sa_flags = 0;
-        for (int i = 0; i < LAST_SIGNAL; i++)
-            ::sigaction(i, &sadfl, NULL);
-
         // Unexpected errors detected in the child process are mentioned
         // in stderr to give the user a chance to see what happened.
         // This is specially useful in those cases where these errors
         // cannot be directed to the parent process.
         try {
-            atf::env::set("HOME", workdir);
-            atf::env::unset("LANG");
-            atf::env::unset("LC_ALL");
-            atf::env::unset("LC_COLLATE");
-            atf::env::unset("LC_CTYPE");
-            atf::env::unset("LC_MESSAGES");
-            atf::env::unset("LC_MONETARY");
-            atf::env::unset("LC_NUMERIC");
-            atf::env::unset("LC_TIME");
-            atf::env::unset("TZ");
-
-            ::umask(S_IWGRP | S_IWOTH);
+            sanitize_process(atf::fs::path(workdir));
 
             // This is here because require_progs can assert if the user
             // gave bad input.  Having it here lets us capture the abort
@@ -621,6 +615,7 @@ impl::tc::fork_cleanup(const std::string& workdir)
     } else if (pid == 0) {
         int errcode = EXIT_FAILURE;
         try {
+            sanitize_process(atf::fs::path(workdir));
             cleanup();
             errcode = EXIT_SUCCESS;
         } catch (const std::exception& e) {
