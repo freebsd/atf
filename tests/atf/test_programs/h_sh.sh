@@ -118,6 +118,23 @@ cleanup_sigterm_cleanup()
     rm $(atf_config_get tmpfile)
 }
 
+atf_test_case cleanup_fork
+cleanup_fork_head()
+{
+    atf_set "descr" "Helper test case for the t_cleanup test program"
+}
+cleanup_fork_body()
+{
+    :
+}
+cleanup_fork_cleanup()
+{
+    exec 1>out
+    exec 2>err
+    exec 3>res
+    rm -f out err res
+}
+
 # -------------------------------------------------------------------------
 # Helper tests for "t_config".
 # -------------------------------------------------------------------------
@@ -368,6 +385,7 @@ atf_init_test_cases()
     atf_add_test_case cleanup_skip
     atf_add_test_case cleanup_curdir
     atf_add_test_case cleanup_sigterm
+    atf_add_test_case cleanup_fork
 
     # Add helper tests for t_config.
     atf_add_test_case config_unset

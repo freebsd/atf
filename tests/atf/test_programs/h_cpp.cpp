@@ -165,6 +165,21 @@ ATF_TEST_CASE_CLEANUP(cleanup_sigterm)
     atf::fs::remove(atf::fs::path(config().get("tmpfile")));
 }
 
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_fork);
+ATF_TEST_CASE_HEAD(cleanup_fork)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_fork)
+{
+}
+ATF_TEST_CASE_CLEANUP(cleanup_fork)
+{
+    ::close(STDOUT_FILENO);
+    ::close(STDERR_FILENO);
+    ::close(3);
+}
+
 // ------------------------------------------------------------------------
 // Helper tests for "t_config".
 // ------------------------------------------------------------------------
@@ -477,6 +492,7 @@ ATF_INIT_TEST_CASES(tcs)
     tcs.push_back(&cleanup_skip);
     tcs.push_back(&cleanup_curdir);
     tcs.push_back(&cleanup_sigterm);
+    tcs.push_back(&cleanup_fork);
 
     // Add helper tests for t_config.
     tcs.push_back(&config_unset);

@@ -111,11 +111,31 @@ on_signal_body()
     done
 }
 
+atf_test_case fork
+fork_head()
+{
+    atf_set "descr" "Tests that the cleanup routines are executed in" \
+                    "a subprocess"
+}
+fork_body()
+{
+    srcdir=$(atf_get_srcdir)
+    h_cpp=${srcdir}/h_cpp
+    h_sh=${srcdir}/h_sh
+
+    for h in ${h_cpp} ${h_sh}; do
+        ${h} -s ${srcdir} -r3 -v "tmpfile=$(pwd)/tmpfile" \
+            cleanup_fork 3>resout
+        atf_check "grep 'cleanup_fork, passed' resout" 0 ignore null
+    done
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case hook
     atf_add_test_case curdir
     atf_add_test_case on_signal
+    atf_add_test_case fork
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

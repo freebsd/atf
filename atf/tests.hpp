@@ -111,6 +111,7 @@ class tc {
 
     tcr safe_run(void) const;
     tcr fork_body(const std::string&) const;
+    void fork_cleanup(const std::string&) const;
 
 protected:
     virtual void head(void) = 0;

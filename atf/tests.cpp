@@ -469,7 +469,7 @@ impl::tc::safe_run(void)
         try {
             enter_workdir(this, olddir, workdir, m_config.get("workdir"));
             tcr = fork_body(workdir.str());
-            cleanup();
+            fork_cleanup(workdir.str());
             leave_workdir(this, olddir, workdir);
         } catch (...) {
             leave_workdir(this, olddir, workdir);
@@ -608,6 +608,41 @@ impl::tc::fork_body(const std::string& workdir)
     }
 
     return tcr;
+}
+
+void
+impl::tc::fork_cleanup(const std::string& workdir)
+    const
+{
+    pid_t pid = ::fork();
+    if (pid == -1) {
+        std::cerr << "WARNING: Could not fork to run test case's cleanup "
+                     "routine for " << workdir << std::endl;
+    } else if (pid == 0) {
+        int errcode = EXIT_FAILURE;
+        try {
+            cleanup();
+            errcode = EXIT_SUCCESS;
+        } catch (const std::exception& e) {
+            std::cerr << "WARNING: Caught unexpected exception while "
+                         "running the test case's cleanup routine: "
+                      << e.what() << std::endl;
+        } catch (...) {
+            std::cerr << "WARNING: Caught unknown exception while "
+                         "running the test case's cleanup routine"
+                      << std::endl;
+        }
+        std::exit(errcode);
+    } else {
+        int status;
+        if (::waitpid(pid, &status, 0) == -1)
+            std::cerr << "WARNING: Error while waiting for cleanup process "
+                      << atf::text::to_string(pid) << ": "
+                      << ::strerror(errno) << std::endl;
+        if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)
+            std::cerr << "WARNING: Cleanup process ended unexpectedly"
+                      << std::endl;
+    }
 }
 
 impl::tcr
