@@ -50,21 +50,6 @@ namespace atf {
 namespace fs {
 
 // ------------------------------------------------------------------------
-// The "path_error" class.
-// ------------------------------------------------------------------------
-
-//!
-//! \brief A class to signal errors in path manipulation.
-//!
-//! This error class is used by the path manipulation algorithms to signal
-//! any detected error.
-//!
-class path_error : public std::runtime_error {
-public:
-    path_error(const std::string&);
-};
-
-// ------------------------------------------------------------------------
 // The "path" class.
 // ------------------------------------------------------------------------
 
@@ -86,7 +71,6 @@ class path {
     std::string m_data;
 
 public:
-    //!
     //! \brief Constructs a new path from a user-provided string.
     //!
     //! This constructor takes a string, either provided by the program's
@@ -94,9 +78,10 @@ public:
     //! is normalized to not contain multiple delimiters together and to
     //! remove any trailing one.
     //!
-    //! \throw path_error If the string is empty.
+    //! The input string may be empty, in which case the path is left
+    //! uninitialized.
     //!
-    explicit path(const std::string&);
+    explicit path(const std::string& = "");
 
     //!
     //! \brief Returns a pointer to a C-style string representing this path.
@@ -115,6 +100,11 @@ public:
     //! words, it returns what the standard ::dirname function would return.
     //!
     path branch_path(void) const;
+
+    //!
+    //! \brief Checks whether the path is empty or not.
+    //!
+    bool empty(void) const;
 
     //!
     //! \brief Returns the leaf name of this path.

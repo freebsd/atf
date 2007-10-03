@@ -66,6 +66,24 @@ create_files(void)
 // Test cases for the "path" class.
 // ------------------------------------------------------------------------
 
+ATF_TEST_CASE(path_empty);
+ATF_TEST_CASE_HEAD(path_empty)
+{
+    set("descr", "Tests the path's empty method");
+}
+ATF_TEST_CASE_BODY(path_empty)
+{
+    using atf::fs::path;
+
+    ATF_CHECK( path().empty());
+    ATF_CHECK(!path("foo").empty());
+
+    path p1;
+    ATF_CHECK( p1.empty());
+    p1 = p1 / "foo";
+    ATF_CHECK(!p1.empty());
+}
+
 ATF_TEST_CASE(path_normalize);
 ATF_TEST_CASE_HEAD(path_normalize)
 {
@@ -74,8 +92,6 @@ ATF_TEST_CASE_HEAD(path_normalize)
 ATF_TEST_CASE_BODY(path_normalize)
 {
     using atf::fs::path;
-
-    ATF_CHECK_THROW(path(""), atf::fs::path_error);
 
     ATF_CHECK_EQUAL(path(".").str(), ".");
     ATF_CHECK_EQUAL(path("..").str(), "..");
@@ -659,6 +675,7 @@ ATF_TEST_CASE_BODY(removefunc)
 ATF_INIT_TEST_CASES(tcs)
 {
     // Add the tests for the "path" class.
+    tcs.push_back(&path_empty);
     tcs.push_back(&path_normalize);
     tcs.push_back(&path_is_absolute);
     tcs.push_back(&path_is_root);

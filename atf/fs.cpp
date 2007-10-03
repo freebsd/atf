@@ -100,8 +100,7 @@ static
 std::string
 normalize(const std::string& s)
 {
-    if (s.empty())
-        throw impl::path_error("Path cannot be empty");
+    assert(!s.empty());
 
     std::vector< std::string > cs = atf::text::split(s, "/");
     std::string data = (s[0] == '/') ? "/" : "";
@@ -115,20 +114,11 @@ normalize(const std::string& s)
 }
 
 // ------------------------------------------------------------------------
-// The "path_error" class.
-// ------------------------------------------------------------------------
-
-impl::path_error::path_error(const std::string& w) :
-    std::runtime_error(w.c_str())
-{
-}
-
-// ------------------------------------------------------------------------
 // The "path" class.
 // ------------------------------------------------------------------------
 
 impl::path::path(const std::string& s) :
-    m_data(normalize(s))
+    m_data(s.empty() ? "" : normalize(s))
 {
 }
 
@@ -150,7 +140,7 @@ bool
 impl::path::is_absolute(void)
     const
 {
-    return m_data[0] == '/';
+    return !empty() && m_data[0] == '/';
 }
 
 bool
@@ -179,6 +169,13 @@ impl::path::branch_path(void)
 #endif // defined(HAVE_CONST_DIRNAME)
 
     return path(branch);
+}
+
+bool
+impl::path::empty(void)
+    const
+{
+    return m_data.empty();
 }
 
 std::string
@@ -407,9 +404,9 @@ impl::directory::names(void)
 // The "temp_dir" class.
 // ------------------------------------------------------------------------
 
-impl::temp_dir::temp_dir(const path& p) :
-    m_path(".") // XXX
+impl::temp_dir::temp_dir(const path& p)
 {
+    assert(!p.empty());
     atf::utils::auto_array< char > buf(new char[p.str().length() + 1]);
     std::strcpy(buf.get(), p.c_str());
     if (::mkdtemp(buf.get()) == NULL)
