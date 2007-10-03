@@ -195,8 +195,9 @@ atf::application::usage(std::ostream& os)
     }
     os << std::endl;
 
-    os << ui::format_text("For more details please see " + m_manpage + ".")
-       << std::endl << std::endl;
+    os << ui::format_text("For more details please see " + m_manpage +
+                          " and atf(7).")
+       << std::endl;
 }
 
 int
