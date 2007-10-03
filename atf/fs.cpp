@@ -464,9 +464,9 @@ impl::find_prog_in_path(const std::string& prog)
     std::vector< std::string > dirs = \
         atf::text::split(atf::env::get("PATH"), ":");
 
-    path p(".");
+    path p;
     for (std::vector< std::string >::const_iterator iter = dirs.begin();
-         p.str() == "." && iter != dirs.end(); iter++) {
+         p.empty() && iter != dirs.end(); iter++) {
         const path& dir = path(*iter);
 
         if (is_executable(dir / prog))

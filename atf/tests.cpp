@@ -671,7 +671,7 @@ impl::tc::require_prog(const std::string& prog)
                                      " could not be found");
     } else {
         assert(p.branch_path() == fs::path("."));
-        if (fs::find_prog_in_path(prog) == fs::path("."))
+        if (fs::find_prog_in_path(prog).empty())
             throw impl::tcr::skipped("The required program " + prog +
                                      " could not be found in the PATH");
     }

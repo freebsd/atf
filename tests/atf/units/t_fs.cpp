@@ -476,8 +476,8 @@ ATF_TEST_CASE_BODY(temp_dir_raii)
     using atf::fs::path;
     using atf::fs::temp_dir;
 
-    path t1(".");
-    path t2(".");
+    path t1;
+    path t2;
 
     {
         path tmpl("testdir.XXXXXX");

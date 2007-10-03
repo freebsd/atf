@@ -406,9 +406,7 @@ bool exists(const path&);
 //! \brief Looks for the given program in the PATH.
 //!
 //! Given a program name (without slashes) looks for it in the path and
-//! returns its full path name if found, otherwise ".".
-//!
-//! XXX Should return an invalid path, not ".".
+//! returns its full path name if found, otherwise an empty path.
 //!
 path find_prog_in_path(const std::string&);
 
