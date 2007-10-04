@@ -34,11 +34,11 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cassert>
 #include <map>
 
 #include "atf/config.hpp"
 #include "atf/env.hpp"
+#include "atf/sanity.hpp"
 
 static std::map< std::string, std::string > m_variables;
 
@@ -52,7 +52,7 @@ static
 void
 init_variables(void)
 {
-    assert(m_variables.empty());
+    PRE(m_variables.empty());
 
     if (atf::env::has("ATF_CONFDIR")) {
         const std::string& val = atf::env::get("ATF_CONFDIR");
@@ -99,7 +99,7 @@ init_variables(void)
     } else
         m_variables["atf_workdir"] = ATF_WORKDIR;
 
-    assert(!m_variables.empty());
+    POST(!m_variables.empty());
 }
 
 const std::string&
@@ -108,7 +108,7 @@ atf::config::get(const std::string& varname)
     if (m_variables.empty())
         init_variables();
 
-    assert(has(varname));
+    PRE(has(varname));
     return m_variables[varname];
 }
 

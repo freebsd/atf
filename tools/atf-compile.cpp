@@ -39,13 +39,13 @@ extern "C" {
 #include <sys/stat.h>
 }
 
-#include <cassert>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 
 #include "atf/application.hpp"
 #include "atf/config.hpp"
+#include "atf/sanity.hpp"
 
 static
 void
@@ -112,7 +112,7 @@ atf_compile::process_option(int ch, const char* arg)
         break;
 
     default:
-        assert(false);
+        UNREACHABLE;
     }
 }
 

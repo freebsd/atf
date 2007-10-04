@@ -38,12 +38,12 @@
 #include "config.h"
 #endif
 
-#include <cassert>
 #include <cerrno>
 #include <cstdlib>
 
 #include "atf/env.hpp"
 #include "atf/exceptions.hpp"
+#include "atf/sanity.hpp"
 
 namespace std {
 #if !defined(HAVE_PUTENV_IN_STD)
@@ -68,7 +68,7 @@ std::string
 impl::get(const std::string& name)
 {
     const char* val = std::getenv(name.c_str());
-    assert(val != NULL);
+    PRE(val != NULL);
     return val;
 }
 

@@ -119,6 +119,8 @@ libatf_a_SOURCES =  atf/application.cpp \
                     atf/macros.hpp \
                     atf/parser.cpp \
                     atf/parser.hpp \
+                    atf/sanity.cpp \
+                    atf/sanity.hpp \
                     atf/tests.cpp \
                     atf/tests.hpp \
                     atf/text.cpp \
@@ -141,6 +143,7 @@ atf_HEADERS = atf/application.hpp \
               atf/io.hpp \
               atf/macros.hpp \
               atf/parser.hpp \
+              atf/sanity.hpp \
               atf/tests.hpp \
               atf/text.hpp \
               atf/ui.hpp \
@@ -687,6 +690,11 @@ tests_atf_units_t_parser_SOURCES = tests/atf/units/t_parser.cpp
 tests_atf_units_t_parser_LDADD = -latf
 tests_atf_units_t_parser_LDFLAGS = -L.
 
+atf_units_PROGRAMS += tests/atf/units/t_sanity
+tests_atf_units_t_sanity_SOURCES = tests/atf/units/t_sanity.cpp
+tests_atf_units_t_sanity_LDADD = -latf
+tests_atf_units_t_sanity_LDFLAGS = -L.
+
 atf_units_PROGRAMS += tests/atf/units/t_tests
 tests_atf_units_t_tests_SOURCES = tests/atf/units/t_tests.cpp
 tests_atf_units_t_tests_LDADD = -latf
@@ -726,6 +734,7 @@ tests_build_libuseless_a_SOURCES = \
     tests/build/t_include_io_hpp.cpp \
     tests/build/t_include_macros_hpp.cpp \
     tests/build/t_include_parser_hpp.cpp \
+    tests/build/t_include_sanity_hpp.cpp \
     tests/build/t_include_tests_hpp.cpp \
     tests/build/t_include_text_hpp.cpp \
     tests/build/t_include_ui_hpp.cpp \

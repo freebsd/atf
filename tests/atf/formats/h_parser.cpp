@@ -38,7 +38,6 @@ extern "C" {
 #include <fcntl.h>
 }
 
-#include <cassert>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -49,6 +48,7 @@ extern "C" {
 #include "atf/formats.hpp"
 #include "atf/io.hpp"
 #include "atf/parser.hpp"
+#include "atf/sanity.hpp"
 
 class atffile_reader : protected atf::formats::atf_atffile_reader {
     void
@@ -146,7 +146,7 @@ class tcs_reader : protected atf::formats::atf_tcs_reader {
             break;
 
         default:
-            assert(false);
+            UNREACHABLE;
         }
 
         std::cout << "got_tc_end(" << r << ")" << std::endl;
@@ -245,7 +245,7 @@ class tps_reader : protected atf::formats::atf_tps_reader {
             break;
 
         default:
-            assert(false);
+            UNREACHABLE;
         }
 
         std::cout << "got_tc_end(" << r << ")" << std::endl;

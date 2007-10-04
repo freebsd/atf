@@ -47,13 +47,13 @@ extern "C" {
 #include <unistd.h>
 }
 
-#include <cassert>
 #include <cerrno>
 #include <cstdlib>
 
 #include "atf/exceptions.hpp"
 #include "atf/env.hpp"
 #include "atf/fs.hpp"
+#include "atf/sanity.hpp"
 #include "atf/text.hpp"
 #include "atf/utils.hpp"
 
@@ -100,7 +100,7 @@ static
 std::string
 normalize(const std::string& s)
 {
-    assert(!s.empty());
+    PRE(!s.empty());
 
     std::vector< std::string > cs = atf::text::split(s, "/");
     std::string data = (s[0] == '/') ? "/" : "";
@@ -165,7 +165,7 @@ impl::path::branch_path(void)
         branch = m_data.substr(0, endpos);
 
 #if defined(HAVE_CONST_DIRNAME)
-    assert(branch == ::dirname(m_data.c_str()));
+    INV(branch == ::dirname(m_data.c_str()));
 #endif // defined(HAVE_CONST_DIRNAME)
 
     return path(branch);
@@ -191,7 +191,7 @@ impl::path::leaf_name(void)
     std::string leaf = m_data.substr(begpos);
 
 #if defined(HAVE_CONST_BASENAME)
-    assert(leaf == ::basename(m_data.c_str()));
+    INV(leaf == ::basename(m_data.c_str()));
 #endif // defined(HAVE_CONST_BASENAME)
 
     return leaf;
@@ -201,7 +201,7 @@ impl::path
 impl::path::to_absolute(void)
     const
 {
-    assert(!is_absolute());
+    PRE(!is_absolute());
     path curdir = get_current_dir();
     return curdir / (*this);
 }
@@ -406,7 +406,7 @@ impl::directory::names(void)
 
 impl::temp_dir::temp_dir(const path& p)
 {
-    assert(!p.empty());
+    PRE(!p.empty());
     atf::utils::auto_array< char > buf(new char[p.str().length() + 1]);
     std::strcpy(buf.get(), p.c_str());
     if (::mkdtemp(buf.get()) == NULL)
@@ -455,7 +455,7 @@ impl::exists(const path& p)
 impl::path
 impl::find_prog_in_path(const std::string& prog)
 {
-    assert(prog.find('/') == std::string::npos);
+    PRE(prog.find('/') == std::string::npos);
 
     // Do not bother to provide a default value for PATH.  If it is not
     // there something is broken in the user's environment.

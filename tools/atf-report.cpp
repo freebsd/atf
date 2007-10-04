@@ -34,7 +34,6 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -44,6 +43,7 @@
 #include "atf/application.hpp"
 #include "atf/fs.hpp"
 #include "atf/formats.hpp"
+#include "atf/sanity.hpp"
 #include "atf/text.hpp"
 #include "atf/ui.hpp"
 
@@ -152,7 +152,7 @@ public:
             str = m_tpname + ", " + m_tcname + ", skipped, " +
                   tcr.get_reason();
         } else
-            assert(false);
+            UNREACHABLE;
         (*m_os) << str << std::endl;
     }
 };
@@ -259,7 +259,7 @@ class ticker_writer : public writer {
             str = "Skipped: " + tcr.get_reason();
             m_tcs_skipped++;
         } else
-            assert(false);
+            UNREACHABLE;
 
         // XXX Wrap text.  format_text_with_tag does not currently allow
         // to specify the current column, which is needed because we have
@@ -415,7 +415,7 @@ class xml_writer : public writer {
             (*m_os) << "<skipped>" << elemval(tcr.get_reason())
                     << "</skipped>" << std::endl;
         } else
-            assert(false);
+            UNREACHABLE;
         (*m_os) << "</tc>" << std::endl;
     }
 
@@ -600,7 +600,7 @@ atf_report::process_option(int ch, const char* arg)
         break;
 
     default:
-        assert(false);
+        UNREACHABLE;
     }
 }
 

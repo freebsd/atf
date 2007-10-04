@@ -43,7 +43,6 @@ extern "C" {
 }
 
 #include <algorithm>
-#include <cassert>
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
@@ -63,6 +62,7 @@ extern "C" {
 #include "atf/formats.hpp"
 #include "atf/fs.hpp"
 #include "atf/io.hpp"
+#include "atf/sanity.hpp"
 #include "atf/tests.hpp"
 #include "atf/text.hpp"
 #include "atf/ui.hpp"
@@ -129,7 +129,7 @@ public:
         m_sanew.sa_flags = 0;
 
         program();
-        assert(m_holders.find(m_signal) == m_holders.end());
+        PRE(m_holders.find(m_signal) == m_holders.end());
         m_holders[m_signal] = this;
     }
 
@@ -333,7 +333,7 @@ impl::tc::ensure_not_empty(const std::string& name)
             ("Undefined or empty variable", name);
 
     vars_map::const_iterator iter = m_meta_data.find(name);
-    assert(iter != m_meta_data.end());
+    INV(iter != m_meta_data.end());
 
     const std::string& val = (*iter).second;
     if (val.empty())
@@ -352,7 +352,7 @@ impl::tc::get(const std::string& var)
     const
 {
     vars_map::const_iterator iter = m_meta_data.find(var);
-    assert(iter != m_meta_data.end());
+    PRE(iter != m_meta_data.end());
     return (*iter).second;
 }
 
@@ -366,10 +366,8 @@ impl::tc::get_bool(const std::string& var)
         return true;
     else if (val == "false")
         return false;
-    else {
-        assert(false);
-        return false;
-    }
+    else
+        UNREACHABLE;
 }
 
 bool
@@ -397,7 +395,7 @@ impl::tc::get_srcdir(void)
 void
 impl::tc::init(const vars_map& c, const std::string& srcdir)
 {
-    assert(m_meta_data.empty());
+    PRE(m_meta_data.empty());
 
     m_config = c; // XXX Uh, deep copy.  Should be a reference...
     m_srcdir = srcdir;
@@ -406,7 +404,7 @@ impl::tc::init(const vars_map& c, const std::string& srcdir)
     head();
     ensure_not_empty("descr");
     ensure_not_empty("ident");
-    assert(m_meta_data["ident"] == m_ident);
+    INV(m_meta_data["ident"] == m_ident);
 }
 
 impl::tcr
@@ -588,7 +586,7 @@ impl::tc::fork_body(const std::string& workdir)
                 tcr = tcr::failed("Test case received stop signal " +
                                   atf::text::to_string(WSTOPSIG(status)));
             } else
-                assert(false);
+                UNREACHABLE;
         }
     }
 
@@ -635,7 +633,7 @@ impl::tcr
 impl::tc::run(void)
     const
 {
-    assert(!m_meta_data.empty());
+    PRE(!m_meta_data.empty());
 
     tcr tcr;
 
@@ -661,7 +659,7 @@ void
 impl::tc::require_prog(const std::string& prog)
     const
 {
-    assert(!prog.empty());
+    PRE(!prog.empty());
 
     fs::path p(prog);
 
@@ -670,7 +668,7 @@ impl::tc::require_prog(const std::string& prog)
             throw impl::tcr::skipped("The required program " + prog +
                                      " could not be found");
     } else {
-        assert(p.branch_path() == fs::path("."));
+        INV(p.branch_path() == fs::path("."));
         if (fs::find_prog_in_path(prog).empty())
             throw impl::tcr::skipped("The required program " + prog +
                                      " could not be found in the PATH");
@@ -781,7 +779,7 @@ tp::process_option(int ch, const char* arg)
         break;
 
     default:
-        assert(false);
+        UNREACHABLE;
     }
 }
 
@@ -877,7 +875,7 @@ tp::filter_tcs(tc_vector tcs, const std::set< std::string >& tcnames)
 
             tc_vector::iterator tciter =
                 std::find_if(tcs.begin(), tcs.end(), tc_equal_to_ident(name));
-            assert(tciter != tcs.end());
+            INV(tciter != tcs.end());
             tcso.push_back(*tciter);
         }
     }

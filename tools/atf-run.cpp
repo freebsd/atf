@@ -44,7 +44,6 @@ extern "C" {
 #include <unistd.h>
 }
 
-#include <cassert>
 #include <cerrno>
 #include <cstdlib>
 #include <fstream>
@@ -61,6 +60,7 @@ extern "C" {
 #include "atf/fs.hpp"
 #include "atf/io.hpp"
 #include "atf/parser.hpp"
+#include "atf/sanity.hpp"
 #include "atf/tests.hpp"
 #include "atf/text.hpp"
 
@@ -125,9 +125,8 @@ class muxer : public atf::formats::atf_tcs_reader {
             m_skipped++;
         } else if (s == atf::tests::tcr::status_failed) {
             m_failed++;
-        } else {
-            assert(false);
-        }
+        } else
+            UNREACHABLE;
 
         m_writer.end_tc(tcr);
         m_tcname = "";
@@ -169,21 +168,24 @@ public:
     void
     finalize(const std::string& reason = "")
     {
+        PRE(!m_finalized);
+
         if (!m_inited)
             m_writer.start_tp(m_tp.str(), 0);
         if (!m_tcname.empty()) {
-            assert(!reason.empty());
+            INV(!reason.empty());
             got_tc_end(atf::tests::tcr::failed("Bogus test program"));
         }
 
-        assert(!m_finalized);
         m_writer.end_tp(reason);
         m_finalized = true;
     }
 
     ~muxer(void)
     {
-        assert(m_finalized);
+        // The following is incorrect because we cannot throw an exception
+        // from a destructor.  Let's just hope that this never happens.
+        PRE(m_finalized);
     }
 };
 
@@ -279,7 +281,7 @@ atf_run::process_option(int ch, const char* arg)
         break;
 
     default:
-        assert(false);
+        UNREACHABLE;
     }
 }
 
@@ -326,7 +328,7 @@ atf_run::run_test_directory(const atf::fs::path& tp,
     {
         atf::tests::vars_map::const_iterator iter =
             af.props().find("test-suite");
-        assert(iter != af.props().end());
+        INV(iter != af.props().end());
         read_config((*iter).second);
     }
 
@@ -459,8 +461,7 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
     } catch (const atf::formats::format_error& e) {
         fmterr = e.what();
     } catch (...) {
-        assert(false);
-        throw;
+        UNREACHABLE;
     }
 
     try {
@@ -468,8 +469,7 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
         errin.close();
         resin.close();
     } catch (...) {
-        assert(false);
-        throw;
+        UNREACHABLE;
     }
 
     int code, status;
@@ -523,9 +523,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
                                 "fork(2) failed", errno);
     } else if (pid == 0) {
         run_test_program_child(tp, outpipe, errpipe, respipe);
-        // NOTREACHED
-        assert(false);
-        errcode = EXIT_FAILURE;
+        UNREACHABLE;
     } else {
         errcode = run_test_program_parent(tp, w, outpipe, errpipe,
                                           respipe, pid);
@@ -617,7 +615,7 @@ atf_run::main(void)
     {
         atf::tests::vars_map::const_iterator iter =
             af.props().find("test-suite");
-        assert(iter != af.props().end());
+        INV(iter != af.props().end());
         read_config((*iter).second);
     }
 

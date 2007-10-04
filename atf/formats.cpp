@@ -38,7 +38,6 @@ extern "C" {
 #include <poll.h>
 }
 
-#include <cassert>
 #include <iostream>
 #include <map>
 #include <sstream>
@@ -46,6 +45,7 @@ extern "C" {
 
 #include "atf/formats.hpp"
 #include "atf/parser.hpp"
+#include "atf/sanity.hpp"
 #include "atf/text.hpp"
 
 namespace impl = atf::formats;
@@ -137,7 +137,7 @@ header_entry::get_attr(const std::string& n)
     const
 {
     attrs_map::const_iterator iter = m_attrs.find(n);
-    assert(iter != m_attrs.end());
+    PRE(iter != m_attrs.end());
     return (*iter).second;
 }
 
@@ -217,7 +217,7 @@ write(std::ostream& os, const header_entry& he)
     attrs_map as = he.attrs();
     for (attrs_map::const_iterator iter = as.begin();
          iter != as.end(); iter++) {
-        assert((*iter).second.find('\"') == std::string::npos);
+        PRE((*iter).second.find('\"') == std::string::npos);
         line += "; " + (*iter).first + "=\"" + (*iter).second + "\"";
     }
 
@@ -294,9 +294,9 @@ void
 write_headers(const headers_map& hm,
               std::ostream& os)
 {
-    assert(!hm.empty());
+    PRE(!hm.empty());
     headers_map::const_iterator ct = hm.find("Content-Type");
-    assert(ct != hm.end());
+    PRE(ct != hm.end());
     header::write(os, (*ct).second);
     for (headers_map::const_iterator iter = hm.begin(); iter != hm.end();
          iter++) {
@@ -571,7 +571,7 @@ impl::atf_atffile_reader::read(void)
             } else if (t.type() == nl_type) {
                 continue;
             } else
-                assert(false);
+                UNREACHABLE;
 
             t = p.expect(nl_type, hash_type, eof_type,
                          "new line or comment");
@@ -651,7 +651,7 @@ impl::atf_config_reader::read(void)
                 }
             } else if (t.type() == nl_type) {
             } else
-                assert(false);
+                UNREACHABLE;
         } catch (const parse_error& pe) {
             p.add_error(pe);
             p.reset(nl_type);
@@ -827,7 +827,7 @@ impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
                                           "test case result");
                     CALLBACK(p, got_tc_end(tests::tcr::skipped(reason)));
                 } else
-                    assert(false);
+                    UNREACHABLE;
 
                 t = p.expect(nl_type, "new line");
                 i++;
@@ -876,7 +876,7 @@ impl::atf_tcs_writer::start_tc(const std::string& tcname)
 void
 impl::atf_tcs_writer::end_tc(const atf::tests::tcr& tcr)
 {
-    assert(m_curtc < m_ntcs);
+    PRE(m_curtc < m_ntcs);
     m_curtc++;
     if (m_curtc < m_ntcs) {
         std::cout << "__atf_tc_separator__\n";
@@ -900,7 +900,7 @@ impl::atf_tcs_writer::end_tc(const atf::tests::tcr& tcr)
         break;
 
     default:
-        assert(false);
+        UNREACHABLE;
     }
     m_os << end << std::endl;
     m_os.flush();
@@ -1078,7 +1078,7 @@ impl::atf_tps_reader::read_tc(void* pptr)
         if (t2.type() == tc_so_type) {
             CALLBACK(p, got_tc_stdout_line(line));
         } else {
-            assert(t2.type() == tc_se_type);
+            INV(t2.type() == tc_se_type);
             CALLBACK(p, got_tc_stderr_line(line));
         }
 
@@ -1117,7 +1117,7 @@ impl::atf_tps_reader::read_tc(void* pptr)
                               "Empty reason for skipped test case result");
         CALLBACK(p, got_tc_end(tests::tcr::skipped(reason)));
     } else
-        assert(false);
+        UNREACHABLE;
 
     t = p.expect(nl_type, "new line");
 }
@@ -1210,7 +1210,7 @@ impl::atf_tps_writer::start_tp(const std::string& tp, size_t ntcs)
 void
 impl::atf_tps_writer::end_tp(const std::string& reason)
 {
-    assert(reason.find('\n') == std::string::npos);
+    PRE(reason.find('\n') == std::string::npos);
     if (reason.empty())
         m_os << "tp-end: " << m_tpname << std::endl;
     else
@@ -1258,7 +1258,7 @@ impl::atf_tps_writer::end_tc(const atf::tests::tcr& tcr)
         break;
 
     default:
-        assert(false);
+        UNREACHABLE;
     }
     m_os << str << std::endl;
     m_os.flush();

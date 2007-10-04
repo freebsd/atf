@@ -34,123 +34,119 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <sstream>
+#include <cstdio>
 
-#include "atf/parser.hpp"
+#include "atf/sanity.hpp"
 
-namespace impl = atf::parser;
-#define IMPL_NAME "atf::parser"
-
-// ------------------------------------------------------------------------
-// The "parse_error" class.
-// ------------------------------------------------------------------------
-
-impl::parse_error::parse_error(size_t line, std::string msg) :
-    std::runtime_error(msg),
-    std::pair< size_t, std::string >(line, msg)
-{
-}
-
-impl::parse_error::~parse_error(void)
-    throw()
-{
-}
-
-const char*
-impl::parse_error::what(void)
-    const throw()
-{
-    try {
-        std::ostringstream oss;
-        oss << "LONELY PARSE ERROR: " << first << ": " << second;
-        m_msg = oss.str();
-        return m_msg.c_str();
-    } catch (...) {
-        return "Could not format message for parsing error.";
-    }
-}
+namespace impl = atf::sanity;
+#define IMPL_NAME "atf::sanity"
 
 // ------------------------------------------------------------------------
-// The "parse_errors" class.
+// The "sanity_error" class.
 // ------------------------------------------------------------------------
 
-impl::parse_errors::parse_errors(void) :
-    std::runtime_error("No parsing errors yet")
-{
-    m_msg.clear();
-}
-
-impl::parse_errors::~parse_errors(void)
-    throw()
-{
-}
-
-const char*
-impl::parse_errors::what(void)
-    const throw()
-{
-    try {
-        std::ostringstream oss;
-        for (const_iterator iter = begin(); iter != end(); iter++) {
-            oss << (*iter).first << ": " << (*iter).second
-                << std::endl;
-        }
-        m_msg = oss.str();
-        return m_msg.c_str();
-    } catch (...) {
-        return "Could not format messages for parsing errors.";
-    }
-}
-
-// ------------------------------------------------------------------------
-// The "token" class.
-// ------------------------------------------------------------------------
-
-impl::token::token(void) :
-    m_inited(false)
-{
-}
-
-impl::token::token(size_t p_line,
-                   const token_type& p_type,
-                   const std::string& p_text) :
-    m_inited(true),
+impl::sanity_error::sanity_error(const char* p_file,
+                                 size_t p_line,
+                                 const char* p_msg)
+    throw() :
+    std::logic_error(p_msg),
+    m_file(p_file),
     m_line(p_line),
-    m_type(p_type),
-    m_text(p_text)
+    m_msg(p_msg)
 {
+    m_buffer[0] = '\0';
+}
+
+impl::sanity_error::~sanity_error(void)
+    throw()
+{
+}
+
+const char*
+impl::sanity_error::file(void)
+    const
+    throw()
+{
+    return m_file;
 }
 
 size_t
-impl::token::lineno(void)
+impl::sanity_error::line(void)
     const
+    throw()
 {
     return m_line;
 }
 
-const impl::token_type&
-impl::token::type(void)
+const char*
+impl::sanity_error::format_message(const char* type)
     const
+    throw()
 {
-    return m_type;
+    if (m_buffer[0] == '\0') {
+        std::snprintf(m_buffer, sizeof(m_buffer),
+                      "%s check failed at %s:%zu: %s",
+                      type, m_file, m_line, m_msg);
+    }
+    return m_buffer;
 }
 
-const std::string&
-impl::token::text(void)
-    const
+// ------------------------------------------------------------------------
+// The "precondition_error" class.
+// ------------------------------------------------------------------------
+
+impl::precondition_error::precondition_error(const char* p_file,
+                                             size_t p_line,
+                                             const char* p_msg)
+    throw() :
+    sanity_error(p_file, p_line, p_msg)
 {
-    return m_text;
 }
 
-impl::token::operator bool(void)
+const char*
+impl::precondition_error::what(void)
     const
+    throw()
 {
-    return m_inited;
+    return format_message("Precondition");
 }
 
-bool
-impl::token::operator!(void)
-    const
+// ------------------------------------------------------------------------
+// The "postcondition_error" class.
+// ------------------------------------------------------------------------
+
+impl::postcondition_error::postcondition_error(const char* p_file,
+                                               size_t p_line,
+                                               const char* p_msg)
+    throw() :
+    sanity_error(p_file, p_line, p_msg)
 {
-    return !m_inited;
+}
+
+const char*
+impl::postcondition_error::what(void)
+    const
+    throw()
+{
+    return format_message("Postcondition");
+}
+
+// ------------------------------------------------------------------------
+// The "invariant_error" class.
+// ------------------------------------------------------------------------
+
+impl::invariant_error::invariant_error(const char* p_file,
+                                       size_t p_line,
+                                       const char* p_msg)
+    throw() :
+    sanity_error(p_file, p_line, p_msg)
+{
+}
+
+const char*
+impl::invariant_error::what(void)
+    const
+    throw()
+{
+    return format_message("Invariant");
 }

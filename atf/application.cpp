@@ -42,13 +42,13 @@ extern "C" {
 #include <unistd.h>
 }
 
-#include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
 
 #include "atf/application.hpp"
 #include "atf/exceptions.hpp"
+#include "atf/sanity.hpp"
 #include "atf/ui.hpp"
 
 atf::application::option::option(char ch,
@@ -117,7 +117,7 @@ atf::application::process_option(int ch, const char* arg)
 void
 atf::application::process_options(void)
 {
-    assert(inited());
+    PRE(inited());
 
     std::string optstr(":");
     {
@@ -158,7 +158,7 @@ atf::application::process_options(void)
 void
 atf::application::usage(std::ostream& os)
 {
-    assert(inited());
+    PRE(inited());
 
     std::string args = specific_args();
     if (!args.empty())
@@ -170,7 +170,7 @@ atf::application::usage(std::ostream& os)
        << std::endl;
 
     options_set opts = options();
-    assert(!opts.empty());
+    INV(!opts.empty());
     os << "Available options:" << std::endl;
     size_t coldesc = 0;
     for (options_set::const_iterator iter = opts.begin();
@@ -203,8 +203,8 @@ atf::application::usage(std::ostream& os)
 int
 atf::application::run(int argc, char* const* argv)
 {
-    assert(argc > 0);
-    assert(argv != NULL);
+    PRE(argc > 0);
+    PRE(argv != NULL);
 
     m_argc = argc;
     m_argv = argv;
@@ -234,6 +234,11 @@ atf::application::run(int argc, char* const* argv)
         errcode = EXIT_FAILURE;
     } catch (const std::runtime_error& e) {
         std::cerr << ui::format_error(m_prog_name, std::string(e.what()))
+                  << std::endl;
+        errcode = EXIT_FAILURE;
+    } catch (const atf::sanity::sanity_error& e) {
+        std::cerr << ui::format_error(m_prog_name,
+                                      std::string(e.what()) + "\n" + bug)
                   << std::endl;
         errcode = EXIT_FAILURE;
     } catch (const std::exception& e) {

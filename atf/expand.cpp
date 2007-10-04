@@ -44,10 +44,9 @@ extern "C" {
 #endif // !defined(REG_BASIC)
 }
 
-#include <cassert>
-
 #include "atf/exceptions.hpp"
 #include "atf/expand.hpp"
+#include "atf/sanity.hpp"
 
 namespace impl = atf::expand;
 #define IMPL_NAME "atf::expand"
@@ -97,13 +96,13 @@ throw_pattern_error(int errcode, const regex_t* preg)
     // a very small buffer.
     char lenbuf[1];
     size_t len = ::regerror(errcode, preg, lenbuf, 1);
-    assert(len > 1);
+    INV(len > 1);
 
     // Allocate a big-enough buffer to hold the complete error message and
     // throw an exception containing it.
     atf::utils::auto_array< char > buf(new char[len]);
     size_t len2 = ::regerror(errcode, preg, buf.get(), len);
-    assert(len == len2);
+    INV(len == len2);
     throw impl::pattern_error(buf);
 }
 
