@@ -411,43 +411,10 @@ impl::tcr
 impl::tc::safe_run(void)
     const
 {
-    tcr tcr = tcr::passed();
-
-    if (has("require.config")) {
-        const std::string& c = get("require.config");
-        std::vector< std::string > vars = text::split(c, " ");
-        for (std::vector< std::string >::const_iterator iter = vars.begin();
-             iter != vars.end(); iter++) {
-            if (!m_config.has(*iter)) {
-                tcr = tcr::skipped("Required configuration variable " +
-                                   *iter + " not defined");
-                break;
-            }
-        }
-    }
-
-    if (tcr.get_status() == tcr::status_passed && has("require.user")) {
-        const std::string& u = get("require.user");
-        if (u == "root") {
-            if (!user::is_root())
-                tcr = tcr::skipped("Requires root privileges");
-        } else if (u == "unprivileged") {
-            if (!user::is_unprivileged())
-                tcr = tcr::skipped("Requires an unprivileged user");
-        } else
-            tcr = tcr::skipped("Invalid value in the require.user "
-                               "property");
-    }
-
-    if (tcr.get_status() == tcr::status_passed) {
-        // Previous checks have not made the test fail, so run it now.
-
-        atf::fs::temp_dir workdir
-            (atf::fs::path(m_config.get("workdir")) / "atf.XXXXXX");
-        tcr = fork_body(workdir.get_path().str());
-        fork_cleanup(workdir.get_path().str());
-    }
-
+    atf::fs::temp_dir workdir
+        (atf::fs::path(m_config.get("workdir")) / "atf.XXXXXX");
+    impl::tcr tcr = fork_body(workdir.get_path().str());
+    fork_cleanup(workdir.get_path().str());
     return tcr;
 }
 
@@ -481,6 +448,43 @@ sanitize_process(const atf::fs::path& workdir)
     atf::fs::change_directory(workdir);
 }
 
+void
+impl::tc::check_requirements(void)
+    const
+{
+    if (has("require.config")) {
+        const std::string& c = get("require.config");
+        std::vector< std::string > vars = text::split(c, " ");
+        for (std::vector< std::string >::const_iterator iter = vars.begin();
+             iter != vars.end(); iter++) {
+            if (!m_config.has(*iter))
+                throw tcr::skipped("Required configuration variable " +
+                                   *iter + " not defined");
+        }
+    }
+
+    if (has("require.user")) {
+        const std::string& u = get("require.user");
+        if (u == "root") {
+            if (!user::is_root())
+                throw tcr::skipped("Requires root privileges");
+        } else if (u == "unprivileged") {
+            if (!user::is_unprivileged())
+                throw tcr::skipped("Requires an unprivileged user");
+        } else
+            throw tcr::skipped("Invalid value in the require.user "
+                               "property");
+    }
+
+    if (has("require.progs")) {
+        std::vector< std::string > progs =
+            text::split(get("require.progs"), " ");
+        for (std::vector< std::string >::const_iterator iter =
+             progs.begin(); iter != progs.end(); iter++)
+            require_prog(*iter);
+    }
+}
+
 impl::tcr
 impl::tc::fork_body(const std::string& workdir)
     const
@@ -501,23 +505,7 @@ impl::tc::fork_body(const std::string& workdir)
         // cannot be directed to the parent process.
         try {
             sanitize_process(atf::fs::path(workdir));
-
-            // This is here because require_progs can assert if the user
-            // gave bad input.  Having it here lets us capture the abort
-            // from the parent.
-            //
-            // XXX The thing is... is this appropriate?  Should we forbid
-            // the assertions in our code and use exceptions instead?
-            // Or... should all properties be handled here -- aka, in the
-            // controlled environment?
-            if (has("require.progs")) {
-                std::vector< std::string > progs =
-                    text::split(get("require.progs"), " ");
-                for (std::vector< std::string >::const_iterator iter =
-                     progs.begin(); iter != progs.end(); iter++)
-                    require_prog(*iter);
-            }
-
+            check_requirements();
             body();
             throw impl::tcr::passed();
         } catch (const impl::tcr& tcre) {
