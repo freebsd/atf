@@ -34,6 +34,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cstring>
+
 #include "atf/macros.hpp"
 #include "atf/sanity.hpp"
 
@@ -42,7 +44,7 @@ void
 test_getters(void)
 {
     E error("a-file.c", 123, "Test message");
-    ATF_CHECK_EQUAL(error.file(), "a-file.c");
+    ATF_CHECK(std::strcmp(error.file(), "a-file.c") == 0);
     ATF_CHECK_EQUAL(error.line(), 123);
 }
 
