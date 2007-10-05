@@ -65,11 +65,18 @@ tc_oflag_head()
 tc_oflag_body()
 {
     atf_check 'touch tp_foo.sh' 0 null null
-    atf_check 'atf-compile tp_foo.sh' 0 stdout null
+    atf_check 'atf-compile tp_foo.sh' 1 null stderr
+    atf_check 'grep "No output file specified" stderr' 0 ignore null
+
     atf_check 'test -f tp_foo' 1 null null
     atf_check 'atf-compile -o tp_foo tp_foo.sh' 0 null null
     atf_check 'test -f tp_foo' 0 null null
-    atf_check 'cmp stdout tp_foo' 0 ignore null
+
+    atf_check 'test -f tp_foo2' 1 null null
+    atf_check 'atf-compile -o tp_foo2 tp_foo.sh' 0 null null
+    atf_check 'test -f tp_foo2' 0 null null
+
+    atf_check 'cmp tp_foo tp_foo2' 0 ignore null
 }
 
 check_perms()

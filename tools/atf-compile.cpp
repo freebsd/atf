@@ -98,8 +98,7 @@ atf_compile::specific_options(void)
     const
 {
     options_set opts;
-    opts.insert(option('o', "out-file",
-                       "Write output to the given file"));
+    opts.insert(option('o', "out-file", "Name of the output file"));
     return opts;
 }
 
@@ -140,24 +139,23 @@ atf_compile::main(void)
     if (m_argc < 1)
         throw atf::usage_error("No test program specified");
 
-    if (m_outfile.empty()) {
-        compile(std::cout);
-    } else {
-        std::ofstream os(m_outfile.c_str());
-        if (!os)
-            throw std::runtime_error("Cannot open output file `" +
-                                     m_outfile + "'");
-        compile(os);
-        os.close();
+    if (m_outfile.empty())
+        throw atf::usage_error("No output file specified");
 
-        mode_t umask = ::umask(S_IRWXU | S_IRWXG | S_IRWXO);
-        ::umask(umask);
+    std::ofstream os(m_outfile.c_str());
+    if (!os)
+        throw std::runtime_error("Cannot open output file `" +
+                                 m_outfile + "'");
+    compile(os);
+    os.close();
 
-        if (::chmod(m_outfile.c_str(),
-                    (S_IRWXU | S_IRWXG | S_IRWXO) & ~umask) == -1)
-            throw std::runtime_error("Cannot set executable permissions "
-                                     "on `" + m_outfile + "'");
-    }
+    mode_t umask = ::umask(S_IRWXU | S_IRWXG | S_IRWXO);
+    ::umask(umask);
+
+    if (::chmod(m_outfile.c_str(),
+                (S_IRWXU | S_IRWXG | S_IRWXO) & ~umask) == -1)
+        throw std::runtime_error("Cannot set executable permissions "
+                                 "on `" + m_outfile + "'");
 
     return EXIT_SUCCESS;
 }
