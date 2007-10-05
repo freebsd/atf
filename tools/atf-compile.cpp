@@ -150,8 +150,13 @@ atf_compile::main(void)
         compile(os);
         os.close();
 
-        // XXX Handle errors and respect umask.
-        ::chmod(m_outfile.c_str(), 0755);
+        mode_t umask = ::umask(S_IRWXU | S_IRWXG | S_IRWXO);
+        ::umask(umask);
+
+        if (::chmod(m_outfile.c_str(),
+                    (S_IRWXU | S_IRWXG | S_IRWXO) & ~umask) == -1)
+            throw std::runtime_error("Cannot set executable permissions "
+                                     "on `" + m_outfile + "'");
     }
 
     return EXIT_SUCCESS;
