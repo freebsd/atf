@@ -54,6 +54,16 @@ script.
   of debugging symbols in all objects or the enabling of warnings during
   compilation.
 
+* Flag: --enable-unstable-shared
+  Possible values: yes, no
+  Default: no.
+
+  Forces the building of shared libraries in addition to static ones.
+  The build of shared libraries is currently disabled because their ABIs
+  and APIs are unstable and subject to change.  This flag is provided for
+  development purposes only and will be removed once the libraries are
+  stable enough.
+
 
 Post-installation steps
 =======================

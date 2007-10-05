@@ -52,6 +52,19 @@ AC_CONFIG_TESTDIR([tests/bootstrap])
 
 AM_INIT_AUTOMAKE([1.9 check-news subdir-objects -Wall])
 
+dnl This is just a hack to reverse the meaning of the --enable-shared
+dnl flag provided by libtool.  We want it to default to building static
+dnl libraries only for now, but these are painful during development.
+dnl It is nice to have an easy way to enable shared library builds.
+AC_ARG_ENABLE(unstable-shared,
+    AS_HELP_STRING([--enable-unstable-shared],
+        [Enables the build of shared libraries with unstable ABIs/APIs]),
+    [case $enableval in
+     yes|no) enable_shared=${enableval} ;;
+     *) enable_shared=${enableval} ;;
+     esac],
+    [enable_shared=no])
+
 AC_PROG_LIBTOOL
 
 dnl -----------------------------------------------------------------------
@@ -296,5 +309,10 @@ dnl Finally, generate output.
 dnl -----------------------------------------------------------------------
 
 AC_OUTPUT([Makefile subrs/atf.config.subr])
+
+if test ${enable_shared} = yes; then
+    AC_MSG_WARN([Shared libraries with unstable ABIs/APIs have been enabled.])
+    AC_MSG_WARN([Please do not install them as part of a binary package.])
+fi
 
 dnl vim: syntax=m4:expandtab:shiftwidth=4:softtabstop=4

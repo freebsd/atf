@@ -97,8 +97,8 @@ EXTRA_DIST += admin/revision-dist.h
 # `atf' directory.
 # -------------------------------------------------------------------------
 
-lib_LIBRARIES = libatf.a
-libatf_a_SOURCES =  atf/application.cpp \
+lib_LTLIBRARIES = libatf.la
+libatf_la_SOURCES = atf/application.cpp \
                     atf/application.hpp \
                     atf/atffile.cpp \
                     atf/atffile.hpp \
