@@ -86,6 +86,6 @@ ATF_TEST_CASE_BODY(is_unprivileged)
 ATF_INIT_TEST_CASES(tcs)
 {
     // Add the tests for the free functions.
-    tcs.push_back(&is_root);
-    tcs.push_back(&is_unprivileged);
+    ATF_ADD_TEST_CASE(tcs, is_root);
+    ATF_ADD_TEST_CASE(tcs, is_unprivileged);
 }

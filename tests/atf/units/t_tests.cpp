@@ -120,8 +120,8 @@ ATF_TEST_CASE_BODY(tcr_failed_ctor)
 ATF_INIT_TEST_CASES(tcs)
 {
     // Add tests for the "tcr" class.
-    tcs.push_back(&tcr_default_ctor);
-    tcs.push_back(&tcr_passed_ctor);
-    tcs.push_back(&tcr_skipped_ctor);
-    tcs.push_back(&tcr_failed_ctor);
+    ATF_ADD_TEST_CASE(tcs, tcr_default_ctor);
+    ATF_ADD_TEST_CASE(tcs, tcr_passed_ctor);
+    ATF_ADD_TEST_CASE(tcs, tcr_skipped_ctor);
+    ATF_ADD_TEST_CASE(tcs, tcr_failed_ctor);
 }

@@ -44,36 +44,36 @@
 #include <atf/tests.hpp>
 
 #define ATF_TEST_CASE(name) \
-    class name : public atf::tests::tc { \
+    class atf_tc_ ## name : public atf::tests::tc { \
         void head(void); \
         void body(void) const; \
     public: \
-        name(void) : atf::tests::tc(#name) {} \
+        atf_tc_ ## name(void) : atf::tests::tc(#name) {} \
     }; \
-    static name name;
+    static atf_tc_ ## name atf_tc_ ## name;
 
 #define ATF_TEST_CASE_WITH_CLEANUP(name) \
-    class name : public atf::tests::tc { \
+    class atf_tc_ ## name : public atf::tests::tc { \
         void head(void); \
         void body(void) const; \
         void cleanup(void) const; \
     public: \
-        name(void) : atf::tests::tc(#name) {} \
+        atf_tc_ ## name(void) : atf::tests::tc(#name) {} \
     }; \
-    static name name;
+    static atf_tc_ ## name atf_tc_ ## name;
 
 #define ATF_TEST_CASE_HEAD(name) \
     void \
-    name::head(void)
+    atf_tc_ ## name::head(void)
 
 #define ATF_TEST_CASE_BODY(name) \
     void \
-    name::body(void) \
+    atf_tc_ ## name::body(void) \
         const
 
 #define ATF_TEST_CASE_CLEANUP(name) \
     void \
-    name::cleanup(void) \
+    atf_tc_ ## name::cleanup(void) \
         const
 
 #define ATF_FAIL(reason) \
@@ -139,5 +139,8 @@
     \
     void \
     __atf_init_tcs(std::vector< atf::tests::tc * >& tcs)
+
+#define ATF_ADD_TEST_CASE(tcs, tc) \
+    (tcs).push_back(&(atf_tc_ ## tc));
 
 #endif // !defined(_ATF_MACROS_HPP_)

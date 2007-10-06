@@ -255,9 +255,9 @@ ATF_TEST_CASE_BODY(to_string)
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    tcs.push_back(&join);
-    tcs.push_back(&split);
-    tcs.push_back(&split_delims);
-    tcs.push_back(&trim);
-    tcs.push_back(&to_string);
+    ATF_ADD_TEST_CASE(tcs, join);
+    ATF_ADD_TEST_CASE(tcs, split);
+    ATF_ADD_TEST_CASE(tcs, split_delims);
+    ATF_ADD_TEST_CASE(tcs, trim);
+    ATF_ADD_TEST_CASE(tcs, to_string);
 }

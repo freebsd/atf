@@ -86,8 +86,8 @@ ATF_TEST_CASE_BODY(tc_default)
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    tcs.push_back(&tc_pass);
-    tcs.push_back(&tc_fail);
-    tcs.push_back(&tc_skip);
-    tcs.push_back(&tc_default);
+    ATF_ADD_TEST_CASE(tcs, tc_pass);
+    ATF_ADD_TEST_CASE(tcs, tc_fail);
+    ATF_ADD_TEST_CASE(tcs, tc_skip);
+    ATF_ADD_TEST_CASE(tcs, tc_default);
 }

@@ -697,15 +697,15 @@ ATF_TEST_CASE_BODY(tokenizer_quotes_ws)
 ATF_INIT_TEST_CASES(tcs)
 {
     // Add test cases for the "token" class.
-    tcs.push_back(&token_getters);
+    ATF_ADD_TEST_CASE(tcs, token_getters);
 
     // Add test cases for the "tokenizer" class.
-    tcs.push_back(&tokenizer_minimal_nows);
-    tcs.push_back(&tokenizer_minimal_ws);
-    tcs.push_back(&tokenizer_delims_nows);
-    tcs.push_back(&tokenizer_delims_ws);
-    tcs.push_back(&tokenizer_keywords_nows);
-    tcs.push_back(&tokenizer_keywords_ws);
-    tcs.push_back(&tokenizer_quotes_nows);
-    tcs.push_back(&tokenizer_quotes_ws);
+    ATF_ADD_TEST_CASE(tcs, tokenizer_minimal_nows);
+    ATF_ADD_TEST_CASE(tcs, tokenizer_minimal_ws);
+    ATF_ADD_TEST_CASE(tcs, tokenizer_delims_nows);
+    ATF_ADD_TEST_CASE(tcs, tokenizer_delims_ws);
+    ATF_ADD_TEST_CASE(tcs, tokenizer_keywords_nows);
+    ATF_ADD_TEST_CASE(tcs, tokenizer_keywords_ws);
+    ATF_ADD_TEST_CASE(tcs, tokenizer_quotes_nows);
+    ATF_ADD_TEST_CASE(tcs, tokenizer_quotes_ws);
 }

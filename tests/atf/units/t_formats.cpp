@@ -55,5 +55,5 @@ ATF_TEST_CASE_BODY(nothing_yet)
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    tcs.push_back(&nothing_yet);
+    ATF_ADD_TEST_CASE(tcs, nothing_yet);
 }

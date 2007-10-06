@@ -221,7 +221,7 @@ ATF_TEST_CASE_BODY(has)
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    tcs.push_back(&has);
-    tcs.push_back(&get);
-    tcs.push_back(&get_all);
+    ATF_ADD_TEST_CASE(tcs, has);
+    ATF_ADD_TEST_CASE(tcs, get);
+    ATF_ADD_TEST_CASE(tcs, get_all);
 }

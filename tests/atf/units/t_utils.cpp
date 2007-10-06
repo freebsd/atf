@@ -215,10 +215,10 @@ ATF_TEST_CASE_BODY(auto_array_assign)
 ATF_INIT_TEST_CASES(tcs)
 {
     // Add the test for the "auto_array" class.
-    tcs.push_back(&auto_array_scope);
-    tcs.push_back(&auto_array_copy);
-    tcs.push_back(&auto_array_get);
-    tcs.push_back(&auto_array_release);
-    tcs.push_back(&auto_array_reset);
-    tcs.push_back(&auto_array_assign);
+    ATF_ADD_TEST_CASE(tcs, auto_array_scope);
+    ATF_ADD_TEST_CASE(tcs, auto_array_copy);
+    ATF_ADD_TEST_CASE(tcs, auto_array_get);
+    ATF_ADD_TEST_CASE(tcs, auto_array_release);
+    ATF_ADD_TEST_CASE(tcs, auto_array_reset);
+    ATF_ADD_TEST_CASE(tcs, auto_array_assign);
 }

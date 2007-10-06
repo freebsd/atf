@@ -134,12 +134,12 @@ ATF_INIT_TEST_CASES(tcs)
     // its children.
 
     // Add the tests for the "precondition_error" class.
-    tcs.push_back(&precondition_error_getters);
+    ATF_ADD_TEST_CASE(tcs, precondition_error_getters);
 
     // Add the tests for the "postcondition_error" class.
-    tcs.push_back(&postcondition_error_getters);
+    ATF_ADD_TEST_CASE(tcs, postcondition_error_getters);
 
     // Add the tests for the "invariant_error" class.
-    tcs.push_back(&invariant_error_getters);
-    tcs.push_back(&invariant_error_macro);
+    ATF_ADD_TEST_CASE(tcs, invariant_error_getters);
+    ATF_ADD_TEST_CASE(tcs, invariant_error_macro);
 }

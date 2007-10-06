@@ -435,25 +435,25 @@ ATF_TEST_CASE_BODY(postream)
 ATF_INIT_TEST_CASES(tcs)
 {
     // Add the tests for the "file_handle" class.
-    tcs.push_back(&file_handle_ctor);
-    tcs.push_back(&file_handle_copy);
-    tcs.push_back(&file_handle_get);
-    tcs.push_back(&file_handle_posix_remap);
+    ATF_ADD_TEST_CASE(tcs, file_handle_ctor);
+    ATF_ADD_TEST_CASE(tcs, file_handle_copy);
+    ATF_ADD_TEST_CASE(tcs, file_handle_get);
+    ATF_ADD_TEST_CASE(tcs, file_handle_posix_remap);
 
     // Add the tests for the "systembuf" class.
-    tcs.push_back(&systembuf_short_read);
-    tcs.push_back(&systembuf_long_read);
-    tcs.push_back(&systembuf_short_write);
-    tcs.push_back(&systembuf_long_write);
+    ATF_ADD_TEST_CASE(tcs, systembuf_short_read);
+    ATF_ADD_TEST_CASE(tcs, systembuf_long_read);
+    ATF_ADD_TEST_CASE(tcs, systembuf_short_write);
+    ATF_ADD_TEST_CASE(tcs, systembuf_long_write);
 
     // Add the tests for the "pipe" class.
-    tcs.push_back(&pipe_read_and_write);
-    tcs.push_back(&pipe_remap_read);
-    tcs.push_back(&pipe_remap_write);
+    ATF_ADD_TEST_CASE(tcs, pipe_read_and_write);
+    ATF_ADD_TEST_CASE(tcs, pipe_remap_read);
+    ATF_ADD_TEST_CASE(tcs, pipe_remap_write);
 
     // Add the tests for the "pistream" class.
-    tcs.push_back(&pistream);
+    ATF_ADD_TEST_CASE(tcs, pistream);
 
     // Add the tests for the "postream" class.
-    tcs.push_back(&postream);
+    ATF_ADD_TEST_CASE(tcs, postream);
 }

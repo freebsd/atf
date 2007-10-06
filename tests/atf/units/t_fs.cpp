@@ -644,14 +644,12 @@ ATF_TEST_CASE_BODY(cleanup)
     ATF_CHECK(!exists(p));
 }
 
-// XXX Fix ATF_TEST_CASE to prefix names with some private string and then
-// rename this to remove.
-ATF_TEST_CASE(removefunc);
-ATF_TEST_CASE_HEAD(removefunc)
+ATF_TEST_CASE(remove);
+ATF_TEST_CASE_HEAD(remove)
 {
     set("descr", "Tests the remove function");
 }
-ATF_TEST_CASE_BODY(removefunc)
+ATF_TEST_CASE_BODY(remove)
 {
     using atf::fs::exists;
     using atf::fs::path;
@@ -675,35 +673,35 @@ ATF_TEST_CASE_BODY(removefunc)
 ATF_INIT_TEST_CASES(tcs)
 {
     // Add the tests for the "path" class.
-    tcs.push_back(&path_empty);
-    tcs.push_back(&path_normalize);
-    tcs.push_back(&path_is_absolute);
-    tcs.push_back(&path_is_root);
-    tcs.push_back(&path_branch_path);
-    tcs.push_back(&path_leaf_name);
-    tcs.push_back(&path_compare_equal);
-    tcs.push_back(&path_compare_different);
-    tcs.push_back(&path_concat);
-    tcs.push_back(&path_to_absolute);
-    tcs.push_back(&path_op_less);
+    ATF_ADD_TEST_CASE(tcs, path_empty);
+    ATF_ADD_TEST_CASE(tcs, path_normalize);
+    ATF_ADD_TEST_CASE(tcs, path_is_absolute);
+    ATF_ADD_TEST_CASE(tcs, path_is_root);
+    ATF_ADD_TEST_CASE(tcs, path_branch_path);
+    ATF_ADD_TEST_CASE(tcs, path_leaf_name);
+    ATF_ADD_TEST_CASE(tcs, path_compare_equal);
+    ATF_ADD_TEST_CASE(tcs, path_compare_different);
+    ATF_ADD_TEST_CASE(tcs, path_concat);
+    ATF_ADD_TEST_CASE(tcs, path_to_absolute);
+    ATF_ADD_TEST_CASE(tcs, path_op_less);
 
     // Add the tests for the "file_info" class.
-    tcs.push_back(&file_info_stat);
-    tcs.push_back(&file_info_perms);
+    ATF_ADD_TEST_CASE(tcs, file_info_stat);
+    ATF_ADD_TEST_CASE(tcs, file_info_perms);
 
     // Add the tests for the "directory" class.
-    tcs.push_back(&directory_read);
-    tcs.push_back(&directory_names);
-    tcs.push_back(&directory_file_info);
+    ATF_ADD_TEST_CASE(tcs, directory_read);
+    ATF_ADD_TEST_CASE(tcs, directory_names);
+    ATF_ADD_TEST_CASE(tcs, directory_file_info);
 
     // Add the tests for the "temp_dir" class.
-    tcs.push_back(&temp_dir_raii);
+    ATF_ADD_TEST_CASE(tcs, temp_dir_raii);
 
     // Add the tests for the free functions.
-    tcs.push_back(&get_current_dir);
-    tcs.push_back(&exists);
-    tcs.push_back(&is_executable);
-    tcs.push_back(&change_directory);
-    tcs.push_back(&cleanup);
-    tcs.push_back(&removefunc);
+    ATF_ADD_TEST_CASE(tcs, get_current_dir);
+    ATF_ADD_TEST_CASE(tcs, exists);
+    ATF_ADD_TEST_CASE(tcs, is_executable);
+    ATF_ADD_TEST_CASE(tcs, change_directory);
+    ATF_ADD_TEST_CASE(tcs, cleanup);
+    ATF_ADD_TEST_CASE(tcs, remove);
 }

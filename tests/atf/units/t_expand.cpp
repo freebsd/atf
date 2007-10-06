@@ -285,13 +285,13 @@ ATF_TEST_CASE_BODY(expand_glob_tps)
 ATF_INIT_TEST_CASES(tcs)
 {
     // Add the tests for the "pattern_error" class.
-    tcs.push_back(&pattern_error);
+    ATF_ADD_TEST_CASE(tcs, pattern_error);
 
     // Add the tests for the free functions.
-    tcs.push_back(&is_glob);
-    tcs.push_back(&matches_glob_plain);
-    tcs.push_back(&matches_glob_star);
-    tcs.push_back(&matches_glob_question);
-    tcs.push_back(&expand_glob_base);
-    tcs.push_back(&expand_glob_tps);
+    ATF_ADD_TEST_CASE(tcs, is_glob);
+    ATF_ADD_TEST_CASE(tcs, matches_glob_plain);
+    ATF_ADD_TEST_CASE(tcs, matches_glob_star);
+    ATF_ADD_TEST_CASE(tcs, matches_glob_question);
+    ATF_ADD_TEST_CASE(tcs, expand_glob_base);
+    ATF_ADD_TEST_CASE(tcs, expand_glob_tps);
 }

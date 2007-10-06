@@ -50,15 +50,12 @@ ATF_TEST_CASE_BODY(has_get)
     ATF_CHECK(!atf::env::has("_UNDEFINED_VARIABLE_"));
 }
 
-// XXX This should be named 'set' instead of 'set_func', but this collides
-// with std::set.  Should rework the macros to make the names private and
-// thus prevent such collisions.
-ATF_TEST_CASE(set_func);
-ATF_TEST_CASE_HEAD(set_func)
+ATF_TEST_CASE(set);
+ATF_TEST_CASE_HEAD(set)
 {
     set("descr", "Tests the set function");
 }
-ATF_TEST_CASE_BODY(set_func)
+ATF_TEST_CASE_BODY(set)
 {
     ATF_CHECK(atf::env::has("PATH"));
     const std::string& oldval = atf::env::get("PATH");
@@ -85,7 +82,7 @@ ATF_TEST_CASE_BODY(unset)
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    tcs.push_back(&has_get);
-    tcs.push_back(&set_func);
-    tcs.push_back(&unset);
+    ATF_ADD_TEST_CASE(tcs, has_get);
+    ATF_ADD_TEST_CASE(tcs, set);
+    ATF_ADD_TEST_CASE(tcs, unset);
 }
