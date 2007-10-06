@@ -34,133 +34,133 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-atf_test_case tc_exitcode_0_0
-tc_exitcode_0_0_head()
+atf_test_case exitcode_0_0
+exitcode_0_0_head()
 {
     atf_set "descr" "Runs a program that returns true and expects true"
 }
-tc_exitcode_0_0_body()
+exitcode_0_0_body()
 {
     atf_check 'true' 0 null null
 }
 
-atf_test_case tc_exitcode_0_1
-tc_exitcode_0_1_head()
+atf_test_case exitcode_0_1
+exitcode_0_1_head()
 {
     atf_set "descr" "Runs a program that returns true and expects false"
 }
-tc_exitcode_0_1_body()
+exitcode_0_1_body()
 {
     atf_check 'true' 1 null null
 }
 
-atf_test_case tc_exitcode_1_0
-tc_exitcode_1_0_head()
+atf_test_case exitcode_1_0
+exitcode_1_0_head()
 {
     atf_set "descr" "Runs a program that returns false and expects true"
 }
-tc_exitcode_1_0_body()
+exitcode_1_0_body()
 {
     atf_check 'false' 0 null null
 }
 
-atf_test_case tc_exitcode_1_1
-tc_exitcode_1_1_head()
+atf_test_case exitcode_1_1
+exitcode_1_1_head()
 {
     atf_set "descr" "Runs a program that returns false and expects false"
 }
-tc_exitcode_1_1_body()
+exitcode_1_1_body()
 {
     atf_check 'false' 1 null null
 }
 
-atf_test_case tc_stdout_expout_pass
-tc_stdout_expout_pass_head()
+atf_test_case stdout_expout_pass
+stdout_expout_pass_head()
 {
     atf_set "descr" "Runs a program with stdout set to expout and passes"
 }
-tc_stdout_expout_pass_body()
+stdout_expout_pass_body()
 {
     echo foo >expout
     atf_check 'echo foo' 0 expout null
 }
 
-atf_test_case tc_stdout_expout_fail
-tc_stdout_expout_fail_head()
+atf_test_case stdout_expout_fail
+stdout_expout_fail_head()
 {
     atf_set "descr" "Runs a program with stdout set to expout and fails"
 }
-tc_stdout_expout_fail_body()
+stdout_expout_fail_body()
 {
     echo foo >expout
     atf_check 'echo bar' 0 expout null
 }
 
-atf_test_case tc_stdout_ignore_empty
-tc_stdout_ignore_empty_head()
+atf_test_case stdout_ignore_empty
+stdout_ignore_empty_head()
 {
     atf_set "descr" "Runs a program with stdout set to ignore and" \
                     "writes nothing"
 }
-tc_stdout_ignore_empty_body()
+stdout_ignore_empty_body()
 {
     atf_check 'true' 0 ignore null
 }
 
-atf_test_case tc_stdout_ignore_sth
-tc_stdout_ignore_sth_head()
+atf_test_case stdout_ignore_sth
+stdout_ignore_sth_head()
 {
     atf_set "descr" "Runs a program with stdout set to ignore and" \
                     "writes something"
 }
-tc_stdout_ignore_sth_body()
+stdout_ignore_sth_body()
 {
     atf_check 'echo foo' 0 ignore null
 }
 
-atf_test_case tc_stdout_null_empty
-tc_stdout_null_empty_head()
+atf_test_case stdout_null_empty
+stdout_null_empty_head()
 {
     atf_set "descr" "Runs a program with stdout set to null and" \
                     "writes nothing"
 }
-tc_stdout_null_empty_body()
+stdout_null_empty_body()
 {
     atf_check 'true' 0 null null
 }
 
-atf_test_case tc_stdout_null_sth
-tc_stdout_null_sth_head()
+atf_test_case stdout_null_sth
+stdout_null_sth_head()
 {
     atf_set "descr" "Runs a program with stdout set to null and" \
                     "writes something"
 }
-tc_stdout_null_sth_body()
+stdout_null_sth_body()
 {
     atf_check 'echo foo' 0 null null
 }
 
-atf_test_case tc_stdout_stdout_written
-tc_stdout_stdout_written_head()
+atf_test_case stdout_stdout_written
+stdout_stdout_written_head()
 {
     atf_set "descr" "Runs a program with stdout set to stdout and" \
                     "writes something"
 }
-tc_stdout_stdout_written_body()
+stdout_stdout_written_body()
 {
     atf_check 'echo foo' 0 stdout null
     echo foo >aux
     cmp -s stdout aux || atf_fail "Test failed"
 }
 
-atf_test_case tc_stdout_stdout_noclobber
-tc_stdout_stdout_noclobber_head()
+atf_test_case stdout_stdout_noclobber
+stdout_stdout_noclobber_head()
 {
     atf_set "descr" "Runs a program multiple times with different stdout" \
                     "modes and ensures that they do not overwrite an old" \
                     "stdout file"
 }
-tc_stdout_stdout_noclobber_body()
+stdout_stdout_noclobber_body()
 {
     echo bar >stdout
 
@@ -178,93 +178,93 @@ tc_stdout_stdout_noclobber_body()
     atf_check "cat stdout" 0 expout null
 }
 
-atf_test_case tc_stderr_experr_pass
-tc_stderr_experr_pass_head()
+atf_test_case stderr_experr_pass
+stderr_experr_pass_head()
 {
     atf_set "descr" "Runs a program with stderr set to experr and passes"
 }
-tc_stderr_experr_pass_body()
+stderr_experr_pass_body()
 {
     echo foo >experr
     atf_check 'echo foo 1>&2' 0 null experr
 }
 
-atf_test_case tc_stderr_experr_fail
-tc_stderr_experr_fail_head()
+atf_test_case stderr_experr_fail
+stderr_experr_fail_head()
 {
     atf_set "descr" "Runs a program with stderr set to experr and fails"
 }
-tc_stderr_experr_fail_body()
+stderr_experr_fail_body()
 {
     echo foo >experr
     atf_check 'echo bar 1>&2' 0 null experr
 }
 
-atf_test_case tc_stderr_ignore_empty
-tc_stderr_ignore_empty_head()
+atf_test_case stderr_ignore_empty
+stderr_ignore_empty_head()
 {
     atf_set "descr" "Runs a program with stderr set to ignore and" \
                     "writes nothing"
 }
-tc_stderr_ignore_empty_body()
+stderr_ignore_empty_body()
 {
     atf_check 'true 1>&2' 0 null ignore
 }
 
-atf_test_case tc_stderr_ignore_sth
-tc_stderr_ignore_sth_head()
+atf_test_case stderr_ignore_sth
+stderr_ignore_sth_head()
 {
     atf_set "descr" "Runs a program with stderr set to ignore and" \
                     "writes something"
 }
-tc_stderr_ignore_sth_body()
+stderr_ignore_sth_body()
 {
     atf_check 'echo foo 1>&2' 0 null ignore
 }
 
-atf_test_case tc_stderr_null_empty
-tc_stderr_null_empty_head()
+atf_test_case stderr_null_empty
+stderr_null_empty_head()
 {
     atf_set "descr" "Runs a program with stderr set to null and" \
                     "writes nothing"
 }
-tc_stderr_null_empty_body()
+stderr_null_empty_body()
 {
     atf_check 'true 1>&2' 0 null null
 }
 
-atf_test_case tc_stderr_null_sth
-tc_stderr_null_sth_head()
+atf_test_case stderr_null_sth
+stderr_null_sth_head()
 {
     atf_set "descr" "Runs a program with stderr set to null and" \
                     "writes something"
 }
-tc_stderr_null_sth_body()
+stderr_null_sth_body()
 {
     atf_check 'echo foo 1>&2' 0 null null
 }
 
-atf_test_case tc_stderr_stderr_written
-tc_stderr_stderr_written_head()
+atf_test_case stderr_stderr_written
+stderr_stderr_written_head()
 {
     atf_set "descr" "Runs a program with stderr set to stderr and" \
                     "writes something"
 }
-tc_stderr_stderr_written_body()
+stderr_stderr_written_body()
 {
     atf_check 'echo foo 1>&2' 0 null stderr
     echo foo >aux
     cmp -s stderr aux || atf_fail "Test failed"
 }
 
-atf_test_case tc_stderr_stderr_noclobber
-tc_stderr_stderr_noclobber_head()
+atf_test_case stderr_stderr_noclobber
+stderr_stderr_noclobber_head()
 {
     atf_set "descr" "Runs a program multiple times with different stderr" \
                     "modes and ensures that they do not overwrite an old" \
                     "stderr file"
 }
-tc_stderr_stderr_noclobber_body()
+stderr_stderr_noclobber_body()
 {
     echo bar >stderr
 
@@ -284,28 +284,28 @@ tc_stderr_stderr_noclobber_body()
 
 atf_init_test_cases()
 {
-    atf_add_test_case tc_exitcode_0_0
-    atf_add_test_case tc_exitcode_0_1
-    atf_add_test_case tc_exitcode_1_0
-    atf_add_test_case tc_exitcode_1_1
+    atf_add_test_case exitcode_0_0
+    atf_add_test_case exitcode_0_1
+    atf_add_test_case exitcode_1_0
+    atf_add_test_case exitcode_1_1
 
-    atf_add_test_case tc_stdout_expout_pass
-    atf_add_test_case tc_stdout_expout_fail
-    atf_add_test_case tc_stdout_ignore_empty
-    atf_add_test_case tc_stdout_ignore_sth
-    atf_add_test_case tc_stdout_null_empty
-    atf_add_test_case tc_stdout_null_sth
-    atf_add_test_case tc_stdout_stdout_written
-    atf_add_test_case tc_stdout_stdout_noclobber
+    atf_add_test_case stdout_expout_pass
+    atf_add_test_case stdout_expout_fail
+    atf_add_test_case stdout_ignore_empty
+    atf_add_test_case stdout_ignore_sth
+    atf_add_test_case stdout_null_empty
+    atf_add_test_case stdout_null_sth
+    atf_add_test_case stdout_stdout_written
+    atf_add_test_case stdout_stdout_noclobber
 
-    atf_add_test_case tc_stderr_experr_pass
-    atf_add_test_case tc_stderr_experr_fail
-    atf_add_test_case tc_stderr_ignore_empty
-    atf_add_test_case tc_stderr_ignore_sth
-    atf_add_test_case tc_stderr_null_empty
-    atf_add_test_case tc_stderr_null_sth
-    atf_add_test_case tc_stderr_stderr_written
-    atf_add_test_case tc_stderr_stderr_noclobber
+    atf_add_test_case stderr_experr_pass
+    atf_add_test_case stderr_experr_fail
+    atf_add_test_case stderr_ignore_empty
+    atf_add_test_case stderr_ignore_sth
+    atf_add_test_case stderr_null_empty
+    atf_add_test_case stderr_null_sth
+    atf_add_test_case stderr_stderr_written
+    atf_add_test_case stderr_stderr_noclobber
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

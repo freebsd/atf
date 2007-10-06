@@ -38,14 +38,14 @@
 # to demonstrate the utility of the atf_check function.  Inspect its
 # current status and complete it.
 
-atf_test_case tc_includes
-tc_includes_head()
+atf_test_case includes
+includes_head()
 {
     atf_set "descr" "Tests that the resulting file includes the correct" \
                     "shell subroutines"
     atf_set "require.progs" "atf-compile"
 }
-tc_includes_body()
+includes_body()
 {
     cat >tp_test.sh <<EOF
 # This is a sample test program.
@@ -56,13 +56,13 @@ EOF
     atf_check 'grep ^\..*/atf.footer.subr tp_test' 0 ignore null
 }
 
-atf_test_case tc_oflag
-tc_oflag_head()
+atf_test_case oflag
+oflag_head()
 {
     atf_set "descr" "Tests that the -o flag works"
     atf_set "require.progs" "atf-compile"
 }
-tc_oflag_body()
+oflag_body()
 {
     atf_check 'touch tp_foo.sh' 0 null null
     atf_check 'atf-compile tp_foo.sh' 1 null stderr
@@ -89,13 +89,13 @@ check_perms()
     esac
 }
 
-atf_test_case tc_perms
-tc_perms_head()
+atf_test_case perms
+perms_head()
 {
     atf_set "descr" "Tests the permissions of the generated file"
     atf_set "require.progs" "atf-compile"
 }
-tc_perms_body()
+perms_body()
 {
     atf_check 'touch tp_foo.sh' 0 null null
 
@@ -122,9 +122,9 @@ tc_perms_body()
 
 atf_init_test_cases()
 {
-    atf_add_test_case tc_oflag
-    atf_add_test_case tc_includes
-    atf_add_test_case tc_perms
+    atf_add_test_case oflag
+    atf_add_test_case includes
+    atf_add_test_case perms
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
