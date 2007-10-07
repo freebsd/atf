@@ -21,6 +21,13 @@ Please read http://www.venge.net/mtn-wiki/BestPractices for multiple tips
 on how to best use monotone.  Of special importance is the daggy fixes
 work-flow pattern: http://www.venge.net/mtn-wiki/DaggyFixes.
 
+As regards commit messages, we use a "mail-style" formatting approach.
+Your message must be composed of a single-line subject sentence that
+summarizes the whole change, and later be described in detail in
+subsequent paragraphs.  This is so that visualization tools such as
+ViewMTN can show useful summary lines for changes.  It also forces you
+to verify your changes more carefully before committing them.
+
 
 Licensing
 =========
