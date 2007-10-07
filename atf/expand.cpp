@@ -44,10 +44,9 @@ extern "C" {
 #endif // !defined(REG_BASIC)
 }
 
-#include <cassert>
-
 #include "atf/exceptions.hpp"
 #include "atf/expand.hpp"
+#include "atf/sanity.hpp"
 
 namespace impl = atf::expand;
 #define IMPL_NAME "atf::expand"
@@ -97,13 +96,13 @@ throw_pattern_error(int errcode, const regex_t* preg)
     // a very small buffer.
     char lenbuf[1];
     size_t len = ::regerror(errcode, preg, lenbuf, 1);
-    assert(len > 1);
+    INV(len > 1);
 
     // Allocate a big-enough buffer to hold the complete error message and
     // throw an exception containing it.
-    char* buf = new char[len];
-    size_t len2 = ::regerror(errcode, preg, buf, len);
-    assert(len == len2);
+    atf::utils::auto_array< char > buf(new char[len]);
+    size_t len2 = ::regerror(errcode, preg, buf.get(), len);
+    INV(len == len2);
     throw impl::pattern_error(buf);
 }
 
@@ -111,16 +110,31 @@ throw_pattern_error(int errcode, const regex_t* preg)
 // The "pattern_error" class.
 // ------------------------------------------------------------------------
 
-impl::pattern_error::pattern_error(char* w) :
-    std::runtime_error(w),
-    m_what(w)
+impl::pattern_error::pattern_error(atf::utils::auto_array< char >& w) :
+    std::runtime_error(w.get())
 {
+    m_sd = new shared_data();
+    m_sd->m_refs = 1;
+    m_sd->m_what = w.release();
+}
+
+impl::pattern_error::pattern_error(const pattern_error& pe) :
+    std::runtime_error(pe.m_sd->m_what),
+    m_sd(pe.m_sd)
+{
+    m_sd->m_refs++;
 }
 
 impl::pattern_error::~pattern_error(void)
     throw()
 {
-    delete [] m_what;
+    if (m_sd->m_refs > 0)
+        m_sd->m_refs--;
+    else {
+        delete [] m_sd->m_what;
+        m_sd->m_what = NULL;
+        delete m_sd;
+    }
 }
 
 // ------------------------------------------------------------------------

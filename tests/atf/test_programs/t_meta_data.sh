@@ -38,6 +38,7 @@
 # Tests for the "ident" meta-data property.
 # -------------------------------------------------------------------------
 
+atf_test_case ident
 ident_head()
 {
     atf_set "descr" "Tests that the ident property works"
@@ -57,118 +58,10 @@ ident_body()
 }
 
 # -------------------------------------------------------------------------
-# Tests for the "isolated" meta-data property.
-# -------------------------------------------------------------------------
-
-isolated_default_head()
-{
-    atf_set "descr" "Tests that the 'isolated' test property works" \
-                    "when the user does not override the work directory"
-}
-isolated_default_body()
-{
-    srcdir=$(atf_get_srcdir)
-    h_cpp=${srcdir}/h_cpp
-    h_sh=${srcdir}/h_sh
-    tmpdir=$(cd $(atf-config -t atf_workdir) && pwd -P)
-
-    for h in ${h_cpp} ${h_sh}; do
-        atf_check "${h} -s ${srcdir} -v isolated=no \
-                   -v pathfile=$(pwd)/expout isolated_path" 0 ignore ignore
-        atf_check "pwd -P" 0 expout null
-
-        atf_check "${h} -s ${srcdir} -v isolated=yes \
-                  -v pathfile=$(pwd)/path isolated_path" 0 ignore ignore
-        atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore ignore
-    done
-}
-
-isolated_tmpdir_head()
-{
-    atf_set "descr" "Tests that the 'isolated' test property works" \
-                    "when the user overrides the work directory through" \
-                    "the ATF_WORKDIR environment variable"
-}
-isolated_tmpdir_body()
-{
-    srcdir=$(atf_get_srcdir)
-    h_cpp=${srcdir}/h_cpp
-    h_sh=${srcdir}/h_sh
-    tmpdir=$(pwd -P)/workdir
-    mkdir ${tmpdir}
-
-    for h in ${h_cpp} ${h_sh}; do
-        atf_check "ATF_WORKDIR=${tmpdir} ${h} -s ${srcdir} -v isolated=no \
-                   -v pathfile=$(pwd)/expout isolated_path" 0 ignore ignore
-        atf_check "pwd -P" 0 expout null
-
-        atf_check "ATF_WORKDIR=${tmpdir} ${h} -s ${srcdir} -v isolated=yes \
-                   -v pathfile=$(pwd)/path isolated_path" 0 ignore ignore
-        atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore ignore
-    done
-}
-
-isolated_conf_head()
-{
-    atf_set "descr" "Tests that the 'isolated' test property works" \
-                    "when the user overrides the work directory through" \
-                    "the test program's 'workdir' configuration option"
-}
-isolated_conf_body()
-{
-    srcdir=$(atf_get_srcdir)
-    h_cpp=${srcdir}/h_cpp
-    h_sh=${srcdir}/h_sh
-    tmpdir=$(pwd -P)/workdir
-    mkdir ${tmpdir}
-
-    for h in ${h_cpp} ${h_sh}; do
-        atf_check "${h} -s ${srcdir} -v isolated=no \
-                   -v pathfile=$(pwd)/expout -v workdir=${tmpdir} \
-                   isolated_path" 0 ignore ignore
-        atf_check "pwd -P" 0 expout null
-
-        atf_check "${h} -s ${srcdir} -v isolated=yes \
-                   -v pathfile=$(pwd)/path -v workdir=${tmpdir} \
-                   isolated_path" 0 ignore ignore
-        atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore null
-    done
-}
-
-isolated_cleanup_head()
-{
-    atf_set "descr" "Tests that the directories used to isolate test" \
-                    "cases are properly cleaned up once the test case" \
-                    "exits"
-}
-isolated_cleanup_body()
-{
-    srcdir=$(atf_get_srcdir)
-    h_cpp=${srcdir}/h_cpp
-    h_sh=${srcdir}/h_sh
-    tmpdir=$(pwd -P)/workdir
-    mkdir ${tmpdir}
-
-    for h in ${h_cpp} ${h_sh}; do
-        # First try to clean a work directory that, supposedly, does not
-        # have any subdirectories.
-        atf_check "${h} -s ${srcdir} -v isolated=yes \
-                   -v pathfile=$(pwd)/path -v workdir=${tmpdir} \
-                   isolated_path" 0 ignore ignore
-        atf_check "test -d $(cat path)" 1 null null
-
-        # Now do the same but with a work directory that has subdirectories.
-        # The program will have to recurse into them to clean them all.
-        atf_check "${h} -s ${srcdir} -v pathfile=$(pwd)/path \
-                   -v workdir=${tmpdir} isolated_cleanup" 0 ignore ignore
-        atf_check "test -d $(cat path)" 1 null null
-    done
-}
-
-# -------------------------------------------------------------------------
 # Tests for the "require_config" meta-data property.
 # -------------------------------------------------------------------------
 
+atf_test_case require_config
 require_config_head()
 {
     atf_set "descr" "Tests that the require.config property works"
@@ -233,6 +126,7 @@ common_tests() {
 }
 
 # XXX This does not belong here.  This is a unit test.
+atf_test_case require_progs_func
 require_progs_func_head()
 {
     atf_set "descr" "Tests that atf_require_prog works"
@@ -242,6 +136,7 @@ require_progs_func_body()
     common_tests body
 }
 
+atf_test_case require_progs_header
 require_progs_header_head()
 {
     atf_set "descr" "Tests that require.progs works"
@@ -299,6 +194,7 @@ count_lines()
     wc -l $1 | awk '{ print $1 }'
 }
 
+atf_test_case require_user_root
 require_user_root_head()
 {
     atf_set "descr" "Tests that 'require.user=root' works"
@@ -320,6 +216,7 @@ require_user_root_body()
     done
 }
 
+atf_test_case require_user_unprivileged
 require_user_unprivileged_head()
 {
     atf_set "descr" "Tests that 'require.user=unprivileged' works"
@@ -341,6 +238,7 @@ require_user_unprivileged_body()
     done
 }
 
+atf_test_case require_user_multiple
 require_user_multiple_head()
 {
     atf_set "descr" "Tests that multiple skip results raised by the" \
@@ -371,10 +269,6 @@ require_user_multiple_body()
 atf_init_test_cases()
 {
     atf_add_test_case ident
-    atf_add_test_case isolated_default
-    atf_add_test_case isolated_tmpdir
-    atf_add_test_case isolated_conf
-    atf_add_test_case isolated_cleanup
     atf_add_test_case require_config
     atf_add_test_case require_progs_func
     atf_add_test_case require_progs_header

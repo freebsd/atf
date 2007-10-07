@@ -51,6 +51,7 @@ EOF
 create_helper()
 {
     cat >helper.sh <<EOF
+atf_test_case tc
 tc_head()
 {
     atf_set "descr" "A helper test case"
@@ -73,6 +74,7 @@ EOF
     create_atffile
 }
 
+atf_test_case config
 config_head()
 {
     atf_set "descr" "Tests that the config files are read in the correct" \
@@ -95,10 +97,10 @@ EOF
     cat >etc/common.conf <<EOF
 Content-Type: application/X-atf-config; version="1"
 
-1st = sw common
-2nd = sw common
-3rd = sw common
-4th = sw common
+1st = "sw common"
+2nd = "sw common"
+3rd = "sw common"
+4th = "sw common"
 EOF
     atf_check "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper" \
               0 stdout ignore
@@ -111,7 +113,7 @@ EOF
     cat >etc/atf.conf <<EOF
 Content-Type: application/X-atf-config; version="1"
 
-1st = sw atf
+1st = "sw atf"
 EOF
     atf_check "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper" \
               0 stdout ignore
@@ -124,7 +126,7 @@ EOF
     cat >.atf/common.conf <<EOF
 Content-Type: application/X-atf-config; version="1"
 
-2nd = us common
+2nd = "us common"
 EOF
     atf_check "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper" \
               0 stdout ignore
@@ -137,7 +139,7 @@ EOF
     cat >.atf/atf.conf <<EOF
 Content-Type: application/X-atf-config; version="1"
 
-3rd = us atf
+3rd = "us atf"
 EOF
     atf_check "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper" \
               0 stdout ignore
@@ -147,6 +149,7 @@ EOF
     atf_check "grep '4th: sw common' stdout" 0 ignore ignore
 }
 
+atf_test_case vflag
 vflag_head()
 {
     atf_set "descr" "Tests that the -v flag works and that it properly" \
@@ -176,7 +179,7 @@ EOF
     cat >etc/common.conf <<EOF
 Content-Type: application/X-atf-config; version="1"
 
-testvar = value in conf file
+testvar = "value in conf file"
 EOF
     atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
     atf_check "grep 'testvar: value in conf file' stdout" 0 ignore ignore
@@ -188,6 +191,7 @@ EOF
     atf_check "grep 'testvar: a value' stdout" 0 ignore ignore
 }
 
+atf_test_case atffile
 atffile_head()
 {
     atf_set "descr" "Tests that the variables defined by the Atffile" \
@@ -207,7 +211,7 @@ EOF
     atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 1 ignore ignore
 
     echo "Checking that defining 'testvar' trough the Atffile works."
-    echo "conf: testvar = a value" >>Atffile
+    echo 'conf: testvar = "a value"' >>Atffile
     atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
     atf_check "grep 'testvar: a value' stdout" 0 ignore ignore
 
@@ -217,7 +221,7 @@ EOF
     cat >etc/common.conf <<EOF
 Content-Type: application/X-atf-config; version="1"
 
-testvar = value in conf file
+testvar = "value in conf file"
 EOF
     atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
     atf_check "grep 'testvar: value in conf file' stdout" 0 ignore ignore
@@ -230,6 +234,7 @@ EOF
     atf_check "grep 'testvar: new value' stdout" 0 ignore ignore
 }
 
+atf_test_case atffile_recursive
 atffile_recursive_head()
 {
     atf_set "descr" "Tests that variables defined by an Atffile are not" \
@@ -249,15 +254,16 @@ EOF
 
     echo "Checking that 'testvar' is not inherited."
     create_atffile dir
-    echo 'conf: testvar = a value' >> Atffile
+    echo 'conf: testvar = "a value"' >> Atffile
     atf_check "ATF_CONFDIR=$(pwd)/etc atf-run" 1 ignore ignore
 
     echo "Checking that defining 'testvar' in the correct Atffile works."
-    echo 'conf: testvar = a value' >>dir/Atffile
+    echo 'conf: testvar = "a value"' >>dir/Atffile
     atf_check "ATF_CONFDIR=$(pwd)/etc atf-run" 0 stdout ignore
     atf_check "grep 'testvar: a value' stdout" 0 ignore ignore
 }
 
+atf_test_case fds
 fds_head()
 {
     atf_set "descr" "Tests that all streams are properly captured"
@@ -279,6 +285,32 @@ EOF
     atf_check "grep '^tc-se: msg2 to stderr$' stdout" 0 ignore null
 }
 
+atf_test_case broken_tp_hdr
+broken_tp_hdr_head()
+{
+    atf_set "descr" "Ensures that atf-run reports test programs that" \
+                    "provide a bogus header as broken programs"
+}
+broken_tp_hdr_body()
+{
+    # We produce two errors from the header to ensure that the parse
+    # errors are printed on a single line on the output file.  Printing
+    # them on separate lines would be incorrect.
+    cat >helper <<EOF
+#! $(atf-config -t atf_shell)
+echo 'foo' 1>&9
+echo 'bar' 1>&9
+exit 0
+EOF
+    chmod +x helper
+
+    create_atffile
+
+    atf_check "atf-run" 1 stdout null
+    atf_check "grep '^tp-end: helper, .*Line 1.*Line 2' stdout" 0 ignore null
+}
+
+atf_test_case zero_tcs
 zero_tcs_head()
 {
     atf_set "descr" "Ensures that atf-run reports test programs without" \
@@ -302,6 +334,7 @@ EOF
     atf_check "grep '0 test cases' stdout" 0 ignore null
 }
 
+atf_test_case exit_codes
 exit_codes_head()
 {
     atf_set "descr" "Ensures that atf-run reports bogus exit codes for" \
@@ -327,6 +360,7 @@ EOF
     atf_check "grep 'success.*test cases failed' stdout" 0 ignore null
 }
 
+atf_test_case signaled
 signaled_head()
 {
     atf_set "descr" "Ensures that atf-run reports test program's crashes" \
@@ -352,10 +386,11 @@ EOF
     atf_check "grep 'received signal 9' stdout" 0 ignore null
 }
 
+atf_test_case no_reason
 no_reason_head()
 {
-    atf_set "descr" "Ensures that atf-run reports bogus test programs " \
-                    "that do not provide a reason for failed or skipped " \
+    atf_set "descr" "Ensures that atf-run reports bogus test programs" \
+                    "that do not provide a reason for failed or skipped" \
                     "test cases"
 }
 no_reason_body()
@@ -377,8 +412,79 @@ EOF
         atf_check "atf-run" 1 stdout null
         atf_check "grep '^tp-end: helper, ' stdout" 0 stdout null
         atf_check "grep 'Unexpected.*NEWLINE' stdout" 0 ignore null
-        cat stdout
     done
+}
+
+atf_test_case hooks
+hooks_head()
+{
+    atf_set "descr" "Checks that the default hooks work and that they" \
+                    "can be overriden by the user"
+}
+hooks_body()
+{
+    create_helper <<EOF
+true
+EOF
+
+    mkdir atf
+    mkdir .atf
+
+    echo "Checking default hooks"
+    atf_check "ATF_CONFDIR=$(pwd)/atf atf-run" 0 stdout null
+    atf_check "grep '^info: time.start, ' stdout" 0 ignore null
+    atf_check "grep '^info: time.end, ' stdout" 0 ignore null
+
+    echo "Checking the system-wide info_start hook"
+    cat >atf/atf-run.hooks <<EOF
+info_start_hook()
+{
+    atf_tps_writer_info "test" "sw value"
+}
+EOF
+    atf_check "ATF_CONFDIR=$(pwd)/atf atf-run" 0 stdout null
+    atf_check "grep '^info: test, sw value' stdout" 0 ignore null
+    atf_check "grep '^info: time.start, ' stdout" 1 null null
+    atf_check "grep '^info: time.end, ' stdout" 0 ignore null
+
+    echo "Checking the user-specific info_start hook"
+    cat >.atf/atf-run.hooks <<EOF
+info_start_hook()
+{
+    atf_tps_writer_info "test" "user value"
+}
+EOF
+    atf_check "ATF_CONFDIR=$(pwd)/atf atf-run" 0 stdout null
+    atf_check "grep '^info: test, user value' stdout" 0 ignore null
+    atf_check "grep '^info: time.start, ' stdout" 1 null null
+    atf_check "grep '^info: time.end, ' stdout" 0 ignore null
+
+    rm atf/atf-run.hooks
+    rm .atf/atf-run.hooks
+
+    echo "Checking the system-wide info_end hook"
+    cat >atf/atf-run.hooks <<EOF
+info_end_hook()
+{
+    atf_tps_writer_info "test" "sw value"
+}
+EOF
+    atf_check "ATF_CONFDIR=$(pwd)/atf atf-run" 0 stdout null
+    atf_check "grep '^info: time.start, ' stdout" 0 ignore null
+    atf_check "grep '^info: time.end, ' stdout" 1 null null
+    atf_check "grep '^info: test, sw value' stdout" 0 ignore null
+
+    echo "Checking the user-specific info_end hook"
+    cat >.atf/atf-run.hooks <<EOF
+info_end_hook()
+{
+    atf_tps_writer_info "test" "user value"
+}
+EOF
+    atf_check "ATF_CONFDIR=$(pwd)/atf atf-run" 0 stdout null
+    atf_check "grep '^info: time.start, ' stdout" 0 ignore null
+    atf_check "grep '^info: time.end, ' stdout" 1 null null
+    atf_check "grep '^info: test, user value' stdout" 0 ignore null
 }
 
 atf_init_test_cases()
@@ -388,10 +494,12 @@ atf_init_test_cases()
     atf_add_test_case atffile
     atf_add_test_case atffile_recursive
     atf_add_test_case fds
+    atf_add_test_case broken_tp_hdr
     atf_add_test_case zero_tcs
     atf_add_test_case exit_codes
     atf_add_test_case signaled
     atf_add_test_case no_reason
+    atf_add_test_case hooks
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

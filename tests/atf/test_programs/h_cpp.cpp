@@ -38,6 +38,8 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <signal.h>
+#include <unistd.h>
 }
 
 #include <cstdlib>
@@ -64,12 +66,118 @@ safe_mkdir(const char* path)
 
 static
 void
-touch(const char* path)
+touch(const std::string& path)
 {
-    std::ofstream os(path);
+    std::ofstream os(path.c_str());
     if (!os)
-        ATF_FAIL(std::string("Could not create file ") + path);
+        ATF_FAIL("Could not create file " + path);
     os.close();
+}
+
+// ------------------------------------------------------------------------
+// Helper tests for "t_cleanup".
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_pass);
+ATF_TEST_CASE_HEAD(cleanup_pass)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_pass)
+{
+    touch(config().get("tmpfile"));
+}
+ATF_TEST_CASE_CLEANUP(cleanup_pass)
+{
+    if (config().get_bool("cleanup"))
+        atf::fs::remove(atf::fs::path(config().get("tmpfile")));
+}
+
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_fail);
+ATF_TEST_CASE_HEAD(cleanup_fail)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_fail)
+{
+    touch(config().get("tmpfile"));
+    ATF_FAIL("On purpose");
+}
+ATF_TEST_CASE_CLEANUP(cleanup_fail)
+{
+    if (config().get_bool("cleanup"))
+        atf::fs::remove(atf::fs::path(config().get("tmpfile")));
+}
+
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_skip);
+ATF_TEST_CASE_HEAD(cleanup_skip)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_skip)
+{
+    touch(config().get("tmpfile"));
+    ATF_SKIP("On purpose");
+}
+ATF_TEST_CASE_CLEANUP(cleanup_skip)
+{
+    if (config().get_bool("cleanup"))
+        atf::fs::remove(atf::fs::path(config().get("tmpfile")));
+}
+
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_curdir);
+ATF_TEST_CASE_HEAD(cleanup_curdir)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_curdir)
+{
+    std::ofstream os("oldvalue");
+    if (!os)
+        ATF_FAIL("Failed to create oldvalue file");
+    os << 1234;
+    os.close();
+}
+ATF_TEST_CASE_CLEANUP(cleanup_curdir)
+{
+    std::ifstream is("oldvalue");
+    if (is) {
+        int i;
+        is >> i;
+        std::cout << "Old value: " << i << std::endl;
+        is.close();
+    }
+}
+
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_sigterm);
+ATF_TEST_CASE_HEAD(cleanup_sigterm)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_sigterm)
+{
+    touch(config().get("tmpfile"));
+    ::kill(::getpid(), SIGTERM);
+    touch(config().get("tmpfile") + ".no");
+}
+ATF_TEST_CASE_CLEANUP(cleanup_sigterm)
+{
+    atf::fs::remove(atf::fs::path(config().get("tmpfile")));
+}
+
+ATF_TEST_CASE_WITH_CLEANUP(cleanup_fork);
+ATF_TEST_CASE_HEAD(cleanup_fork)
+{
+    set("descr", "Helper test case for the t_cleanup test program");
+}
+ATF_TEST_CASE_BODY(cleanup_fork)
+{
+}
+ATF_TEST_CASE_CLEANUP(cleanup_fork)
+{
+    ::close(STDOUT_FILENO);
+    ::close(STDERR_FILENO);
+    ::close(3);
 }
 
 // ------------------------------------------------------------------------
@@ -152,7 +260,6 @@ ATF_TEST_CASE(fork_mangle_fds);
 ATF_TEST_CASE_HEAD(fork_mangle_fds)
 {
     set("descr", "Helper test case for the t_fork test program");
-    set("isolated", config().get("isolated", "yes"));
 }
 ATF_TEST_CASE_BODY(fork_mangle_fds)
 {
@@ -187,7 +294,7 @@ ATF_TEST_CASE_BODY(fork_umask)
 }
 
 // ------------------------------------------------------------------------
-// Helper tests for "t_ident".
+// Helper tests for "t_meta_data".
 // ------------------------------------------------------------------------
 
 ATF_TEST_CASE(ident_1);
@@ -208,56 +315,6 @@ ATF_TEST_CASE_HEAD(ident_2)
 ATF_TEST_CASE_BODY(ident_2)
 {
     ATF_CHECK_EQUAL(get("ident"), "ident_2");
-}
-
-ATF_TEST_CASE(isolated_path);
-ATF_TEST_CASE_HEAD(isolated_path)
-{
-    set("descr", "Helper test case for the t_meta_data test program");
-    set("isolated", config().get("isolated", "yes"));
-}
-ATF_TEST_CASE_BODY(isolated_path)
-{
-    const std::string& p = config().get("pathfile");
-
-    std::ofstream os(p.c_str());
-    if (!os)
-        ATF_FAIL("Could not open " + p + " for writing");
-
-    os << atf::fs::get_current_dir().str() << std::endl;
-
-    os.close();
-}
-
-ATF_TEST_CASE(isolated_cleanup);
-ATF_TEST_CASE_HEAD(isolated_cleanup)
-{
-    set("descr", "Helper test case for the t_meta_data test program");
-    set("isolated", "yes");
-}
-ATF_TEST_CASE_BODY(isolated_cleanup)
-{
-    const std::string& p = config().get("pathfile");
-
-    std::ofstream os(p.c_str());
-    if (!os)
-        ATF_FAIL("Could not open " + p + " for writing");
-
-    os << atf::fs::get_current_dir().str() << std::endl;
-
-    os.close();
-
-    safe_mkdir("1");
-    safe_mkdir("1/1");
-    safe_mkdir("1/2");
-    safe_mkdir("1/3");
-    safe_mkdir("1/3/1");
-    safe_mkdir("1/3/2");
-    safe_mkdir("2");
-    touch("2/1");
-    touch("2/2");
-    safe_mkdir("2/3");
-    touch("2/3/1");
 }
 
 ATF_TEST_CASE(require_config);
@@ -296,7 +353,6 @@ ATF_TEST_CASE(require_user_root);
 ATF_TEST_CASE_HEAD(require_user_root)
 {
     set("descr", "Helper test case for the t_meta_data test program");
-    set("isolated", "no");
     set("require.user", "root");
 }
 ATF_TEST_CASE_BODY(require_user_root)
@@ -307,7 +363,6 @@ ATF_TEST_CASE(require_user_root2);
 ATF_TEST_CASE_HEAD(require_user_root2)
 {
     set("descr", "Helper test case for the t_meta_data test program");
-    set("isolated", "no");
     set("require.user", "root");
 }
 ATF_TEST_CASE_BODY(require_user_root2)
@@ -318,7 +373,6 @@ ATF_TEST_CASE(require_user_unprivileged);
 ATF_TEST_CASE_HEAD(require_user_unprivileged)
 {
     set("descr", "Helper test case for the t_meta_data test program");
-    set("isolated", "no");
     set("require.user", "unprivileged");
 }
 ATF_TEST_CASE_BODY(require_user_unprivileged)
@@ -329,7 +383,6 @@ ATF_TEST_CASE(require_user_unprivileged2);
 ATF_TEST_CASE_HEAD(require_user_unprivileged2)
 {
     set("descr", "Helper test case for the t_meta_data test program");
-    set("isolated", "no");
     set("require.user", "unprivileged");
 }
 ATF_TEST_CASE_BODY(require_user_unprivileged2)
@@ -352,38 +405,128 @@ ATF_TEST_CASE_BODY(srcdir_exists)
 }
 
 // ------------------------------------------------------------------------
+// Helper tests for "t_status".
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(status_newlines_fail);
+ATF_TEST_CASE_HEAD(status_newlines_fail)
+{
+    set("descr", "Helper test case for the t_status test program");
+}
+ATF_TEST_CASE_BODY(status_newlines_fail)
+{
+    ATF_FAIL("First line\nSecond line");
+}
+
+ATF_TEST_CASE(status_newlines_skip);
+ATF_TEST_CASE_HEAD(status_newlines_skip)
+{
+    set("descr", "Helper test case for the t_status test program");
+}
+ATF_TEST_CASE_BODY(status_newlines_skip)
+{
+    ATF_SKIP("First line\nSecond line");
+}
+
+// ------------------------------------------------------------------------
+// Helper tests for "t_workdir".
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(workdir_path);
+ATF_TEST_CASE_HEAD(workdir_path)
+{
+    set("descr", "Helper test case for the t_workdir test program");
+}
+ATF_TEST_CASE_BODY(workdir_path)
+{
+    const std::string& p = config().get("pathfile");
+
+    std::ofstream os(p.c_str());
+    if (!os)
+        ATF_FAIL("Could not open " + p + " for writing");
+
+    os << atf::fs::get_current_dir().str() << std::endl;
+
+    os.close();
+}
+
+ATF_TEST_CASE(workdir_cleanup);
+ATF_TEST_CASE_HEAD(workdir_cleanup)
+{
+    set("descr", "Helper test case for the t_workdir test program");
+}
+ATF_TEST_CASE_BODY(workdir_cleanup)
+{
+    const std::string& p = config().get("pathfile");
+
+    std::ofstream os(p.c_str());
+    if (!os)
+        ATF_FAIL("Could not open " + p + " for writing");
+
+    os << atf::fs::get_current_dir().str() << std::endl;
+
+    os.close();
+
+    safe_mkdir("1");
+    safe_mkdir("1/1");
+    safe_mkdir("1/2");
+    safe_mkdir("1/3");
+    safe_mkdir("1/3/1");
+    safe_mkdir("1/3/2");
+    safe_mkdir("2");
+    touch("2/1");
+    touch("2/2");
+    safe_mkdir("2/3");
+    touch("2/3/1");
+}
+
+// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
 ATF_INIT_TEST_CASES(tcs)
 {
+    // Add helper tests for t_cleanup.
+    ATF_ADD_TEST_CASE(tcs, cleanup_pass);
+    ATF_ADD_TEST_CASE(tcs, cleanup_fail);
+    ATF_ADD_TEST_CASE(tcs, cleanup_skip);
+    ATF_ADD_TEST_CASE(tcs, cleanup_curdir);
+    ATF_ADD_TEST_CASE(tcs, cleanup_sigterm);
+    ATF_ADD_TEST_CASE(tcs, cleanup_fork);
+
     // Add helper tests for t_config.
-    tcs.push_back(&config_unset);
-    tcs.push_back(&config_empty);
-    tcs.push_back(&config_value);
-    tcs.push_back(&config_multi_value);
+    ATF_ADD_TEST_CASE(tcs, config_unset);
+    ATF_ADD_TEST_CASE(tcs, config_empty);
+    ATF_ADD_TEST_CASE(tcs, config_value);
+    ATF_ADD_TEST_CASE(tcs, config_multi_value);
 
     // Add helper tests for t_env.
-    tcs.push_back(&env_home);
-    tcs.push_back(&env_list);
+    ATF_ADD_TEST_CASE(tcs, env_home);
+    ATF_ADD_TEST_CASE(tcs, env_list);
 
     // Add helper tests for t_fork.
-    tcs.push_back(&fork_mangle_fds);
-    tcs.push_back(&fork_umask);
+    ATF_ADD_TEST_CASE(tcs, fork_mangle_fds);
+    ATF_ADD_TEST_CASE(tcs, fork_umask);
 
     // Add helper tests for t_meta_data.
-    tcs.push_back(&ident_1);
-    tcs.push_back(&ident_2);
-    tcs.push_back(&isolated_path);
-    tcs.push_back(&isolated_cleanup);
-    tcs.push_back(&require_config);
-    tcs.push_back(&require_progs_body);
-    tcs.push_back(&require_progs_head);
-    tcs.push_back(&require_user_root);
-    tcs.push_back(&require_user_root2);
-    tcs.push_back(&require_user_unprivileged);
-    tcs.push_back(&require_user_unprivileged2);
+    ATF_ADD_TEST_CASE(tcs, ident_1);
+    ATF_ADD_TEST_CASE(tcs, ident_2);
+    ATF_ADD_TEST_CASE(tcs, require_config);
+    ATF_ADD_TEST_CASE(tcs, require_progs_body);
+    ATF_ADD_TEST_CASE(tcs, require_progs_head);
+    ATF_ADD_TEST_CASE(tcs, require_user_root);
+    ATF_ADD_TEST_CASE(tcs, require_user_root2);
+    ATF_ADD_TEST_CASE(tcs, require_user_unprivileged);
+    ATF_ADD_TEST_CASE(tcs, require_user_unprivileged2);
 
     // Add helper tests for t_srcdir.
-    tcs.push_back(&srcdir_exists);
+    ATF_ADD_TEST_CASE(tcs, srcdir_exists);
+
+    // Add helper tests for t_status.
+    ATF_ADD_TEST_CASE(tcs, status_newlines_fail);
+    ATF_ADD_TEST_CASE(tcs, status_newlines_skip);
+
+    // Add helper tests for t_workdir.
+    ATF_ADD_TEST_CASE(tcs, workdir_path);
+    ATF_ADD_TEST_CASE(tcs, workdir_cleanup);
 }

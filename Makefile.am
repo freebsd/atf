@@ -41,7 +41,7 @@
 doc_DATA = AUTHORS COPYING NEWS README ROADMAP
 EXTRA_DIST = $(doc_DATA)
 
-dist-hook: check-readme check-style
+dist-hook: admin/revision-dist.h check-readme check-style
 
 AM_CPPFLAGS = -DATF_CONFDIR=\"$(atf_confdir)\" \
               -DATF_LIBEXECDIR=\"$(libexecdir)\" \
@@ -65,17 +65,40 @@ check-readme:
 check-style:
 	$(srcdir)/admin/check-style.sh
 
-EXTRA_DIST += admin/check-style-common.awk \
+EXTRA_DIST += admin/check-readme.sh \
+              admin/check-style-common.awk \
               admin/check-style-cpp.awk \
+              admin/check-style-man.awk \
               admin/check-style-shell.awk \
               admin/check-style.sh
+
+.PHONY: admin/revision.h
+admin/revision.h:
+	@if [ -n "$(MTN)" -a -d $(top_srcdir)/_MTN ]; then \
+	    test -d admin || mkdir -p admin; \
+	    MTN="$(MTN)" ROOT="$(top_srcdir)" \
+	        $(top_srcdir)/admin/generate-revision.sh >admin/revision.h; \
+	else \
+	    rm -f admin/revision.h; \
+	fi
+CLEANFILES = admin/revision.h
+
+$(srcdir)/admin/revision-dist.h: admin/revision.h
+	@if [ -f admin/revision.h ]; then \
+	    cp admin/revision.h $(srcdir)/admin/revision-dist.h; \
+	    echo '#define PACKAGE_REVISION_CACHED 1' \
+	        >>$(srcdir)/admin/revision-dist.h; \
+	else \
+	    [ -f $(srcdir)/admin/revision-dist.h ]; \
+	fi
+EXTRA_DIST += admin/revision-dist.h
 
 # -------------------------------------------------------------------------
 # `atf' directory.
 # -------------------------------------------------------------------------
 
-lib_LIBRARIES = libatf.a
-libatf_a_SOURCES =  atf/application.cpp \
+lib_LTLIBRARIES = libatf.la
+libatf_la_SOURCES = atf/application.cpp \
                     atf/application.hpp \
                     atf/atffile.cpp \
                     atf/atffile.hpp \
@@ -94,9 +117,10 @@ libatf_a_SOURCES =  atf/application.cpp \
                     atf/io.cpp \
                     atf/io.hpp \
                     atf/macros.hpp \
+                    atf/parser.cpp \
                     atf/parser.hpp \
-                    atf/serial.cpp \
-                    atf/serial.hpp \
+                    atf/sanity.cpp \
+                    atf/sanity.hpp \
                     atf/tests.cpp \
                     atf/tests.hpp \
                     atf/text.cpp \
@@ -104,7 +128,8 @@ libatf_a_SOURCES =  atf/application.cpp \
                     atf/ui.cpp \
                     atf/ui.hpp \
                     atf/user.cpp \
-                    atf/user.hpp
+                    atf/user.hpp \
+                    atf/utils.hpp
 
 include_HEADERS = atf.hpp
 atf_HEADERS = atf/application.hpp \
@@ -116,20 +141,42 @@ atf_HEADERS = atf/application.hpp \
               atf/formats.hpp \
               atf/fs.hpp \
               atf/io.hpp \
+              atf/macros.hpp \
               atf/parser.hpp \
-              atf/serial.hpp \
+              atf/sanity.hpp \
               atf/tests.hpp \
               atf/text.hpp \
               atf/ui.hpp \
-              atf/user.hpp
+              atf/user.hpp \
+              atf/utils.hpp
 atfdir = $(includedir)/atf
+
+# -------------------------------------------------------------------------
+# `data' directory.
+# -------------------------------------------------------------------------
+
+cssdir = $(atf_cssdir)
+css_DATA = data/tests-results.css
+EXTRA_DIST += $(css_DATA)
+
+dtddir = $(atf_dtddir)
+dtd_DATA = data/tests-results.dtd
+EXTRA_DIST += $(dtd_DATA)
+
+egdir = $(atf_egdir)
+eg_DATA = data/atf-run.hooks
+EXTRA_DIST += $(eg_DATA)
+
+xsldir = $(atf_xsldir)
+xsl_DATA = data/tests-results.xsl
+EXTRA_DIST += $(xsl_DATA)
 
 # -------------------------------------------------------------------------
 # `doc' directory.
 # -------------------------------------------------------------------------
 
 man_MANS = doc/atf.7
-CLEANFILES = doc/atf.7
+CLEANFILES += doc/atf.7
 EXTRA_DIST += doc/atf.7.in
 
 dist_man_MANS = doc/atf-formats.5 \
@@ -146,7 +193,8 @@ doc/atf.7: $(srcdir)/doc/atf.7.in
 # `subrs' directory.
 # -------------------------------------------------------------------------
 
-subrs_DATA = subrs/atf.footer.subr \
+subrs_DATA = subrs/atf.config.subr \
+             subrs/atf.footer.subr \
              subrs/atf.header.subr \
              subrs/atf.init.subr
 subrsdir = $(pkgdatadir)
@@ -236,11 +284,11 @@ $(srcdir)/tests/bootstrap/testsuite: $(srcdir)/tests/bootstrap/testsuite.at \
 # `tests/atf' directory.
 # -------------------------------------------------------------------------
 
-check-local:
-	cd tests/atf && $(TESTS_ENVIRONMENT) atf-run | atf-report
-
 testsdir = $(exec_prefix)/tests
 pkgtestsdir = $(exec_prefix)/tests/atf
+
+installcheck-local:
+	cd $(pkgtestsdir) && $(TESTS_ENVIRONMENT) atf-run | atf-report
 
 pkgtests_DATA = tests/atf/Atffile
 EXTRA_DIST += $(pkgtests_DATA)
@@ -256,6 +304,17 @@ atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_atffile_4.expout \
                    tests/atf/formats/d_atffile_5 \
                    tests/atf/formats/d_atffile_5.expout \
+                   tests/atf/formats/d_atffile_50 \
+                   tests/atf/formats/d_atffile_50.experr \
+                   tests/atf/formats/d_atffile_51 \
+                   tests/atf/formats/d_atffile_51.experr \
+                   tests/atf/formats/d_atffile_52 \
+                   tests/atf/formats/d_atffile_52.experr \
+                   tests/atf/formats/d_atffile_53 \
+                   tests/atf/formats/d_atffile_53.experr \
+                   tests/atf/formats/d_atffile_53.expout \
+                   tests/atf/formats/d_atffile_54 \
+                   tests/atf/formats/d_atffile_54.experr \
                    tests/atf/formats/d_atffile_6 \
                    tests/atf/formats/d_atffile_6.expout \
                    tests/atf/formats/d_config_1 \
@@ -266,6 +325,41 @@ atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_config_3.expout \
                    tests/atf/formats/d_config_4 \
                    tests/atf/formats/d_config_4.expout \
+                   tests/atf/formats/d_config_50 \
+                   tests/atf/formats/d_config_50.experr \
+                   tests/atf/formats/d_config_51 \
+                   tests/atf/formats/d_config_51.experr \
+                   tests/atf/formats/d_config_52 \
+                   tests/atf/formats/d_config_52.experr \
+                   tests/atf/formats/d_config_53 \
+                   tests/atf/formats/d_config_53.experr \
+                   tests/atf/formats/d_config_53.expout \
+                   tests/atf/formats/d_config_54 \
+                   tests/atf/formats/d_config_54.experr \
+                   tests/atf/formats/d_headers_1 \
+                   tests/atf/formats/d_headers_1.experr \
+                   tests/atf/formats/d_headers_10 \
+                   tests/atf/formats/d_headers_10.experr \
+                   tests/atf/formats/d_headers_11 \
+                   tests/atf/formats/d_headers_11.experr \
+                   tests/atf/formats/d_headers_12 \
+                   tests/atf/formats/d_headers_12.experr \
+                   tests/atf/formats/d_headers_2 \
+                   tests/atf/formats/d_headers_2.experr \
+                   tests/atf/formats/d_headers_3 \
+                   tests/atf/formats/d_headers_3.experr \
+                   tests/atf/formats/d_headers_4 \
+                   tests/atf/formats/d_headers_4.experr \
+                   tests/atf/formats/d_headers_5 \
+                   tests/atf/formats/d_headers_5.experr \
+                   tests/atf/formats/d_headers_6 \
+                   tests/atf/formats/d_headers_6.experr \
+                   tests/atf/formats/d_headers_7 \
+                   tests/atf/formats/d_headers_7.experr \
+                   tests/atf/formats/d_headers_8 \
+                   tests/atf/formats/d_headers_8.experr \
+                   tests/atf/formats/d_headers_9 \
+                   tests/atf/formats/d_headers_9.experr \
                    tests/atf/formats/d_tcs_1 \
                    tests/atf/formats/d_tcs_1.errin \
                    tests/atf/formats/d_tcs_1.expout \
@@ -286,12 +380,84 @@ atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_tcs_5.errin \
                    tests/atf/formats/d_tcs_5.expout \
                    tests/atf/formats/d_tcs_5.outin \
+                   tests/atf/formats/d_tcs_50 \
+                   tests/atf/formats/d_tcs_50.experr \
+                   tests/atf/formats/d_tcs_51 \
+                   tests/atf/formats/d_tcs_51.experr \
+                   tests/atf/formats/d_tcs_52 \
+                   tests/atf/formats/d_tcs_52.experr \
+                   tests/atf/formats/d_tcs_53 \
+                   tests/atf/formats/d_tcs_53.experr \
+                   tests/atf/formats/d_tcs_53.expout \
+                   tests/atf/formats/d_tcs_54 \
+                   tests/atf/formats/d_tcs_54.experr \
+                   tests/atf/formats/d_tcs_54.expout \
+                   tests/atf/formats/d_tcs_55 \
+                   tests/atf/formats/d_tcs_55.experr \
+                   tests/atf/formats/d_tcs_55.expout \
+                   tests/atf/formats/d_tcs_56 \
+                   tests/atf/formats/d_tcs_56.errin \
+                   tests/atf/formats/d_tcs_56.experr \
+                   tests/atf/formats/d_tcs_56.expout \
+                   tests/atf/formats/d_tcs_56.outin \
+                   tests/atf/formats/d_tcs_57 \
+                   tests/atf/formats/d_tcs_57.errin \
+                   tests/atf/formats/d_tcs_57.experr \
+                   tests/atf/formats/d_tcs_57.expout \
+                   tests/atf/formats/d_tcs_57.outin \
                    tests/atf/formats/d_tps_1 \
                    tests/atf/formats/d_tps_1.expout \
                    tests/atf/formats/d_tps_2 \
                    tests/atf/formats/d_tps_2.expout \
                    tests/atf/formats/d_tps_3 \
-                   tests/atf/formats/d_tps_3.expout
+                   tests/atf/formats/d_tps_3.expout \
+                   tests/atf/formats/d_tps_4 \
+                   tests/atf/formats/d_tps_4.expout \
+                   tests/atf/formats/d_tps_50 \
+                   tests/atf/formats/d_tps_50.experr \
+                   tests/atf/formats/d_tps_51 \
+                   tests/atf/formats/d_tps_51.experr \
+                   tests/atf/formats/d_tps_52 \
+                   tests/atf/formats/d_tps_52.experr \
+                   tests/atf/formats/d_tps_53 \
+                   tests/atf/formats/d_tps_53.experr \
+                   tests/atf/formats/d_tps_53.expout \
+                   tests/atf/formats/d_tps_54 \
+                   tests/atf/formats/d_tps_54.experr \
+                   tests/atf/formats/d_tps_54.expout \
+                   tests/atf/formats/d_tps_55 \
+                   tests/atf/formats/d_tps_55.experr \
+                   tests/atf/formats/d_tps_55.expout \
+                   tests/atf/formats/d_tps_56 \
+                   tests/atf/formats/d_tps_56.experr \
+                   tests/atf/formats/d_tps_56.expout \
+                   tests/atf/formats/d_tps_57 \
+                   tests/atf/formats/d_tps_57.experr \
+                   tests/atf/formats/d_tps_57.expout \
+                   tests/atf/formats/d_tps_58 \
+                   tests/atf/formats/d_tps_58.experr \
+                   tests/atf/formats/d_tps_58.expout \
+                   tests/atf/formats/d_tps_59 \
+                   tests/atf/formats/d_tps_59.experr \
+                   tests/atf/formats/d_tps_60 \
+                   tests/atf/formats/d_tps_60.experr \
+                   tests/atf/formats/d_tps_61 \
+                   tests/atf/formats/d_tps_61.experr \
+                   tests/atf/formats/d_tps_62 \
+                   tests/atf/formats/d_tps_62.experr \
+                   tests/atf/formats/d_tps_62.expout \
+                   tests/atf/formats/d_tps_63 \
+                   tests/atf/formats/d_tps_63.experr \
+                   tests/atf/formats/d_tps_63.expout \
+                   tests/atf/formats/d_tps_64 \
+                   tests/atf/formats/d_tps_64.experr \
+                   tests/atf/formats/d_tps_64.expout \
+                   tests/atf/formats/d_tps_65 \
+                   tests/atf/formats/d_tps_65.experr \
+                   tests/atf/formats/d_tps_65.expout \
+                   tests/atf/formats/d_tps_66 \
+                   tests/atf/formats/d_tps_66.experr \
+                   tests/atf/formats/d_tps_66.expout
 atf_formatsdir = $(pkgtestsdir)/formats
 EXTRA_DIST += $(atf_formats_DATA)
 
@@ -362,6 +528,15 @@ tests/atf/test_programs/h_sh: \
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/h_sh.sh
 
+atf_test_programs_SCRIPTS += tests/atf/test_programs/t_cleanup
+CLEANFILES += tests/atf/test_programs/t_cleanup
+EXTRA_DIST += tests/atf/test_programs/t_cleanup.sh
+tests/atf/test_programs/t_cleanup: \
+		$(srcdir)/tests/atf/test_programs/t_cleanup.sh \
+		$(ATF_COMPILE_DEPS)
+	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_cleanup.sh
+
 atf_test_programs_SCRIPTS += tests/atf/test_programs/t_config
 CLEANFILES += tests/atf/test_programs/t_config
 EXTRA_DIST += tests/atf/test_programs/t_config.sh
@@ -407,6 +582,24 @@ tests/atf/test_programs/t_srcdir: \
 		$(ATF_COMPILE_DEPS)
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_srcdir.sh
+
+atf_test_programs_SCRIPTS += tests/atf/test_programs/t_status
+CLEANFILES += tests/atf/test_programs/t_status
+EXTRA_DIST += tests/atf/test_programs/t_status.sh
+tests/atf/test_programs/t_status: \
+		$(srcdir)/tests/atf/test_programs/t_status.sh \
+		$(ATF_COMPILE_DEPS)
+	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_status.sh
+
+atf_test_programs_SCRIPTS += tests/atf/test_programs/t_workdir
+CLEANFILES += tests/atf/test_programs/t_workdir
+EXTRA_DIST += tests/atf/test_programs/t_workdir.sh
+tests/atf/test_programs/t_workdir: \
+		$(srcdir)/tests/atf/test_programs/t_workdir.sh \
+		$(ATF_COMPILE_DEPS)
+	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_workdir.sh
 
 atf_test_programs_PROGRAMS = tests/atf/test_programs/h_cpp
 tests_atf_test_programs_h_cpp_SOURCES = tests/atf/test_programs/h_cpp.cpp
@@ -497,10 +690,10 @@ tests_atf_units_t_parser_SOURCES = tests/atf/units/t_parser.cpp
 tests_atf_units_t_parser_LDADD = -latf
 tests_atf_units_t_parser_LDFLAGS = -L.
 
-atf_units_PROGRAMS += tests/atf/units/t_serial
-tests_atf_units_t_serial_SOURCES = tests/atf/units/t_serial.cpp
-tests_atf_units_t_serial_LDADD = -latf
-tests_atf_units_t_serial_LDFLAGS = -L.
+atf_units_PROGRAMS += tests/atf/units/t_sanity
+tests_atf_units_t_sanity_SOURCES = tests/atf/units/t_sanity.cpp
+tests_atf_units_t_sanity_LDADD = -latf
+tests_atf_units_t_sanity_LDFLAGS = -L.
 
 atf_units_PROGRAMS += tests/atf/units/t_tests
 tests_atf_units_t_tests_SOURCES = tests/atf/units/t_tests.cpp
@@ -516,6 +709,11 @@ atf_units_PROGRAMS += tests/atf/units/t_user
 tests_atf_units_t_user_SOURCES = tests/atf/units/t_user.cpp
 tests_atf_units_t_user_LDADD = -latf
 tests_atf_units_t_user_LDFLAGS = -L.
+
+atf_units_PROGRAMS += tests/atf/units/t_utils
+tests_atf_units_t_utils_SOURCES = tests/atf/units/t_utils.cpp
+tests_atf_units_t_utils_LDADD = -latf
+tests_atf_units_t_utils_LDFLAGS = -L.
 
 # -------------------------------------------------------------------------
 # `tests/build' directory.
@@ -536,11 +734,12 @@ tests_build_libuseless_a_SOURCES = \
     tests/build/t_include_io_hpp.cpp \
     tests/build/t_include_macros_hpp.cpp \
     tests/build/t_include_parser_hpp.cpp \
-    tests/build/t_include_serial_hpp.cpp \
+    tests/build/t_include_sanity_hpp.cpp \
     tests/build/t_include_tests_hpp.cpp \
     tests/build/t_include_text_hpp.cpp \
     tests/build/t_include_ui_hpp.cpp \
-    tests/build/t_include_user_hpp.cpp
+    tests/build/t_include_user_hpp.cpp \
+    tests/build/t_include_utils_hpp.cpp
 
 # -------------------------------------------------------------------------
 # `tools' directory.
@@ -592,5 +791,26 @@ tools_atf_run_SOURCES = tools/atf-run.cpp
 tools_atf_run_LDADD = -latf
 tools_atf_run_LDFLAGS = -L.
 dist_man_MANS += tools/atf-run.1
+
+bin_PROGRAMS += tools/atf-version
+tools_atf_version_SOURCES = tools/atf-version.cpp revision.h
+tools_atf_version_LDADD = -latf
+tools_atf_version_LDFLAGS = -L.
+dist_man_MANS += tools/atf-version.1
+
+BUILT_SOURCES = revision.h
+revision.h: admin/revision.h admin/revision-dist.h
+	@if [ -f admin/revision.h ]; then \
+	    cmp -s admin/revision.h revision.h || \
+	        cp admin/revision.h revision.h; \
+	else \
+	    cmp -s $(srcdir)/admin/revision-dist.h revision.h || \
+	        cp $(srcdir)/admin/revision-dist.h revision.h; \
+	fi
+CLEANFILES += revision.h
+
+hooksdir = $(pkgdatadir)
+hooks_DATA = tools/atf-run.hooks
+EXTRA_DIST += $(hooks_DATA)
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

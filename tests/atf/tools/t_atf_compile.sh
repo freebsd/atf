@@ -38,13 +38,14 @@
 # to demonstrate the utility of the atf_check function.  Inspect its
 # current status and complete it.
 
-tc_includes_head()
+atf_test_case includes
+includes_head()
 {
     atf_set "descr" "Tests that the resulting file includes the correct" \
                     "shell subroutines"
     atf_set "require.progs" "atf-compile"
 }
-tc_includes_body()
+includes_body()
 {
     cat >tp_test.sh <<EOF
 # This is a sample test program.
@@ -55,25 +56,75 @@ EOF
     atf_check 'grep ^\..*/atf.footer.subr tp_test' 0 ignore null
 }
 
-tc_oflag_head()
+atf_test_case oflag
+oflag_head()
 {
     atf_set "descr" "Tests that the -o flag works"
     atf_set "require.progs" "atf-compile"
 }
-tc_oflag_body()
+oflag_body()
 {
     atf_check 'touch tp_foo.sh' 0 null null
-    atf_check 'atf-compile tp_foo.sh' 0 stdout null
+    atf_check 'atf-compile tp_foo.sh' 1 null stderr
+    atf_check 'grep "No output file specified" stderr' 0 ignore null
+
     atf_check 'test -f tp_foo' 1 null null
     atf_check 'atf-compile -o tp_foo tp_foo.sh' 0 null null
     atf_check 'test -f tp_foo' 0 null null
-    atf_check 'cmp stdout tp_foo' 0 ignore null
+
+    atf_check 'test -f tp_foo2' 1 null null
+    atf_check 'atf-compile -o tp_foo2 tp_foo.sh' 0 null null
+    atf_check 'test -f tp_foo2' 0 null null
+
+    atf_check 'cmp tp_foo tp_foo2' 0 ignore null
+}
+
+check_perms()
+{
+    eval $(stat -s ${1})
+    echo "File ${1}, st_mode ${st_mode}, umask $(umask), expecting ${2}"
+    case ${st_mode} in
+        *${2}) ;;
+        *) atf_fail "File ${1} doesn't have permissions ${2}" ;;
+    esac
+}
+
+atf_test_case perms
+perms_head()
+{
+    atf_set "descr" "Tests the permissions of the generated file"
+    atf_set "require.progs" "atf-compile"
+}
+perms_body()
+{
+    atf_check 'touch tp_foo.sh' 0 null null
+
+    umask 0000
+    atf_check 'atf-compile -o tp_foo tp_foo.sh' 0 null null
+    check_perms tp_foo 0777
+    rm -f tp_foo
+
+    umask 0002
+    atf_check 'atf-compile -o tp_foo tp_foo.sh' 0 null null
+    check_perms tp_foo 0775
+    rm -f tp_foo
+
+    umask 0222
+    atf_check 'atf-compile -o tp_foo tp_foo.sh' 0 null null
+    check_perms tp_foo 0555
+    rm -f tp_foo
+
+    umask 0777
+    atf_check 'atf-compile -o tp_foo tp_foo.sh' 0 null null
+    check_perms tp_foo 0000
+    rm -f tp_foo
 }
 
 atf_init_test_cases()
 {
-    atf_add_test_case tc_oflag
-    atf_add_test_case tc_includes
+    atf_add_test_case oflag
+    atf_add_test_case includes
+    atf_add_test_case perms
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

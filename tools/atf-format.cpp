@@ -34,12 +34,12 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
 
 #include "atf/application.hpp"
+#include "atf/sanity.hpp"
 #include "atf/ui.hpp"
 
 class atf_format : public atf::application {
@@ -97,7 +97,7 @@ atf_format::process_option(int ch, const char* arg)
         break;
 
     default:
-        assert(false);
+        UNREACHABLE;
     }
 }
 

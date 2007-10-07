@@ -36,14 +36,15 @@
 
 extern "C" {
 #include <sys/ioctl.h>
+#include <termios.h>
+#include <unistd.h>
 }
 
-#include <cassert>
-#include <cstdlib>
 #include <sstream>
 
 #include "atf/env.hpp"
 #include "atf/text.hpp"
+#include "atf/sanity.hpp"
 #include "atf/ui.hpp"
 
 namespace impl = atf::ui;
@@ -75,7 +76,7 @@ terminal_width(void)
             width = 79;
     }
 
-    assert(width > 0);
+    POST(width > 0);
     return width;
 }
 
@@ -87,7 +88,7 @@ format_paragraph(const std::string& text,
                  const bool repeat,
                  const size_t col)
 {
-    assert(text.find('\n') == std::string::npos);
+    PRE(text.find('\n') == std::string::npos);
 
     const std::string pad(col - tag.length(), ' ');
     const std::string fullpad(col, ' ');
@@ -97,7 +98,7 @@ format_paragraph(const std::string& text,
         formatted = tag + pad;
     else
         formatted = fullpad;
-    assert(formatted.length() == col);
+    INV(formatted.length() == col);
     size_t curcol = col;
 
     const size_t maxcol = terminal_width();
@@ -147,7 +148,7 @@ std::string
 impl::format_text_with_tag(const std::string& text, const std::string& tag,
                           bool repeat, size_t col)
 {
-    assert(col == 0 || col >= tag.length());
+    PRE(col == 0 || col >= tag.length());
     if (col == 0)
         col = tag.length();
 

@@ -218,28 +218,6 @@ public:
     //!
     void posix_remap(handle_type h);
 
-    // TODO: Copy documentation from posix_dup below and adjust it.
-    static file_handle posix_dup(int h1);
-
-    //!
-    //! \brief Duplicates an open native file handle.
-    //!
-    //! Given a native file handle \a h1, this routine duplicates it so
-    //! that it ends up being identified by the native file handle \a h2
-    //! and returns a new \a file_handle owning \a h2.
-    //!
-    //! This operation is only available in POSIX systems.
-    //!
-    //! \pre The native file handle \a h1 is open.
-    //! \pre The native file handle \a h2 is valid (non-negative).
-    //! \post The native file handle \a h1 is closed.
-    //! \post The native file handle \a h2 is the same as the old \a h1
-    //!       from the operating system's point of view.
-    //! \return A new \a file_handle object that owns \a h2.
-    //! \throw system_error If dup2() fails.
-    //!
-    static file_handle posix_dup(int h1, int h2);
-
 private:
     //!
     //! \brief Internal handle value.
@@ -279,7 +257,7 @@ private:
 //! the on-disk file and the in-memory buffers.
 //!
 class systembuf :
-    public std::streambuf // XXX boost::noncopyable
+    public std::streambuf
 {
 public:
     typedef int handle_type;
@@ -300,6 +278,9 @@ public:
     //!
     explicit systembuf(handle_type h, std::size_t bufsize = 8192);
     ~systembuf(void);
+
+    systembuf(const systembuf&);
+    systembuf& operator=(const systembuf&);
 
 private:
     //!
@@ -475,7 +456,7 @@ public:
 //! until the writer generates some data.
 //!
 class pistream :
-    public std::istream // XXX boost::noncopyable
+    public std::istream
 {
     //!
     //! \brief The file handle managed by this stream.
@@ -486,6 +467,9 @@ class pistream :
     //! \brief The systembuf object used to manage this stream's data.
     //!
     systembuf m_systembuf;
+
+    pistream(const pistream&);
+    pistream& operator=(const pistream&);
 
 public:
     //!
@@ -547,7 +531,7 @@ public:
 //! until the reader consumes some data, leaving some new room.
 //!
 class postream :
-    public std::ostream // boost::noncopyable
+    public std::ostream
 {
     //!
     //! \brief The file handle managed by this stream.
@@ -558,6 +542,9 @@ class postream :
     //! \brief The systembuf object used to manage this stream's data.
     //!
     systembuf m_systembuf;
+
+    postream(const postream&);
+    postream& operator=(const postream&);
 
 public:
     //!

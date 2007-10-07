@@ -34,11 +34,38 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+run_header_tests()
+{
+    sd=$(atf_get_srcdir)
+    for f in d_headers_1 \
+             d_headers_2 \
+             d_headers_3 \
+             d_headers_4 \
+             d_headers_5 \
+             d_headers_6 \
+             d_headers_7 \
+             d_headers_8 \
+             d_headers_9 \
+             d_headers_10 \
+             d_headers_11 \
+             d_headers_12
+    do
+        sed -e "s,@CONTENT_TYPE@,${1},g" \
+            -e "s,@CONTENT_VERSION@,${2},g" \
+            <${sd}/${f} >${f}
+        run_tests ${1} ${f}
+    done
+}
+
 run_tests()
 {
     type=${1}; shift
     sd=$(atf_get_srcdir)
     while [ ${#} -gt 0 ]; do
+        rm -f expout experr outin errin
+
+        [ -f ${1} ] || cp ${sd}/${1} ${1}
+
         if [ -f ${sd}/${1}.expout ]; then
             cp ${sd}/${1}.expout expout
         else
@@ -63,66 +90,108 @@ run_tests()
             touch errin
         fi
 
-        atf_check "${sd}/h_parser ${type} ${sd}/${1} outin errin" \
-                  0 expout experr
-        rm -f expout experr
+        atf_check "${sd}/h_parser ${type} ${1} outin errin" 0 expout experr
 
         shift
     done
 }
 
+atf_test_case atffile
 atffile_head()
 {
     atf_set "descr" "Verifies the application/X-atf-atffile parser"
 }
 atffile_body()
 {
+    run_header_tests application/X-atf-atffile 1
     run_tests application/X-atf-atffile \
         d_atffile_1 \
         d_atffile_2 \
         d_atffile_3 \
         d_atffile_4 \
         d_atffile_5 \
-        d_atffile_6
+        d_atffile_6 \
+        d_atffile_50 \
+        d_atffile_51 \
+        d_atffile_52 \
+        d_atffile_53 \
+        d_atffile_54
 }
 
+atf_test_case config
 config_head()
 {
     atf_set "descr" "Verifies the application/X-atf-config parser"
 }
 config_body()
 {
+    run_header_tests application/X-atf-config 1
     run_tests application/X-atf-config \
         d_config_1 \
         d_config_2 \
         d_config_3 \
-        d_config_4
+        d_config_4 \
+        d_config_50 \
+        d_config_51 \
+        d_config_52 \
+        d_config_53 \
+        d_config_54
 }
 
+atf_test_case tcs
 tcs_head()
 {
     atf_set "descr" "Verifies the application/X-atf-tcs parser"
 }
 tcs_body()
 {
+    run_header_tests application/X-atf-tcs 1
     run_tests application/X-atf-tcs \
         d_tcs_1 \
         d_tcs_2 \
         d_tcs_3 \
         d_tcs_4 \
-        d_tcs_5
+        d_tcs_5 \
+        d_tcs_50 \
+        d_tcs_51 \
+        d_tcs_52 \
+        d_tcs_53 \
+        d_tcs_54 \
+        d_tcs_55 \
+        d_tcs_56 \
+        d_tcs_57
 }
 
+atf_test_case tps
 tps_head()
 {
     atf_set "descr" "Verifies the application/X-atf-tps parser"
 }
 tps_body()
 {
+    run_header_tests application/X-atf-tps 1
     run_tests application/X-atf-tps \
         d_tps_1 \
         d_tps_2 \
-        d_tps_3
+        d_tps_3 \
+        d_tps_4 \
+        d_tps_50 \
+        d_tps_51 \
+        d_tps_52 \
+        d_tps_53 \
+        d_tps_54 \
+        d_tps_55 \
+        d_tps_56 \
+        d_tps_57 \
+        d_tps_58 \
+        d_tps_59 \
+        d_tps_60 \
+        d_tps_61 \
+        d_tps_62 \
+        d_tps_63 \
+        d_tps_64 \
+        d_tps_65 \
+        d_tps_66
 }
 
 atf_init_test_cases()

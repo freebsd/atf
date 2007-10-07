@@ -34,7 +34,6 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <map>
@@ -42,6 +41,7 @@
 
 #include "atf/application.hpp"
 #include "atf/config.hpp"
+#include "atf/sanity.hpp"
 
 class atf_config : public atf::application {
     static const char* m_description;
@@ -81,7 +81,7 @@ atf_config::process_option(int ch, const char* arg)
         break;
 
     default:
-        assert(false);
+        UNREACHABLE;
     }
 }
 

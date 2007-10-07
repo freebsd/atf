@@ -69,6 +69,7 @@ rm -f admin/depcomp
 rm -f admin/install-sh
 rm -f admin/ltmain.sh
 rm -f admin/missing
+rm -f admin/revision*
 
 # `tests/bootstrap' directory.
 rm -f tests/bootstrap/package.m4

@@ -38,7 +38,6 @@ extern "C" {
 #include <fcntl.h>
 }
 
-#include <cassert>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -48,6 +47,8 @@ extern "C" {
 
 #include "atf/formats.hpp"
 #include "atf/io.hpp"
+#include "atf/parser.hpp"
+#include "atf/sanity.hpp"
 
 class atffile_reader : protected atf::formats::atf_atffile_reader {
     void
@@ -145,7 +146,7 @@ class tcs_reader : protected atf::formats::atf_tcs_reader {
             break;
 
         default:
-            assert(false);
+            UNREACHABLE;
         }
 
         std::cout << "got_tc_end(" << r << ")" << std::endl;
@@ -196,6 +197,12 @@ public:
 
 class tps_reader : protected atf::formats::atf_tps_reader {
     void
+    got_info(const std::string& what, const std::string& val)
+    {
+        std::cout << "got_info(" << what << ", " << val << ")" << std::endl;
+    }
+
+    void
     got_ntps(size_t ntps)
     {
         std::cout << "got_ntps(" << ntps << ")" << std::endl;
@@ -238,7 +245,7 @@ class tps_reader : protected atf::formats::atf_tps_reader {
             break;
 
         default:
-            assert(false);
+            UNREACHABLE;
         }
 
         std::cout << "got_tc_end(" << r << ")" << std::endl;
@@ -286,8 +293,11 @@ process(const std::string& file, const std::string& outname = "",
             throw std::runtime_error("Cannot open `" + file + "'");
         R reader(is);
         reader.read(outname, errname);
-    } catch (const std::exception& e) {
-        std::cerr << e.what() << std::endl;
+    } catch (const atf::parser::parse_errors& pes) {
+        std::cerr << pes.what();
+    } catch (const atf::parser::parse_error& pe) {
+        std::cerr << "LONELY PARSE ERROR: " << pe.first << ": "
+                  << pe.second << std::endl;
     }
 }
 
@@ -317,6 +327,10 @@ main(int argc, char* argv[])
         } else {
             std::cerr << "Unknown format " << format << std::endl;
         }
+    } catch (const atf::formats::format_error& e) {
+        std::cerr << "Header format error: " << e.what() << std::endl;
+    } catch (const std::runtime_error& e) {
+        std::cerr << "UNEXPECTED ERROR: " << e.what() << std::endl;
     } catch (...) {
         return EXIT_FAILURE;
     }

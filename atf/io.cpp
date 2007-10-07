@@ -38,11 +38,11 @@ extern "C" {
 #include <unistd.h>
 }
 
-#include <cassert>
 #include <cerrno>
 
 #include "atf/exceptions.hpp"
 #include "atf/io.hpp"
+#include "atf/sanity.hpp"
 
 namespace impl = atf::io;
 #define IMPL_NAME "atf::io"
@@ -59,7 +59,7 @@ impl::file_handle::file_handle(void) :
 impl::file_handle::file_handle(handle_type h) :
     m_handle(h)
 {
-    assert(m_handle != invalid_value());
+    PRE(m_handle != invalid_value());
 }
 
 impl::file_handle::file_handle(const file_handle& fh) :
@@ -93,7 +93,7 @@ impl::file_handle::is_valid(void)
 void
 impl::file_handle::close(void)
 {
-    assert(is_valid());
+    PRE(is_valid());
 
     ::close(m_handle);
 
@@ -103,7 +103,7 @@ impl::file_handle::close(void)
 impl::file_handle::handle_type
 impl::file_handle::disown(void)
 {
-    assert(is_valid());
+    PRE(is_valid());
 
     handle_type h = m_handle;
     m_handle = invalid_value();
@@ -114,7 +114,7 @@ impl::file_handle::handle_type
 impl::file_handle::get(void)
     const
 {
-    assert(is_valid());
+    PRE(is_valid());
 
     return m_handle;
 }
@@ -122,7 +122,7 @@ impl::file_handle::get(void)
 void
 impl::file_handle::posix_remap(handle_type h)
 {
-    assert(is_valid());
+    PRE(is_valid());
 
     if (m_handle == h)
         return;
@@ -138,27 +138,6 @@ impl::file_handle::posix_remap(handle_type h)
     }
 
     m_handle = h;
-}
-
-impl::file_handle
-impl::file_handle::posix_dup(int h1)
-{
-    int h2 = ::dup(h1);
-    if (h2 == -1)
-        throw system_error(IMPL_NAME "::file_handle::posix_dup",
-                           "dup2(2) failed", errno);
-
-    return file_handle(h2);
-}
-
-impl::file_handle
-impl::file_handle::posix_dup(int h1, int h2)
-{
-    if (::dup2(h1, h2) == -1)
-        throw system_error(IMPL_NAME "::file_handle::posix_dup",
-                           "dup2(2) failed", errno);
-
-    return file_handle(h2);
 }
 
 const impl::file_handle::handle_type
@@ -177,8 +156,8 @@ impl::systembuf::systembuf(handle_type h, std::size_t bufsize) :
     m_read_buf(NULL),
     m_write_buf(NULL)
 {
-    assert(m_handle >= 0);
-    assert(m_bufsize > 0);
+    PRE(m_handle >= 0);
+    PRE(m_bufsize > 0);
 
     try {
         m_read_buf = new char[bufsize];
@@ -204,7 +183,7 @@ impl::systembuf::~systembuf(void)
 impl::systembuf::int_type
 impl::systembuf::underflow(void)
 {
-    assert(gptr() >= egptr());
+    PRE(gptr() >= egptr());
 
     bool ok;
     ssize_t cnt = ::read(m_handle, m_read_buf, m_bufsize);
@@ -221,7 +200,7 @@ impl::systembuf::underflow(void)
 impl::systembuf::int_type
 impl::systembuf::overflow(int c)
 {
-    assert(pptr() >= epptr());
+    PRE(pptr() >= epptr());
     if (sync() == -1)
         return traits_type::eof();
     if (!traits_type::eq_int_type(c, traits_type::eof())) {

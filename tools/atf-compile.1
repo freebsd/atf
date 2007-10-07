@@ -33,16 +33,13 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd August 18, 2007
+.Dd October 5, 2007
 .Dt ATF-COMPILE 1
 .Os
 .Sh NAME
 .Nm atf-compile
 .Nd generates POSIX shell test programs
 .Sh SYNOPSIS
-.Nm
-.Ar src1
-.Op Ar .. srcN
 .Nm
 .Fl o Ar out-file
 .Ar src1
@@ -59,18 +56,12 @@ implement a test program directly runnable by the user.
 .Pp
 In the first synopsis form,
 .Nm
-will generate the new test program and print the results to the standard
-output, which can be later redirected to a file.
-The caller will then have to give execution permissions to the resulting
-file.
+will generate the
+.Ar out-file
+test program by adding the source files to it as well as all the necessary
+helper code to turn it into an executable.
 .Pp
 In the second synopsis form,
-.Nm
-behaves as in the first one, but writes the resulting test program to the
-.Ar out-file
-file, giving it execution permissions.
-.Pp
-In the third synopsis form,
 .Nm
 will print information about all supported options and their purpose.
 .Pp
@@ -82,4 +73,4 @@ Shows a short summary of all available options and their purpose.
 Specifies the file to which the results will be written.
 .El
 .Sh SEE ALSO
-.Xr atf 1
+.Xr atf 7

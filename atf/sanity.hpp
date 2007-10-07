@@ -34,121 +34,99 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_SERIAL_HPP_)
-#define _ATF_SERIAL_HPP_
+#if !defined(_ATF_SANITY_HPP_)
+#define _ATF_SANITY_HPP_
 
-#include <istream>
-#include <map>
-#include <ostream>
-#include <sstream>
 #include <stdexcept>
-#include <string>
 
 namespace atf {
-namespace serial {
+namespace sanity {
 
 // ------------------------------------------------------------------------
-// The "format_error" class.
+// The "sanity_error" class.
 // ------------------------------------------------------------------------
 
-//!
-//! \brief A class to signal format errors in external data formats.
-//!
-//! This error class is used to signal format errors while parsing some
-//! externalized representation of a data structure.
-//!
-class format_error : public std::runtime_error {
+class sanity_error : public std::logic_error {
+    const char* m_file;
+    size_t m_line;
+    const char* m_msg;
+
+    mutable char m_buffer[1024];
+
+protected:
+    const char* format_message(const char*) const throw();
+
 public:
-    format_error(const std::string&);
+    sanity_error(const char*, size_t, const char*) throw();
+    virtual ~sanity_error(void) throw();
+
+    const char* file(void) const throw();
+    size_t line(void) const throw();
+
+    virtual const char* what(void) const throw() = 0;
 };
 
 // ------------------------------------------------------------------------
-// The "header_entry" class.
+// The "precondition_error" class.
 // ------------------------------------------------------------------------
 
-typedef std::map< std::string, std::string > attrs_map;
-
-class header_entry {
-    std::string m_name;
-    std::string m_value;
-    attrs_map m_attrs;
-
+class precondition_error : public sanity_error {
 public:
-    header_entry(void);
-    header_entry(const std::string&, const std::string&,
-                 attrs_map = attrs_map());
+    precondition_error(const char*, size_t, const char*) throw();
 
-    const std::string& name(void) const;
-    const std::string& value(void) const;
-    const attrs_map& attrs(void) const;
-    bool has_attr(const std::string&) const;
-    const std::string& get_attr(const std::string&) const;
+    const char* what(void) const throw();
 };
 
 // ------------------------------------------------------------------------
-// The "externalizer" class.
+// The "postcondition_error" class.
 // ------------------------------------------------------------------------
 
-class externalizer {
-    std::ostream& m_os;
-    bool m_inited;
-    std::map< std::string, header_entry > m_headers;
-
-    void write_headers(void);
-
+class postcondition_error : public sanity_error {
 public:
-    externalizer(std::ostream&, const std::string&, int);
+    postcondition_error(const char*, size_t, const char*) throw();
 
-    void add_header(const header_entry&);
-    void flush(void);
-
-    template< class T >
-    externalizer& putline(const T&);
+    const char* what(void) const throw();
 };
 
-template< class T >
-externalizer&
-externalizer::putline(const T& l)
-{
-    if (!m_inited)
-        write_headers();
-
-    std::ostringstream ss;
-    ss << l << '\n';
-    m_os << ss.str();
-    return *this;
-}
-
 // ------------------------------------------------------------------------
-// The "internalizer" class.
+// The "invariant_error" class.
 // ------------------------------------------------------------------------
 
-class internalizer {
-    std::istream& m_is;
-    size_t m_lineno;
-
-    std::map< std::string, header_entry > m_headers;
-
-    void read_headers(void);
-
+class invariant_error : public sanity_error {
 public:
-    internalizer(std::istream&, const std::string&, int);
+    invariant_error(const char*, size_t, const char*) throw();
 
-    size_t lineno(void) const;
-
-    bool has_header(const std::string&) const;
-    const header_entry& get_header(const std::string&) const;
-
-    internalizer& getline(std::string&);
-
-    int get(void);
-    internalizer& get(char&);
-    internalizer& unget(void);
-    int peek(void) const;
-    bool good(void) const;
+    const char* what(void) const throw();
 };
 
-} // namespace serial
+// ------------------------------------------------------------------------
+// Auxiliary macros.
+// ------------------------------------------------------------------------
+
+#define PRE(cond) \
+    do { \
+        if (!(cond)) \
+            throw atf::sanity::precondition_error(__FILE__, __LINE__, \
+                                                  #cond); \
+    } while (false)
+
+#define POST(cond) \
+    do { \
+        if (!(cond)) \
+            throw atf::sanity::postcondition_error(__FILE__, __LINE__, \
+                                                   #cond); \
+    } while (false)
+
+#define INV(cond) \
+    do { \
+        if (!(cond)) \
+            throw atf::sanity::invariant_error(__FILE__, __LINE__, \
+                                               #cond); \
+    } while (false)
+
+#define UNREACHABLE INV(false)
+
+} // namespace sanity
 } // namespace atf
 
-#endif // !defined(_ATF_SERIAL_HPP_)
+#endif // !defined(_ATF_SANITY_HPP_)

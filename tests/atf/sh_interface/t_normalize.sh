@@ -34,6 +34,7 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+atf_test_case main
 main_head()
 {
     atf_set "descr" "Verifies that variable names with symbols not" \
@@ -43,6 +44,7 @@ main_head()
 main_body()
 {
     cat >helper.sh <<EOF
+atf_test_case main
 main_head() {
     atf_set "descr" "Not relevant"
     atf_set "a.b" "test value 1"

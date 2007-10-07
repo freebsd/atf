@@ -41,42 +41,42 @@ for h in tp_basic_cpp tp_basic_sh; do
 AT_CHECK([TEST_HELPER(${h})], 1, [stdout], [stderr])
 AT_CHECK([COUNT_IN_LINES([grep __atf_tc_separator__ stdout], 3)], [0], [], [])
 AT_CHECK([COUNT_IN_LINES([grep __atf_tc_separator__ stderr], 3)], [0], [], [])
-CHECK_TCS_TCR(tc_pass, passed, stdout)
-CHECK_TCS_TCR(tc_fail, failed, stdout)
-CHECK_TCS_TCR(tc_skip, skipped, stdout)
-CHECK_TCS_TCR(tc_default, passed, stdout)
+CHECK_TCS_TCR(pass, passed, stdout)
+CHECK_TCS_TCR(fail, failed, stdout)
+CHECK_TCS_TCR(skip, skipped, stdout)
+CHECK_TCS_TCR(default, passed, stdout)
 
 dnl Check the -r flag to redirect the results output.
 dnl (Same checks as above, as -r1 is the default.)
 AT_CHECK([TEST_HELPER(${h}) -r1], 1, [stdout], [stderr])
 AT_CHECK([COUNT_IN_LINES([grep __atf_tc_separator__ stdout], 3)], [0], [], [])
 AT_CHECK([COUNT_IN_LINES([grep __atf_tc_separator__ stderr], 3)], [0], [], [])
-CHECK_TCS_TCR(tc_pass, passed, stdout)
-CHECK_TCS_TCR(tc_fail, failed, stdout)
-CHECK_TCS_TCR(tc_skip, skipped, stdout)
-CHECK_TCS_TCR(tc_default, passed, stdout)
+CHECK_TCS_TCR(pass, passed, stdout)
+CHECK_TCS_TCR(fail, failed, stdout)
+CHECK_TCS_TCR(skip, skipped, stdout)
+CHECK_TCS_TCR(default, passed, stdout)
 
 dnl Check the -r flag to redirect the results output.
 AT_CHECK([TEST_HELPER(${h}) -r2], 1, [ignore], [stderr])
 AT_CHECK([COUNT_IN_LINES([grep __atf_tc_separator__ stdout], 3)], [0], [], [])
 AT_CHECK([COUNT_IN_LINES([grep __atf_tc_separator__ stderr], 3)], [0], [], [])
-CHECK_TCS_TCR(tc_pass, passed, stderr)
-CHECK_TCS_TCR(tc_fail, failed, stderr)
-CHECK_TCS_TCR(tc_skip, skipped, stderr)
-CHECK_TCS_TCR(tc_default, passed, stderr)
+CHECK_TCS_TCR(pass, passed, stderr)
+CHECK_TCS_TCR(fail, failed, stderr)
+CHECK_TCS_TCR(skip, skipped, stderr)
+CHECK_TCS_TCR(default, passed, stderr)
 
 dnl Check the -r flag to redirect the results output.
 AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="1"
 
 tcs-count: 4
-tc-start: tc_pass
-tc-end: tc_pass, passed
-tc-start: tc_fail
-tc-end: tc_fail, failed, On purpose
-tc-start: tc_skip
-tc-end: tc_skip, skipped, By design
-tc-start: tc_default
-tc-end: tc_default, passed
+tc-start: pass
+tc-end: pass, passed
+tc-start: fail
+tc-end: fail, failed, On purpose
+tc-start: skip
+tc-end: skip, skipped, By design
+tc-start: default
+tc-end: default, passed
 ])
 AT_CHECK([TEST_HELPER(${h}) -r3 3>resout], 1, [stdout], [stderr])
 AT_CHECK([COUNT_IN_LINES([grep __atf_tc_separator__ stdout], 3)], [0], [], [])
@@ -86,10 +86,10 @@ AT_CHECK([cmp -s resout expres], 0, [], [])
 AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="1"
 
 tcs-count: 1
-tc-start: tc_pass
-tc-end: tc_pass, passed
+tc-start: pass
+tc-end: pass, passed
 ])
-AT_CHECK([TEST_HELPER(${h}) -r3 tc_pass 3>resout], 0, [stdout], [stderr])
+AT_CHECK([TEST_HELPER(${h}) -r3 pass 3>resout], 0, [stdout], [stderr])
 AT_CHECK([grep __atf_tc_separator__ stdout], [1], [], [])
 AT_CHECK([grep __atf_tc_separator__ stderr], [1], [], [])
 AT_CHECK([cmp -s resout expres], 0, [], [])
@@ -97,10 +97,10 @@ AT_CHECK([cmp -s resout expres], 0, [], [])
 AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="1"
 
 tcs-count: 1
-tc-start: tc_fail
-tc-end: tc_fail, failed, On purpose
+tc-start: fail
+tc-end: fail, failed, On purpose
 ])
-AT_CHECK([TEST_HELPER(${h}) -r3 tc_fail 3>resout], 1, [stdout], [stderr])
+AT_CHECK([TEST_HELPER(${h}) -r3 fail 3>resout], 1, [stdout], [stderr])
 AT_CHECK([grep __atf_tc_separator__ stdout], [1], [], [])
 AT_CHECK([grep __atf_tc_separator__ stderr], [1], [], [])
 AT_CHECK([cmp -s resout expres], 0, [], [])
@@ -108,10 +108,10 @@ AT_CHECK([cmp -s resout expres], 0, [], [])
 AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="1"
 
 tcs-count: 1
-tc-start: tc_skip
-tc-end: tc_skip, skipped, By design
+tc-start: skip
+tc-end: skip, skipped, By design
 ])
-AT_CHECK([TEST_HELPER(${h}) -r3 tc_skip 3>resout], 0, [stdout], [stderr])
+AT_CHECK([TEST_HELPER(${h}) -r3 skip 3>resout], 0, [stdout], [stderr])
 AT_CHECK([grep __atf_tc_separator__ stdout], [1], [], [])
 AT_CHECK([grep __atf_tc_separator__ stderr], [1], [], [])
 AT_CHECK([cmp -s resout expres], 0, [], [])

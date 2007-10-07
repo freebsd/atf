@@ -42,6 +42,7 @@ count_lines()
     test $(wc -l $1 | awk '{ print $1 }') = $2
 }
 
+atf_test_case list_all
 list_all_head()
 {
     atf_set "descr" "Tests that at atf-config prints all expected" \
@@ -56,6 +57,7 @@ list_all_body()
     done
 }
 
+atf_test_case query_one
 query_one_head()
 {
     atf_set "descr" "Tests that querying a single variable works"
@@ -69,6 +71,7 @@ query_one_body()
     done
 }
 
+atf_test_case query_one_terse
 query_one_terse_head()
 {
     atf_set "descr" "Tests that querying a single variable in terse mode" \
@@ -86,6 +89,7 @@ query_one_terse_body()
     done
 }
 
+atf_test_case query_multiple
 query_multiple_head()
 {
     atf_set "descr" "Tests that querying multiple variables works"
@@ -98,6 +102,7 @@ query_multiple_body()
     atf_check "grep atf_shell stdout" 0 ignore null
 }
 
+atf_test_case query_unknown
 query_unknown_head()
 {
     atf_set "descr" "Tests that querying an unknown variable delivers" \
@@ -109,6 +114,7 @@ query_unknown_body()
     atf_check 'grep "Unknown variable.*non_existent" stderr' 0 ignore null
 }
 
+atf_test_case query_mixture
 query_mixture_head()
 {
     atf_set "descr" "Tests that querying a known and an unknown variable" \
@@ -124,6 +130,7 @@ query_mixture_body()
     done
 }
 
+atf_test_case override_env
 override_env_head()
 {
     atf_set "descr" "Tests that build-time variables can be overriden" \
@@ -132,7 +139,7 @@ override_env_head()
 override_env_body()
 {
     for v in ${all_vars}; do
-        V=$(echo ${v} | tr a-z A-Z)
+        V=$(echo ${v} | tr '[a-z]' '[A-Z]')
         atf_check "${V}=testval atf-config" 0 stdout null
         atf_check "mv stdout all" 0 null null
 

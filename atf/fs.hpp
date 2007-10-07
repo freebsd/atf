@@ -50,21 +50,6 @@ namespace atf {
 namespace fs {
 
 // ------------------------------------------------------------------------
-// The "path_error" class.
-// ------------------------------------------------------------------------
-
-//!
-//! \brief A class to signal errors in path manipulation.
-//!
-//! This error class is used by the path manipulation algorithms to signal
-//! any detected error.
-//!
-class path_error : public std::runtime_error {
-public:
-    path_error(const std::string&);
-};
-
-// ------------------------------------------------------------------------
 // The "path" class.
 // ------------------------------------------------------------------------
 
@@ -86,7 +71,6 @@ class path {
     std::string m_data;
 
 public:
-    //!
     //! \brief Constructs a new path from a user-provided string.
     //!
     //! This constructor takes a string, either provided by the program's
@@ -94,9 +78,10 @@ public:
     //! is normalized to not contain multiple delimiters together and to
     //! remove any trailing one.
     //!
-    //! \throw path_error If the string is empty.
+    //! The input string may be empty, in which case the path is left
+    //! uninitialized.
     //!
-    explicit path(const std::string&);
+    explicit path(const std::string& = "");
 
     //!
     //! \brief Returns a pointer to a C-style string representing this path.
@@ -115,6 +100,11 @@ public:
     //! words, it returns what the standard ::dirname function would return.
     //!
     path branch_path(void) const;
+
+    //!
+    //! \brief Checks whether the path is empty or not.
+    //!
+    bool empty(void) const;
 
     //!
     //! \brief Returns the leaf name of this path.
@@ -351,6 +341,49 @@ public:
 };
 
 // ------------------------------------------------------------------------
+// The "temp_dir" class.
+// ------------------------------------------------------------------------
+
+//!
+//! \brief A RAII model for temporary directories.
+//!
+//! The temp_dir class provides a RAII model for temporary directories.
+//! During construction, a safe temporary directory is created and during
+//! destruction it is carefully removed by making use of the cleanup
+//! function.
+//!
+class temp_dir {
+    //!
+    //! \brief The path to this temporary directory.
+    //!
+    path m_path;
+
+public:
+    //!
+    //! \brief Creates a new temporary directory.
+    //!
+    //! Creates a new temporary directory based on the provided name
+    //! template.  The template must end with six X characters preceded
+    //! by a dot.  These characters are replaced with a unique name on
+    //! the file system as described in mkdtemp(3).
+    //!
+    temp_dir(const path&);
+
+    //!
+    //! \brief Destroys the temporary directory.
+    //!
+    //! Destroys this temporary directory object as well as its file
+    //! system representation.
+    //!
+    ~temp_dir(void);
+
+    //!
+    //! \brief Returns the path to this temporary directory.
+    //!
+    const path& get_path(void) const;
+};
+
+// ------------------------------------------------------------------------
 // Free functions.
 // ------------------------------------------------------------------------
 
@@ -365,24 +398,6 @@ public:
 path change_directory(const path&);
 
 //!
-//! \brief Creates a safe temporary directory.
-//!
-//! Given a name template, which must end in six X characters, generates a
-//! unique file name by replacing those Xs with alphanumeric characters and
-//! creates a directory with the resulting name.
-//!
-path create_temp_dir(const path&);
-
-//!
-//! \brief Creates a safe temporary file.
-//!
-//! Given a name template, which must end in six X characters, generates a
-//! unique file name by replacing those Xs with alphanumeric characters and
-//! creates an empty file with the resulting name.
-//!
-path create_temp_file(const path&);
-
-//!
 //! \brief Checks if the given path exists.
 //!
 bool exists(const path&);
@@ -391,9 +406,7 @@ bool exists(const path&);
 //! \brief Looks for the given program in the PATH.
 //!
 //! Given a program name (without slashes) looks for it in the path and
-//! returns its full path name if found, otherwise ".".
-//!
-//! XXX Should return an invalid path, not ".".
+//! returns its full path name if found, otherwise an empty path.
 //!
 path find_prog_in_path(const std::string&);
 
@@ -413,6 +426,11 @@ path get_current_dir(void);
 bool is_executable(const path&);
 
 //!
+//! \brief Removes a given file.
+//!
+void remove(const path&);
+
+//!
 //! \brief Recursively cleans up a directory.
 //!
 //! This function cleans up a directory hierarchy.  First of all, it looks
@@ -420,7 +438,6 @@ bool is_executable(const path&);
 //! any is found, an attempt is made to unmount it.  Later on, the
 //! directory is removed alongside all of its contents.
 //!
-
 void cleanup(const path&);
 
 } // namespace fs

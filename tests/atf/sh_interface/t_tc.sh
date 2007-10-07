@@ -34,6 +34,7 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+atf_test_case default_status
 default_status_head()
 {
     atf_set "descr" "Verifies that test cases get the correct default" \
@@ -43,6 +44,7 @@ default_status_head()
 default_status_body()
 {
     cat >helper.sh <<EOF
+atf_test_case pass_true
 pass_true_head() {
     atf_set "descr" "Helper test case"
 }
@@ -50,6 +52,7 @@ pass_true_body() {
     true
 }
 
+atf_test_case pass_false
 pass_false_head() {
     atf_set "descr" "Helper test case"
 }
@@ -57,6 +60,7 @@ pass_false_body() {
     false
 }
 
+atf_test_case fail
 fail_head() {
     atf_set "descr" "Helper test case"
 }

@@ -40,6 +40,7 @@ create_files()
     touch tmp/datafile
 
     cat >tmp/tp.sh <<EOF
+atf_test_case exists
 exists_head() {
     atf_set "descr" "Not important"
 }
@@ -62,6 +63,7 @@ EOF
     touch tmp/h_cpp
 }
 
+atf_test_case default
 default_head()
 {
     atf_set "descr" "Checks that the program can find its files if" \
@@ -83,6 +85,7 @@ default_body()
     atf_check 'grep "Cannot.*find.*source.*directory" stderr' 0 ignore null
 }
 
+atf_test_case sflag
 sflag_head()
 {
     atf_set "descr" "Checks that the program can find its files when" \

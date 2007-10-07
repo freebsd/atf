@@ -34,7 +34,6 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cassert>
 #include <cstdlib>
 #include <iostream>
 

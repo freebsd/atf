@@ -183,39 +183,6 @@ ATF_TEST_CASE_BODY(file_handle_get)
     ATF_CHECK_EQUAL(fh1.get(), STDOUT_FILENO);
 }
 
-ATF_TEST_CASE(file_handle_posix_dup);
-ATF_TEST_CASE_HEAD(file_handle_posix_dup)
-{
-    set("descr", "Tests the file_handle::posix_dup method");
-}
-ATF_TEST_CASE_BODY(file_handle_posix_dup)
-{
-    using atf::io::file_handle;
-
-    int pfd[2];
-
-    ATF_CHECK(::pipe(pfd) != -1);
-    file_handle rend(pfd[0]);
-    file_handle wend(pfd[1]);
-
-    ATF_CHECK(rend.get() != 10);
-    ATF_CHECK(wend.get() != 10);
-    file_handle fh1 = file_handle::posix_dup(wend.get(), 10);
-    ATF_CHECK_EQUAL(fh1.get(), 10);
-
-    ATF_CHECK(::write(wend.get(), "test-posix-dup", 14) != -1);
-    char buf1[15];
-    ATF_CHECK_EQUAL(::read(rend.get(), buf1, sizeof(buf1)), 14);
-    buf1[14] = '\0';
-    ATF_CHECK(std::strcmp(buf1, "test-posix-dup") == 0);
-
-    ATF_CHECK(::write(fh1.get(), "test-posix-dup", 14) != -1);
-    char buf2[15];
-    ATF_CHECK_EQUAL(::read(rend.get(), buf2, sizeof(buf2)), 14);
-    buf2[14] = '\0';
-    ATF_CHECK(std::strcmp(buf2, "test-posix-dup") == 0);
-}
-
 ATF_TEST_CASE(file_handle_posix_remap);
 ATF_TEST_CASE_HEAD(file_handle_posix_remap)
 {
@@ -440,19 +407,25 @@ ATF_TEST_CASE_BODY(postream)
 
     pipe p;
     int fh = p.wend().get();
-    systembuf rbuf(p.rend().get());
-    std::istream rend(&rbuf);
     postream wend(p.wend());
     ATF_CHECK_EQUAL(fh, wend.handle().get());
 
-    // XXX This assumes that the pipe's buffer is big enough to accept
-    // the data written without blocking!
-    wend << "1Test 1message" << std::endl;
-    std::string tmp;
-    rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "1Test");
-    rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "1message");
+    // The following block is to ensure that the read end is closed
+    // before the write one.  Otherwise we get a SIGPIPE, at least
+    // under FreeBSD 6.2.
+    {
+        systembuf rbuf(p.rend().get());
+        std::istream rend(&rbuf);
+
+        // XXX This assumes that the pipe's buffer is big enough to accept
+        // the data written without blocking!
+        wend << "1Test 1message" << std::endl;
+        std::string tmp;
+        rend >> tmp;
+        ATF_CHECK_EQUAL(tmp, "1Test");
+        rend >> tmp;
+        ATF_CHECK_EQUAL(tmp, "1message");
+    }
 }
 
 // ------------------------------------------------------------------------
@@ -462,26 +435,25 @@ ATF_TEST_CASE_BODY(postream)
 ATF_INIT_TEST_CASES(tcs)
 {
     // Add the tests for the "file_handle" class.
-    tcs.push_back(&file_handle_ctor);
-    tcs.push_back(&file_handle_copy);
-    tcs.push_back(&file_handle_get);
-    tcs.push_back(&file_handle_posix_dup);
-    tcs.push_back(&file_handle_posix_remap);
+    ATF_ADD_TEST_CASE(tcs, file_handle_ctor);
+    ATF_ADD_TEST_CASE(tcs, file_handle_copy);
+    ATF_ADD_TEST_CASE(tcs, file_handle_get);
+    ATF_ADD_TEST_CASE(tcs, file_handle_posix_remap);
 
     // Add the tests for the "systembuf" class.
-    tcs.push_back(&systembuf_short_read);
-    tcs.push_back(&systembuf_long_read);
-    tcs.push_back(&systembuf_short_write);
-    tcs.push_back(&systembuf_long_write);
+    ATF_ADD_TEST_CASE(tcs, systembuf_short_read);
+    ATF_ADD_TEST_CASE(tcs, systembuf_long_read);
+    ATF_ADD_TEST_CASE(tcs, systembuf_short_write);
+    ATF_ADD_TEST_CASE(tcs, systembuf_long_write);
 
     // Add the tests for the "pipe" class.
-    tcs.push_back(&pipe_read_and_write);
-    tcs.push_back(&pipe_remap_read);
-    tcs.push_back(&pipe_remap_write);
+    ATF_ADD_TEST_CASE(tcs, pipe_read_and_write);
+    ATF_ADD_TEST_CASE(tcs, pipe_remap_read);
+    ATF_ADD_TEST_CASE(tcs, pipe_remap_write);
 
     // Add the tests for the "pistream" class.
-    tcs.push_back(&pistream);
+    ATF_ADD_TEST_CASE(tcs, pistream);
 
     // Add the tests for the "postream" class.
-    tcs.push_back(&postream);
+    ATF_ADD_TEST_CASE(tcs, postream);
 }

@@ -47,15 +47,15 @@ extern "C" {
 #include <unistd.h>
 }
 
-#include <cassert>
 #include <cerrno>
 #include <cstdlib>
-#include <memory>
 
 #include "atf/exceptions.hpp"
 #include "atf/env.hpp"
 #include "atf/fs.hpp"
+#include "atf/sanity.hpp"
 #include "atf/text.hpp"
+#include "atf/utils.hpp"
 
 namespace impl = atf::fs;
 #define IMPL_NAME "atf::fs"
@@ -100,8 +100,7 @@ static
 std::string
 normalize(const std::string& s)
 {
-    if (s.empty())
-        throw impl::path_error("Path cannot be empty");
+    PRE(!s.empty());
 
     std::vector< std::string > cs = atf::text::split(s, "/");
     std::string data = (s[0] == '/') ? "/" : "";
@@ -115,20 +114,11 @@ normalize(const std::string& s)
 }
 
 // ------------------------------------------------------------------------
-// The "path_error" class.
-// ------------------------------------------------------------------------
-
-impl::path_error::path_error(const std::string& w) :
-    std::runtime_error(w.c_str())
-{
-}
-
-// ------------------------------------------------------------------------
 // The "path" class.
 // ------------------------------------------------------------------------
 
 impl::path::path(const std::string& s) :
-    m_data(normalize(s))
+    m_data(s.empty() ? "" : normalize(s))
 {
 }
 
@@ -150,7 +140,7 @@ bool
 impl::path::is_absolute(void)
     const
 {
-    return m_data[0] == '/';
+    return !empty() && m_data[0] == '/';
 }
 
 bool
@@ -175,10 +165,17 @@ impl::path::branch_path(void)
         branch = m_data.substr(0, endpos);
 
 #if defined(HAVE_CONST_DIRNAME)
-    assert(branch == ::dirname(m_data.c_str()));
+    INV(branch == ::dirname(m_data.c_str()));
 #endif // defined(HAVE_CONST_DIRNAME)
 
     return path(branch);
+}
+
+bool
+impl::path::empty(void)
+    const
+{
+    return m_data.empty();
 }
 
 std::string
@@ -194,7 +191,7 @@ impl::path::leaf_name(void)
     std::string leaf = m_data.substr(begpos);
 
 #if defined(HAVE_CONST_BASENAME)
-    assert(leaf == ::basename(m_data.c_str()));
+    INV(leaf == ::basename(m_data.c_str()));
 #endif // defined(HAVE_CONST_BASENAME)
 
     return leaf;
@@ -204,7 +201,7 @@ impl::path
 impl::path::to_absolute(void)
     const
 {
-    assert(!is_absolute());
+    PRE(!is_absolute());
     path curdir = get_current_dir();
     return curdir / (*this);
 }
@@ -404,6 +401,34 @@ impl::directory::names(void)
 }
 
 // ------------------------------------------------------------------------
+// The "temp_dir" class.
+// ------------------------------------------------------------------------
+
+impl::temp_dir::temp_dir(const path& p)
+{
+    PRE(!p.empty());
+    atf::utils::auto_array< char > buf(new char[p.str().length() + 1]);
+    std::strcpy(buf.get(), p.c_str());
+    if (::mkdtemp(buf.get()) == NULL)
+        throw system_error(IMPL_NAME "::temp_dir::temp_dir(" +
+                           p.str() + ")", "mkdtemp(3) failed",
+                           errno);
+    m_path = path(buf.get());
+}
+
+impl::temp_dir::~temp_dir(void)
+{
+    cleanup(m_path);
+}
+
+const impl::path&
+impl::temp_dir::get_path(void)
+    const
+{
+    return m_path;
+}
+
+// ------------------------------------------------------------------------
 // Free functions.
 // ------------------------------------------------------------------------
 
@@ -421,35 +446,6 @@ impl::change_directory(const path& dir)
     return olddir;
 }
 
-impl::path
-impl::create_temp_dir(const path& tmpl)
-{
-    std::auto_ptr< char > buf(new char[tmpl.str().length() + 1]);
-    std::strcpy(buf.get(), tmpl.c_str());
-    if (::mkdtemp(buf.get()) == NULL)
-        throw system_error(IMPL_NAME "::create_temp_dir(" +
-                           tmpl.str() + "/", "mkdtemp(3) failed",
-                           errno);
-    return path(buf.get());
-}
-
-impl::path
-impl::create_temp_file(const path& tmpl)
-{
-    std::auto_ptr< char > buf(new char[tmpl.str().length() + 1]);
-    std::strcpy(buf.get(), tmpl.c_str());
-    // XXX This usage of mktemp is NOT safe.  I have not bothered to do
-    // this correctly yet because the test case's 'isolated' property
-    // may go away, in which case this function will be useless.
-    int fd = ::mkstemp(buf.get());
-    if (fd == -1)
-        throw system_error(IMPL_NAME "::create_temp_file(" +
-                           tmpl.str() + "/", "mkstemp(3) failed",
-                           errno);
-    ::close(fd);
-    return path(buf.get());
-}
-
 bool
 impl::exists(const path& p)
 {
@@ -459,7 +455,7 @@ impl::exists(const path& p)
 impl::path
 impl::find_prog_in_path(const std::string& prog)
 {
-    assert(prog.find('/') == std::string::npos);
+    PRE(prog.find('/') == std::string::npos);
 
     // Do not bother to provide a default value for PATH.  If it is not
     // there something is broken in the user's environment.
@@ -468,9 +464,9 @@ impl::find_prog_in_path(const std::string& prog)
     std::vector< std::string > dirs = \
         atf::text::split(atf::env::get("PATH"), ":");
 
-    path p(".");
+    path p;
     for (std::vector< std::string >::const_iterator iter = dirs.begin();
-         p.str() == "." && iter != dirs.end(); iter++) {
+         p.empty() && iter != dirs.end(); iter++) {
         const path& dir = path(*iter);
 
         if (is_executable(dir / prog))
@@ -503,6 +499,15 @@ impl::is_executable(const path& p)
     return safe_access(p, X_OK, EACCES);
 }
 
+void
+impl::remove(const path& p)
+{
+    if (::unlink(p.c_str()) == -1)
+        throw atf::system_error(IMPL_NAME "::remove(" + p.str() + ")",
+                                "unlink(" + p.str() + ") failed",
+                                errno);
+}
+
 static
 void
 rm_rf_aux(const impl::path& p, const impl::path& root,
@@ -514,12 +519,9 @@ rm_rf_aux(const impl::path& p, const impl::path& root,
                                  p.str() + " while removing " +
                                  root.str());
 
-    if (pinfo.get_type() != impl::file_info::dir_type) {
-        if (::unlink(p.c_str()) == -1)
-            throw atf::system_error(IMPL_NAME "::rm_rf(" + p.str() + ")",
-                                    "unlink(" + p.str() + ") failed",
-                                    errno);
-    } else {
+    if (pinfo.get_type() != impl::file_info::dir_type)
+        remove(p);
+    else {
         impl::directory dir(p);
         dir.erase(".");
         dir.erase("..");

@@ -34,11 +34,11 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cassert>
 #include <cstdlib>
 #include <iostream>
 
 #include "atf/application.hpp"
+#include "atf/sanity.hpp"
 
 class h_app_opts_args : public atf::application {
     static const char* m_description;
@@ -92,7 +92,7 @@ h_app_opts_args::process_option(int ch, const char* arg)
         break;
 
     default:
-        assert(false);
+        UNREACHABLE;
     }
 }
 

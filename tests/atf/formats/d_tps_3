@@ -1,4 +1,4 @@
-Content-Type: application/X-atf-tps; version="1"
+Content-Type: application/X-atf-tps; version="2"
 
 tps-count: 2
 tp-start: first-prog, 3

@@ -38,26 +38,42 @@
 #define _ATF_MACROS_HPP_
 
 #include <sstream>
+#include <stdexcept>
 #include <vector>
 
 #include <atf/tests.hpp>
 
 #define ATF_TEST_CASE(name) \
-    class name : public atf::tests::tc { \
+    class atf_tc_ ## name : public atf::tests::tc { \
         void head(void); \
         void body(void) const; \
     public: \
-        name(void) : atf::tests::tc(#name) {} \
+        atf_tc_ ## name(void) : atf::tests::tc(#name) {} \
     }; \
-    static name name;
+    static atf_tc_ ## name atf_tc_ ## name;
+
+#define ATF_TEST_CASE_WITH_CLEANUP(name) \
+    class atf_tc_ ## name : public atf::tests::tc { \
+        void head(void); \
+        void body(void) const; \
+        void cleanup(void) const; \
+    public: \
+        atf_tc_ ## name(void) : atf::tests::tc(#name) {} \
+    }; \
+    static atf_tc_ ## name atf_tc_ ## name;
 
 #define ATF_TEST_CASE_HEAD(name) \
     void \
-    name::head(void)
+    atf_tc_ ## name::head(void)
 
 #define ATF_TEST_CASE_BODY(name) \
     void \
-    name::body(void) \
+    atf_tc_ ## name::body(void) \
+        const
+
+#define ATF_TEST_CASE_CLEANUP(name) \
+    void \
+    atf_tc_ ## name::cleanup(void) \
         const
 
 #define ATF_FAIL(reason) \
@@ -92,6 +108,16 @@
                     #e " as expected"; \
         throw atf::tests::tcr::failed(__atf_ss.str()); \
     } catch (const e& __atf_eo) { \
+    } catch (const std::runtime_error& __atf_re) { \
+        std::ostringstream __atf_ss; \
+        __atf_ss << "Line " << __LINE__ << ": " #x " threw an " \
+                    "unexpected error (not " #e "): " << __atf_re.what(); \
+        throw atf::tests::tcr::failed(__atf_ss.str()); \
+    } catch (...) { \
+        std::ostringstream __atf_ss; \
+        __atf_ss << "Line " << __LINE__ << ": " #x " threw an " \
+                    "unexpected error (not " #e ")"; \
+        throw atf::tests::tcr::failed(__atf_ss.str()); \
     }
 
 #define ATF_INIT_TEST_CASES(tcs) \
@@ -113,5 +139,8 @@
     \
     void \
     __atf_init_tcs(std::vector< atf::tests::tc * >& tcs)
+
+#define ATF_ADD_TEST_CASE(tcs, tc) \
+    (tcs).push_back(&(atf_tc_ ## tc));
 
 #endif // !defined(_ATF_MACROS_HPP_)
