@@ -124,6 +124,19 @@ AC_COMPILE_IFELSE(
               [Define to 1 if setenv is in std]),
     AC_MSG_RESULT(no))
 
+AC_MSG_CHECKING(whether snprintf is in std)
+AC_COMPILE_IFELSE(
+    [#include <cstdio>
+     int main(void) {
+         char buf;
+         std::snprintf(&buf, 1, "");
+         return 0;
+     }],
+    AC_MSG_RESULT(yes)
+    AC_DEFINE([HAVE_SNPRINTF_IN_STD], [1],
+              [Define to 1 if snprintf is in std]),
+    AC_MSG_RESULT(no))
+
 AC_MSG_CHECKING(whether unsetenv is in std)
 AC_COMPILE_IFELSE(
     [#include <cstdlib>

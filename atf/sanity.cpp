@@ -34,9 +34,19 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#if defined(HAVE_CONFIG_H)
+#include "config.h"
+#endif
+
 #include <cstdio>
 
 #include "atf/sanity.hpp"
+
+namespace std {
+#if !defined(HAVE_SNPRINTF_IN_STD)
+    using ::snprintf;
+#endif
+}
 
 namespace impl = atf::sanity;
 #define IMPL_NAME "atf::sanity"
