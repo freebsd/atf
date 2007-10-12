@@ -466,6 +466,11 @@ tests_atf_formats_h_parser_SOURCES = tests/atf/formats/h_parser.cpp
 tests_atf_formats_h_parser_LDADD = -latf
 tests_atf_formats_h_parser_LDFLAGS = -L.
 
+atf_formats_PROGRAMS += tests/atf/formats/t_writers
+tests_atf_formats_t_writers_SOURCES = tests/atf/formats/t_writers.cpp
+tests_atf_formats_t_writers_LDADD = -latf
+tests_atf_formats_t_writers_LDFLAGS = -L.
+
 atf_formats_SCRIPTS = tests/atf/formats/t_parsers
 CLEANFILES += tests/atf/formats/t_parsers
 EXTRA_DIST += tests/atf/formats/t_parsers.sh
@@ -669,11 +674,6 @@ atf_units_PROGRAMS += tests/atf/units/t_expand
 tests_atf_units_t_expand_SOURCES = tests/atf/units/t_expand.cpp
 tests_atf_units_t_expand_LDADD = -latf
 tests_atf_units_t_expand_LDFLAGS = -L.
-
-atf_units_PROGRAMS += tests/atf/units/t_formats
-tests_atf_units_t_formats_SOURCES = tests/atf/units/t_formats.cpp
-tests_atf_units_t_formats_LDADD = -latf
-tests_atf_units_t_formats_LDFLAGS = -L.
 
 atf_units_PROGRAMS += tests/atf/units/t_fs
 tests_atf_units_t_fs_SOURCES = tests/atf/units/t_fs.cpp

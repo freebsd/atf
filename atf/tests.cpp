@@ -924,7 +924,8 @@ tp::run_tcs(void)
     signal_holder sigint(SIGINT);
     signal_holder sigterm(SIGTERM);
 
-    atf::formats::atf_tcs_writer w(results_stream(), tcs.size());
+    atf::formats::atf_tcs_writer w(results_stream(), std::cout, std::cerr,
+                                   tcs.size());
     for (tc_vector::iterator iter = tcs.begin();
          iter != tcs.end(); iter++) {
         impl::tc* tc = *iter;

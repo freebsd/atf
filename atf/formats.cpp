@@ -38,7 +38,6 @@ extern "C" {
 #include <poll.h>
 }
 
-#include <iostream>
 #include <map>
 #include <sstream>
 #include <utility>
@@ -849,8 +848,13 @@ impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
 // The "atf_tcs_writer" class.
 // ------------------------------------------------------------------------
 
-impl::atf_tcs_writer::atf_tcs_writer(std::ostream& os, size_t ntcs) :
+impl::atf_tcs_writer::atf_tcs_writer(std::ostream& os,
+                                     std::ostream& p_cout,
+                                     std::ostream& p_cerr,
+                                     size_t ntcs) :
     m_os(os),
+    m_cout(p_cout),
+    m_cerr(p_cerr),
     m_ntcs(ntcs),
     m_curtc(0)
 {
@@ -879,11 +883,11 @@ impl::atf_tcs_writer::end_tc(const atf::tests::tcr& tcr)
     PRE(m_curtc < m_ntcs);
     m_curtc++;
     if (m_curtc < m_ntcs) {
-        std::cout << "__atf_tc_separator__\n";
-        std::cerr << "__atf_tc_separator__\n";
+        m_cout << "__atf_tc_separator__\n";
+        m_cerr << "__atf_tc_separator__\n";
     }
-    std::cout.flush();
-    std::cerr.flush();
+    m_cout.flush();
+    m_cerr.flush();
 
     std::string end = "tc-end: " + m_tcname + ", ";
     switch (tcr.get_status()) {

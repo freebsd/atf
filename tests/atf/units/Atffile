@@ -11,6 +11,5 @@ tp: t_io
 tp: t_expand
 tp: t_user
 tp: t_parser
-tp: t_formats
 tp: t_tests
 tp: t_utils

@@ -133,12 +133,14 @@ public:
 
 class atf_tcs_writer {
     std::ostream& m_os;
+    std::ostream& m_cout;
+    std::ostream& m_cerr;
 
     size_t m_ntcs, m_curtc;
     std::string m_tcname;
 
 public:
-    atf_tcs_writer(std::ostream&, size_t);
+    atf_tcs_writer(std::ostream&, std::ostream&, std::ostream&, size_t);
 
     void start_tc(const std::string&);
     void end_tc(const atf::tests::tcr&);
