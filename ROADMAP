@@ -19,9 +19,6 @@ Plans for 0.3
 * Add a way to specify which bug/issue/whatever a given test case is
   stress-testing.  This information is useful when detecting regressions.
 
-* Maybe implement direct HTML output in atf-report to avoid a dependency
-  on xsltproc.  Or maybe not.  Evaluate this idea and decide later.
-
 
 Plans for 0.4
 =============
