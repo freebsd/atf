@@ -133,10 +133,14 @@ oflag_body()
     atf-run >tps.out 2>/dev/null
 
     cat >expcsv <<EOF
-dir1/tp1, tc, passed
-dir1/tp2, tc, failed, Foobar
-tp3, tc, passed
-tp4, tc, failed, Foobar
+tc, dir1/tp1, tc, passed
+tp, dir1/tp1, passed
+tc, dir1/tp2, tc, failed, Foobar
+tp, dir1/tp2, failed
+tc, tp3, tc, passed
+tp, tp3, passed
+tc, tp4, tc, failed, Foobar
+tp, tp4, failed
 EOF
 
     # Check that changing the stdout output works.

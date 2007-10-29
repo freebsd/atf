@@ -107,6 +107,7 @@ public:
 //!
 class csv_writer : public writer {
     ostream_ptr m_os;
+    bool m_failed;
 
     std::string m_tpname;
     std::string m_tcname;
@@ -122,13 +123,20 @@ public:
     write_tp_start(const std::string& name, size_t ntcs)
     {
         m_tpname = name;
+        m_failed = false;
     }
 
     virtual
     void
     write_tp_end(const std::string& reason)
     {
-        // TODO: Report failed test programs in some way.
+        if (!reason.empty())
+            (*m_os) << "tp, " << m_tpname << ", bogus, " << reason
+                    << std::endl;
+        else if (m_failed)
+            (*m_os) << "tp, " << m_tpname << ", failed" << std::endl;
+        else
+            (*m_os) << "tp, " << m_tpname << ", passed" << std::endl;
     }
 
     virtual
@@ -142,15 +150,16 @@ public:
     void
     write_tc_end(const atf::tests::tcr& tcr)
     {
-        std::string str;
+        std::string str = "tc, ";
         if (tcr.get_status() == atf::tests::tcr::status_passed) {
-            str = m_tpname + ", " + m_tcname + ", passed";
+            str += m_tpname + ", " + m_tcname + ", passed";
         } else if (tcr.get_status() == atf::tests::tcr::status_failed) {
-            str = m_tpname + ", " + m_tcname + ", failed, " +
-                  tcr.get_reason();
+            str += m_tpname + ", " + m_tcname + ", failed, " +
+                   tcr.get_reason();
+            m_failed = true;
         } else if (tcr.get_status() == atf::tests::tcr::status_skipped) {
-            str = m_tpname + ", " + m_tcname + ", skipped, " +
-                  tcr.get_reason();
+            str += m_tpname + ", " + m_tcname + ", skipped, " +
+                   tcr.get_reason();
         } else
             UNREACHABLE;
         (*m_os) << str << std::endl;

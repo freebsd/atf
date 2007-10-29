@@ -26,6 +26,9 @@ Changes:
   unconditionally required for several purposes.  This way we get rid of
   several critical and delicate code.
 
+* Improved atf-report's csv output format to include information about
+  test programs too.
+
 
 Version 0.2
 ===========
