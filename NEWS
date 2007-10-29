@@ -29,6 +29,10 @@ Changes:
 * Improved atf-report's csv output format to include information about
   test programs too.
 
+* Fixed the tests that used atf-compile to not require this tool as a
+  helper.  Avoids systems without build-time utilities to skip many tests
+  that could otherwise be run.
+
 
 Version 0.2
 ===========

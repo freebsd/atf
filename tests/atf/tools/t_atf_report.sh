@@ -34,53 +34,13 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-create_helper()
-{
-    cat >helper.sh <<EOF
-atf_test_case tc
-tc_head()
-{
-    atf_set "descr" "A helper test case"
-}
-tc_body()
-{
-EOF
-    cat >>helper.sh
-    cat >>helper.sh <<EOF
-}
-
-atf_init_test_cases()
-{
-    atf_add_test_case tc
-}
-EOF
-    atf-compile -o helper helper.sh
-    rm -f helper.sh
-}
-
-create_pass_helper()
-{
-    create_helper <<EOF
-:
-EOF
-    mv helper ${1}
-}
-
-create_fail_helper()
-{
-    create_helper <<EOF
-atf_fail "Foobar"
-EOF
-    mv helper ${1}
-}
-
 create_helpers()
 {
     mkdir dir1
-    create_pass_helper dir1/tp1
-    create_fail_helper dir1/tp2
-    create_pass_helper tp3
-    create_fail_helper tp4
+    cp $(atf_get_srcdir)/h_pass dir1/tp1
+    cp $(atf_get_srcdir)/h_fail dir1/tp2
+    cp $(atf_get_srcdir)/h_pass tp3
+    cp $(atf_get_srcdir)/h_fail tp4
 
     cat >Atffile <<EOF
 Content-Type: application/X-atf-atffile; version="1"
@@ -107,7 +67,6 @@ default_head()
 {
     atf_set "descr" "Checks that the default output uses the ticker" \
                     "format"
-    atf_set "require.progs" "atf-compile" # XXX
 }
 default_body()
 {
@@ -125,7 +84,6 @@ atf_test_case oflag
 oflag_head()
 {
     atf_set "descr" "Checks that the -o flag works"
-    atf_set "require.progs" "atf-compile" # XXX
 }
 oflag_body()
 {
@@ -133,13 +91,13 @@ oflag_body()
     atf-run >tps.out 2>/dev/null
 
     cat >expcsv <<EOF
-tc, dir1/tp1, tc, passed
+tc, dir1/tp1, main, passed
 tp, dir1/tp1, passed
-tc, dir1/tp2, tc, failed, Foobar
+tc, dir1/tp2, main, failed, This always fails
 tp, dir1/tp2, failed
-tc, tp3, tc, passed
+tc, tp3, main, passed
 tp, tp3, passed
-tc, tp4, tc, failed, Foobar
+tc, tp4, main, failed, This always fails
 tp, tp4, failed
 EOF
 

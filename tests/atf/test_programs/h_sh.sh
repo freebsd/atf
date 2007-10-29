@@ -338,6 +338,20 @@ require_user_unprivileged2_body()
 }
 
 # -------------------------------------------------------------------------
+# Helper tests for "t_srcdir".
+# -------------------------------------------------------------------------
+
+atf_test_case srcdir_exists
+srcdir_exists_head()
+{
+    atf_set "descr" "Helper test case for the t_srcdir test program"
+}
+srcdir_exists_body()
+{
+    [ -f "$(atf_get_srcdir)/datafile" ] || atf_fail "Cannot find datafile"
+}
+
+# -------------------------------------------------------------------------
 # Helper tests for "t_workdir".
 # -------------------------------------------------------------------------
 
@@ -413,9 +427,7 @@ atf_init_test_cases()
     atf_add_test_case require_user_unprivileged2
 
     # Add helper tests for t_srcdir.
-    # srcdir_exists is not here (while it is in h_cpp.cpp) because of the
-    # requirements of the t_srcdir test program (which cannot rely on -s
-    # itself to find the source file).
+    atf_add_test_case srcdir_exists
 
     # Add helper tests for t_workdir.
     atf_add_test_case workdir_path

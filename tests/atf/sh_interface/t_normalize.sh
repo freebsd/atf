@@ -39,29 +39,11 @@ main_head()
 {
     atf_set "descr" "Verifies that variable names with symbols not" \
                     "allowed as part of shell variable names work"
-    atf_set "require.progs" "atf-compile" # XXX
 }
 main_body()
 {
-    cat >helper.sh <<EOF
-atf_test_case main
-main_head() {
-    atf_set "descr" "Not relevant"
-    atf_set "a.b" "test value 1"
-    atf_set "c-d" "test value 2"
-}
-main_body() {
-    echo "a.b: \$(atf_get a.b)"
-    echo "c-d: \$(atf_get c-d)"
-}
-
-atf_init_test_cases() {
-    atf_add_test_case main
-}
-EOF
-    atf-compile -o helper helper.sh
-
-    atf_check './helper' 0 stdout ignore
+    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
+    atf_check "${h} normalize" 0 stdout ignore
     atf_check 'grep "a.b: test value 1" stdout' 0 ignore null
     atf_check 'grep "c-d: test value 2" stdout' 0 ignore null
 }

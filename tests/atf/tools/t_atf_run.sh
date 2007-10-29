@@ -42,7 +42,6 @@ Content-Type: application/X-atf-atffile; version="1"
 prop: test-suite = atf
 
 EOF
-    [ ${#} -eq 0 ] && set -- helper
     for f in "${@}"; do
         echo "tp: ${f}" >>Atffile
     done
@@ -50,28 +49,9 @@ EOF
 
 create_helper()
 {
-    cat >helper.sh <<EOF
-atf_test_case tc
-tc_head()
-{
-    atf_set "descr" "A helper test case"
-}
-tc_body()
-{
-EOF
-    cat >>helper.sh
-    cat >>helper.sh <<EOF
-}
-
-atf_init_test_cases()
-{
-    atf_add_test_case tc
-}
-EOF
-    atf-compile -o helper helper.sh
-    rm -f helper.sh
-
-    create_atffile
+    cp $(atf_get_srcdir)/h_misc helper
+    create_atffile helper
+    TESTCASE=${1}; export TESTCASE
 }
 
 atf_test_case config
@@ -79,16 +59,10 @@ config_head()
 {
     atf_set "descr" "Tests that the config files are read in the correct" \
                     "order"
-    atf_set "require.progs" "atf-compile" # XXX
 }
 config_body()
 {
-    create_helper <<EOF
-echo "1st: \$(atf_config_get 1st)"
-echo "2nd: \$(atf_config_get 2nd)"
-echo "3rd: \$(atf_config_get 3rd)"
-echo "4th: \$(atf_config_get 4th)"
-EOF
+    create_helper atf_run_config
 
     mkdir etc
     mkdir .atf
@@ -154,16 +128,10 @@ vflag_head()
 {
     atf_set "descr" "Tests that the -v flag works and that it properly" \
                     "overrides the values in configuration files"
-    atf_set "require.progs" "atf-compile" # XXX
 }
 vflag_body()
 {
-    create_helper <<EOF
-if ! atf_config_has testvar; then
-    atf_fail "testvar variable not defined"
-fi
-echo "testvar: \$(atf_config_get testvar)"
-EOF
+    create_helper atf_run_testvar
 
     echo "Checking that 'testvar' is not defined."
     atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 1 ignore ignore
@@ -196,16 +164,10 @@ atffile_head()
 {
     atf_set "descr" "Tests that the variables defined by the Atffile" \
                     "are recognized and that they take the lowest priority"
-    atf_set "require.progs" "atf-compile" # XXX
 }
 atffile_body()
 {
-    create_helper <<EOF
-if ! atf_config_has testvar; then
-    atf_fail "testvar variable not defined"
-fi
-echo "testvar: \$(atf_config_get testvar)"
-EOF
+    create_helper atf_run_testvar
 
     echo "Checking that 'testvar' is not defined."
     atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 1 ignore ignore
@@ -239,16 +201,11 @@ atffile_recursive_head()
 {
     atf_set "descr" "Tests that variables defined by an Atffile are not" \
                     "inherited by other Atffiles."
-    atf_set "require.progs" "atf-compile" # XXX
 }
 atffile_recursive_body()
 {
-    create_helper <<EOF
-if ! atf_config_has testvar; then
-    atf_fail "testvar variable not defined"
-fi
-echo "testvar: \$(atf_config_get testvar)"
-EOF
+    create_helper atf_run_testvar
+
     mkdir dir
     mv Atffile helper dir
 
@@ -267,16 +224,10 @@ atf_test_case fds
 fds_head()
 {
     atf_set "descr" "Tests that all streams are properly captured"
-    atf_set "require.progs" "atf-compile" # XXX
 }
 fds_body()
 {
-    create_helper <<EOF
-echo "msg1 to stdout"
-echo "msg2 to stdout"
-echo "msg1 to stderr" 1>&2
-echo "msg2 to stderr" 1>&2
-EOF
+    create_helper atf_run_fds
 
     atf_check "atf-run" 0 stdout null
     atf_check "grep '^tc-so: msg1 to stdout$' stdout" 0 ignore null
@@ -304,7 +255,7 @@ exit 0
 EOF
     chmod +x helper
 
-    create_atffile
+    create_atffile helper
 
     atf_check "atf-run" 1 stdout null
     atf_check "grep '^tp-end: helper, .*Line 1.*Line 2' stdout" 0 ignore null
@@ -327,7 +278,7 @@ exit 0
 EOF
     chmod +x helper
 
-    create_atffile
+    create_atffile helper
 
     atf_check "atf-run" 1 stdout null
     atf_check "grep '^tp-end: helper, ' stdout" 0 stdout null
@@ -353,7 +304,7 @@ true
 EOF
     chmod +x helper
 
-    create_atffile
+    create_atffile helper
 
     atf_check "atf-run" 1 stdout null
     atf_check "grep '^tp-end: helper, ' stdout" 0 stdout null
@@ -379,7 +330,7 @@ kill -9 \$\$
 EOF
     chmod +x helper
 
-    create_atffile
+    create_atffile helper
 
     atf_check "atf-run" 1 stdout null
     atf_check "grep '^tp-end: helper, ' stdout" 0 stdout null
@@ -407,7 +358,7 @@ false
 EOF
         chmod +x helper
 
-        create_atffile
+        create_atffile helper
 
         atf_check "atf-run" 1 stdout null
         atf_check "grep '^tp-end: helper, ' stdout" 0 stdout null
@@ -423,9 +374,8 @@ hooks_head()
 }
 hooks_body()
 {
-    create_helper <<EOF
-true
-EOF
+    cp $(atf_get_srcdir)/h_pass helper
+    create_atffile helper
 
     mkdir atf
     mkdir .atf

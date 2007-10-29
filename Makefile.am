@@ -484,7 +484,16 @@ atf_sh_interface_DATA = tests/atf/sh_interface/Atffile
 atf_sh_interfacedir = $(pkgtestsdir)/sh_interface
 EXTRA_DIST += $(atf_sh_interface_DATA)
 
-atf_sh_interface_SCRIPTS = tests/atf/sh_interface/t_atf_check
+atf_sh_interface_SCRIPTS = tests/atf/sh_interface/h_misc
+CLEANFILES += tests/atf/sh_interface/h_misc
+EXTRA_DIST += tests/atf/sh_interface/h_misc.sh
+tests/atf/sh_interface/h_misc: \
+		$(srcdir)/tests/atf/sh_interface/h_misc.sh \
+		$(ATF_COMPILE_DEPS)
+	test -d tests/atf/sh_interface || mkdir -p tests/atf/sh_interface
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/sh_interface/h_misc.sh
+
+atf_sh_interface_SCRIPTS += tests/atf/sh_interface/t_atf_check
 CLEANFILES += tests/atf/sh_interface/t_atf_check
 EXTRA_DIST += tests/atf/sh_interface/t_atf_check.sh
 tests/atf/sh_interface/t_atf_check: \
@@ -614,6 +623,21 @@ tests_atf_test_programs_h_cpp_LDFLAGS = -L.
 atf_tools_DATA = tests/atf/tools/Atffile
 atf_toolsdir = $(pkgtestsdir)/tools
 EXTRA_DIST += $(atf_tools_DATA)
+
+atf_tools_PROGRAMS = tests/atf/tools/h_fail
+tests_atf_tools_h_fail_SOURCES = tests/atf/tools/h_fail.cpp
+tests_atf_tools_h_fail_LDADD = -latf
+tests_atf_tools_h_fail_LDFLAGS = -L.
+
+atf_tools_PROGRAMS += tests/atf/tools/h_misc
+tests_atf_tools_h_misc_SOURCES = tests/atf/tools/h_misc.cpp
+tests_atf_tools_h_misc_LDADD = -latf
+tests_atf_tools_h_misc_LDFLAGS = -L.
+
+atf_tools_PROGRAMS += tests/atf/tools/h_pass
+tests_atf_tools_h_pass_SOURCES = tests/atf/tools/h_pass.cpp
+tests_atf_tools_h_pass_LDADD = -latf
+tests_atf_tools_h_pass_LDFLAGS = -L.
 
 atf_tools_SCRIPTS = tests/atf/tools/t_atf_cleanup
 CLEANFILES += tests/atf/tools/t_atf_cleanup

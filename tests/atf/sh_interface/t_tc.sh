@@ -39,47 +39,13 @@ default_status_head()
 {
     atf_set "descr" "Verifies that test cases get the correct default" \
                     "status if they did not provide any"
-    atf_set "require.progs" "atf-compile" # XXX
 }
 default_status_body()
 {
-    cat >helper.sh <<EOF
-atf_test_case pass_true
-pass_true_head() {
-    atf_set "descr" "Helper test case"
-}
-pass_true_body() {
-    true
-}
-
-atf_test_case pass_false
-pass_false_head() {
-    atf_set "descr" "Helper test case"
-}
-pass_false_body() {
-    false
-}
-
-atf_test_case fail
-fail_head() {
-    atf_set "descr" "Helper test case"
-}
-fail_body() {
-    echo "An error" 1>&2
-    exit 1
-}
-
-atf_init_test_cases() {
-    atf_add_test_case pass_true
-    atf_add_test_case pass_false
-    atf_add_test_case fail
-}
-EOF
-    atf-compile -o helper helper.sh
-
-    atf_check './helper -r3 pass_true 3>resout' 0 ignore ignore
-    atf_check './helper -r3 pass_false 3>resout' 0 ignore ignore
-    atf_check './helper -r3 fail 3>resout' 1 ignore stderr
+    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
+    atf_check "${h} -r3 tc_pass_true 3>resout" 0 ignore ignore
+    atf_check "${h} -r3 tc_pass_false 3>resout" 0 ignore ignore
+    atf_check "${h} -r3 tc_fail 3>resout" 1 ignore stderr
     atf_check 'grep "An error" stderr' 0 ignore null
 }
 

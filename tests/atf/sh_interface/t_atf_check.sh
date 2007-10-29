@@ -36,52 +36,21 @@
 
 # TODO: Bring in the checks in the bootstrap testsuite for atf_check.
 
-create_helper()
-{
-    echo "Creating helper.sh"
-    cat >helper.sh <<EOF
-atf_test_case main
-main_head()
-{
-    atf_set "descr" "Helper test case"
-}
-main_body()
-{
-EOF
-
-    cat >>helper.sh
-
-    cat >>helper.sh <<EOF
-}
-
-atf_init_test_cases()
-{
-    atf_add_test_case main
-}
-EOF
-    atf-compile -o helper helper.sh
-}
-
 atf_test_case info_ok
 info_ok_head()
 {
     atf_set "descr" "Verifies that atf_check prints an informative" \
                     "message even when the command is successful"
-    atf_set "require.progs" "atf-compile" # XXX
 }
 info_ok_body()
 {
-    create_helper <<EOF
-atf_check 'true' 0 null null
-EOF
-    atf_check './helper -r3 3>resout' 0 stdout stderr
+    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
+
+    atf_check "${h} -r3 atf_check_info_ok 3>resout" 0 stdout stderr
     grep 'Checking command.*true' stdout >/dev/null || \
         atf_fail "atf_check does not print an informative message"
 
-    create_helper <<EOF
-atf_check 'false' 1 null null
-EOF
-    atf_check './helper -r3 3>resout' 0 stdout stderr
+    atf_check "${h} -r3 atf_check_info_fail 3>resout" 0 stdout stderr
     grep 'Checking command.*false' stdout >/dev/null || \
         atf_fail "atf_check does not print an informative message"
 }
@@ -92,17 +61,12 @@ expout_mismatch_head()
     atf_set "descr" "Verifies that atf_check prints a diff of the" \
                     "stdout and the expected stdout if the two do no" \
                     "match"
-    atf_set "require.progs" "atf-compile" # XXX
 }
 expout_mismatch_body()
 {
-    create_helper <<EOF
-cat >expout <<SECONDEOF
-foo
-SECONDEOF
-atf_check 'echo bar' 0 expout null
-EOF
-    atf_check './helper -r3 3>resout' 1 stdout stderr
+    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
+
+    atf_check "${h} -r3 atf_check_expout_mismatch 3>resout" 1 stdout stderr
     grep 'Checking command.*echo bar' stdout >/dev/null || \
         atf_fail "atf_check does not print an informative message"
     grep 'stdout:' stdout >/dev/null || \
@@ -121,17 +85,12 @@ experr_mismatch_head()
     atf_set "descr" "Verifies that atf_check prints a diff of the" \
                     "stderr and the expected stderr if the two do no" \
                     "match"
-    atf_set "require.progs" "atf-compile" # XXX
 }
 experr_mismatch_body()
 {
-    create_helper <<EOF
-cat >experr <<SECONDEOF
-foo
-SECONDEOF
-atf_check 'echo bar 1>&2' 0 null experr
-EOF
-    atf_check './helper -r3 3>resout' 1 stdout stderr
+    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
+
+    atf_check "${h} -r3 atf_check_experr_mismatch 3>resout" 1 stdout stderr
     grep 'Checking command.*echo bar' stdout >/dev/null || \
         atf_fail "atf_check does not print an informative message"
     grep 'stdout:' stdout >/dev/null && \
@@ -149,14 +108,12 @@ null_stdout_head()
 {
     atf_set "descr" "Verifies that atf_check prints a the stdout it got" \
                     "when it was supposed to be null"
-    atf_set "require.progs" "atf-compile" # XXX
 }
 null_stdout_body()
 {
-    create_helper <<EOF
-atf_check 'echo "These are the contents"' 0 null null
-EOF
-    atf_check './helper -r3 3>resout' 1 stdout stderr
+    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
+
+    atf_check "${h} -r3 atf_check_null_stdout 3>resout" 1 stdout stderr
     grep 'Checking command.*echo.*These.*contents' stdout >/dev/null || \
         atf_fail "atf_check does not print an informative message"
     grep 'stdout:' stdout >/dev/null || \
@@ -172,14 +129,12 @@ null_stderr_head()
 {
     atf_set "descr" "Verifies that atf_check prints a the stderr it got" \
                     "when it was supposed to be null"
-    atf_set "require.progs" "atf-compile" # XXX
 }
 null_stderr_body()
 {
-    create_helper <<EOF
-atf_check 'echo "These are the contents" 1>&2' 0 null null
-EOF
-    atf_check './helper -r3 3>resout' 1 stdout stderr
+    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
+
+    atf_check "${h} -r3 atf_check_null_stderr 3>resout" 1 stdout stderr
     grep 'Checking command.*echo.*These.*contents' stdout >/dev/null || \
         atf_fail "atf_check does not print an informative message"
     grep 'stdout:' stdout >/dev/null && \
@@ -195,21 +150,12 @@ change_cwd_head()
 {
     atf_set "descr" "Verifies that atf_check uses the correct work" \
                     "directory even if changing the current one"
-    atf_set "require.progs" "atf-compile" # XXX
 }
 change_cwd_body()
 {
-    create_helper <<EOF
-mkdir foo
-chmod 555 foo
-cd foo
-atf_check 'echo Hello' 0 stdout null
-cd -
-test -f stdout || atf_fail "Used incorrect work directory"
-echo Hello >bar
-cmp -s stdout bar || atf_fail "Used incorrect work directory"
-EOF
-    atf_check './helper -r3 3>resout' 0 stdout stderr
+    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
+
+    atf_check "${h} -r3 atf_check_change_cwd 3>resout" 0 stdout stderr
     atf_check 'grep -i passed resout' 0 ignore null
 }
 
@@ -217,34 +163,19 @@ atf_test_case equal
 equal_head()
 {
     atf_set "descr" "Verifies that atf_check_equal works"
-    atf_set "require.progs" "atf-compile" # XXX
 }
 equal_body()
 {
-    create_helper <<EOF
-atf_check_equal a a
-EOF
-    atf_check './helper -r3 3>resout' 0 ignore ignore
+    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
 
-    create_helper <<EOF
-atf_check_equal a b
-EOF
-    atf_check './helper -r3 3>resout' 1 ignore ignore
+    atf_check "${h} -r3 atf_check_equal_ok 3>resout" 0 ignore ignore
+
+    atf_check "${h} -r3 atf_check_equal_fail 3>resout" 1 ignore ignore
     atf_check 'grep "a != b (a != b)" resout' 0 ignore null
 
-    create_helper <<EOF
-x=a
-y=a
-atf_check_equal '\${x}' '\${y}'
-EOF
-    atf_check './helper -r3 3>resout' 0 ignore ignore
+    atf_check "${h} -r3 atf_check_equal_eval_ok 3>resout" 0 ignore ignore
 
-    create_helper <<EOF
-x=a
-y=b
-atf_check_equal '\${x}' '\${y}'
-EOF
-    atf_check './helper -r3 3>resout' 1 ignore ignore
+    atf_check "${h} -r3 atf_check_equal_eval_fail 3>resout" 1 ignore ignore
     atf_check 'grep "\${x} != \${y} (a != b)" resout' 0 ignore null
 }
 
