@@ -70,6 +70,9 @@ terminal_width(void)
                 width = ws.ws_col;
         }
 
+        if (width >= 80)
+            width -= 5;
+
         done = true;
     }
 
