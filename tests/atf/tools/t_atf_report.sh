@@ -198,7 +198,6 @@ output_ticker_body()
     create_helpers
     run_helpers
 
-    # XXX Relies on output being set to 80 by default.
     cat >expout <<EOF
 dir1/tp1 (1/5): 1 test cases
     main: Passed.
@@ -213,9 +212,7 @@ tp4 (4/5): 1 test cases
     main: Failed: This always fails
 
 tp5 (5/5): 0 test cases
-tp5: BOGUS TEST PROGRAM: Cannot trust its results because of \`There were errors
-     parsing the output of the test program: Line 1: Unexpected token
-     \`<<EOF>>'; expected a header name.'
+tp5: BOGUS TEST PROGRAM: Cannot trust its results because of \`There were errors parsing the output of the test program: Line 1: Unexpected token \`<<EOF>>'; expected a header name.'
 
 Failed (bogus) test programs:
     tp5

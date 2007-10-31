@@ -54,29 +54,25 @@ static
 size_t
 terminal_width(void)
 {
+    static bool done = false;
     static size_t width = 0;
 
-    if (width == 0) {
-        const std::string& cols =
-            atf::env::has("COLUMNS") ? atf::env::get("COLUMNS") : "";
-        if (!cols.empty()) {
-            std::istringstream str(cols);
-            str >> width;
+    if (!done) {
+        if (atf::env::has("COLUMNS")) {
+            const std::string& cols = atf::env::get("COLUMNS");
+            if (!cols.empty()) {
+                std::istringstream str(cols);
+                str >> width;
+            }
         } else {
             struct winsize ws;
             if (::ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) != -1)
                 width = ws.ws_col;
-            else if (::ioctl(STDERR_FILENO, TIOCGWINSZ, &ws) != -1)
-                width = ws.ws_col;
-            else if (::ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) != -1)
-                width = ws.ws_col;
         }
 
-        if (width == 0)
-            width = 79;
+        done = true;
     }
 
-    POST(width > 0);
     return width;
 }
 
@@ -108,7 +104,8 @@ format_paragraph(const std::string& text,
          iter != words.end(); iter++) {
         const std::string& word = *iter;
 
-        if (iter != words.begin() && curcol + word.length() + 1 > maxcol) {
+        if (iter != words.begin() && maxcol > 0 &&
+            curcol + word.length() + 1 > maxcol) {
             if (repeat)
                 formatted += '\n' + tag + pad;
             else
