@@ -173,6 +173,7 @@ output_csv_body()
     create_helpers
     run_helpers
 
+# NO_CHECK_STYLE_BEGIN
     cat >expout <<EOF
 tc, dir1/tp1, main, passed
 tp, dir1/tp1, passed
@@ -184,6 +185,7 @@ tc, tp4, main, failed, This always fails
 tp, tp4, failed
 tp, tp5, bogus, There were errors parsing the output of the test program: Line 1: Unexpected token \`<<EOF>>'; expected a header name.
 EOF
+# NO_CHECK_STYLE_END
 
     atf_check 'atf-report -o csv:- <tps.out' 0 expout null
 }
@@ -198,6 +200,7 @@ output_ticker_body()
     create_helpers
     run_helpers
 
+# NO_CHECK_STYLE_BEGIN
     cat >expout <<EOF
 dir1/tp1 (1/5): 1 test cases
     main: Passed.
@@ -228,6 +231,7 @@ EOF
 
     atf_check 'atf-report -o ticker:- <tps.out' 0 expout null
 }
+# NO_CHECK_STYLE_END
 
 atf_test_case output_xml
 output_xml_head()
@@ -239,6 +243,7 @@ output_xml_body()
     create_helpers
     run_helpers
 
+# NO_CHECK_STYLE_BEGIN
     cat >expout <<EOF
 <?xml version="1.0"?>
 <!DOCTYPE tests-results PUBLIC "-//NetBSD//DTD ATF Tests Results 0.1//EN" "http://www.NetBSD.org/XML/atf/tests-results.dtd">
@@ -271,6 +276,7 @@ output_xml_body()
 <info class="endinfo">Another value</info>
 </tests-results>
 EOF
+# NO_CHECK_STYLE_END
 
     atf_check 'atf-report -o xml:- <tps.out' 0 stdout null
 }
