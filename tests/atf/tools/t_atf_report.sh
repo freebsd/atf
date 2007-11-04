@@ -173,6 +173,7 @@ output_csv_body()
     create_helpers
     run_helpers
 
+# NO_CHECK_STYLE_BEGIN
     cat >expout <<EOF
 tc, dir1/tp1, main, passed
 tp, dir1/tp1, passed
@@ -184,6 +185,7 @@ tc, tp4, main, failed, This always fails
 tp, tp4, failed
 tp, tp5, bogus, There were errors parsing the output of the test program: Line 1: Unexpected token \`<<EOF>>'; expected a header name.
 EOF
+# NO_CHECK_STYLE_END
 
     atf_check 'atf-report -o csv:- <tps.out' 0 expout null
 }
@@ -198,7 +200,7 @@ output_ticker_body()
     create_helpers
     run_helpers
 
-    # XXX Relies on output being set to 80 by default.
+# NO_CHECK_STYLE_BEGIN
     cat >expout <<EOF
 dir1/tp1 (1/5): 1 test cases
     main: Passed.
@@ -213,9 +215,7 @@ tp4 (4/5): 1 test cases
     main: Failed: This always fails
 
 tp5 (5/5): 0 test cases
-tp5: BOGUS TEST PROGRAM: Cannot trust its results because of \`There were errors
-     parsing the output of the test program: Line 1: Unexpected token
-     \`<<EOF>>'; expected a header name.'
+tp5: BOGUS TEST PROGRAM: Cannot trust its results because of \`There were errors parsing the output of the test program: Line 1: Unexpected token \`<<EOF>>'; expected a header name.'
 
 Failed (bogus) test programs:
     tp5
@@ -231,6 +231,7 @@ EOF
 
     atf_check 'atf-report -o ticker:- <tps.out' 0 expout null
 }
+# NO_CHECK_STYLE_END
 
 atf_test_case output_xml
 output_xml_head()
@@ -242,6 +243,7 @@ output_xml_body()
     create_helpers
     run_helpers
 
+# NO_CHECK_STYLE_BEGIN
     cat >expout <<EOF
 <?xml version="1.0"?>
 <!DOCTYPE tests-results PUBLIC "-//NetBSD//DTD ATF Tests Results 0.1//EN" "http://www.NetBSD.org/XML/atf/tests-results.dtd">
@@ -274,7 +276,58 @@ output_xml_body()
 <info class="endinfo">Another value</info>
 </tests-results>
 EOF
+# NO_CHECK_STYLE_END
 
+    atf_check 'atf-report -o xml:- <tps.out' 0 expout null
+}
+
+atf_test_case output_xml_space
+output_xml_space_head()
+{
+    atf_set "descr" "Checks that the XML output format properly preserves" \
+                    "leading and trailing whitespace in stdout and stderr" \
+                    "lines"
+}
+output_xml_space_body()
+{
+    cp $(atf_get_srcdir)/h_misc .
+    cat >Atffile <<EOF
+Content-Type: application/X-atf-atffile; version="1"
+
+prop: test-suite = atf
+
+tp: h_misc
+EOF
+
+# NO_CHECK_STYLE_BEGIN
+    cat >expout <<EOF
+<?xml version="1.0"?>
+<!DOCTYPE tests-results PUBLIC "-//NetBSD//DTD ATF Tests Results 0.1//EN" "http://www.NetBSD.org/XML/atf/tests-results.dtd">
+
+<tests-results>
+<tp id="h_misc">
+<tc id="atf_report_diff">
+<so>--- a	2007-11-04 14:00:41.000000000 +0100</so>
+<so>+++ b	2007-11-04 14:00:48.000000000 +0100</so>
+<so>@@ -1,7 +1,7 @@</so>
+<so> This test is meant to simulate a diff.</so>
+<so> Blank space at beginning of context lines must be preserved.</so>
+<so> </so>
+<so>-First original line.</so>
+<so>-Second original line.</so>
+<so>+First modified line.</so>
+<so>+Second modified line.</so>
+<so> </so>
+<so> EOF</so>
+<passed />
+</tc>
+</tp>
+</tests-results>
+EOF
+# NO_CHECK_STYLE_END
+
+    TESTCASE=atf_report_diff; export TESTCASE
+    run_helpers
     atf_check 'atf-report -o xml:- <tps.out' 0 expout null
 }
 
@@ -285,6 +338,7 @@ atf_init_test_cases()
     atf_add_test_case output_csv
     atf_add_test_case output_ticker
     atf_add_test_case output_xml
+    atf_add_test_case output_xml_space
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

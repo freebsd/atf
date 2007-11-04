@@ -413,6 +413,8 @@ atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_tps_3.expout \
                    tests/atf/formats/d_tps_4 \
                    tests/atf/formats/d_tps_4.expout \
+                   tests/atf/formats/d_tps_5 \
+                   tests/atf/formats/d_tps_5.expout \
                    tests/atf/formats/d_tps_50 \
                    tests/atf/formats/d_tps_50.experr \
                    tests/atf/formats/d_tps_51 \
@@ -528,6 +530,15 @@ tests/atf/sh_interface/t_tc: \
 		$(ATF_COMPILE_DEPS)
 	test -d tests/atf/sh_interface || mkdir -p tests/atf/sh_interface
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/sh_interface/t_tc.sh
+
+atf_sh_interface_SCRIPTS += tests/atf/sh_interface/t_tp
+CLEANFILES += tests/atf/sh_interface/t_tp
+EXTRA_DIST += tests/atf/sh_interface/t_tp.sh
+tests/atf/sh_interface/t_tp: \
+		$(srcdir)/tests/atf/sh_interface/t_tp.sh \
+		$(ATF_COMPILE_DEPS)
+	test -d tests/atf/sh_interface || mkdir -p tests/atf/sh_interface
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/sh_interface/t_tp.sh
 
 atf_test_programs_DATA = tests/atf/test_programs/Atffile
 atf_test_programsdir = $(pkgtestsdir)/test_programs

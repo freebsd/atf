@@ -218,6 +218,21 @@ tc_fail_body()
 }
 
 # -------------------------------------------------------------------------
+# Helper tests for "t_tp".
+# -------------------------------------------------------------------------
+
+atf_test_case tp_srcdir
+tp_srcdir_head()
+{
+    atf_set "descr" "Helper test case for the t_tp test program"
+}
+tp_srcdir_body()
+{
+    echo "Calling helper"
+    helper_subr || atf_fail "Could not call helper subroutine"
+}
+
+# -------------------------------------------------------------------------
 # Main.
 # -------------------------------------------------------------------------
 
@@ -243,6 +258,10 @@ atf_init_test_cases()
     atf_add_test_case tc_pass_true
     atf_add_test_case tc_pass_false
     atf_add_test_case tc_fail
+
+    # Add helper tests for t_tp.
+    [ -f $(atf_get_srcdir)/subrs ] && . $(atf_get_srcdir)/subrs
+    atf_add_test_case tp_srcdir
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
