@@ -751,8 +751,6 @@ _atf_run_tc()
     fi
     Work_Dir=
 
-    _atf_internal_set srcdir ""
-
     # Set a default exit status if the test case did not report any.
     if [ -z "$(cat ${Results_File})" ]; then
         if [ -n "${Held_Signals}" ]; then
@@ -766,6 +764,8 @@ _atf_run_tc()
     echo "tc-end: ${Test_Case}, $(cat ${Results_File})" >&${Results_Fd}
     rm -f ${Results_File}
     Results_File=
+
+    Test_Case=
 
     # Restore blocked signals and process them.
     trap - SIGHUP SIGINT SIGTERM
@@ -953,6 +953,17 @@ main()
     [ -f ${Source_Dir}/${Prog_Name} ] || \
         _atf_error 1 "Cannot find the test program in the source" \
                      "directory \`${Source_Dir}'"
+
+    # Set some global variables useful to the user.  Not specific to the
+    # test case because they may be needed during initialization too.
+    # XXX I'm not too fond on this though.  Sure, it is very useful in some
+    # situations -- such as in NetBSD's fs/tmpfs/* tests where each test
+    # program includes a helper subroutines file -- but there are also
+    # other, maybe better ways to achieve the same.  Because, for example,
+    # at the moment it is not possible to detect failures in the inclusion
+    # and report them nicely.  Plus this change is difficult to implement
+    # in the current C++ API.
+    _atf_internal_set srcdir "${Source_Dir}"
 
     # Call the test program's hook to register all available test cases.
     atf_init_test_cases

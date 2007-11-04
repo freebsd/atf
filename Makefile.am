@@ -529,6 +529,15 @@ tests/atf/sh_interface/t_tc: \
 	test -d tests/atf/sh_interface || mkdir -p tests/atf/sh_interface
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/sh_interface/t_tc.sh
 
+atf_sh_interface_SCRIPTS += tests/atf/sh_interface/t_tp
+CLEANFILES += tests/atf/sh_interface/t_tp
+EXTRA_DIST += tests/atf/sh_interface/t_tp.sh
+tests/atf/sh_interface/t_tp: \
+		$(srcdir)/tests/atf/sh_interface/t_tp.sh \
+		$(ATF_COMPILE_DEPS)
+	test -d tests/atf/sh_interface || mkdir -p tests/atf/sh_interface
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/sh_interface/t_tp.sh
+
 atf_test_programs_DATA = tests/atf/test_programs/Atffile
 atf_test_programsdir = $(pkgtestsdir)/test_programs
 EXTRA_DIST += $(atf_test_programs_DATA)
