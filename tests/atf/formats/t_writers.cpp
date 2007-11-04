@@ -396,15 +396,15 @@ ATF_TEST_CASE_BODY(tps)
         CHECK;
 
         w.stdout_tc("a line");
-        expss << "tc-so: a line" << std::endl;
+        expss << "tc-so:a line" << std::endl;
         CHECK;
 
         w.stdout_tc("another line");
-        expss << "tc-so: another line" << std::endl;
+        expss << "tc-so:another line" << std::endl;
         CHECK;
 
         w.stderr_tc("an error message");
-        expss << "tc-se: an error message" << std::endl;
+        expss << "tc-se:an error message" << std::endl;
         CHECK;
 
         w.end_tc(atf::tests::tcr::passed());

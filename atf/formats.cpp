@@ -1077,7 +1077,7 @@ impl::atf_tps_reader::read_tc(void* pptr)
 
         t = p.expect(colon_type, "`:'");
 
-        std::string line = text::trim(p.rest_of_line());
+        std::string line = p.rest_of_line();
 
         if (t2.type() == tc_so_type) {
             CALLBACK(p, got_tc_stdout_line(line));
@@ -1233,14 +1233,14 @@ impl::atf_tps_writer::start_tc(const std::string& tcname)
 void
 impl::atf_tps_writer::stdout_tc(const std::string& line)
 {
-    m_os << "tc-so: " << line << std::endl;
+    m_os << "tc-so:" << line << std::endl;
     m_os.flush();
 }
 
 void
 impl::atf_tps_writer::stderr_tc(const std::string& line)
 {
-    m_os << "tc-se: " << line << std::endl;
+    m_os << "tc-se:" << line << std::endl;
     m_os.flush();
 }
 

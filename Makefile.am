@@ -413,6 +413,8 @@ atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_tps_3.expout \
                    tests/atf/formats/d_tps_4 \
                    tests/atf/formats/d_tps_4.expout \
+                   tests/atf/formats/d_tps_5 \
+                   tests/atf/formats/d_tps_5.expout \
                    tests/atf/formats/d_tps_50 \
                    tests/atf/formats/d_tps_50.experr \
                    tests/atf/formats/d_tps_51 \
