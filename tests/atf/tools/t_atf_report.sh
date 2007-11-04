@@ -77,12 +77,12 @@ run_helpers()
 
 info_start_hook()
 {
-    atf_tps_riter_info "startinfo" "A value"
+    atf_tps_writer_info "startinfo" "A value"
 }
 
 info_end_hook()
 {
-    atf_tps_riter_info "endinfo" "Another value"
+    atf_tps_writer_info "endinfo" "Another value"
 }
 EOF
     echo "Using atf-run to run helpers"
@@ -305,6 +305,7 @@ EOF
 <!DOCTYPE tests-results PUBLIC "-//NetBSD//DTD ATF Tests Results 0.1//EN" "http://www.NetBSD.org/XML/atf/tests-results.dtd">
 
 <tests-results>
+<info class="startinfo">A value</info>
 <tp id="h_misc">
 <tc id="atf_report_diff">
 <so>--- a	2007-11-04 14:00:41.000000000 +0100</so>
@@ -322,6 +323,7 @@ EOF
 <passed />
 </tc>
 </tp>
+<info class="endinfo">Another value</info>
 </tests-results>
 EOF
 # NO_CHECK_STYLE_END
