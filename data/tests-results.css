@@ -68,14 +68,12 @@ p.term {
     margin-right: 40pt;
 }
 
-p.so {
-    font-family: Courier;
+pre.so {
     margin-left: 40pt;
     margin-right: 40pt;
 }
 
-p.se {
-    font-family: Courier;
+pre.se {
     margin-left: 40pt;
     margin-right: 40pt;
 }
