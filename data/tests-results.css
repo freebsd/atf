@@ -69,11 +69,13 @@ p.term {
 }
 
 p.so {
+    font-family: Courier;
     margin-left: 40pt;
     margin-right: 40pt;
 }
 
 p.se {
+    font-family: Courier;
     margin-left: 40pt;
     margin-right: 40pt;
 }
