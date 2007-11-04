@@ -275,7 +275,7 @@ output_xml_body()
 </tests-results>
 EOF
 
-    atf_check 'atf-report -o xml:- <tps.out' 0 stdout null
+    atf_check 'atf-report -o xml:- <tps.out' 0 expout null
 }
 
 atf_init_test_cases()
