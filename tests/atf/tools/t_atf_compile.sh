@@ -81,7 +81,8 @@ oflag_body()
 
 check_perms()
 {
-    eval $(stat -s ${1})
+    srcdir=$(atf_get_srcdir)
+    st_mode=$(${srcdir}/h_mode ${1})
     echo "File ${1}, st_mode ${st_mode}, umask $(umask), expecting ${2}"
     case ${st_mode} in
         *${2}) ;;

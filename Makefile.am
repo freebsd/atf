@@ -645,6 +645,11 @@ tests_atf_tools_h_misc_SOURCES = tests/atf/tools/h_misc.cpp
 tests_atf_tools_h_misc_LDADD = -latf
 tests_atf_tools_h_misc_LDFLAGS = -L.
 
+atf_tools_PROGRAMS += tests/atf/tools/h_mode
+tests_atf_tools_h_mode_SOURCES = tests/atf/tools/h_mode.cpp
+tests_atf_tools_h_mode_LDADD = -latf
+tests_atf_tools_h_mode_LDFLAGS = -L.
+
 atf_tools_PROGRAMS += tests/atf/tools/h_pass
 tests_atf_tools_h_pass_SOURCES = tests/atf/tools/h_pass.cpp
 tests_atf_tools_h_pass_LDADD = -latf
