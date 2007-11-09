@@ -46,7 +46,7 @@ extern "C" {
 int
 main(int argc, char* argv[])
 {
-    struct ::stat sb;
+    struct stat sb;
 
     if (argc != 2)
         return EXIT_FAILURE;

@@ -236,7 +236,8 @@ ATF_TEST_CASE_HEAD(env_home)
 ATF_TEST_CASE_BODY(env_home)
 {
     ATF_CHECK(atf::env::has("HOME"));
-    atf::fs::file_info fi1(atf::fs::path(atf::env::get("HOME")));
+    atf::fs::path p(atf::env::get("HOME"));
+    atf::fs::file_info fi1(p);
     atf::fs::file_info fi2(atf::fs::get_current_dir());
     ATF_CHECK_EQUAL(fi1.get_device(), fi2.get_device());
     ATF_CHECK_EQUAL(fi1.get_inode(), fi2.get_inode());
