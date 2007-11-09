@@ -239,6 +239,24 @@ impl::vars_map::has(const std::string& key)
     return find(key) != end();
 }
 
+impl::vars_map::value_type
+impl::vars_map::parse(const std::string& str)
+{
+    if (str.empty())
+        throw std::runtime_error("-v requires a non-empty argument");
+
+    std::vector< std::string > ws = atf::text::split(str, "=");
+    if (ws.size() == 1 && str[str.length() - 1] == '=') {
+        return impl::vars_map::value_type(ws[0], "");
+    } else {
+        if (ws.size() != 2)
+            throw std::runtime_error("-v requires an argument of the form "
+                                     "var=value");
+
+        return impl::vars_map::value_type(ws[0], ws[1]);
+    }
+}
+
 // ------------------------------------------------------------------------
 // The "tcr" class.
 // ------------------------------------------------------------------------
@@ -682,8 +700,6 @@ private:
 
     atf::tests::vars_map m_vars;
 
-    static atf::tests::vars_map::value_type parse_var(const std::string&);
-
     std::string specific_args(void) const;
     options_set specific_options(void) const;
     void process_option(int, const char*);
@@ -761,31 +777,14 @@ tp::process_option(int ch, const char* arg)
 
     case 'v':
         {
-            atf::tests::vars_map::value_type v = parse_var(arg);
+            atf::tests::vars_map::value_type v =
+                atf::tests::vars_map::parse(arg);
             m_vars[v.first] = v.second;
         }
         break;
 
     default:
         UNREACHABLE;
-    }
-}
-
-atf::tests::vars_map::value_type
-tp::parse_var(const std::string& str)
-{
-    if (str.empty())
-        throw std::runtime_error("-v requires a non-empty argument");
-
-    std::vector< std::string > ws = atf::text::split(str, "=");
-    if (ws.size() == 1 && str[str.length() - 1] == '=') {
-        return atf::tests::vars_map::value_type(ws[0], "");
-    } else {
-        if (ws.size() != 2)
-            throw std::runtime_error("-v requires an argument of the form "
-                                     "var=value");
-
-        return atf::tests::vars_map::value_type(ws[0], ws[1]);
     }
 }
 

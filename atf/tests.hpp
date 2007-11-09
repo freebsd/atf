@@ -58,6 +58,8 @@ public:
     bool get_bool(const std::string&, bool) const;
 
     bool has(const std::string&) const;
+
+    static value_type parse(const std::string&);
 };
 
 // ------------------------------------------------------------------------

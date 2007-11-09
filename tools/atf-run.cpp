@@ -250,32 +250,14 @@ atf_run::atf_run(void) :
 {
 }
 
-// XXX Duplicate from atf/tests.cpp.
-atf::tests::vars_map::value_type
-atf_run::parse_var(const std::string& str)
-{
-    if (str.empty())
-        throw std::runtime_error("-v requires a non-empty argument");
-
-    std::vector< std::string > ws = atf::text::split(str, "=");
-    if (ws.size() == 1 && str[str.length() - 1] == '=') {
-        return atf::tests::vars_map::value_type(ws[0], "");
-    } else {
-        if (ws.size() != 2)
-            throw std::runtime_error("-v requires an argument of the form "
-                                     "var=value");
-
-        return atf::tests::vars_map::value_type(ws[0], ws[1]);
-    }
-}
-
 void
 atf_run::process_option(int ch, const char* arg)
 {
     switch (ch) {
     case 'v':
         {
-            atf::tests::vars_map::value_type v = parse_var(arg);
+            atf::tests::vars_map::value_type v =
+                atf::tests::vars_map::parse(arg);
             m_cmdline_vars[v.first] = v.second;
         }
         break;
