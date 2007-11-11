@@ -13,13 +13,6 @@ of salt: the focus of a specific release may change completely depending
 on how things develop.
 
 
-Plans for 0.3
-=============
-
-* Add a way to specify which bug/issue/whatever a given test case is
-  stress-testing.  This information is useful when detecting regressions.
-
-
 Plans for 0.4
 =============
 
@@ -81,6 +74,9 @@ Plans for pre-1.0
 
 * Possibly add a way to automatically gain or drop privileges when
   require.user is set.
+
+* Add a way to specify which bug/issue/whatever a given test case is
+  stress-testing.  This information is useful when detecting regressions.
 
 
 Plans for 1.0-RC1
