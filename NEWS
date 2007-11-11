@@ -16,22 +16,28 @@ Changes:
   output and convert it to a plain HTML report.
 
 * Changed atf-run to add system information to the report it generates.
-  This is currently only used by atf-report's XML output, and later printed
-  in the HTML reports in a nice and useful summary table.  The user and
-  system administrator are allowed to tune this feature by means of hooks.
+  This is currently used by atf-report's XML output only, and is later
+  printed in the HTML reports in a nice and useful summary table.  The user
+  and system administrator are allowed to tune this feature by means of
+  hooks.
 
 * Removed the test cases' 'isolated' property.  This was intended to avoid
   touching the file system at all when running the related test case, but
-  this has not been true for a long while given that some control files are
-  unconditionally required for several purposes.  This way we get rid of
-  several critical and delicate code.
+  this has not been true for a long while: some control files are
+  unconditionally required for several purposes, and we cannot easily get
+  rid of them.  This way we remove several critical and delicate pieces of
+  code.
 
-* Improved atf-report's csv output format to include information about
+* Improved atf-report's CSV output format to include information about
   test programs too.
 
 * Fixed the tests that used atf-compile to not require this tool as a
   helper.  Avoids systems without build-time utilities to skip many tests
-  that could otherwise be run.
+  that could otherwise be run.  (E.g. NetBSD without the comp.tgz set
+  installed.)
+
+* Many general cleanups: Fixed many pieces of code marked as ugly and/or
+  incomplete.
 
 
 Version 0.2
