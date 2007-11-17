@@ -117,8 +117,8 @@ atf::atffile::atffile(const atf::fs::path& filename)
     // all possible test programs in it.
     fs::directory dir(filename.branch_path());
     dir.erase(filename.leaf_name());
-    for (fs::directory::iterator iter = dir.begin(); iter != dir.end();
-         iter++) {
+    fs::directory::iterator iter = dir.begin();
+    while (iter != dir.end()) {
         const std::string& name = (*iter).first;
         const fs::file_info& fi = (*iter).second;
 
@@ -126,7 +126,9 @@ atf::atffile::atffile(const atf::fs::path& filename)
         // not candidates for glob matching.
         if (name[0] == '.' || (!fi.is_owner_executable() &&
                                !fi.is_group_executable()))
-            dir.erase(iter);
+            dir.erase(iter++);
+        else
+            iter++;
     }
 
     // Parse the atffile.
