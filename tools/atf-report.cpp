@@ -586,7 +586,7 @@ const char* atf_report::m_description =
     "generates user-friendly reports in multiple different formats.";
 
 atf_report::atf_report(void) :
-    application(m_description, "atf-report(1)")
+    application(m_description, "atf-report(1)", "atf(7)")
 {
 }
 

@@ -67,7 +67,7 @@ const char* atf_config::m_description =
     "internal atf files are installed.";
 
 atf_config::atf_config(void) :
-    application(m_description, "atf-config(1)"),
+    application(m_description, "atf-config(1)", "atf(7)"),
     m_tflag(false)
 {
 }

@@ -82,7 +82,7 @@ const char* atf_compile::m_description =
     "POSIX shell language, generating an executable.";
 
 atf_compile::atf_compile(void) :
-    application(m_description, "atf-compile(1)")
+    application(m_description, "atf-compile(1)", "atf(7)")
 {
 }
 

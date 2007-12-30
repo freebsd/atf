@@ -246,7 +246,7 @@ const char* atf_run::m_description =
     "results.";
 
 atf_run::atf_run(void) :
-    application(m_description, "atf-run(1)")
+    application(m_description, "atf-run(1)", "atf(7)")
 {
 }
 

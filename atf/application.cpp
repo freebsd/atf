@@ -105,12 +105,14 @@ atf::application::option::operator<(const atf::application::option& o)
 }
 
 atf::application::application(const std::string& description,
-                              const std::string& manpage) :
+                              const std::string& manpage,
+                              const std::string& global_manpage) :
     m_argc(-1),
     m_argv(NULL),
     m_prog_name(NULL),
     m_description(description),
-    m_manpage(manpage)
+    m_manpage(manpage),
+    m_global_manpage(global_manpage)
 {
 }
 
@@ -232,8 +234,11 @@ atf::application::usage(std::ostream& os)
     }
     os << std::endl;
 
+    std::string gmp;
+    if (!m_global_manpage.empty())
+        gmp = " and " + m_global_manpage;
     os << ui::format_text("For more details please see " + m_manpage +
-                          " and atf(7).")
+                          gmp + ".")
        << std::endl;
 }
 

@@ -58,7 +58,7 @@ const char* atf_cleanup::m_description =
     "recurse into them if the unmounting fails.";
 
 atf_cleanup::atf_cleanup(void) :
-    application(m_description, "atf-cleanup(1)")
+    application(m_description, "atf-cleanup(1)", "atf(7)")
 {
 }
 

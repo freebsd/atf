@@ -58,7 +58,7 @@ const char* h_app_opts_args::m_description =
     "methods to specify custom options and arguments.";
 
 h_app_opts_args::h_app_opts_args(void) :
-    application(m_description, "h_app_opts_args(1)")
+    application(m_description, "h_app_opts_args(1)", "atf(7)")
 {
 }
 

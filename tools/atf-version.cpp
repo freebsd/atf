@@ -59,7 +59,7 @@ const char* atf_version::m_description =
     "installed version of ATF.";
 
 atf_version::atf_version(void) :
-    application(m_description, "atf-version(1)")
+    application(m_description, "atf-version(1)", "atf(7)")
 {
 }
 
