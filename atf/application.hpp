@@ -42,8 +42,6 @@
 #include <stdexcept>
 #include <string>
 
-#include <atf/exceptions.hpp>
-
 namespace atf {
 
 // ------------------------------------------------------------------------

@@ -47,7 +47,6 @@ extern "C" {
 #include <iostream>
 
 #include "atf/application.hpp"
-#include "atf/exceptions.hpp"
 #include "atf/sanity.hpp"
 #include "atf/ui.hpp"
 
