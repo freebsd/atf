@@ -39,11 +39,30 @@
 
 #include <ostream>
 #include <set>
+#include <stdexcept>
 #include <string>
 
 #include <atf/exceptions.hpp>
 
 namespace atf {
+
+// ------------------------------------------------------------------------
+// The "usage_error" class.
+// ------------------------------------------------------------------------
+
+class usage_error : public std::runtime_error {
+    char m_text[4096];
+
+public:
+    usage_error(const char*, ...) throw();
+    ~usage_error(void) throw();
+
+    const char* what(void) const throw();
+};
+
+// ------------------------------------------------------------------------
+// The "application" class.
+// ------------------------------------------------------------------------
 
 class application {
     void process_options(void);

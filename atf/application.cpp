@@ -51,6 +51,43 @@ extern "C" {
 #include "atf/sanity.hpp"
 #include "atf/ui.hpp"
 
+#if !defined(HAVE_VSNPRINTF_IN_STD)
+namespace std {
+using ::vsnprintf;
+}
+#endif // !defined(HAVE_VSNPRINTF_IN_STD)
+
+// ------------------------------------------------------------------------
+// The "usage_error" class.
+// ------------------------------------------------------------------------
+
+atf::usage_error::usage_error(const char *fmt, ...)
+    throw() :
+    std::runtime_error("usage_error; message unformatted")
+{
+    va_list ap;
+
+    va_start(ap, fmt);
+    std::vsnprintf(m_text, sizeof(m_text), fmt, ap);
+    va_end(ap);
+}
+
+atf::usage_error::~usage_error(void)
+    throw()
+{
+}
+
+const char*
+atf::usage_error::what(void)
+    const throw()
+{
+    return m_text;
+}
+
+// ------------------------------------------------------------------------
+// The "application" class.
+// ------------------------------------------------------------------------
+
 atf::application::option::option(char ch,
                                  const std::string& a,
                                  const std::string& desc) :
