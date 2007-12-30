@@ -42,6 +42,7 @@ extern "C" {
 #include <unistd.h>
 }
 
+#include <cstdarg>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
