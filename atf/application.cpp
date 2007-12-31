@@ -57,11 +57,14 @@ using ::vsnprintf;
 }
 #endif // !defined(HAVE_VSNPRINTF_IN_STD)
 
+namespace impl = atf::application;
+#define IMPL_NAME "atf::application"
+
 // ------------------------------------------------------------------------
 // The "usage_error" class.
 // ------------------------------------------------------------------------
 
-atf::usage_error::usage_error(const char *fmt, ...)
+impl::usage_error::usage_error(const char *fmt, ...)
     throw() :
     std::runtime_error("usage_error; message unformatted")
 {
@@ -72,13 +75,13 @@ atf::usage_error::usage_error(const char *fmt, ...)
     va_end(ap);
 }
 
-atf::usage_error::~usage_error(void)
+impl::usage_error::~usage_error(void)
     throw()
 {
 }
 
 const char*
-atf::usage_error::what(void)
+impl::usage_error::what(void)
     const throw()
 {
     return m_text;
@@ -88,9 +91,9 @@ atf::usage_error::what(void)
 // The "application" class.
 // ------------------------------------------------------------------------
 
-atf::application::option::option(char ch,
-                                 const std::string& a,
-                                 const std::string& desc) :
+impl::option::option(char ch,
+                     const std::string& a,
+                     const std::string& desc) :
     m_character(ch),
     m_argument(a),
     m_description(desc)
@@ -98,15 +101,15 @@ atf::application::option::option(char ch,
 }
 
 bool
-atf::application::option::operator<(const atf::application::option& o)
+impl::option::operator<(const impl::option& o)
     const
 {
     return m_character < o.m_character;
 }
 
-atf::application::application(const std::string& description,
-                              const std::string& manpage,
-                              const std::string& global_manpage) :
+impl::app::app(const std::string& description,
+               const std::string& manpage,
+               const std::string& global_manpage) :
     m_argc(-1),
     m_argv(NULL),
     m_prog_name(NULL),
@@ -116,18 +119,18 @@ atf::application::application(const std::string& description,
 {
 }
 
-atf::application::~application(void)
+impl::app::~app(void)
 {
 }
 
 bool
-atf::application::inited(void)
+impl::app::inited(void)
 {
     return m_argc != -1;
 }
 
-atf::application::options_set
-atf::application::options(void)
+impl::app::options_set
+impl::app::options(void)
 {
     options_set opts = specific_options();
     opts.insert(option('h', "", "Shows this help message"));
@@ -135,26 +138,26 @@ atf::application::options(void)
 }
 
 std::string
-atf::application::specific_args(void)
+impl::app::specific_args(void)
     const
 {
     return "";
 }
 
-atf::application::options_set
-atf::application::specific_options(void)
+impl::app::options_set
+impl::app::specific_options(void)
     const
 {
     return options_set();
 }
 
 void
-atf::application::process_option(int ch, const char* arg)
+impl::app::process_option(int ch, const char* arg)
 {
 }
 
 void
-atf::application::process_options(void)
+impl::app::process_options(void)
 {
     PRE(inited());
 
@@ -195,7 +198,7 @@ atf::application::process_options(void)
 }
 
 void
-atf::application::usage(std::ostream& os)
+impl::app::usage(std::ostream& os)
 {
     PRE(inited());
 
@@ -243,7 +246,7 @@ atf::application::usage(std::ostream& os)
 }
 
 int
-atf::application::run(int argc, char* const* argv)
+impl::app::run(int argc, char* const* argv)
 {
     PRE(argc > 0);
     PRE(argv != NULL);

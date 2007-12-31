@@ -60,7 +60,7 @@ cat_file(std::ostream& os, const std::string& path)
     is.close();
 }
 
-class atf_compile : public atf::application {
+class atf_compile : public atf::application::app {
     static const char* m_description;
 
     std::string m_outfile;
@@ -82,7 +82,7 @@ const char* atf_compile::m_description =
     "POSIX shell language, generating an executable.";
 
 atf_compile::atf_compile(void) :
-    application(m_description, "atf-compile(1)", "atf(7)")
+    app(m_description, "atf-compile(1)", "atf(7)")
 {
 }
 
@@ -97,6 +97,7 @@ atf_compile::options_set
 atf_compile::specific_options(void)
     const
 {
+    using atf::application::option;
     options_set opts;
     opts.insert(option('o', "out-file", "Name of the output file"));
     return opts;
@@ -137,10 +138,10 @@ int
 atf_compile::main(void)
 {
     if (m_argc < 1)
-        throw atf::usage_error("No test program specified");
+        throw atf::application::usage_error("No test program specified");
 
     if (m_outfile.empty())
-        throw atf::usage_error("No output file specified");
+        throw atf::application::usage_error("No output file specified");
 
     std::ofstream os(m_outfile.c_str());
     if (!os)

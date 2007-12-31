@@ -685,7 +685,7 @@ impl::tc::require_prog(const std::string& prog)
 // The "tp" class.
 // ------------------------------------------------------------------------
 
-class tp : public atf::application {
+class tp : public atf::application::app {
 public:
     typedef std::vector< impl::tc * > tc_vector;
 
@@ -724,7 +724,7 @@ const char* tp::m_description =
     "This is an independent atf test program.";
 
 tp::tp(const tc_vector& tcs) :
-    application(m_description, "atf-test-program(1)", "atf(7)"),
+    app(m_description, "atf-test-program(1)", "atf(7)"),
     m_lflag(false),
     m_results_fd(STDOUT_FILENO),
     m_srcdir(atf::fs::get_current_dir()),
@@ -744,6 +744,7 @@ tp::options_set
 tp::specific_options(void)
     const
 {
+    using atf::application::option;
     options_set opts;
     opts.insert(option('l', "", "List test cases and their purpose"));
     opts.insert(option('r', "fd", "The file descriptor to which the test "
