@@ -1,6 +1,6 @@
-Automated Testing Framework (atf)
-Copyright (c) 2007 The NetBSD Foundation, Inc.
-All rights reserved.
+                     Automated Testing Framework (atf)
+                        The NetBSD Foundation, Inc.
+---------------------------------------------------------------------------
 
 
 Introduction
@@ -92,4 +92,5 @@ How to publish a release
 * Announce the new version in the ATF's project page at Freshmeat.net.
 
 
--- EOF
+---------------------------------------------------------------------------
+                              End of document
