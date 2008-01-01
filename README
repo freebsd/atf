@@ -1,6 +1,6 @@
-Automated Testing Framework (atf)
-Copyright (c) 2007 The NetBSD Foundation, Inc.
-All rights reserved.
+                     Automated Testing Framework (atf)
+                        The NetBSD Foundation, Inc.
+---------------------------------------------------------------------------
 
 
 Introduction
@@ -84,4 +84,5 @@ Tools used to generate this distfile
 * GNU libtool 1.5.22 (1.1220.2.365 2005/12/18 22:14:06)
 
 
--- EOF
+---------------------------------------------------------------------------
+                              End of document

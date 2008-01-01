@@ -1,7 +1,7 @@
 dnl
 dnl Automated Testing Framework (atf)
 dnl
-dnl Copyright (c) 2007 The NetBSD Foundation, Inc.
+dnl Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 dnl All rights reserved.
 dnl
 dnl Redistribution and use in source and binary forms, with or without
@@ -40,9 +40,9 @@ dnl -----------------------------------------------------------------------
 
 AC_INIT([Automated Testing Framework], [0.4], [atf-devel@NetBSD.org], [atf])
 AC_PREREQ([2.60])
-AC_COPYRIGHT([Copyright (c) 2007 The NetBSD Foundation, Inc.])
+AC_COPYRIGHT([Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.])
 AC_DEFINE(PACKAGE_COPYRIGHT,
-          ["Copyright (c) 2007 The NetBSD Foundation, Inc."],
+          ["Copyright (c) 2007, 2008 The NetBSD Foundation, Inc."],
           [Define to the copyright string applicable to this package.])
 AC_CONFIG_AUX_DIR([admin])
 AC_CONFIG_HEADERS([config.h])
