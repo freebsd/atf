@@ -129,6 +129,7 @@ fi
 AC_SUBST(atf_cssdir, \${datadir}/examples/atf)
 AC_SUBST(atf_dtddir, \${datadir}/xml/atf)
 AC_SUBST(atf_egdir, \${datadir}/examples/atf)
+AC_SUBST(atf_pkgconfigdir, \${libdir}/pkgconfig)
 AC_SUBST(atf_xsldir, \${datadir}/xsl/atf)
 
 dnl -----------------------------------------------------------------------

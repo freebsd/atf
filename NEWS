@@ -14,6 +14,9 @@ Changes:
 * Added two new manual pages, atf-c++-api and atf-sh-api, describing the
   C++ and POSIX shell interfaces used to write test programs.
 
+* Added a pkg-config file, useful to get the flags to build against the
+  C++ library or to easily detect the presence of ATF.
+
 * Fixed a serious bug that prevented atf-run(1) from working at all under
   Fedora 8 x86_64.  Due to the nature of the bug, other platforms were
   likely affected too.

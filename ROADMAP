@@ -23,8 +23,6 @@ Plans for 0.4
   classes as not copyable.  Or, failing to do that, any other way to do
   the same.
 
-* Add a .pc file for libatf.
-
 
 Plans for pre-1.0
 =================

@@ -169,6 +169,18 @@ egdir = $(atf_egdir)
 eg_DATA = data/atf-run.hooks
 EXTRA_DIST += $(eg_DATA)
 
+pkgconfigdir = $(atf_pkgconfigdir)
+pkgconfig_DATA = data/atf.pc
+EXTRA_DIST += data/atf.pc.in
+data/atf.pc: $(srcdir)/data/atf.pc.in
+	test -d data || mkdir -p data
+	sed -e 's,__ATF_VERSION__,@PACKAGE_VERSION@,g' \
+	    -e 's,__CXX__,$(CXX),g' \
+	    -e 's,__INCLUDEDIR__,$(includedir),g' \
+	    -e 's,__LIBDIR__,$(libdir),g' \
+	    <$(srcdir)/data/atf.pc.in >data/atf.pc.tmp
+	mv data/atf.pc.tmp data/atf.pc
+
 xsldir = $(atf_xsldir)
 xsl_DATA = data/tests-results.xsl
 EXTRA_DIST += $(xsl_DATA)
@@ -302,6 +314,19 @@ installcheck-local:
 
 pkgtests_DATA = tests/atf/Atffile
 EXTRA_DIST += $(pkgtests_DATA)
+
+atf_data_DATA = tests/atf/data/Atffile
+atf_datadir = $(pkgtestsdir)/data
+EXTRA_DIST += $(atf_data_DATA)
+
+atf_data_SCRIPTS = tests/atf/data/t_pkg_config
+CLEANFILES += tests/atf/data/t_pkg_config
+EXTRA_DIST += tests/atf/data/t_pkg_config.sh
+tests/atf/data/t_pkg_config: \
+		$(srcdir)/tests/atf/data/t_pkg_config.sh \
+		$(ATF_COMPILE_DEPS)
+	test -d tests/atf/data || mkdir -p tests/atf/data
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/data/t_pkg_config.sh
 
 atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_atffile_1 \
