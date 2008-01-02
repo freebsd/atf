@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -151,6 +151,8 @@ atf_HEADERS = atf/application.hpp \
               atf/utils.hpp
 atfdir = $(includedir)/atf
 
+dist_man_MANS = atf/atf-c++-api.3
+
 # -------------------------------------------------------------------------
 # `data' directory.
 # -------------------------------------------------------------------------
@@ -179,15 +181,21 @@ man_MANS = doc/atf.7
 CLEANFILES += doc/atf.7
 EXTRA_DIST += doc/atf.7.in
 
-dist_man_MANS = doc/atf-formats.5 \
-                doc/atf-test-case.4 \
-                doc/atf-test-program.1
+dist_man_MANS += doc/atf-formats.5 \
+                 doc/atf-test-case.4 \
+                 doc/atf-test-program.1
 
 doc/atf.7: $(srcdir)/doc/atf.7.in
 	test -d doc || mkdir -p doc
 	sed -e 's,__DOCDIR__,$(docdir),g' \
 	    <$(srcdir)/doc/atf.7.in >doc/atf.7.tmp
 	mv doc/atf.7.tmp doc/atf.7
+
+# -------------------------------------------------------------------------
+# `m4' directory.
+# -------------------------------------------------------------------------
+
+ACLOCAL_AMFLAGS = -I m4
 
 # -------------------------------------------------------------------------
 # `subrs' directory.
@@ -199,6 +207,8 @@ subrs_DATA = subrs/atf.config.subr \
              subrs/atf.init.subr
 subrsdir = $(pkgdatadir)
 EXTRA_DIST += $(subrs_DATA)
+
+dist_man_MANS += subrs/atf-sh-api.3
 
 # -------------------------------------------------------------------------
 # `tests/bootstrap' directory.

@@ -1,6 +1,6 @@
-Automated Testing Framework (atf)
-Copyright (c) 2007 The NetBSD Foundation, Inc.
-All rights reserved.
+                     Automated Testing Framework (atf)
+                        The NetBSD Foundation, Inc.
+---------------------------------------------------------------------------
 
 
 Version 0.4
@@ -10,6 +10,9 @@ Release date: NOT RELEASED YET; STILL UNDER DEVELOPMENT
 Status:       Experimental
 
 Changes:
+
+* Added two new manual pages, atf-c++-api and atf-sh-api, describing the
+  C++ and POSIX shell interfaces used to write test programs.
 
 * Fixed a serious bug that prevented atf-run(1) from working at all under
   Fedora 8 x86_64.  Due to the nature of the bug, other platforms were
@@ -100,4 +103,5 @@ Changes:
   Google Summer of Code 2007 program.
 
 
--- EOF
+---------------------------------------------------------------------------
+                              End of document

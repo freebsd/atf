@@ -198,7 +198,7 @@ merge_maps(std::map< K, V >& dest, const std::map< K, V >& src)
         dest[(*iter).first] = (*iter).second;
 }
 
-class atf_run : public atf::application {
+class atf_run : public atf::application::app {
     static const char* m_description;
 
     atf::tests::vars_map m_atffile_vars;
@@ -246,7 +246,7 @@ const char* atf_run::m_description =
     "results.";
 
 atf_run::atf_run(void) :
-    application(m_description, "atf-run(1)")
+    app(m_description, "atf-run(1)", "atf(7)")
 {
 }
 
@@ -278,6 +278,7 @@ atf_run::options_set
 atf_run::specific_options(void)
     const
 {
+    using atf::application::option;
     options_set opts;
     opts.insert(option('v', "var=value", "Sets the configuration variable "
                                          "`var' to `value'; overrides "

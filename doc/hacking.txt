@@ -1,6 +1,6 @@
-Automated Testing Framework (atf)
-Copyright (c) 2007 The NetBSD Foundation, Inc.
-All rights reserved.
+                     Automated Testing Framework (atf)
+                        The NetBSD Foundation, Inc.
+---------------------------------------------------------------------------
 
 
 Hacking notes
@@ -78,4 +78,5 @@ users who may have branched the code, so please be kind and follow the
 rules.
 
 
--- EOF
+---------------------------------------------------------------------------
+                              End of document
