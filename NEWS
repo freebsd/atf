@@ -11,7 +11,8 @@ Status:       Experimental
 
 Changes:
 
-* None yet.
+* Added two new manual pages, atf-c++-api and atf-sh-api, describing the
+  C++ and POSIX shell interfaces used to write test programs.
 
 
 Version 0.3
