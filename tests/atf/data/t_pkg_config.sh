@@ -42,6 +42,12 @@
 # explicitly during the tests, but then this would not do a real check
 # to ensure that the installation is working.
 
+require_atf_pc()
+{
+    pkg-config atf || atf_fail "pkg-config could not locate atf.pc;" \
+                               "maybe need to set PKG_CONFIG_PATH?"
+}
+
 atf_test_case version
 version_head()
 {
@@ -50,6 +56,8 @@ version_head()
 }
 version_body()
 {
+    require_atf_pc
+
     atf_check "atf-version | head -n 1 | cut -d ' ' -f 4" 0 stdout null
     ver1=$(cat stdout)
     echo "Version reported by atf-version: ${ver1}"
@@ -70,6 +78,8 @@ build_head()
 }
 build_body()
 {
+    require_atf_pc
+
     atf_check "pkg-config --variable=cxx atf" 0 stdout null
     cxx=$(cat stdout)
     echo "Compiler is: ${cxx}"
