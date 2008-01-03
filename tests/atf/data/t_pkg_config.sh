@@ -107,12 +107,15 @@ EOF
     cxxflags=$(cat stdout)
     echo "CXXFLAGS are: ${cxxflags}"
 
-    atf_check "pkg-config --libs atf" 0 stdout null
+    atf_check "pkg-config --libs-only-L --libs-only-other atf" 0 stdout null
+    ldflags=$(cat stdout)
+    atf_check "pkg-config --libs-only-l atf" 0 stdout null
     libs=$(cat stdout)
+    echo "LDFLAGS are: ${ldflags}"
     echo "LIBS are: ${libs}"
 
     atf_check "${cxx} ${cxxflags} -o tp.o -c tp.cpp" 0 null null
-    atf_check "${cxx} ${libs} -o tp tp.o" 0 null null
+    atf_check "${cxx} ${ldflags} -o tp tp.o ${libs}" 0 null null
 
     atf_check "test -x tp" 0 null null
     atf_check "./tp" 0 stdout null
