@@ -19,10 +19,6 @@ Plans for 0.4
 * Add a way to add an upper-bound limit for test run times.  Otherwise a
   test that enters an infinite loop can stall the whole process.
 
-* Add a class, similar in idea to boost::noncopyable, to easily mark some
-  classes as not copyable.  Or, failing to do that, any other way to do
-  the same.
-
 
 Plans for pre-1.0
 =================

@@ -121,6 +121,25 @@ auto_array< T >::operator=(auto_array< T >& ptr)
     return *this;
 }
 
+// ------------------------------------------------------------------------
+// The "noncopyable" class.
+// ------------------------------------------------------------------------
+
+class noncopyable {
+    // The class cannot be empty; otherwise we get ABI-stability warnings
+    // during the build, which will break it due to strict checking.
+    int m_noncopyable_dummy;
+
+    noncopyable(const noncopyable& nc);
+    noncopyable& operator=(const noncopyable& nc);
+
+protected:
+    // Explicitly needed to provide some non-private functions.  Otherwise
+    // we also get some warnings during the build.
+    noncopyable(void) {}
+    ~noncopyable(void) {}
+};
+
 } // namespace utils
 } // namespace atf
 
