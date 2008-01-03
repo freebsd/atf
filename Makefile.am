@@ -41,7 +41,7 @@
 doc_DATA = AUTHORS COPYING NEWS README ROADMAP
 EXTRA_DIST = $(doc_DATA)
 
-dist-hook: admin/revision-dist.h check-readme check-style
+dist-hook: $(srcdir)/admin/revision-dist.h check-readme check-style
 
 AM_CPPFLAGS = -DATF_CONFDIR=\"$(atf_confdir)\" \
               -DATF_LIBEXECDIR=\"$(libexecdir)\" \
@@ -874,7 +874,7 @@ tools_atf_version_LDFLAGS = -L.
 dist_man_MANS += tools/atf-version.1
 
 BUILT_SOURCES = revision.h
-revision.h: admin/revision.h admin/revision-dist.h
+revision.h: admin/revision.h $(srcdir)/admin/revision-dist.h
 	@if [ -f admin/revision.h ]; then \
 	    cmp -s admin/revision.h revision.h || \
 	        cp admin/revision.h revision.h; \
