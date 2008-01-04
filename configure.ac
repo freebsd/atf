@@ -82,6 +82,25 @@ ATF_MODULE_FS
 ATF_MODULE_SANITY
 
 dnl -----------------------------------------------------------------------
+dnl Architecture and machine checks.
+dnl -----------------------------------------------------------------------
+
+machine=$(uname -m)
+
+case ${machine} in
+    i[3-9]86)
+        arch=i386
+        ;;
+    *)
+        arch=${machine}
+        ;;
+esac
+
+AC_MSG_NOTICE([Machine type: ${machine}, architecture: ${arch}])
+AC_SUBST(atf_arch, ${arch})
+AC_SUBST(atf_machine, ${machine})
+
+dnl -----------------------------------------------------------------------
 dnl User-customizable variables.
 dnl -----------------------------------------------------------------------
 

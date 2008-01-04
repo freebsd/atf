@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -470,6 +470,34 @@ void
 impl::tc::check_requirements(void)
     const
 {
+    if (has("require.arch")) {
+        const std::string& a = get("require.arch");
+        std::vector< std::string > arches = text::split(a, " ");
+        bool found = false;
+        for (std::vector< std::string >::const_iterator iter = arches.begin();
+             iter != arches.end() && !found; iter++) {
+            if ((*iter) == atf::config::get("atf_arch"))
+                found = true;
+        }
+        if (!a.empty() && !found)
+            throw tcr::skipped("Requires one of the '" + a +
+                               "' architectures");
+    }
+
+    if (has("require.machine")) {
+        const std::string& m = get("require.machine");
+        std::vector< std::string > machines = text::split(m, " ");
+        bool found = false;
+        for (std::vector< std::string >::const_iterator iter =
+             machines.begin(); iter != machines.end() && !found; iter++) {
+            if ((*iter) == atf::config::get("atf_machine"))
+                found = true;
+        }
+        if (!m.empty() && !found)
+            throw tcr::skipped("Requires one of the '" + m +
+                               "' machine types");
+    }
+
     if (has("require.config")) {
         const std::string& c = get("require.config");
         std::vector< std::string > vars = text::split(c, " ");

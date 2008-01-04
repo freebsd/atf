@@ -43,8 +43,10 @@ EXTRA_DIST = $(doc_DATA)
 
 dist-hook: $(srcdir)/admin/revision-dist.h check-readme check-style
 
-AM_CPPFLAGS = -DATF_CONFDIR=\"$(atf_confdir)\" \
+AM_CPPFLAGS = -DATF_ARCH=\"$(atf_arch)\" \
+              -DATF_CONFDIR=\"$(atf_confdir)\" \
               -DATF_LIBEXECDIR=\"$(libexecdir)\" \
+              -DATF_MACHINE=\"$(atf_machine)\" \
               -DATF_PKGDATADIR=\"$(pkgdatadir)\" \
               -DATF_SHELL=\"$(ATF_SHELL)\" \
               -DATF_WORKDIR=\"$(ATF_WORKDIR)\"

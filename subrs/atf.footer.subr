@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -46,8 +46,10 @@
 # ------------------------------------------------------------------------
 
 # Values of configuration variables obtained from atf-config.
+Atf_Arch=$(atf-config -t atf_arch)
 Atf_Cleanup=$(atf-config -t atf_libexecdir)/atf-cleanup
 Atf_Format=$(atf-config -t atf_libexecdir)/atf-format
+Atf_Machine=$(atf-config -t atf_machine)
 
 # List of blocked signals, to be processed when unblocked.
 Held_Signals=
@@ -665,6 +667,32 @@ _atf_run_body()
     unset TZ
 
     umask 0022
+
+    _arches=$(atf_get require.arch)
+    if [ -n "${_arches}" ]; then
+        found=no
+        for _a in ${_arches}; do
+            if [ ${_a} = ${Atf_Arch} ]; then
+                found=yes
+                break
+            fi
+        done
+        [ ${found} = yes ] || \
+            atf_skip "Requires one of the '${_arches}' architectures"
+    fi
+
+    _machines=$(atf_get require.machine)
+    if [ -n "${_machines}" ]; then
+        found=no
+        for _m in ${_machines}; do
+            if [ ${_m} = ${Atf_Machine} ]; then
+                found=yes
+                break
+            fi
+        done
+        [ ${found} = yes ] || \
+            atf_skip "Requires one of the '${_machines}' machine types"
+    fi
 
     _vars="$(atf_get require.config)"
     if [ -n "${_vars}" ]; then

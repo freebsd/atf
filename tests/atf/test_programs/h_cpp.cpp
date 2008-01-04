@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -318,6 +318,16 @@ ATF_TEST_CASE_BODY(ident_2)
     ATF_CHECK_EQUAL(get("ident"), "ident_2");
 }
 
+ATF_TEST_CASE(require_arch);
+ATF_TEST_CASE_HEAD(require_arch)
+{
+    set("descr", "Helper test case for the t_meta_data test program");
+    set("require.arch", config().get("arch", "not-set"));
+}
+ATF_TEST_CASE_BODY(require_arch)
+{
+}
+
 ATF_TEST_CASE(require_config);
 ATF_TEST_CASE_HEAD(require_config)
 {
@@ -328,6 +338,16 @@ ATF_TEST_CASE_BODY(require_config)
 {
     std::cout << "var1: " << config().get("var1") << std::endl;
     std::cout << "var2: " << config().get("var2") << std::endl;
+}
+
+ATF_TEST_CASE(require_machine);
+ATF_TEST_CASE_HEAD(require_machine)
+{
+    set("descr", "Helper test case for the t_meta_data test program");
+    set("require.machine", config().get("machine", "not-set"));
+}
+ATF_TEST_CASE_BODY(require_machine)
+{
 }
 
 ATF_TEST_CASE(require_progs_body);
@@ -512,7 +532,9 @@ ATF_INIT_TEST_CASES(tcs)
     // Add helper tests for t_meta_data.
     ATF_ADD_TEST_CASE(tcs, ident_1);
     ATF_ADD_TEST_CASE(tcs, ident_2);
+    ATF_ADD_TEST_CASE(tcs, require_arch);
     ATF_ADD_TEST_CASE(tcs, require_config);
+    ATF_ADD_TEST_CASE(tcs, require_machine);
     ATF_ADD_TEST_CASE(tcs, require_progs_body);
     ATF_ADD_TEST_CASE(tcs, require_progs_head);
     ATF_ADD_TEST_CASE(tcs, require_user_root);

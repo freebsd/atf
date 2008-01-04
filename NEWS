@@ -17,6 +17,10 @@ Changes:
 * Added a pkg-config file, useful to get the flags to build against the
   C++ library or to easily detect the presence of ATF.
 
+* Added a way for test cases to require a specific architecture and/or
+  machine type through the new 'require.arch' and 'require.machine'
+  meta-data properties, respectively.
+
 * Fixed a serious bug that prevented atf-run(1) from working at all under
   Fedora 8 x86_64.  Due to the nature of the bug, other platforms were
   likely affected too.

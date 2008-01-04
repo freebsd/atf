@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -258,6 +258,17 @@ ident_2_body()
     atf_check_equal '$(atf_get ident)' ident_2
 }
 
+atf_test_case require_arch
+require_arch_head()
+{
+    atf_set "descr" "Helper test case for the t_meta_data test program"
+    atf_set "require.arch" "$(atf_config_get arch)"
+}
+require_arch_body()
+{
+    :
+}
+
 atf_test_case require_config
 require_config_head()
 {
@@ -268,6 +279,17 @@ require_config_body()
 {
     echo "var1: $(atf_config_get var1)"
     echo "var2: $(atf_config_get var2)"
+}
+
+atf_test_case require_machine
+require_machine_head()
+{
+    atf_set "descr" "Helper test case for the t_meta_data test program"
+    atf_set "require.machine" "$(atf_config_get machine)"
+}
+require_machine_body()
+{
+    :
 }
 
 atf_test_case require_progs_body
@@ -418,7 +440,9 @@ atf_init_test_cases()
     # Add helper tests for t_meta_data.
     atf_add_test_case ident_1
     atf_add_test_case ident_2
+    atf_add_test_case require_arch
     atf_add_test_case require_config
+    atf_add_test_case require_machine
     atf_add_test_case require_progs_body
     atf_add_test_case require_progs_head
     atf_add_test_case require_user_root
