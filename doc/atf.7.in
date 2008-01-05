@@ -46,7 +46,9 @@ is a collection of libraries and utilities designed to ease unattended
 application testing in the hands of developers and end users of a specific
 piece of software.
 .Pp
-As regards developers, ATF provides the necessary means to easily create
+As regards developers,
+.Nm
+provides the necessary means to easily create
 test suites composed of multiple test programs, which in turn are a
 collection of test cases.
 It also attempts to simplify the debugging of problems when these test
