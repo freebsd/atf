@@ -50,6 +50,8 @@ AC_CONFIG_MACRO_DIR([admin])
 AC_CONFIG_SRCDIR([atf.hpp])
 AC_CONFIG_TESTDIR([tests/bootstrap])
 
+AC_CANONICAL_TARGET
+
 AM_INIT_AUTOMAKE([1.9 check-news subdir-objects -Wall])
 
 dnl This is just a hack to reverse the meaning of the --enable-shared
@@ -85,7 +87,7 @@ dnl -----------------------------------------------------------------------
 dnl Architecture and machine checks.
 dnl -----------------------------------------------------------------------
 
-machine=$(uname -m)
+machine=${target_cpu}
 
 case ${machine} in
     i[3-9]86)
