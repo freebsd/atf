@@ -34,53 +34,53 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-tc_pass_head()
+atf_test_case pass
+pass_head()
 {
     atf_set "descr" "An empty test case that always passes"
 }
-
-tc_pass_body()
+pass_body()
 {
     atf_pass
 }
 
-tc_fail_head()
+atf_test_case fail
+fail_head()
 {
     atf_set "descr" "An empty test case that always fails"
 }
-
-tc_fail_body()
+fail_body()
 {
     atf_fail "On purpose"
 }
 
-tc_skip_head()
+atf_test_case skip
+skip_head()
 {
     atf_set "descr" "An empty test case that is always skipped"
 }
-
-tc_skip_body()
+skip_body()
 {
     atf_skip "By design"
 }
 
-tc_default_head()
+atf_test_case default
+default_head()
 {
     atf_set "descr" "A test case that passes without explicitly" \
                     "stating it"
 }
-
-tc_default_body()
+default_body()
 {
     :
 }
 
 atf_init_test_cases()
 {
-    atf_add_test_case tc_pass
-    atf_add_test_case tc_fail
-    atf_add_test_case tc_skip
-    atf_add_test_case tc_default
+    atf_add_test_case pass
+    atf_add_test_case fail
+    atf_add_test_case skip
+    atf_add_test_case default
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

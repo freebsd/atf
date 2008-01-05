@@ -37,7 +37,7 @@
 
 Prog_Name=${0##*/}
 
-if [ ! -f ./libs/atf.hpp ]; then
+if [ ! -f ./atf.hpp ]; then
     echo "${Prog_Name}: must be run from atf source's top directory" 1>&2
     exit 1
 fi
@@ -59,6 +59,7 @@ rm -rf autom4te.cache
 rm -f config.h.in
 rm -f configure
 rm -f mkinstalldirs
+rm -f atf-*.tar.gz
 
 # `admin' directory.
 rm -f admin/compile
@@ -68,6 +69,7 @@ rm -f admin/depcomp
 rm -f admin/install-sh
 rm -f admin/ltmain.sh
 rm -f admin/missing
+rm -f admin/revision*
 
 # `tests/bootstrap' directory.
 rm -f tests/bootstrap/package.m4

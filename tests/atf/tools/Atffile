@@ -1,9 +1,9 @@
-Content-Type: application/X-atf-atffile; version="0"
+Content-Type: application/X-atf-atffile; version="1"
 
-test-suite: atf
+prop: test-suite = atf
 
-t_atf_config
-t_atf_compile
-t_atf_cleanup
-t_atf_run
-t_atf_report
+tp: t_atf_config
+tp: t_atf_compile
+tp: t_atf_cleanup
+tp: t_atf_run
+tp: t_atf_report

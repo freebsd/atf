@@ -72,6 +72,13 @@ BEGIN {
     warn("Undesired usage of #ifndef; use #if !defined()")
 }
 
+/assert[ \t]*\(/ {
+    warn("Use the macros in sanity.hpp instead of assert");
+}
+
+/include.*assert/ {
+    warn("Do not include assert.h nor cassert");
+}
 END {
     if (skip)
         warn("Missing NO_CHECK_STYLE_END");

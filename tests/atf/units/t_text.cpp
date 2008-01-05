@@ -213,6 +213,32 @@ ATF_TEST_CASE_BODY(split_delims)
     ATF_CHECK_EQUAL(words[2], "ef");
 }
 
+ATF_TEST_CASE(trim);
+ATF_TEST_CASE_HEAD(trim)
+{
+    set("descr", "Tests the trim function");
+}
+ATF_TEST_CASE_BODY(trim)
+{
+    using atf::text::trim;
+
+    ATF_CHECK_EQUAL(trim(""), "");
+    ATF_CHECK_EQUAL(trim(" "), "");
+    ATF_CHECK_EQUAL(trim("\t"), "");
+
+    ATF_CHECK_EQUAL(trim(" foo"), "foo");
+    ATF_CHECK_EQUAL(trim("\t foo"), "foo");
+    ATF_CHECK_EQUAL(trim(" \tfoo"), "foo");
+    ATF_CHECK_EQUAL(trim("foo\t "), "foo");
+    ATF_CHECK_EQUAL(trim("foo \t"), "foo");
+
+    ATF_CHECK_EQUAL(trim("foo bar"), "foo bar");
+    ATF_CHECK_EQUAL(trim("\t foo bar"), "foo bar");
+    ATF_CHECK_EQUAL(trim(" \tfoo bar"), "foo bar");
+    ATF_CHECK_EQUAL(trim("foo bar\t "), "foo bar");
+    ATF_CHECK_EQUAL(trim("foo bar \t"), "foo bar");
+}
+
 ATF_TEST_CASE(to_string);
 ATF_TEST_CASE_HEAD(to_string)
 {
@@ -229,8 +255,9 @@ ATF_TEST_CASE_BODY(to_string)
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    tcs.push_back(&join);
-    tcs.push_back(&split);
-    tcs.push_back(&split_delims);
-    tcs.push_back(&to_string);
+    ATF_ADD_TEST_CASE(tcs, join);
+    ATF_ADD_TEST_CASE(tcs, split);
+    ATF_ADD_TEST_CASE(tcs, split_delims);
+    ATF_ADD_TEST_CASE(tcs, trim);
+    ATF_ADD_TEST_CASE(tcs, to_string);
 }

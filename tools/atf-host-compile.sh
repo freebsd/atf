@@ -76,6 +76,7 @@ main()
     echo "#! ${Atf_Shell}" >${tfile}
     cat ${Atf_Pkgdatadir}/atf.init.subr >>${tfile}
     echo >>${tfile}
+    echo '. ${Atf_Pkgdatadir}/atf.config.subr' >>${tfile}
     echo '. ${Atf_Pkgdatadir}/atf.header.subr' >>${tfile}
     echo >>${tfile}
     cat ${sfiles} >>${tfile}

@@ -67,7 +67,7 @@ guess_topdir() {
     olddir=$(pwd)
     topdir=$(pwd)
     while [ ${topdir} != / ]; do
-        if [ -f libs/atf.hpp ]; then
+        if [ -f ./atf.hpp ]; then
             break
         else
             cd ..
@@ -98,9 +98,12 @@ find_sources() {
               -name "*.awk" -o \
               -name "*.cpp" -o \
               -name "*.hpp" -o \
+              -name "*.m4" -o \
               -name "*.sh" \
            \) -a \( \
-              \! -path "*autom4te*" \
+              \! -path "*autom4te*" -a \
+              -type f -a \
+              \! -name "aclocal.m4" \
            \)
 }
 
@@ -150,7 +153,7 @@ check_file() {
 #
 main() {
     topdir=$(guess_topdir)
-    if [ ! -f ${topdir}/libs/atf.hpp ]; then
+    if [ ! -f ${topdir}/atf.hpp ]; then
         err "Could not locate the project's top directory"
     fi
 

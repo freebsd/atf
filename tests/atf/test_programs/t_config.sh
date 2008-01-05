@@ -34,6 +34,7 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+atf_test_case vflag
 vflag_head()
 {
     atf_set "descr" "Tests that the -v flag works correctly to set" \

@@ -33,7 +33,7 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd August 18, 2007
+.Dd October 29, 2007
 .Dt ATF-REPORT 1
 .Os
 .Sh NAME
@@ -102,16 +102,50 @@ The following output formats are allowed:
 .Bl -tag -width tickerXX
 .It csv
 A machine-parseable Comma-Separated Values (CSV) file.
-Each line of the result is of the form:
+This file contains the results for all test cases and test programs.
+Test cases are logged using the following syntax:
 .Bd -literal -offset indent
-test-program,test-case,result[,reason]
+tc, test-program, test-case, result[, reason]
 .Ed
+.Pp
+The
+.Sq result
+field for test cases is always one of
+.Sq passed ,
+.Sq skipped
+or
+.Sq failed .
+The last two are always followed by a reason.
+.Pp
+Test programs are logged with the following syntax:
+.Bd -literal -offset indent
+tp, test-program, result[, reason]
+.Ed
+.Pp
+In this case, the
+.Sq result
+can be one of:
+.Sq passed ,
+which denotes test programs that ran without any failure;
+.Sq failed ,
+which refers to test programs in which one or more test cases failed;
+or
+.Sq bogus ,
+which mentions those test programs that failed to execute by some reason.
+The reason file is only available in the last case.
+.Pp
+You should not rely on the order of the entries in the resulting output.
 .It ticker
 A user-friendly report that shows the progress of the test suite's
 execution as it operates.
 This type of report should always be redirected to a virtual terminal,
 not a file, as it may use control sequences that will make the output
 unreadable in regular files.
+.It xml
+A report contained in a single XML file.
+Ideal for later processing with
+.Xr xsltproc 1
+to generate nice HTML reports.
 .El
 .Sh EXAMPLES
 The most simple way of running a test suite is to pipe the output of
@@ -135,5 +169,5 @@ Or if the standard report is not desired, thus achieving completely silent
 operation:
 atf-run | atf-report -o csv:testsuite.csv
 .Sh SEE ALSO
-.Xr atf 1 ,
-.Xr atf-run 1
+.Xr atf-run 1 ,
+.Xr atf 7

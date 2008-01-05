@@ -66,43 +66,43 @@ AT_CHECK([TEST_HELPER(tp_basic_sh) -r3 3>resout],
          [1], [expout], [experr])
 AT_CHECK([cmp -s resout resexp], [0], [], [])
 
-dnl Run the tc_pass test case.
-AT_CHECK([TEST_HELPER(tp_basic_cpp) -r3 3>resout tc_pass],
+dnl Run the pass test case.
+AT_CHECK([TEST_HELPER(tp_basic_cpp) -r3 3>resout pass],
          [0], [stdout], [stderr])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
 sed 's,tp_basic_cpp,tp_basic_sh,g' <resout >resexp
-AT_CHECK([TEST_HELPER(tp_basic_sh) -r3 3>resout tc_pass],
+AT_CHECK([TEST_HELPER(tp_basic_sh) -r3 3>resout pass],
          [0], [expout], [experr])
 AT_CHECK([cmp -s resout resexp], [0], [], [])
 
-dnl Run the tc_fail test case.
-AT_CHECK([TEST_HELPER(tp_basic_cpp) -r3 3>resout tc_fail],
+dnl Run the fail test case.
+AT_CHECK([TEST_HELPER(tp_basic_cpp) -r3 3>resout fail],
          [1], [stdout], [stderr])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
 sed 's,tp_basic_cpp,tp_basic_sh,g' <resout >resexp
-AT_CHECK([TEST_HELPER(tp_basic_sh) -r3 3>resout tc_fail],
+AT_CHECK([TEST_HELPER(tp_basic_sh) -r3 3>resout fail],
          [1], [expout], [experr])
 AT_CHECK([cmp -s resout resexp], [0], [], [])
 
-dnl Run the tc_skip test case.
-AT_CHECK([TEST_HELPER(tp_basic_cpp) -r3 3>resout tc_skip],
+dnl Run the skip test case.
+AT_CHECK([TEST_HELPER(tp_basic_cpp) -r3 3>resout skip],
          [0], [stdout], [stderr])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
 sed 's,tp_basic_cpp,tp_basic_sh,g' <resout >resexp
-AT_CHECK([TEST_HELPER(tp_basic_sh) -r3 3>resout tc_skip],
+AT_CHECK([TEST_HELPER(tp_basic_sh) -r3 3>resout skip],
          [0], [expout], [experr])
 AT_CHECK([cmp -s resout resexp], [0], [], [])
 
-dnl Run the tc_default test case.
-AT_CHECK([TEST_HELPER(tp_basic_cpp) -r3 3>resout tc_default],
+dnl Run the default test case.
+AT_CHECK([TEST_HELPER(tp_basic_cpp) -r3 3>resout default],
          [0], [stdout], [stderr])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
 sed 's,tp_basic_cpp,tp_basic_sh,g' <resout >resexp
-AT_CHECK([TEST_HELPER(tp_basic_sh) -r3 3>resout tc_default],
+AT_CHECK([TEST_HELPER(tp_basic_sh) -r3 3>resout default],
          [0], [expout], [experr])
 AT_CHECK([cmp -s resout resexp], [0], [], [])
 
@@ -117,12 +117,12 @@ AT_CHECK([TEST_HELPER(tp_basic_sh) -r3 3>resout "*f*"],
 AT_CHECK([cmp -s resout resexp], [0], [], [])
 
 dnl Run an unknown test case.
-AT_CHECK([TEST_HELPER(tp_basic_cpp) -r3 3>resout tc_unknown],
+AT_CHECK([TEST_HELPER(tp_basic_cpp) -r3 3>resout unknown],
          [1], [stdout], [stderr])
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stdout >expout
 sed 's,tp_basic_cpp,tp_basic_sh,g' <stderr >experr
 sed 's,tp_basic_cpp,tp_basic_sh,g' <resout >resexp
-AT_CHECK([TEST_HELPER(tp_basic_sh) -r3 3>resout tc_unknown],
+AT_CHECK([TEST_HELPER(tp_basic_sh) -r3 3>resout unknown],
          [1], [expout], [experr])
 AT_CHECK([cmp -s resout resexp], [0], [], [])
 

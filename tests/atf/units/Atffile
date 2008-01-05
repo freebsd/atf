@@ -1,14 +1,15 @@
-Content-Type: application/X-atf-atffile; version="0"
+Content-Type: application/X-atf-atffile; version="1"
 
-test-suite: atf
+prop: test-suite = atf
 
-t_env
-t_config
-t_text
-t_fs
-t_io
-t_expand
-t_user
-t_serial
-t_formats
-t_tests
+tp: t_sanity
+tp: t_env
+tp: t_config
+tp: t_text
+tp: t_fs
+tp: t_io
+tp: t_expand
+tp: t_user
+tp: t_parser
+tp: t_tests
+tp: t_utils

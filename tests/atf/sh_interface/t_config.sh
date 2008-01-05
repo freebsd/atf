@@ -34,6 +34,7 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+atf_test_case has
 has_head()
 {
     atf_set "descr" "Verifies that atf_config_has works"
@@ -44,6 +45,7 @@ has_body()
     atf_config_has "undefined" && atf_fail "Found unexpected variable"
 }
 
+atf_test_case get
 get_head()
 {
     atf_set "descr" "Verifies that atf_config_get works"

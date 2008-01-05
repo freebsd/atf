@@ -39,6 +39,7 @@ cleanup()
     $(atf-config -t atf_libexecdir)/atf-cleanup "${@}"
 }
 
+atf_test_case file
 file_head()
 {
     atf_set "descr" "Tests that a single file can be removed"
@@ -50,6 +51,7 @@ file_body()
     atf_check 'test -e foo' 1 null null
 }
 
+atf_test_case dir_empty
 dir_empty_head()
 {
     atf_set "descr" "Tests that a single empty directory can be removed"
@@ -61,6 +63,7 @@ dir_empty_body()
     atf_check 'test -e foo' 1 null null
 }
 
+atf_test_case dir_full
 dir_full_head()
 {
     atf_set "descr" "Tests that a directory with contents can be removed"
@@ -75,6 +78,7 @@ dir_full_body()
     atf_check 'test -e foo' 1 null null
 }
 
+atf_test_case mount
 mount_head()
 {
     atf_set "descr" "Tests that the removal algorithm does not cross" \
@@ -85,7 +89,7 @@ mount_body()
 {
     platform=$(uname)
     case ${platform} in
-    NetBSD)
+    Linux|NetBSD)
         mkdir foo
         mkdir foo/bar
         mkdir foo/bar/mnt
@@ -108,6 +112,7 @@ mount_body()
     atf_check "test -d foo" 1 null null
 }
 
+atf_test_case symlink
 symlink_head()
 {
     atf_set "descr" "Tests that the removal algorithm does not follow" \
@@ -119,7 +124,7 @@ symlink_body()
 {
     platform=$(uname)
     case ${platform} in
-    NetBSD)
+    Linux|NetBSD)
         atf_check 'mkdir foo' 0 null null
         atf_check 'mkdir foo/bar' 0 null null
         atf_check 'mount -t tmpfs tmpfs foo/bar' 0 null null

@@ -34,8 +34,38 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cstring>
+
 #include "atf/expand.hpp"
 #include "atf/macros.hpp"
+
+// ------------------------------------------------------------------------
+// Test cases for the "pattern_error" class.
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(pattern_error);
+ATF_TEST_CASE_HEAD(pattern_error)
+{
+    set("descr", "Tests the pattern_error class.");
+}
+ATF_TEST_CASE_BODY(pattern_error)
+{
+    using atf::expand::pattern_error;
+
+    atf::utils::auto_array< char > buf(new char[80]);
+    std::strcpy(buf.get(), "Test string.");
+
+    pattern_error pe1(buf);
+    {
+        pattern_error pe2(pe1);
+        ATF_CHECK(std::strcmp(pe1.what(), pe2.what()) == 0);
+    }
+    ATF_CHECK(std::strcmp(pe1.what(), "Test string.") == 0);
+}
+
+// ------------------------------------------------------------------------
+// Test cases for the free functions.
+// ------------------------------------------------------------------------
 
 ATF_TEST_CASE(is_glob);
 ATF_TEST_CASE_HEAD(is_glob)
@@ -254,10 +284,14 @@ ATF_TEST_CASE_BODY(expand_glob_tps)
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    tcs.push_back(&is_glob);
-    tcs.push_back(&matches_glob_plain);
-    tcs.push_back(&matches_glob_star);
-    tcs.push_back(&matches_glob_question);
-    tcs.push_back(&expand_glob_base);
-    tcs.push_back(&expand_glob_tps);
+    // Add the tests for the "pattern_error" class.
+    ATF_ADD_TEST_CASE(tcs, pattern_error);
+
+    // Add the tests for the free functions.
+    ATF_ADD_TEST_CASE(tcs, is_glob);
+    ATF_ADD_TEST_CASE(tcs, matches_glob_plain);
+    ATF_ADD_TEST_CASE(tcs, matches_glob_star);
+    ATF_ADD_TEST_CASE(tcs, matches_glob_question);
+    ATF_ADD_TEST_CASE(tcs, expand_glob_base);
+    ATF_ADD_TEST_CASE(tcs, expand_glob_tps);
 }

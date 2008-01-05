@@ -34,15 +34,15 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
 
 #include "atf/application.hpp"
+#include "atf/sanity.hpp"
 #include "atf/ui.hpp"
 
-class atf_format : public atf::application {
+class atf_format : public atf::application::app {
     static const char* m_description;
 
     size_t m_length;
@@ -66,7 +66,7 @@ const char* atf_format::m_description =
     "line is treated as a different paragraph.";
 
 atf_format::atf_format(void) :
-    application(m_description, "atf-format(1)"),
+    app(m_description, "atf-format(1)", "atf(7)"),
     m_length(0),
     m_repeat(false)
 {
@@ -97,7 +97,7 @@ atf_format::process_option(int ch, const char* arg)
         break;
 
     default:
-        assert(false);
+        UNREACHABLE;
     }
 }
 
@@ -112,6 +112,7 @@ atf_format::options_set
 atf_format::specific_options(void)
     const
 {
+    using atf::application::option;
     options_set opts;
     opts.insert(option('l', "length", "Tag length"));
     opts.insert(option('r', "", "Repeat tag on each line"));

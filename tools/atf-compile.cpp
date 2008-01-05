@@ -39,13 +39,13 @@ extern "C" {
 #include <sys/stat.h>
 }
 
-#include <cassert>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 
 #include "atf/application.hpp"
 #include "atf/config.hpp"
+#include "atf/sanity.hpp"
 
 static
 void
@@ -60,7 +60,7 @@ cat_file(std::ostream& os, const std::string& path)
     is.close();
 }
 
-class atf_compile : public atf::application {
+class atf_compile : public atf::application::app {
     static const char* m_description;
 
     std::string m_outfile;
@@ -82,7 +82,7 @@ const char* atf_compile::m_description =
     "POSIX shell language, generating an executable.";
 
 atf_compile::atf_compile(void) :
-    application(m_description, "atf-compile(1)")
+    app(m_description, "atf-compile(1)", "atf(7)")
 {
 }
 
@@ -97,9 +97,9 @@ atf_compile::options_set
 atf_compile::specific_options(void)
     const
 {
+    using atf::application::option;
     options_set opts;
-    opts.insert(option('o', "out-file",
-                       "Write output to the given file"));
+    opts.insert(option('o', "out-file", "Name of the output file"));
     return opts;
 }
 
@@ -112,7 +112,7 @@ atf_compile::process_option(int ch, const char* arg)
         break;
 
     default:
-        assert(false);
+        UNREACHABLE;
     }
 }
 
@@ -122,6 +122,7 @@ atf_compile::compile(std::ostream& os)
     os << "#! " << atf::config::get("atf_shell") << std::endl;
     cat_file(os, atf::config::get("atf_pkgdatadir") + "/atf.init.subr");
     os << std::endl;
+    os << ". ${Atf_Pkgdatadir}/atf.config.subr" << std::endl;
     os << ". ${Atf_Pkgdatadir}/atf.header.subr" << std::endl;
     os << std::endl;
     for (int i = 0; i < m_argc; i++) {
@@ -137,21 +138,25 @@ int
 atf_compile::main(void)
 {
     if (m_argc < 1)
-        throw atf::usage_error("No test program specified");
+        throw atf::application::usage_error("No test program specified");
 
-    if (m_outfile.empty()) {
-        compile(std::cout);
-    } else {
-        std::ofstream os(m_outfile.c_str());
-        if (!os)
-            throw std::runtime_error("Cannot open output file `" +
-                                     m_outfile + "'");
-        compile(os);
-        os.close();
+    if (m_outfile.empty())
+        throw atf::application::usage_error("No output file specified");
 
-        // XXX Handle errors and respect umask.
-        ::chmod(m_outfile.c_str(), 0755);
-    }
+    std::ofstream os(m_outfile.c_str());
+    if (!os)
+        throw std::runtime_error("Cannot open output file `" +
+                                 m_outfile + "'");
+    compile(os);
+    os.close();
+
+    mode_t umask = ::umask(S_IRWXU | S_IRWXG | S_IRWXO);
+    ::umask(umask);
+
+    if (::chmod(m_outfile.c_str(),
+                (S_IRWXU | S_IRWXG | S_IRWXO) & ~umask) == -1)
+        throw std::runtime_error("Cannot set executable permissions "
+                                 "on `" + m_outfile + "'");
 
     return EXIT_SUCCESS;
 }
