@@ -4,10 +4,6 @@
 // Copyright (c) 2007 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
-// This code is derived from software contributed to The NetBSD Foundation
-// by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-// 2007 program.
-//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
 // are met:
@@ -43,31 +39,28 @@ extern "C" {
 #include <sys/stat.h>
 }
 
-#include <cassert>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 
-#include "atfprivate/application.hpp"
-#include "atfprivate/config.hpp"
+#include "atf/application.hpp"
+#include "atf/config.hpp"
+#include "atf/sanity.hpp"
 
 static
 void
 cat_file(std::ostream& os, const std::string& path)
 {
     std::ifstream is(path.c_str());
-    if (!is) {
-        // XXX
-        std::cerr << "Cannot open " << path << std::endl;
-        std::exit(EXIT_FAILURE);
-    }
+    if (!is)
+        throw std::runtime_error("Cannot open " + path);
     std::string line;
     while (std::getline(is, line))
         os << line << std::endl;
     is.close();
 }
 
-class atf_compile : public atf::application {
+class atf_compile : public atf::application::app {
     static const char* m_description;
 
     std::string m_outfile;
@@ -89,7 +82,7 @@ const char* atf_compile::m_description =
     "POSIX shell language, generating an executable.";
 
 atf_compile::atf_compile(void) :
-    application(m_description, "atf-compile(1)")
+    app(m_description, "atf-compile(1)", "atf(7)")
 {
 }
 
@@ -104,9 +97,9 @@ atf_compile::options_set
 atf_compile::specific_options(void)
     const
 {
+    using atf::application::option;
     options_set opts;
-    opts.insert(option('o', "out-file",
-                       "Write output to the given file"));
+    opts.insert(option('o', "out-file", "Name of the output file"));
     return opts;
 }
 
@@ -119,7 +112,7 @@ atf_compile::process_option(int ch, const char* arg)
         break;
 
     default:
-        assert(false);
+        UNREACHABLE;
     }
 }
 
@@ -129,35 +122,41 @@ atf_compile::compile(std::ostream& os)
     os << "#! " << atf::config::get("atf_shell") << std::endl;
     cat_file(os, atf::config::get("atf_pkgdatadir") + "/atf.init.subr");
     os << std::endl;
-    os << ". ${atf_pkgdatadir}/atf.header.subr" << std::endl;
+    os << ". ${Atf_Pkgdatadir}/atf.config.subr" << std::endl;
+    os << ". ${Atf_Pkgdatadir}/atf.header.subr" << std::endl;
     os << std::endl;
     for (int i = 0; i < m_argc; i++) {
         cat_file(os, m_argv[i]);
         os << std::endl;
     }
-    os << ". ${atf_pkgdatadir}/atf.footer.subr" << std::endl;
+    os << ". ${Atf_Pkgdatadir}/atf.footer.subr" << std::endl;
+    os << std::endl;
+    os << "main \"${@}\"" << std::endl;
 }
 
 int
 atf_compile::main(void)
 {
     if (m_argc < 1)
-        throw atf::usage_error("No test program specified");
+        throw atf::application::usage_error("No test program specified");
 
-    if (m_outfile.empty()) {
-        compile(std::cout);
-    } else {
-        std::ofstream os(m_outfile.c_str());
-        if (!os) {
-            std::cerr << "Cannot open output" << std::endl;
-            return EXIT_FAILURE;
-        }
-        compile(os);
-        os.close();
+    if (m_outfile.empty())
+        throw atf::application::usage_error("No output file specified");
 
-        // XXX Handle errors and respect umask.
-        ::chmod(m_outfile.c_str(), 0755);
-    }
+    std::ofstream os(m_outfile.c_str());
+    if (!os)
+        throw std::runtime_error("Cannot open output file `" +
+                                 m_outfile + "'");
+    compile(os);
+    os.close();
+
+    mode_t umask = ::umask(S_IRWXU | S_IRWXG | S_IRWXO);
+    ::umask(umask);
+
+    if (::chmod(m_outfile.c_str(),
+                (S_IRWXU | S_IRWXG | S_IRWXO) & ~umask) == -1)
+        throw std::runtime_error("Cannot set executable permissions "
+                                 "on `" + m_outfile + "'");
 
     return EXIT_SUCCESS;
 }

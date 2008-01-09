@@ -4,10 +4,6 @@ dnl
 dnl Copyright (c) 2007 The NetBSD Foundation, Inc.
 dnl All rights reserved.
 dnl
-dnl This code is derived from software contributed to The NetBSD Foundation
-dnl by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-dnl 2007 program.
-dnl
 dnl Redistribution and use in source and binary forms, with or without
 dnl modification, are permitted provided that the following conditions
 dnl are met:
@@ -40,16 +36,20 @@ dnl
 
 AT_SETUP([test_program: list test cases])
 
-AT_CHECK([TEST_HELPER(tp_basic_cpp) -l], [0], [stdout], [])
-AT_CHECK([COUNT_LINES(stdout, 4)], [0], [ignore], [])
-AT_CHECK([grep 'tc_pass .*always passes' stdout], [0], [ignore], [])
-AT_CHECK([grep 'tc_fail .*always fails' stdout], [0], [ignore], [])
-AT_CHECK([grep 'tc_skip .*always skipped' stdout], [0], [ignore], [])
-AT_CHECK([grep 'tc_default .*explicitly' stdout], [0], [ignore], [])
+for h in tp_basic_cpp tp_basic_sh; do
 
-AT_CHECK([TEST_HELPER(tp_basic_cpp) -l tc_pass], [0], [stdout], [])
+AT_CHECK([TEST_HELPER(${h}) -l], [0], [stdout], [])
+AT_CHECK([COUNT_LINES(stdout, 4)], [0], [ignore], [])
+AT_CHECK([grep 'pass .*always passes' stdout], [0], [ignore], [])
+AT_CHECK([grep 'fail .*always fails' stdout], [0], [ignore], [])
+AT_CHECK([grep 'skip .*always skipped' stdout], [0], [ignore], [])
+AT_CHECK([grep 'default .*explicitly' stdout], [0], [ignore], [])
+
+AT_CHECK([TEST_HELPER(${h}) -l pass], [0], [stdout], [])
 AT_CHECK([COUNT_LINES(stdout, 1)], [0], [ignore], [])
-AT_CHECK([grep 'tc_pass .*always passes' stdout], [0], [ignore], [])
+AT_CHECK([grep 'pass .*always passes' stdout], [0], [ignore], [])
+
+done
 
 AT_CLEANUP()
 

@@ -4,10 +4,6 @@ dnl
 dnl Copyright (c) 2007 The NetBSD Foundation, Inc.
 dnl All rights reserved.
 dnl
-dnl This code is derived from software contributed to The NetBSD Foundation
-dnl by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-dnl 2007 program.
-dnl
 dnl Redistribution and use in source and binary forms, with or without
 dnl modification, are permitted provided that the following conditions
 dnl are met:
@@ -40,10 +36,10 @@ dnl
 
 AT_SETUP([application: online help option])
 
-AT_CHECK([TEST_HELPER(tp_basic_cpp)], 1, [stdout], [])
+AT_CHECK([APP_HELPER(app_empty)], 0, [stdout], [])
 AT_CHECK([grep 'Available options' stdout], 1, [ignore], [])
 
-AT_CHECK([TEST_HELPER(tp_basic_cpp) -h], 0, [stdout], [])
+AT_CHECK([APP_HELPER(app_empty) -h], 0, [stdout], [])
 AT_CHECK([grep 'Available options' stdout], 0, [ignore], [])
 
 AT_CLEANUP()

@@ -4,10 +4,6 @@
 // Copyright (c) 2007 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
-// This code is derived from software contributed to The NetBSD Foundation
-// by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-// 2007 program.
-//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
 // are met:
@@ -40,9 +36,9 @@
 
 #include <cstdlib>
 
-#include "atfprivate/application.hpp"
+#include "atf/application.hpp"
 
-class h_app_empty : public atf::application {
+class h_app_empty : public atf::application::app {
     static const char* m_description;
 
 public:
@@ -56,7 +52,7 @@ const char* h_app_empty::m_description =
     "on its own and redefines no methods.";
 
 h_app_empty::h_app_empty(void) :
-    application(m_description)
+    app(m_description, "h_app_empty(1)", "atf(7)")
 {
 }
 

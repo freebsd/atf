@@ -4,10 +4,6 @@ dnl
 dnl Copyright (c) 2007 The NetBSD Foundation, Inc.
 dnl All rights reserved.
 dnl
-dnl This code is derived from software contributed to The NetBSD Foundation
-dnl by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-dnl 2007 program.
-dnl
 dnl Redistribution and use in source and binary forms, with or without
 dnl modification, are permitted provided that the following conditions
 dnl are met:
@@ -41,15 +37,31 @@ dnl
 AT_SETUP([atf-run: execution of tests])
 AT_TESTED(atf-run)
 
+dnl XXX The 9 number used below is a hack used to simplify these tests.
+dnl The correct fix could be to make the auxiliary test programs be real
+dnl test programs instead of two-liners creted from here.
+
 m4_define([CREATE_PASS_TEST], [AT_DATA([$1],[#! /bin/sh
-echo '$2, passed'
+echo "Content-Type: application/X-atf-tcs; version=\"1\"" >&9
+echo "" >&9
+echo 'tcs-count: 1' >&9
+echo 'tc-start: $2' >&9
+echo ignore-me
+echo ignore-me >&2
+echo 'tc-end: $2, passed' >&9
 true
 ])
 AT_CHECK([chmod +x $1], [0], [], [])
 ])
 
 m4_define([CREATE_FAIL_TEST], [AT_DATA([$1],[#! /bin/sh
-echo '$2, failed, No reason'
+echo "Content-Type: application/X-atf-tcs; version=\"1\"" >&9
+echo "" >&9
+echo 'tcs-count: 1' >&9
+echo 'tc-start: $2' >&9
+echo ignore-me
+echo ignore-me >&2
+echo 'tc-end: $2, failed, No reason' >&9
 false
 ])
 AT_CHECK([chmod +x $1], [0], [], [])
@@ -58,15 +70,30 @@ AT_CHECK([chmod +x $1], [0], [], [])
 AT_CHECK([mkdir top], [0], [], [])
 AT_CHECK([mkdir top/dir1], [0], [], [])
 AT_CHECK([mkdir top/dir2], [0], [], [])
-AT_DATA([top/Atffile], [dir1
-dir2
-test1
-test2
+AT_DATA([top/Atffile],
+[Content-Type: application/X-atf-atffile; version="1"
+
+prop: test-suite = atf
+
+tp: dir1
+tp: dir2
+tp: test1
+tp: test2
 ])
-AT_DATA([top/dir1/Atffile], [test3
+AT_DATA([top/dir1/Atffile],
+[Content-Type: application/X-atf-atffile; version="1"
+
+prop: test-suite = atf
+
+tp: test3
 ])
-AT_DATA([top/dir2/Atffile], [test4
-test5
+AT_DATA([top/dir2/Atffile],
+[Content-Type: application/X-atf-atffile; version="1"
+
+prop: test-suite = atf
+
+tp: test4
+tp: test5
 ])
 CREATE_PASS_TEST([top/test1], [tc_1])
 CREATE_FAIL_TEST([top/test2], [tc_2])
@@ -75,20 +102,82 @@ CREATE_FAIL_TEST([top/dir2/test4], [tc_4])
 CREATE_PASS_TEST([top/dir2/test5], [tc_5])
 
 AT_CHECK([cd top/dir1 && atf-run], [0], [stdout], [])
-AT_CHECK([grep -i 'tc_3.*passed' stdout], [0], [ignore], [])
+CHECK_TPS_TCR(tc_3, passed, stdout)
 AT_CHECK([grep -i 'tc_@<:@1245@:>@' stdout], [1], [], [])
+AT_CHECK([grep 'tc-so:ignore-me' stdout], [0], [ignore], [])
+AT_CHECK([grep 'tc-se:ignore-me' stdout], [0], [ignore], [])
 
-AT_CHECK([cd top/dir2 && atf-run], [1], [stdout], [])
-AT_CHECK([grep -i 'tc_4.*failed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_5.*passed' stdout], [0], [ignore], [])
+AT_CHECK([cd top/dir2 && atf-run], [1], [stdout], [stderr])
+CHECK_TPS_TCR(tc_4, failed, stdout)
+CHECK_TPS_TCR(tc_5, passed, stdout)
 AT_CHECK([grep -i 'tc_@<:@123@:>@' stdout], [1], [], [])
+AT_CHECK([grep 'tc-so:ignore-me' stdout], [0], [ignore], [])
+AT_CHECK([grep 'tc-se:ignore-me' stdout], [0], [ignore], [])
 
-AT_CHECK([cd top && atf-run], [1], [stdout], [])
-AT_CHECK([grep -i 'tc_1.*passed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_2.*failed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_3.*passed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_4.*failed' stdout], [0], [ignore], [])
-AT_CHECK([grep -i 'tc_5.*passed' stdout], [0], [ignore], [])
+AT_CHECK([cd top && atf-run], [1], [stdout], [stderr])
+CHECK_TPS_TCR(tc_1, passed, stdout)
+CHECK_TPS_TCR(tc_2, failed, stdout)
+CHECK_TPS_TCR(tc_3, passed, stdout)
+CHECK_TPS_TCR(tc_4, failed, stdout)
+CHECK_TPS_TCR(tc_5, passed, stdout)
+AT_CHECK([grep 'tc-so:ignore-me' stdout], [0], [ignore], [])
+AT_CHECK([grep 'tc-se:ignore-me' stdout], [0], [ignore], [])
+
+dnl Repeat previous but using a glob that matches everything.
+AT_DATA([top/Atffile],
+[Content-Type: application/X-atf-atffile; version="1"
+
+prop: test-suite = atf
+
+tp-glob: *
+])
+AT_CHECK([cd top && atf-run], [1], [stdout], [stderr])
+CHECK_TPS_TCR(tc_1, passed, stdout)
+CHECK_TPS_TCR(tc_2, failed, stdout)
+CHECK_TPS_TCR(tc_3, passed, stdout)
+CHECK_TPS_TCR(tc_4, failed, stdout)
+CHECK_TPS_TCR(tc_5, passed, stdout)
+AT_CHECK([grep 'tc-so:ignore-me' stdout], [0], [ignore], [])
+AT_CHECK([grep 'tc-se:ignore-me' stdout], [0], [ignore], [])
+
+dnl Repeat previous but using a glob that matches directories only.
+AT_DATA([top/Atffile],
+[Content-Type: application/X-atf-atffile; version="1"
+
+prop: test-suite = atf
+
+tp-glob: d*
+])
+AT_CHECK([cd top && atf-run], [1], [stdout], [stderr])
+CHECK_TPS_TCR(tc_3, passed, stdout)
+CHECK_TPS_TCR(tc_4, failed, stdout)
+CHECK_TPS_TCR(tc_5, passed, stdout)
+AT_CHECK([grep 'tc-so:ignore-me' stdout], [0], [ignore], [])
+AT_CHECK([grep 'tc-se:ignore-me' stdout], [0], [ignore], [])
+
+dnl Make sure globs do not match non-executatble nor hidden files.
+dnl XXX This is not really part of the bootstrap test suite.  Move to
+dnl tests/atf/tools/t_atf_run.sh when it exists.
+AT_CHECK([rm -rf top], [0], [], [])
+AT_CHECK([mkdir top], [0], [], [])
+CREATE_PASS_TEST([top/test1], [tc_1])
+CREATE_PASS_TEST([top/test2], [tc_2])
+CREATE_PASS_TEST([top/test3], [tc_3])
+AT_CHECK([chmod -x top/test3], [0], [], [])
+CREATE_PASS_TEST([top/.test4], [tc_4])
+AT_CHECK([chmod -x top/.test4], [0], [], [])
+AT_DATA([top/Atffile],
+[Content-Type: application/X-atf-atffile; version="1"
+
+prop: test-suite = atf
+
+tp-glob: *
+])
+AT_CHECK([cd top && atf-run], [0], [stdout], [stderr])
+CHECK_TPS_TCR(tc_1, passed, stdout)
+CHECK_TPS_TCR(tc_2, passed, stdout)
+AT_CHECK([grep -i 'tc_3' stdout], [1], [ignore], [])
+AT_CHECK([grep -i 'tc_4' stdout], [1], [ignore], [])
 
 AT_CLEANUP()
 

@@ -1,17 +1,13 @@
-Automated Testing Framework (atf)
-Copyright (c) 2007 The NetBSD Foundation, Inc.
-All rights reserved.
+                     Automated Testing Framework (atf)
+                        The NetBSD Foundation, Inc.
+---------------------------------------------------------------------------
 
 
 License
 =======
 
-Copyright (c) 2007 The NetBSD Foundation, Inc.
+Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 All rights reserved.
-
-This code is derived from software contributed to The NetBSD Foundation
-by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-2007 program.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -56,19 +52,23 @@ is put here just to clarify this fact.
   the ones in the XML Catalog Manager project, version 2.2.
   Author: Julio M. Merino Vidal <jmmv@users.sourceforge.net>
 
-* libs/atfprivate/ui.cpp: The format_paragraph and format_text
-  functions were derived form the ones in the Monotone project,
+* atf/ui.cpp: The format_paragraph and format_text functions were
+  derived form the ones in the Monotone project,
   revision 3a0982da308228d796df35f98d787c5cff2bb5b6.
   Author: Julio M. Merino Vidal <jmmv@NetBSD.org>
 
-* libs/atfprivate/file_handle.hpp, libs/atfprivate/pipe.hpp,
-  libs/atfprivate/pistream.hpp, libs/atfprivate/postream.hpp,
-  libs/atfprivate/systembuf.hpp, tests/units/t_file_handle.cpp,
-  tests/units/t_pipe.hpp, tests/units/t_pistream.hpp,
-  tests/units/t_postream.hpp, tests/units/t_systembuf.hpp: These
-  files were derived from their corresponding ones in the Boost.Process
-  library.
+* atf/io.hpp, atf/io.cpp, tests/units/t_io.cpp: These files were derived
+  from the file_handle, systembuf, pipe, pistream and postream classes
+  and tests found in the Boost.Process library.
+  Author: Julio M. Merino Vidal <jmmv84@gmail.com>
+
+* admin/check-style.sh, admin/check-style-common.awk,
+  admin/check-style-cpp.awk, admin/check-style-shell.awk: These files,
+  except the first one, were first implemented in the Buildtool project.
+  They were later adapted to be part of Boost.Process and, during that
+  process, the shell script was created.
   Author: Julio M. Merino Vidal <jmmv84@gmail.com>
 
 
--- EOF
+---------------------------------------------------------------------------
+                              End of document
