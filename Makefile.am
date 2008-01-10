@@ -816,7 +816,8 @@ tests_build_libuseless_a_SOURCES = \
     tests/build/t_include_text_hpp.cpp \
     tests/build/t_include_ui_hpp.cpp \
     tests/build/t_include_user_hpp.cpp \
-    tests/build/t_include_utils_hpp.cpp
+    tests/build/t_include_utils_hpp.cpp \
+    tests/build/t_use_macros_hpp.cpp
 
 # -------------------------------------------------------------------------
 # `tools' directory.

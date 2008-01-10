@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -108,10 +108,12 @@
                     #e " as expected"; \
         throw atf::tests::tcr::failed(__atf_ss.str()); \
     } catch (const e& __atf_eo) { \
-    } catch (const std::runtime_error& __atf_re) { \
+    } catch (const atf::tests::tcr&) { \
+        throw; \
+    } catch (const std::exception& __atf_e) { \
         std::ostringstream __atf_ss; \
         __atf_ss << "Line " << __LINE__ << ": " #x " threw an " \
-                    "unexpected error (not " #e "): " << __atf_re.what(); \
+                    "unexpected error (not " #e "): " << __atf_e.what(); \
         throw atf::tests::tcr::failed(__atf_ss.str()); \
     } catch (...) { \
         std::ostringstream __atf_ss; \
