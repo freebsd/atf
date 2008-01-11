@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // This code is derived from software contributed to The NetBSD Foundation
@@ -47,7 +47,7 @@
 namespace atf {
 
 //!
-//! \brief Formats an error message to fit on string.
+//! \brief Formats an error message to fit on screen.
 //!
 //! Given the program's name and an error message, properly formats it to
 //! fit on screen.
@@ -59,7 +59,7 @@ namespace atf {
 std::string format_error(const std::string&, const std::string&);
 
 //!
-//! \brief Formats an informational message to fit on string.
+//! \brief Formats an informational message to fit on screen.
 //!
 //! Given the program's name and an informational message, properly formats
 //! it to fit on screen.
@@ -99,7 +99,7 @@ std::string format_text_with_tag(const std::string&, const std::string&,
                                  bool, size_t = 0);
 
 //!
-//! \brief Formats a warning message to fit on string.
+//! \brief Formats a warning message to fit on screen.
 //!
 //! Given the program's name and a warning message, properly formats it to
 //! fit on screen.
