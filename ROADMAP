@@ -89,8 +89,8 @@ Plans for post-1.0
   to a finer granularity (test cases) is harder and maybe not worth it.
 
 
-Things to we will not do
-========================
+Things that we will not do
+==========================
 
 This is a list of things that will *not* be addressed anytime soon in the
 project.  Of course most of them would be nice to have in the future, but
