@@ -4,10 +4,6 @@ dnl
 dnl Copyright (c) 2007 The NetBSD Foundation, Inc.
 dnl All rights reserved.
 dnl
-dnl This code is derived from software contributed to The NetBSD Foundation
-dnl by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-dnl 2007 program.
-dnl
 dnl Redistribution and use in source and binary forms, with or without
 dnl modification, are permitted provided that the following conditions
 dnl are met:
@@ -39,7 +35,13 @@ dnl IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 dnl
 
 AT_SETUP([atf-format: formatting of long lines])
-AT_TESTED(atf-format)
+
+AT_TESTED([atf-config])
+call_atf_format()
+{
+    export COLUMNS # Required by FreeBSD's sh.
+    $(atf-config -t atf_libexecdir)/atf-format "${@}"
+}
 
 dnl Start by formatting a single-paragraph message.  Do several tests
 dnl with different screen widths.
@@ -51,28 +53,28 @@ AT_DATA([text],
 AT_DATA([expout],
 [This is a single-line text message to be formatted.
 ])
-AT_CHECK([COLUMNS=80 atf-format <text], [0], [expout], [])
+AT_CHECK([COLUMNS=80 call_atf_format <text], [0], [expout], [])
 
 AT_DATA([expout],
 [  tag  This is a single-line text message to be formatted.
 ])
-AT_CHECK([COLUMNS=80 atf-format -t '  tag  ' <text], [0], [expout], [])
-AT_CHECK([COLUMNS=80 atf-format -t '  tag' -l 7 <text], [0], [expout], [])
+AT_CHECK([COLUMNS=80 call_atf_format -t '  tag  ' <text], [0], [expout], [])
+AT_CHECK([COLUMNS=80 call_atf_format -t '  tag' -l 7 <text], [0], [expout], [])
 
 AT_DATA([expout],
 [This is a single-line
 text message to be
 formatted.
 ])
-AT_CHECK([COLUMNS=21 atf-format <text], [0], [expout], [])
+AT_CHECK([COLUMNS=21 call_atf_format <text], [0], [expout], [])
 
 AT_DATA([expout],
 [  tag  This is a single-line
        text message to be
        formatted.
 ])
-AT_CHECK([COLUMNS=28 atf-format -t '  tag  ' <text], [0], [expout], [])
-AT_CHECK([COLUMNS=28 atf-format -t '  tag' -l 7 <text], [0], [expout], [])
+AT_CHECK([COLUMNS=28 call_atf_format -t '  tag  ' <text], [0], [expout], [])
+AT_CHECK([COLUMNS=28 call_atf_format -t '  tag' -l 7 <text], [0], [expout], [])
 
 AT_DATA([expout],
 [  tag  This
@@ -85,8 +87,8 @@ AT_DATA([expout],
        be
        formatted.
 ])
-AT_CHECK([COLUMNS=1 atf-format -t '  tag  ' <text], [0], [expout], [])
-AT_CHECK([COLUMNS=1 atf-format -t '  tag' -l 7 <text], [0], [expout], [])
+AT_CHECK([COLUMNS=1 call_atf_format -t '  tag  ' <text], [0], [expout], [])
+AT_CHECK([COLUMNS=1 call_atf_format -t '  tag' -l 7 <text], [0], [expout], [])
 
 dnl Now repeat all the tests above buy by formatting a two-paragraph
 dnl message.
@@ -101,15 +103,15 @@ AT_DATA([expout],
 
 And this is the second line, or better said paragraph.
 ])
-AT_CHECK([COLUMNS=80 atf-format <text], [0], [expout], [])
+AT_CHECK([COLUMNS=80 call_atf_format <text], [0], [expout], [])
 
 AT_DATA([expout],
 [  tag  This is a multi-line text message to be formatted.
 
        And this is the second line, or better said paragraph.
 ])
-AT_CHECK([COLUMNS=80 atf-format -t '  tag  ' <text], [0], [expout], [])
-AT_CHECK([COLUMNS=80 atf-format -t '  tag' -l 7 <text], [0], [expout], [])
+AT_CHECK([COLUMNS=80 call_atf_format -t '  tag  ' <text], [0], [expout], [])
+AT_CHECK([COLUMNS=80 call_atf_format -t '  tag' -l 7 <text], [0], [expout], [])
 
 AT_DATA([expout],
 [This is a multi-line
@@ -121,7 +123,7 @@ second line, or
 better said
 paragraph.
 ])
-AT_CHECK([COLUMNS=21 atf-format <text], [0], [expout], [])
+AT_CHECK([COLUMNS=21 call_atf_format <text], [0], [expout], [])
 
 AT_DATA([expout],
 [  tag  This is a multi-line
@@ -133,8 +135,8 @@ AT_DATA([expout],
        better said
        paragraph.
 ])
-AT_CHECK([COLUMNS=28 atf-format -t '  tag  ' <text], [0], [expout], [])
-AT_CHECK([COLUMNS=28 atf-format -t '  tag' -l 7 <text], [0], [expout], [])
+AT_CHECK([COLUMNS=28 call_atf_format -t '  tag  ' <text], [0], [expout], [])
+AT_CHECK([COLUMNS=28 call_atf_format -t '  tag' -l 7 <text], [0], [expout], [])
 
 AT_DATA([expout],
 [  tag  This
@@ -158,8 +160,17 @@ AT_DATA([expout],
        said
        paragraph.
 ])
-AT_CHECK([COLUMNS=1 atf-format -t '  tag  ' <text], [0], [expout], [])
-AT_CHECK([COLUMNS=1 atf-format -t '  tag' -l 7 <text], [0], [expout], [])
+AT_CHECK([COLUMNS=1 call_atf_format -t '  tag  ' <text], [0], [expout], [])
+AT_CHECK([COLUMNS=1 call_atf_format -t '  tag' -l 7 <text], [0], [expout], [])
+
+dnl NO_CHECK_STYLE_BEGIN
+AT_DATA([text],
+[This is a single-line text message to be formatted; it is very long so that it wraps a traditional 80-column terminal.
+])
+dnl NO_CHECK_STYLE_END
+cp text expout
+
+AT_CHECK([COLUMNS= call_atf_format <text], [0], [expout], [])
 
 AT_CLEANUP()
 

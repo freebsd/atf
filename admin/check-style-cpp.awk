@@ -5,10 +5,6 @@
 # Copyright (c) 2007 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
-# This code is derived from software contributed to The NetBSD Foundation
-# by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-# 2007 program.
-#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -76,6 +72,13 @@ BEGIN {
     warn("Undesired usage of #ifndef; use #if !defined()")
 }
 
+/assert[ \t]*\(/ {
+    warn("Use the macros in sanity.hpp instead of assert");
+}
+
+/include.*assert/ {
+    warn("Do not include assert.h nor cassert");
+}
 END {
     if (skip)
         warn("Missing NO_CHECK_STYLE_END");

@@ -4,10 +4,6 @@ dnl
 dnl Copyright (c) 2007 The NetBSD Foundation, Inc.
 dnl All rights reserved.
 dnl
-dnl This code is derived from software contributed to The NetBSD Foundation
-dnl by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-dnl 2007 program.
-dnl
 dnl Redistribution and use in source and binary forms, with or without
 dnl modification, are permitted provided that the following conditions
 dnl are met:
@@ -40,25 +36,53 @@ dnl
 
 AT_SETUP([test_program: filter test cases by name])
 
-AT_DATA([expout], [tc_pass, passed
-tc_fail, failed, On purpose
-tc_skip, skipped, By design
-tc_default, passed
-])
-AT_CHECK([TEST_HELPER(tp_basic_cpp)], 1, [expout], [])
+for h in tp_basic_cpp tp_basic_sh; do
 
-AT_DATA([expout], [tc_pass, passed
-])
-AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_pass], 0, [expout], [])
+AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="1"
 
-AT_DATA([expout], [tc_skip, skipped, By design
+tcs-count: 4
+tc-start: pass
+tc-end: pass, passed
+tc-start: fail
+tc-end: fail, failed, On purpose
+tc-start: skip
+tc-end: skip, skipped, By design
+tc-start: default
+tc-end: default, passed
 ])
-AT_CHECK([TEST_HELPER(tp_basic_cpp) tc_skip], 0, [expout], [])
+AT_CHECK([TEST_HELPER(${h}) -r3 3>resout], 1, [ignore], [ignore])
+AT_CHECK([cmp -s resout expres], [0], [], [])
 
-AT_DATA([expout], [tc_default, passed
-tc_fail, failed, On purpose
+AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="1"
+
+tcs-count: 1
+tc-start: pass
+tc-end: pass, passed
 ])
-AT_CHECK([TEST_HELPER(tp_basic_cpp) "*f*"], 1, [expout], [])
+AT_CHECK([TEST_HELPER(${h}) -r3 pass 3>resout], 0, [ignore], [ignore])
+AT_CHECK([cmp -s resout expres], [0], [], [])
+
+AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="1"
+
+tcs-count: 1
+tc-start: skip
+tc-end: skip, skipped, By design
+])
+AT_CHECK([TEST_HELPER(${h}) -r3 skip 3>resout], 0, [ignore], [ignore])
+AT_CHECK([cmp -s resout expres], [0], [], [])
+
+AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="1"
+
+tcs-count: 2
+tc-start: default
+tc-end: default, passed
+tc-start: fail
+tc-end: fail, failed, On purpose
+])
+AT_CHECK([TEST_HELPER(${h}) -r3 "*f*" 3>resout], 1, [ignore], [ignore])
+AT_CHECK([cmp -s resout expres], [0], [], [])
+
+done
 
 AT_CLEANUP()
 

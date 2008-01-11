@@ -4,10 +4,6 @@
 // Copyright (c) 2007 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
-// This code is derived from software contributed to The NetBSD Foundation
-// by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-// 2007 program.
-//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
 // are met:
@@ -40,58 +36,58 @@
 
 #include <atf.hpp>
 
-ATF_TEST_CASE(tc_pass);
+ATF_TEST_CASE(pass);
 
-ATF_TEST_CASE_HEAD(tc_pass)
+ATF_TEST_CASE_HEAD(pass)
 {
     set("descr", "An empty test case that always passes");
 }
 
-ATF_TEST_CASE_BODY(tc_pass)
+ATF_TEST_CASE_BODY(pass)
 {
     ATF_PASS();
 }
 
-ATF_TEST_CASE(tc_fail);
+ATF_TEST_CASE(fail);
 
-ATF_TEST_CASE_HEAD(tc_fail)
+ATF_TEST_CASE_HEAD(fail)
 {
     set("descr", "An empty test case that always fails");
 }
 
-ATF_TEST_CASE_BODY(tc_fail)
+ATF_TEST_CASE_BODY(fail)
 {
     ATF_FAIL("On purpose");
 }
 
-ATF_TEST_CASE(tc_skip);
+ATF_TEST_CASE(skip);
 
-ATF_TEST_CASE_HEAD(tc_skip)
+ATF_TEST_CASE_HEAD(skip)
 {
     set("descr", "An empty test case that is always skipped");
 }
 
-ATF_TEST_CASE_BODY(tc_skip)
+ATF_TEST_CASE_BODY(skip)
 {
     ATF_SKIP("By design");
 }
 
-ATF_TEST_CASE(tc_default);
+ATF_TEST_CASE(default);
 
-ATF_TEST_CASE_HEAD(tc_default)
+ATF_TEST_CASE_HEAD(default)
 {
     set("descr", "A test case that passes without explicitly "
                  "stating it");
 }
 
-ATF_TEST_CASE_BODY(tc_default)
+ATF_TEST_CASE_BODY(default)
 {
 }
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    tcs.push_back(&tc_pass);
-    tcs.push_back(&tc_fail);
-    tcs.push_back(&tc_skip);
-    tcs.push_back(&tc_default);
+    ATF_ADD_TEST_CASE(tcs, pass);
+    ATF_ADD_TEST_CASE(tcs, fail);
+    ATF_ADD_TEST_CASE(tcs, skip);
+    ATF_ADD_TEST_CASE(tcs, default);
 }

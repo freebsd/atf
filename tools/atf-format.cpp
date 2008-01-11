@@ -4,10 +4,6 @@
 // Copyright (c) 2007 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
-// This code is derived from software contributed to The NetBSD Foundation
-// by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-// 2007 program.
-//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
 // are met:
@@ -38,15 +34,15 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
 
-#include "atfprivate/application.hpp"
-#include "atfprivate/ui.hpp"
+#include "atf/application.hpp"
+#include "atf/sanity.hpp"
+#include "atf/ui.hpp"
 
-class atf_format : public atf::application {
+class atf_format : public atf::application::app {
     static const char* m_description;
 
     size_t m_length;
@@ -70,7 +66,7 @@ const char* atf_format::m_description =
     "line is treated as a different paragraph.";
 
 atf_format::atf_format(void) :
-    application(m_description, "atf-format(1)"),
+    app(m_description, "atf-format(1)", "atf(7)"),
     m_length(0),
     m_repeat(false)
 {
@@ -101,7 +97,7 @@ atf_format::process_option(int ch, const char* arg)
         break;
 
     default:
-        assert(false);
+        UNREACHABLE;
     }
 }
 
@@ -116,6 +112,7 @@ atf_format::options_set
 atf_format::specific_options(void)
     const
 {
+    using atf::application::option;
     options_set opts;
     opts.insert(option('l', "length", "Tag length"));
     opts.insert(option('r', "", "Repeat tag on each line"));
@@ -141,7 +138,7 @@ atf_format::main(void)
             str += line + '\n';
     }
 
-    std::cout << atf::format_text_with_tag(str, m_tag, m_repeat, m_length)
+    std::cout << atf::ui::format_text_with_tag(str, m_tag, m_repeat, m_length)
               << std::endl;
 
     return EXIT_SUCCESS;

@@ -4,10 +4,6 @@
 // Copyright (c) 2007 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
-// This code is derived from software contributed to The NetBSD Foundation
-// by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-// 2007 program.
-//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
 // are met:
@@ -38,13 +34,13 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cassert>
 #include <cstdlib>
 #include <iostream>
 
-#include "atfprivate/application.hpp"
+#include "atf/application.hpp"
+#include "atf/sanity.hpp"
 
-class h_app_opts_args : public atf::application {
+class h_app_opts_args : public atf::application::app {
     static const char* m_description;
 
     std::string specific_args(void) const;
@@ -62,7 +58,7 @@ const char* h_app_opts_args::m_description =
     "methods to specify custom options and arguments.";
 
 h_app_opts_args::h_app_opts_args(void) :
-    application(m_description)
+    app(m_description, "h_app_opts_args(1)", "atf(7)")
 {
 }
 
@@ -77,6 +73,7 @@ h_app_opts_args::options_set
 h_app_opts_args::specific_options(void)
     const
 {
+    using atf::application::option;
     options_set opts;
     opts.insert(option('d', "", "Debug mode"));
     opts.insert(option('v', "level", "Verbosity level"));
@@ -96,7 +93,7 @@ h_app_opts_args::process_option(int ch, const char* arg)
         break;
 
     default:
-        assert(false);
+        UNREACHABLE;
     }
 }
 

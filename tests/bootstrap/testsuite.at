@@ -4,10 +4,6 @@ dnl
 dnl Copyright (c) 2007 The NetBSD Foundation, Inc.
 dnl All rights reserved.
 dnl
-dnl This code is derived from software contributed to The NetBSD Foundation
-dnl by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-dnl 2007 program.
-dnl
 dnl Redistribution and use in source and binary forms, with or without
 dnl modification, are permitted provided that the following conditions
 dnl are met:
@@ -42,7 +38,7 @@ AT_INIT([bootstrap tests])
 
 m4_define([GUESS_TOPDIR], {
     old=$(pwd)
-    while test $(pwd) != '/' -a ! -e ./libs/atf.hpp; do
+    while test $(pwd) != '/' -a ! -e ./Makefile; do
         cd ..
     done
     topdir=$(pwd)
@@ -50,9 +46,21 @@ m4_define([GUESS_TOPDIR], {
     echo ${topdir}
 })
 
-m4_define([TEST_HELPER], [$(GUESS_TOPDIR)/tests/bootstrap/h_$1])
+m4_define([APP_HELPER], [$(GUESS_TOPDIR)/tests/bootstrap/h_$1])
+
+m4_define([TEST_HELPER], [$(GUESS_TOPDIR)/tests/bootstrap/h_$1 \
+                          -s $(GUESS_TOPDIR)/tests/bootstrap])
+
+m4_define(COUNT_IN_LINES,
+          [test @S|@[($1 | wc -l | awk '{ print @S|@1 }')] = $2])
 
 m4_define(COUNT_LINES, [test @S|@[(wc -l $1 | awk '{ print @S|@1 }')] = $2])
+
+m4_define(CHECK_TCS_TCR,
+          [AT_CHECK([grep '^tc-end: $1, $2' $3], [0], [ignore], [])])
+
+m4_define(CHECK_TPS_TCR,
+          [AT_CHECK([grep '^tc-end: $1, $2' $3], [0], [ignore], [])])
 
 dnl The tests below are sorted depending on how important they are.
 m4_include(tests/bootstrap/t_application_opts_args.at)

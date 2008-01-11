@@ -5,10 +5,6 @@
 # Copyright (c) 2007 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
-# This code is derived from software contributed to The NetBSD Foundation
-# by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-# 2007 program.
-#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -41,7 +37,7 @@
 
 Prog_Name=${0##*/}
 
-if [ ! -f ./libs/atf.hpp ]; then
+if [ ! -f ./atf.hpp ]; then
     echo "${Prog_Name}: must be run from atf source's top directory" 1>&2
     exit 1
 fi
@@ -63,14 +59,17 @@ rm -rf autom4te.cache
 rm -f config.h.in
 rm -f configure
 rm -f mkinstalldirs
+rm -f atf-*.tar.gz
 
 # `admin' directory.
+rm -f admin/compile
 rm -f admin/config.guess
 rm -f admin/config.sub
 rm -f admin/depcomp
 rm -f admin/install-sh
 rm -f admin/ltmain.sh
 rm -f admin/missing
+rm -f admin/revision*
 
 # `tests/bootstrap' directory.
 rm -f tests/bootstrap/package.m4
@@ -80,6 +79,7 @@ rm -f tests/bootstrap/testsuite
 find . -name '#*' | xargs rm -rf
 find . -name '*~' | xargs rm -rf
 find . -name .deps | xargs rm -rf
+find . -name .gdb_history | xargs rm -rf
 find . -name .libs | xargs rm -rf
 
-# vim: syntax=sh:expandtab:shiftwidth=4:sofftabstop=4
+# vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

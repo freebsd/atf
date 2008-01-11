@@ -5,10 +5,6 @@
 # Copyright (c) 2007 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
-# This code is derived from software contributed to The NetBSD Foundation
-# by Julio M. Merino Vidal, developed as part of Google's Summer of Code
-# 2007 program.
-#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -71,7 +67,7 @@ guess_topdir() {
     olddir=$(pwd)
     topdir=$(pwd)
     while [ ${topdir} != / ]; do
-        if [ -f libs/atf.hpp ]; then
+        if [ -f ./atf.hpp ]; then
             break
         else
             cd ..
@@ -95,14 +91,20 @@ find_sources() {
               -name "NEWS" -o \
               -name "README" -o \
               -name "TODO" -o \
+              -name "*.[0-9]" -o \
               -name "*.ac" -o \
               -name "*.am" -o \
               -name "*.at" -o \
               -name "*.awk" -o \
               -name "*.cpp" -o \
               -name "*.hpp" -o \
+              -name "*.m4" -o \
               -name "*.sh" \
-           \) -a \( \! -name "*.svn*" \)
+           \) -a \( \
+              \! -path "*autom4te*" -a \
+              -type f -a \
+              \! -name "aclocal.m4" \
+           \)
 }
 
 #
@@ -115,7 +117,9 @@ guess_formats() {
     case ${1} in
         */ltmain.sh)
             ;;
-
+        *.[0-9])
+            echo common man
+            ;;
         *.cpp|*.hpp)
             echo common cpp
             ;;
@@ -149,7 +153,7 @@ check_file() {
 #
 main() {
     topdir=$(guess_topdir)
-    if [ ! -f ${topdir}/libs/atf.hpp ]; then
+    if [ ! -f ${topdir}/atf.hpp ]; then
         err "Could not locate the project's top directory"
     fi
 
