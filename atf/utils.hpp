@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -60,6 +60,7 @@ public:
     void reset(T* = NULL) throw();
 
     auto_array< T >& operator=(auto_array< T >&) throw();
+    T& operator[](int) throw();
 };
 
 template< class T >
@@ -119,6 +120,14 @@ auto_array< T >::operator=(auto_array< T >& ptr)
 {
     reset(ptr.release());
     return *this;
+}
+
+template< class T >
+T&
+auto_array< T >::operator[](int pos)
+    throw()
+{
+    return m_ptr[pos];
 }
 
 // ------------------------------------------------------------------------
