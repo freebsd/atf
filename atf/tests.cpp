@@ -63,6 +63,7 @@ extern "C" {
 #include "atf/fs.hpp"
 #include "atf/io.hpp"
 #include "atf/sanity.hpp"
+#include "atf/signals.hpp"
 #include "atf/tests.hpp"
 #include "atf/text.hpp"
 #include "atf/ui.hpp"
@@ -70,99 +71,6 @@ extern "C" {
 
 namespace impl = atf::tests;
 #define IMPL_NAME "atf::tests"
-
-//
-// Define LAST_SIGNAL to the last signal number valid for the system.
-// This is tricky.  For example, NetBSD defines SIGPWR as the last valid
-// number, whereas Mac OS X defines it as SIGTHR.  Both share the same
-// signal number (32).  If none of these are available, we assume that
-// the highest signal is SIGUSR2.
-//
-#if defined(SIGTHR) && defined(SIGPWR)
-#   if SIGTHR > SIGPWR
-#       define LAST_SIGNAL SIGTHR
-#   elif SIGPWR < SIGTHR
-#       define LAST_SIGNAL SIGPWR
-#   else
-#       define LAST_SIGNAL SIGPWR
-#   endif
-#elif defined(SIGTHR)
-#   define LAST_SIGNAL SIGTHR
-#elif defined(SIGPWR)
-#   define LAST_SIGNAL SIGPWR
-#else
-#   define LAST_SIGNAL SIGUSR2
-#endif
-
-// ------------------------------------------------------------------------
-// The auxiliary "signal_holder" class.
-// ------------------------------------------------------------------------
-
-//
-// A RAII model to hold a signal while the object is alive.
-//
-class signal_holder {
-    int m_signal;
-    bool m_happened;
-    struct sigaction m_sanew, m_saold;
-
-    static std::map< int, signal_holder* > m_holders;
-    static void handler(int s)
-    {
-        m_holders[s]->m_happened = true;
-    }
-
-    void program(void)
-    {
-        if (::sigaction(m_signal, &m_sanew, &m_saold) == -1)
-            throw atf::system_error("signal_holder::signal_holder",
-                                    "sigaction(2) failed", errno);
-    }
-
-public:
-    signal_holder(int s) :
-        m_signal(s),
-        m_happened(false)
-    {
-        m_sanew.sa_handler = handler;
-        sigemptyset(&m_sanew.sa_mask);
-        m_sanew.sa_flags = 0;
-
-        program();
-        PRE(m_holders.find(m_signal) == m_holders.end());
-        m_holders[m_signal] = this;
-    }
-
-    ~signal_holder(void)
-    {
-        int res = ::sigaction(m_signal, &m_saold, NULL);
-        try {
-            process();
-
-            if (res == -1)
-                throw atf::system_error("signal_holder::signal_holder",
-                                        "sigaction(2) failed", errno);
-        } catch (...) {
-            if (res == -1)
-                throw atf::system_error("signal_holder::signal_holder",
-                                        "sigaction(2) failed", errno);
-        }
-    }
-
-    void process(void)
-    {
-        if (m_happened) {
-            int res = ::sigaction(m_signal, &m_saold, NULL);
-            ::kill(0, m_signal);
-            if (res == -1)
-                throw atf::system_error("signal_holder::signal_holder",
-                                        "sigaction(2) failed", errno);
-            program();
-        }
-    }
-};
-
-std::map< int, signal_holder* > signal_holder::m_holders;
 
 // ------------------------------------------------------------------------
 // The "vars_map" class.
@@ -444,7 +352,7 @@ sanitize_process(const atf::fs::path& workdir)
     sadfl.sa_handler = SIG_DFL;
     sigemptyset(&sadfl.sa_mask);
     sadfl.sa_flags = 0;
-    for (int i = 0; i < LAST_SIGNAL; i++)
+    for (int i = 0; i < atf::signals::last_signo; i++)
         ::sigaction(i, &sadfl, NULL);
 
     // Reset critical environment variables to known values.
@@ -948,9 +856,9 @@ tp::run_tcs(void)
 
     int errcode = EXIT_SUCCESS;
 
-    signal_holder sighup(SIGHUP);
-    signal_holder sigint(SIGINT);
-    signal_holder sigterm(SIGTERM);
+    atf::signals::signal_holder sighup(SIGHUP);
+    atf::signals::signal_holder sigint(SIGINT);
+    atf::signals::signal_holder sigterm(SIGTERM);
 
     atf::formats::atf_tcs_writer w(results_stream(), std::cout, std::cerr,
                                    tcs.size());

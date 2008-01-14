@@ -123,6 +123,8 @@ libatf_la_SOURCES = atf/application.cpp \
                     atf/parser.hpp \
                     atf/sanity.cpp \
                     atf/sanity.hpp \
+                    atf/signals.cpp \
+                    atf/signals.hpp \
                     atf/tests.cpp \
                     atf/tests.hpp \
                     atf/text.cpp \
