@@ -87,17 +87,9 @@ impl::signal_holder::signal_holder(int s) :
 impl::signal_holder::~signal_holder(void)
 {
     int res = ::sigaction(m_signal, &m_saold, NULL);
-    try {
-        process();
-
-        if (res == -1)
-            throw atf::system_error(IMPL_NAME "::signal_holder::signal_holder",
-                                    "sigaction(2) failed", errno);
-    } catch (...) {
-        if (res == -1)
-            throw atf::system_error(IMPL_NAME "::signal_holder::signal_holder",
-                                    "sigaction(2) failed", errno);
-    }
+    INV(res == 0);
+    if (m_happened)
+        ::kill(::getpid(), m_signal);
 }
 
 void
@@ -105,10 +97,11 @@ impl::signal_holder::process(void)
 {
     if (m_happened) {
         int res = ::sigaction(m_signal, &m_saold, NULL);
-        ::kill(0, m_signal);
         if (res == -1)
             throw atf::system_error(IMPL_NAME "::signal_holder::signal_holder",
                                     "sigaction(2) failed", errno);
+        m_happened = false;
+        ::kill(::getpid(), m_signal);
         program();
     }
 }
