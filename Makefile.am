@@ -723,6 +723,14 @@ tests/atf/tools/t_atf_config: $(srcdir)/tests/atf/tools/t_atf_config.sh \
 	test -d tests/atf/tools || mkdir -p tests/atf/tools
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_config.sh
 
+atf_tools_SCRIPTS += tests/atf/tools/t_atf_kill_tree
+CLEANFILES += tests/atf/tools/t_atf_kill_tree
+EXTRA_DIST += tests/atf/tools/t_atf_kill_tree.sh
+tests/atf/tools/t_atf_kill_tree: $(srcdir)/tests/atf/tools/t_atf_kill_tree.sh \
+                                 $(ATF_COMPILE_DEPS)
+	test -d tests/atf/tools || mkdir -p tests/atf/tools
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_kill_tree.sh
+
 atf_tools_SCRIPTS += tests/atf/tools/t_atf_report
 CLEANFILES += tests/atf/tools/t_atf_report
 EXTRA_DIST += tests/atf/tools/t_atf_report.sh
@@ -874,6 +882,12 @@ tools_atf_format_SOURCES = tools/atf-format.cpp
 tools_atf_format_LDADD = -latf
 tools_atf_format_LDFLAGS = -L.
 dist_man_MANS += tools/atf-format.1
+
+libexec_PROGRAMS += tools/atf-kill-tree
+tools_atf_kill_tree_SOURCES = tools/atf-kill-tree.cpp
+tools_atf_kill_tree_LDADD = -latf
+tools_atf_kill_tree_LDFLAGS = -L.
+dist_man_MANS += tools/atf-kill-tree.1
 
 bin_PROGRAMS += tools/atf-report
 tools_atf_report_SOURCES = tools/atf-report.cpp

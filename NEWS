@@ -25,6 +25,9 @@ Changes:
   Fedora 8 x86_64.  Due to the nature of the bug, other platforms were
   likely affected too.
 
+* Added a new internal utility, atf-kill-tree(1), used to kill a tree of
+  processes.
+
 
 Version 0.3
 ===========
