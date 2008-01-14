@@ -70,6 +70,17 @@ namespace sigusr1 {
     }
 } // namespace sigusr1
 
+namespace sigusr1_2 {
+    static bool happened = false;
+
+    static
+    void
+    handler(int signo)
+    {
+        happened = true;
+    }
+} // namespace sigusr1_2
+
 // ------------------------------------------------------------------------
 // Tests for the "signal_holder" class.
 // ------------------------------------------------------------------------
@@ -158,6 +169,53 @@ ATF_TEST_CASE_BODY(signal_holder_process)
 }
 
 // ------------------------------------------------------------------------
+// Tests for the "signal_programmer" class.
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(signal_programmer_program);
+ATF_TEST_CASE_HEAD(signal_programmer_program)
+{
+    set("descr", "Tests that signal_programmer correctly installs a "
+                 "handler");
+}
+ATF_TEST_CASE_BODY(signal_programmer_program)
+{
+    using atf::signals::signal_programmer;
+
+    signal_programmer sp(SIGUSR1, sigusr1_2::handler);
+
+    sigusr1_2::happened = false;
+    ::kill(::getpid(), SIGUSR1);
+    ATF_CHECK(sigusr1_2::happened);
+}
+
+ATF_TEST_CASE(signal_programmer_preserve);
+ATF_TEST_CASE_HEAD(signal_programmer_preserve)
+{
+    set("descr", "Tests that signal_programmer uninstalls the handler "
+                 "during destruction");
+}
+ATF_TEST_CASE_BODY(signal_programmer_preserve)
+{
+    using atf::signals::signal_programmer;
+
+    sigusr1::program();
+    sigusr1::happened = false;
+
+    {
+        signal_programmer sp(SIGUSR1, sigusr1_2::handler);
+
+        sigusr1_2::happened = false;
+        ::kill(::getpid(), SIGUSR1);
+        ATF_CHECK(sigusr1_2::happened);
+    }
+
+    ATF_CHECK(!sigusr1::happened);
+    ::kill(::getpid(), SIGUSR1);
+    ATF_CHECK(sigusr1::happened);
+}
+
+// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -167,4 +225,8 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, signal_holder_preserve);
     ATF_ADD_TEST_CASE(tcs, signal_holder_destructor);
     ATF_ADD_TEST_CASE(tcs, signal_holder_process);
+
+    // Add the tests for the "signal_programmer" class.
+    ATF_ADD_TEST_CASE(tcs, signal_programmer_program);
+    ATF_ADD_TEST_CASE(tcs, signal_programmer_preserve);
 }

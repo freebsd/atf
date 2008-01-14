@@ -97,6 +97,22 @@ public:
     void process(void);
 };
 
+// ------------------------------------------------------------------------
+// The "signal_programmer" class.
+// ------------------------------------------------------------------------
+
+//
+// A RAII model to program a signal while the object is alive.
+//
+class signal_programmer {
+    int m_signal;
+    struct sigaction m_saold;
+
+public:
+    signal_programmer(int s, void (*handler)(int));
+    ~signal_programmer(void);
+};
+
 } // namespace signals
 } // namespace atf
 

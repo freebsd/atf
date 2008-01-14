@@ -105,3 +105,28 @@ impl::signal_holder::process(void)
         program();
     }
 }
+
+// ------------------------------------------------------------------------
+// The "signal_programmer" class.
+// ------------------------------------------------------------------------
+
+impl::signal_programmer::signal_programmer(int s, void (*handler)(int)) :
+    m_signal(s)
+{
+    struct sigaction sa;
+
+    sa.sa_handler = handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+
+    if (::sigaction(m_signal, &sa, &m_saold) == -1)
+        throw atf::system_error(IMPL_NAME
+                                "::signal_programmer::signal_programmer",
+                                "sigaction(2) failed", errno);
+}
+
+impl::signal_programmer::~signal_programmer(void)
+{
+    int res = ::sigaction(m_signal, &m_saold, NULL);
+    INV(res == 0);
+}
