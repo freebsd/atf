@@ -51,6 +51,8 @@ AM_CPPFLAGS = -DATF_ARCH=\"$(atf_arch)\" \
               -DATF_SHELL=\"$(ATF_SHELL)\" \
               -DATF_WORKDIR=\"$(ATF_WORKDIR)\"
 
+LDADD = $(KVM_LIBS)
+
 ATF_COMPILE_DEPS = $(srcdir)/subrs/atf.init.subr
 ATF_COMPILE_DEPS += tools/atf-host-compile
 ATF_COMPILE_SH = ./tools/atf-host-compile
@@ -121,6 +123,8 @@ libatf_la_SOURCES = atf/application.cpp \
                     atf/macros.hpp \
                     atf/parser.cpp \
                     atf/parser.hpp \
+                    atf/procs.cpp \
+                    atf/procs.hpp \
                     atf/sanity.cpp \
                     atf/sanity.hpp \
                     atf/signals.cpp \
@@ -768,6 +772,11 @@ atf_units_PROGRAMS += tests/atf/units/t_parser
 tests_atf_units_t_parser_SOURCES = tests/atf/units/t_parser.cpp
 tests_atf_units_t_parser_LDADD = -latf
 tests_atf_units_t_parser_LDFLAGS = -L.
+
+atf_units_PROGRAMS += tests/atf/units/t_procs
+tests_atf_units_t_procs_SOURCES = tests/atf/units/t_procs.cpp
+tests_atf_units_t_procs_LDADD = -latf
+tests_atf_units_t_procs_LDFLAGS = -L.
 
 atf_units_PROGRAMS += tests/atf/units/t_sanity
 tests_atf_units_t_sanity_SOURCES = tests/atf/units/t_sanity.cpp

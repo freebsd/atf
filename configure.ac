@@ -81,6 +81,7 @@ ATF_DEVELOPER_MODE
 ATF_MODULE_APPLICATION
 ATF_MODULE_ENV
 ATF_MODULE_FS
+ATF_MODULE_PROCS
 ATF_MODULE_SANITY
 
 dnl -----------------------------------------------------------------------
