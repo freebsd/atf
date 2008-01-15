@@ -13,13 +13,6 @@ of salt: the focus of a specific release may change completely depending
 on how things develop.
 
 
-Plans for 0.4
-=============
-
-* Add a way to add an upper-bound limit for test run times.  Otherwise a
-  test that enters an infinite loop can stall the whole process.
-
-
 Plans for pre-1.0
 =================
 

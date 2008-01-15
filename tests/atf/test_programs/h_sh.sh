@@ -359,6 +359,28 @@ require_user_unprivileged2_body()
     :
 }
 
+atf_test_case timeout
+timeout_head()
+{
+    atf_set "descr" "Helper test case for the t_meta_data test program"
+    atf_set "timeout" $(atf_config_get timeout 0)
+}
+timeout_body()
+{
+    sleep $(atf_config_get sleep)
+}
+
+atf_test_case timeout2
+timeout2_head()
+{
+    atf_set "descr" "Helper test case for the t_meta_data test program"
+    atf_set "timeout2" $(atf_config_get timeout2 0)
+}
+timeout2_body()
+{
+    sleep $(atf_config_get sleep2)
+}
+
 # -------------------------------------------------------------------------
 # Helper tests for "t_srcdir".
 # -------------------------------------------------------------------------
@@ -449,6 +471,8 @@ atf_init_test_cases()
     atf_add_test_case require_user_root2
     atf_add_test_case require_user_unprivileged
     atf_add_test_case require_user_unprivileged2
+    atf_add_test_case timeout
+    atf_add_test_case timeout2
 
     # Add helper tests for t_srcdir.
     atf_add_test_case srcdir_exists

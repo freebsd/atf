@@ -371,6 +371,45 @@ require_user_multiple_body()
 }
 
 # -------------------------------------------------------------------------
+# Tests for the "timeout" meta-data property.
+# -------------------------------------------------------------------------
+
+atf_test_case timeout
+timeout_head()
+{
+    atf_set "descr" "Tests that 'timeout' works"
+}
+timeout_body()
+{
+    srcdir=$(atf_get_srcdir)
+    h_cpp=${srcdir}/h_cpp
+    h_sh=${srcdir}/h_sh
+
+    for h in ${h_cpp} ${h_sh}; do
+        atf_check "${h} -s ${srcdir} \
+            -v timeout=0 -v sleep=1 \
+            -r3 timeout 3>resout" 0 ignore ignore
+        atf_check 'grep "timeout, passed" resout' 0 ignore null
+
+        atf_check "${h} -s ${srcdir} \
+            -v timeout=10 -v sleep=1 \
+            -r3 timeout 3>resout" 0 ignore ignore
+        atf_check 'grep "timeout, passed" resout' 0 ignore null
+
+        atf_check "${h} -s ${srcdir} \
+            -v timeout=1 -v sleep=10 \
+            -r3 timeout 3>resout" 1 ignore ignore
+        atf_check 'grep "timeout, failed,.*timed out" resout' 0 ignore null
+
+        atf_check "${h} -s ${srcdir} \
+            -v timeout=1 -v sleep=10 -v timeout2=10 -v sleep2=1 \
+            -r3 timeout timeout2 3>resout" 1 ignore ignore
+        atf_check 'grep "timeout, failed,.*timed out" resout' 0 ignore null
+        atf_check 'grep "timeout2, passed" resout' 0 ignore null
+    done
+}
+
+# -------------------------------------------------------------------------
 # Main.
 # -------------------------------------------------------------------------
 
@@ -385,6 +424,7 @@ atf_init_test_cases()
     atf_add_test_case require_user_root
     atf_add_test_case require_user_unprivileged
     atf_add_test_case require_user_multiple
+    atf_add_test_case timeout
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

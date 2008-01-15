@@ -49,6 +49,7 @@
 Atf_Arch=$(atf-config -t atf_arch)
 Atf_Cleanup=$(atf-config -t atf_libexecdir)/atf-cleanup
 Atf_Format=$(atf-config -t atf_libexecdir)/atf-format
+Atf_Kill_Tree=$(atf-config -t atf_libexecdir)/atf-kill-tree
 Atf_Machine=$(atf-config -t atf_machine)
 
 # List of blocked signals, to be processed when unblocked.
@@ -478,6 +479,25 @@ _atf_ensure_boolean()
 }
 
 #
+# _atf_ensure_integral var
+#
+#   Ensures that the test case defined the variable 'var' to an integral
+#   value.
+#
+_atf_ensure_integral()
+{
+    _atf_ensure_not_empty ${1}
+
+    case $(atf_get ${1}) in
+    [0-9]*)
+        ;;
+    *)
+        _atf_error 128 "Invalid value for integral variable \`${1}'"
+        ;;
+    esac
+}
+
+#
 # _atf_ensure_not_empty var
 #
 #   Ensures that the test case defined the variable 'var' to a non-empty
@@ -635,9 +655,11 @@ _atf_parse_head()
     Test_Case="${1}"
 
     atf_set ident "${1}"
+    atf_set timeout 300
     ${1}_head
     _atf_ensure_not_empty descr
     _atf_ensure_not_empty ident
+    _atf_ensure_integral timeout
     test $(atf_get ident) = "${1}" || \
         _atf_error 128 "Test case redefined ident"
 
@@ -738,6 +760,20 @@ _atf_run_body()
     ${1}_body
 }
 
+_atf_program_timeout()
+{
+    cat >${Work_Dir}/timeout.sh <<EOF
+    _timeout=$(atf_get timeout)
+    if [ \${_timeout} -gt 0 ]; then
+        sleep \${_timeout}
+        touch ${Work_Dir}/atf.timed.out
+        ${Atf_Kill_Tree} -s 9 $1 >/dev/null 2>&1
+    fi
+EOF
+    sh ${Work_Dir}/timeout.sh >/dev/null 2>&1 &
+    echo $!
+}
+
 #
 # _atf_run_tc tc nrest
 #
@@ -765,8 +801,17 @@ _atf_run_tc()
 
     Work_Dir=$(mktemp -d $(atf_config_get workdir)/atf.XXXXXX)
     if [ ${?} -eq 0 ]; then
-        ( cd ${Work_Dir} ; _atf_run_body ${1} ; atf_pass )
+        ( cd ${Work_Dir} ; _atf_run_body ${1} ; atf_pass ) &
+        _body_pid=$!
+        _timeout_pid=$(_atf_program_timeout ${_body_pid})
+        wait ${_body_pid}
         _ret=$?
+        if [ -f ${Work_Dir}/atf.timed.out ]; then
+            ( atf_fail "Test case timed out after $(atf_get timeout) seconds" )
+            _ret=${?}
+        else
+            ${Atf_Kill_Tree} ${_timeout_pid}
+        fi
         ( cd ${Work_Dir} ; ${1}_cleanup )
         if [ ${2} -gt 1 ]; then
             echo __atf_tc_separator__

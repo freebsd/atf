@@ -51,6 +51,7 @@ extern "C" {
 #include "atf/env.hpp"
 #include "atf/fs.hpp"
 #include "atf/macros.hpp"
+#include "atf/text.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -410,6 +411,28 @@ ATF_TEST_CASE_BODY(require_user_unprivileged2)
 {
 }
 
+ATF_TEST_CASE(timeout);
+ATF_TEST_CASE_HEAD(timeout)
+{
+    set("descr", "Helper test case for the t_meta_data test program");
+    set("timeout", config().get("timeout", "0"));
+}
+ATF_TEST_CASE_BODY(timeout)
+{
+    sleep(atf::text::to_type< int >(config().get("sleep")));
+}
+
+ATF_TEST_CASE(timeout2);
+ATF_TEST_CASE_HEAD(timeout2)
+{
+    set("descr", "Helper test case for the t_meta_data test program");
+    set("timeout", config().get("timeout2", "0"));
+}
+ATF_TEST_CASE_BODY(timeout2)
+{
+    sleep(atf::text::to_type< int >(config().get("sleep2")));
+}
+
 // ------------------------------------------------------------------------
 // Helper tests for "t_srcdir".
 // ------------------------------------------------------------------------
@@ -541,6 +564,8 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, require_user_root2);
     ATF_ADD_TEST_CASE(tcs, require_user_unprivileged);
     ATF_ADD_TEST_CASE(tcs, require_user_unprivileged2);
+    ATF_ADD_TEST_CASE(tcs, timeout);
+    ATF_ADD_TEST_CASE(tcs, timeout2);
 
     // Add helper tests for t_srcdir.
     ATF_ADD_TEST_CASE(tcs, srcdir_exists);

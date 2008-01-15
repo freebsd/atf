@@ -37,12 +37,14 @@
 extern "C" {
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/wait.h>
 #include <signal.h>
 #include <unistd.h>
 }
 
 #include <algorithm>
+#include <cctype>
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
@@ -62,6 +64,7 @@ extern "C" {
 #include "atf/formats.hpp"
 #include "atf/fs.hpp"
 #include "atf/io.hpp"
+#include "atf/procs.hpp"
 #include "atf/sanity.hpp"
 #include "atf/signals.hpp"
 #include "atf/tests.hpp"
@@ -71,6 +74,27 @@ extern "C" {
 
 namespace impl = atf::tests;
 #define IMPL_NAME "atf::tests"
+
+// ------------------------------------------------------------------------
+// Auxiliary stuff for the timeout implementation.
+// ------------------------------------------------------------------------
+
+namespace timeout {
+    static pid_t current_body = 0;
+    static bool killed = false;
+
+    void
+    sigalrm_handler(int signo)
+    {
+        PRE(signo == SIGALRM);
+
+        if (current_body != 0) {
+            atf::procs::pid_grabber pg;
+            atf::procs::kill_tree(current_body, SIGKILL, pg);
+            killed = true;
+        }
+    }
+} // namespace timeout
 
 // ------------------------------------------------------------------------
 // The "vars_map" class.
@@ -252,6 +276,20 @@ impl::tc::ensure_boolean(const std::string& name)
 }
 
 void
+impl::tc::ensure_integral(const std::string& name)
+{
+    ensure_not_empty(name);
+
+    const std::string& val = get(name);
+    for (std::string::const_iterator iter = val.begin(); iter != val.end();
+         iter++) {
+        if (!std::isdigit(*iter))
+            throw std::runtime_error("Invalid value for integral "
+                                     "variable `" + name + "'");
+    }
+}
+
+void
 impl::tc::ensure_not_empty(const std::string& name)
 {
     if (m_meta_data.find(name) == m_meta_data.end())
@@ -327,9 +365,11 @@ impl::tc::init(const vars_map& c, const std::string& srcdir)
     m_srcdir = srcdir;
 
     m_meta_data["ident"] = m_ident;
+    m_meta_data["timeout"] = "300";
     head();
     ensure_not_empty("descr");
     ensure_not_empty("ident");
+    ensure_integral("timeout");
     INV(m_meta_data["ident"] == m_ident);
 }
 
@@ -439,6 +479,26 @@ impl::tc::check_requirements(void)
     }
 }
 
+static
+void
+program_timeout(pid_t pid, const std::string& tostr)
+{
+    PRE(pid != 0);
+
+    INV(!tostr.empty());
+
+    int timeout = atf::text::to_type< int >(tostr);
+
+    if (timeout != 0) {
+        struct itimerval itv;
+        timerclear(&itv.it_interval);
+        timerclear(&itv.it_value);
+        itv.it_value.tv_sec = timeout;
+        timeout::current_body = pid;
+        ::setitimer(ITIMER_REAL, &itv, NULL);
+    }
+}
+
 impl::tcr
 impl::tc::fork_body(const std::string& workdir)
     const
@@ -446,6 +506,9 @@ impl::tc::fork_body(const std::string& workdir)
     tcr tcr;
 
     fs::path result(fs::path(workdir) / "tc-result");
+
+    timeout::current_body = 0;
+    timeout::killed = false;
 
     pid_t pid = ::fork();
     if (pid == -1) {
@@ -489,12 +552,14 @@ impl::tc::fork_body(const std::string& workdir)
         std::exit(errcode);
     } else {
         int status;
-        if (::waitpid(pid, &status, 0) == -1) {
+        program_timeout(pid, get("timeout"));
+        if (::waitpid(pid, &status, 0) == -1 && !timeout::killed) {
             tcr = tcr::failed("Error while waiting for process " +
                               atf::text::to_string(pid) + ": " +
                               ::strerror(errno));
         } else {
             if (WIFEXITED(status)) {
+                INV(!timeout::killed);
                 if (WEXITSTATUS(status) == EXIT_SUCCESS) {
                     std::ifstream is(result.c_str());
                     if (!is) {
@@ -522,9 +587,15 @@ impl::tc::fork_body(const std::string& workdir)
                                       "see its stderr output for more "
                                       "details");
             } else if (WIFSIGNALED(status)) {
-                tcr = tcr::failed("Test case received signal " +
-                                  atf::text::to_string(WTERMSIG(status)));
+                if (timeout::killed) {
+                    tcr = tcr::failed("Test case timed out after " +
+                                      get("timeout") + " seconds");
+                } else {
+                    tcr = tcr::failed("Test case received signal " +
+                                      atf::text::to_string(WTERMSIG(status)));
+                }
             } else if (WIFSTOPPED(status)) {
+                INV(!timeout::killed);
                 tcr = tcr::failed("Test case received stop signal " +
                                   atf::text::to_string(WSTOPSIG(status)));
             } else
@@ -859,6 +930,8 @@ tp::run_tcs(void)
     atf::signals::signal_holder sighup(SIGHUP);
     atf::signals::signal_holder sigint(SIGINT);
     atf::signals::signal_holder sigterm(SIGTERM);
+    atf::signals::signal_programmer sigalrm(SIGALRM,
+                                            timeout::sigalrm_handler);
 
     atf::formats::atf_tcs_writer w(results_stream(), std::cout, std::cerr,
                                    tcs.size());
