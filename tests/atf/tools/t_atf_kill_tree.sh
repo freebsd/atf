@@ -50,14 +50,14 @@ for s in ${signals}; do
 done
 sleep 600 &
 touch helper.out
-wait \$!
+wait \${!}
 exit 1
 EOF
     chmod +x helper.sh
 
     ./helper.sh &
-    echo "Helper is process $!" 1>&2
-    pid=$!
+    echo "Helper is process ${!}" 1>&2
+    pid=${!}
 
     # Must wait until the child process has set up the signal handlers.
     while test ! -f helper.out; do sleep 1; done
@@ -70,11 +70,11 @@ tree_helper()
 
 level=\${1}
 
-trap 'echo "Got SIGTERM" >pids/\$$; exit 0;' SIGTERM
+trap 'echo "Got SIGTERM" >pids/\${$}; exit 0;' SIGTERM
 sleep 600 &
-touch pids/\$$
+touch pids/\${$}
 
-if test \${level} -gt 0; then
+if [ \${level} -gt 0 ]; then
     ( ./tree_helper.sh \$((\${level} - 1))) &
     ( ./tree_helper.sh \$((\${level} - 1))) &
 fi
@@ -86,14 +86,14 @@ EOF
     mkdir pids
 
     ./tree_helper.sh 2 &
-    echo "Parent helper process is $!" 1>&2
-    parent_pid=$!
+    echo "Parent helper process is ${!}" 1>&2
+    parent_pid=${!}
 
     # Must wait until all the children processes have set up their signal
     # handlers.
     cd pids
     set -- dummy *
-    while test $# -ne 8; do
+    while test ${#} -ne 8; do
         sleep 1
         set -- dummy *
     done
