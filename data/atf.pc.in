@@ -8,4 +8,4 @@ Name: atf
 Description: Automated Testing Framework
 Version: __ATF_VERSION__
 Cflags: -I${includedir}
-Libs: -L${libdir} -latf
+Libs: -L${libdir} -latf __KVM_LIBS__
