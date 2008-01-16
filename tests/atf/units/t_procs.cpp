@@ -36,6 +36,7 @@
 
 extern "C" {
 #include <sys/types.h>
+#include <sys/resource.h>
 #include <sys/wait.h>
 #include <unistd.h>
 }
@@ -44,7 +45,9 @@ extern "C" {
 #include <cstdlib>
 #include <iostream>
 #include <set>
+#include <sstream>
 #include <stdexcept>
+#include <utility>
 
 #include "atf/exceptions.hpp"
 #include "atf/io.hpp"
@@ -69,6 +72,43 @@ count_nodes(const size_t degree, const size_t height)
         lastlevel *= degree;
     }
     return nnodes;
+}
+
+static
+std::pair< size_t, size_t >
+max_tree_size(void)
+{
+    static rlim_t max_files = 0;
+
+    if (max_files == 0) {
+        struct rlimit rl;
+        ::getrlimit(RLIMIT_NOFILE, &rl);
+        max_files = rl.rlim_cur;
+    }
+
+    size_t degree, height;
+    if (max_files >= 256) {
+        degree = 3;
+        height = 4;
+    } else if (max_files >= 128) {
+        degree = 3;
+        height = 3;
+    } else if (max_files >= 64) {
+        degree = 2;
+        height = 3;
+    } else {
+        degree = 2;
+        height = 2;
+    }
+    size_t needed_files = count_nodes(degree, height) * 2 + 4;
+    if (needed_files > max_files) {
+        std::ostringstream oss;
+        oss << "Maximum number of open files (" << max_files << ") is too "
+               "limited to run this test (" << needed_files << " needed)";
+        ATF_SKIP(oss.str());
+    }
+
+    return std::pair< size_t, size_t >(degree, height);
 }
 
 atf::procs::pid_set my_children;
@@ -282,7 +322,8 @@ ATF_TEST_CASE_HEAD(kill_tree_once)
 }
 ATF_TEST_CASE_BODY(kill_tree_once)
 {
-    torture_kill_tree(3, 3, 1);
+    std::pair< size_t, size_t > size = max_tree_size();
+    torture_kill_tree(size.first, size.second, 1);
 }
 
 ATF_TEST_CASE(kill_tree_torture);
@@ -294,9 +335,11 @@ ATF_TEST_CASE_HEAD(kill_tree_torture)
 }
 ATF_TEST_CASE_BODY(kill_tree_torture)
 {
-    for (size_t degree = 1; degree < 4; degree++)
-        for (size_t height = 1; height < 4; height++)
-            torture_kill_tree(degree, height, 100);
+    std::pair< size_t, size_t > size = max_tree_size();
+    torture_kill_tree(size.first, size.second, 1);
+    for (size_t degree = 1; degree < size.first; degree++)
+        for (size_t height = 1; height < size.second; height++)
+            torture_kill_tree(degree, height, 50);
 }
 
 // ------------------------------------------------------------------------
