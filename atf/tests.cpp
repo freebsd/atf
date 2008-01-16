@@ -507,9 +507,6 @@ impl::tc::fork_body(const std::string& workdir)
 
     fs::path result(fs::path(workdir) / "tc-result");
 
-    timeout::current_body = 0;
-    timeout::killed = false;
-
     pid_t pid = ::fork();
     if (pid == -1) {
         tcr = tcr::failed("Coult not fork to run test case");
@@ -551,8 +548,15 @@ impl::tc::fork_body(const std::string& workdir)
         }
         std::exit(errcode);
     } else {
-        int status;
+        // Program the timeout handler.
+        timeout::current_body = 0;
+        timeout::killed = false;
+        atf::signals::signal_programmer sigalrm(SIGALRM,
+                                                timeout::sigalrm_handler);
         program_timeout(pid, get("timeout"));
+
+        // Wait for the child and deal with its termination status.
+        int status;
         if (::waitpid(pid, &status, 0) == -1 && !timeout::killed) {
             tcr = tcr::failed("Error while waiting for process " +
                               atf::text::to_string(pid) + ": " +
@@ -930,8 +934,6 @@ tp::run_tcs(void)
     atf::signals::signal_holder sighup(SIGHUP);
     atf::signals::signal_holder sigint(SIGINT);
     atf::signals::signal_holder sigterm(SIGTERM);
-    atf::signals::signal_programmer sigalrm(SIGALRM,
-                                            timeout::sigalrm_handler);
 
     atf::formats::atf_tcs_writer w(results_stream(), std::cout, std::cerr,
                                    tcs.size());
