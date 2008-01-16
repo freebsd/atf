@@ -130,38 +130,61 @@ sigterm_handler(int signo)
 
 static
 void
-do_spawn(const size_t degree, const size_t height, size_t level,
-         size_t pos, atf::io::pipe* pipes)
+spawn_child(const size_t degree, const size_t height, const size_t level,
+            const size_t pos, atf::io::pipe* pipes)
 {
-    PRE(level > 0 && level <= height);
+    PRE(level >= 1 && level <= height);
 
+    // Send the PID of this node to the root process.
+    {
+        size_t nodeid = count_nodes(degree, level - 1) + pos;
+        atf::io::pipe& p = pipes[nodeid - 1];
+
+        std::cout << std::string((level - 1) * 4, ' ')
+                  << "Pid " << ::getpid() << ", id " << nodeid
+                  << (level == height ? " (leaf)" : "") << std::endl;
+
+        p.rend().close();
+        std::string idstr = atf::text::to_string(::getpid());
+        ::write(p.wend().get(), idstr.c_str(), idstr.length());
+    }
+
+    // Spawn children.
     my_children.clear();
+    if (level < height) {
+        for (size_t d = 0; d < degree; d++) {
+            pid_t pid = ::fork();
+            if (pid == -1) {
+                std::cerr << "Failed to spawn more processes!" << std::endl;
+            } else if (pid == 0) {
+                spawn_child(degree, height, level + 1, pos * degree + d,
+                            pipes);
+            } else if (pid > 0)
+                my_children.insert(pid);
+        }
+    }
+
+    // Block here until we get killed.
+    atf::signals::signal_programmer sp(SIGTERM, sigterm_handler);
+    while (sleep(5) == 0)
+        ;
+    std::cout << ::getpid() << " dying unexpectedly" << std::endl;
+    std::abort();
+}
+
+void
+spawn_root(const size_t degree, const size_t height, atf::io::pipe* pipes)
+{
+    PRE(height > 0);
+    PRE(degree > 0);
 
     for (size_t d = 0; d < degree; d++) {
         pid_t pid = ::fork();
+        INV(pid >= 0);
         if (pid == 0) {
-            size_t nodeid = count_nodes(degree, level - 1) + pos * degree + d;
-
-            std::cout << std::string(level - 1, ' ') << "Pid " << ::getpid()
-                      << ", id " << nodeid << std::endl;
-
-            pipes[nodeid - 1].rend().close();
-            std::string idstr = atf::text::to_string(::getpid());
-            ::write(pipes[nodeid - 1].wend().get(), idstr.c_str(),
-                    idstr.length());
-
-            if (level < height)
-                do_spawn(degree, height, level + 1, d + pos * degree, pipes);
-
-            std::exit(EXIT_SUCCESS);
-        } else if (pid > 0)
-            my_children.insert(pid);
-    }
-
-    if (level > 1) {
-        atf::signals::signal_programmer sp(SIGTERM, sigterm_handler);
-        for (;;)
-            sleep(30);
+            spawn_child(degree, height, 1, d, pipes);
+            std::abort();
+        }
     }
 }
 
@@ -171,12 +194,11 @@ spawn_tree(size_t degree, size_t height)
 {
     size_t nnodes = count_nodes(degree, height);
 
-    atf::utils::auto_array< atf::io::pipe > pipes(new atf::io::pipe[nnodes]);
-
     std::cout << "Spawning process tree of degree " << degree << " and "
               << "height " << height << ", " << nnodes << " total nodes"
               << std::endl;
-    do_spawn(degree, height, 1, 0, pipes.get());
+    atf::utils::auto_array< atf::io::pipe > pipes(new atf::io::pipe[nnodes]);
+    spawn_root(degree, height, pipes.get());
 
     atf::procs::pid_set pids;
     for (size_t i = 0; i < nnodes - 1; i++) {
@@ -233,7 +255,9 @@ ATF_TEST_CASE_BODY(pid_grabber_get_children_of)
     if (pids != pids2)
         ATF_FAIL("Lists of children do not match");
 
-    for (int i = 0; i < degree; i++) {
+    for (pid_set::const_iterator iter = pids.begin(); iter != pids.end();
+         iter++) {
+        ::kill(*iter, SIGTERM);
         int status;
         if (::wait(&status) == -1)
             throw atf::system_error("pid_grabber_get_children_of",
@@ -272,13 +296,13 @@ one_kill_tree(size_t degree, size_t height, atf::procs::pid_grabber& pg)
             }
             ATF_FAIL("kill_tree reported errors");
         }
-    }
 
-    for (int i = 0; i < degree; i++) {
-        int status;
-        if (::wait(&status) == -1)
-            throw atf::system_error("kill_tree",
-                                    "wait failed", errno);
+        int ret, status;
+        while ((ret = ::waitpid(*iter, &status, 0)) == *iter &&
+               WIFSTOPPED(status))
+            ;
+        if (ret == -1)
+            throw atf::system_error("kill_tree", "wait failed", errno);
     }
 
     bool failed = false;
@@ -337,8 +361,8 @@ ATF_TEST_CASE_BODY(kill_tree_torture)
 {
     std::pair< size_t, size_t > size = max_tree_size();
     torture_kill_tree(size.first, size.second, 1);
-    for (size_t degree = 1; degree < size.first; degree++)
-        for (size_t height = 1; height < size.second; height++)
+    for (size_t degree = 1; degree <= size.first; degree++)
+        for (size_t height = 1; height <= size.second; height++)
             torture_kill_tree(degree, height, 50);
 }
 
