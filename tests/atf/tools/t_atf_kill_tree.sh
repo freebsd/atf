@@ -46,7 +46,7 @@ helper()
 #! /bin/sh
 
 for s in ${signals}; do
-    trap 'echo "Got \${s}" >helper.out; exit 0;' \${s}
+    trap "echo 'Got \${s}' >helper.out; exit 0;" \${s}
 done
 sleep 600 &
 touch helper.out
@@ -70,7 +70,7 @@ tree_helper()
 
 level=\${1}
 
-trap 'echo "Got SIGTERM" >pids/\${$}; exit 0;' SIGTERM
+trap "echo 'Got SIGTERM' >pids/\${$}; exit 0;" SIGTERM
 sleep 600 &
 touch pids/\${$}
 
