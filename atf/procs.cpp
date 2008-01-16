@@ -38,8 +38,8 @@
 #   include "config.h"
 #endif // defined(HAVE_CONFIG_H)
 
-#if defined(HAVE_KVM_GETPROCS)
-#   define PID_GRABBER_KVM_GETPROCS
+#if defined(HAVE_KVM_GETPROC2)
+#   define PID_GRABBER_KVM_GETPROC2
 #elif defined(HAVE_SYSCTL_KERN_PROC)
 #   define PID_GRABBER_SYSCTL_KERN_PROC
 #elif defined(HAVE_LINUX_PROCFS)
@@ -51,11 +51,11 @@
 extern "C" {
 #include <signal.h>
 #include <unistd.h>
-#if defined(PID_GRABBER_KVM_GETPROCS)
+#if defined(PID_GRABBER_KVM_GETPROC2)
 #   include <fcntl.h>
 #   include <kvm.h>
 #   include <sys/sysctl.h>
-#endif // defined(PID_GRABBER_KVM_GETPROCS)
+#endif // defined(PID_GRABBER_KVM_GETPROC2)
 #if defined(PID_GRABBER_SYSCTL_KERN_PROC)
 #   include <sys/types.h>
 #   include <sys/sysctl.h>
@@ -108,11 +108,11 @@ kill(pid_t pid, int signo, impl::errors_vector& errors)
 // The "pid_grabber" class for systems with KVM.
 // ------------------------------------------------------------------------
 
-#if defined(PID_GRABBER_KVM_GETPROCS)
+#if defined(PID_GRABBER_KVM_GETPROC2)
 
 impl::pid_grabber::pid_grabber(void)
 {
-    m_cookie = ::kvm_open(NULL, NULL, NULL, O_RDONLY, NULL);
+    m_cookie = ::kvm_open(NULL, NULL, NULL, KVM_NO_FILES, NULL);
     if (m_cookie == NULL)
         throw std::runtime_error("Failed to initialize the KVM library");
 }
@@ -132,20 +132,26 @@ impl::pid_grabber::can_get_children_of(void)
 impl::pid_set
 impl::pid_grabber::get_children_of(pid_t pid)
 {
+    kvm_t* kd = reinterpret_cast< kvm_t * >(m_cookie);
+
     int cnt;
-    struct kinfo_proc *procs =
-        ::kvm_getprocs(reinterpret_cast< kvm_t * >(m_cookie),
-                       KERN_PROC_ALL, 0, &cnt);
+    struct kinfo_proc2 *procs =
+        ::kvm_getproc2(kd, KERN_PROC_ALL, 0, sizeof(struct kinfo_proc2),
+                       &cnt);
+    if (procs == NULL) {
+        const char* err = ::kvm_geterr(kd);
+        throw std::runtime_error(std::string("kvm_getprocs failed: ") + err);
+    }
 
     pid_set children;
     for (int i = 0; i < cnt; i++) {
-        if (procs[i].kp_eproc.e_ppid == pid)
-            children.insert(procs[i].kp_proc.p_pid);
+        if (procs[i].p_ppid == pid)
+            children.insert(procs[i].p_pid);
     }
     return children;
 }
 
-#endif // defined(PID_GRABBER_KVM_GETPROCS)
+#endif // defined(PID_GRABBER_KVM_GETPROC2)
 
 // ------------------------------------------------------------------------
 // The "pid_grabber" class for systems with kern.proc sysctl nodes.

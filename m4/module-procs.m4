@@ -68,23 +68,24 @@ EOF
     fi
     rm -f ./conftest.sh ./conftest.sig ./conftest.ready
 
-    AC_CHECK_LIB(kvm, kvm_getprocs, have_libkvm=yes, have_libkvm=no)
-    AC_CHECK_LIB(c, kvm_getprocs, have_kvm_wo_lib=yes, have_kvm_wo_lib=no)
-    AC_MSG_CHECKING(whether we have /dev/mem)
-    if test -b /dev/mem -o -c /dev/mem; then
-        have_dev_mem=yes
-    else
-        have_dev_mem=no
-    fi
-    AC_MSG_RESULT(${have_dev_mem})
+    AC_CHECK_HEADERS(kvm.h)
+    AC_CHECK_LIB(kvm, kvm_getproc2, have_libkvm=yes, have_libkvm=no)
+    AC_CHECK_LIB(c, kvm_getproc2, have_kvm_wo_lib=yes, have_kvm_wo_lib=no)
+
+    AC_MSG_CHECKING(whether kvm.h provides KVM_NO_FILES)
+    AC_TRY_COMPILE([#include <kvm.h>],
+                   [(void)kvm_open(NULL, NULL, NULL, KVM_NO_FILES, NULL);
+                    return 0;],
+                   [have_kvm_no_files=yes],
+                   [have_kvm_no_files=no])
+    AC_MSG_RESULT(${have_kvm_no_files})
 
     AC_MSG_CHECKING(whether KVM is usable)
     if test \( ${have_libkvm} = yes -o ${have_kvm_wo_lib} = yes \) -a \
-            ${have_dev_mem} = yes
-    then
-        AC_DEFINE([HAVE_KVM_GETPROCS], [1],
+            ${have_kvm_no_files} = yes; then
+        AC_DEFINE([HAVE_KVM_GETPROC2], [1],
                   [Define to 1 if you have KVM and it is usable])
-        if ${have_kvm_wo_lib} = yes; then
+        if test ${have_kvm_wo_lib} = yes; then
             AC_MSG_RESULT(yes, and is in libc)
         else
             AC_MSG_RESULT(yes, and is in libkvm)
