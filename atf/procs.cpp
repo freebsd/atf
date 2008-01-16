@@ -341,13 +341,10 @@ impl::kill_tree(pid_t pid, int signo, pid_grabber& pg)
         if (signo == SIGKILL)
             (void)kill(pid, signo, errors);
         else {
-#if defined(SUPPORT_SIGNAL_WHILE_STOPPED)
-            (void)kill(pid, signo, errors);
+#if !defined(SUPPORT_SIGNAL_WHILE_STOPPED)
             (void)kill(pid, SIGCONT, errors);
-#else // !defined(SUPPORT_SIGNAL_WHILE_STOPPED)
-            (void)kill(pid, SIGCONT, errors);
-            (void)kill(pid, signo, errors);
 #endif // defined(SUPPORT_SIGNAL_WHILE_STOPPED)
+            (void)kill(pid, signo, errors);
         }
     }
     return errors;

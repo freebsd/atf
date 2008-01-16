@@ -37,13 +37,26 @@ dnl
 AC_DEFUN([ATF_MODULE_PROCS], [
     AC_MSG_CHECKING(whether signals sent to a stopped process work)
     cat >./conftest.sh <<EOF
-sleep 300 &
+rm -f conftest.sig conftest.ready
+aux() {
+    trap "touch conftest.sig; exit 0" TERM
+    touch conftest.ready
+    while :; do sleep 1; done
+}
+aux &
 pid=\$!
-kill -s SIGSTOP \${pid} || exit 1
-kill -s SIGTERM \${pid} || exit 1
-kill -s SIGCONT \${pid} || exit 1
-kill -s SIGTERM \${pid} && exit 1
-exit 0
+while ! test -f conftest.ready; do sleep 1; done
+kill -s STOP \${pid} || exit 1
+kill -s TERM \${pid} || exit 1
+tries=30
+ret=1
+while test \${ret} -eq 1 -a \${tries} -gt 0; do
+    sleep 1
+    test -f conftest.sig && ret=0
+    tries=\$((\${tries} - 1))
+done
+kill -s KILL \${pid}
+exit \${ret}
 EOF
     ${SHELL} ./conftest.sh >/dev/null 2>&1
     if test $? -eq 0; then
@@ -53,7 +66,7 @@ EOF
     else
         AC_MSG_RESULT(no)
     fi
-    rm -f ./conftest.sh
+    rm -f ./conftest.sh ./conftest.sig ./conftest.ready
 
     AC_CHECK_LIB(kvm, kvm_getprocs, have_libkvm=yes, have_libkvm=no)
     AC_CHECK_LIB(c, kvm_getprocs, have_kvm_wo_lib=yes, have_kvm_wo_lib=no)
