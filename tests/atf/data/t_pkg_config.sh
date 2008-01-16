@@ -117,8 +117,24 @@ EOF
     atf_check "${cxx} ${cxxflags} -o tp.o -c tp.cpp" 0 null null
     atf_check "${cxx} ${ldflags} -o tp tp.o ${libs}" 0 null null
 
+    libpath=
+    for f in ${ldflags}; do
+        case ${f} in
+            -L*)
+                dir=$(echo ${f} | sed -e 's,^-L,,')
+                if [ -z "${libpath}" ]; then
+                    libpath="${dir}"
+                else
+                    libpath="${libpath}:${dir}"
+                fi
+                ;;
+            *)
+                ;;
+        esac
+    done
+
     atf_check "test -x tp" 0 null null
-    atf_check "./tp" 0 stdout null
+    atf_check "LD_LIBRARY_PATH=${libpath} ./tp" 0 stdout null
     atf_check "grep 'application/X-atf-tcs' stdout" 0 ignore null
     atf_check "grep 'Running' stdout" 0 ignore null
 }
