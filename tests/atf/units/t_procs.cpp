@@ -135,20 +135,6 @@ spawn_child(const size_t degree, const size_t height, const size_t level,
 {
     PRE(level >= 1 && level <= height);
 
-    // Send the PID of this node to the root process.
-    {
-        size_t nodeid = count_nodes(degree, level - 1) + pos;
-        atf::io::pipe& p = pipes[nodeid - 1];
-
-        std::cout << std::string((level - 1) * 4, ' ')
-                  << "Pid " << ::getpid() << ", id " << nodeid
-                  << (level == height ? " (leaf)" : "") << std::endl;
-
-        p.rend().close();
-        std::string idstr = atf::text::to_string(::getpid());
-        ::write(p.wend().get(), idstr.c_str(), idstr.length());
-    }
-
     // Spawn children.
     my_children.clear();
     if (level < height) {
@@ -164,8 +150,26 @@ spawn_child(const size_t degree, const size_t height, const size_t level,
         }
     }
 
-    // Block here until we get killed.
+    // Now program the termination signal.  Must happen before we tell our
+    // parent our PID, because when we do that we can get killed at any
+    // time.
     atf::signals::signal_programmer sp(SIGTERM, sigterm_handler);
+
+    // Send the PID of this node to the root process.
+    {
+        size_t nodeid = count_nodes(degree, level - 1) + pos;
+        atf::io::pipe& p = pipes[nodeid - 1];
+
+        std::cout << std::string((level - 1) * 4, ' ')
+                  << "Pid " << ::getpid() << ", id " << nodeid
+                  << (level == height ? " (leaf)" : "") << std::endl;
+
+        p.rend().close();
+        std::string idstr = atf::text::to_string(::getpid());
+        ::write(p.wend().get(), idstr.c_str(), idstr.length());
+    }
+
+    // Block here until we get killed.
     while (sleep(5) == 0)
         ;
     std::cout << ::getpid() << " dying unexpectedly" << std::endl;
@@ -297,11 +301,8 @@ one_kill_tree(size_t degree, size_t height, atf::procs::pid_grabber& pg)
             ATF_FAIL("kill_tree reported errors");
         }
 
-        int ret, status;
-        while ((ret = ::waitpid(*iter, &status, 0)) == *iter &&
-               WIFSTOPPED(status))
-            ;
-        if (ret == -1)
+        int status;
+        if (::waitpid(*iter, &status, 0) == -1)
             throw atf::system_error("kill_tree", "wait failed", errno);
     }
 
