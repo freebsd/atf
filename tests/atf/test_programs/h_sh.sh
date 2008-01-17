@@ -224,6 +224,20 @@ fork_mangle_fds_body()
     eval "exec ${resfd}>res"
 }
 
+atf_test_case fork_stop
+fork_stop_head()
+{
+    atf_set "descr" "Helper test case for the t_fork test program"
+}
+fork_stop_body()
+{
+    echo $$ >$(atf_config_get pidfile)
+    echo "Wrote pid file"
+    echo "Waiting for done file"
+    while ! test -f $(atf_config_get donefile); do sleep 1; done
+    echo "Exiting"
+}
+
 atf_test_case fork_umask
 fork_umask_head()
 {
@@ -457,6 +471,7 @@ atf_init_test_cases()
 
     # Add helper tests for t_fork.
     atf_add_test_case fork_mangle_fds
+    atf_add_test_case fork_stop
     atf_add_test_case fork_umask
 
     # Add helper tests for t_meta_data.

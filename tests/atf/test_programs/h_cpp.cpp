@@ -282,6 +282,23 @@ ATF_TEST_CASE_BODY(fork_mangle_fds)
 #endif
 }
 
+ATF_TEST_CASE(fork_stop);
+ATF_TEST_CASE_HEAD(fork_stop)
+{
+    set("descr", "Helper test case for the t_fork test program");
+}
+ATF_TEST_CASE_BODY(fork_stop)
+{
+    std::ofstream os(config().get("pidfile").c_str());
+    os << ::getpid() << std::endl;
+    os.close();
+    std::cout << "Wrote pid file" << std::endl;
+    std::cout << "Waiting for done file" << std::endl;
+    while (::access(config().get("donefile").c_str(), F_OK) != 0)
+        ::usleep(10000);
+    std::cout << "Exiting" << std::endl;
+}
+
 ATF_TEST_CASE(fork_umask);
 ATF_TEST_CASE_HEAD(fork_umask)
 {
@@ -550,6 +567,7 @@ ATF_INIT_TEST_CASES(tcs)
 
     // Add helper tests for t_fork.
     ATF_ADD_TEST_CASE(tcs, fork_mangle_fds);
+    ATF_ADD_TEST_CASE(tcs, fork_stop);
     ATF_ADD_TEST_CASE(tcs, fork_umask);
 
     // Add helper tests for t_meta_data.
