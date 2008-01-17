@@ -557,16 +557,17 @@ impl::tc::fork_body(const std::string& workdir)
 
         // Wait for the child and deal with its termination status.
         int status;
-        if (::waitpid(pid, &status, 0) == -1 && !timeout::killed) {
-            tcr = tcr::failed("Error while waiting for process " +
-                              atf::text::to_string(pid) + ": " +
-                              ::strerror(errno));
+        if (::waitpid(pid, &status, 0) != pid) {
+            if (errno == EINTR && timeout::killed)
+                tcr = tcr::failed("Test case timed out after " +
+                                  get("timeout") + " seconds");
+            else
+                tcr = tcr::failed("Error while waiting for process " +
+                                  atf::text::to_string(pid) + ": " +
+                                  ::strerror(errno));
         } else {
             if (WIFEXITED(status)) {
-                if (timeout::killed) {
-                    tcr = tcr::failed("Test case timed out after " +
-                                      get("timeout") + " seconds");
-                } else if (WEXITSTATUS(status) == EXIT_SUCCESS) {
+                if (WEXITSTATUS(status) == EXIT_SUCCESS) {
                     std::ifstream is(result.c_str());
                     if (!is) {
                         tcr = tcr::failed("Could not open results file for "
@@ -593,17 +594,8 @@ impl::tc::fork_body(const std::string& workdir)
                                       "see its stderr output for more "
                                       "details");
             } else if (WIFSIGNALED(status)) {
-                if (timeout::killed) {
-                    tcr = tcr::failed("Test case timed out after " +
-                                      get("timeout") + " seconds");
-                } else {
-                    tcr = tcr::failed("Test case received signal " +
-                                      atf::text::to_string(WTERMSIG(status)));
-                }
-            } else if (WIFSTOPPED(status)) {
-                INV(!timeout::killed);
-                tcr = tcr::failed("Test case received stop signal " +
-                                  atf::text::to_string(WSTOPSIG(status)));
+                tcr = tcr::failed("Test case received signal " +
+                                  atf::text::to_string(WTERMSIG(status)));
             } else
                 UNREACHABLE;
         }
