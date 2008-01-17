@@ -43,7 +43,7 @@ helper()
 {
     signals="${*}"
     cat >helper.sh <<EOF
-#! /bin/sh
+#! $(atf-config -t atf_shell)
 
 for s in ${signals}; do
     trap "echo 'Got \${s}' >helper.out; exit 0;" \${s}
@@ -66,7 +66,7 @@ EOF
 tree_helper()
 {
     cat >tree_helper.sh <<EOF
-#! /bin/sh
+#! $(atf-config -t atf_shell)
 
 level=\${1}
 
