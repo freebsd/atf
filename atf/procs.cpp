@@ -87,12 +87,12 @@ namespace impl = atf::procs;
 
 static
 bool
-kill(pid_t pid, int signo, impl::errors_vector& errors)
+kill(pid_t pid, int signo, impl::errors_vector& errors, bool ignore = false)
 {
     int ret;
 
     ret = ::kill(pid, signo);
-    if (ret == -1) {
+    if (ret == -1 && !(ignore && errno == ESRCH)) {
         const std::string pidstr = atf::text::to_string(pid);
         const std::string signostr = atf::text::to_string(signo);
         atf::system_error e(IMPL_NAME "::kill",
@@ -347,10 +347,12 @@ impl::kill_tree(pid_t pid, int signo, pid_grabber& pg)
         if (signo == SIGKILL)
             (void)kill(pid, signo, errors);
         else {
-#if !defined(SUPPORT_SIGNAL_WHILE_STOPPED)
+#if defined(SUPPORT_SIGNAL_WHILE_STOPPED)
+            (void)kill(pid, signo, errors, false);
+#else // !defined(SUPPORT_SIGNAL_WHILE_STOPPED)
             (void)kill(pid, SIGCONT, errors);
+            (void)kill(pid, signo, errors, true);
 #endif // defined(SUPPORT_SIGNAL_WHILE_STOPPED)
-            (void)kill(pid, signo, errors);
         }
     }
     return errors;

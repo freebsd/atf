@@ -563,8 +563,10 @@ impl::tc::fork_body(const std::string& workdir)
                               ::strerror(errno));
         } else {
             if (WIFEXITED(status)) {
-                INV(!timeout::killed);
-                if (WEXITSTATUS(status) == EXIT_SUCCESS) {
+                if (timeout::killed) {
+                    tcr = tcr::failed("Test case timed out after " +
+                                      get("timeout") + " seconds");
+                } else if (WEXITSTATUS(status) == EXIT_SUCCESS) {
                     std::ifstream is(result.c_str());
                     if (!is) {
                         tcr = tcr::failed("Could not open results file for "

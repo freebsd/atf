@@ -47,10 +47,20 @@ helper()
 
 for s in ${signals}; do
     trap "echo 'Got \${s}' >helper.out; exit 0;" \${s}
+    lastsignal=\${s}
 done
 sleep 600 &
 touch helper.out
 wait \${!}
+if [ \${?} -ne 0 ]; then
+    # This is for platforms where SUPPORT_SIGNAL_WHILE_STOPPED is not
+    # defined.  There can be a race condition after the parent process
+    # is SIGCONTed and before we receive the SIGTERM, because the wait
+    # above may have returned and we finish in the time between.
+    echo "Faking termination signal for \${$} due to platform limitations"
+    echo "Got \${lastsignal}" >helper.out
+    exit 0
+fi
 exit 1
 EOF
     chmod +x helper.sh
@@ -71,15 +81,24 @@ tree_helper()
 level=\${1}
 
 trap "echo 'Got SIGTERM' >pids/\${$}; exit 0;" SIGTERM
-sleep 600 &
-touch pids/\${$}
 
 if [ \${level} -gt 0 ]; then
     ( ./tree_helper.sh \$((\${level} - 1))) &
     ( ./tree_helper.sh \$((\${level} - 1))) &
 fi
 
+sleep 600 &
+touch pids/\${$}
 wait \$!
+if [ \${?} -ne 0 ]; then
+    # This is for platforms where SUPPORT_SIGNAL_WHILE_STOPPED is not
+    # defined.  There can be a race condition after the parent process
+    # is SIGCONTed and before we receive the SIGTERM, because the wait
+    # above may have returned and we finish in the time between.
+    echo "Faking termination signal for \${$} due to platform limitations"
+    echo "Got SIGTERM" >pids/\${$}
+    exit 0
+fi
 exit 1
 EOF
     chmod +x tree_helper.sh
