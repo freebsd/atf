@@ -1,7 +1,7 @@
 dnl
 dnl Automated Testing Framework (atf)
 dnl
-dnl Copyright (c) 2007 The NetBSD Foundation, Inc.
+dnl Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 dnl All rights reserved.
 dnl
 dnl Redistribution and use in source and binary forms, with or without
@@ -92,10 +92,10 @@ AC_DEFUN([ATF_DEVELOPER_MODE], [
         AC_MSG_CHECKING(whether ${CXX} supports ${f})
         saved_cxxflags="${CXXFLAGS}"
         CXXFLAGS="${CXXFLAGS} ${f}"
-        AC_COMPILE_IFELSE([int main(void) { return 0; }],
-                          AC_MSG_RESULT(yes)
-                          valid="${valid} ${f}",
-                          AC_MSG_RESULT(no))
+        AC_LINK_IFELSE([int main(void) { return 0; }],
+                       AC_MSG_RESULT(yes)
+                       valid="${valid} ${f}",
+                       AC_MSG_RESULT(no))
         CXXFLAGS="${saved_cxxflags}"
     done
     CXXFLAGS="${CXXFLAGS} ${valid}"
