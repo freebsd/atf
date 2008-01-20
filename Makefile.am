@@ -184,6 +184,7 @@ endif
 
 pkgconfigdir = $(atf_pkgconfigdir)
 pkgconfig_DATA = data/atf.pc
+CLEANFILES += data/atf.pc
 EXTRA_DIST += data/atf.pc.in
 data/atf.pc: $(srcdir)/data/atf.pc.in
 	test -d data || mkdir -p data
