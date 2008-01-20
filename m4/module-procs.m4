@@ -108,10 +108,19 @@ EOF
     fi
 
     AC_MSG_CHECKING(for the Linux proc file system)
-    if test $(uname) = Linux -a -d /proc; then
+    if test $(uname) = Linux -a -d /proc -a -f /proc/self/stat; then
         AC_MSG_RESULT(yes)
         AC_DEFINE([HAVE_LINUX_PROCFS], [1],
                   [Define to 1 if you have the Linux proc file system])
+    else
+        AC_MSG_RESULT(no)
+    fi
+
+    AC_MSG_CHECKING(for the SunOS proc file system)
+    if test $(uname) = SunOS -a -d /proc -a -f /proc/self/psinfo; then
+        AC_MSG_RESULT(yes)
+        AC_DEFINE([HAVE_SUNOS_PROCFS], [1],
+                  [Define to 1 if you have the SunOS proc file system])
     else
         AC_MSG_RESULT(no)
     fi

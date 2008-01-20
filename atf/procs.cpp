@@ -44,6 +44,8 @@
 #   define PID_GRABBER_SYSCTL_KERN_PROC
 #elif defined(HAVE_LINUX_PROCFS)
 #   define PID_GRABBER_LINUX_PROCFS
+#elif defined(HAVE_SUNOS_PROCFS)
+#   define PID_GRABBER_SUNOS_PROCFS
 #else
 #   define PID_GRABBER_OTHER
 #endif
@@ -64,6 +66,11 @@ extern "C" {
 #   include <sys/types.h>
 #   include <dirent.h>
 #endif // defined(PID_GRABBER_LINUX_PROCFS)
+#if defined(PID_GRABBER_SUNOS_PROCFS)
+#   include <sys/types.h>
+#   include <dirent.h>
+#   include <procfs.h>
+#endif // defined(PID_GRABBER_SUNOS_PROCFS)
 }
 
 #include <cctype>
@@ -285,6 +292,74 @@ impl::pid_grabber::get_children_of(pid_t pid)
 }
 
 #endif // defined(PID_GRABBER_LINUX_PROCFS)
+
+// ------------------------------------------------------------------------
+// The "pid_grabber" class for systems with the SunOS proc file system.
+// ------------------------------------------------------------------------
+
+#if defined(PID_GRABBER_SUNOS_PROCFS)
+
+impl::pid_grabber::pid_grabber(void) :
+    m_cookie(NULL)
+{
+}
+
+impl::pid_grabber::~pid_grabber(void)
+{
+}
+
+bool
+impl::pid_grabber::can_get_children_of(void)
+    const
+{
+    return true;
+}
+
+static
+pid_t
+get_parent_pid_of(const std::string& pidstr)
+{
+    int fd = ::open(("/proc/" + pidstr + "/psinfo").c_str(), O_RDONLY);
+    if (fd == -1)
+        throw atf::system_error("get_children_of", "open failed", errno);
+
+    try {
+        struct psinfo ps;
+        if (::read(fd, &ps, sizeof(ps)) != sizeof(ps))
+            throw atf::system_error("get_children_of", "read failed", errno);
+        ::close(fd);
+        return ps.pr_ppid;
+    } catch (...) {
+        ::close(fd);
+        throw;
+    }
+}
+
+impl::pid_set
+impl::pid_grabber::get_children_of(pid_t pid)
+{
+    pid_set children;
+
+    DIR* dir = ::opendir("/proc");
+    try {
+        struct dirent* de;
+        while ((de = readdir(dir)) != NULL) {
+            if (std::isdigit(de->d_name[0])) {
+                if (get_parent_pid_of(de->d_name) == pid)
+                    children.insert
+                        (atf::text::to_type< pid_t >(de->d_name));
+            }
+        }
+    } catch (...) {
+        ::closedir(dir);
+        throw;
+    }
+    ::closedir(dir);
+
+    return children;
+}
+
+#endif // defined(PID_GRABBER_SUNOS_PROCFS)
 
 // ------------------------------------------------------------------------
 // The "pid_grabber" class for unsupported systems.
