@@ -366,7 +366,7 @@ atf_run::run_test_program_child(const atf::fs::path& tp,
     // do not care to release it.  We are going to die anyway very soon,
     // either due to exec(2) or to exit(3).
     std::vector< std::string > confargs = conf_args();
-    char* args[4 + confargs.size()];
+    char** args = new char*[4 + confargs.size()];
     {
         // 0: Program name.
         const char* name = tp.leaf_name().c_str();
