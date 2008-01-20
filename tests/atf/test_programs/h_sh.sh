@@ -231,7 +231,7 @@ fork_stop_head()
 }
 fork_stop_body()
 {
-    echo $$ >$(atf_config_get pidfile)
+    echo ${$} >$(atf_config_get pidfile)
     echo "Wrote pid file"
     echo "Waiting for done file"
     while ! test -f $(atf_config_get donefile); do sleep 1; done
