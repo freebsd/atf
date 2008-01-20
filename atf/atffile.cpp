@@ -56,7 +56,11 @@ class reader : public atf::formats::atf_atffile_reader {
         if (isglob) {
             std::set< std::string > ms =
                 atf::expand::expand_glob(name, m_dir.names());
-            m_tps.insert(m_tps.end(), ms.begin(), ms.end());
+            // Cannot use m_tps.insert(iterator, begin, end) here because it
+            // does not work under Solaris.
+            for (std::set< std::string >::const_iterator iter = ms.begin();
+                 iter != ms.end(); iter++)
+                m_tps.push_back(*iter);
         } else {
             if (m_dir.find(name) == m_dir.end())
                 throw atf::not_found_error< atf::fs::path >
