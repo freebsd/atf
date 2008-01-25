@@ -64,7 +64,6 @@ extern "C" {
 #include "atf/formats.hpp"
 #include "atf/fs.hpp"
 #include "atf/io.hpp"
-#include "atf/procs.hpp"
 #include "atf/sanity.hpp"
 #include "atf/signals.hpp"
 #include "atf/tests.hpp"
@@ -89,8 +88,7 @@ namespace timeout {
         PRE(signo == SIGALRM);
 
         if (current_body != 0) {
-            atf::procs::pid_grabber pg;
-            atf::procs::kill_tree(current_body, SIGKILL, pg);
+            ::killpg(current_body, SIGTERM);
             killed = true;
         }
     }
@@ -512,6 +510,8 @@ impl::tc::fork_body(const std::string& workdir)
         tcr = tcr::failed("Coult not fork to run test case");
     } else if (pid == 0) {
         int errcode;
+
+        ::setpgid(::getpid(), 0);
 
         // Unexpected errors detected in the child process are mentioned
         // in stderr to give the user a chance to see what happened.

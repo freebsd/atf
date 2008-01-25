@@ -122,8 +122,6 @@ libatf_la_SOURCES = atf/application.cpp \
                     atf/macros.hpp \
                     atf/parser.cpp \
                     atf/parser.hpp \
-                    atf/procs.cpp \
-                    atf/procs.hpp \
                     atf/sanity.cpp \
                     atf/sanity.hpp \
                     atf/signals.cpp \
@@ -730,13 +728,21 @@ tests/atf/tools/t_atf_config: $(srcdir)/tests/atf/tools/t_atf_config.sh \
 	test -d tests/atf/tools || mkdir -p tests/atf/tools
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_config.sh
 
-atf_tools_SCRIPTS += tests/atf/tools/t_atf_kill_tree
-CLEANFILES += tests/atf/tools/t_atf_kill_tree
-EXTRA_DIST += tests/atf/tools/t_atf_kill_tree.sh
-tests/atf/tools/t_atf_kill_tree: $(srcdir)/tests/atf/tools/t_atf_kill_tree.sh \
-                                 $(ATF_COMPILE_DEPS)
+atf_tools_SCRIPTS += tests/atf/tools/t_atf_exec
+CLEANFILES += tests/atf/tools/t_atf_exec
+EXTRA_DIST += tests/atf/tools/t_atf_exec.sh
+tests/atf/tools/t_atf_exec: $(srcdir)/tests/atf/tools/t_atf_exec.sh \
+                            $(ATF_COMPILE_DEPS)
 	test -d tests/atf/tools || mkdir -p tests/atf/tools
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_kill_tree.sh
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_exec.sh
+
+atf_tools_SCRIPTS += tests/atf/tools/t_atf_killpg
+CLEANFILES += tests/atf/tools/t_atf_killpg
+EXTRA_DIST += tests/atf/tools/t_atf_killpg.sh
+tests/atf/tools/t_atf_killpg: $(srcdir)/tests/atf/tools/t_atf_killpg.sh \
+                              $(ATF_COMPILE_DEPS)
+	test -d tests/atf/tools || mkdir -p tests/atf/tools
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_killpg.sh
 
 atf_tools_SCRIPTS += tests/atf/tools/t_atf_report
 CLEANFILES += tests/atf/tools/t_atf_report
@@ -787,11 +793,6 @@ atf_units_PROGRAMS += tests/atf/units/t_parser
 tests_atf_units_t_parser_SOURCES = tests/atf/units/t_parser.cpp
 tests_atf_units_t_parser_LDADD = -latf
 tests_atf_units_t_parser_LDFLAGS = -L.
-
-atf_units_PROGRAMS += tests/atf/units/t_procs
-tests_atf_units_t_procs_SOURCES = tests/atf/units/t_procs.cpp
-tests_atf_units_t_procs_LDADD = -latf
-tests_atf_units_t_procs_LDFLAGS = -L.
 
 atf_units_PROGRAMS += tests/atf/units/t_sanity
 tests_atf_units_t_sanity_SOURCES = tests/atf/units/t_sanity.cpp
@@ -884,17 +885,23 @@ tools_atf_compile_LDADD = -latf
 tools_atf_compile_LDFLAGS = -L.
 dist_man_MANS += tools/atf-compile.1
 
+libexec_PROGRAMS += tools/atf-exec
+tools_atf_exec_SOURCES = tools/atf-exec.cpp
+tools_atf_exec_LDADD = -latf
+tools_atf_exec_LDFLAGS = -L.
+dist_man_MANS += tools/atf-exec.1
+
 libexec_PROGRAMS += tools/atf-format
 tools_atf_format_SOURCES = tools/atf-format.cpp
 tools_atf_format_LDADD = -latf
 tools_atf_format_LDFLAGS = -L.
 dist_man_MANS += tools/atf-format.1
 
-libexec_PROGRAMS += tools/atf-kill-tree
-tools_atf_kill_tree_SOURCES = tools/atf-kill-tree.cpp
-tools_atf_kill_tree_LDADD = -latf
-tools_atf_kill_tree_LDFLAGS = -L.
-dist_man_MANS += tools/atf-kill-tree.1
+libexec_PROGRAMS += tools/atf-killpg
+tools_atf_killpg_SOURCES = tools/atf-killpg.cpp
+tools_atf_killpg_LDADD = -latf
+tools_atf_killpg_LDFLAGS = -L.
+dist_man_MANS += tools/atf-killpg.1
 
 bin_PROGRAMS += tools/atf-report
 tools_atf_report_SOURCES = tools/atf-report.cpp

@@ -35,19 +35,20 @@
 //
 
 extern "C" {
+#include <sys/types.h>
 #include <signal.h>
 }
 
+#include <cerrno>
 #include <cstdlib>
 #include <iostream>
 
 #include "atf/application.hpp"
-#include "atf/procs.hpp"
+#include "atf/exceptions.hpp"
 #include "atf/sanity.hpp"
 #include "atf/text.hpp"
-#include "atf/ui.hpp"
 
-class atf_kill_tree : public atf::application::app {
+class atf_killpg : public atf::application::app {
     static const char* m_description;
 
     int m_signo;
@@ -57,40 +58,40 @@ class atf_kill_tree : public atf::application::app {
     void process_option(int, const char*);
 
 public:
-    atf_kill_tree(void);
+    atf_killpg(void);
 
     int main(void);
 };
 
-const char* atf_kill_tree::m_description =
-    "atf-kill-tree recursively kills a process and all of its "
-    "children.";
+const char* atf_killpg::m_description =
+    "atf-killpg sends a signal to a process group.";
 
-atf_kill_tree::atf_kill_tree(void) :
-    app(m_description, "atf-kill-tree(1)", "atf(7)"),
+atf_killpg::atf_killpg(void) :
+    app(m_description, "atf-killpg(1)", "atf(7)"),
     m_signo(SIGTERM)
 {
 }
 
 std::string
-atf_kill_tree::specific_args(void)
+atf_killpg::specific_args(void)
     const
 {
-    return "pid";
+    return "<pid>";
 }
 
-atf_kill_tree::options_set
-atf_kill_tree::specific_options(void)
+atf_killpg::options_set
+atf_killpg::specific_options(void)
     const
 {
     using atf::application::option;
     options_set opts;
-    opts.insert(option('s', "signal", "The signal to send (default SIGTERM)"));
+    opts.insert(option('s', "signal",
+                       "The signal to send to processes (default SIGTERM)"));
     return opts;
 }
 
 void
-atf_kill_tree::process_option(int ch, const char* arg)
+atf_killpg::process_option(int ch, const char* arg)
 {
     switch (ch) {
     case 's':
@@ -103,28 +104,20 @@ atf_kill_tree::process_option(int ch, const char* arg)
 }
 
 int
-atf_kill_tree::main(void)
+atf_killpg::main(void)
 {
-    if (m_argc == 0)
-        throw atf::application::usage_error("Missing process identifier");
+    if (m_argc < 1)
+        throw atf::application::usage_error("No PID specified");
 
     pid_t pid = atf::text::to_type< pid_t >(m_argv[0]);
+    if (::killpg(pid, m_signo) == -1)
+        throw atf::system_error("main", "killpg failed", errno);
 
-    atf::procs::pid_grabber pg;
-    atf::procs::errors_vector errors = kill_tree(pid, m_signo, pg);
-    for (atf::procs::errors_vector::const_iterator iter = errors.begin();
-         iter != errors.end(); iter++) {
-        pid_t epid = (*iter).first;
-        const std::string& emsg = (*iter).second;
-
-        std::string msg = "PID " + atf::text::to_string(epid) + ": " + emsg;
-        std::cerr << atf::ui::format_error(m_prog_name, msg) << std::endl;
-    }
-    return errors.empty() ? EXIT_SUCCESS : EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }
 
 int
 main(int argc, char* const* argv)
 {
-    return atf_kill_tree().run(argc, argv);
+    return atf_killpg().run(argc, argv);
 }

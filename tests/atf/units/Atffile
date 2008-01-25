@@ -14,4 +14,3 @@ tp: t_parser
 tp: t_signals
 tp: t_tests
 tp: t_utils
-tp: t_procs
