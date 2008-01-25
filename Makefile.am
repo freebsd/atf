@@ -41,7 +41,7 @@
 doc_DATA = AUTHORS COPYING NEWS README ROADMAP
 EXTRA_DIST = $(doc_DATA)
 
-dist-hook: $(srcdir)/admin/revision-dist.h check-readme check-style
+dist-hook: $(srcdir)/admin/revision-dist.h check-install check-style
 
 AM_CPPFLAGS = -DATF_ARCH=\"$(atf_arch)\" \
               -DATF_CONFDIR=\"$(atf_confdir)\" \
@@ -59,15 +59,15 @@ ATF_COMPILE_SH = ./tools/atf-host-compile
 # `admin' directory.
 # -------------------------------------------------------------------------
 
-.PHONY: check-readme
-check-readme:
-	$(srcdir)/admin/check-readme.sh $(srcdir)/README
+.PHONY: check-install
+check-install:
+	$(srcdir)/admin/check-install.sh $(srcdir)/INSTALL
 
 .phony: check-style
 check-style:
 	$(srcdir)/admin/check-style.sh
 
-EXTRA_DIST += admin/check-readme.sh \
+EXTRA_DIST += admin/check-install.sh \
               admin/check-style-common.awk \
               admin/check-style-cpp.awk \
               admin/check-style-man.awk \
