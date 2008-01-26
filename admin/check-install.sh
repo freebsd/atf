@@ -2,7 +2,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
 #
 
 #
-# A utility to ensure that README lists the correct versions of the
+# A utility to ensure that INSTALL lists the correct versions of the
 # tools used to generate the distfile.
 #
 
