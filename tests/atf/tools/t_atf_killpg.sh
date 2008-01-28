@@ -46,7 +46,7 @@ default_body()
 {
     cat >helper.sh <<EOF
 #! $(atf-config -t atf_shell)
-trap 'echo SIGTERM; exit 0' TERM
+trap 'touch sigterm; exit 0' TERM
 touch waiting
 while test ! -f done; do sleep 1; done
 EOF
@@ -55,10 +55,11 @@ EOF
     ${atf_exec} -g ./helper.sh >stdout &
     while test ! -f waiting; do sleep 1; done
     ${atf_killpg} ${!}
+    while test ! -f sigterm; do sleep 1; done
     touch done
     wait ${!}
 
-    atf_check 'grep SIGTERM stdout' 0 ignore null
+    atf_check 'test -f sigterm' 0 null null
 }
 
 atf_test_case sflag
@@ -71,8 +72,8 @@ sflag_body()
 {
     cat >helper.sh <<EOF
 #! $(atf-config -t atf_shell)
-trap 'echo SIGHUP; exit 0' HUP
-trap 'echo SIGTERM; exit 0' TERM
+trap 'touch sighup; exit 0' HUP
+trap 'touch sigterm; exit 0' TERM
 touch waiting
 while test ! -f done; do sleep 1; done
 EOF
@@ -81,11 +82,12 @@ EOF
     ${atf_exec} -g ./helper.sh >stdout &
     while test ! -f waiting; do sleep 1; done
     ${atf_killpg} -s 1 ${!}
+    while test ! -f sighup -a ! -f sigterm; do sleep 1; done
     touch done
     wait ${!}
 
-    atf_check 'grep SIGHUP stdout' 0 ignore null
-    atf_check 'grep SIGTERM stdout' 1 null null
+    atf_check 'test -f sighup' 0 null null
+    atf_check 'test -f sigterm' 1 null null
 }
 
 atf_test_case group
