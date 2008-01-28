@@ -97,27 +97,25 @@ group_head()
 }
 group_body()
 {
-    # This test uses SIGINFO because it is ignored by default.  Sending
-    # another signal whose default behavior is to terminate the process
-    # does not work because we may be killing some other children
-    # unexpectedly.
     cat >helper.sh <<EOF
 #! $(atf-config -t atf_shell)
 if [ \${#} -eq 1 ]; then
     ./helper.sh &
-    trap 'touch sig1' SIGINFO
+    trap 'touch sig1' HUP
     touch waiting1
     echo "Process 1 waiting for termination"
     while [ ! -f done ]; do sleep 1; done
     echo "Process 1 waiting for process 2"
     wait \${!}
     echo "Process 1 terminating"
+    touch done1
 else
-    trap 'touch sig2' SIGINFO
+    trap 'touch sig2' HUP
     touch waiting2
     echo "Process 2 waiting for termination"
     while [ ! -f done ]; do sleep 1; done
     echo "Process 2 terminating"
+    touch done2
 fi
 EOF
     chmod +x helper.sh
@@ -128,9 +126,10 @@ EOF
     echo "Waiting for process 2 to be alive"
     while test ! -f waiting2; do sleep 1; done
     echo "Sending signal"
-    ${atf_killpg} -s 29 ${!}
+    ${atf_killpg} -s 1 ${!}
     echo "Waiting for termination"
     touch done
+    while test ! -f done1 -a ! -f done2; do sleep 1; done
     wait
 
     atf_check 'test -f sig1' 0 null null
