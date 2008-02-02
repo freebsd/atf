@@ -369,9 +369,9 @@ atf_run::run_test_program_child(const atf::fs::path& tp,
     char** args = new char*[4 + confargs.size()];
     {
         // 0: Program name.
-        const char* name = tp.leaf_name().c_str();
-        args[0] = new char[std::strlen(name) + 1];
-        std::strcpy(args[0], name);
+        std::string progname = tp.leaf_name();
+        args[0] = new char[progname.length() + 1];
+        std::strcpy(args[0], progname.c_str());
 
         // 1: The file descriptor to which the results will be printed.
         args[1] = new char[4];
