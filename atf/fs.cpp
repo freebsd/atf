@@ -561,6 +561,10 @@ impl::is_executable(const path& p)
 void
 impl::remove(const path& p)
 {
+    if (file_info(p).get_type() == file_info::dir_type)
+        throw atf::system_error(IMPL_NAME "::remove(" + p.str() + ")",
+                                "Is a directory",
+                                EPERM);
     if (::unlink(p.c_str()) == -1)
         throw atf::system_error(IMPL_NAME "::remove(" + p.str() + ")",
                                 "unlink(" + p.str() + ") failed",
