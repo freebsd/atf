@@ -226,8 +226,7 @@ ACLOCAL_AMFLAGS = -I m4
 # `subrs' directory.
 # -------------------------------------------------------------------------
 
-subrs_DATA = subrs/atf.config.subr \
-             subrs/atf.footer.subr \
+subrs_DATA = subrs/atf.footer.subr \
              subrs/atf.header.subr \
              subrs/atf.init.subr
 subrsdir = $(pkgdatadir)
@@ -323,7 +322,15 @@ testsdir = $(exec_prefix)/tests
 pkgtestsdir = $(exec_prefix)/tests/atf
 
 installcheck-local:
-	cd $(pkgtestsdir) && $(TESTS_ENVIRONMENT) atf-run | atf-report
+	logfile=$$(pwd)/installcheck.log; \
+	cd $(pkgtestsdir); \
+	$(TESTS_ENVIRONMENT) atf-run | tee $${logfile} | atf-report; \
+	res=$${?}; \
+	echo; \
+	echo "The verbatim output of atf-run has been saved to" \
+	     "installcheck.log"; \
+	exit $${res}
+CLEANFILES += installcheck.log
 
 pkgtests_DATA = tests/atf/Atffile
 EXTRA_DIST += $(pkgtests_DATA)

@@ -86,19 +86,23 @@
     throw atf::tests::tcr::passed()
 
 #define ATF_CHECK(x) \
-    if (!(x)) { \
-        std::ostringstream __atf_ss; \
-        __atf_ss << "Line " << __LINE__ << ": " << #x << " not met"; \
-        throw atf::tests::tcr::failed(__atf_ss.str()); \
-    }
+    do { \
+        if (!(x)) { \
+            std::ostringstream __atf_ss; \
+            __atf_ss << "Line " << __LINE__ << ": " << #x << " not met"; \
+            throw atf::tests::tcr::failed(__atf_ss.str()); \
+        } \
+    } while (false)
 
 #define ATF_CHECK_EQUAL(x, y) \
-    if ((x) != (y)) { \
-        std::ostringstream __atf_ss; \
-        __atf_ss << "Line " << __LINE__ << ": " << #x << " != " << #y \
-                 << " (" << (x) << " != " << (y) << ")"; \
-        throw atf::tests::tcr::failed(__atf_ss.str()); \
-    }
+    do { \
+        if ((x) != (y)) { \
+            std::ostringstream __atf_ss; \
+            __atf_ss << "Line " << __LINE__ << ": " << #x << " != " << #y \
+                     << " (" << (x) << " != " << (y) << ")"; \
+            throw atf::tests::tcr::failed(__atf_ss.str()); \
+        } \
+    } while (false)
 
 #define ATF_CHECK_THROW(x, e) \
     try { \

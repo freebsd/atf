@@ -174,16 +174,6 @@ if test x"${ATF_SHELL}" = x""; then
     AC_MSG_ERROR([No POSIX shell interpreter found; maybe set ATF_SHELL?])
 fi
 
-AC_MSG_CHECKING([whether ${ATF_SHELL} supports trap -])
-output=`${ATF_SHELL} -c 'trap -- -' 2>&1`
-if test x"${output}" != x""; then
-    AC_SUBST([SH_TRAP_DASH], [no])
-    AC_MSG_RESULT([no])
-else
-    AC_SUBST([SH_TRAP_DASH], [yes])
-    AC_MSG_RESULT([yes])
-fi
-
 dnl -----------------------------------------------------------------------
 dnl Check for required tools.
 dnl -----------------------------------------------------------------------
@@ -194,7 +184,7 @@ dnl -----------------------------------------------------------------------
 dnl Finally, generate output.
 dnl -----------------------------------------------------------------------
 
-AC_OUTPUT([Makefile subrs/atf.config.subr])
+AC_OUTPUT([Makefile])
 
 if test ${enable_shared} = yes; then
     AC_MSG_WARN([Shared libraries with unstable ABIs/APIs have been enabled.])

@@ -46,7 +46,7 @@ default_body()
 {
     cat >helper.sh <<EOF
 #! $(atf-config -t atf_shell)
-trap 'echo SIGTERM; exit 0' TERM
+trap 'touch sigterm; exit 0' TERM
 touch waiting
 while test ! -f done; do sleep 1; done
 EOF
@@ -55,10 +55,11 @@ EOF
     ${atf_exec} -g ./helper.sh >stdout &
     while test ! -f waiting; do sleep 1; done
     ${atf_killpg} ${!}
+    while test ! -f sigterm; do sleep 1; done
     touch done
     wait ${!}
 
-    atf_check 'grep SIGTERM stdout' 0 ignore null
+    atf_check 'test -f sigterm' 0 null null
 }
 
 atf_test_case sflag
@@ -71,8 +72,8 @@ sflag_body()
 {
     cat >helper.sh <<EOF
 #! $(atf-config -t atf_shell)
-trap 'echo SIGHUP; exit 0' HUP
-trap 'echo SIGTERM; exit 0' TERM
+trap 'touch sighup; exit 0' HUP
+trap 'touch sigterm; exit 0' TERM
 touch waiting
 while test ! -f done; do sleep 1; done
 EOF
@@ -81,11 +82,12 @@ EOF
     ${atf_exec} -g ./helper.sh >stdout &
     while test ! -f waiting; do sleep 1; done
     ${atf_killpg} -s 1 ${!}
+    while test ! -f sighup -a ! -f sigterm; do sleep 1; done
     touch done
     wait ${!}
 
-    atf_check 'grep SIGHUP stdout' 0 ignore null
-    atf_check 'grep SIGTERM stdout' 1 null null
+    atf_check 'test -f sighup' 0 null null
+    atf_check 'test -f sigterm' 1 null null
 }
 
 atf_test_case group
@@ -95,27 +97,25 @@ group_head()
 }
 group_body()
 {
-    # This test uses SIGINFO because it is ignored by default.  Sending
-    # another signal whose default behavior is to terminate the process
-    # does not work because we may be killing some other children
-    # unexpectedly.
     cat >helper.sh <<EOF
 #! $(atf-config -t atf_shell)
 if [ \${#} -eq 1 ]; then
     ./helper.sh &
-    trap 'touch sig1' SIGINFO
+    trap 'touch sig1' HUP
     touch waiting1
     echo "Process 1 waiting for termination"
     while [ ! -f done ]; do sleep 1; done
     echo "Process 1 waiting for process 2"
     wait \${!}
     echo "Process 1 terminating"
+    touch done1
 else
-    trap 'touch sig2' SIGINFO
+    trap 'touch sig2' HUP
     touch waiting2
     echo "Process 2 waiting for termination"
     while [ ! -f done ]; do sleep 1; done
     echo "Process 2 terminating"
+    touch done2
 fi
 EOF
     chmod +x helper.sh
@@ -126,9 +126,10 @@ EOF
     echo "Waiting for process 2 to be alive"
     while test ! -f waiting2; do sleep 1; done
     echo "Sending signal"
-    ${atf_killpg} -s 29 ${!}
+    ${atf_killpg} -s 1 ${!}
     echo "Waiting for termination"
     touch done
+    while test ! -f done1 -a ! -f done2; do sleep 1; done
     wait
 
     atf_check 'test -f sig1' 0 null null
