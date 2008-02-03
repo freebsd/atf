@@ -1,6 +1,6 @@
-Automated Testing Framework (atf)
-Copyright (c) 2007 The NetBSD Foundation, Inc.
-All rights reserved.
+                     Automated Testing Framework (atf)
+                        The NetBSD Foundation, Inc.
+---------------------------------------------------------------------------
 
 
 Introduction
@@ -15,7 +15,7 @@ and the whole process must be restarted from scratch.
 How to make a release
 =====================
 
-* Run 'make dist'.
+* Run 'make distcheck'.
 
 * Sanity-check the resulting .tar.gz file as described in "How to
   sanity-check a distribution file".
@@ -53,7 +53,9 @@ How to sanity-check a distribution file
 
 * Configure and install the program using a temporary prefix.
 
-* Run 'make check'.
+* Run 'make check' and 'make installcheck'.  You need to set the PATH
+  accordingly to find the binaries installed in the temporary prefix chosen
+  in the previous point.
 
 * Check that building the release with both NetBSD's bmake and GNU Make
   works.
@@ -90,4 +92,5 @@ How to publish a release
 * Announce the new version in the ATF's project page at Freshmeat.net.
 
 
--- EOF
+---------------------------------------------------------------------------
+                              End of document

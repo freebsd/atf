@@ -1,12 +1,42 @@
-Automated Testing Framework (atf)
-Copyright (c) 2007 The NetBSD Foundation, Inc.
-All rights reserved.
+                     Automated Testing Framework (atf)
+                        The NetBSD Foundation, Inc.
+---------------------------------------------------------------------------
+
+
+Version 0.4
+===========
+
+Release date: NOT RELEASED YET; STILL UNDER DEVELOPMENT
+Status:       Experimental
+
+Changes:
+
+* Added two new manual pages, atf-c++-api and atf-sh-api, describing the
+  C++ and POSIX shell interfaces used to write test programs.
+
+* Added a pkg-config file, useful to get the flags to build against the
+  C++ library or to easily detect the presence of ATF.
+
+* Added a way for test cases to require a specific architecture and/or
+  machine type through the new 'require.arch' and 'require.machine'
+  meta-data properties, respectively.
+
+* Added the 'timeout' property to test cases, useful to set an upper-bound
+  limit for the test's run time and thus prevent global test program stalls
+  due to the test case's misbehavior.
+
+* Fixed a serious bug that prevented atf-run(1) from working at all under
+  Fedora 8 x86_64.  Due to the nature of the bug, other platforms were
+  likely affected too.
+
+* Added a new internal utility, atf-kill-tree(1), used to kill a tree of
+  processes.
 
 
 Version 0.3
 ===========
 
-Release date: UNDER DEVELOPMENT; NOT RELEASED YET!
+Release date: November 11th, 2007
 Status:       Experimental
 
 Changes:
@@ -16,22 +46,28 @@ Changes:
   output and convert it to a plain HTML report.
 
 * Changed atf-run to add system information to the report it generates.
-  This is currently only used by atf-report's XML output, and later printed
-  in the HTML reports in a nice and useful summary table.  The user and
-  system administrator are allowed to tune this feature by means of hooks.
+  This is currently used by atf-report's XML output only, and is later
+  printed in the HTML reports in a nice and useful summary table.  The user
+  and system administrator are allowed to tune this feature by means of
+  hooks.
 
 * Removed the test cases' 'isolated' property.  This was intended to avoid
   touching the file system at all when running the related test case, but
-  this has not been true for a long while given that some control files are
-  unconditionally required for several purposes.  This way we get rid of
-  several critical and delicate code.
+  this has not been true for a long while: some control files are
+  unconditionally required for several purposes, and we cannot easily get
+  rid of them.  This way we remove several critical and delicate pieces of
+  code.
 
-* Improved atf-report's csv output format to include information about
+* Improved atf-report's CSV output format to include information about
   test programs too.
 
 * Fixed the tests that used atf-compile to not require this tool as a
   helper.  Avoids systems without build-time utilities to skip many tests
-  that could otherwise be run.
+  that could otherwise be run.  (E.g. NetBSD without the comp.tgz set
+  installed.)
+
+* Many general cleanups: Fixed many pieces of code marked as ugly and/or
+  incomplete.
 
 
 Version 0.2
@@ -81,4 +117,5 @@ Changes:
   Google Summer of Code 2007 program.
 
 
--- EOF
+---------------------------------------------------------------------------
+                              End of document

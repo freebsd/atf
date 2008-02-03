@@ -392,19 +392,31 @@
     <h3>Termination reason</h3>
     <xsl:apply-templates select="failed|skipped" mode="details" />
 
-    <h3>Standard output stream</h3>
-    <p class="so"><xsl:apply-templates select="so" mode="details" /></p>
+    <xsl:if test="so">
+      <h3>Standard output stream</h3>
+      <pre class="so"><xsl:apply-templates select="so" mode="details" /></pre>
+    </xsl:if>
 
-    <h3>Standard error stream</h3>
-    <p class="se"><xsl:apply-templates select="se" mode="details" /></p>
+    <xsl:if test="se">
+      <h3>Standard error stream</h3>
+      <pre class="se"><xsl:apply-templates select="se" mode="details" /></pre>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="so" mode="details">
-    <xsl:apply-templates /><br />
+    <xsl:apply-templates />
+    <xsl:if test="position() != last()">
+      <xsl:text>
+</xsl:text>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="se" mode="details">
-    <xsl:apply-templates /><br />
+    <xsl:apply-templates />
+    <xsl:if test="position() != last()">
+      <xsl:text>
+</xsl:text>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="@*|node()" priority="-1">

@@ -443,9 +443,9 @@ static const atf::parser::token_type& nl_type = 1;
 static const atf::parser::token_type& text_type = 2;
 static const atf::parser::token_type& colon_type = 3;
 static const atf::parser::token_type& comma_type = 4;
-static const atf::parser::token_type& tps_count = 5;
-static const atf::parser::token_type& tp_start = 6;
-static const atf::parser::token_type& tp_end = 7;
+static const atf::parser::token_type& tps_count_type = 5;
+static const atf::parser::token_type& tp_start_type = 6;
+static const atf::parser::token_type& tp_end_type = 7;
 static const atf::parser::token_type& tc_start_type = 8;
 static const atf::parser::token_type& tc_so_type = 9;
 static const atf::parser::token_type& tc_se_type = 10;
@@ -463,9 +463,9 @@ public:
     {
         add_delim(':', colon_type);
         add_delim(',', comma_type);
-        add_keyword("tps-count", tps_count);
-        add_keyword("tp-start", tp_start);
-        add_keyword("tp-end", tp_end);
+        add_keyword("tps-count", tps_count_type);
+        add_keyword("tp-start", tp_start_type);
+        add_keyword("tp-end", tp_end_type);
         add_keyword("tc-start", tc_start_type);
         add_keyword("tc-so", tc_so_type);
         add_keyword("tc-se", tc_se_type);
@@ -998,7 +998,7 @@ impl::atf_tps_reader::read_tp(void* pptr)
         *reinterpret_cast< atf::parser::parser< tokenizer >* >
         (pptr);
 
-    atf::parser::token t = p.expect(tp_start,
+    atf::parser::token t = p.expect(tp_start_type,
                                     "start of test program");
 
     t = p.expect(colon_type, "`:'");
@@ -1025,7 +1025,7 @@ impl::atf_tps_reader::read_tp(void* pptr)
             p.reset(nl_type);
         }
     }
-    t = p.expect(tp_end, "end of test program");
+    t = p.expect(tp_end_type, "end of test program");
 
     t = p.expect(colon_type, "`:'");
 
@@ -1077,7 +1077,7 @@ impl::atf_tps_reader::read_tc(void* pptr)
 
         t = p.expect(colon_type, "`:'");
 
-        std::string line = text::trim(p.rest_of_line());
+        std::string line = p.rest_of_line();
 
         if (t2.type() == tc_so_type) {
             CALLBACK(p, got_tc_stdout_line(line));
@@ -1141,7 +1141,7 @@ impl::atf_tps_reader::read(void)
     try {
         atf::parser::token t;
 
-        while ((t = p.expect(tps_count, info_type, "tps-count or info "
+        while ((t = p.expect(tps_count_type, info_type, "tps-count or info "
                              "field")).type() == info_type)
             read_info(&p);
 
@@ -1233,14 +1233,14 @@ impl::atf_tps_writer::start_tc(const std::string& tcname)
 void
 impl::atf_tps_writer::stdout_tc(const std::string& line)
 {
-    m_os << "tc-so: " << line << std::endl;
+    m_os << "tc-so:" << line << std::endl;
     m_os.flush();
 }
 
 void
 impl::atf_tps_writer::stderr_tc(const std::string& line)
 {
-    m_os << "tc-se: " << line << std::endl;
+    m_os << "tc-se:" << line << std::endl;
     m_os.flush();
 }
 

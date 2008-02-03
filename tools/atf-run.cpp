@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -198,7 +198,7 @@ merge_maps(std::map< K, V >& dest, const std::map< K, V >& src)
         dest[(*iter).first] = (*iter).second;
 }
 
-class atf_run : public atf::application {
+class atf_run : public atf::application::app {
     static const char* m_description;
 
     atf::tests::vars_map m_atffile_vars;
@@ -246,27 +246,8 @@ const char* atf_run::m_description =
     "results.";
 
 atf_run::atf_run(void) :
-    application(m_description, "atf-run(1)")
+    app(m_description, "atf-run(1)", "atf(7)")
 {
-}
-
-// XXX Duplicate from atf/tests.cpp.
-atf::tests::vars_map::value_type
-atf_run::parse_var(const std::string& str)
-{
-    if (str.empty())
-        throw std::runtime_error("-v requires a non-empty argument");
-
-    std::vector< std::string > ws = atf::text::split(str, "=");
-    if (ws.size() == 1 && str[str.length() - 1] == '=') {
-        return atf::tests::vars_map::value_type(ws[0], "");
-    } else {
-        if (ws.size() != 2)
-            throw std::runtime_error("-v requires an argument of the form "
-                                     "var=value");
-
-        return atf::tests::vars_map::value_type(ws[0], ws[1]);
-    }
 }
 
 void
@@ -275,7 +256,8 @@ atf_run::process_option(int ch, const char* arg)
     switch (ch) {
     case 'v':
         {
-            atf::tests::vars_map::value_type v = parse_var(arg);
+            atf::tests::vars_map::value_type v =
+                atf::tests::vars_map::parse(arg);
             m_cmdline_vars[v.first] = v.second;
         }
         break;
@@ -296,6 +278,7 @@ atf_run::options_set
 atf_run::specific_options(void)
     const
 {
+    using atf::application::option;
     options_set opts;
     opts.insert(option('v', "var=value", "Sets the configuration variable "
                                          "`var' to `value'; overrides "
@@ -383,12 +366,12 @@ atf_run::run_test_program_child(const atf::fs::path& tp,
     // do not care to release it.  We are going to die anyway very soon,
     // either due to exec(2) or to exit(3).
     std::vector< std::string > confargs = conf_args();
-    char* args[4 + confargs.size()];
+    char** args = new char*[4 + confargs.size()];
     {
         // 0: Program name.
-        const char* name = tp.leaf_name().c_str();
-        args[0] = new char[std::strlen(name) + 1];
-        std::strcpy(args[0], name);
+        std::string progname = tp.leaf_name();
+        args[0] = new char[progname.length() + 1];
+        std::strcpy(args[0], progname.c_str());
 
         // 1: The file descriptor to which the results will be printed.
         args[1] = new char[4];
@@ -473,7 +456,7 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
     }
 
     int code, status;
-    if (::waitpid(pid, &status, 0) == -1) {
+    if (::waitpid(pid, &status, 0) != pid) {
         m.finalize("waitpid(2) on the child process " +
                    atf::text::to_string(pid) + " failed" +
                    (fmterr.empty() ? "" : (".  " + fmterr)));
@@ -495,11 +478,6 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
             m.finalize("Test program received signal " +
                        atf::text::to_string(WTERMSIG(status)) +
                        (WCOREDUMP(status) ? " (core dumped)" : "") +
-                       (fmterr.empty() ? "" : (".  " + fmterr)));
-        } else if (WIFSTOPPED(status)) {
-            code = EXIT_FAILURE;
-            m.finalize("Test program stopped due to signal " +
-                       atf::text::to_string(WSTOPSIG(status)) +
                        (fmterr.empty() ? "" : (".  " + fmterr)));
         } else
             throw std::runtime_error

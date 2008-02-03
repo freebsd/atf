@@ -82,6 +82,32 @@ ATF_TEST_CASE_BODY(atf_run_testvar)
 }
 
 // ------------------------------------------------------------------------
+// Helper tests for "t_atf_report".
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(atf_report_diff);
+ATF_TEST_CASE_HEAD(atf_report_diff)
+{
+    set("descr", "Helper test case for the t_atf_report test program");
+}
+ATF_TEST_CASE_BODY(atf_report_diff)
+{
+    std::cout << "--- a	2007-11-04 14:00:41.000000000 +0100" << std::endl;
+    std::cout << "+++ b	2007-11-04 14:00:48.000000000 +0100" << std::endl;
+    std::cout << "@@ -1,7 +1,7 @@" << std::endl;
+    std::cout << " This test is meant to simulate a diff." << std::endl;
+    std::cout << " Blank space at beginning of context lines must be "
+                 "preserved." << std::endl;
+    std::cout << " " << std::endl;
+    std::cout << "-First original line." << std::endl;
+    std::cout << "-Second original line." << std::endl;
+    std::cout << "+First modified line." << std::endl;
+    std::cout << "+Second modified line." << std::endl;
+    std::cout << " " << std::endl;
+    std::cout << " EOF" << std::endl;
+}
+
+// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -96,4 +122,8 @@ ATF_INIT_TEST_CASES(tcs)
         ATF_ADD_TEST_CASE(tcs, atf_run_fds);
     if (which == "atf_run_testvar")
         ATF_ADD_TEST_CASE(tcs, atf_run_testvar);
+
+    // Add helper tests for t_atf_report.
+    if (which == "atf_report_diff")
+        ATF_ADD_TEST_CASE(tcs, atf_report_diff);
 }

@@ -34,16 +34,30 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-#
-# File: atf.config.subr
-#
-#   Build-time configuration for ATF shell code.
-#
+atf_test_case srcdir
+srcdir_head()
+{
+    atf_set "descr" "Verifies that the source directory can be queried" \
+                    "from the initialization function"
+}
+srcdir_body()
+{
+    mkdir work
+    atf_check "cp $(atf_get_srcdir)/h_misc work" 0 null null
+    cat >work/subrs <<EOF
+helper_subr() {
+    echo "This is a helper subroutine"
+}
+EOF
 
-# Set to `yes' if sh(1) supports 'trap -'.
-#
-# The bash 3.00.16(1) shipped with Solaris SXDE 200705 complains about
-# that and raises errors everytime we try to use this valid call.
-SH_TRAP_DASH=@SH_TRAP_DASH@
+    atf_check "./work/h_misc -s $(pwd)/work tp_srcdir" 0 stdout null
+    atf_check "grep 'Calling helper' stdout" 0 ignore null
+    atf_check "grep 'This is a helper subroutine' stdout" 0 ignore null
+}
+
+atf_init_test_cases()
+{
+    atf_add_test_case srcdir
+}
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
