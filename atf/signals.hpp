@@ -34,122 +34,86 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_UTILS_HPP_)
-#define _ATF_UTILS_HPP_
+#if !defined(_ATF_SIGNALS_HPP_)
+#define _ATF_SIGNALS_HPP_
 
-#include <cstddef>
+extern "C" {
+#include <signal.h>
+}
+
+#include <map>
 
 namespace atf {
-namespace utils {
+namespace signals {
+
+//
+// Define last_signo to the last signal number valid for the system.
+// This is tricky.  For example, NetBSD defines SIGPWR as the last valid
+// number, whereas Mac OS X defines it as SIGTHR.  Both share the same
+// signal number (32).  If none of these are available, we assume that
+// the highest signal is SIGUSR2.
+//
+// TODO: Make this a configure check that uses ::kill and finds the first
+// number that returns EINVAL.  The result is probably usable in the
+// shell interface too.
+//
+#if defined(SIGTHR) && defined(SIGPWR)
+#   if SIGTHR > SIGPWR
+static const int last_signo = SIGTHR;
+#   elif SIGPWR < SIGTHR
+static const int last_signo = SIGPWR;
+#   else
+static const int last_signo = SIGPWR;
+#   endif
+#elif defined(SIGTHR)
+static const int last_signo = SIGTHR;
+#elif defined(SIGPWR)
+static const int last_signo = SIGPWR;
+#else
+static const int last_signo = SIGUSR2;
+#endif
 
 // ------------------------------------------------------------------------
-// The "auto_array" class.
+// The "signal_holder" class.
 // ------------------------------------------------------------------------
 
-template< class T >
-class auto_array {
-    T* m_ptr;
+//
+// A RAII model to hold a signal while the object is alive.
+//
+class signal_holder {
+    int m_signal;
+    bool m_happened;
+    struct sigaction m_sanew, m_saold;
+    static std::map< int, signal_holder* > m_holders;
+
+    static void handler(int);
+
+    void program(void);
 
 public:
-    auto_array(T* = NULL) throw();
-    auto_array(auto_array< T >&) throw();
-    ~auto_array(void) throw();
+    signal_holder(int);
+    ~signal_holder(void);
 
-    T* get(void) throw();
-    T* release(void) throw();
-    void reset(T* = NULL) throw();
-
-    auto_array< T >& operator=(auto_array< T >&) throw();
-    T& operator[](int) throw();
+    void process(void);
 };
 
-template< class T >
-auto_array< T >::auto_array(T* ptr)
-    throw() :
-    m_ptr(ptr)
-{
-}
-
-template< class T >
-auto_array< T >::auto_array(auto_array< T >& ptr)
-    throw() :
-    m_ptr(ptr.release())
-{
-}
-
-template< class T >
-auto_array< T >::~auto_array(void)
-    throw()
-{
-    if (m_ptr != NULL)
-        delete [] m_ptr;
-}
-
-template< class T >
-T*
-auto_array< T >::get(void)
-    throw()
-{
-    return m_ptr;
-}
-
-template< class T >
-T*
-auto_array< T >::release(void)
-    throw()
-{
-    T* ptr = m_ptr;
-    m_ptr = NULL;
-    return ptr;
-}
-
-template< class T >
-void
-auto_array< T >::reset(T* ptr)
-    throw()
-{
-    if (m_ptr != NULL)
-        delete [] m_ptr;
-    m_ptr = ptr;
-}
-
-template< class T >
-auto_array< T >&
-auto_array< T >::operator=(auto_array< T >& ptr)
-    throw()
-{
-    reset(ptr.release());
-    return *this;
-}
-
-template< class T >
-T&
-auto_array< T >::operator[](int pos)
-    throw()
-{
-    return m_ptr[pos];
-}
-
 // ------------------------------------------------------------------------
-// The "noncopyable" class.
+// The "signal_programmer" class.
 // ------------------------------------------------------------------------
 
-class noncopyable {
-    // The class cannot be empty; otherwise we get ABI-stability warnings
-    // during the build, which will break it due to strict checking.
-    int m_noncopyable_dummy;
+//
+// A RAII model to program a signal while the object is alive.
+//
+class signal_programmer {
+    int m_signal;
+    struct sigaction m_saold;
 
-    noncopyable(const noncopyable& nc);
-    noncopyable& operator=(const noncopyable& nc);
-
-protected:
-    // Explicitly needed to provide some non-private functions.  Otherwise
-    // we also get some warnings during the build.
-    noncopyable(void) {}
-    ~noncopyable(void) {}
+public:
+    signal_programmer(int s, void (*handler)(int));
+    ~signal_programmer(void);
 };
 
-} // namespace utils
+} // namespace signals
 } // namespace atf
 
-#endif // !defined(_ATF_UTILS_HPP_)
+#endif // !defined(_ATF_SIGNALS_HPP_)

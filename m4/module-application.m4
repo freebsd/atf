@@ -1,7 +1,7 @@
 dnl
 dnl Automated Testing Framework (atf)
 dnl
-dnl Copyright (c) 2007 The NetBSD Foundation, Inc.
+dnl Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 dnl All rights reserved.
 dnl
 dnl Redistribution and use in source and binary forms, with or without
@@ -36,4 +36,49 @@ dnl
 
 AC_DEFUN([ATF_MODULE_APPLICATION], [
     ATF_CHECK_STD_VSNPRINTF
+
+    AC_MSG_CHECKING(whether getopt allows a + sign for POSIX behavior)
+    AC_TRY_RUN([
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+int
+main(void)
+{
+    int argc = 4;
+    char* argv@<:@5@:>@ = {
+        strdup("conftest"),
+        strdup("-+"),
+        strdup("-a"),
+        strdup("bar"),
+        NULL
+    };
+    int ch;
+    int seen_a = 0, seen_plus = 0;
+
+    while ((ch = getopt(argc, argv, "+a:")) != -1) {
+        switch (ch) {
+        case 'a':
+            seen_a = 1;
+            break;
+
+        case '+':
+            seen_plus = 1;
+            break;
+
+        case '?':
+        default:
+            ;
+        }
+    }
+
+    return (seen_a && !seen_plus) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+],
+    [getopt_allows_plus=yes
+     AC_DEFINE([HAVE_GNU_GETOPT], [1],
+               [Define to 1 if getopt allows a + sign for POSIX behavior])],
+    [getopt_allows_plus=no])
+    AC_MSG_RESULT(${getopt_allows_plus})
 ])

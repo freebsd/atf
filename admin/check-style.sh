@@ -104,6 +104,7 @@ find_sources() {
               \! -path "*autom4te*" -a \
               -type f -a \
               \! -name "aclocal.m4" \
+              \! -name "*.so.*" \
            \)
 }
 

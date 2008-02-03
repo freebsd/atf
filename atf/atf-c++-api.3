@@ -33,7 +33,7 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd January 2, 2008
+.Dd January 5, 2008
 .Dt ATF-C++-API 3
 .Os
 .Sh NAME
@@ -70,9 +70,9 @@
 ATF provides a mostly-macro-based programming interface to implement test
 programs in C or C++.
 This interface is backed by a C++ implementation, but this fact is
-hidden as much as possible to the developer through the use of
+hidden from the developer as much as possible through the use of
 macros to simplify programming.
-However, the use of C++ is not hidden everywhere and, while you can
+However, the use of C++ is not hidden everywhere and while you can
 implement test cases without knowing anything at all about the object model
 underneath the provided calls, you might need some minimum notions of the
 language in very specific circumstances.
@@ -129,7 +129,7 @@ To define test cases, one can use the
 .Fn ATF_TEST_CASE
 or the
 .Fn ATF_TEST_CASE_WITH_CLEANUP
-macros, which receive a single parameter specifiying the test case's
+macros, which take a single parameter specifiying the test case's
 name.
 The former does not allow the specification of a cleanup routine for the
 test case while the latter does.
@@ -148,13 +148,14 @@ Their headers are given by the
 .Fn ATF_TEST_CASE_BODY
 and
 .Fn ATF_TEST_CASE_CLEANUP
-macros, all of which receive the test case's name.
+macros, all of which take the test case's name.
 Following each of these, a block of code is expected, surrounded by the
 opening and closing brackets.
 .Ss Program initialization
 The library provides a way to easily define the test program's
 .Fn main
-function; in fact, you should never define one on your own, but rely on the
+function.
+You should never define one on your own, but rely on the
 library to do it for you.
 This is done by using the
 .Fn ATF_INIT_TEST_CASES
@@ -170,8 +171,8 @@ former call.
 .Ss Header definitions
 The test case's header can define the meta-data by using the
 .Fn set
-method, which receives two parameters: the first one specifies the
-meta-data variable to be set and the second one, its value.
+method, which takes two parameters: the first one specifies the
+meta-data variable to be set and the second one specifies its value.
 Both of them are strings.
 .Ss Configuration variables
 The test case has read-only access to the current configuration variables
@@ -197,12 +198,12 @@ method takes the name of a variable and returns its value as a textual
 string.
 It assumes that the variable is present in the map and will crash your
 program if it is not.
-On the other hand, there is an overloaded version of
+The second is an overloaded version of
 .Fn get
 that takes two parameters: the name of a variable and the default value for
 it.
-It then returns the variable's value if it is defined, or the default value
-provided otherwise.
+It returns the variable's value if it is defined, or the default value
+if not.
 .Pp
 Similarly, there are a couple of
 .Fn get_bool
@@ -236,12 +237,12 @@ The cleanup routine will be processed afterwards in a completely automated
 way, regardless of the test case's termination reason.
 .Pp
 .Fn ATF_PASS
-does not take any parameter.
+does not take any parameters.
 .Fn ATF_FAIL
 and
 .Fn ATF_SKIP
-take a single string parameter that describes why the test case failed or
-was skipped respectively.
+take a single string that describes why the test case failed or
+was skipped, respectively.
 It is very important to provide a clear error message in both cases so that
 the user can quickly know why the test did not pass.
 .Ss Helper macros for common checks
@@ -254,14 +255,14 @@ automatically call
 with an appropriate error message.
 .Pp
 .Fn ATF_CHECK
-receives an expression and raises a failure if it evaluates to false.
+takes an expression and raises a failure if it evaluates to false.
 .Pp
 .Fn ATF_CHECK_EQUAL
-receives two expressions and raises a failure if the two do not evaluate to
+takes two expressions and raises a failure if the two do not evaluate to
 the same exact value.
 .Pp
 .Fn ATF_CHECK_THROW
-receives an statement and the name of an exception and raises a failure if
+takes a statement and the name of an exception and raises a failure if
 the statement did not throw the specified exception.
 .Sh EXAMPLES
 The following shows a complete test program with a single test case that

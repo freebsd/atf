@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,22 +34,42 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_USER_HPP_)
-#define _ATF_USER_HPP_
+#include <stdexcept>
 
-extern "C" {
-#include <sys/types.h>
+#include <atf/macros.hpp>
+
+void
+atf_check_inside_if(void)
+{
+    // Make sure that ATF_CHECK can be used inside an if statement that
+    // does not have braces.  Earlier versions of it generated an error
+    // if there was an else clause because they confused the compiler
+    // by defining an unprotected nested if.
+    if (true)
+        ATF_CHECK(true);
+    else
+        ATF_CHECK(true);
 }
 
-namespace atf {
-namespace user {
+void
+atf_check_equal_inside_if(void)
+{
+    // Make sure that ATF_CHECK_EQUAL can be used inside an if statement
+    // that does not have braces.  Earlier versions of it generated an
+    // error if there was an else clause because they confused the
+    // compiler by defining an unprotected nested if.
+    if (true)
+        ATF_CHECK_EQUAL(true, true);
+    else
+        ATF_CHECK_EQUAL(true, true);
+}
 
-uid_t euid(void);
-bool is_member_of_group(gid_t);
-bool is_root(void);
-bool is_unprivileged(void);
-
-} // namespace user
-} // namespace atf
-
-#endif // !defined(_ATF_USER_HPP_)
+void
+atf_check_throw_runtime_error(void)
+{
+    // Check that we can pass std::runtime_error to ATF_CHECK_THROW.
+    // Earlier versions generated a warning because the macro's code also
+    // attempted to capture this exception, and thus we had a duplicate
+    // catch clause.
+    ATF_CHECK_THROW((void)0, std::runtime_error);
+}

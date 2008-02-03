@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,22 +34,90 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_USER_HPP_)
-#define _ATF_USER_HPP_
-
 extern "C" {
 #include <sys/types.h>
+#include <signal.h>
 }
 
-namespace atf {
-namespace user {
+#include <cerrno>
+#include <cstdlib>
+#include <iostream>
 
-uid_t euid(void);
-bool is_member_of_group(gid_t);
-bool is_root(void);
-bool is_unprivileged(void);
+#include "atf/application.hpp"
+#include "atf/exceptions.hpp"
+#include "atf/sanity.hpp"
+#include "atf/text.hpp"
 
-} // namespace user
-} // namespace atf
+class atf_killpg : public atf::application::app {
+    static const char* m_description;
 
-#endif // !defined(_ATF_USER_HPP_)
+    int m_signo;
+
+    std::string specific_args(void) const;
+    options_set specific_options(void) const;
+    void process_option(int, const char*);
+
+public:
+    atf_killpg(void);
+
+    int main(void);
+};
+
+const char* atf_killpg::m_description =
+    "atf-killpg sends a signal to a process group.";
+
+atf_killpg::atf_killpg(void) :
+    app(m_description, "atf-killpg(1)", "atf(7)"),
+    m_signo(SIGTERM)
+{
+}
+
+std::string
+atf_killpg::specific_args(void)
+    const
+{
+    return "<pid>";
+}
+
+atf_killpg::options_set
+atf_killpg::specific_options(void)
+    const
+{
+    using atf::application::option;
+    options_set opts;
+    opts.insert(option('s', "signal",
+                       "The signal to send to processes (default SIGTERM)"));
+    return opts;
+}
+
+void
+atf_killpg::process_option(int ch, const char* arg)
+{
+    switch (ch) {
+    case 's':
+        m_signo = atf::text::to_type< int >(arg);
+        break;
+
+    default:
+        UNREACHABLE;
+    }
+}
+
+int
+atf_killpg::main(void)
+{
+    if (m_argc < 1)
+        throw atf::application::usage_error("No PID specified");
+
+    pid_t pid = atf::text::to_type< pid_t >(m_argv[0]);
+    if (::killpg(pid, m_signo) == -1)
+        throw atf::system_error("main", "killpg failed", errno);
+
+    return EXIT_SUCCESS;
+}
+
+int
+main(int argc, char* const* argv)
+{
+    return atf_killpg().run(argc, argv);
+}

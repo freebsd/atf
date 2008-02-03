@@ -14,6 +14,24 @@ Changes:
 * Added two new manual pages, atf-c++-api and atf-sh-api, describing the
   C++ and POSIX shell interfaces used to write test programs.
 
+* Added a pkg-config file, useful to get the flags to build against the
+  C++ library or to easily detect the presence of ATF.
+
+* Added a way for test cases to require a specific architecture and/or
+  machine type through the new 'require.arch' and 'require.machine'
+  meta-data properties, respectively.
+
+* Added the 'timeout' property to test cases, useful to set an upper-bound
+  limit for the test's run time and thus prevent global test program stalls
+  due to the test case's misbehavior.
+
+* Fixed a serious bug that prevented atf-run(1) from working at all under
+  Fedora 8 x86_64.  Due to the nature of the bug, other platforms were
+  likely affected too.
+
+* Added a new internal utility, atf-kill-tree(1), used to kill a tree of
+  processes.
+
 
 Version 0.3
 ===========

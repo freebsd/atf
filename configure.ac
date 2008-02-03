@@ -50,6 +50,8 @@ AC_CONFIG_MACRO_DIR([admin])
 AC_CONFIG_SRCDIR([atf.hpp])
 AC_CONFIG_TESTDIR([tests/bootstrap])
 
+AC_CANONICAL_TARGET
+
 AM_INIT_AUTOMAKE([1.9 check-news subdir-objects -Wall])
 
 dnl This is just a hack to reverse the meaning of the --enable-shared
@@ -80,6 +82,25 @@ ATF_MODULE_APPLICATION
 ATF_MODULE_ENV
 ATF_MODULE_FS
 ATF_MODULE_SANITY
+
+dnl -----------------------------------------------------------------------
+dnl Architecture and machine checks.
+dnl -----------------------------------------------------------------------
+
+machine=${target_cpu}
+
+case ${machine} in
+    i@<:@3-9@:>@86)
+        arch=i386
+        ;;
+    *)
+        arch=${machine}
+        ;;
+esac
+
+AC_MSG_NOTICE([Machine type: ${machine}, architecture: ${arch}])
+AC_SUBST(atf_arch, ${arch})
+AC_SUBST(atf_machine, ${machine})
 
 dnl -----------------------------------------------------------------------
 dnl User-customizable variables.
@@ -129,6 +150,7 @@ fi
 AC_SUBST(atf_cssdir, \${datadir}/examples/atf)
 AC_SUBST(atf_dtddir, \${datadir}/xml/atf)
 AC_SUBST(atf_egdir, \${datadir}/examples/atf)
+AC_SUBST(atf_pkgconfigdir, \${libdir}/pkgconfig)
 AC_SUBST(atf_xsldir, \${datadir}/xsl/atf)
 
 dnl -----------------------------------------------------------------------
@@ -151,16 +173,6 @@ if test x"${ATF_SHELL}" = x""; then
     AC_MSG_ERROR([No POSIX shell interpreter found; maybe set ATF_SHELL?])
 fi
 
-AC_MSG_CHECKING([whether ${ATF_SHELL} supports trap -])
-output=`${ATF_SHELL} -c 'trap -- -' 2>&1`
-if test x"${output}" != x""; then
-    AC_SUBST([SH_TRAP_DASH], [no])
-    AC_MSG_RESULT([no])
-else
-    AC_SUBST([SH_TRAP_DASH], [yes])
-    AC_MSG_RESULT([yes])
-fi
-
 dnl -----------------------------------------------------------------------
 dnl Check for required tools.
 dnl -----------------------------------------------------------------------
@@ -171,7 +183,7 @@ dnl -----------------------------------------------------------------------
 dnl Finally, generate output.
 dnl -----------------------------------------------------------------------
 
-AC_OUTPUT([Makefile subrs/atf.config.subr])
+AC_OUTPUT([Makefile])
 
 if test ${enable_shared} = yes; then
     AC_MSG_WARN([Shared libraries with unstable ABIs/APIs have been enabled.])

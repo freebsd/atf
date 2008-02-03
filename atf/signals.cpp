@@ -34,122 +34,99 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_UTILS_HPP_)
-#define _ATF_UTILS_HPP_
+extern "C" {
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <signal.h>
+#include <unistd.h>
+}
 
-#include <cstddef>
+#include <cerrno>
 
-namespace atf {
-namespace utils {
+#include "atf/exceptions.hpp"
+#include "atf/sanity.hpp"
+#include "atf/signals.hpp"
+
+namespace impl = atf::signals;
+#define IMPL_NAME "atf::signals"
 
 // ------------------------------------------------------------------------
-// The "auto_array" class.
+// The "signal_holder" class.
 // ------------------------------------------------------------------------
 
-template< class T >
-class auto_array {
-    T* m_ptr;
+std::map< int, impl::signal_holder* > impl::signal_holder::m_holders;
 
-public:
-    auto_array(T* = NULL) throw();
-    auto_array(auto_array< T >&) throw();
-    ~auto_array(void) throw();
-
-    T* get(void) throw();
-    T* release(void) throw();
-    void reset(T* = NULL) throw();
-
-    auto_array< T >& operator=(auto_array< T >&) throw();
-    T& operator[](int) throw();
-};
-
-template< class T >
-auto_array< T >::auto_array(T* ptr)
-    throw() :
-    m_ptr(ptr)
-{
-}
-
-template< class T >
-auto_array< T >::auto_array(auto_array< T >& ptr)
-    throw() :
-    m_ptr(ptr.release())
-{
-}
-
-template< class T >
-auto_array< T >::~auto_array(void)
-    throw()
-{
-    if (m_ptr != NULL)
-        delete [] m_ptr;
-}
-
-template< class T >
-T*
-auto_array< T >::get(void)
-    throw()
-{
-    return m_ptr;
-}
-
-template< class T >
-T*
-auto_array< T >::release(void)
-    throw()
-{
-    T* ptr = m_ptr;
-    m_ptr = NULL;
-    return ptr;
-}
-
-template< class T >
 void
-auto_array< T >::reset(T* ptr)
-    throw()
+impl::signal_holder::handler(int s)
 {
-    if (m_ptr != NULL)
-        delete [] m_ptr;
-    m_ptr = ptr;
+    m_holders[s]->m_happened = true;
 }
 
-template< class T >
-auto_array< T >&
-auto_array< T >::operator=(auto_array< T >& ptr)
-    throw()
+void
+impl::signal_holder::program(void)
 {
-    reset(ptr.release());
-    return *this;
+    if (::sigaction(m_signal, &m_sanew, &m_saold) == -1)
+        throw atf::system_error(IMPL_NAME "::signal_holder::signal_holder",
+                                "sigaction(2) failed", errno);
 }
 
-template< class T >
-T&
-auto_array< T >::operator[](int pos)
-    throw()
+impl::signal_holder::signal_holder(int s) :
+    m_signal(s),
+    m_happened(false)
 {
-    return m_ptr[pos];
+    m_sanew.sa_handler = handler;
+    sigemptyset(&m_sanew.sa_mask);
+    m_sanew.sa_flags = 0;
+
+    program();
+    PRE(m_holders.find(m_signal) == m_holders.end());
+    m_holders[m_signal] = this;
+}
+
+impl::signal_holder::~signal_holder(void)
+{
+    int res = ::sigaction(m_signal, &m_saold, NULL);
+    INV(res == 0);
+    if (m_happened)
+        ::kill(::getpid(), m_signal);
+}
+
+void
+impl::signal_holder::process(void)
+{
+    if (m_happened) {
+        int res = ::sigaction(m_signal, &m_saold, NULL);
+        if (res == -1)
+            throw atf::system_error(IMPL_NAME "::signal_holder::signal_holder",
+                                    "sigaction(2) failed", errno);
+        m_happened = false;
+        ::kill(::getpid(), m_signal);
+        program();
+    }
 }
 
 // ------------------------------------------------------------------------
-// The "noncopyable" class.
+// The "signal_programmer" class.
 // ------------------------------------------------------------------------
 
-class noncopyable {
-    // The class cannot be empty; otherwise we get ABI-stability warnings
-    // during the build, which will break it due to strict checking.
-    int m_noncopyable_dummy;
+impl::signal_programmer::signal_programmer(int s, void (*handler)(int)) :
+    m_signal(s)
+{
+    struct sigaction sa;
 
-    noncopyable(const noncopyable& nc);
-    noncopyable& operator=(const noncopyable& nc);
+    sa.sa_handler = handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
 
-protected:
-    // Explicitly needed to provide some non-private functions.  Otherwise
-    // we also get some warnings during the build.
-    noncopyable(void) {}
-    ~noncopyable(void) {}
-};
+    if (::sigaction(m_signal, &sa, &m_saold) == -1)
+        throw atf::system_error(IMPL_NAME
+                                "::signal_programmer::signal_programmer",
+                                "sigaction(2) failed", errno);
+}
 
-} // namespace utils
-} // namespace atf
-
-#endif // !defined(_ATF_UTILS_HPP_)
+impl::signal_programmer::~signal_programmer(void)
+{
+    int res = ::sigaction(m_signal, &m_saold, NULL);
+    INV(res == 0);
+}
