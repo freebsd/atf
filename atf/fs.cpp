@@ -655,7 +655,10 @@ impl::cleanup(const path& p)
     std::vector< path > mntpts = find_mount_points(p, file_info(p));
     for (std::vector< path >::const_iterator iter = mntpts.begin();
          iter != mntpts.end(); iter++) {
-        const path& p2 = *iter;
+        // At least, FreeBSD's unmount(2) requires the path to be absolute.
+        // Let's make it absolute in all cases just to be safe that this does
+        // not affect other systems.
+        path p2 = (*iter).is_absolute() ? (*iter) : (*iter).to_absolute();
 #if defined(HAVE_UNMOUNT)
         if (::unmount(p2.c_str(), 0) == -1)
             throw system_error(IMPL_NAME "::cleanup(" + p.str() + ")",
