@@ -48,11 +48,6 @@ Plans for pre-1.0
 * Add an atf_check-like function to the C++ binding to allow easy testing
   of executables.
 
-* The test suite should not use atf-compile to generate helper test cases.
-  Reason: NetBSD will include atf-compile in the comp.tgz set.  If it is
-  not installed, a lot of tests will be skipped without a "real" reason.
-  Use real helpers instead.
-
 * Make the shell library work with 'set -e'?
 
 * Shell test programs dynamically locate where the shell library is by
