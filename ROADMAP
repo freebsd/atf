@@ -68,8 +68,6 @@ Plans for pre-1.0
 * Make sure that the tests in tests/atf have, at the very least, the same
   coverage as the ones in tests/bootstrap.
 
-* Add manual pages for the library interfaces.
-
 * Document the code.
 
 * Possibly add a way to automatically gain or drop privileges when
