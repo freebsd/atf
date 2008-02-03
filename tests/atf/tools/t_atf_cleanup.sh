@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -85,6 +85,9 @@ mount_tmpfs_portable()
     Linux|NetBSD)
         mount -t tmpfs tmpfs ${1}
         ;;
+    FreeBSD)
+        mdmfs -s 16m md ${1}
+        ;;
     SunOS)
         mount -F tmpfs tmpfs $(pwd)/${1}
         ;;
@@ -105,7 +108,7 @@ mount_body()
 {
     platform=$(uname)
     case ${platform} in
-    Linux|NetBSD|SunOS)
+    Linux|FreeBSD|NetBSD|SunOS)
         mkdir foo
         mkdir foo/bar
         mkdir foo/bar/mnt
@@ -140,7 +143,7 @@ symlink_body()
 {
     platform=$(uname)
     case ${platform} in
-    Linux|NetBSD|SunOS)
+    Linux|FreeBSD|NetBSD|SunOS)
         atf_check 'mkdir foo' 0 null null
         atf_check 'mkdir foo/bar' 0 null null
         atf_check 'mount_tmpfs_portable foo/bar' 0 null null
