@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -39,11 +39,5 @@
 #
 #   Build-time configuration for ATF shell code.
 #
-
-# Set to `yes' if sh(1) supports 'trap -'.
-#
-# The bash 3.00.16(1) shipped with Solaris SXDE 200705 complains about
-# that and raises errors everytime we try to use this valid call.
-SH_TRAP_DASH=@SH_TRAP_DASH@
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
