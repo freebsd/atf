@@ -184,7 +184,7 @@ dnl -----------------------------------------------------------------------
 dnl Finally, generate output.
 dnl -----------------------------------------------------------------------
 
-AC_OUTPUT([Makefile subrs/atf.config.subr])
+AC_OUTPUT([Makefile])
 
 if test ${enable_shared} = yes; then
     AC_MSG_WARN([Shared libraries with unstable ABIs/APIs have been enabled.])
