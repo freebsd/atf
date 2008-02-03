@@ -66,7 +66,6 @@ AC_ARG_ENABLE(unstable-shared,
      *) enable_shared=${enableval} ;;
      esac],
     [enable_shared=no])
-AM_CONDITIONAL([ENABLE_SHARED], test ${enable_shared} = yes)
 
 AC_PROG_LIBTOOL
 

@@ -100,7 +100,6 @@ EXTRA_DIST += admin/revision-dist.h
 # -------------------------------------------------------------------------
 
 lib_LTLIBRARIES = libatf.la
-libatf_la_LIBADD = $(KVM_LIBS)
 libatf_la_SOURCES = atf/application.cpp \
                     atf/application.hpp \
                     atf/atffile.cpp \
@@ -174,12 +173,6 @@ egdir = $(atf_egdir)
 eg_DATA = data/atf-run.hooks
 EXTRA_DIST += $(eg_DATA)
 
-if ENABLE_SHARED
-atf_pc_kvm_libs =
-else
-atf_pc_kvm_libs = $(KVM_LIBS)
-endif
-
 pkgconfigdir = $(atf_pkgconfigdir)
 pkgconfig_DATA = data/atf.pc
 CLEANFILES += data/atf.pc
@@ -190,7 +183,6 @@ data/atf.pc: $(srcdir)/data/atf.pc.in
 	    -e 's,__CXX__,$(CXX),g' \
 	    -e 's,__INCLUDEDIR__,$(includedir),g' \
 	    -e 's,__LIBDIR__,$(libdir),g' \
-	    -e 's,__KVM_LIBS__,$(atf_pc_kvm_libs),g' \
 	    <$(srcdir)/data/atf.pc.in >data/atf.pc.tmp
 	mv data/atf.pc.tmp data/atf.pc
 
