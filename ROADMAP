@@ -13,6 +13,14 @@ of salt: the focus of a specific release may change completely depending
 on how things develop.
 
 
+Plans for 0.5
+=============
+
+* Add a tool to collect multiple outputs of atf-run (from different
+  machines) and generate a single (XML-only?) log with everything.
+  Must allow easy conversion to HTML for online publishing.
+
+
 Plans for pre-1.0
 =================
 
