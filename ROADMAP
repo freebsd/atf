@@ -20,6 +20,19 @@ Plans for 0.5
   machines) and generate a single (XML-only?) log with everything.
   Must allow easy conversion to HTML for online publishing.
 
+* Allow grouping of test programs in tiers in an Atffile.  This is to
+  permit the user specify "dependencies" between test programs: e.g. do
+  not run a specific test program if its dependencies have failed, because
+  it will certainly fail also.
+
+* Provide a kernel-level unit testing API (for NetBSD only, at the moment).
+  This should come in the form of an atf.ko module that provides functions
+  to define and register test cases, functions for results reporting and
+  an interface (a trivial file system?) that transports the
+  application/X-atf-tcs output to user-space, provides information to
+  user-space about the available test cases (a list) and allows user-space
+  to launch the execution of test cases.
+
 
 Plans for pre-1.0
 =================
