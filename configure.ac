@@ -70,9 +70,11 @@ AC_ARG_ENABLE(unstable-shared,
 AC_PROG_LIBTOOL
 
 dnl -----------------------------------------------------------------------
-dnl Check for the C++ compiler and required features.
+dnl Check for the C and C++ compilers and required features.
 dnl -----------------------------------------------------------------------
 
+AC_LANG(C)
+AC_PROG_CC
 AC_LANG(C++)
 AC_PROG_CXX
 

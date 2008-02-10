@@ -158,6 +158,20 @@ atfdir = $(includedir)/atf
 dist_man_MANS = atf/atf-c++-api.3
 
 # -------------------------------------------------------------------------
+# `atf-c' directory.
+# -------------------------------------------------------------------------
+
+lib_LTLIBRARIES += libatf-c.la
+libatf_c_la_SOURCES = atf-c/main.c \
+                      atf-c/sanity.h \
+                      atf-c/ui.c \
+                      atf-c/ui.h \
+                      atf-c/tc.c \
+                      atf-c/tc.h \
+                      atf-c/tp.c \
+                      atf-c/tp.h
+
+# -------------------------------------------------------------------------
 # `data' directory.
 # -------------------------------------------------------------------------
 
@@ -239,6 +253,11 @@ check_PROGRAMS += tests/bootstrap/h_app_opts_args
 tests_bootstrap_h_app_opts_args_SOURCES = tests/bootstrap/h_app_opts_args.cpp
 tests_bootstrap_h_app_opts_args_LDADD = -latf
 tests_bootstrap_h_app_opts_args_LDFLAGS = -L.
+
+check_PROGRAMS += tests/bootstrap/h_tp_basic_c
+tests_bootstrap_h_tp_basic_c_SOURCES = tests/bootstrap/h_tp_basic_c.c
+tests_bootstrap_h_tp_basic_c_LDADD = -latf-c
+tests_bootstrap_h_tp_basic_c_LDFLAGS = -L.
 
 check_PROGRAMS += tests/bootstrap/h_tp_basic_cpp
 tests_bootstrap_h_tp_basic_cpp_SOURCES = tests/bootstrap/h_tp_basic_cpp.cpp
