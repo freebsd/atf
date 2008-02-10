@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,47 +34,91 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-extern "C" {
-#include "atf-c/env.h"
-}
+#if defined(HAVE_CONFIG_H)
+#include "config.h"
+#endif
 
-#include "atf/env.hpp"
-#include "atf/exceptions.hpp"
-#include "atf/sanity.hpp"
+#include <errno.h>
+#include <stdlib.h>
 
-namespace impl = atf::env;
-#define IMPL_NAME "atf::env"
+#include "env.h"
+#include "sanity.h"
 
-// ------------------------------------------------------------------------
-// Free functions.
-// ------------------------------------------------------------------------
-
-std::string
-impl::get(const std::string& name)
+const char *
+atf_env_get(const char *name)
 {
-    return atf_env_get(name.c_str());
+    const char* val = getenv(name);
+    PRE(val != NULL);
+    return val;
 }
 
 bool
-impl::has(const std::string& name)
+atf_env_has(const char *name)
 {
-    return atf_env_has(name.c_str());
+    return getenv(name) != NULL;
 }
 
-void
-impl::set(const std::string& name, const std::string& val)
+int
+atf_env_set(const char *name, const char *val)
 {
-    int ret = atf_env_set(name.c_str(), val.c_str());
-    if (ret != 0)
-        throw atf::system_error(IMPL_NAME "::set(" + name + ", " +
-                                val + ")", "failed", ret);
+#if defined(HAVE_SETENV)
+    int ret = 0;
+
+    if (setenv(name, val, 1) == -1)
+        ret = errno;
+
+    return ret;
+#elif defined(HAVE_PUTENV)
+    int ret = 0;
+    char *buf;
+
+    buf = (char *)malloc(strlen(name) + 1 + strlen(val) + 1);
+    if (buf == NULL) {
+        ret = ENOMEM;
+        goto out;
+    }
+    strcpy(buf, name);
+    strcat(buf, "=");
+    strcat(buf, val);
+
+    if (putenv(buf) == -1)
+        ret = errno;
+
+    free(buf);
+
+out:
+    return ret;
+#else
+#   error "Don't know how to set an environment variable."
+#endif
 }
 
-void
-impl::unset(const std::string& name)
+int
+atf_env_unset(const char *name)
 {
-    int ret = atf_env_unset(name.c_str());
-    if (ret != 0)
-        throw atf::system_error(IMPL_NAME "::unset(" + name + ")",
-                                "failed", ret);
+#if defined(HAVE_UNSETENV)
+    unsetenv(name);
+    return 0;
+#elif defined(HAVE_PUTENV)
+    int ret = 0;
+    char *buf;
+
+    buf = (char *)malloc(strlen(name) + 2);
+    if (buf == NULL) {
+        ret = ENOMEM;
+        goto out;
+    }
+    strcpy(buf, name);
+    strcat(buf, "=");
+
+    if (putenv(buf) == -1)
+        ret = errno;
+
+    free(buf);
+
+out:
+    return ret;
+#else
+#   error "Don't know how to unset an environment variable."
+#endif
 }

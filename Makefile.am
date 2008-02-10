@@ -100,6 +100,8 @@ EXTRA_DIST += admin/revision-dist.h
 # -------------------------------------------------------------------------
 
 lib_LTLIBRARIES = libatf.la
+libatf_la_LDFLAGS = -L.
+libatf_la_LIBADD = -latf-c
 libatf_la_SOURCES = atf/application.cpp \
                     atf/application.hpp \
                     atf/atffile.cpp \
@@ -162,7 +164,9 @@ dist_man_MANS = atf/atf-c++-api.3
 # -------------------------------------------------------------------------
 
 lib_LTLIBRARIES += libatf-c.la
-libatf_c_la_SOURCES = atf-c/main.c \
+libatf_c_la_SOURCES = atf-c/env.c \
+                      atf-c/env.h \
+                      atf-c/main.c \
                       atf-c/sanity.h \
                       atf-c/ui.c \
                       atf-c/ui.h \

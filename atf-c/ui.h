@@ -38,6 +38,9 @@
 #define ATF_C_UI_H
 
 #include <stdbool.h>
+#include <stddef.h>
+
+size_t atf_ui_get_terminal_width(void);
 
 void atf_ui_print_fmt(const char *);
 void atf_ui_print_fmt_with_tag(const char *, bool, const char *, ...);

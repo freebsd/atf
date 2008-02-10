@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,47 +34,14 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-extern "C" {
-#include "atf-c/env.h"
-}
+#if !defined(ATF_C_ENV_H)
+#define ATF_C_ENV_H
 
-#include "atf/env.hpp"
-#include "atf/exceptions.hpp"
-#include "atf/sanity.hpp"
+#include <stdbool.h>
 
-namespace impl = atf::env;
-#define IMPL_NAME "atf::env"
+const char *atf_env_get(const char *);
+bool atf_env_has(const char *);
+int atf_env_set(const char *, const char *);
+int atf_env_unset(const char *);
 
-// ------------------------------------------------------------------------
-// Free functions.
-// ------------------------------------------------------------------------
-
-std::string
-impl::get(const std::string& name)
-{
-    return atf_env_get(name.c_str());
-}
-
-bool
-impl::has(const std::string& name)
-{
-    return atf_env_has(name.c_str());
-}
-
-void
-impl::set(const std::string& name, const std::string& val)
-{
-    int ret = atf_env_set(name.c_str(), val.c_str());
-    if (ret != 0)
-        throw atf::system_error(IMPL_NAME "::set(" + name + ", " +
-                                val + ")", "failed", ret);
-}
-
-void
-impl::unset(const std::string& name)
-{
-    int ret = atf_env_unset(name.c_str());
-    if (ret != 0)
-        throw atf::system_error(IMPL_NAME "::unset(" + name + ")",
-                                "failed", ret);
-}
+#endif // !defined(ATF_C_ENV_H)

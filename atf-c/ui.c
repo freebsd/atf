@@ -34,10 +34,44 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sys/ioctl.h>
+
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <termios.h>
+#include <unistd.h>
 
+#include "env.h"
 #include "ui.h"
+
+size_t
+atf_ui_get_terminal_width(void)
+{
+    static bool done = false;
+    static size_t width = 0;
+
+    if (!done) {
+        if (atf_env_has("COLUMNS")) {
+            const char *cols = atf_env_get("COLUMNS");
+            if (strlen(cols) > 0) {
+                width = atoi(cols); /* XXX No error checking */
+            }
+        } else {
+            struct winsize ws;
+            if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) != -1)
+                width = ws.ws_col;
+        }
+
+        if (width >= 80)
+            width -= 5;
+
+        done = true;
+    }
+
+    return width;
+}
 
 void
 atf_ui_print_fmt(const char *msg)
