@@ -40,6 +40,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "dynstr.h"
 #include "sanity.h"
 #include "tp.h"
 #include "ui.h"
@@ -48,31 +49,97 @@ static void usage(void) __attribute__((noreturn));
 static void usage_error(const char *, ...) __attribute__((noreturn));
 
 static
+int
+print_tag_ap(const char *tag, bool repeat, const char *fmt, va_list ap)
+{
+    int ret;
+    struct atf_dynstr dest;
+
+    atf_dynstr_init(&dest);
+
+    if (atf_ui_format_text_with_tag_ap(&dest, tag, repeat, 0, fmt, ap) != 0) {
+        ret = 0;
+        goto out;
+    }
+
+    ret = printf("%s\n", atf_dynstr_cstring(&dest));
+
+out:
+    atf_dynstr_fini(&dest);
+    return ret;
+}
+
+static
+int
+print_tag(const char *tag, bool repeat, const char *fmt, ...)
+{
+    int ret;
+    va_list ap;
+
+    va_start(ap, fmt);
+    ret = print_tag_ap(tag, repeat, fmt, ap);
+    va_end(ap);
+
+    return ret;
+}
+
+static
+int
+print(const char *msg)
+{
+    return print_tag("", false, msg);
+}
+
+static
+void
+print_error_ap(const char *fmt, va_list ap)
+{
+    struct atf_dynstr tag;
+
+    if (atf_dynstr_init_fmt(&tag, "%s: ERROR: ", getprogname()) != 0)
+        atf_dynstr_init(&tag);
+
+    print_tag_ap(atf_dynstr_cstring(&tag), true, fmt, ap);
+
+    atf_dynstr_fini(&tag);
+}
+
+static
+void
+print_error(const char *fmt, ...)
+{
+    va_list ap;
+
+    va_start(ap, fmt);
+    print_error(fmt, ap);
+    va_end(ap);
+}
+
+static
 void
 usage(void)
 {
-    atf_ui_print_fmt_with_tag("Usage: ", false,
-                       "%s [options] [test_case1 [.. test_caseN]]",
-                       getprogname());
+    print_tag("Usage: ", false,
+              "%s [options] [test_case1 [.. test_caseN]]",
+              getprogname());
     printf("\n");
-    atf_ui_print_fmt("This is an independent atf test program.");
+    print("This is an independent atf test program.");
     printf("\n");
-    atf_ui_print_fmt("Available options:");
-    atf_ui_print_fmt_with_tag("    -h              ", false,
-                       "Shows this help message");
-    atf_ui_print_fmt_with_tag("    -l              ", false,
-                       "List test cases and their purpose");
-    atf_ui_print_fmt_with_tag("    -r fd           ", false,
-                       "The file descriptor to which the test program "
-                       "will send the results of the test cases");
-    atf_ui_print_fmt_with_tag("    -s srcdir       ", false,
-                       "Directory where the test's data files are "
-                       "located");
-    atf_ui_print_fmt_with_tag("    -v var=value    ", false,
-                       "Sets the configuration variable `var' to `value'");
+    print("Available options:");
+    print_tag("    -h              ", false,
+              "Shows this help message");
+    print_tag("    -l              ", false,
+              "List test cases and their purpose");
+    print_tag("    -r fd           ", false,
+              "The file descriptor to which the test program "
+              "will send the results of the test cases");
+    print_tag("    -s srcdir       ", false,
+              "Directory where the test's data files are "
+              "located");
+    print_tag("    -v var=value    ", false,
+              "Sets the configuration variable `var' to `value'");
     printf("\n");
-    atf_ui_print_fmt("For more details please see atf-test-program(1).");
-    printf("\n");
+    print("For more details please see atf-test-program(1).");
     exit(EXIT_SUCCESS);
 }
 
@@ -80,11 +147,18 @@ static
 void
 usage_error(const char *fmt, ...)
 {
-    char tag[512];
-    snprintf(tag, sizeof(tag), "%s: ", getprogname());
-    atf_ui_print_fmt_with_tag(tag, true, "ERROR: ");
-    atf_ui_print_fmt_with_tag(tag, true, "Type `%s -h' for more details.",
-                              getprogname());
+    va_list ap;
+    struct atf_dynstr tag;
+
+    va_start(ap, fmt);
+    print_error_ap(fmt, ap);
+    va_end(ap);
+
+    atf_dynstr_init_fmt(&tag, "%s: ", getprogname());
+    print_tag(atf_dynstr_cstring(&tag), true,
+              "Type `%s -h' for more details.", getprogname());
+    atf_dynstr_fini(&tag);
+
     exit(EXIT_SUCCESS);
 }
 
@@ -93,7 +167,7 @@ int
 parse_rflag(const char *arg)
 {
     if (strlen(arg) != 1 || !isdigit(arg[0]))
-        usage_error("Invalid value for -r; must be a single digit");
+        usage_error("Invalid value for -r; must be a single digit.");
 
     return arg[0] - '0';
 }
@@ -134,7 +208,7 @@ main(int argc, char **argv)
 
         case '?':
         default:
-            usage_error("bar");
+            usage_error("Unknown option -%c.", optopt);
         }
     }
     argc -= optind;

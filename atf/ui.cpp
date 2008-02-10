@@ -37,6 +37,7 @@
 #include <sstream>
 
 extern "C" {
+#include "atf-c/dynstr.h"
 #include "atf-c/ui.h"
 }
 
@@ -47,53 +48,6 @@ extern "C" {
 
 namespace impl = atf::ui;
 #define IMPL_NAME "atf::ui"
-
-static
-std::string
-format_paragraph(const std::string& text,
-                 const std::string& tag,
-                 const bool first,
-                 const bool repeat,
-                 const size_t col)
-{
-    PRE(text.find('\n') == std::string::npos);
-
-    const std::string pad(col - tag.length(), ' ');
-    const std::string fullpad(col, ' ');
-
-    std::string formatted;
-    if (first || repeat)
-        formatted = tag + pad;
-    else
-        formatted = fullpad;
-    INV(formatted.length() == col);
-    size_t curcol = col;
-
-    const size_t maxcol = atf_ui_get_terminal_width();
-
-    std::vector< std::string > words = atf::text::split(text, " ");
-    for (std::vector< std::string >::const_iterator iter = words.begin();
-         iter != words.end(); iter++) {
-        const std::string& word = *iter;
-
-        if (iter != words.begin() && maxcol > 0 &&
-            curcol + word.length() + 1 > maxcol) {
-            if (repeat)
-                formatted += '\n' + tag + pad;
-            else
-                formatted += '\n' + fullpad;
-            curcol = col;
-        } else if (iter != words.begin()) {
-            formatted += ' ';
-            curcol++;
-        }
-
-        formatted += word;
-        curcol += word.length();
-    }
-
-    return formatted;
-}
 
 std::string
 impl::format_error(const std::string& prog_name, const std::string& error)
@@ -117,26 +71,14 @@ std::string
 impl::format_text_with_tag(const std::string& text, const std::string& tag,
                           bool repeat, size_t col)
 {
-    PRE(col == 0 || col >= tag.length());
-    if (col == 0)
-        col = tag.length();
+    struct atf_dynstr dest;
 
-    std::string formatted;
-
-    std::vector< std::string > lines = atf::text::split(text, "\n");
-    for (std::vector< std::string >::const_iterator iter = lines.begin();
-         iter != lines.end(); iter++) {
-        const std::string& line = *iter;
-
-        formatted += format_paragraph(line, tag, iter == lines.begin(),
-                                      repeat, col);
-        if (iter + 1 != lines.end()) {
-            if (repeat)
-                formatted += "\n" + tag + "\n";
-            else
-                formatted += "\n\n";
-        }
-    }
+    atf_dynstr_init(&dest);
+    if (atf_ui_format_text_with_tag(&dest, tag.c_str(), repeat, col,
+                                    text.c_str()) != 0)
+        throw std::runtime_error("Cannot format string; not enough memory");
+    std::string formatted(atf_dynstr_cstring(&dest));
+    atf_dynstr_fini(&dest);
 
     return formatted;
 }

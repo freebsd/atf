@@ -164,7 +164,9 @@ dist_man_MANS = atf/atf-c++-api.3
 # -------------------------------------------------------------------------
 
 lib_LTLIBRARIES += libatf-c.la
-libatf_c_la_SOURCES = atf-c/env.c \
+libatf_c_la_SOURCES = atf-c/dynstr.c \
+                      atf-c/dynstr.h \
+                      atf-c/env.c \
                       atf-c/env.h \
                       atf-c/main.c \
                       atf-c/sanity.h \
@@ -362,6 +364,15 @@ tests/atf/data/t_pkg_config: \
 		$(ATF_COMPILE_DEPS)
 	test -d tests/atf/data || mkdir -p tests/atf/data
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/data/t_pkg_config.sh
+
+atf_c_api_DATA = tests/atf/c-api/Atffile
+atf_c_apidir = $(pkgtestsdir)/c-api
+EXTRA_DIST += $(atf_c_api_DATA)
+
+atf_c_api_PROGRAMS = tests/atf/c-api/t_dynstr
+tests_atf_c_api_t_dynstr_SOURCES = tests/atf/c-api/t_dynstr.cpp
+tests_atf_c_api_t_dynstr_LDADD = -latf
+tests_atf_c_api_t_dynstr_LDFLAGS = -L.
 
 atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_atffile_1 \

@@ -34,18 +34,28 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_UI_H)
-#define ATF_C_UI_H
+#if !defined(ATF_C_DYNSTR_H)
+#define ATF_C_DYNSTR_H
 
 #include <stdarg.h>
-#include <stdbool.h>
 #include <stddef.h>
 
-struct atf_dynstr;
+struct atf_dynstr {
+    char *ad_data;
+    size_t ad_datasize;
+    size_t ad_length;
+};
 
-int atf_ui_format_text_with_tag(struct atf_dynstr *, const char *,
-                                bool, size_t, const char *, ...);
-int atf_ui_format_text_with_tag_ap(struct atf_dynstr *, const char *,
-                                   bool, size_t, const char *, va_list);
+void atf_dynstr_init(struct atf_dynstr *);
+int atf_dynstr_init_ap(struct atf_dynstr *, const char *, va_list);
+int atf_dynstr_init_fmt(struct atf_dynstr *, const char *, ...);
+int atf_dynstr_init_rep(struct atf_dynstr *, size_t, char);
+void atf_dynstr_fini(struct atf_dynstr *);
 
-#endif /* ATF_C_UI_H */
+int atf_dynstr_append(struct atf_dynstr *, const char *);
+
+const char *atf_dynstr_cstring(struct atf_dynstr *);
+
+int atf_dynstr_format_ap(const char *, va_list, char **);
+
+#endif /* ATF_C_DYNSTR_H */

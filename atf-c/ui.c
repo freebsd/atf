@@ -43,11 +43,14 @@
 #include <termios.h>
 #include <unistd.h>
 
+#include "dynstr.h"
 #include "env.h"
+#include "sanity.h"
 #include "ui.h"
 
+static
 size_t
-atf_ui_get_terminal_width(void)
+terminal_width(void)
 {
     static bool done = false;
     static size_t width = 0;
@@ -73,20 +76,110 @@ atf_ui_get_terminal_width(void)
     return width;
 }
 
+static
 void
-atf_ui_print_fmt(const char *msg)
+format_paragraph(struct atf_dynstr *dest, const char *tag, bool first,
+                 bool repeat, size_t col, char *str)
 {
-    printf("%s", msg);
+    struct atf_dynstr pad, fullpad;
+
+    atf_dynstr_init_rep(&pad, col - strlen(tag), ' ');
+    atf_dynstr_init_rep(&fullpad, col, ' ');
+
+    if (first || repeat) {
+        atf_dynstr_append(dest, tag);
+        atf_dynstr_append(dest, atf_dynstr_cstring(&pad));
+    } else
+        atf_dynstr_append(dest, atf_dynstr_cstring(&fullpad));
+
+    size_t curcol = col;
+
+    const size_t maxcol = terminal_width();
+
+    char *last, *str2;
+
+    str2 = strtok_r(str, " ", &last);
+    while (str2 != NULL) {
+        if (str != str2 && maxcol > 0 && curcol + strlen(str2) + 1 > maxcol) {
+            atf_dynstr_append(dest, "\n");
+            if (repeat) {
+                atf_dynstr_append(dest, tag);
+                atf_dynstr_append(dest, atf_dynstr_cstring(&pad));
+            } else
+                atf_dynstr_append(dest, atf_dynstr_cstring(&fullpad));
+            curcol = col;
+        } else if (str != str2) {
+            atf_dynstr_append(dest, " ");
+            curcol++;
+        }
+
+        atf_dynstr_append(dest, str2);
+        curcol += strlen(str2);
+
+        str2 = strtok_r(NULL, " ", &last);
+    }
 }
 
-void
-atf_ui_print_fmt_with_tag(const char *tag, bool repeat, const char *fmt, ...)
+static
+int
+format_text_with_tag_aux(struct atf_dynstr *dest, const char *tag,
+                         bool repeat, size_t col, char *str)
 {
+    char *last, *str2;
+
+    PRE(col == 0 || col >= strlen(tag));
+
+    if (col == 0)
+        col = strlen(tag);
+
+    str2 = strtok_r(str, "\n", &last);
+    while (str2 != NULL) {
+        format_paragraph(dest, tag, str2 == str, repeat, col, str2);
+        if (last != NULL) {
+            if (repeat) {
+                atf_dynstr_append(dest, "\n");
+                atf_dynstr_append(dest, tag);
+                atf_dynstr_append(dest, "\n");
+            } else
+                atf_dynstr_append(dest, "\n\n");
+        }
+
+        str2 = strtok_r(NULL, "\n", &last);
+    }
+
+    return 0;
+}
+
+int
+atf_ui_format_text_with_tag_ap(struct atf_dynstr *dest, const char *tag,
+                               bool repeat, size_t col, const char *fmt,
+                               va_list ap)
+{
+    int ret;
+    char *src;
+
+    ret = atf_dynstr_format_ap(fmt, ap, &src);
+    if (ret != 0)
+        return ret;
+
+    ret = format_text_with_tag_aux(dest, tag, repeat, col, src);
+
+    free(src);
+
+    return 0;
+}
+
+int
+atf_ui_format_text_with_tag(struct atf_dynstr *dest, const char *tag,
+                            bool repeat, size_t col, const char *fmt,
+                            ...)
+{
+    int ret;
     va_list ap;
 
-    printf("%s", tag);
     va_start(ap, fmt);
-    vprintf(fmt, ap);
+    ret = atf_ui_format_text_with_tag_ap(dest, tag, repeat, col, fmt, ap);
     va_end(ap);
-    printf("\n");
+
+    return ret;
 }
