@@ -139,7 +139,7 @@ usage(void)
     print_tag("    -v var=value    ", false,
               "Sets the configuration variable `var' to `value'");
     printf("\n");
-    print("For more details please see atf-test-program(1).");
+    print("For more details please see atf-test-program(1) and atf(7).");
     exit(EXIT_SUCCESS);
 }
 
