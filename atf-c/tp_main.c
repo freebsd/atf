@@ -41,6 +41,7 @@
 #include <unistd.h>
 
 #include "dynstr.h"
+#include "object.h"
 #include "sanity.h"
 #include "tp.h"
 #include "ui.h"
@@ -179,6 +180,8 @@ atf_tp_main(int argc, char **argv,
     bool lflag;
     int ch;
     struct atf_tp tp;
+
+    atf_init_objects();
 
     atf_tp_init(&tp);
 

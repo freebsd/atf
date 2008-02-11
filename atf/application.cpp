@@ -47,6 +47,10 @@ extern "C" {
 #include <cstring>
 #include <iostream>
 
+extern "C" {
+#include "atf-c/object.h"
+}
+
 #include "atf/application.hpp"
 #include "atf/sanity.hpp"
 #include "atf/ui.hpp"
@@ -117,6 +121,7 @@ impl::app::app(const std::string& description,
     m_manpage(manpage),
     m_global_manpage(global_manpage)
 {
+    atf_init_objects();
 }
 
 impl::app::~app(void)
