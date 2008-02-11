@@ -92,11 +92,14 @@ default_body(const struct atf_tc *tc)
 
 ATF_TC(default);
 
-void
-atf_tp_add_tcs(struct atf_tp *tp)
+int
+add_tcs(struct atf_tp *tp)
 {
     atf_tp_add_tc(tp, &__pass_atf_tc);
     atf_tp_add_tc(tp, &__fail_atf_tc);
     atf_tp_add_tc(tp, &__skip_atf_tc);
     atf_tp_add_tc(tp, &__default_atf_tc);
+    return 0;
 }
+
+ATF_TP_MAIN(add_tcs);

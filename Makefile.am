@@ -168,14 +168,14 @@ libatf_c_la_SOURCES = atf-c/dynstr.c \
                       atf-c/dynstr.h \
                       atf-c/env.c \
                       atf-c/env.h \
-                      atf-c/main.c \
                       atf-c/sanity.h \
                       atf-c/ui.c \
                       atf-c/ui.h \
                       atf-c/tc.c \
                       atf-c/tc.h \
                       atf-c/tp.c \
-                      atf-c/tp.h
+                      atf-c/tp.h \
+                      atf-c/tp_main.c
 
 # -------------------------------------------------------------------------
 # `data' directory.

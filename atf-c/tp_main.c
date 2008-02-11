@@ -173,7 +173,8 @@ parse_rflag(const char *arg)
 }
 
 int
-main(int argc, char **argv)
+atf_tp_main(int argc, char **argv,
+            int (*add_tcs_hook)(struct atf_tp *))
 {
     bool lflag;
     int ch;
@@ -214,6 +215,7 @@ main(int argc, char **argv)
     argc -= optind;
     argv += optind;
 
-    atf_tp_add_tcs(&tp);
+    add_tcs_hook(&tp); /* XXX Handle error */
+
     return atf_tp_run(&tp);
 }

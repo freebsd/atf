@@ -52,7 +52,13 @@ int atf_tp_run(struct atf_tp *);
 
 void atf_tp_add_tc(struct atf_tp *, struct atf_tc *);
 
-/* To be defined by the user's test program. */
-void atf_tp_add_tcs(struct atf_tp *);
+#define ATF_TP_MAIN(add_tcs_hook) \
+    int atf_tp_main(int, char **, int (*)(struct atf_tp *)); \
+    \
+    int \
+    main(int argc, char **argv) \
+    { \
+        return atf_tp_main(argc, argv, add_tcs_hook); \
+    }
 
 #endif /* ATF_C_TP_H */
