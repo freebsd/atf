@@ -168,6 +168,8 @@ libatf_c_la_SOURCES = atf-c/dynstr.c \
                       atf-c/dynstr.h \
                       atf-c/env.c \
                       atf-c/env.h \
+                      atf-c/io.c \
+                      atf-c/io.h \
                       atf-c/sanity.h \
                       atf-c/ui.c \
                       atf-c/ui.h \

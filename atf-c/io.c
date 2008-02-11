@@ -34,102 +34,26 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sys/types.h>
+
+#include <errno.h>
 #include <stdarg.h>
-#include <stdbool.h>
+#include <unistd.h>
 
-#include "sanity.h"
-#include "tc.h"
-
-const int atf_tcr_passed = 0;
-const int atf_tcr_failed = 1;
-const int atf_tcr_skipped = 2;
-
-struct atf_tcr temporary_hack;
-
-inline
-bool
-status_allows_reason(int status)
-{
-    return status == atf_tcr_failed || status == atf_tcr_skipped;
-}
-
-void
-atf_tcr_init(struct atf_tcr *tcr, int status)
-{
-    PRE(!status_allows_reason(status));
-    tcr->atcr_status = status;
-    atf_dynstr_init(&tcr->atcr_reason);
-}
+#include "atf-c/dynstr.h"
 
 int
-atf_tcr_init_reason(struct atf_tcr *tcr, int status, const char *reason,
-                    va_list ap)
+atf_io_write(int fd, const char *fmt, ...)
 {
-    int ret = 0;
-
-    PRE(status_allows_reason(status));
-
-    tcr->atcr_status = status;
-    ret = atf_dynstr_init_ap(&tcr->atcr_reason, reason, ap);
-
-    return ret;
-}
-
-void
-atf_tcr_fini(struct atf_tcr *tcr)
-{
-    atf_dynstr_fini(&tcr->atcr_reason);
-}
-
-int
-atf_tcr_get_status(const struct atf_tcr *tcr)
-{
-    return tcr->atcr_status;
-}
-
-const char *
-atf_tcr_get_reason(const struct atf_tcr *tcr)
-{
-    PRE(status_allows_reason(tcr->atcr_status));
-    return atf_dynstr_cstring(&tcr->atcr_reason);
-}
-
-int
-atf_tc_run(const struct atf_tc *tc, struct atf_tcr *tcr)
-{
-    atf_tcr_init(&temporary_hack, atf_tcr_passed);
-    tc->atc_body(tc);
-    *tcr = temporary_hack;
-    return 0;
-}
-
-void
-atf_tc_fail(const char *fmt, ...)
-{
+    ssize_t cnt;
     va_list ap;
+    struct atf_dynstr str;
 
     va_start(ap, fmt);
-    atf_tcr_init_reason(&temporary_hack, atf_tcr_failed, fmt, ap);
+    atf_dynstr_init_ap(&str, fmt, ap);
+    cnt = write(fd, atf_dynstr_cstring(&str), atf_dynstr_length(&str));
+    atf_dynstr_fini(&str);
     va_end(ap);
-}
 
-void
-atf_tc_pass(void)
-{
-    atf_tcr_init(&temporary_hack, atf_tcr_passed);
-}
-
-void
-atf_tc_skip(const char *fmt, ...)
-{
-    va_list ap;
-
-    va_start(ap, fmt);
-    atf_tcr_init_reason(&temporary_hack, atf_tcr_skipped, fmt, ap);
-    va_end(ap);
-}
-
-void
-atf_tc_set_var(const char *var, const char *value, ...)
-{
+    return cnt;
 }

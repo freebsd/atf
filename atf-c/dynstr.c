@@ -143,9 +143,15 @@ atf_dynstr_append(struct atf_dynstr *ad, const char *str)
 }
 
 const char *
-atf_dynstr_cstring(struct atf_dynstr *ad)
+atf_dynstr_cstring(const struct atf_dynstr *ad)
 {
     return ad->ad_data;
+}
+
+size_t
+atf_dynstr_length(struct atf_dynstr *ad)
+{
+    return ad->ad_length;
 }
 
 int

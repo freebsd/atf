@@ -42,6 +42,6 @@
 #define INV(x) assert(x)
 #define PRE(x) assert(x)
 #define POST(x) assert(x)
-#define UNREACHABLE(x) assert(x)
+#define UNREACHABLE assert(0)
 
 #endif /* ATF_C_SANITY_H */

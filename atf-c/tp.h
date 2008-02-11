@@ -42,6 +42,7 @@
 struct atf_tp {
     int atp_results_fd;
     struct atf_tc_list atp_tcs;
+    size_t atp_tcs_count;
 };
 
 void atf_tp_init(struct atf_tp *);

@@ -54,7 +54,8 @@ void atf_dynstr_fini(struct atf_dynstr *);
 
 int atf_dynstr_append(struct atf_dynstr *, const char *);
 
-const char *atf_dynstr_cstring(struct atf_dynstr *);
+const char *atf_dynstr_cstring(const struct atf_dynstr *);
+size_t atf_dynstr_length(struct atf_dynstr *);
 
 int atf_dynstr_format_ap(const char *, va_list, char **);
 

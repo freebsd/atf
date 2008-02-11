@@ -39,8 +39,27 @@
 
 #include <sys/queue.h>
 
+#include <stdarg.h>
 #include <stddef.h>
 #include <unistd.h>
+
+#include <atf-c/dynstr.h>
+
+extern const int atf_tcr_passed;
+extern const int atf_tcr_failed;
+extern const int atf_tcr_skipped;
+
+struct atf_tcr {
+    int atcr_status;
+    struct atf_dynstr atcr_reason;
+};
+
+void atf_tcr_init(struct atf_tcr *, int);
+int atf_tcr_init_reason(struct atf_tcr *, int, const char *, va_list);
+void atf_tcr_fini(struct atf_tcr *);
+
+int atf_tcr_get_status(const struct atf_tcr *);
+const char *atf_tcr_get_reason(const struct atf_tcr *);
 
 struct atf_tc {
     const char *atc_ident;
@@ -52,6 +71,8 @@ struct atf_tc {
     void (*atc_cleanup)(const struct atf_tc *);
 };
 TAILQ_HEAD(atf_tc_list, atf_tc);
+
+int atf_tc_run(const struct atf_tc *, struct atf_tcr *);
 
 void atf_tc_fail(const char *, ...);
 void atf_tc_pass(void);
