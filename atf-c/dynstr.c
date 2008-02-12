@@ -150,6 +150,19 @@ atf_dynstr_append(atf_dynstr_t *ad, const char *str)
     return 0;
 }
 
+void
+atf_dynstr_clear(atf_dynstr_t *ad)
+{
+    ad->m_data[0] = '\0';
+    ad->m_length = 0;
+}
+
+int
+atf_dynstr_compare(const atf_dynstr_t *ad, const char *str)
+{
+    return strcmp(ad->m_data, str);
+}
+
 const char *
 atf_dynstr_cstring(const atf_dynstr_t *ad)
 {

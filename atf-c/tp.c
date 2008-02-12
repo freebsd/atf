@@ -130,9 +130,11 @@ atf_tp_run(atf_tp_t *tp)
             } else if (status == atf_tcr_failed) {
                 atf_io_write(tp->m_results_fd, "tp-end: %s, failed, %s\n",
                              tc->m_ident, atf_tcr_get_reason(&tcr));
+                code = EXIT_FAILURE;
             } else if (status == atf_tcr_skipped) {
                 atf_io_write(tp->m_results_fd, "tp-end: %s, skipped, %s\n",
                              tc->m_ident, atf_tcr_get_reason(&tcr));
+                code = EXIT_FAILURE;
             } else
                 UNREACHABLE;
         }

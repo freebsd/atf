@@ -37,6 +37,9 @@
 #if !defined(ATF_C_IO_H)
 #define ATF_C_IO_H
 
+struct atf_dynstr;
+
+int atf_io_readline(int, struct atf_dynstr *);
 int atf_io_write(int, const char *, ...);
 
 #endif // !defined(ATF_C_IO_H)

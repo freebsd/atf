@@ -46,6 +46,7 @@
 #include "dynstr.h"
 #include "env.h"
 #include "sanity.h"
+#include "text.h"
 #include "ui.h"
 
 static
@@ -161,7 +162,7 @@ atf_ui_format_text_with_tag_ap(atf_dynstr_t *dest, const char *tag,
     int ret;
     char *src;
 
-    ret = atf_dynstr_format_ap(fmt, ap, &src);
+    ret = atf_text_format_ap(&src, fmt, ap);
     if (ret != 0)
         return ret;
 

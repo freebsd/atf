@@ -59,5 +59,6 @@ void atf_object_fini(atf_object_t *);
  * --------------------------------------------------------------------- */
 
 void atf_init_objects(void);
+void atf_disable_exit_checks(void);
 
 #endif /* ATF_C_OBJECT_H */

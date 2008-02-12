@@ -57,10 +57,10 @@ int atf_dynstr_init_rep(atf_dynstr_t *, size_t, char);
 void atf_dynstr_fini(atf_dynstr_t *);
 
 int atf_dynstr_append(atf_dynstr_t *, const char *);
+void atf_dynstr_clear(atf_dynstr_t *);
+int atf_dynstr_compare(const atf_dynstr_t *, const char *);
 
 const char *atf_dynstr_cstring(const atf_dynstr_t *);
 size_t atf_dynstr_length(atf_dynstr_t *);
-
-int atf_dynstr_format_ap(const char *, va_list, char **);
 
 #endif /* ATF_C_DYNSTR_H */

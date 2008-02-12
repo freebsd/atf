@@ -39,12 +39,15 @@
 
 #include <sys/queue.h>
 
-#include <stdarg.h>
 #include <stddef.h>
 #include <unistd.h>
 
 #include <atf-c/dynstr.h>
 #include <atf-c/object.h>
+
+/* ---------------------------------------------------------------------
+ * The "atf_tcr" type.
+ * --------------------------------------------------------------------- */
 
 extern const int atf_tcr_passed;
 extern const int atf_tcr_failed;
@@ -59,11 +62,15 @@ struct atf_tcr {
 typedef struct atf_tcr atf_tcr_t;
 
 void atf_tcr_init(atf_tcr_t *, int);
-int atf_tcr_init_reason(atf_tcr_t *, int, const char *, va_list);
+int atf_tcr_init_reason(atf_tcr_t *, int, const char *, ...);
 void atf_tcr_fini(atf_tcr_t *);
 
 int atf_tcr_get_status(const atf_tcr_t *);
 const char *atf_tcr_get_reason(const atf_tcr_t *);
+
+/* ---------------------------------------------------------------------
+ * The "atf_tc" type.
+ * --------------------------------------------------------------------- */
 
 struct atf_tc {
     atf_object_t m_object;
@@ -71,6 +78,8 @@ struct atf_tc {
     const char *m_ident;
 
     TAILQ_ENTRY(atf_tc) m_link;
+
+    const char *m_workdir;
 
     void (*m_head)(struct atf_tc *);
     void (*m_body)(const struct atf_tc *);
@@ -83,7 +92,7 @@ TAILQ_HEAD(atf_tc_list, atf_tc);
 void atf_tc_init(atf_tc_t *);
 void atf_tc_fini(atf_tc_t *);
 
-atf_tcr_t atf_tc_run(const atf_tc_t *);
+atf_tcr_t atf_tc_run(atf_tc_t *);
 
 void atf_tc_fail(const char *, ...);
 void atf_tc_pass(void);

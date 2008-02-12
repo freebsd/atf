@@ -34,40 +34,12 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sys/types.h>
+#if !defined(ATF_C_TEXT_H)
+#define ATF_C_TEXT_H
 
-#include <errno.h>
 #include <stdarg.h>
-#include <unistd.h>
 
-#include "atf-c/dynstr.h"
+int atf_text_format(char **, const char *, ...);
+int atf_text_format_ap(char **, const char *, va_list);
 
-int
-atf_io_readline(int fd, atf_dynstr_t *dest)
-{
-    char ch[2];
-    ssize_t ret;
-
-    ch[1] = '\0';
-    while ((ret = read(fd, &ch[0], sizeof(ch[0]))) == sizeof(ch[0]) &&
-           ch[0] != '\n') {
-        atf_dynstr_append(dest, ch);
-    }
-    return ret == -1 ? errno : 0;
-}
-
-int
-atf_io_write(int fd, const char *fmt, ...)
-{
-    ssize_t cnt;
-    va_list ap;
-    atf_dynstr_t str;
-
-    va_start(ap, fmt);
-    atf_dynstr_init_ap(&str, fmt, ap);
-    cnt = write(fd, atf_dynstr_cstring(&str), atf_dynstr_length(&str));
-    atf_dynstr_fini(&str);
-    va_end(ap);
-
-    return cnt;
-}
+#endif /* ATF_C_TEXT_H */

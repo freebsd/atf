@@ -34,40 +34,35 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-
-#include <errno.h>
-#include <stdarg.h>
-#include <unistd.h>
-
-#include "atf-c/dynstr.h"
+#include "dynstr.h"
+#include "text.h"
 
 int
-atf_io_readline(int fd, atf_dynstr_t *dest)
+atf_text_format(char **dest, const char *fmt, ...)
 {
-    char ch[2];
-    ssize_t ret;
+    int ret;
+    va_list ap;
 
-    ch[1] = '\0';
-    while ((ret = read(fd, &ch[0], sizeof(ch[0]))) == sizeof(ch[0]) &&
-           ch[0] != '\n') {
-        atf_dynstr_append(dest, ch);
-    }
-    return ret == -1 ? errno : 0;
+    va_start(ap, fmt);
+    ret = atf_text_format_ap(dest, fmt, ap);
+    va_end(ap);
+
+    return ret;
 }
 
 int
-atf_io_write(int fd, const char *fmt, ...)
+atf_text_format_ap(char **dest, const char *fmt, va_list ap)
 {
-    ssize_t cnt;
-    va_list ap;
-    atf_dynstr_t str;
+    int ret;
+    atf_dynstr_t tmp;
 
-    va_start(ap, fmt);
-    atf_dynstr_init_ap(&str, fmt, ap);
-    cnt = write(fd, atf_dynstr_cstring(&str), atf_dynstr_length(&str));
-    atf_dynstr_fini(&str);
-    va_end(ap);
+    ret = atf_dynstr_init_ap(&tmp, fmt, ap);
+    if (ret != 0)
+        return ret;
 
-    return cnt;
+    *dest = tmp.m_data;
+    tmp.m_data = NULL;
+    atf_dynstr_fini(&tmp);
+
+    return 0;
 }

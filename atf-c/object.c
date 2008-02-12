@@ -42,6 +42,7 @@
 
 static size_t balance = 0;
 static bool initialized = false;
+static bool exit_checks = true;
 
 /* ---------------------------------------------------------------------
  * The "atf_object" type.
@@ -86,7 +87,7 @@ check_balance(void)
 {
     PRE(initialized);
 
-    if (balance > 0) {
+    if (exit_checks && balance > 0) {
         warnx("FATAL ERROR: Invalid balance: %zd objects were not "
               "released", balance);
         abort();
@@ -100,4 +101,10 @@ atf_init_objects(void)
 
     if (atexit(check_balance) == -1)
         err(EXIT_FAILURE, "FATAL ERROR: Cannot initialize object system");
+}
+
+void
+atf_disable_exit_checks(void)
+{
+    exit_checks = false;
 }
