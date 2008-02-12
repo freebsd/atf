@@ -44,7 +44,8 @@ const int atf_tcr_passed = 0;
 const int atf_tcr_failed = 1;
 const int atf_tcr_skipped = 2;
 
-struct atf_tcr temporary_hack;
+bool temporary_hack_bool;
+atf_tcr_t temporary_hack;
 
 inline
 bool
@@ -54,53 +55,78 @@ status_allows_reason(int status)
 }
 
 void
-atf_tcr_init(struct atf_tcr *tcr, int status)
+atf_tcr_init(atf_tcr_t *tcr, int status)
 {
+    atf_object_init(&tcr->m_object);
+
     PRE(!status_allows_reason(status));
-    tcr->atcr_status = status;
-    atf_dynstr_init(&tcr->atcr_reason);
+    tcr->m_status = status;
+    atf_dynstr_init(&tcr->m_reason);
 }
 
 int
-atf_tcr_init_reason(struct atf_tcr *tcr, int status, const char *reason,
+atf_tcr_init_reason(atf_tcr_t *tcr, int status, const char *reason,
                     va_list ap)
 {
     int ret = 0;
 
     PRE(status_allows_reason(status));
 
-    tcr->atcr_status = status;
-    ret = atf_dynstr_init_ap(&tcr->atcr_reason, reason, ap);
+    atf_object_init(&tcr->m_object);
+
+    tcr->m_status = status;
+    ret = atf_dynstr_init_ap(&tcr->m_reason, reason, ap);
 
     return ret;
 }
 
 void
-atf_tcr_fini(struct atf_tcr *tcr)
+atf_tcr_fini(atf_tcr_t *tcr)
 {
-    atf_dynstr_fini(&tcr->atcr_reason);
+    atf_dynstr_fini(&tcr->m_reason);
+
+    atf_object_fini(&tcr->m_object);
 }
 
 int
-atf_tcr_get_status(const struct atf_tcr *tcr)
+atf_tcr_get_status(const atf_tcr_t *tcr)
 {
-    return tcr->atcr_status;
+    return tcr->m_status;
 }
 
 const char *
-atf_tcr_get_reason(const struct atf_tcr *tcr)
+atf_tcr_get_reason(const atf_tcr_t *tcr)
 {
-    PRE(status_allows_reason(tcr->atcr_status));
-    return atf_dynstr_cstring(&tcr->atcr_reason);
+    PRE(status_allows_reason(tcr->m_status));
+    return atf_dynstr_cstring(&tcr->m_reason);
 }
 
-int
-atf_tc_run(const struct atf_tc *tc, struct atf_tcr *tcr)
+void
+atf_tc_init(atf_tc_t *tc)
 {
-    atf_tcr_init(&temporary_hack, atf_tcr_passed);
-    tc->atc_body(tc);
-    *tcr = temporary_hack;
-    return 0;
+    atf_object_init(&tc->m_object);
+}
+
+void
+atf_tc_fini(atf_tc_t *tc)
+{
+    atf_object_fini(&tc->m_object);
+}
+
+atf_tcr_t
+atf_tc_run(const atf_tc_t *tc)
+{
+    atf_tcr_t tcr;
+
+    temporary_hack_bool = false;
+    tc->m_body(tc);
+    if (!temporary_hack_bool) {
+        atf_tcr_init(&tcr, atf_tcr_passed);
+    } else {
+        tcr = temporary_hack;
+    }
+
+    return tcr;
 }
 
 void
@@ -108,6 +134,7 @@ atf_tc_fail(const char *fmt, ...)
 {
     va_list ap;
 
+    temporary_hack_bool = true;
     va_start(ap, fmt);
     atf_tcr_init_reason(&temporary_hack, atf_tcr_failed, fmt, ap);
     va_end(ap);
@@ -116,6 +143,7 @@ atf_tc_fail(const char *fmt, ...)
 void
 atf_tc_pass(void)
 {
+    temporary_hack_bool = true;
     atf_tcr_init(&temporary_hack, atf_tcr_passed);
 }
 
@@ -124,6 +152,7 @@ atf_tc_skip(const char *fmt, ...)
 {
     va_list ap;
 
+    temporary_hack_bool = true;
     va_start(ap, fmt);
     atf_tcr_init_reason(&temporary_hack, atf_tcr_skipped, fmt, ap);
     va_end(ap);

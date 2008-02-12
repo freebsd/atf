@@ -46,15 +46,15 @@
 #include "tp.h"
 #include "ui.h"
 
-static void usage(void) __attribute__((noreturn));
-static void usage_error(const char *, ...) __attribute__((noreturn));
+static void usage(void);
+static void usage_error(const char *, ...);
 
 static
 int
 print_tag_ap(const char *tag, bool repeat, const char *fmt, va_list ap)
 {
     int ret;
-    struct atf_dynstr dest;
+    atf_dynstr_t dest;
 
     atf_dynstr_init(&dest);
 
@@ -95,7 +95,7 @@ static
 void
 print_error_ap(const char *fmt, va_list ap)
 {
-    struct atf_dynstr tag;
+    atf_dynstr_t tag;
 
     if (atf_dynstr_init_fmt(&tag, "%s: ERROR: ", getprogname()) != 0)
         atf_dynstr_init(&tag);
@@ -141,7 +141,6 @@ usage(void)
               "Sets the configuration variable `var' to `value'");
     printf("\n");
     print("For more details please see atf-test-program(1) and atf(7).");
-    exit(EXIT_SUCCESS);
 }
 
 static
@@ -149,7 +148,7 @@ void
 usage_error(const char *fmt, ...)
 {
     va_list ap;
-    struct atf_dynstr tag;
+    atf_dynstr_t tag;
 
     va_start(ap, fmt);
     print_error_ap(fmt, ap);
@@ -159,27 +158,28 @@ usage_error(const char *fmt, ...)
     print_tag(atf_dynstr_cstring(&tag), true,
               "Type `%s -h' for more details.", getprogname());
     atf_dynstr_fini(&tag);
-
-    exit(EXIT_SUCCESS);
 }
 
 static
-int
-parse_rflag(const char *arg)
+bool
+parse_rflag(const char *arg, int *value)
 {
-    if (strlen(arg) != 1 || !isdigit(arg[0]))
+    if (strlen(arg) != 1 || !isdigit(arg[0])) {
         usage_error("Invalid value for -r; must be a single digit.");
+        return false;
+    }
 
-    return arg[0] - '0';
+    *value = arg[0] - '0';
+
+    return true;
 }
 
 int
-atf_tp_main(int argc, char **argv,
-            int (*add_tcs_hook)(struct atf_tp *))
+atf_tp_main(int argc, char **argv, int (*add_tcs_hook)(atf_tp_t *))
 {
     bool lflag;
-    int ch;
-    struct atf_tp tp;
+    int ch, ret;
+    atf_tp_t tp;
 
     atf_init_objects();
 
@@ -190,14 +190,22 @@ atf_tp_main(int argc, char **argv,
         switch (ch) {
         case 'h':
             usage();
-            break;
+            ret = EXIT_SUCCESS;
+            goto out;
 
         case 'l':
             lflag = true;
             break;
 
         case 'r':
-            atf_tp_set_results_fd(&tp, parse_rflag(optarg));
+            {
+                int v;
+                if (!parse_rflag(optarg, &v)) {
+                    ret = EXIT_FAILURE;
+                    goto out;
+                }
+                atf_tp_set_results_fd(&tp, v);
+            }
             break;
 
         case 's':
@@ -205,7 +213,8 @@ atf_tp_main(int argc, char **argv,
 
         case 'v':
             usage_error("foo");
-            break;
+            ret = EXIT_FAILURE;
+            goto out;
 
         case ':':
             break;
@@ -213,6 +222,8 @@ atf_tp_main(int argc, char **argv,
         case '?':
         default:
             usage_error("Unknown option -%c.", optopt);
+            ret = EXIT_FAILURE;
+            goto out;
         }
     }
     argc -= optind;
@@ -220,5 +231,10 @@ atf_tp_main(int argc, char **argv,
 
     add_tcs_hook(&tp); /* XXX Handle error */
 
-    return atf_tp_run(&tp);
+    ret = atf_tp_run(&tp);
+
+out:
+    atf_tp_fini(&tp);
+
+    return ret;
 }

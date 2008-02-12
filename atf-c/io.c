@@ -47,7 +47,7 @@ atf_io_write(int fd, const char *fmt, ...)
 {
     ssize_t cnt;
     va_list ap;
-    struct atf_dynstr str;
+    atf_dynstr_t str;
 
     va_start(ap, fmt);
     atf_dynstr_init_ap(&str, fmt, ap);

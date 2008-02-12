@@ -95,6 +95,10 @@ ATF_TC(default);
 int
 add_tcs(struct atf_tp *tp)
 {
+    atf_tc_init(&__pass_atf_tc);
+    atf_tc_init(&__fail_atf_tc);
+    atf_tc_init(&__skip_atf_tc);
+    atf_tc_init(&__default_atf_tc);
     atf_tp_add_tc(tp, &__pass_atf_tc);
     atf_tp_add_tc(tp, &__fail_atf_tc);
     atf_tp_add_tc(tp, &__skip_atf_tc);

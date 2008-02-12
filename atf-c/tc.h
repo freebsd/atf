@@ -44,35 +44,46 @@
 #include <unistd.h>
 
 #include <atf-c/dynstr.h>
+#include <atf-c/object.h>
 
 extern const int atf_tcr_passed;
 extern const int atf_tcr_failed;
 extern const int atf_tcr_skipped;
 
 struct atf_tcr {
-    int atcr_status;
-    struct atf_dynstr atcr_reason;
+    atf_object_t m_object;
+
+    int m_status;
+    atf_dynstr_t m_reason;
 };
+typedef struct atf_tcr atf_tcr_t;
 
-void atf_tcr_init(struct atf_tcr *, int);
-int atf_tcr_init_reason(struct atf_tcr *, int, const char *, va_list);
-void atf_tcr_fini(struct atf_tcr *);
+void atf_tcr_init(atf_tcr_t *, int);
+int atf_tcr_init_reason(atf_tcr_t *, int, const char *, va_list);
+void atf_tcr_fini(atf_tcr_t *);
 
-int atf_tcr_get_status(const struct atf_tcr *);
-const char *atf_tcr_get_reason(const struct atf_tcr *);
+int atf_tcr_get_status(const atf_tcr_t *);
+const char *atf_tcr_get_reason(const atf_tcr_t *);
 
 struct atf_tc {
-    const char *atc_ident;
+    atf_object_t m_object;
 
-    TAILQ_ENTRY(atf_tc) atc_link;
+    const char *m_ident;
 
-    void (*atc_head)(struct atf_tc *);
-    void (*atc_body)(const struct atf_tc *);
-    void (*atc_cleanup)(const struct atf_tc *);
+    TAILQ_ENTRY(atf_tc) m_link;
+
+    void (*m_head)(struct atf_tc *);
+    void (*m_body)(const struct atf_tc *);
+    void (*m_cleanup)(const struct atf_tc *);
 };
+typedef struct atf_tc atf_tc_t;
+
 TAILQ_HEAD(atf_tc_list, atf_tc);
 
-int atf_tc_run(const struct atf_tc *, struct atf_tcr *);
+void atf_tc_init(atf_tc_t *);
+void atf_tc_fini(atf_tc_t *);
+
+atf_tcr_t atf_tc_run(const atf_tc_t *);
 
 void atf_tc_fail(const char *, ...);
 void atf_tc_pass(void);
@@ -81,19 +92,19 @@ void atf_tc_skip(const char *, ...);
 void atf_tc_set_var(const char *, const char *, ...);
 
 #define ATF_TC(tc) \
-    struct atf_tc __ ## tc ## _atf_tc = { \
-        .atc_ident = #tc, \
-        .atc_head = tc ## _head, \
-        .atc_body = tc ## _body, \
-        .atc_cleanup = NULL, \
+    atf_tc_t __ ## tc ## _atf_tc = { \
+        .m_ident = #tc, \
+        .m_head = tc ## _head, \
+        .m_body = tc ## _body, \
+        .m_cleanup = NULL, \
     };
 
 #define ATF_TC_WITH_CLEANUP(tc) \
-    struct atf_tc __ ## tc ## _atf_tc = { \
-        .atc_ident = #tc, \
-        .atc_head = tc ## _head, \
-        .atc_body = tc ## _body, \
-        .atc_cleanup = tc ## _cleanup, \
+    atf_tc_t __ ## tc ## _atf_tc = { \
+        .m_ident = #tc, \
+        .m_head = tc ## _head, \
+        .m_body = tc ## _body, \
+        .m_cleanup = tc ## _cleanup, \
     };
 
 #endif /* ATF_C_TC_H */

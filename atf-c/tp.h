@@ -37,24 +37,29 @@
 #if !defined(ATF_C_TP_H)
 #define ATF_C_TP_H
 
+#include <atf-c/object.h>
 #include <atf-c/tc.h>
 
 struct atf_tp {
-    int atp_results_fd;
-    struct atf_tc_list atp_tcs;
-    size_t atp_tcs_count;
+    atf_object_t m_object;
+
+    int m_results_fd;
+    struct atf_tc_list m_tcs;
+    size_t m_tcs_count;
 };
+typedef struct atf_tp atf_tp_t;
 
-void atf_tp_init(struct atf_tp *);
+void atf_tp_init(atf_tp_t *);
+void atf_tp_fini(atf_tp_t *);
 
-void atf_tp_set_results_fd(struct atf_tp *, int);
+void atf_tp_set_results_fd(atf_tp_t *, int);
 
-int atf_tp_run(struct atf_tp *);
+int atf_tp_run(atf_tp_t *);
 
-void atf_tp_add_tc(struct atf_tp *, struct atf_tc *);
+void atf_tp_add_tc(atf_tp_t *, struct atf_tc *);
 
 #define ATF_TP_MAIN(add_tcs_hook) \
-    int atf_tp_main(int, char **, int (*)(struct atf_tp *)); \
+    int atf_tp_main(int, char **, int (*)(atf_tp_t *)); \
     \
     int \
     main(int argc, char **argv) \

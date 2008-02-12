@@ -38,24 +38,28 @@
 #define ATF_C_DYNSTR_H
 
 #include <stdarg.h>
-#include <stddef.h>
+
+#include <atf-c/object.h>
 
 struct atf_dynstr {
-    char *ad_data;
-    size_t ad_datasize;
-    size_t ad_length;
+    atf_object_t m_object;
+
+    char *m_data;
+    size_t m_datasize;
+    size_t m_length;
 };
+typedef struct atf_dynstr atf_dynstr_t;
 
-void atf_dynstr_init(struct atf_dynstr *);
-int atf_dynstr_init_ap(struct atf_dynstr *, const char *, va_list);
-int atf_dynstr_init_fmt(struct atf_dynstr *, const char *, ...);
-int atf_dynstr_init_rep(struct atf_dynstr *, size_t, char);
-void atf_dynstr_fini(struct atf_dynstr *);
+void atf_dynstr_init(atf_dynstr_t *);
+int atf_dynstr_init_ap(atf_dynstr_t *, const char *, va_list);
+int atf_dynstr_init_fmt(atf_dynstr_t *, const char *, ...);
+int atf_dynstr_init_rep(atf_dynstr_t *, size_t, char);
+void atf_dynstr_fini(atf_dynstr_t *);
 
-int atf_dynstr_append(struct atf_dynstr *, const char *);
+int atf_dynstr_append(atf_dynstr_t *, const char *);
 
-const char *atf_dynstr_cstring(const struct atf_dynstr *);
-size_t atf_dynstr_length(struct atf_dynstr *);
+const char *atf_dynstr_cstring(const atf_dynstr_t *);
+size_t atf_dynstr_length(atf_dynstr_t *);
 
 int atf_dynstr_format_ap(const char *, va_list, char **);
 

@@ -78,10 +78,10 @@ terminal_width(void)
 
 static
 void
-format_paragraph(struct atf_dynstr *dest, const char *tag, bool first,
+format_paragraph(atf_dynstr_t *dest, const char *tag, bool first,
                  bool repeat, size_t col, char *str)
 {
-    struct atf_dynstr pad, fullpad;
+    atf_dynstr_t pad, fullpad;
 
     atf_dynstr_init_rep(&pad, col - strlen(tag), ' ');
     atf_dynstr_init_rep(&fullpad, col, ' ');
@@ -118,11 +118,14 @@ format_paragraph(struct atf_dynstr *dest, const char *tag, bool first,
 
         str2 = strtok_r(NULL, " ", &last);
     }
+
+    atf_dynstr_fini(&fullpad);
+    atf_dynstr_fini(&pad);
 }
 
 static
 int
-format_text_with_tag_aux(struct atf_dynstr *dest, const char *tag,
+format_text_with_tag_aux(atf_dynstr_t *dest, const char *tag,
                          bool repeat, size_t col, char *str)
 {
     char *last, *str2;
@@ -151,7 +154,7 @@ format_text_with_tag_aux(struct atf_dynstr *dest, const char *tag,
 }
 
 int
-atf_ui_format_text_with_tag_ap(struct atf_dynstr *dest, const char *tag,
+atf_ui_format_text_with_tag_ap(atf_dynstr_t *dest, const char *tag,
                                bool repeat, size_t col, const char *fmt,
                                va_list ap)
 {
@@ -170,7 +173,7 @@ atf_ui_format_text_with_tag_ap(struct atf_dynstr *dest, const char *tag,
 }
 
 int
-atf_ui_format_text_with_tag(struct atf_dynstr *dest, const char *tag,
+atf_ui_format_text_with_tag(atf_dynstr_t *dest, const char *tag,
                             bool repeat, size_t col, const char *fmt,
                             ...)
 {

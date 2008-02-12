@@ -44,64 +44,78 @@
 #include "tp.h"
 
 static
-struct atf_tc *
-find_tc(const struct atf_tp *tp, const char *ident)
+atf_tc_t *
+find_tc(const atf_tp_t *tp, const char *ident)
 {
-    struct atf_tc *tc;
+    atf_tc_t *tc;
 
     tc = NULL;
-    TAILQ_FOREACH(tc, &tp->atp_tcs, atc_link) {
-        if (strcmp(tc->atc_ident, ident) == 0)
+    TAILQ_FOREACH(tc, &tp->m_tcs, m_link) {
+        if (strcmp(tc->m_ident, ident) == 0)
             break;
     }
     return tc;
 }
 
 void
-atf_tp_add_tc(struct atf_tp *tp, struct atf_tc *tc)
+atf_tp_add_tc(atf_tp_t *tp, atf_tc_t *tc)
 {
-    PRE(find_tc(tp, tc->atc_ident) == NULL);
+    PRE(find_tc(tp, tc->m_ident) == NULL);
 
-    TAILQ_INSERT_TAIL(&tp->atp_tcs, tc, atc_link);
-    tp->atp_tcs_count++;
+    TAILQ_INSERT_TAIL(&tp->m_tcs, tc, m_link);
+    tp->m_tcs_count++;
 
-    POST(find_tc(tp, tc->atc_ident) != NULL);
+    POST(find_tc(tp, tc->m_ident) != NULL);
 }
 
 void
-atf_tp_init(struct atf_tp *tp)
+atf_tp_init(atf_tp_t *tp)
 {
-    tp->atp_results_fd = STDOUT_FILENO;
-    TAILQ_INIT(&tp->atp_tcs);
-    tp->atp_tcs_count = 0;
+    atf_object_init(&tp->m_object);
+
+    tp->m_results_fd = STDOUT_FILENO;
+    TAILQ_INIT(&tp->m_tcs);
+    tp->m_tcs_count = 0;
 }
 
 void
-atf_tp_set_results_fd(struct atf_tp *tp, int fd)
+atf_tp_fini(atf_tp_t *tp)
+{
+    atf_tc_t *tc;
+
+    TAILQ_FOREACH(tc, &tp->m_tcs, m_link) {
+        atf_tc_fini(tc);
+    }
+
+    atf_object_fini(&tp->m_object);
+}
+
+void
+atf_tp_set_results_fd(atf_tp_t *tp, int fd)
 {
     assert(fd >= 0 && fd <= 9);
-    tp->atp_results_fd = fd;
+    tp->m_results_fd = fd;
 }
 
 int
-atf_tp_run(struct atf_tp *tp)
+atf_tp_run(atf_tp_t *tp)
 {
     int code;
-    struct atf_tc *tc;
+    atf_tc_t *tc;
 
-    atf_io_write(tp->atp_results_fd,
+    atf_io_write(tp->m_results_fd,
                  "Content-Type: application/X-atf-tcs; version=\"1\"\n\n");
-    atf_io_write(tp->atp_results_fd, "tcs-count: %d\n", tp->atp_tcs_count);
+    atf_io_write(tp->m_results_fd, "tcs-count: %d\n", tp->m_tcs_count);
 
     code = EXIT_SUCCESS;
-    TAILQ_FOREACH(tc, &tp->atp_tcs, atc_link) {
-        struct atf_tcr tcr;
+    TAILQ_FOREACH(tc, &tp->m_tcs, m_link) {
+        atf_tcr_t tcr;
 
-        atf_io_write(tp->atp_results_fd, "tp-start: %s\n", tc->atc_ident);
+        atf_io_write(tp->m_results_fd, "tp-start: %s\n", tc->m_ident);
 
-        atf_tc_run(tc, &tcr);
+        tcr = atf_tc_run(tc);
 
-        if (tc != TAILQ_LAST(&tp->atp_tcs, atf_tc_list)) {
+        if (tc != TAILQ_LAST(&tp->m_tcs, atf_tc_list)) {
             fprintf(stdout, "__atf_tc_separator__\n");
             fprintf(stderr, "__atf_tc_separator__\n");
         }
@@ -111,14 +125,14 @@ atf_tp_run(struct atf_tp *tp)
         {
             int status = atf_tcr_get_status(&tcr);
             if (status == atf_tcr_passed) {
-                atf_io_write(tp->atp_results_fd, "tp-end: %s, passed\n",
-                             tc->atc_ident);
+                atf_io_write(tp->m_results_fd, "tp-end: %s, passed\n",
+                             tc->m_ident);
             } else if (status == atf_tcr_failed) {
-                atf_io_write(tp->atp_results_fd, "tp-end: %s, failed, %s\n",
-                             tc->atc_ident, atf_tcr_get_reason(&tcr));
+                atf_io_write(tp->m_results_fd, "tp-end: %s, failed, %s\n",
+                             tc->m_ident, atf_tcr_get_reason(&tcr));
             } else if (status == atf_tcr_skipped) {
-                atf_io_write(tp->atp_results_fd, "tp-end: %s, skipped, %s\n",
-                             tc->atc_ident, atf_tcr_get_reason(&tcr));
+                atf_io_write(tp->m_results_fd, "tp-end: %s, skipped, %s\n",
+                             tc->m_ident, atf_tcr_get_reason(&tcr));
             } else
                 UNREACHABLE;
         }

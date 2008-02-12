@@ -45,67 +45,73 @@
 
 static
 int
-resize(struct atf_dynstr *ad, size_t newsize)
+resize(atf_dynstr_t *ad, size_t newsize)
 {
     char *newdata;
 
-    PRE(newsize > ad->ad_datasize);
+    PRE(newsize > ad->m_datasize);
 
     newdata = (char *)malloc(newsize);
     if (newdata == NULL)
         return ENOMEM;
 
-    strcpy(newdata, ad->ad_data);
-    free(ad->ad_data);
-    ad->ad_data = newdata;
-    ad->ad_datasize = newsize;
+    strcpy(newdata, ad->m_data);
+    free(ad->m_data);
+    ad->m_data = newdata;
+    ad->m_datasize = newsize;
 
     return 0;
 }
 
 void
-atf_dynstr_init(struct atf_dynstr *ad)
+atf_dynstr_init(atf_dynstr_t *ad)
 {
-    ad->ad_data = (char *)malloc(1);
-    ad->ad_data[0] = '\0';
-    ad->ad_datasize = 1;
-    ad->ad_length = 0;
+    atf_object_init(&ad->m_object);
+
+    ad->m_data = (char *)malloc(1);
+    ad->m_data[0] = '\0';
+    ad->m_datasize = 1;
+    ad->m_length = 0;
 }
 
 int
-atf_dynstr_init_rep(struct atf_dynstr *ad, size_t len, char ch)
+atf_dynstr_init_rep(atf_dynstr_t *ad, size_t len, char ch)
 {
-    ad->ad_data = (char *)malloc(len + 1);
-    ad->ad_datasize = len + 1;
-    if (ad->ad_data == NULL)
+    atf_object_init(&ad->m_object);
+
+    ad->m_data = (char *)malloc(len + 1);
+    ad->m_datasize = len + 1;
+    if (ad->m_data == NULL)
         return ENOMEM;
-    memset(ad->ad_data, ch, len);
-    ad->ad_data[len] = '\0';
-    ad->ad_length = len;
+    memset(ad->m_data, ch, len);
+    ad->m_data[len] = '\0';
+    ad->m_length = len;
     return 0;
 }
 
 int
-atf_dynstr_init_ap(struct atf_dynstr *ad, const char *fmt, va_list ap)
+atf_dynstr_init_ap(atf_dynstr_t *ad, const char *fmt, va_list ap)
 {
-    ad->ad_datasize = strlen(fmt) * 2 + 1;
+    atf_object_init(&ad->m_object);
+
+    ad->m_datasize = strlen(fmt) * 2 + 1;
     for (;;) {
-        ad->ad_data = (char *)malloc(ad->ad_datasize);
-        if (ad->ad_data == NULL)
+        ad->m_data = (char *)malloc(ad->m_datasize);
+        if (ad->m_data == NULL)
             return ENOMEM;
-        ad->ad_length = vsnprintf(ad->ad_data, ad->ad_datasize, fmt, ap);
-        if (ad->ad_length < ad->ad_datasize)
+        ad->m_length = vsnprintf(ad->m_data, ad->m_datasize, fmt, ap);
+        if (ad->m_length < ad->m_datasize)
             break;
 
-        free(ad->ad_data);
-        ad->ad_datasize *= 2;
+        free(ad->m_data);
+        ad->m_datasize *= 2;
     }
 
     return 0;
 }
 
 int
-atf_dynstr_init_fmt(struct atf_dynstr *ad, const char *fmt, ...)
+atf_dynstr_init_fmt(atf_dynstr_t *ad, const char *fmt, ...)
 {
     int ret;
     va_list ap;
@@ -118,54 +124,56 @@ atf_dynstr_init_fmt(struct atf_dynstr *ad, const char *fmt, ...)
 }
 
 void
-atf_dynstr_fini(struct atf_dynstr *ad)
+atf_dynstr_fini(atf_dynstr_t *ad)
 {
-    if (ad->ad_data != NULL)
-        free(ad->ad_data);
+    if (ad->m_data != NULL)
+        free(ad->m_data);
+
+    atf_object_fini(&ad->m_object);
 }
 
 int
-atf_dynstr_append(struct atf_dynstr *ad, const char *str)
+atf_dynstr_append(atf_dynstr_t *ad, const char *str)
 {
     int err;
-    size_t newlen = ad->ad_length + strlen(str);
+    size_t newlen = ad->m_length + strlen(str);
 
-    if (newlen >= ad->ad_datasize) {
+    if (newlen >= ad->m_datasize) {
         err = resize(ad, newlen + 1);
         if (err != 0)
             return err;
     }
 
-    strcat(ad->ad_data, str);
-    ad->ad_length += strlen(str);
+    strcat(ad->m_data, str);
+    ad->m_length += strlen(str);
 
     return 0;
 }
 
 const char *
-atf_dynstr_cstring(const struct atf_dynstr *ad)
+atf_dynstr_cstring(const atf_dynstr_t *ad)
 {
-    return ad->ad_data;
+    return ad->m_data;
 }
 
 size_t
-atf_dynstr_length(struct atf_dynstr *ad)
+atf_dynstr_length(atf_dynstr_t *ad)
 {
-    return ad->ad_length;
+    return ad->m_length;
 }
 
 int
 atf_dynstr_format_ap(const char *fmt, va_list ap, char **dest)
 {
     int ret;
-    struct atf_dynstr tmp;
+    atf_dynstr_t tmp;
 
     ret = atf_dynstr_init_ap(&tmp, fmt, ap);
     if (ret != 0)
         return ret;
 
-    *dest = tmp.ad_data;
-    tmp.ad_data = NULL;
+    *dest = tmp.m_data;
+    tmp.m_data = NULL;
     atf_dynstr_fini(&tmp);
 
     return 0;
