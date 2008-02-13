@@ -96,10 +96,34 @@ $(srcdir)/admin/revision-dist.h: admin/revision.h
 EXTRA_DIST += admin/revision-dist.h
 
 # -------------------------------------------------------------------------
+# `atf-c' directory.
+# -------------------------------------------------------------------------
+
+lib_LTLIBRARIES = libatf-c.la
+libatf_c_la_SOURCES = atf-c/dynstr.c \
+                      atf-c/dynstr.h \
+                      atf-c/env.c \
+                      atf-c/env.h \
+                      atf-c/io.c \
+                      atf-c/io.h \
+                      atf-c/object.c \
+                      atf-c/object.h \
+                      atf-c/sanity.h \
+                      atf-c/text.c \
+                      atf-c/text.h \
+                      atf-c/ui.c \
+                      atf-c/ui.h \
+                      atf-c/tc.c \
+                      atf-c/tc.h \
+                      atf-c/tp.c \
+                      atf-c/tp.h \
+                      atf-c/tp_main.c
+
+# -------------------------------------------------------------------------
 # `atf' directory.
 # -------------------------------------------------------------------------
 
-lib_LTLIBRARIES = libatf.la
+lib_LTLIBRARIES += libatf.la
 libatf_la_LDFLAGS = -L.
 libatf_la_LIBADD = -latf-c
 libatf_la_SOURCES = atf/application.cpp \
@@ -158,30 +182,6 @@ atf_HEADERS = atf/application.hpp \
 atfdir = $(includedir)/atf
 
 dist_man_MANS = atf/atf-c++-api.3
-
-# -------------------------------------------------------------------------
-# `atf-c' directory.
-# -------------------------------------------------------------------------
-
-lib_LTLIBRARIES += libatf-c.la
-libatf_c_la_SOURCES = atf-c/dynstr.c \
-                      atf-c/dynstr.h \
-                      atf-c/env.c \
-                      atf-c/env.h \
-                      atf-c/io.c \
-                      atf-c/io.h \
-                      atf-c/object.c \
-                      atf-c/object.h \
-                      atf-c/sanity.h \
-                      atf-c/text.c \
-                      atf-c/text.h \
-                      atf-c/ui.c \
-                      atf-c/ui.h \
-                      atf-c/tc.c \
-                      atf-c/tc.h \
-                      atf-c/tp.c \
-                      atf-c/tp.h \
-                      atf-c/tp_main.c
 
 # -------------------------------------------------------------------------
 # `data' directory.
