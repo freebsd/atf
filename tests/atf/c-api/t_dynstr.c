@@ -37,40 +37,16 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <atf.h>
+
 #include "atf-c/dynstr.h"
-#include "atf-c/macros.h"
-#include "atf-c/tc.h"
-#include "atf-c/tp.h"
-
-static
-void
-init_head(atf_tc_t *tc)
-{
-    atf_tc_set_var("descr", "XXX");
-}
-
-static
-void
-init_body(const atf_tc_t *tc)
-{
-    struct atf_dynstr ad;
-
-    atf_dynstr_init(&ad);
-    atf_dynstr_fini(&ad);
-}
 
 ATF_TC(init);
-
-static
-void
-init_ap_head(atf_tc_t *tc)
+ATF_TC_HEAD(init, tc)
 {
     atf_tc_set_var("descr", "XXX");
 }
-
-static
-void
-init_ap_body(const atf_tc_t *tc)
+ATF_TC_BODY(init, tc)
 {
     struct atf_dynstr ad;
 
@@ -79,17 +55,24 @@ init_ap_body(const atf_tc_t *tc)
 }
 
 ATF_TC(init_ap);
-
-static
-void
-init_fmt_head(atf_tc_t *tc)
+ATF_TC_HEAD(init_ap, tc)
 {
     atf_tc_set_var("descr", "XXX");
 }
+ATF_TC_BODY(init_ap, tc)
+{
+    struct atf_dynstr ad;
 
-static
-void
-init_fmt_body(const atf_tc_t *tc)
+    atf_dynstr_init(&ad);
+    atf_dynstr_fini(&ad);
+}
+
+ATF_TC(init_fmt);
+ATF_TC_HEAD(init_fmt, tc)
+{
+    atf_tc_set_var("descr", "XXX");
+}
+ATF_TC_BODY(init_fmt, tc)
 {
     const char *cstr;
     struct atf_dynstr ad;
@@ -110,18 +93,12 @@ init_fmt_body(const atf_tc_t *tc)
     atf_dynstr_fini(&ad);
 }
 
-ATF_TC(init_fmt);
-
-static
-void
-init_rep_head(atf_tc_t *tc)
+ATF_TC(init_rep);
+ATF_TC_HEAD(init_rep, tc)
 {
     atf_tc_set_var("descr", "XXX");
 }
-
-static
-void
-init_rep_body(const atf_tc_t *tc)
+ATF_TC_BODY(init_rep, tc)
 {
     const size_t maxlen = 1024;
     char buf[maxlen];
@@ -142,18 +119,12 @@ init_rep_body(const atf_tc_t *tc)
     }
 }
 
-ATF_TC(init_rep);
-
-static
-void
-append_head(atf_tc_t *tc)
+ATF_TC(append);
+ATF_TC_HEAD(append, tc)
 {
     atf_tc_set_var("descr", "XXX");
 }
-
-static
-void
-append_body(const atf_tc_t *tc)
+ATF_TC_BODY(append, tc)
 {
     const size_t maxlen = 1024;
     char buf[maxlen];
@@ -175,23 +146,13 @@ append_body(const atf_tc_t *tc)
     atf_dynstr_fini(&ad);
 }
 
-ATF_TC(append);
-
-static
-int
-add_tcs(struct atf_tp *tp)
+ATF_TP_ADD_TCS(tp)
 {
-    atf_tc_init(&ATF_TC_NAME(init));
-    atf_tc_init(&ATF_TC_NAME(init_ap));
-    atf_tc_init(&ATF_TC_NAME(init_fmt));
-    atf_tc_init(&ATF_TC_NAME(init_rep));
-    atf_tc_init(&ATF_TC_NAME(append));
-    atf_tp_add_tc(tp, &ATF_TC_NAME(init));
-    atf_tp_add_tc(tp, &ATF_TC_NAME(init_ap));
-    atf_tp_add_tc(tp, &ATF_TC_NAME(init_fmt));
-    atf_tp_add_tc(tp, &ATF_TC_NAME(init_rep));
-    atf_tp_add_tc(tp, &ATF_TC_NAME(append));
+    ATF_TP_ADD_TC(tp, init);
+    ATF_TP_ADD_TC(tp, init_ap);
+    ATF_TP_ADD_TC(tp, init_fmt);
+    ATF_TP_ADD_TC(tp, init_rep);
+    ATF_TP_ADD_TC(tp, append);
+
     return 0;
 }
-
-ATF_TP_MAIN(add_tcs);

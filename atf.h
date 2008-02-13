@@ -34,54 +34,9 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <atf.h>
+#if !defined(ATF_C_H)
+#define ATF_C_H
 
-ATF_TC(pass);
-ATF_TC_HEAD(pass, tc)
-{
-    atf_tc_set_var("descr", "An empty test case that always passes");
-}
-ATF_TC_BODY(pass, tc)
-{
-    atf_tc_pass();
-}
+#include <atf-c/macros.h>
 
-ATF_TC(fail);
-ATF_TC_HEAD(fail, tc)
-{
-    atf_tc_set_var("descr", "An empty test case that always fails");
-}
-ATF_TC_BODY(fail, tc)
-{
-    atf_tc_fail("On purpose");
-}
-
-ATF_TC(skip);
-ATF_TC_HEAD(skip, tc)
-{
-    atf_tc_set_var("descr", "An empty test case that is always skipped");
-}
-ATF_TC_BODY(skip, tc)
-{
-    atf_tc_skip("By design");
-}
-
-ATF_TC(default);
-ATF_TC_HEAD(default, tc)
-{
-    atf_tc_set_var("descr", "A test case that passes without explicitly "
-                 "stating it");
-}
-ATF_TC_BODY(default, tc)
-{
-}
-
-ATF_TP_ADD_TCS(tp)
-{
-    ATF_TP_ADD_TC(tp, pass);
-    ATF_TP_ADD_TC(tp, fail);
-    ATF_TP_ADD_TC(tp, skip);
-    ATF_TP_ADD_TC(tp, default);
-
-    return 0;
-}
+#endif // !defined(ATF_C_H)

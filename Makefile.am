@@ -122,6 +122,8 @@ libatf_c_la_SOURCES = atf-c/dynstr.c \
                       atf-c/tp.h \
                       atf-c/tp_main.c
 
+include_HEADERS = atf.h
+
 # -------------------------------------------------------------------------
 # `atf' directory.
 # -------------------------------------------------------------------------
@@ -164,7 +166,7 @@ libatf_la_SOURCES = atf/application.cpp \
                     atf/user.hpp \
                     atf/utils.hpp
 
-include_HEADERS = atf.hpp
+include_HEADERS += atf.hpp
 atf_HEADERS = atf/application.hpp \
               atf/atffile.hpp \
               atf/config.hpp \

@@ -100,22 +100,4 @@ void atf_tc_skip(const char *, ...);
 
 void atf_tc_set_var(const char *, const char *, ...);
 
-#define ATF_TC(tc) \
-    atf_tc_t __ ## tc ## _atf_tc = { \
-        .m_ident = #tc, \
-        .m_head = tc ## _head, \
-        .m_body = tc ## _body, \
-        .m_cleanup = NULL, \
-    };
-
-#define ATF_TC_WITH_CLEANUP(tc) \
-    atf_tc_t __ ## tc ## _atf_tc = { \
-        .m_ident = #tc, \
-        .m_head = tc ## _head, \
-        .m_body = tc ## _body, \
-        .m_cleanup = tc ## _cleanup, \
-    };
-
-#define ATF_TC_NAME(tc) (__ ## tc ## _atf_tc)
-
 #endif /* ATF_C_TC_H */
