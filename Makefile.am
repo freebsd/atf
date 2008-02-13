@@ -104,6 +104,8 @@ libatf_c_la_SOURCES = atf-c/dynstr.c \
                       atf-c/dynstr.h \
                       atf-c/env.c \
                       atf-c/env.h \
+                      atf-c/fs.c \
+                      atf-c/fs.h \
                       atf-c/io.c \
                       atf-c/io.h \
                       atf-c/object.c \

@@ -45,6 +45,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "fs.h"
 #include "io.h"
 #include "sanity.h"
 #include "tc.h"
@@ -156,6 +157,8 @@ atf_tc_run(atf_tc_t *tc)
         body_parent(tc, pid, &tcr);
     }
     tc->m_workdir = NULL;
+
+    atf_fs_cleanup(workdir);
 
     return tcr;
 }

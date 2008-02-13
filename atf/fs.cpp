@@ -50,6 +50,10 @@ extern "C" {
 #include <cerrno>
 #include <cstdlib>
 
+extern "C" {
+#include "atf-c/fs.h"
+}
+
 #include "atf/exceptions.hpp"
 #include "atf/env.hpp"
 #include "atf/fs.hpp"
@@ -571,6 +575,7 @@ impl::remove(const path& p)
                                 errno);
 }
 
+/*
 static
 void
 rm_rf_aux(const impl::path& p, const impl::path& root,
@@ -648,10 +653,18 @@ find_mount_points(const impl::path& p, const impl::file_info& parentinfo)
 
     return mntpts;
 }
+*/
 
 void
 impl::cleanup(const path& p)
 {
+    int ret;
+
+    ret = atf_fs_cleanup(p.c_str());
+    if (ret != 0)
+        throw system_error("atf_fs_cleanup(" + p.str() + ")",
+                           "failed", errno);
+/*
     std::vector< path > mntpts = find_mount_points(p, file_info(p));
     for (std::vector< path >::const_iterator iter = mntpts.begin();
          iter != mntpts.end(); iter++) {
@@ -676,4 +689,5 @@ impl::cleanup(const path& p)
 #endif
     }
     rm_rf(p);
+*/
 }
