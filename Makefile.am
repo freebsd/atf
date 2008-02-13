@@ -108,6 +108,7 @@ libatf_c_la_SOURCES = atf-c/dynstr.c \
                       atf-c/fs.h \
                       atf-c/io.c \
                       atf-c/io.h \
+                      atf-c/macros.h \
                       atf-c/object.c \
                       atf-c/object.h \
                       atf-c/sanity.h \
@@ -378,8 +379,8 @@ atf_c_apidir = $(pkgtestsdir)/c-api
 EXTRA_DIST += $(atf_c_api_DATA)
 
 atf_c_api_PROGRAMS = tests/atf/c-api/t_dynstr
-tests_atf_c_api_t_dynstr_SOURCES = tests/atf/c-api/t_dynstr.cpp
-tests_atf_c_api_t_dynstr_LDADD = -latf
+tests_atf_c_api_t_dynstr_SOURCES = tests/atf/c-api/t_dynstr.c
+tests_atf_c_api_t_dynstr_LDADD = -latf-c
 tests_atf_c_api_t_dynstr_LDFLAGS = -L.
 
 atf_formats_DATA = tests/atf/formats/Atffile \

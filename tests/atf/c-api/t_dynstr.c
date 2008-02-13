@@ -34,35 +34,24 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-// XXX Must not use C++ here.
+#include <stdio.h>
+#include <string.h>
 
-#include <iostream>
-
-extern "C" {
 #include "atf-c/dynstr.h"
-}
+#include "atf-c/macros.h"
+#include "atf-c/tc.h"
+#include "atf-c/tp.h"
 
-#include "atf/macros.hpp"
-
-ATF_TEST_CASE(init);
-ATF_TEST_CASE_HEAD(init)
+static
+void
+init_head(atf_tc_t *tc)
 {
-    set("descr", "XXX");
-}
-ATF_TEST_CASE_BODY(init)
-{
-    struct atf_dynstr ad;
-
-    atf_dynstr_init(&ad);
-    atf_dynstr_fini(&ad);
+    atf_tc_set_var("descr", "XXX");
 }
 
-ATF_TEST_CASE(init_ap);
-ATF_TEST_CASE_HEAD(init_ap)
-{
-    set("descr", "XXX");
-}
-ATF_TEST_CASE_BODY(init_ap)
+static
+void
+init_body(const atf_tc_t *tc)
 {
     struct atf_dynstr ad;
 
@@ -70,12 +59,37 @@ ATF_TEST_CASE_BODY(init_ap)
     atf_dynstr_fini(&ad);
 }
 
-ATF_TEST_CASE(init_fmt);
-ATF_TEST_CASE_HEAD(init_fmt)
+ATF_TC(init);
+
+static
+void
+init_ap_head(atf_tc_t *tc)
 {
-    set("descr", "XXX");
+    atf_tc_set_var("descr", "XXX");
 }
-ATF_TEST_CASE_BODY(init_fmt)
+
+static
+void
+init_ap_body(const atf_tc_t *tc)
+{
+    struct atf_dynstr ad;
+
+    atf_dynstr_init(&ad);
+    atf_dynstr_fini(&ad);
+}
+
+ATF_TC(init_ap);
+
+static
+void
+init_fmt_head(atf_tc_t *tc)
+{
+    atf_tc_set_var("descr", "XXX");
+}
+
+static
+void
+init_fmt_body(const atf_tc_t *tc)
 {
     const char *cstr;
     struct atf_dynstr ad;
@@ -96,24 +110,31 @@ ATF_TEST_CASE_BODY(init_fmt)
     atf_dynstr_fini(&ad);
 }
 
-ATF_TEST_CASE(init_rep);
-ATF_TEST_CASE_HEAD(init_rep)
+ATF_TC(init_fmt);
+
+static
+void
+init_rep_head(atf_tc_t *tc)
 {
-    set("descr", "XXX");
+    atf_tc_set_var("descr", "XXX");
 }
-ATF_TEST_CASE_BODY(init_rep)
+
+static
+void
+init_rep_body(const atf_tc_t *tc)
 {
     const size_t maxlen = 1024;
     char buf[maxlen];
+    size_t i;
     struct atf_dynstr ad;
 
     buf[0] = '\0';
 
-    for (size_t i = 0; i < maxlen; i++) {
+    for (i = 0; i < maxlen; i++) {
         atf_dynstr_init_rep(&ad, i, 'a');
         if (strcmp(atf_dynstr_cstring(&ad), buf) != 0) {
-            std::cout << "Failed at iteration " << i << std::endl;
-            ATF_FAIL("Failed to construct pad");
+            fprintf(stderr, "Failed at iteration %zd\n", i);
+            atf_tc_fail("Failed to construct pad");
         }
         atf_dynstr_fini(&ad);
 
@@ -121,24 +142,31 @@ ATF_TEST_CASE_BODY(init_rep)
     }
 }
 
-ATF_TEST_CASE(append);
-ATF_TEST_CASE_HEAD(append)
+ATF_TC(init_rep);
+
+static
+void
+append_head(atf_tc_t *tc)
 {
-    set("descr", "XXX");
+    atf_tc_set_var("descr", "XXX");
 }
-ATF_TEST_CASE_BODY(append)
+
+static
+void
+append_body(const atf_tc_t *tc)
 {
     const size_t maxlen = 1024;
     char buf[maxlen];
+    size_t i;
     struct atf_dynstr ad;
 
     buf[0] = '\0';
 
     atf_dynstr_init(&ad);
-    for (size_t i = 0; i < maxlen; i++) {
+    for (i = 0; i < maxlen; i++) {
         if (strcmp(atf_dynstr_cstring(&ad), buf) != 0) {
-            std::cout << "Failed at iteration " << i << std::endl;
-            ATF_FAIL("Failed to append character");
+            fprintf(stderr, "Failed at iteration %zd\n", i);
+            atf_tc_fail("Failed to append character");
         }
 
         atf_dynstr_append(&ad, "a");
@@ -147,11 +175,23 @@ ATF_TEST_CASE_BODY(append)
     atf_dynstr_fini(&ad);
 }
 
-ATF_INIT_TEST_CASES(tcs)
+ATF_TC(append);
+
+static
+int
+add_tcs(struct atf_tp *tp)
 {
-    ATF_ADD_TEST_CASE(tcs, init);
-    ATF_ADD_TEST_CASE(tcs, init_ap);
-    ATF_ADD_TEST_CASE(tcs, init_fmt);
-    ATF_ADD_TEST_CASE(tcs, init_rep);
-    ATF_ADD_TEST_CASE(tcs, append);
+    atf_tc_init(&ATF_TC_NAME(init));
+    atf_tc_init(&ATF_TC_NAME(init_ap));
+    atf_tc_init(&ATF_TC_NAME(init_fmt));
+    atf_tc_init(&ATF_TC_NAME(init_rep));
+    atf_tc_init(&ATF_TC_NAME(append));
+    atf_tp_add_tc(tp, &ATF_TC_NAME(init));
+    atf_tp_add_tc(tp, &ATF_TC_NAME(init_ap));
+    atf_tp_add_tc(tp, &ATF_TC_NAME(init_fmt));
+    atf_tp_add_tc(tp, &ATF_TC_NAME(init_rep));
+    atf_tp_add_tc(tp, &ATF_TC_NAME(append));
+    return 0;
 }
+
+ATF_TP_MAIN(add_tcs);

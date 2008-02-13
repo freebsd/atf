@@ -116,4 +116,6 @@ void atf_tc_set_var(const char *, const char *, ...);
         .m_cleanup = tc ## _cleanup, \
     };
 
+#define ATF_TC_NAME(tc) (__ ## tc ## _atf_tc)
+
 #endif /* ATF_C_TC_H */
