@@ -104,6 +104,8 @@ libatf_c_la_SOURCES = atf-c/dynstr.c \
                       atf-c/dynstr.h \
                       atf-c/env.c \
                       atf-c/env.h \
+                      atf-c/error.c \
+                      atf-c/error.h \
                       atf-c/fs.c \
                       atf-c/fs.h \
                       atf-c/io.c \
@@ -384,6 +386,11 @@ atf_c_api_PROGRAMS = tests/atf/c-api/t_dynstr
 tests_atf_c_api_t_dynstr_SOURCES = tests/atf/c-api/t_dynstr.c
 tests_atf_c_api_t_dynstr_LDADD = -latf-c
 tests_atf_c_api_t_dynstr_LDFLAGS = -L.
+
+atf_c_api_PROGRAMS += tests/atf/c-api/t_error
+tests_atf_c_api_t_error_SOURCES = tests/atf/c-api/t_error.c
+tests_atf_c_api_t_error_LDADD = -latf-c
+tests_atf_c_api_t_error_LDFLAGS = -L.
 
 atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_atffile_1 \
