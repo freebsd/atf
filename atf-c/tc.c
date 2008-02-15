@@ -82,8 +82,8 @@ atf_tcr_init(atf_tcr_t *tcr, int status)
 int
 atf_tcr_init_reason(atf_tcr_t *tcr, int status, const char *reason, ...)
 {
-    int ret = 0;
     va_list ap;
+    atf_error_t err;
 
     PRE(status_allows_reason(status));
 
@@ -91,10 +91,10 @@ atf_tcr_init_reason(atf_tcr_t *tcr, int status, const char *reason, ...)
 
     tcr->m_status = status;
     va_start(ap, reason);
-    ret = atf_dynstr_init_ap(&tcr->m_reason, reason, ap);
+    err = atf_dynstr_init_ap(&tcr->m_reason, reason, ap);
     va_end(ap);
 
-    return ret;
+    return atf_is_error(err) ? 1 : 0;
 }
 
 void
@@ -182,7 +182,8 @@ body_parent(const atf_tc_t *tc, pid_t pid, atf_tcr_t *tcr)
     if (waitpid(pid, &ws, 0) == -1) {
         int err = errno;
         atf_tcr_init_reason(tcr, atf_tcr_failed,
-                            "Error waiting for child process: %s\n", err);
+                            "Error waiting for child process: %s\n",
+                            strerror(err));
         return;
     }
 
@@ -197,7 +198,8 @@ body_parent(const atf_tc_t *tc, pid_t pid, atf_tcr_t *tcr)
 
         if (fd == -1) {
             atf_tcr_init_reason(tcr, atf_tcr_failed,
-                                "Error opening status file: %s\n", err);
+                                "Error opening status file: %s\n",
+                                strerror(err));
             return;
         }
     }
@@ -206,14 +208,14 @@ body_parent(const atf_tc_t *tc, pid_t pid, atf_tcr_t *tcr)
     atf_dynstr_init(&reason);
 
     atf_io_readline(fd, &status);
-    if (atf_dynstr_compare(&status, "passed") == 0)
+    if (atf_equal_dynstr_cstring(&status, "passed"))
         atf_tcr_init(tcr, atf_tcr_passed);
     else {
         atf_io_readline(fd, &reason);
-        if (atf_dynstr_compare(&status, "failed") == 0)
+        if (atf_equal_dynstr_cstring(&status, "failed"))
             atf_tcr_init_reason(tcr, atf_tcr_failed, "%s",
                                 atf_dynstr_cstring(&reason));
-        else if (atf_dynstr_compare(&status, "skipped") == 0)
+        else if (atf_equal_dynstr_cstring(&status, "skipped"))
             atf_tcr_init_reason(tcr, atf_tcr_skipped, "%s",
                                 atf_dynstr_cstring(&reason));
         else

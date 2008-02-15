@@ -34,6 +34,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -41,118 +42,280 @@
 
 #include "atf-c/dynstr.h"
 
+/* ---------------------------------------------------------------------
+ * Tests for the "atf_dynstr" type.
+ * --------------------------------------------------------------------- */
+
+/*
+ * Constructors and destructors.
+ */
+
 ATF_TC(init);
 ATF_TC_HEAD(init, tc)
 {
-    atf_tc_set_var("descr", "XXX");
+    atf_tc_set_var("descr", "Checks the empty constructor");
 }
 ATF_TC_BODY(init, tc)
 {
-    struct atf_dynstr ad;
+    atf_dynstr_t str;
+    atf_error_t err;
 
-    atf_dynstr_init(&ad);
-    atf_dynstr_fini(&ad);
+    err = atf_dynstr_init(&str);
+    ATF_CHECK(!atf_is_error(err));
+    ATF_CHECK_EQUAL(atf_dynstr_length(&str), 0);
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "") == 0);
+    atf_dynstr_fini(&str);
+}
+
+static
+void
+init_fmt(atf_dynstr_t *str, const char *fmt, ...)
+{
+    va_list ap;
+    atf_error_t err;
+
+    va_start(ap, fmt);
+    err = atf_dynstr_init_ap(str, fmt, ap);
+    va_end(ap);
+
+    ATF_CHECK(!atf_is_error(err));
 }
 
 ATF_TC(init_ap);
 ATF_TC_HEAD(init_ap, tc)
 {
-    atf_tc_set_var("descr", "XXX");
+    atf_tc_set_var("descr", "Checks the formatted constructor using a "
+                            "va_list argument");
 }
 ATF_TC_BODY(init_ap, tc)
 {
-    struct atf_dynstr ad;
+    atf_dynstr_t str;
 
-    atf_dynstr_init(&ad);
-    atf_dynstr_fini(&ad);
+    init_fmt(&str, "String 1");
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 1") == 0);
+    atf_dynstr_fini(&str);
+
+    init_fmt(&str, "String %d", 2);
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 2") == 0);
+    atf_dynstr_fini(&str);
+
+    init_fmt(&str, "%s %d", "String", 3);
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 3") == 0);
+    atf_dynstr_fini(&str);
+
+    init_fmt(&str, "%s%s%s%s%s%s%s", "This ", "should ", "be ", "a ",
+             "large ", "string ", "aaaabbbbccccdddd");
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str),
+                     "This should be a large string "
+                     "aaaabbbbccccdddd") == 0);
+    atf_dynstr_fini(&str);
 }
 
 ATF_TC(init_fmt);
 ATF_TC_HEAD(init_fmt, tc)
 {
-    atf_tc_set_var("descr", "XXX");
+    atf_tc_set_var("descr", "Checks the formatted constructor using a "
+                            "variable list of parameters");
 }
 ATF_TC_BODY(init_fmt, tc)
 {
-    const char *cstr;
-    struct atf_dynstr ad;
+    atf_dynstr_t str;
+    atf_error_t err;
 
-    atf_dynstr_init_fmt(&ad, "A string");
-    cstr = atf_dynstr_cstring(&ad);
-    ATF_CHECK(strcmp(cstr, "A string") == 0);
-    atf_dynstr_fini(&ad);
+    err = atf_dynstr_init_fmt(&str, "String 1");
+    ATF_CHECK(!atf_is_error(err));
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 1") == 0);
+    atf_dynstr_fini(&str);
 
-    atf_dynstr_init_fmt(&ad, "A string, an int %d", 5);
-    cstr = atf_dynstr_cstring(&ad);
-    ATF_CHECK(strcmp(cstr, "A string, an int 5") == 0);
-    atf_dynstr_fini(&ad);
+    err = atf_dynstr_init_fmt(&str, "String %d", 2);
+    ATF_CHECK(!atf_is_error(err));
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 2") == 0);
+    atf_dynstr_fini(&str);
 
-    atf_dynstr_init_fmt(&ad, "A %s, an int %d", "string", 5);
-    cstr = atf_dynstr_cstring(&ad);
-    ATF_CHECK(strcmp(cstr, "A string, an int 5") == 0);
-    atf_dynstr_fini(&ad);
+    err = atf_dynstr_init_fmt(&str, "%s %d", "String", 3);
+    ATF_CHECK(!atf_is_error(err));
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 3") == 0);
+    atf_dynstr_fini(&str);
+
+    err = atf_dynstr_init_fmt(&str, "%s%s%s%s%s%s%s", "This ", "should ",
+                              "be ", "a ", "large ", "string ",
+                              "aaaabbbbccccdddd");
+    ATF_CHECK(!atf_is_error(err));
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str),
+                     "This should be a large string "
+                     "aaaabbbbccccdddd") == 0);
+    atf_dynstr_fini(&str);
 }
 
 ATF_TC(init_rep);
 ATF_TC_HEAD(init_rep, tc)
 {
-    atf_tc_set_var("descr", "XXX");
+    atf_tc_set_var("descr", "Checks the construction of a string by "
+                            "repeating characters");
 }
 ATF_TC_BODY(init_rep, tc)
 {
-    const size_t maxlen = 1024;
+    const size_t maxlen = 8192;
     char buf[maxlen];
     size_t i;
-    struct atf_dynstr ad;
 
     buf[0] = '\0';
 
     for (i = 0; i < maxlen; i++) {
-        atf_dynstr_init_rep(&ad, i, 'a');
-        if (strcmp(atf_dynstr_cstring(&ad), buf) != 0) {
+        atf_dynstr_t str;
+        atf_error_t err;
+
+        err = atf_dynstr_init_rep(&str, i, 'a');
+        ATF_CHECK(!atf_is_error(err));
+
+        if (strcmp(atf_dynstr_cstring(&str), buf) != 0) {
             fprintf(stderr, "Failed at iteration %zd\n", i);
-            atf_tc_fail("Failed to construct pad");
+            atf_tc_fail("Failed to construct dynstr by repeating %d "
+                        "times the '%c' character", i, 'a');
         }
-        atf_dynstr_fini(&ad);
+
+        atf_dynstr_fini(&str);
 
         strcat(buf, "a");
     }
+
+    {
+        atf_dynstr_t str;
+        atf_error_t err;
+
+        err = atf_dynstr_init_rep(&str, SIZE_MAX, 'a');
+        ATF_CHECK(atf_is_error(err));
+        ATF_CHECK(atf_error_is(err, "no_memory"));
+
+        err = atf_dynstr_init_rep(&str, SIZE_MAX - 1, 'a');
+        ATF_CHECK(atf_is_error(err));
+        ATF_CHECK(atf_error_is(err, "no_memory"));
+    }
 }
+
+/*
+ * Getters.
+ */
+
+ATF_TC(cstring);
+ATF_TC_HEAD(cstring, tc)
+{
+    atf_tc_set_var("descr", "Checks the method to obtain a plain C string");
+}
+ATF_TC_BODY(cstring, tc)
+{
+    const char *cstr;
+    atf_dynstr_t str;
+
+    ATF_CHECK(!atf_is_error(atf_dynstr_init_fmt(&str, "Test string 1")));
+    cstr = atf_dynstr_cstring(&str);
+    ATF_CHECK(cstr != NULL);
+    ATF_CHECK(strcmp(cstr, "Test string 1") == 0);
+    atf_dynstr_fini(&str);
+
+    ATF_CHECK(!atf_is_error(atf_dynstr_init_fmt(&str, "Test string 2")));
+    cstr = atf_dynstr_cstring(&str);
+    ATF_CHECK(cstr != NULL);
+    ATF_CHECK(strcmp(cstr, "Test string 2") == 0);
+    atf_dynstr_fini(&str);
+}
+
+ATF_TC(length);
+ATF_TC_HEAD(length, tc)
+{
+    atf_tc_set_var("descr", "Checks the method to obtain the length");
+}
+ATF_TC_BODY(length, tc)
+{
+    size_t i;
+
+    for (i = 0; i < 8192; i++) {
+        atf_dynstr_t str;
+        ATF_CHECK(!atf_is_error(atf_dynstr_init_rep(&str, i, 'a')));
+        ATF_CHECK_EQUAL(atf_dynstr_length(&str), i);
+        atf_dynstr_fini(&str);
+    }
+}
+
+/*
+ * Modifiers.
+ */
 
 ATF_TC(append);
 ATF_TC_HEAD(append, tc)
 {
-    atf_tc_set_var("descr", "XXX");
+    atf_tc_set_var("descr", "Checks that appending a string to another "
+                            "one works");
 }
 ATF_TC_BODY(append, tc)
 {
-    const size_t maxlen = 1024;
+    const size_t maxlen = 8192;
     char buf[maxlen];
     size_t i;
-    struct atf_dynstr ad;
+    atf_dynstr_t str;
 
     buf[0] = '\0';
 
-    atf_dynstr_init(&ad);
+    ATF_CHECK(!atf_is_error(atf_dynstr_init(&str)));
     for (i = 0; i < maxlen; i++) {
-        if (strcmp(atf_dynstr_cstring(&ad), buf) != 0) {
+        if (strcmp(atf_dynstr_cstring(&str), buf) != 0) {
             fprintf(stderr, "Failed at iteration %zd\n", i);
-            atf_tc_fail("Failed to append character");
+            atf_tc_fail("Failed to append character at iteration %d", i);
         }
 
-        atf_dynstr_append(&ad, "a");
+        ATF_CHECK(!atf_is_error(atf_dynstr_append(&str, "a")));
         strcat(buf, "a");
     }
-    atf_dynstr_fini(&ad);
+    atf_dynstr_fini(&str);
 }
+
+/*
+ * Operators.
+ */
+
+ATF_TC(equal);
+ATF_TC_HEAD(equal, tc)
+{
+    atf_tc_set_var("descr", "Checks the equality operator");
+}
+ATF_TC_BODY(equal, tc)
+{
+    atf_dynstr_t str;
+
+    ATF_CHECK(!atf_is_error(atf_dynstr_init(&str)));
+    ATF_CHECK( atf_equal_dynstr_cstring(&str, ""));
+    ATF_CHECK(!atf_equal_dynstr_cstring(&str, "Test"));
+    atf_dynstr_fini(&str);
+
+    ATF_CHECK(!atf_is_error(atf_dynstr_init_fmt(&str, "Test")));
+    ATF_CHECK( atf_equal_dynstr_cstring(&str, "Test"));
+    ATF_CHECK(!atf_equal_dynstr_cstring(&str, ""));
+    ATF_CHECK(!atf_equal_dynstr_cstring(&str, "Tes"));
+    ATF_CHECK(!atf_equal_dynstr_cstring(&str, "Test "));
+    atf_dynstr_fini(&str);
+}
+
+/* ---------------------------------------------------------------------
+ * Main.
+ * --------------------------------------------------------------------- */
 
 ATF_TP_ADD_TCS(tp)
 {
+    /* Constructors and destructors. */
     ATF_TP_ADD_TC(tp, init);
     ATF_TP_ADD_TC(tp, init_ap);
     ATF_TP_ADD_TC(tp, init_fmt);
     ATF_TP_ADD_TC(tp, init_rep);
+
+    /* Getters. */
+    ATF_TP_ADD_TC(tp, cstring);
+    ATF_TP_ADD_TC(tp, length);
+
+    /* Modifiers. */
     ATF_TP_ADD_TC(tp, append);
+
+    /* Operators. */
+    ATF_TP_ADD_TC(tp, equal);
 
     return 0;
 }

@@ -39,7 +39,12 @@
 
 #include <stdarg.h>
 
+#include <atf-c/error.h>
 #include <atf-c/object.h>
+
+/* ---------------------------------------------------------------------
+ * The "atf_dynstr" type.
+ * --------------------------------------------------------------------- */
 
 struct atf_dynstr {
     atf_object_t m_object;
@@ -50,17 +55,22 @@ struct atf_dynstr {
 };
 typedef struct atf_dynstr atf_dynstr_t;
 
-void atf_dynstr_init(atf_dynstr_t *);
-int atf_dynstr_init_ap(atf_dynstr_t *, const char *, va_list);
-int atf_dynstr_init_fmt(atf_dynstr_t *, const char *, ...);
-int atf_dynstr_init_rep(atf_dynstr_t *, size_t, char);
+/* Constructors and destructors */
+atf_error_t atf_dynstr_init(atf_dynstr_t *);
+atf_error_t atf_dynstr_init_ap(atf_dynstr_t *, const char *, va_list);
+atf_error_t atf_dynstr_init_fmt(atf_dynstr_t *, const char *, ...);
+atf_error_t atf_dynstr_init_rep(atf_dynstr_t *, size_t, char);
 void atf_dynstr_fini(atf_dynstr_t *);
 
-int atf_dynstr_append(atf_dynstr_t *, const char *);
-void atf_dynstr_clear(atf_dynstr_t *);
-int atf_dynstr_compare(const atf_dynstr_t *, const char *);
-
+/* Getters */
 const char *atf_dynstr_cstring(const atf_dynstr_t *);
 size_t atf_dynstr_length(atf_dynstr_t *);
+
+/* Modifiers */
+atf_error_t atf_dynstr_append(atf_dynstr_t *, const char *);
+void atf_dynstr_clear(atf_dynstr_t *);
+
+/* Operators */
+bool atf_equal_dynstr_cstring(const atf_dynstr_t *, const char *);
 
 #endif /* ATF_C_DYNSTR_H */

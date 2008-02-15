@@ -35,6 +35,7 @@
  */
 
 #include "dynstr.h"
+#include "error.h"
 #include "text.h"
 
 int
@@ -53,12 +54,12 @@ atf_text_format(char **dest, const char *fmt, ...)
 int
 atf_text_format_ap(char **dest, const char *fmt, va_list ap)
 {
-    int ret;
+    atf_error_t err;
     atf_dynstr_t tmp;
 
-    ret = atf_dynstr_init_ap(&tmp, fmt, ap);
-    if (ret != 0)
-        return ret;
+    err = atf_dynstr_init_ap(&tmp, fmt, ap);
+    if (atf_is_error(err))
+        return 1;
 
     *dest = tmp.m_data;
     tmp.m_data = NULL;

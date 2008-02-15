@@ -40,128 +40,148 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "dynstr.h"
-#include "sanity.h"
+#include "atf-c/dynstr.h"
+#include "atf-c/sanity.h"
+
+/* ---------------------------------------------------------------------
+ * Auxiliary functions.
+ * --------------------------------------------------------------------- */
 
 static
-int
+atf_error_t
 resize(atf_dynstr_t *ad, size_t newsize)
 {
     char *newdata;
+    atf_error_t err;
 
     PRE(newsize > ad->m_datasize);
 
     newdata = (char *)malloc(newsize);
-    if (newdata == NULL)
-        return ENOMEM;
-
-    strcpy(newdata, ad->m_data);
-    free(ad->m_data);
-    ad->m_data = newdata;
-    ad->m_datasize = newsize;
-
-    return 0;
-}
-
-void
-atf_dynstr_init(atf_dynstr_t *ad)
-{
-    atf_object_init(&ad->m_object);
-
-    ad->m_data = (char *)malloc(1);
-    ad->m_data[0] = '\0';
-    ad->m_datasize = 1;
-    ad->m_length = 0;
-}
-
-int
-atf_dynstr_init_rep(atf_dynstr_t *ad, size_t len, char ch)
-{
-    atf_object_init(&ad->m_object);
-
-    ad->m_data = (char *)malloc(len + 1);
-    ad->m_datasize = len + 1;
-    if (ad->m_data == NULL)
-        return ENOMEM;
-    memset(ad->m_data, ch, len);
-    ad->m_data[len] = '\0';
-    ad->m_length = len;
-    return 0;
-}
-
-int
-atf_dynstr_init_ap(atf_dynstr_t *ad, const char *fmt, va_list ap)
-{
-    atf_object_init(&ad->m_object);
-
-    ad->m_datasize = strlen(fmt) * 2 + 1;
-    for (;;) {
-        ad->m_data = (char *)malloc(ad->m_datasize);
-        if (ad->m_data == NULL)
-            return ENOMEM;
-        ad->m_length = vsnprintf(ad->m_data, ad->m_datasize, fmt, ap);
-        if (ad->m_length < ad->m_datasize)
-            break;
-
+    if (newdata == NULL) {
+        err = atf_no_memory_error();
+    } else {
+        strcpy(newdata, ad->m_data);
         free(ad->m_data);
-        ad->m_datasize *= 2;
+        ad->m_data = newdata;
+        ad->m_datasize = newsize;
+        err = atf_no_error();
     }
 
-    return 0;
+    return err;
 }
 
-int
+/* ---------------------------------------------------------------------
+ * The "atf_dynstr" type.
+ * --------------------------------------------------------------------- */
+
+/*
+ * Constructors and destructors.
+ */
+
+atf_error_t
+atf_dynstr_init(atf_dynstr_t *ad)
+{
+    atf_error_t err;
+
+    atf_object_init(&ad->m_object);
+
+    ad->m_data = (char *)malloc(sizeof(char));
+    if (ad->m_data == NULL) {
+        err = atf_no_memory_error();
+    } else {
+        ad->m_data[0] = '\0';
+        ad->m_datasize = 1;
+        ad->m_length = 0;
+        err = atf_no_error();
+    }
+
+    return err;
+}
+
+atf_error_t
+atf_dynstr_init_ap(atf_dynstr_t *ad, const char *fmt, va_list ap)
+{
+    atf_error_t err;
+
+    atf_object_init(&ad->m_object);
+
+    ad->m_datasize = strlen(fmt) + 1;
+    ad->m_length = 0;
+
+    err = atf_no_error();
+    do {
+        ad->m_datasize *= 2;
+        ad->m_data = (char *)malloc(ad->m_datasize);
+        if (ad->m_data == NULL) {
+            err = atf_no_memory_error();
+        } else {
+            int ret = vsnprintf(ad->m_data, ad->m_datasize, fmt, ap);
+            if (ret < 0) {
+                err = atf_libc_error(errno, "Cannot format string");
+            } else {
+                if (ret >= ad->m_datasize) {
+                    free(ad->m_data);
+                    ad->m_data = NULL;
+                }
+                ad->m_length = ret;
+            }
+        }
+    } while (!atf_is_error(err) && ad->m_length >= ad->m_datasize);
+
+    POST(atf_is_error(err) || ad->m_data != NULL);
+    return err;
+}
+
+atf_error_t
 atf_dynstr_init_fmt(atf_dynstr_t *ad, const char *fmt, ...)
 {
-    int ret;
     va_list ap;
+    atf_error_t err;
 
     va_start(ap, fmt);
-    ret = atf_dynstr_init_ap(ad, fmt, ap);
+    err = atf_dynstr_init_ap(ad, fmt, ap);
     va_end(ap);
 
-    return ret;
+    return err;
+}
+
+atf_error_t
+atf_dynstr_init_rep(atf_dynstr_t *ad, size_t len, char ch)
+{
+    atf_error_t err;
+
+    atf_object_init(&ad->m_object);
+
+    if (len == SIZE_MAX)
+        err = atf_no_memory_error();
+    else {
+        ad->m_datasize = len + sizeof(char);
+        ad->m_data = (char *)malloc(ad->m_datasize);
+        if (ad->m_data == NULL) {
+            err = atf_no_memory_error();
+        } else {
+            memset(ad->m_data, ch, len);
+            ad->m_data[len] = '\0';
+            ad->m_length = len;
+            err = atf_no_error();
+        }
+    }
+
+    return err;
 }
 
 void
 atf_dynstr_fini(atf_dynstr_t *ad)
 {
-    if (ad->m_data != NULL)
+    if (ad->m_data != NULL) // XXX Remove this.
         free(ad->m_data);
 
     atf_object_fini(&ad->m_object);
 }
 
-int
-atf_dynstr_append(atf_dynstr_t *ad, const char *str)
-{
-    int err;
-    size_t newlen = ad->m_length + strlen(str);
-
-    if (newlen >= ad->m_datasize) {
-        err = resize(ad, newlen + 1);
-        if (err != 0)
-            return err;
-    }
-
-    strcat(ad->m_data, str);
-    ad->m_length += strlen(str);
-
-    return 0;
-}
-
-void
-atf_dynstr_clear(atf_dynstr_t *ad)
-{
-    ad->m_data[0] = '\0';
-    ad->m_length = 0;
-}
-
-int
-atf_dynstr_compare(const atf_dynstr_t *ad, const char *str)
-{
-    return strcmp(ad->m_data, str);
-}
+/*
+ * Getters.
+ */
 
 const char *
 atf_dynstr_cstring(const atf_dynstr_t *ad)
@@ -175,19 +195,43 @@ atf_dynstr_length(atf_dynstr_t *ad)
     return ad->m_length;
 }
 
-int
-atf_dynstr_format_ap(const char *fmt, va_list ap, char **dest)
+/*
+ * Modifiers.
+ */
+
+atf_error_t
+atf_dynstr_append(atf_dynstr_t *ad, const char *str)
 {
-    int ret;
-    atf_dynstr_t tmp;
+    atf_error_t err;
+    const size_t newlen = ad->m_length + strlen(str);
 
-    ret = atf_dynstr_init_ap(&tmp, fmt, ap);
-    if (ret != 0)
-        return ret;
+    if (newlen + sizeof(char) > ad->m_datasize) {
+        err = resize(ad, newlen + sizeof(char));
+        if (atf_is_error(err))
+            goto out;
+    }
 
-    *dest = tmp.m_data;
-    tmp.m_data = NULL;
-    atf_dynstr_fini(&tmp);
+    strcat(ad->m_data, str);
+    ad->m_length = newlen;
+    err = atf_no_error();
 
-    return 0;
+out:
+    return err;
+}
+
+void
+atf_dynstr_clear(atf_dynstr_t *ad)
+{
+    ad->m_data[0] = '\0';
+    ad->m_length = 0;
+}
+
+/*
+ * Operators.
+ */
+
+bool
+atf_equal_dynstr_cstring(const atf_dynstr_t *ad, const char *str)
+{
+    return strcmp(ad->m_data, str) == 0;
 }
