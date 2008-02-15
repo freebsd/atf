@@ -68,7 +68,8 @@ const char *atf_dynstr_cstring(const atf_dynstr_t *);
 size_t atf_dynstr_length(atf_dynstr_t *);
 
 /* Modifiers */
-atf_error_t atf_dynstr_append(atf_dynstr_t *, const char *);
+atf_error_t atf_dynstr_append_ap(atf_dynstr_t *, const char *, va_list);
+atf_error_t atf_dynstr_append_fmt(atf_dynstr_t *, const char *, ...);
 void atf_dynstr_clear(atf_dynstr_t *);
 
 /* Operators */

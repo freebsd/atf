@@ -262,21 +262,17 @@ ATF_TC_BODY(length, tc)
  * Modifiers.
  */
 
-ATF_TC(append);
-ATF_TC_HEAD(append, tc)
-{
-    atf_tc_set_var("descr", "Checks that appending a string to another "
-                            "one works");
-}
-ATF_TC_BODY(append, tc)
+static
+void
+check_append(atf_error_t (*append)(atf_dynstr_t *, const char *, ...))
 {
     const size_t maxlen = 8192;
     char buf[maxlen];
     size_t i;
     atf_dynstr_t str;
 
+    printf("Appending with plain string\n");
     buf[0] = '\0';
-
     ATF_CHECK(!atf_is_error(atf_dynstr_init(&str)));
     for (i = 0; i < maxlen; i++) {
         if (strcmp(atf_dynstr_cstring(&str), buf) != 0) {
@@ -284,10 +280,60 @@ ATF_TC_BODY(append, tc)
             atf_tc_fail("Failed to append character at iteration %d", i);
         }
 
-        ATF_CHECK(!atf_is_error(atf_dynstr_append(&str, "a")));
+        ATF_CHECK(!atf_is_error(append(&str, "a")));
         strcat(buf, "a");
     }
     atf_dynstr_fini(&str);
+
+    printf("Appending with formatted string\n");
+    buf[0] = '\0';
+    ATF_CHECK(!atf_is_error(atf_dynstr_init(&str)));
+    for (i = 0; i < maxlen; i++) {
+        if (strcmp(atf_dynstr_cstring(&str), buf) != 0) {
+            fprintf(stderr, "Failed at iteration %zd\n", i);
+            atf_tc_fail("Failed to append character at iteration %d", i);
+        }
+
+        ATF_CHECK(!atf_is_error(append(&str, "%s", "a")));
+        strcat(buf, "a");
+    }
+    atf_dynstr_fini(&str);
+}
+
+static
+atf_error_t
+append_ap_aux(atf_dynstr_t *str, const char *fmt, ...)
+{
+    va_list ap;
+    atf_error_t err;
+
+    va_start(ap, fmt);
+    err = atf_dynstr_append_ap(str, fmt, ap);
+    va_end(ap);
+
+    return err;
+}
+
+ATF_TC(append_ap);
+ATF_TC_HEAD(append_ap, tc)
+{
+    atf_tc_set_var("descr", "Checks that appending a string to another "
+                            "one works");
+}
+ATF_TC_BODY(append_ap, tc)
+{
+    check_append(append_ap_aux);
+}
+
+ATF_TC(append_fmt);
+ATF_TC_HEAD(append_fmt, tc)
+{
+    atf_tc_set_var("descr", "Checks that appending a string to another "
+                            "one works");
+}
+ATF_TC_BODY(append_fmt, tc)
+{
+    check_append(atf_dynstr_append_fmt);
 }
 
 /*
@@ -334,7 +380,8 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, length);
 
     /* Modifiers. */
-    ATF_TP_ADD_TC(tp, append);
+    ATF_TP_ADD_TC(tp, append_ap);
+    ATF_TP_ADD_TC(tp, append_fmt);
 
     /* Operators. */
     ATF_TP_ADD_TC(tp, equal);

@@ -42,6 +42,7 @@
 
 #include "atf-c/dynstr.h"
 #include "atf-c/sanity.h"
+#include "atf-c/text.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -209,22 +210,43 @@ atf_dynstr_length(atf_dynstr_t *ad)
  */
 
 atf_error_t
-atf_dynstr_append(atf_dynstr_t *ad, const char *str)
+atf_dynstr_append_ap(atf_dynstr_t *ad, const char *fmt, va_list ap)
 {
+    char *aux;
     atf_error_t err;
-    const size_t newlen = ad->m_length + strlen(str);
+    size_t newlen;
+
+    err = atf_text_format_ap(&aux, fmt, ap);
+    if (atf_is_error(err))
+        goto out;
+    newlen = ad->m_length + strlen(aux);
 
     if (newlen + sizeof(char) > ad->m_datasize) {
         err = resize(ad, newlen + sizeof(char));
         if (atf_is_error(err))
-            goto out;
+            goto out_free;
     }
 
-    strcat(ad->m_data, str);
+    strcat(ad->m_data, aux);
     ad->m_length = newlen;
     err = atf_no_error();
 
+out_free:
+    free(aux);
 out:
+    return err;
+}
+
+atf_error_t
+atf_dynstr_append_fmt(atf_dynstr_t *ad, const char *fmt, ...)
+{
+    va_list ap;
+    atf_error_t err;
+
+    va_start(ap, fmt);
+    err = atf_dynstr_append_ap(ad, fmt, ap);
+    va_end(ap);
+
     return err;
 }
 
