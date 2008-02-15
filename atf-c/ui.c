@@ -161,10 +161,11 @@ atf_ui_format_text_with_tag_ap(atf_dynstr_t *dest, const char *tag,
 {
     int ret;
     char *src;
+    atf_error_t err;
 
-    ret = atf_text_format_ap(&src, fmt, ap);
-    if (ret != 0)
-        return ret;
+    err = atf_text_format_ap(&src, fmt, ap);
+    if (atf_is_error(err))
+        return 1;
 
     ret = format_text_with_tag_aux(dest, tag, repeat, col, src);
 

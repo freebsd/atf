@@ -39,7 +39,9 @@
 
 #include <stdarg.h>
 
-int atf_text_format(char **, const char *, ...);
-int atf_text_format_ap(char **, const char *, va_list);
+#include <atf-c/error.h>
+
+atf_error_t atf_text_format(char **, const char *, ...);
+atf_error_t atf_text_format_ap(char **, const char *, va_list);
 
 #endif /* ATF_C_TEXT_H */
