@@ -16,6 +16,13 @@ on how things develop.
 Plans for 0.5
 =============
 
+* Merge the 'org.NetBSD.atf.src.c' branch, which provides a C-only
+  interface for test cases.
+
+
+Plans for 0.6
+=============
+
 * Add a tool to collect multiple outputs of atf-run (from different
   machines) and generate a single (XML-only?) log with everything.
   Must allow easy conversion to HTML for online publishing.
