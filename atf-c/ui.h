@@ -41,11 +41,15 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include <atf-c/error.h>
+
 struct atf_dynstr;
 
-int atf_ui_format_text_with_tag(struct atf_dynstr *, const char *,
-                                bool, size_t, const char *, ...);
-int atf_ui_format_text_with_tag_ap(struct atf_dynstr *, const char *,
-                                   bool, size_t, const char *, va_list);
+atf_error_t atf_ui_format_ap(struct atf_dynstr *,
+                             const char *, bool, size_t,
+                             const char *, va_list);
+atf_error_t atf_ui_format_fmt(struct atf_dynstr *,
+                              const char *, bool, size_t,
+                              const char *, ...);
 
 #endif /* ATF_C_UI_H */

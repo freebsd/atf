@@ -42,6 +42,7 @@ extern "C" {
 }
 
 #include "atf/env.hpp"
+#include "atf/exceptions.hpp"
 #include "atf/text.hpp"
 #include "atf/sanity.hpp"
 #include "atf/ui.hpp"
@@ -69,18 +70,28 @@ impl::format_text(const std::string& text)
 
 std::string
 impl::format_text_with_tag(const std::string& text, const std::string& tag,
-                          bool repeat, size_t col)
+                           bool repeat, size_t col)
 {
-    struct atf_dynstr dest;
+    atf_dynstr_t dest;
+    atf_error_t err;
 
-    atf_dynstr_init(&dest);
-    if (atf_ui_format_text_with_tag(&dest, tag.c_str(), repeat, col,
-                                    text.c_str()) != 0)
-        throw std::runtime_error("Cannot format string; not enough memory");
-    std::string formatted(atf_dynstr_cstring(&dest));
-    atf_dynstr_fini(&dest);
+    err = atf_dynstr_init(&dest);
+    if (atf_is_error(err))
+        throw_atf_error(err);
 
-    return formatted;
+    try {
+        err = atf_ui_format_fmt(&dest, tag.c_str(), repeat, col, "%s",
+                                text.c_str());
+        if (atf_is_error(err))
+            throw_atf_error(err);
+
+        std::string formatted(atf_dynstr_cstring(&dest));
+        atf_dynstr_fini(&dest);
+        return formatted;
+    } catch (...) {
+        atf_dynstr_fini(&dest);
+        throw;
+    }
 }
 
 std::string

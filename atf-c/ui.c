@@ -43,11 +43,15 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include "dynstr.h"
-#include "env.h"
-#include "sanity.h"
-#include "text.h"
-#include "ui.h"
+#include "atf-c/dynstr.h"
+#include "atf-c/env.h"
+#include "atf-c/sanity.h"
+#include "atf-c/text.h"
+#include "atf-c/ui.h"
+
+/* ---------------------------------------------------------------------
+ * Auxiliary functions.
+ * --------------------------------------------------------------------- */
 
 static
 size_t
@@ -78,113 +82,130 @@ terminal_width(void)
 }
 
 static
-void
-format_paragraph(atf_dynstr_t *dest, const char *tag, bool first,
-                 bool repeat, size_t col, char *str)
+atf_error_t
+format_paragraph(atf_dynstr_t *dest,
+                 const char *tag, bool repeat, size_t col, bool firstp,
+                 char *str)
 {
-    atf_dynstr_t pad, fullpad;
-
-    atf_dynstr_init_rep(&pad, col - strlen(tag), ' ');
-    atf_dynstr_init_rep(&fullpad, col, ' ');
-
-    if (first || repeat) {
-        atf_dynstr_append(dest, tag);
-        atf_dynstr_append(dest, atf_dynstr_cstring(&pad));
-    } else
-        atf_dynstr_append(dest, atf_dynstr_cstring(&fullpad));
-
-    size_t curcol = col;
-
     const size_t maxcol = terminal_width();
-
+    size_t curcol;
     char *last, *str2;
+    atf_dynstr_t pad, fullpad;
+    atf_error_t err;
+
+    err = atf_dynstr_init_rep(&pad, col - strlen(tag), ' ');
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_dynstr_init_rep(&fullpad, col, ' ');
+    if (atf_is_error(err))
+        goto out_pad;
+
+    if (firstp || repeat)
+        err = atf_dynstr_append_fmt(dest, "%s%s", tag,
+                                    atf_dynstr_cstring(&pad));
+    else
+        err = atf_dynstr_append_fmt(dest, atf_dynstr_cstring(&fullpad));
+    if (atf_is_error(err))
+        goto out_pads;
 
     str2 = strtok_r(str, " ", &last);
-    while (str2 != NULL) {
-        if (str != str2 && maxcol > 0 && curcol + strlen(str2) + 1 > maxcol) {
-            atf_dynstr_append(dest, "\n");
-            if (repeat) {
-                atf_dynstr_append(dest, tag);
-                atf_dynstr_append(dest, atf_dynstr_cstring(&pad));
-            } else
-                atf_dynstr_append(dest, atf_dynstr_cstring(&fullpad));
-            curcol = col;
-        } else if (str != str2) {
-            atf_dynstr_append(dest, " ");
-            curcol++;
+    curcol = col;
+    do {
+        const bool firstw = (str == str2);
+
+        if (!firstw) {
+            if (maxcol > 0 && curcol + strlen(str2) + 1 > maxcol) {
+                if (repeat)
+                    err = atf_dynstr_append_fmt
+                        (dest, "\n%s%s", tag, atf_dynstr_cstring(&pad));
+                else
+                    err = atf_dynstr_append_fmt
+                        (dest, "\n%s", atf_dynstr_cstring(&fullpad));
+                curcol = col;
+            } else {
+                err = atf_dynstr_append_fmt(dest, " ");
+                curcol++;
+            }
         }
 
-        atf_dynstr_append(dest, str2);
-        curcol += strlen(str2);
+        if (!atf_is_error(err)) {
+            err = atf_dynstr_append_fmt(dest, str2);
+            curcol += strlen(str2);
 
-        str2 = strtok_r(NULL, " ", &last);
-    }
+            str2 = strtok_r(NULL, " ", &last);
+        }
+    } while (!atf_is_error(err) && str2 != NULL);
 
+out_pads:
     atf_dynstr_fini(&fullpad);
+out_pad:
     atf_dynstr_fini(&pad);
+out:
+    return err;
 }
 
 static
-int
-format_text_with_tag_aux(atf_dynstr_t *dest, const char *tag,
-                         bool repeat, size_t col, char *str)
+atf_error_t
+format_aux(atf_dynstr_t *dest,
+           const char *tag, bool repeat, size_t col, char *str)
 {
     char *last, *str2;
+    atf_error_t err;
 
     PRE(col == 0 || col >= strlen(tag));
-
     if (col == 0)
         col = strlen(tag);
 
     str2 = strtok_r(str, "\n", &last);
-    while (str2 != NULL) {
-        format_paragraph(dest, tag, str2 == str, repeat, col, str2);
-        if (last != NULL) {
-            if (repeat) {
-                atf_dynstr_append(dest, "\n");
-                atf_dynstr_append(dest, tag);
-                atf_dynstr_append(dest, "\n");
-            } else
-                atf_dynstr_append(dest, "\n\n");
+    do {
+        const bool first = (str2 == str);
+        err = format_paragraph(dest, tag, repeat, col, first, str2);
+        if (!atf_is_error(err) && last != NULL) {
+            if (repeat)
+                err = atf_dynstr_append_fmt(dest, "\n%s\n", tag);
+            else
+                err = atf_dynstr_append_fmt(dest, "\n\n");
         }
 
         str2 = strtok_r(NULL, "\n", &last);
-    }
+    } while (str2 != NULL && !atf_is_error(err));
 
     return 0;
 }
 
-int
-atf_ui_format_text_with_tag_ap(atf_dynstr_t *dest, const char *tag,
-                               bool repeat, size_t col, const char *fmt,
-                               va_list ap)
+/* ---------------------------------------------------------------------
+ * Free functions.
+ * --------------------------------------------------------------------- */
+
+atf_error_t
+atf_ui_format_ap(atf_dynstr_t *dest,
+                 const char *tag, bool repeat, size_t col,
+                 const char *fmt, va_list ap)
 {
-    int ret;
     char *src;
     atf_error_t err;
 
     err = atf_text_format_ap(&src, fmt, ap);
-    if (atf_is_error(err))
-        return 1;
+    if (!atf_is_error(err)) {
+        err = format_aux(dest, tag, repeat, col, src);
+        free(src);
+    }
 
-    ret = format_text_with_tag_aux(dest, tag, repeat, col, src);
-
-    free(src);
-
-    return 0;
+    return err;
 }
 
-int
-atf_ui_format_text_with_tag(atf_dynstr_t *dest, const char *tag,
-                            bool repeat, size_t col, const char *fmt,
-                            ...)
+atf_error_t
+atf_ui_format_fmt(atf_dynstr_t *dest,
+                  const char *tag, bool repeat, size_t col,
+                  const char *fmt, ...)
 {
-    int ret;
     va_list ap;
+    atf_error_t err;
 
     va_start(ap, fmt);
-    ret = atf_ui_format_text_with_tag_ap(dest, tag, repeat, col, fmt, ap);
+    err = atf_ui_format_ap(dest, tag, repeat, col, fmt, ap);
     va_end(ap);
 
-    return ret;
+    return err;
 }

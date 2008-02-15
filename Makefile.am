@@ -397,6 +397,11 @@ tests_atf_c_api_t_text_SOURCES = tests/atf/c-api/t_text.c
 tests_atf_c_api_t_text_LDADD = -latf-c
 tests_atf_c_api_t_text_LDFLAGS = -L.
 
+atf_c_api_PROGRAMS += tests/atf/c-api/t_ui
+tests_atf_c_api_t_ui_SOURCES = tests/atf/c-api/t_ui.c
+tests_atf_c_api_t_ui_LDADD = -latf-c
+tests_atf_c_api_t_ui_LDFLAGS = -L.
+
 atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_atffile_1 \
                    tests/atf/formats/d_atffile_1.expout \
