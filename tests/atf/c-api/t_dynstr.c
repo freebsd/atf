@@ -36,6 +36,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <atf.h>
@@ -193,6 +194,26 @@ ATF_TC_BODY(init_rep, tc)
     }
 }
 
+ATF_TC(fini_disown);
+ATF_TC_HEAD(fini_disown, tc)
+{
+    atf_tc_set_var("descr", "Checks grabbing ownership of the internal "
+                            "plain C string");
+}
+ATF_TC_BODY(fini_disown, tc)
+{
+    const char *cstr;
+    char *cstr2;
+    atf_dynstr_t str;
+
+    ATF_CHECK(!atf_is_error(atf_dynstr_init_fmt(&str, "Test string 1")));
+    cstr = atf_dynstr_cstring(&str);
+    cstr2 = atf_dynstr_fini_disown(&str);
+
+    ATF_CHECK_EQUAL(cstr, cstr2);
+    free(cstr2);
+}
+
 /*
  * Getters.
  */
@@ -306,6 +327,7 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, init_ap);
     ATF_TP_ADD_TC(tp, init_fmt);
     ATF_TP_ADD_TC(tp, init_rep);
+    ATF_TP_ADD_TC(tp, fini_disown);
 
     /* Getters. */
     ATF_TP_ADD_TC(tp, cstring);

@@ -173,10 +173,19 @@ atf_dynstr_init_rep(atf_dynstr_t *ad, size_t len, char ch)
 void
 atf_dynstr_fini(atf_dynstr_t *ad)
 {
-    if (ad->m_data != NULL) // XXX Remove this.
-        free(ad->m_data);
+    INV(ad->m_data != NULL);
+    free(ad->m_data);
 
     atf_object_fini(&ad->m_object);
+}
+
+char *
+atf_dynstr_fini_disown(atf_dynstr_t *ad)
+{
+    atf_object_fini(&ad->m_object);
+
+    INV(ad->m_data != NULL);
+    return ad->m_data;
 }
 
 /*
