@@ -558,12 +558,12 @@ ATF_TC_BODY(prepend_fmt, tc)
  * Operators.
  */
 
-ATF_TC(equal);
-ATF_TC_HEAD(equal, tc)
+ATF_TC(equal_cstring);
+ATF_TC_HEAD(equal_cstring, tc)
 {
-    atf_tc_set_var("descr", "Checks the equality operator");
+    atf_tc_set_var("descr", "Checks the atf_equal_dynstr_cstring function");
 }
-ATF_TC_BODY(equal, tc)
+ATF_TC_BODY(equal_cstring, tc)
 {
     atf_dynstr_t str;
 
@@ -577,6 +577,23 @@ ATF_TC_BODY(equal, tc)
     ATF_CHECK(!atf_equal_dynstr_cstring(&str, ""));
     ATF_CHECK(!atf_equal_dynstr_cstring(&str, "Tes"));
     ATF_CHECK(!atf_equal_dynstr_cstring(&str, "Test "));
+    atf_dynstr_fini(&str);
+}
+
+ATF_TC(equal_dynstr);
+ATF_TC_HEAD(equal_dynstr, tc)
+{
+    atf_tc_set_var("descr", "Checks the atf_equal_dynstr_dynstr function");
+}
+ATF_TC_BODY(equal_dynstr, tc)
+{
+    atf_dynstr_t str, str2;
+
+    ATF_CHECK(!atf_is_error(atf_dynstr_init(&str)));
+    ATF_CHECK(!atf_is_error(atf_dynstr_init_fmt(&str2, "Test")));
+    ATF_CHECK( atf_equal_dynstr_dynstr(&str, &str));
+    ATF_CHECK(!atf_equal_dynstr_dynstr(&str, &str2));
+    atf_dynstr_fini(&str2);
     atf_dynstr_fini(&str);
 }
 
@@ -608,7 +625,8 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, prepend_fmt);
 
     /* Operators. */
-    ATF_TP_ADD_TC(tp, equal);
+    ATF_TP_ADD_TC(tp, equal_cstring);
+    ATF_TP_ADD_TC(tp, equal_dynstr);
 
     return 0;
 }
