@@ -382,22 +382,27 @@ ATF_TC_BODY(path_to_absolute, tc)
     }
 }
 
-/*
-ATF_TC(path_op_less);
-ATF_TC_HEAD(path_op_less)
+ATF_TC(path_equal);
+ATF_TC_HEAD(path_equal, tc)
 {
-    atf_tc_set_var("descr", "Tests that the path's less-than operator works");
+    atf_tc_set_var("descr", "Tests the equality operators for paths");
 }
-ATF_TC_BODY(path_op_less)
+ATF_TC_BODY(path_equal, tc)
 {
-    create_files();
+    atf_fs_path_t p1, p2;
 
-    ATF_CHECK(!(path("aaa") < path("aaa")));
+    CE(atf_fs_path_init_fmt(&p1, "foo"));
 
-    ATF_CHECK(  path("aab") < path("abc"));
-    ATF_CHECK(!(path("abc") < path("aab")));
+    CE(atf_fs_path_init_fmt(&p2, "foo"));
+    ATF_CHECK(atf_equal_fs_path_fs_path(&p1, &p2));
+    atf_fs_path_fini(&p2);
+
+    CE(atf_fs_path_init_fmt(&p2, "bar"));
+    ATF_CHECK(!atf_equal_fs_path_fs_path(&p1, &p2));
+    atf_fs_path_fini(&p2);
+
+    atf_fs_path_fini(&p1);
 }
-*/
 
 /* ---------------------------------------------------------------------
  * Test cases for the "atf_fs_stat" type.
@@ -515,15 +520,9 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, path_is_root);
     ATF_TP_ADD_TC(tp, path_branch_path);
     ATF_TP_ADD_TC(tp, path_leaf_name);
-    /*
-    ATF_TP_ADD_TC(tp, path_compare_equal);
-    ATF_TP_ADD_TC(tp, path_compare_different);
-    */
     ATF_TP_ADD_TC(tp, path_append);
     ATF_TP_ADD_TC(tp, path_to_absolute);
-    /*
-    ATF_TP_ADD_TC(tp, path_op_less);
-    */
+    ATF_TP_ADD_TC(tp, path_equal);
 
     /* Add the tests for the "atf_fs_stat" type. */
     ATF_TP_ADD_TC(tp, stat_type);
