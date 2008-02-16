@@ -181,7 +181,7 @@ normalize(const std::string& s)
 // ------------------------------------------------------------------------
 
 impl::path::path(const std::string& s) :
-    m_data(s.empty() ? "" : normalize(s))
+    m_data(normalize(s))
 {
 }
 
@@ -203,7 +203,7 @@ bool
 impl::path::is_absolute(void)
     const
 {
-    return !empty() && m_data[0] == '/';
+    return m_data[0] == '/';
 }
 
 bool
@@ -232,13 +232,6 @@ impl::path::branch_path(void)
 #endif // defined(HAVE_CONST_DIRNAME)
 
     return path(branch);
-}
-
-bool
-impl::path::empty(void)
-    const
-{
-    return m_data.empty();
 }
 
 std::string
@@ -469,26 +462,26 @@ impl::directory::names(void)
 
 impl::temp_dir::temp_dir(const path& p)
 {
-    PRE(!p.empty());
     atf::utils::auto_array< char > buf(new char[p.str().length() + 1]);
     std::strcpy(buf.get(), p.c_str());
     if (::mkdtemp(buf.get()) == NULL)
         throw system_error(IMPL_NAME "::temp_dir::temp_dir(" +
                            p.str() + ")", "mkdtemp(3) failed",
                            errno);
-    m_path = path(buf.get());
+    m_path = new path(buf.get());
 }
 
 impl::temp_dir::~temp_dir(void)
 {
-    cleanup(m_path);
+    cleanup(*m_path);
+    delete m_path;
 }
 
 const impl::path&
 impl::temp_dir::get_path(void)
     const
 {
-    return m_path;
+    return *m_path;
 }
 
 // ------------------------------------------------------------------------
@@ -515,8 +508,8 @@ impl::exists(const path& p)
     return safe_access(p, F_OK, ENOENT);
 }
 
-impl::path
-impl::find_prog_in_path(const std::string& prog)
+bool
+impl::have_prog_in_path(const std::string& prog)
 {
     PRE(prog.find('/') == std::string::npos);
 
@@ -527,15 +520,15 @@ impl::find_prog_in_path(const std::string& prog)
     std::vector< std::string > dirs = \
         atf::text::split(atf::env::get("PATH"), ":");
 
-    path p;
+    bool found = false;
     for (std::vector< std::string >::const_iterator iter = dirs.begin();
-         p.empty() && iter != dirs.end(); iter++) {
+         !found && iter != dirs.end(); iter++) {
         const path& dir = path(*iter);
 
         if (is_executable(dir / prog))
-            p = dir / prog;
+            found = true;
     }
-    return p;
+    return found;
 }
 
 impl::path
