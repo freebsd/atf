@@ -40,6 +40,12 @@ Plans for 0.6
   user-space about the available test cases (a list) and allows user-space
   to launch the execution of test cases.
 
+* Add expected failures and unexpected passes as test case results?  The
+  former are used to indicate known failures at specific points and thus
+  not raise false positives when working on some unrelated feature.  The
+  latter are used to detect changes that fixed expected failures.  See
+  Monotone's test suite for an example.
+
 
 Plans for pre-1.0
 =================
