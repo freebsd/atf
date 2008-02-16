@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,68 +34,67 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <sstream>
+#include <stdlib.h>
+#include <string.h>
 
-extern "C" {
-#include "atf-c/dynstr.h"
-#include "atf-c/ui.h"
-}
+#include <atf.h>
 
-#include "atf/env.hpp"
-#include "atf/exceptions.hpp"
-#include "atf/text.hpp"
-#include "atf/sanity.hpp"
-#include "atf/ui.hpp"
+#include "atf-c/text.h"
 
-namespace impl = atf::ui;
-#define IMPL_NAME "atf::ui"
-
-std::string
-impl::format_error(const std::string& prog_name, const std::string& error)
+ATF_TC(format);
+ATF_TC_HEAD(format, tc)
 {
-    return format_text_with_tag("ERROR: " + error, prog_name + ": ", true);
+    atf_tc_set_var("descr", "Checks the construction of free-form strings "
+                            "using a variable parameters list");
 }
-
-std::string
-impl::format_info(const std::string& prog_name, const std::string& msg)
+ATF_TC_BODY(format, tc)
 {
-    return format_text_with_tag(msg, prog_name + ": ", true);
-}
-
-std::string
-impl::format_text(const std::string& text)
-{
-    return format_text_with_tag(text, "", false, 0);
-}
-
-std::string
-impl::format_text_with_tag(const std::string& text, const std::string& tag,
-                           bool repeat, size_t col)
-{
-    atf_dynstr_t dest;
+    char *str;
     atf_error_t err;
 
-    err = atf_dynstr_init(&dest);
-    if (atf_is_error(err))
-        throw_atf_error(err);
-
-    try {
-        err = atf_ui_format_fmt(&dest, tag.c_str(), repeat, col, "%s",
-                                text.c_str());
-        if (atf_is_error(err))
-            throw_atf_error(err);
-
-        std::string formatted(atf_dynstr_cstring(&dest));
-        atf_dynstr_fini(&dest);
-        return formatted;
-    } catch (...) {
-        atf_dynstr_fini(&dest);
-        throw;
-    }
+    err = atf_text_format(&str, "%s %s %d", "Test", "string", 1);
+    ATF_CHECK(!atf_is_error(err));
+    ATF_CHECK(strcmp(str, "Test string 1") == 0);
+    free(str);
 }
 
-std::string
-impl::format_warning(const std::string& prog_name, const std::string& error)
+static
+void
+format_ap(char **dest, const char *fmt, ...)
 {
-    return format_text_with_tag("WARNING: " + error, prog_name + ": ", true);
+    va_list ap;
+    atf_error_t err;
+
+    va_start(ap, fmt);
+    err = atf_text_format_ap(dest, fmt, ap);
+    va_end(ap);
+
+    ATF_CHECK(!atf_is_error(err));
+}
+
+ATF_TC(format_ap);
+ATF_TC_HEAD(format_ap, tc)
+{
+    atf_tc_set_var("descr", "Checks the construction of free-form strings "
+                            "using a va_list argument");
+}
+ATF_TC_BODY(format_ap, tc)
+{
+    char *str;
+
+    format_ap(&str, "%s %s %d", "Test", "string", 1);
+    ATF_CHECK(strcmp(str, "Test string 1") == 0);
+    free(str);
+}
+
+/* ---------------------------------------------------------------------
+ * Main.
+ * --------------------------------------------------------------------- */
+
+ATF_TP_ADD_TCS(tp)
+{
+    ATF_TP_ADD_TC(tp, format);
+    ATF_TP_ADD_TC(tp, format_ap);
+
+    return 0;
 }

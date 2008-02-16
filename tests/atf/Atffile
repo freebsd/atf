@@ -2,6 +2,7 @@ Content-Type: application/X-atf-atffile; version="1"
 
 prop: test-suite = atf
 
+tp: atf-c
 tp: units
 tp: sh_interface
 tp: test_programs

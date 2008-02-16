@@ -34,76 +34,54 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <atf-c/tp.h>
+#include <atf.h>
 
-void
-pass_head(struct atf_tc *tc)
+ATF_TC(pass);
+ATF_TC_HEAD(pass, tc)
 {
     atf_tc_set_var("descr", "An empty test case that always passes");
 }
-
-void
-pass_body(const struct atf_tc *tc)
+ATF_TC_BODY(pass, tc)
 {
     atf_tc_pass();
 }
 
-ATF_TC(pass);
-
-void
-fail_head(struct atf_tc *tc)
+ATF_TC(fail);
+ATF_TC_HEAD(fail, tc)
 {
     atf_tc_set_var("descr", "An empty test case that always fails");
 }
-
-void
-fail_body(const struct atf_tc *tc)
+ATF_TC_BODY(fail, tc)
 {
     atf_tc_fail("On purpose");
 }
 
-ATF_TC(fail);
-
-void
-skip_head(struct atf_tc *tc)
+ATF_TC(skip);
+ATF_TC_HEAD(skip, tc)
 {
     atf_tc_set_var("descr", "An empty test case that is always skipped");
 }
-
-void
-skip_body(const struct atf_tc *tc)
+ATF_TC_BODY(skip, tc)
 {
     atf_tc_skip("By design");
 }
 
-ATF_TC(skip);
-
-void
-default_head(struct atf_tc *tc)
+ATF_TC(default);
+ATF_TC_HEAD(default, tc)
 {
     atf_tc_set_var("descr", "A test case that passes without explicitly "
                  "stating it");
 }
-
-void
-default_body(const struct atf_tc *tc)
+ATF_TC_BODY(default, tc)
 {
 }
 
-ATF_TC(default);
-
-int
-add_tcs(struct atf_tp *tp)
+ATF_TP_ADD_TCS(tp)
 {
-    atf_tc_init(&__pass_atf_tc);
-    atf_tc_init(&__fail_atf_tc);
-    atf_tc_init(&__skip_atf_tc);
-    atf_tc_init(&__default_atf_tc);
-    atf_tp_add_tc(tp, &__pass_atf_tc);
-    atf_tp_add_tc(tp, &__fail_atf_tc);
-    atf_tp_add_tc(tp, &__skip_atf_tc);
-    atf_tp_add_tc(tp, &__default_atf_tc);
+    ATF_TP_ADD_TC(tp, pass);
+    ATF_TP_ADD_TC(tp, fail);
+    ATF_TP_ADD_TC(tp, skip);
+    ATF_TP_ADD_TC(tp, default);
+
     return 0;
 }
-
-ATF_TP_MAIN(add_tcs);

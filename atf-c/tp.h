@@ -58,13 +58,4 @@ int atf_tp_run(atf_tp_t *);
 
 void atf_tp_add_tc(atf_tp_t *, struct atf_tc *);
 
-#define ATF_TP_MAIN(add_tcs_hook) \
-    int atf_tp_main(int, char **, int (*)(atf_tp_t *)); \
-    \
-    int \
-    main(int argc, char **argv) \
-    { \
-        return atf_tp_main(argc, argv, add_tcs_hook); \
-    }
-
 #endif /* ATF_C_TP_H */

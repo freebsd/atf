@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,68 +34,9 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <sstream>
+#if !defined(ATF_C_H)
+#define ATF_C_H
 
-extern "C" {
-#include "atf-c/dynstr.h"
-#include "atf-c/ui.h"
-}
+#include <atf-c/macros.h>
 
-#include "atf/env.hpp"
-#include "atf/exceptions.hpp"
-#include "atf/text.hpp"
-#include "atf/sanity.hpp"
-#include "atf/ui.hpp"
-
-namespace impl = atf::ui;
-#define IMPL_NAME "atf::ui"
-
-std::string
-impl::format_error(const std::string& prog_name, const std::string& error)
-{
-    return format_text_with_tag("ERROR: " + error, prog_name + ": ", true);
-}
-
-std::string
-impl::format_info(const std::string& prog_name, const std::string& msg)
-{
-    return format_text_with_tag(msg, prog_name + ": ", true);
-}
-
-std::string
-impl::format_text(const std::string& text)
-{
-    return format_text_with_tag(text, "", false, 0);
-}
-
-std::string
-impl::format_text_with_tag(const std::string& text, const std::string& tag,
-                           bool repeat, size_t col)
-{
-    atf_dynstr_t dest;
-    atf_error_t err;
-
-    err = atf_dynstr_init(&dest);
-    if (atf_is_error(err))
-        throw_atf_error(err);
-
-    try {
-        err = atf_ui_format_fmt(&dest, tag.c_str(), repeat, col, "%s",
-                                text.c_str());
-        if (atf_is_error(err))
-            throw_atf_error(err);
-
-        std::string formatted(atf_dynstr_cstring(&dest));
-        atf_dynstr_fini(&dest);
-        return formatted;
-    } catch (...) {
-        atf_dynstr_fini(&dest);
-        throw;
-    }
-}
-
-std::string
-impl::format_warning(const std::string& prog_name, const std::string& error)
-{
-    return format_text_with_tag("WARNING: " + error, prog_name + ": ", true);
-}
+#endif // !defined(ATF_C_H)

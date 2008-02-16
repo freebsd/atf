@@ -66,24 +66,6 @@ create_files(void)
 // Test cases for the "path" class.
 // ------------------------------------------------------------------------
 
-ATF_TEST_CASE(path_empty);
-ATF_TEST_CASE_HEAD(path_empty)
-{
-    set("descr", "Tests the path's empty method");
-}
-ATF_TEST_CASE_BODY(path_empty)
-{
-    using atf::fs::path;
-
-    ATF_CHECK( path().empty());
-    ATF_CHECK(!path("foo").empty());
-
-    path p1;
-    ATF_CHECK( p1.empty());
-    p1 = p1 / "foo";
-    ATF_CHECK(!p1.empty());
-}
-
 ATF_TEST_CASE(path_normalize);
 ATF_TEST_CASE_HEAD(path_normalize)
 {
@@ -476,8 +458,8 @@ ATF_TEST_CASE_BODY(temp_dir_raii)
     using atf::fs::path;
     using atf::fs::temp_dir;
 
-    path t1;
-    path t2;
+    path t1("non-existent");
+    path t2("non-existent");
 
     {
         path tmpl("testdir.XXXXXX");
@@ -515,7 +497,9 @@ ATF_TEST_CASE_BODY(temp_dir_raii)
         ATF_CHECK(!fi2.is_other_executable());
     }
 
+    ATF_CHECK(t1.str() != "non-existent");
     ATF_CHECK(!exists(t1));
+    ATF_CHECK(t2.str() != "non-existent");
     ATF_CHECK(!exists(t2));
 }
 
@@ -673,7 +657,6 @@ ATF_TEST_CASE_BODY(remove)
 ATF_INIT_TEST_CASES(tcs)
 {
     // Add the tests for the "path" class.
-    ATF_ADD_TEST_CASE(tcs, path_empty);
     ATF_ADD_TEST_CASE(tcs, path_normalize);
     ATF_ADD_TEST_CASE(tcs, path_is_absolute);
     ATF_ADD_TEST_CASE(tcs, path_is_root);
