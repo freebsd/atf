@@ -69,7 +69,7 @@ void atf_error_format(const atf_error_t, char *, size_t);
  * Common error types.
  * --------------------------------------------------------------------- */
 
-atf_error_t atf_libc_error(int, const char *);
+atf_error_t atf_libc_error(int, const char *, ...);
 int atf_libc_error_code(const atf_error_t);
 
 atf_error_t atf_no_memory_error(void);

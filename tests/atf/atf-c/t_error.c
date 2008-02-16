@@ -179,7 +179,7 @@ ATF_TC_BODY(libc_new, tc)
     ATF_CHECK_EQUAL(atf_libc_error_code(err), ENOMEM);
     atf_error_free(err);
 
-    err = atf_libc_error(EPERM, "Test message 2");
+    err = atf_libc_error(EPERM, "%s message %d", "Test", 2);
     ATF_CHECK(atf_error_is(err, "libc"));
     ATF_CHECK_EQUAL(atf_libc_error_code(err), EPERM);
     atf_error_free(err);
@@ -205,6 +205,12 @@ ATF_TC_BODY(libc_format, tc)
     atf_error_format(err, buf, sizeof(buf));
     ATF_CHECK(strstr(buf, strerror(EPERM)) != NULL);
     ATF_CHECK(strstr(buf, "Test message 2") != NULL);
+    atf_error_free(err);
+
+    err = atf_libc_error(EPERM, "%s message %d", "Test", 3);
+    atf_error_format(err, buf, sizeof(buf));
+    ATF_CHECK(strstr(buf, strerror(EPERM)) != NULL);
+    ATF_CHECK(strstr(buf, "Test message 3") != NULL);
     atf_error_free(err);
 }
 

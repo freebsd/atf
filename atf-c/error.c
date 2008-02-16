@@ -34,6 +34,7 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -174,7 +175,7 @@ atf_error_format(const atf_error_t err, char *buf, size_t buflen)
 
 struct atf_libc_error_data {
     int m_errno;
-    const char *m_what;
+    char m_what[4096];
 };
 typedef struct atf_libc_error_data atf_libc_error_data_t;
 
@@ -182,7 +183,7 @@ static
 void
 libc_format(const atf_error_t err, char *buf, size_t buflen)
 {
-    const struct atf_libc_error_data *data;
+    const atf_libc_error_data_t *data;
 
     PRE(atf_error_is(err, "libc"));
 
@@ -191,13 +192,16 @@ libc_format(const atf_error_t err, char *buf, size_t buflen)
 }
 
 atf_error_t
-atf_libc_error(int syserrno, const char *what)
+atf_libc_error(int syserrno, const char *fmt, ...)
 {
     atf_error_t err;
     atf_libc_error_data_t data;
+    va_list ap;
 
     data.m_errno = syserrno;
-    data.m_what = what;
+    va_start(ap, fmt);
+    vsnprintf(data.m_what, sizeof(data.m_what), fmt, ap);
+    va_end(ap);
 
     err = atf_error_new("libc", &data, sizeof(data), libc_format);
 
