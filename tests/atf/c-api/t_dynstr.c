@@ -336,6 +336,32 @@ ATF_TC_BODY(append_fmt, tc)
     check_append(atf_dynstr_append_fmt);
 }
 
+ATF_TC(clear);
+ATF_TC_HEAD(clear, tc)
+{
+    atf_tc_set_var("descr", "Checks clearing a string");
+}
+ATF_TC_BODY(clear, tc)
+{
+    atf_dynstr_t str;
+
+    printf("Clear an empty string\n");
+    ATF_CHECK(!atf_is_error(atf_dynstr_init(&str)));
+    atf_dynstr_clear(&str);
+    ATF_CHECK_EQUAL(atf_dynstr_length(&str), 0);
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "") == 0);
+    atf_dynstr_fini(&str);
+
+    printf("Clear a non-empty string\n");
+    ATF_CHECK(!atf_is_error(atf_dynstr_init_fmt(&str, "Not empty")));
+    ATF_CHECK_EQUAL(atf_dynstr_length(&str), strlen("Not empty"));
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "Not empty") == 0);
+    atf_dynstr_clear(&str);
+    ATF_CHECK_EQUAL(atf_dynstr_length(&str), 0);
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "") == 0);
+    atf_dynstr_fini(&str);
+}
+
 /*
  * Operators.
  */
@@ -382,6 +408,7 @@ ATF_TP_ADD_TCS(tp)
     /* Modifiers. */
     ATF_TP_ADD_TC(tp, append_ap);
     ATF_TP_ADD_TC(tp, append_fmt);
+    ATF_TP_ADD_TC(tp, clear);
 
     /* Operators. */
     ATF_TP_ADD_TC(tp, equal);
