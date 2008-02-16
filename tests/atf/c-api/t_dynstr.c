@@ -160,6 +160,11 @@ ATF_TC_BODY(init_raw, tc)
     atf_dynstr_t str;
     atf_error_t err;
 
+    err = atf_dynstr_init_raw(&str, src, 0);
+    ATF_CHECK(!atf_is_error(err));
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "") == 0);
+    atf_dynstr_fini(&str);
+
     err = atf_dynstr_init_raw(&str, src, 8);
     ATF_CHECK(!atf_is_error(err));
     ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 1") == 0);
@@ -220,6 +225,51 @@ ATF_TC_BODY(init_rep, tc)
         ATF_CHECK(atf_is_error(err));
         ATF_CHECK(atf_error_is(err, "no_memory"));
     }
+}
+
+ATF_TC(init_substr);
+ATF_TC_HEAD(init_substr, tc)
+{
+    atf_tc_set_var("descr", "Checks the construction of a string using"
+                            "a substring of another one");
+}
+ATF_TC_BODY(init_substr, tc)
+{
+    atf_dynstr_t src;
+    atf_dynstr_t str;
+    atf_error_t err;
+
+    err = atf_dynstr_init_fmt(&src, "Str 1, Str 2");
+
+    err = atf_dynstr_init_substr(&str, &src, 0, 0);
+    ATF_CHECK(!atf_is_error(err));
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "") == 0);
+    atf_dynstr_fini(&str);
+
+    err = atf_dynstr_init_substr(&str, &src, 0, atf_dynstr_npos);
+    ATF_CHECK(!atf_is_error(err));
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "Str 1, Str 2") == 0);
+    atf_dynstr_fini(&str);
+
+    err = atf_dynstr_init_substr(&str, &src, 0, 100);
+    ATF_CHECK(!atf_is_error(err));
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "Str 1, Str 2") == 0);
+    atf_dynstr_fini(&str);
+
+    err = atf_dynstr_init_substr(&str, &src, 0, 5);
+    ATF_CHECK(!atf_is_error(err));
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "Str 1") == 0);
+    atf_dynstr_fini(&str);
+
+    err = atf_dynstr_init_substr(&str, &src, 100, atf_dynstr_npos);
+    ATF_CHECK(!atf_is_error(err));
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "") == 0);
+    atf_dynstr_fini(&str);
+
+    err = atf_dynstr_init_substr(&str, &src, 7, atf_dynstr_npos);
+    ATF_CHECK(!atf_is_error(err));
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "Str 2") == 0);
+    atf_dynstr_fini(&str);
 }
 
 ATF_TC(fini_disown);
@@ -514,6 +564,7 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, init_fmt);
     ATF_TP_ADD_TC(tp, init_raw);
     ATF_TP_ADD_TC(tp, init_rep);
+    ATF_TP_ADD_TC(tp, init_substr);
     ATF_TP_ADD_TC(tp, fini_disown);
 
     /* Getters. */

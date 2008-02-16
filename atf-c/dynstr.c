@@ -109,6 +109,12 @@ out:
  * --------------------------------------------------------------------- */
 
 /*
+ * Constants.
+ */
+
+const size_t atf_dynstr_npos = SIZE_MAX;
+
+/*
  * Constructors and destructors.
  */
 
@@ -224,6 +230,19 @@ atf_dynstr_init_rep(atf_dynstr_t *ad, size_t len, char ch)
     }
 
     return err;
+}
+
+atf_error_t
+atf_dynstr_init_substr(atf_dynstr_t *ad, const atf_dynstr_t *src,
+                       size_t beg, size_t end)
+{
+    if (beg > src->m_length)
+        beg = src->m_length;
+
+    if (end == atf_dynstr_npos || end > src->m_length)
+        end = src->m_length;
+
+    return atf_dynstr_init_raw(ad, src->m_data + beg, end - beg);
 }
 
 void
