@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,10 @@
 #define _ATF_EXCEPTIONS_HPP_
 
 #include <stdexcept>
+
+extern "C" {
+struct atf_error;
+}
 
 namespace atf {
 
@@ -93,6 +97,8 @@ public:
     int code(void) const throw();
     const char* what(void) const throw();
 };
+
+void throw_atf_error(struct atf_error *);
 
 } // namespace atf
 

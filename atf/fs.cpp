@@ -49,6 +49,7 @@ extern "C" {
 
 #include <cerrno>
 #include <cstdlib>
+#include <cstring>
 
 #include "atf/exceptions.hpp"
 #include "atf/env.hpp"
@@ -148,156 +149,166 @@ safe_access(const impl::path& p, int mode, int experr)
     return ok;
 }
 
-//!
-//! \brief Normalizes a path.
-//!
-//! Normalizes a path string by removing any consecutive separators.
-//! The returned string should be used to construct a path object
-//! immediately.
-//!
-static
-std::string
-normalize(const std::string& s)
-{
-    PRE(!s.empty());
-
-    std::vector< std::string > cs = atf::text::split(s, "/");
-    std::string data = (s[0] == '/') ? "/" : "";
-    for (std::vector< std::string >::size_type i = 0; i < cs.size(); i++) {
-        data += cs[i];
-        if (i != cs.size() - 1)
-            data += '/';
-    }
-
-    return data;
-}
-
 // ------------------------------------------------------------------------
 // The "path" class.
 // ------------------------------------------------------------------------
 
-impl::path::path(const std::string& s) :
-    m_data(s.empty() ? "" : normalize(s))
+impl::path::path(const std::string& s)
 {
+    atf_error_t err = atf_fs_path_init_fmt(&m_path, "%s", s.c_str());
+    if (atf_is_error(err))
+        throw_atf_error(err);
+}
+
+impl::path::path(const path& p)
+{
+    atf_error_t err = atf_fs_path_init_fmt(&m_path, "%s", p.c_str());
+    if (atf_is_error(err))
+        throw_atf_error(err);
+}
+
+impl::path::~path(void)
+{
+    atf_fs_path_fini(&m_path);
 }
 
 const char*
 impl::path::c_str(void)
     const
 {
-    return m_data.c_str();
+    return atf_fs_path_cstring(&m_path);
 }
 
-const std::string&
+std::string
 impl::path::str(void)
     const
 {
-    return m_data;
+    return c_str();
 }
 
 bool
 impl::path::is_absolute(void)
     const
 {
-    return !empty() && m_data[0] == '/';
+    return atf_fs_path_is_absolute(&m_path);
 }
 
 bool
 impl::path::is_root(void)
     const
 {
-    return m_data == "/";
+    return atf_fs_path_is_root(&m_path);
 }
 
 impl::path
 impl::path::branch_path(void)
     const
 {
-    std::string branch;
+    atf_fs_path_t bp;
+    atf_error_t err;
 
-    std::string::size_type endpos = m_data.rfind('/');
-    if (endpos == std::string::npos)
-        branch = ".";
-    else if (endpos == 0)
-        branch = "/";
-    else
-        branch = m_data.substr(0, endpos);
+    err = atf_fs_path_branch_path(&m_path, &bp);
+    if (atf_is_error(err))
+        throw_atf_error(err);
 
-#if defined(HAVE_CONST_DIRNAME)
-    INV(branch == ::dirname(m_data.c_str()));
-#endif // defined(HAVE_CONST_DIRNAME)
-
-    return path(branch);
-}
-
-bool
-impl::path::empty(void)
-    const
-{
-    return m_data.empty();
+    path p(atf_fs_path_cstring(&bp));
+    atf_fs_path_fini(&bp);
+    return p;
 }
 
 std::string
 impl::path::leaf_name(void)
     const
 {
-    std::string::size_type begpos = m_data.rfind('/');
-    if (begpos == std::string::npos)
-        begpos = 0;
-    else
-        begpos++;
+    atf_dynstr_t ln;
+    atf_error_t err;
 
-    std::string leaf = m_data.substr(begpos);
+    err = atf_fs_path_leaf_name(&m_path, &ln);
+    if (atf_is_error(err))
+        throw_atf_error(err);
 
-#if defined(HAVE_CONST_BASENAME)
-    INV(leaf == ::basename(m_data.c_str()));
-#endif // defined(HAVE_CONST_BASENAME)
-
-    return leaf;
+    std::string s(atf_dynstr_cstring(&ln));
+    atf_dynstr_fini(&ln);
+    return s;
 }
 
 impl::path
 impl::path::to_absolute(void)
     const
 {
-    PRE(!is_absolute());
-    path curdir = get_current_dir();
-    return curdir / (*this);
+    path p2 = *this;
+
+    atf_error_t err = atf_fs_path_to_absolute(&p2.m_path);
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return p2;
+}
+
+impl::path&
+impl::path::operator=(const path& p)
+{
+    atf_fs_path_t tmp;
+
+    atf_error_t err = atf_fs_path_init_fmt(&tmp, "%s", p.c_str());
+    if (atf_is_error(err))
+        throw_atf_error(err);
+    else {
+        atf_fs_path_fini(&m_path);
+        m_path = tmp;
+    }
+
+    return *this;
 }
 
 bool
 impl::path::operator==(const path& p)
     const
 {
-    return m_data == p.m_data;
+    return atf_equal_fs_path_fs_path(&m_path, &p.m_path);
 }
 
 bool
 impl::path::operator!=(const path& p)
     const
 {
-    return m_data != p.m_data;
+    return !atf_equal_fs_path_fs_path(&m_path, &p.m_path);
 }
 
 impl::path
 impl::path::operator/(const std::string& p)
     const
 {
-    return path(m_data + "/" + normalize(p));
+    path p2 = *this;
+
+    atf_error_t err = atf_fs_path_append_fmt(&p2.m_path, "%s", p.c_str());
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return p2;
 }
 
 impl::path
 impl::path::operator/(const path& p)
     const
 {
-    return path(m_data + "/" + p.m_data);
+    path p2 = *this;
+
+    atf_error_t err = atf_fs_path_append_fmt(&p2.m_path, "%s",
+                                             atf_fs_path_cstring(&p.m_path));
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return p2;
 }
 
 bool
 impl::path::operator<(const path& p)
     const
 {
-    return m_data < p.m_data;
+    const char *s1 = atf_fs_path_cstring(&m_path);
+    const char *s2 = atf_fs_path_cstring(&p.m_path);
+    return std::strcmp(s1, s2) < 0;
 }
 
 // ------------------------------------------------------------------------
@@ -465,26 +476,26 @@ impl::directory::names(void)
 
 impl::temp_dir::temp_dir(const path& p)
 {
-    PRE(!p.empty());
     atf::utils::auto_array< char > buf(new char[p.str().length() + 1]);
     std::strcpy(buf.get(), p.c_str());
     if (::mkdtemp(buf.get()) == NULL)
         throw system_error(IMPL_NAME "::temp_dir::temp_dir(" +
                            p.str() + ")", "mkdtemp(3) failed",
                            errno);
-    m_path = path(buf.get());
+    m_path = new path(buf.get());
 }
 
 impl::temp_dir::~temp_dir(void)
 {
-    cleanup(m_path);
+    cleanup(*m_path);
+    delete m_path;
 }
 
 const impl::path&
 impl::temp_dir::get_path(void)
     const
 {
-    return m_path;
+    return *m_path;
 }
 
 // ------------------------------------------------------------------------
@@ -511,8 +522,8 @@ impl::exists(const path& p)
     return safe_access(p, F_OK, ENOENT);
 }
 
-impl::path
-impl::find_prog_in_path(const std::string& prog)
+bool
+impl::have_prog_in_path(const std::string& prog)
 {
     PRE(prog.find('/') == std::string::npos);
 
@@ -523,15 +534,15 @@ impl::find_prog_in_path(const std::string& prog)
     std::vector< std::string > dirs = \
         atf::text::split(atf::env::get("PATH"), ":");
 
-    path p;
+    bool found = false;
     for (std::vector< std::string >::const_iterator iter = dirs.begin();
-         p.empty() && iter != dirs.end(); iter++) {
+         !found && iter != dirs.end(); iter++) {
         const path& dir = path(*iter);
 
         if (is_executable(dir / prog))
-            p = dir / prog;
+            found = true;
     }
-    return p;
+    return found;
 }
 
 impl::path
@@ -571,6 +582,7 @@ impl::remove(const path& p)
                                 errno);
 }
 
+/*
 static
 void
 rm_rf_aux(const impl::path& p, const impl::path& root,
@@ -648,10 +660,24 @@ find_mount_points(const impl::path& p, const impl::file_info& parentinfo)
 
     return mntpts;
 }
+*/
 
 void
 impl::cleanup(const path& p)
 {
+    atf_error_t err;
+    atf_fs_path_t p2;
+
+    atf_fs_path_init_fmt(&p2, "%s", p.c_str());
+
+    err = atf_fs_cleanup(&p2);
+    if (atf_is_error(err)) {
+        atf_fs_path_fini(&p2);
+        throw_atf_error(err);
+    }
+
+    atf_fs_path_fini(&p2);
+/*
     std::vector< path > mntpts = find_mount_points(p, file_info(p));
     for (std::vector< path >::const_iterator iter = mntpts.begin();
          iter != mntpts.end(); iter++) {
@@ -676,4 +702,5 @@ impl::cleanup(const path& p)
 #endif
     }
     rm_rf(p);
+*/
 }

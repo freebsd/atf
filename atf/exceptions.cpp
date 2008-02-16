@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,12 @@
 #include <cstdio>
 #include <cstring>
 
+extern "C" {
+#include "atf-c/error.h"
+};
+
 #include "atf/exceptions.hpp"
+#include "atf/sanity.hpp"
 
 atf::system_error::system_error(const std::string& who,
                                 const std::string& message,
@@ -78,4 +83,17 @@ atf::system_error::what(void)
     } catch (...) {
         return "Unable to format system_error message";
     }
+}
+
+void
+atf::throw_atf_error(atf_error_t err)
+{
+    static char buf[4096];
+
+    PRE(atf_is_error(err));
+
+    atf_error_format(err, buf, sizeof(buf));
+    atf_error_free(err);
+
+    throw std::runtime_error(buf);
 }

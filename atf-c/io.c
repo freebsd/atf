@@ -51,7 +51,7 @@ atf_io_readline(int fd, atf_dynstr_t *dest)
     ch[1] = '\0';
     while ((ret = read(fd, &ch[0], sizeof(ch[0]))) == sizeof(ch[0]) &&
            ch[0] != '\n') {
-        atf_dynstr_append(dest, ch);
+        atf_dynstr_append_fmt(dest, ch);
     }
     return ret == -1 ? errno : 0;
 }

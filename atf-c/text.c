@@ -34,35 +34,31 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "dynstr.h"
-#include "text.h"
+#include "atf-c/dynstr.h"
+#include "atf-c/text.h"
 
-int
+atf_error_t
 atf_text_format(char **dest, const char *fmt, ...)
 {
-    int ret;
+    atf_error_t err;
     va_list ap;
 
     va_start(ap, fmt);
-    ret = atf_text_format_ap(dest, fmt, ap);
+    err = atf_text_format_ap(dest, fmt, ap);
     va_end(ap);
 
-    return ret;
+    return err;
 }
 
-int
+atf_error_t
 atf_text_format_ap(char **dest, const char *fmt, va_list ap)
 {
-    int ret;
+    atf_error_t err;
     atf_dynstr_t tmp;
 
-    ret = atf_dynstr_init_ap(&tmp, fmt, ap);
-    if (ret != 0)
-        return ret;
+    err = atf_dynstr_init_ap(&tmp, fmt, ap);
+    if (!atf_is_error(err))
+        *dest = atf_dynstr_fini_disown(&tmp);
 
-    *dest = tmp.m_data;
-    tmp.m_data = NULL;
-    atf_dynstr_fini(&tmp);
-
-    return 0;
+    return err;
 }

@@ -96,10 +96,41 @@ $(srcdir)/admin/revision-dist.h: admin/revision.h
 EXTRA_DIST += admin/revision-dist.h
 
 # -------------------------------------------------------------------------
+# `atf-c' directory.
+# -------------------------------------------------------------------------
+
+lib_LTLIBRARIES = libatf-c.la
+libatf_c_la_SOURCES = atf-c/dynstr.c \
+                      atf-c/dynstr.h \
+                      atf-c/env.c \
+                      atf-c/env.h \
+                      atf-c/error.c \
+                      atf-c/error.h \
+                      atf-c/fs.c \
+                      atf-c/fs.h \
+                      atf-c/io.c \
+                      atf-c/io.h \
+                      atf-c/macros.h \
+                      atf-c/object.c \
+                      atf-c/object.h \
+                      atf-c/sanity.h \
+                      atf-c/text.c \
+                      atf-c/text.h \
+                      atf-c/ui.c \
+                      atf-c/ui.h \
+                      atf-c/tc.c \
+                      atf-c/tc.h \
+                      atf-c/tp.c \
+                      atf-c/tp.h \
+                      atf-c/tp_main.c
+
+include_HEADERS = atf.h
+
+# -------------------------------------------------------------------------
 # `atf' directory.
 # -------------------------------------------------------------------------
 
-lib_LTLIBRARIES = libatf.la
+lib_LTLIBRARIES += libatf.la
 libatf_la_LDFLAGS = -L.
 libatf_la_LIBADD = -latf-c
 libatf_la_SOURCES = atf/application.cpp \
@@ -137,7 +168,7 @@ libatf_la_SOURCES = atf/application.cpp \
                     atf/user.hpp \
                     atf/utils.hpp
 
-include_HEADERS = atf.hpp
+include_HEADERS += atf.hpp
 atf_HEADERS = atf/application.hpp \
               atf/atffile.hpp \
               atf/config.hpp \
@@ -158,30 +189,6 @@ atf_HEADERS = atf/application.hpp \
 atfdir = $(includedir)/atf
 
 dist_man_MANS = atf/atf-c++-api.3
-
-# -------------------------------------------------------------------------
-# `atf-c' directory.
-# -------------------------------------------------------------------------
-
-lib_LTLIBRARIES += libatf-c.la
-libatf_c_la_SOURCES = atf-c/dynstr.c \
-                      atf-c/dynstr.h \
-                      atf-c/env.c \
-                      atf-c/env.h \
-                      atf-c/io.c \
-                      atf-c/io.h \
-                      atf-c/object.c \
-                      atf-c/object.h \
-                      atf-c/sanity.h \
-                      atf-c/text.c \
-                      atf-c/text.h \
-                      atf-c/ui.c \
-                      atf-c/ui.h \
-                      atf-c/tc.c \
-                      atf-c/tc.h \
-                      atf-c/tp.c \
-                      atf-c/tp.h \
-                      atf-c/tp_main.c
 
 # -------------------------------------------------------------------------
 # `data' directory.
@@ -376,9 +383,29 @@ atf_c_apidir = $(pkgtestsdir)/c-api
 EXTRA_DIST += $(atf_c_api_DATA)
 
 atf_c_api_PROGRAMS = tests/atf/c-api/t_dynstr
-tests_atf_c_api_t_dynstr_SOURCES = tests/atf/c-api/t_dynstr.cpp
-tests_atf_c_api_t_dynstr_LDADD = -latf
+tests_atf_c_api_t_dynstr_SOURCES = tests/atf/c-api/t_dynstr.c
+tests_atf_c_api_t_dynstr_LDADD = -latf-c
 tests_atf_c_api_t_dynstr_LDFLAGS = -L.
+
+atf_c_api_PROGRAMS += tests/atf/c-api/t_error
+tests_atf_c_api_t_error_SOURCES = tests/atf/c-api/t_error.c
+tests_atf_c_api_t_error_LDADD = -latf-c
+tests_atf_c_api_t_error_LDFLAGS = -L.
+
+atf_c_api_PROGRAMS += tests/atf/c-api/t_fs
+tests_atf_c_api_t_fs_SOURCES = tests/atf/c-api/t_fs.c
+tests_atf_c_api_t_fs_LDADD = -latf-c
+tests_atf_c_api_t_fs_LDFLAGS = -L.
+
+atf_c_api_PROGRAMS += tests/atf/c-api/t_text
+tests_atf_c_api_t_text_SOURCES = tests/atf/c-api/t_text.c
+tests_atf_c_api_t_text_LDADD = -latf-c
+tests_atf_c_api_t_text_LDFLAGS = -L.
+
+atf_c_api_PROGRAMS += tests/atf/c-api/t_ui
+tests_atf_c_api_t_ui_SOURCES = tests/atf/c-api/t_ui.c
+tests_atf_c_api_t_ui_LDADD = -latf-c
+tests_atf_c_api_t_ui_LDFLAGS = -L.
 
 atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_atffile_1 \

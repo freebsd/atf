@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,10 @@ extern "C" {
 #include <stdexcept>
 #include <string>
 
+extern "C" {
+#include "atf-c/fs.h"
+}
+
 namespace atf {
 namespace fs {
 
@@ -68,7 +72,7 @@ class path {
     //!
     //! \brief Internal representation of a path.
     //!
-    std::string m_data;
+    atf_fs_path_t m_path;
 
 public:
     //! \brief Constructs a new path from a user-provided string.
@@ -78,10 +82,19 @@ public:
     //! is normalized to not contain multiple delimiters together and to
     //! remove any trailing one.
     //!
-    //! The input string may be empty, in which case the path is left
-    //! uninitialized.
+    //! The input string cannot be empty.
     //!
-    explicit path(const std::string& = "");
+    explicit path(const std::string&);
+
+    //!
+    //! \brief Copy constructor.
+    //!
+    path(const path&);
+
+    //!
+    //! \brief Destructor for the path class.
+    //!
+    ~path(void);
 
     //!
     //! \brief Returns a pointer to a C-style string representing this path.
@@ -90,8 +103,9 @@ public:
 
     //!
     //! \brief Returns a string representing this path.
+    //! XXX Really needed?
     //!
-    const std::string& str(void) const;
+    std::string str(void) const;
 
     //!
     //! \brief Returns the branch path of this path.
@@ -100,11 +114,6 @@ public:
     //! words, it returns what the standard ::dirname function would return.
     //!
     path branch_path(void) const;
-
-    //!
-    //! \brief Checks whether the path is empty or not.
-    //!
-    bool empty(void) const;
 
     //!
     //! \brief Returns the leaf name of this path.
@@ -138,6 +147,11 @@ public:
     //! \pre The path was not absolute.
     //!
     path to_absolute(void) const;
+
+    //!
+    //! \brief Assignment operator.
+    //!
+    path& operator=(const path&);
 
     //!
     //! \brief Checks if two paths are equal.
@@ -356,7 +370,7 @@ class temp_dir {
     //!
     //! \brief The path to this temporary directory.
     //!
-    path m_path;
+    path *m_path;
 
 public:
     //!
@@ -408,7 +422,7 @@ bool exists(const path&);
 //! Given a program name (without slashes) looks for it in the path and
 //! returns its full path name if found, otherwise an empty path.
 //!
-path find_prog_in_path(const std::string&);
+bool have_prog_in_path(const std::string&);
 
 //!
 //! \brief Returns the path to the current working directory.

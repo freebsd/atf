@@ -58,7 +58,7 @@ print_tag_ap(const char *tag, bool repeat, const char *fmt, va_list ap)
 
     atf_dynstr_init(&dest);
 
-    if (atf_ui_format_text_with_tag_ap(&dest, tag, repeat, 0, fmt, ap) != 0) {
+    if (atf_ui_format_ap(&dest, tag, repeat, 0, fmt, ap) != 0) {
         ret = 0;
         goto out;
     }
