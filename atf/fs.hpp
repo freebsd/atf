@@ -46,6 +46,10 @@ extern "C" {
 #include <stdexcept>
 #include <string>
 
+extern "C" {
+#include "atf-c/fs.h"
+}
+
 namespace atf {
 namespace fs {
 
@@ -68,7 +72,7 @@ class path {
     //!
     //! \brief Internal representation of a path.
     //!
-    std::string m_data;
+    atf_fs_path_t m_path;
 
 public:
     //! \brief Constructs a new path from a user-provided string.
@@ -83,14 +87,25 @@ public:
     explicit path(const std::string&);
 
     //!
+    //! \brief Copy constructor.
+    //!
+    path(const path&);
+
+    //!
+    //! \brief Destructor for the path class.
+    //!
+    ~path(void);
+
+    //!
     //! \brief Returns a pointer to a C-style string representing this path.
     //!
     const char* c_str(void) const;
 
     //!
     //! \brief Returns a string representing this path.
+    //! XXX Really needed?
     //!
-    const std::string& str(void) const;
+    std::string str(void) const;
 
     //!
     //! \brief Returns the branch path of this path.
@@ -132,6 +147,11 @@ public:
     //! \pre The path was not absolute.
     //!
     path to_absolute(void) const;
+
+    //!
+    //! \brief Assignment operator.
+    //!
+    path& operator=(const path&);
 
     //!
     //! \brief Checks if two paths are equal.
