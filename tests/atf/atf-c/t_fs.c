@@ -50,7 +50,6 @@
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
-/* XXX Should be used thorough the whole file. */
 #define CE(stm) ATF_CHECK(!atf_is_error(stm))
 
 static
@@ -116,13 +115,11 @@ ATF_TC_BODY(path_normalize, tc)
 
     for (t = &tests[0]; t->in != NULL; t++) {
         atf_fs_path_t p;
-        atf_error_t err;
 
         printf("Input          : >%s<\n", t->in);
         printf("Expected output: >%s<\n", t->out);
 
-        err = atf_fs_path_init_fmt(&p, "%s", t->in);
-        ATF_CHECK(!atf_is_error(err));
+        CE(atf_fs_path_init_fmt(&p, "%s", t->in));
         printf("Output         : >%s<\n", atf_fs_path_cstring(&p));
         ATF_CHECK(strcmp(atf_fs_path_cstring(&p), t->out) == 0);
         atf_fs_path_fini(&p);
@@ -154,13 +151,11 @@ ATF_TC_BODY(path_is_absolute, tc)
 
     for (t = &tests[0]; t->in != NULL; t++) {
         atf_fs_path_t p;
-        atf_error_t err;
 
         printf("Input          : %s\n", t->in);
         printf("Expected result: %s\n", t->abs ? "true" : "false");
 
-        err = atf_fs_path_init_fmt(&p, "%s", t->in);
-        ATF_CHECK(!atf_is_error(err));
+        CE(atf_fs_path_init_fmt(&p, "%s", t->in));
         printf("Result         : %s\n",
                atf_fs_path_is_absolute(&p) ? "true" : "false");
         if (t->abs)
@@ -196,13 +191,11 @@ ATF_TC_BODY(path_is_root, tc)
 
     for (t = &tests[0]; t->in != NULL; t++) {
         atf_fs_path_t p;
-        atf_error_t err;
 
         printf("Input          : %s\n", t->in);
         printf("Expected result: %s\n", t->root ? "true" : "false");
 
-        err = atf_fs_path_init_fmt(&p, "%s", t->in);
-        ATF_CHECK(!atf_is_error(err));
+        CE(atf_fs_path_init_fmt(&p, "%s", t->in));
         printf("Result         : %s\n",
                atf_fs_path_is_root(&p) ? "true" : "false");
         if (t->root)
@@ -237,15 +230,12 @@ ATF_TC_BODY(path_branch_path, tc)
 
     for (t = &tests[0]; t->in != NULL; t++) {
         atf_fs_path_t p, bp;
-        atf_error_t err;
 
         printf("Input          : %s\n", t->in);
         printf("Expected output: %s\n", t->branch);
 
-        err = atf_fs_path_init_fmt(&p, "%s", t->in);
-        ATF_CHECK(!atf_is_error(err));
-
-        err = atf_fs_path_branch_path(&p, &bp);
+        CE(atf_fs_path_init_fmt(&p, "%s", t->in));
+        CE(atf_fs_path_branch_path(&p, &bp));
         printf("Output         : %s\n", atf_fs_path_cstring(&bp));
         ATF_CHECK(strcmp(atf_fs_path_cstring(&bp), t->branch) == 0);
         atf_fs_path_fini(&p);
@@ -277,15 +267,12 @@ ATF_TC_BODY(path_leaf_name, tc)
     for (t = &tests[0]; t->in != NULL; t++) {
         atf_fs_path_t p;
         atf_dynstr_t ln;
-        atf_error_t err;
 
         printf("Input          : %s\n", t->in);
         printf("Expected output: %s\n", t->leaf);
 
-        err = atf_fs_path_init_fmt(&p, "%s", t->in);
-        ATF_CHECK(!atf_is_error(err));
-
-        err = atf_fs_path_leaf_name(&p, &ln);
+        CE(atf_fs_path_init_fmt(&p, "%s", t->in));
+        CE(atf_fs_path_leaf_name(&p, &ln));
         printf("Output         : %s\n", atf_dynstr_cstring(&ln));
         ATF_CHECK(atf_equal_dynstr_cstring(&ln, t->leaf));
         atf_fs_path_fini(&p);
@@ -317,17 +304,14 @@ ATF_TC_BODY(path_append, tc)
 
     for (t = &tests[0]; t->in != NULL; t++) {
         atf_fs_path_t p;
-        atf_error_t err;
 
         printf("Input          : >%s<\n", t->in);
         printf("Append         : >%s<\n", t->ap);
         printf("Expected output: >%s<\n", t->out);
 
-        err = atf_fs_path_init_fmt(&p, "%s", t->in);
-        ATF_CHECK(!atf_is_error(err));
+        CE(atf_fs_path_init_fmt(&p, "%s", t->in));
 
-        err = atf_fs_path_append_fmt(&p, "%s", t->ap);
-        ATF_CHECK(!atf_is_error(err));
+        CE(atf_fs_path_append_fmt(&p, "%s", t->ap));
 
         printf("Output         : >%s<\n", atf_fs_path_cstring(&p));
         ATF_CHECK(strcmp(atf_fs_path_cstring(&p), t->out) == 0);
@@ -353,21 +337,16 @@ ATF_TC_BODY(path_to_absolute, tc)
     for (n = names; *n != NULL; n++) {
         atf_fs_path_t p;
         atf_fs_stat_t st1, st2;
-        atf_error_t err;
 
-        err = atf_fs_path_init_fmt(&p, "%s", *n);
-        ATF_CHECK(!atf_is_error(err));
-        err = atf_fs_stat_init(&st1, &p);
-        ATF_CHECK(!atf_is_error(err));
+        CE(atf_fs_path_init_fmt(&p, "%s", *n));
+        CE(atf_fs_stat_init(&st1, &p));
         printf("Relative path: %s\n", atf_fs_path_cstring(&p));
 
-        err = atf_fs_path_to_absolute(&p);
-        ATF_CHECK(!atf_is_error(err));
+        CE(atf_fs_path_to_absolute(&p));
         printf("Absolute path: %s\n", atf_fs_path_cstring(&p));
 
         ATF_CHECK(atf_fs_path_is_absolute(&p));
-        err = atf_fs_stat_init(&st2, &p);
-        ATF_CHECK(!atf_is_error(err));
+        CE(atf_fs_stat_init(&st2, &p));
 
         ATF_CHECK_EQUAL(atf_fs_stat_get_device(&st1),
                         atf_fs_stat_get_device(&st2));
