@@ -336,6 +336,34 @@ ATF_TC_BODY(length, tc)
     }
 }
 
+ATF_TC(rfind_ch);
+ATF_TC_HEAD(rfind_ch, tc)
+{
+    atf_tc_set_var("descr", "Checks the method to locate the first "
+                            "occurrence of a character starting from "
+                            "the end");
+}
+ATF_TC_BODY(rfind_ch, tc)
+{
+    atf_dynstr_t str;
+    atf_error_t err;
+
+    err = atf_dynstr_init_fmt(&str, "Foo1/Bar2/,.Baz");
+    ATF_CHECK(!atf_is_error(err));
+
+    ATF_CHECK_EQUAL(atf_dynstr_rfind_ch(&str, '\0'), atf_dynstr_npos);
+
+    ATF_CHECK_EQUAL(atf_dynstr_rfind_ch(&str, '0'), atf_dynstr_npos);
+    ATF_CHECK_EQUAL(atf_dynstr_rfind_ch(&str, 'b'), atf_dynstr_npos);
+
+    ATF_CHECK_EQUAL(atf_dynstr_rfind_ch(&str, 'F'), 0);
+    ATF_CHECK_EQUAL(atf_dynstr_rfind_ch(&str, '/'), 9);
+    ATF_CHECK_EQUAL(atf_dynstr_rfind_ch(&str, 'a'), 13);
+    ATF_CHECK_EQUAL(atf_dynstr_rfind_ch(&str, 'z'), 14);
+
+    atf_dynstr_fini(&str);
+}
+
 /*
  * Modifiers.
  */
@@ -570,6 +598,7 @@ ATF_TP_ADD_TCS(tp)
     /* Getters. */
     ATF_TP_ADD_TC(tp, cstring);
     ATF_TP_ADD_TC(tp, length);
+    ATF_TP_ADD_TC(tp, rfind_ch);
 
     /* Modifiers. */
     ATF_TP_ADD_TC(tp, append_ap);
