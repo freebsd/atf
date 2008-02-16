@@ -328,7 +328,7 @@ atf_fs_path_to_absolute(atf_fs_path_t *p)
         goto out;
     }
 
-    err = atf_dynstr_prepend_fmt(&p->m_data, "%s", cwd);
+    err = atf_dynstr_prepend_fmt(&p->m_data, "%s/", cwd);
 
     free(cwd);
 out:

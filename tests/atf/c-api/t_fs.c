@@ -34,6 +34,9 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <stdio.h>
 #include <string.h>
 
@@ -307,37 +310,39 @@ ATF_TC_BODY(path_append, tc)
 ATF_TC(path_to_absolute);
 ATF_TC_HEAD(path_to_absolute, tc)
 {
-    atf_tc_set_var("descr", "Tests the conversion of a relative path to an absolute "
-                 "one");
+    atf_tc_set_var("descr", "Tests the atf_fs_path_to_absolute function");
 }
 ATF_TC_BODY(path_to_absolute, tc)
 {
-/*
+    const char *names[] = { ".", "dir", NULL };
+    const char **n;
 
-    create_files();
+    ATF_CHECK(mkdir("dir", 0755) != -1);
 
-    {
-        const path p(".");
-        path pa = p.to_absolute();
-        ATF_CHECK(pa.is_absolute());
+    for (n = names; *n != NULL; n++) {
+        atf_fs_path_t p;
+        atf_error_t err;
+        struct stat sb1, sb2;
 
-        file_info fi(p);
-        file_info fia(pa);
-        ATF_CHECK_EQUAL(fi.get_device(), fia.get_device());
-        ATF_CHECK_EQUAL(fi.get_inode(), fia.get_inode());
+        err = atf_fs_path_init_fmt(&p, "%s", *n);
+        ATF_CHECK(!atf_is_error(err));
+        ATF_CHECK(lstat(atf_fs_path_cstring(&p), &sb1) != -1);
+        printf("Relative path: %s\n", atf_fs_path_cstring(&p));
+
+        err = atf_fs_path_to_absolute(&p);
+        ATF_CHECK(!atf_is_error(err));
+        printf("Absolute path: %s\n", atf_fs_path_cstring(&p));
+
+        ATF_CHECK(atf_fs_path_is_absolute(&p));
+        ATF_CHECK(lstat(atf_fs_path_cstring(&p), &sb2) != -1);
+
+        ATF_CHECK_EQUAL(sb1.st_dev, sb2.st_dev);
+        ATF_CHECK_EQUAL(sb1.st_ino, sb2.st_ino);
+
+        atf_fs_path_fini(&p);
+
+        printf("\n");
     }
-
-    {
-        const path p("files/reg");
-        path pa = p.to_absolute();
-        ATF_CHECK(pa.is_absolute());
-
-        file_info fi(p);
-        file_info fia(pa);
-        ATF_CHECK_EQUAL(fi.get_device(), fia.get_device());
-        ATF_CHECK_EQUAL(fi.get_inode(), fia.get_inode());
-    }
-*/
 }
 
 /*
