@@ -245,6 +245,26 @@ atf_dynstr_init_substr(atf_dynstr_t *ad, const atf_dynstr_t *src,
     return atf_dynstr_init_raw(ad, src->m_data + beg, end - beg);
 }
 
+atf_error_t
+atf_dynstr_copy(atf_dynstr_t *dest, const atf_dynstr_t *src)
+{
+    atf_error_t err;
+
+    atf_object_copy(&dest->m_object, &src->m_object);
+
+    dest->m_data = (char *)malloc(src->m_datasize);
+    if (dest->m_data == NULL)
+        err = atf_no_memory_error();
+    else {
+        memcpy(dest->m_data, src->m_data, src->m_datasize);
+        dest->m_datasize = src->m_datasize;
+        dest->m_length = src->m_length;
+        err = atf_no_error();
+    }
+
+    return err;
+}
+
 void
 atf_dynstr_fini(atf_dynstr_t *ad)
 {

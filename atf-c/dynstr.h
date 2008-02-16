@@ -66,6 +66,7 @@ atf_error_t atf_dynstr_init_raw(atf_dynstr_t *, const void *, size_t);
 atf_error_t atf_dynstr_init_rep(atf_dynstr_t *, size_t, char);
 atf_error_t atf_dynstr_init_substr(atf_dynstr_t *, const atf_dynstr_t *,
                                    size_t, size_t);
+atf_error_t atf_dynstr_copy(atf_dynstr_t *, const atf_dynstr_t *);
 void atf_dynstr_fini(atf_dynstr_t *);
 char *atf_dynstr_fini_disown(atf_dynstr_t *);
 

@@ -272,6 +272,30 @@ ATF_TC_BODY(init_substr, tc)
     atf_dynstr_fini(&str);
 }
 
+#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+
+ATF_TC(copy);
+ATF_TC_HEAD(copy, tc)
+{
+    atf_tc_set_var("descr", "Checks the atf_dynstr_copy constructor");
+}
+ATF_TC_BODY(copy, tc)
+{
+    atf_dynstr_t str, str2;
+
+    CE(atf_dynstr_init_fmt(&str, "Test string"));
+    CE(atf_dynstr_copy(&str2, &str));
+
+    ATF_CHECK(atf_equal_dynstr_dynstr(&str, &str2));
+
+    CE(atf_dynstr_append_fmt(&str2, " non-shared text"));
+
+    ATF_CHECK(!atf_equal_dynstr_dynstr(&str, &str2));
+
+    atf_dynstr_fini(&str2);
+    atf_dynstr_fini(&str);
+}
+
 ATF_TC(fini_disown);
 ATF_TC_HEAD(fini_disown, tc)
 {
@@ -610,6 +634,7 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, init_raw);
     ATF_TP_ADD_TC(tp, init_rep);
     ATF_TP_ADD_TC(tp, init_substr);
+    ATF_TP_ADD_TC(tp, copy);
     ATF_TP_ADD_TC(tp, fini_disown);
 
     /* Getters. */
