@@ -102,6 +102,11 @@ public:
     const char* c_str(void) const;
 
     //!
+    //! \brief Returns a pointer to the implementation data.
+    //!
+    const atf_fs_path_t* c_path(void) const;
+
+    //!
     //! \brief Returns a string representing this path.
     //! XXX Really needed?
     //!
@@ -202,20 +207,20 @@ class directory;
 //! exists in the file system.
 //!
 class file_info {
+    atf_fs_stat_t m_stat;
+
 public:
     //!
     //! \brief The file's type.
     //!
-    enum type {
-        blk_type,
-        chr_type,
-        dir_type,
-        fifo_type,
-        lnk_type,
-        reg_type,
-        sock_type,
-        wht_type
-    };
+    static const int blk_type;
+    static const int chr_type;
+    static const int dir_type;
+    static const int fifo_type;
+    static const int lnk_type;
+    static const int reg_type;
+    static const int sock_type;
+    static const int wht_type;
 
     //!
     //! \brief Constructs a new file_info based on a given file.
@@ -225,6 +230,16 @@ public:
     //! exist.
     //!
     explicit file_info(const path&);
+
+    //!
+    //! \brief The copy constructor.
+    //!
+    file_info(const file_info&);
+
+    //!
+    //! \brief The destructor.
+    //!
+    ~file_info(void);
 
     //!
     //! \brief Returns the device containing the file.
@@ -237,14 +252,9 @@ public:
     ino_t get_inode(void) const;
 
     //!
-    //! \brief Returns the file's name.
-    //!
-    const path& get_path(void) const;
-
-    //!
     //! \brief Returns the file's type.
     //!
-    type get_type(void) const;
+    int get_type(void) const;
 
     //!
     //! \brief Returns whether the file is readable by its owner or not.
@@ -296,32 +306,6 @@ public:
     //! than the owner and those belonging to the group or not.
     //!
     bool is_other_executable(void) const;
-
-private:
-    //!
-    //! \brief The file's full path.
-    //!
-    path m_path;
-
-    //!
-    //! \brief The file's type.
-    //!
-    type m_type;
-
-    //!
-    //! \brief The device on which the file lives.
-    //!
-    dev_t m_device;
-
-    //!
-    //! \brief The file's inode.
-    //!
-    ino_t m_inode;
-
-    //!
-    //! \brief The file's mode.
-    //!
-    mode_t m_mode;
 };
 
 // ------------------------------------------------------------------------

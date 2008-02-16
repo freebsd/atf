@@ -179,6 +179,13 @@ impl::path::c_str(void)
     return atf_fs_path_cstring(&m_path);
 }
 
+const atf_fs_path_t*
+impl::path::c_path(void)
+    const
+{
+    return &m_path;
+}
+
 std::string
 impl::path::str(void)
     const
@@ -315,125 +322,116 @@ impl::path::operator<(const path& p)
 // The "file_info" class.
 // ------------------------------------------------------------------------
 
-impl::file_info::file_info(const path& p) :
-    m_path(p)
+const int impl::file_info::blk_type = atf_fs_stat_blk_type;
+const int impl::file_info::chr_type = atf_fs_stat_chr_type;
+const int impl::file_info::dir_type = atf_fs_stat_dir_type;
+const int impl::file_info::fifo_type = atf_fs_stat_fifo_type;
+const int impl::file_info::lnk_type = atf_fs_stat_lnk_type;
+const int impl::file_info::reg_type = atf_fs_stat_reg_type;
+const int impl::file_info::sock_type = atf_fs_stat_sock_type;
+const int impl::file_info::wht_type = atf_fs_stat_wht_type;
+
+impl::file_info::file_info(const path& p)
 {
-    struct stat sb;
+    atf_error_t err;
 
-    if (::lstat(p.c_str(), &sb) == -1)
-        throw atf::system_error(IMPL_NAME "::file_info(" + p.str() + ")",
-                                "lstat(2) failed", errno);
+    err = atf_fs_stat_init(&m_stat, p.c_path());
+    if (atf_is_error(err))
+        throw_atf_error(err);
+}
 
-    switch (sb.st_mode & S_IFMT) {
-    case S_IFBLK:  m_type = blk_type;  break;
-    case S_IFCHR:  m_type = chr_type;  break;
-    case S_IFDIR:  m_type = dir_type;  break;
-    case S_IFIFO:  m_type = fifo_type; break;
-    case S_IFLNK:  m_type = lnk_type;  break;
-    case S_IFREG:  m_type = reg_type;  break;
-    case S_IFSOCK: m_type = sock_type; break;
-#if defined(S_IFWHT)
-    case S_IFWHT:  m_type = wht_type;  break;
-#endif
-    default:
-        throw std::runtime_error(IMPL_NAME "::file_info(" + p.str() + "): "
-                                 "lstat(2) returned an unknown file type");
-    }
+impl::file_info::file_info(const file_info& fi)
+{
+    atf_fs_stat_copy(&m_stat, &fi.m_stat);
+}
 
-    m_device = sb.st_dev;
-    m_inode = sb.st_ino;
-    m_mode = sb.st_mode & ~S_IFMT;
+impl::file_info::~file_info(void)
+{
+    atf_fs_stat_fini(&m_stat);
 }
 
 dev_t
 impl::file_info::get_device(void)
     const
 {
-    return m_device;
+    return atf_fs_stat_get_device(&m_stat);
 }
 
 ino_t
 impl::file_info::get_inode(void)
     const
 {
-    return m_inode;
+    return atf_fs_stat_get_inode(&m_stat);
 }
 
-const impl::path&
-impl::file_info::get_path(void)
-    const
-{
-    return m_path;
-}
-
-impl::file_info::type
+int
 impl::file_info::get_type(void)
     const
 {
-    return m_type;
+    return atf_fs_stat_get_type(&m_stat);
 }
 
 bool
 impl::file_info::is_owner_readable(void)
     const
 {
-    return m_mode & S_IRUSR;
+    return atf_fs_stat_is_owner_readable(&m_stat);
 }
 
 bool
 impl::file_info::is_owner_writable(void)
     const
 {
-    return m_mode & S_IWUSR;
+    return atf_fs_stat_is_owner_writable(&m_stat);
 }
 
 bool
 impl::file_info::is_owner_executable(void)
     const
 {
-    return m_mode & S_IXUSR;
+    return atf_fs_stat_is_owner_executable(&m_stat);
 }
 
 bool
 impl::file_info::is_group_readable(void)
     const
 {
-    return m_mode & S_IRGRP;
+    return atf_fs_stat_is_group_readable(&m_stat);
 }
 
 bool
 impl::file_info::is_group_writable(void)
     const
 {
-    return m_mode & S_IWGRP;
+    return atf_fs_stat_is_group_writable(&m_stat);
 }
 
 bool
 impl::file_info::is_group_executable(void)
     const
 {
-    return m_mode & S_IXGRP;
+    return atf_fs_stat_is_group_executable(&m_stat);
 }
 
 bool
 impl::file_info::is_other_readable(void)
     const
 {
-    return m_mode & S_IROTH;
+    return atf_fs_stat_is_other_readable(&m_stat);
 }
 
 bool
 impl::file_info::is_other_writable(void)
     const
 {
-    return m_mode & S_IWOTH;
+    return atf_fs_stat_is_other_writable(&m_stat);
 }
 
 bool
 impl::file_info::is_other_executable(void)
     const
 {
-    return m_mode & S_IXOTH;
+    return atf_fs_stat_is_other_executable(&m_stat);
 }
 
 // ------------------------------------------------------------------------

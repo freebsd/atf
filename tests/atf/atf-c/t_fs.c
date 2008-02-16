@@ -37,12 +37,43 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <atf.h>
 
 #include "atf-c/fs.h"
+
+/* ---------------------------------------------------------------------
+ * Auxiliary functions.
+ * --------------------------------------------------------------------- */
+
+/* XXX Should be used thorough the whole file. */
+#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+
+static
+void
+create_dir(const char *p, int mode)
+{
+    int fd;
+
+    fd = mkdir(p, mode);
+    if (fd == -1)
+        atf_tc_fail("Could not create helper directory %s", p);
+}
+
+static
+void
+create_file(const char *p, int mode)
+{
+    int fd;
+
+    fd = open(p, O_CREAT | O_WRONLY | O_TRUNC, mode);
+    if (fd == -1)
+        atf_tc_fail("Could not create helper file %s", p);
+}
 
 /* ---------------------------------------------------------------------
  * Test cases for the "atf_fs_path" type.
@@ -321,12 +352,13 @@ ATF_TC_BODY(path_to_absolute, tc)
 
     for (n = names; *n != NULL; n++) {
         atf_fs_path_t p;
+        atf_fs_stat_t st1, st2;
         atf_error_t err;
-        struct stat sb1, sb2;
 
         err = atf_fs_path_init_fmt(&p, "%s", *n);
         ATF_CHECK(!atf_is_error(err));
-        ATF_CHECK(lstat(atf_fs_path_cstring(&p), &sb1) != -1);
+        err = atf_fs_stat_init(&st1, &p);
+        ATF_CHECK(!atf_is_error(err));
         printf("Relative path: %s\n", atf_fs_path_cstring(&p));
 
         err = atf_fs_path_to_absolute(&p);
@@ -334,11 +366,16 @@ ATF_TC_BODY(path_to_absolute, tc)
         printf("Absolute path: %s\n", atf_fs_path_cstring(&p));
 
         ATF_CHECK(atf_fs_path_is_absolute(&p));
-        ATF_CHECK(lstat(atf_fs_path_cstring(&p), &sb2) != -1);
+        err = atf_fs_stat_init(&st2, &p);
+        ATF_CHECK(!atf_is_error(err));
 
-        ATF_CHECK_EQUAL(sb1.st_dev, sb2.st_dev);
-        ATF_CHECK_EQUAL(sb1.st_ino, sb2.st_ino);
+        ATF_CHECK_EQUAL(atf_fs_stat_get_device(&st1),
+                        atf_fs_stat_get_device(&st2));
+        ATF_CHECK_EQUAL(atf_fs_stat_get_inode(&st1),
+                        atf_fs_stat_get_inode(&st2));
 
+        atf_fs_stat_fini(&st2);
+        atf_fs_stat_fini(&st1);
         atf_fs_path_fini(&p);
 
         printf("\n");
@@ -363,6 +400,110 @@ ATF_TC_BODY(path_op_less)
 */
 
 /* ---------------------------------------------------------------------
+ * Test cases for the "atf_fs_stat" type.
+ * --------------------------------------------------------------------- */
+
+ATF_TC(stat_type);
+ATF_TC_HEAD(stat_type, tc)
+{
+    atf_tc_set_var("descr", "Tests the atf_fs_stat_get_type function and, "
+                            "indirectly, the constructor");
+}
+ATF_TC_BODY(stat_type, tc)
+{
+    atf_fs_path_t p;
+    atf_fs_stat_t st;
+
+    create_dir("dir", 0755);
+    create_file("reg", 0644);
+
+    CE(atf_fs_path_init_fmt(&p, "dir"));
+    CE(atf_fs_stat_init(&st, &p));
+    ATF_CHECK_EQUAL(atf_fs_stat_get_type(&st), atf_fs_stat_dir_type);
+    atf_fs_stat_fini(&st);
+    atf_fs_path_fini(&p);
+
+    CE(atf_fs_path_init_fmt(&p, "reg"));
+    CE(atf_fs_stat_init(&st, &p));
+    ATF_CHECK_EQUAL(atf_fs_stat_get_type(&st), atf_fs_stat_reg_type);
+    atf_fs_stat_fini(&st);
+    atf_fs_path_fini(&p);
+}
+
+ATF_TC(stat_perms);
+ATF_TC_HEAD(stat_perms, tc)
+{
+    atf_tc_set_var("descr", "Tests the atf_fs_stat_is_* functions");
+}
+ATF_TC_BODY(stat_perms, tc)
+{
+    atf_fs_path_t p;
+    atf_fs_stat_t st;
+
+    create_file("reg", 0);
+
+    CE(atf_fs_path_init_fmt(&p, "reg"));
+
+#define perms(ur, uw, ux, gr, gw, gx, othr, othw, othx) \
+    { \
+        CE(atf_fs_stat_init(&st, &p)); \
+        ATF_CHECK(atf_fs_stat_is_owner_readable(&st) == ur); \
+        ATF_CHECK(atf_fs_stat_is_owner_writable(&st) == uw); \
+        ATF_CHECK(atf_fs_stat_is_owner_executable(&st) == ux); \
+        ATF_CHECK(atf_fs_stat_is_group_readable(&st) == gr); \
+        ATF_CHECK(atf_fs_stat_is_group_writable(&st) == gw); \
+        ATF_CHECK(atf_fs_stat_is_group_executable(&st) == gx); \
+        ATF_CHECK(atf_fs_stat_is_other_readable(&st) == othr); \
+        ATF_CHECK(atf_fs_stat_is_other_writable(&st) == othw); \
+        ATF_CHECK(atf_fs_stat_is_other_executable(&st) == othx); \
+        atf_fs_stat_fini(&st); \
+    }
+
+    chmod("reg", 0000);
+    perms(false, false, false, false, false, false, false, false, false);
+
+    chmod("reg", 0001);
+    perms(false, false, false, false, false, false, false, false, true);
+
+    chmod("reg", 0010);
+    perms(false, false, false, false, false, true, false, false, false);
+
+    chmod("reg", 0100);
+    perms(false, false, true, false, false, false, false, false, false);
+
+    chmod("reg", 0002);
+    perms(false, false, false, false, false, false, false, true, false);
+
+    chmod("reg", 0020);
+    perms(false, false, false, false, true, false, false, false, false);
+
+    chmod("reg", 0200);
+    perms(false, true, false, false, false, false, false, false, false);
+
+    chmod("reg", 0004);
+    perms(false, false, false, false, false, false, true, false, false);
+
+    chmod("reg", 0040);
+    perms(false, false, false, true, false, false, false, false, false);
+
+    chmod("reg", 0400);
+    perms(true, false, false, false, false, false, false, false, false);
+
+    chmod("reg", 0644);
+    perms(true, true, false, true, false, false, true, false, false);
+
+    chmod("reg", 0755);
+    perms(true, true, true, true, false, true, true, false, true);
+
+    chmod("reg", 0777);
+    perms(true, true, true, true, true, true, true, true, true);
+
+#undef perms
+
+    atf_fs_path_fini(&p);
+}
+
+/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -383,6 +524,10 @@ ATF_TP_ADD_TCS(tp)
     /*
     ATF_TP_ADD_TC(tp, path_op_less);
     */
+
+    /* Add the tests for the "atf_fs_stat" type. */
+    ATF_TP_ADD_TC(tp, stat_type);
+    ATF_TP_ADD_TC(tp, stat_perms);
 
     return 0;
 }

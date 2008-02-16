@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -305,7 +305,6 @@ ATF_TEST_CASE_BODY(directory_file_info)
         directory::const_iterator iter = d.find("dir");
         ATF_CHECK(iter != d.end());
         const file_info& fi = (*iter).second;
-        ATF_CHECK(fi.get_path() == path("files/dir"));
         ATF_CHECK(fi.get_type() == file_info::dir_type);
     }
 
@@ -313,7 +312,6 @@ ATF_TEST_CASE_BODY(directory_file_info)
         directory::const_iterator iter = d.find("reg");
         ATF_CHECK(iter != d.end());
         const file_info& fi = (*iter).second;
-        ATF_CHECK(fi.get_path() == path("files/reg"));
         ATF_CHECK(fi.get_type() == file_info::reg_type);
     }
 }
@@ -358,14 +356,12 @@ ATF_TEST_CASE_BODY(file_info_stat)
     {
         path p("files/dir");
         file_info fi(p);
-        ATF_CHECK(fi.get_path() == p);
         ATF_CHECK(fi.get_type() == file_info::dir_type);
     }
 
     {
         path p("files/reg");
         file_info fi(p);
-        ATF_CHECK(fi.get_path() == p);
         ATF_CHECK(fi.get_type() == file_info::reg_type);
     }
 }
