@@ -61,6 +61,7 @@ typedef struct atf_fs_path atf_fs_path_t;
 /* Constructors/destructors. */
 atf_error_t atf_fs_path_init_ap(atf_fs_path_t *, const char *, va_list);
 atf_error_t atf_fs_path_init_fmt(atf_fs_path_t *, const char *, ...);
+atf_error_t atf_fs_path_copy(atf_fs_path_t *, const atf_fs_path_t *);
 void atf_fs_path_fini(atf_fs_path_t *);
 
 /* Getters. */

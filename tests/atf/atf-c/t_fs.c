@@ -37,10 +37,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <atf.h>
 
@@ -126,6 +128,28 @@ ATF_TC_BODY(path_normalize, tc)
 
         printf("\n");
     }
+}
+
+ATF_TC(path_copy);
+ATF_TC_HEAD(path_copy, tc)
+{
+    atf_tc_set_var("descr", "Tests the atf_fs_path_copy constructor");
+}
+ATF_TC_BODY(path_copy, tc)
+{
+    atf_fs_path_t str, str2;
+
+    CE(atf_fs_path_init_fmt(&str, "foo"));
+    CE(atf_fs_path_copy(&str2, &str));
+
+    ATF_CHECK(atf_equal_fs_path_fs_path(&str, &str2));
+
+    CE(atf_fs_path_append_fmt(&str2, "bar"));
+
+    ATF_CHECK(!atf_equal_fs_path_fs_path(&str, &str2));
+
+    atf_fs_path_fini(&str2);
+    atf_fs_path_fini(&str);
 }
 
 ATF_TC(path_is_absolute);
@@ -488,6 +512,33 @@ ATF_TC_BODY(stat_perms, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Test cases for the free functions.
+ * --------------------------------------------------------------------- */
+
+ATF_TC(cleanup);
+ATF_TC_HEAD(cleanup, tc)
+{
+    atf_tc_set_var("descr", "Tests the atf_fs_cleanup function");
+}
+ATF_TC_BODY(cleanup, tc)
+{
+    atf_fs_path_t root;
+
+    create_dir ("root", 0755);
+    create_dir ("root/dir", 0755);
+    create_dir ("root/dir/1", 0755);
+    create_file("root/dir/2", 0644);
+    create_file("root/reg", 0644);
+
+    CE(atf_fs_path_init_fmt(&root, "root"));
+    CE(atf_fs_cleanup(&root));
+    ATF_CHECK(access("root", F_OK) == -1 && errno == ENOENT);
+    atf_fs_path_fini(&root);
+
+    /* TODO: Cleanup with mount points, just as in tools/t_atf_cleanup. */
+}
+
+/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -495,6 +546,7 @@ ATF_TP_ADD_TCS(tp)
 {
     /* Add the tests for the "atf_fs_path" type. */
     ATF_TP_ADD_TC(tp, path_normalize);
+    ATF_TP_ADD_TC(tp, path_copy);
     ATF_TP_ADD_TC(tp, path_is_absolute);
     ATF_TP_ADD_TC(tp, path_is_root);
     ATF_TP_ADD_TC(tp, path_branch_path);
@@ -506,6 +558,9 @@ ATF_TP_ADD_TCS(tp)
     /* Add the tests for the "atf_fs_stat" type. */
     ATF_TP_ADD_TC(tp, stat_type);
     ATF_TP_ADD_TC(tp, stat_perms);
+
+    /* Add the tests for the free functions. */
+    ATF_TP_ADD_TC(tp, cleanup);
 
     return 0;
 }

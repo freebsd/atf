@@ -57,8 +57,226 @@
 #include "atf-c/text.h"
 
 /* ---------------------------------------------------------------------
+ * The "child" error type.
+ * --------------------------------------------------------------------- */
+
+/* XXX The need for this conditional here is extremely ugly.  This
+ * exception should belong to another module with more process-related
+ * utilities. */
+#if !defined(HAVE_UNMOUNT)
+struct child_error_data {
+    char m_cmd[4096];
+    int m_state;
+};
+typedef struct child_error_data child_error_data_t;
+
+static
+void
+child_format(const atf_error_t err, char *buf, size_t buflen)
+{
+    const child_error_data_t *data;
+
+    PRE(atf_error_is(err, "child"));
+
+    data = atf_error_data(err);
+    snprintf(buf, buflen, "Unknown error while executing \"%s\"; "
+             "exit state was %d", data->m_cmd, data->m_state);
+}
+
+static
+atf_error_t
+child_error(const char *cmd, int state)
+{
+    atf_error_t err;
+    child_error_data_t data;
+
+    snprintf(data.m_cmd, sizeof(data.m_cmd), "%s", cmd);
+    data.m_state = state;
+
+    err = atf_error_new("child", &data, sizeof(data), child_format);
+
+    return err;
+}
+#endif /* !defined(HAVE_UNMOUNT) */
+
+/* ---------------------------------------------------------------------
+ * The "unknown_file_type" error type.
+ * --------------------------------------------------------------------- */
+
+struct unknown_type_error_data {
+    const char *m_path;
+    int m_type;
+};
+typedef struct unknown_type_error_data unknown_type_error_data_t;
+
+static
+void
+unknown_type_format(const atf_error_t err, char *buf, size_t buflen)
+{
+    const unknown_type_error_data_t *data;
+
+    PRE(atf_error_is(err, "unknown_type"));
+
+    data = atf_error_data(err);
+    snprintf(buf, buflen, "Unknown file type %d of %s", data->m_type,
+             data->m_path);
+}
+
+static
+atf_error_t
+unknown_type_error(const char *path, int type)
+{
+    atf_error_t err;
+    unknown_type_error_data_t data;
+
+    data.m_path = path;
+    data.m_type = type;
+
+    err = atf_error_new("unknown_type", &data, sizeof(data),
+                        unknown_type_format);
+
+    return err;
+}
+
+/* ---------------------------------------------------------------------
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
+
+static atf_error_t cleanup_aux(const atf_fs_path_t *, dev_t);
+static atf_error_t cleanup_aux_dirents(const atf_fs_path_t *, dev_t, DIR *);
+static atf_error_t do_unmount(const atf_fs_path_t *);
+static atf_error_t normalize(atf_dynstr_t *, char *);
+static atf_error_t normalize_ap(atf_dynstr_t *, const char *, va_list);
+
+static
+atf_error_t
+cleanup_aux(const atf_fs_path_t *p, dev_t parent_device)
+{
+    const char *pstr = atf_fs_path_cstring(p);
+    atf_error_t err;
+    atf_fs_stat_t st;
+
+    err = atf_fs_stat_init(&st, p);
+    if (atf_is_error(err))
+        goto out;
+
+    if (atf_fs_stat_get_device(&st) != parent_device) {
+        err = do_unmount(p);
+        if (atf_is_error(err))
+            goto out_st;
+    }
+
+    if (atf_fs_stat_get_type(&st) == atf_fs_stat_dir_type) {
+        DIR *d;
+
+        d = opendir(pstr);
+        if (d == NULL)
+            err = atf_libc_error(errno, "Cannot open directory %s", pstr);
+        else {
+            err = cleanup_aux_dirents(p, atf_fs_stat_get_device(&st), d);
+            closedir(d);
+
+            if (!atf_is_error(err)) {
+                if (rmdir(pstr) == -1)
+                    err = atf_libc_error(errno, "Cannot remove directory "
+                                         "%s", pstr);
+            }
+        }
+    } else {
+        if (unlink(pstr) == -1)
+            err = atf_libc_error(errno, "Cannot remove file %s", pstr);
+        else
+            INV(!atf_is_error(err));
+    }
+
+out_st:
+    atf_fs_stat_fini(&st);
+out:
+    return err;
+}
+
+static
+atf_error_t
+cleanup_aux_dirents(const atf_fs_path_t *p, dev_t this_device, DIR *d)
+{
+    atf_error_t err;
+    struct dirent *de;
+
+    err = atf_no_error();
+    while (!atf_is_error(err) && (de = readdir(d)) != NULL) {
+        atf_fs_path_t p2;
+
+        err = atf_fs_path_copy(&p2, p);
+        if (atf_is_error(err))
+            goto out;
+
+        err = atf_fs_path_append_fmt(&p2, "%s", de->d_name);
+        if (atf_is_error(err))
+            goto out_p2;
+
+        if (strcmp(de->d_name, ".") != 0 && strcmp(de->d_name, "..") != 0)
+            err = cleanup_aux(&p2, this_device);
+
+out_p2:
+        atf_fs_path_fini(&p2);
+    }
+
+out:
+    return err;
+}
+
+static
+atf_error_t
+do_unmount(const atf_fs_path_t *p)
+{
+    atf_error_t err;
+    atf_fs_path_t p2;
+    const char *p2str;
+
+    // At least, FreeBSD's unmount(2) requires the path to be absolute.
+    // Let's make it absolute in all cases just to be safe that this does
+    // not affect other systems.
+
+    err = atf_fs_path_copy(&p2, p);
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_fs_path_to_absolute(&p2);
+    if (atf_is_error(err))
+        goto out_p2;
+    p2str = atf_fs_path_cstring(&p2);
+
+#if defined(HAVE_UNMOUNT)
+    if (unmount(p2str, 0) == -1)
+        err = atf_libc_error(errno, "Cannot unmount %s", p2str);
+    else
+        INV(!atf_is_error(err));
+#else
+    {
+        // We could use umount(2) instead if it was available... but
+        // trying to do so under, e.g. Linux, is a nightmare because we
+        // also have to update /etc/mtab to match what we did.  It is
+        // simpler to just leave the system-specific umount(8) tool deal
+        // with it, at least for now.
+        char *cmd;
+
+        err = atf_text_format(&cmd, "unmount '%s'", p2str);
+        if (!atf_is_error(err)) {
+            int state = system(cmd);
+            if (state == -1)
+                err = atf_libc_error(errno, "Failed to run \"%s\"", cmd);
+            else if (!WIFEXITED(state) || WEXITSTATUS(state) != EXIT_SUCCESS)
+                err = child_error(cmd, state);
+            free(cmd);
+        }
+    }
+#endif
+
+out_p2:
+    atf_fs_path_fini(&p2);
+out:
+    return err;
+}
 
 static
 atf_error_t
@@ -114,68 +332,6 @@ out:
     return err;
 }
 
-static
-int
-do_unmount(const char *p)
-{
-#if defined(HAVE_UNMOUNT)
-    if (p[0] != '/') {
-        char *p2;
-        char *curdir;
-
-        curdir = getcwd(NULL, 0);
-        atf_text_format(&p2, "%s/%s", curdir, p);
-        free(curdir);
-        unmount(p2, 0);
-        free(p2);
-    } else
-        unmount(p, 0);
-#else
-    unimplemented;
-#endif
-    return 0;
-}
-
-static
-int
-atf_fs_cleanup_aux(const char *p, dev_t parent_device)
-{
-    struct stat sb;
-
-    lstat(p, &sb);
-
-    if (sb.st_dev != parent_device)
-        do_unmount(p);
-
-    if (sb.st_mode & S_IFDIR) {
-        DIR *d;
-        struct dirent *de;
-
-        d = opendir(p);
-
-        while ((de = readdir(d)) != NULL) {
-            char *p2;
-
-            atf_text_format(&p2, "%s/%s", p, de->d_name);
-
-            if (strcmp(de->d_name, ".") != 0 &&
-                strcmp(de->d_name, "..") != 0) {
-                atf_fs_cleanup_aux(p2, sb.st_dev);
-            }
-
-            free(p2);
-        }
-
-        closedir(d);
-
-        rmdir(p);
-    } else {
-        unlink(p);
-    }
-
-    return 0;
-}
-
 /* ---------------------------------------------------------------------
  * The "atf_fs_path" type.
  * --------------------------------------------------------------------- */
@@ -203,6 +359,14 @@ atf_fs_path_init_fmt(atf_fs_path_t *p, const char *fmt, ...)
     va_end(ap);
 
     return err;
+}
+
+atf_error_t
+atf_fs_path_copy(atf_fs_path_t *dest, const atf_fs_path_t *src)
+{
+    atf_object_copy(&dest->m_object, &src->m_object);
+
+    return atf_dynstr_copy(&dest->m_data, &src->m_data);
 }
 
 void
@@ -348,45 +512,6 @@ bool atf_equal_fs_path_fs_path(const atf_fs_path_t *p1,
 }
 
 /* ---------------------------------------------------------------------
- * The "unknown_file_type" error type.
- * --------------------------------------------------------------------- */
-
-struct unknown_type_error_data {
-    const char *m_path;
-    int m_type;
-};
-typedef struct unknown_type_error_data unknown_type_error_data_t;
-
-static
-void
-unknown_type_format(const atf_error_t err, char *buf, size_t buflen)
-{
-    const unknown_type_error_data_t *data;
-
-    PRE(atf_error_is(err, "unknown_type"));
-
-    data = atf_error_data(err);
-    snprintf(buf, buflen, "Unknown file type %d of %s", data->m_type,
-             data->m_path);
-}
-
-static
-atf_error_t
-atf_unknown_type_error(const char *path, int type)
-{
-    atf_error_t err;
-    unknown_type_error_data_t data;
-
-    data.m_path = path;
-    data.m_type = type;
-
-    err = atf_error_new("unknown_type", &data, sizeof(data),
-                        unknown_type_format);
-
-    return err;
-}
-
-/* ---------------------------------------------------------------------
  * The "atf_fs_path" type.
  * --------------------------------------------------------------------- */
 
@@ -431,7 +556,7 @@ atf_fs_stat_init(atf_fs_stat_t *st, const atf_fs_path_t *p)
             case S_IFWHT:  st->m_type = atf_fs_stat_wht_type;  break;
 #endif
             default:
-                err = atf_unknown_type_error(pstr, type);
+                err = unknown_type_error(pstr, type);
         }
     }
 
@@ -444,7 +569,7 @@ atf_fs_stat_init(atf_fs_stat_t *st, const atf_fs_path_t *p)
 void
 atf_fs_stat_copy(atf_fs_stat_t *dest, const atf_fs_stat_t *src)
 {
-    atf_object_init(&dest->m_object);
+    atf_object_copy(&dest->m_object, &src->m_object);
 
     dest->m_type = src->m_type;
     dest->m_sb = src->m_sb;
@@ -546,9 +671,9 @@ atf_fs_cleanup(const atf_fs_path_t *p)
     if (atf_is_error(err))
         return err;
 
-    atf_fs_cleanup_aux(p->m_data.m_data, atf_fs_stat_get_device(&info));
+    err = cleanup_aux(p, atf_fs_stat_get_device(&info));
 
     atf_fs_stat_fini(&info);
 
-    return atf_no_error();
+    return err;
 }

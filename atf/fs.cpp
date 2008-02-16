@@ -162,7 +162,7 @@ impl::path::path(const std::string& s)
 
 impl::path::path(const path& p)
 {
-    atf_error_t err = atf_fs_path_init_fmt(&m_path, "%s", p.c_str());
+    atf_error_t err = atf_fs_path_copy(&m_path, &p.m_path);
     if (atf_is_error(err))
         throw_atf_error(err);
 }
@@ -580,125 +580,12 @@ impl::remove(const path& p)
                                 errno);
 }
 
-/*
-static
-void
-rm_rf_aux(const impl::path& p, const impl::path& root,
-          const impl::file_info& rootinfo)
-{
-    impl::file_info pinfo(p);
-    if (pinfo.get_device() != rootinfo.get_device())
-        throw std::runtime_error("Cannot cross mount-point " +
-                                 p.str() + " while removing " +
-                                 root.str());
-
-    if (pinfo.get_type() != impl::file_info::dir_type)
-        remove(p);
-    else {
-        impl::directory dir(p);
-        dir.erase(".");
-        dir.erase("..");
-
-        for (impl::directory::iterator iter = dir.begin(); iter != dir.end();
-             iter++) {
-            const impl::file_info& entry = (*iter).second;
-
-            rm_rf_aux(entry.get_path(), root, rootinfo);
-        }
-
-        if (::rmdir(p.c_str()) == -1)
-            throw atf::system_error(IMPL_NAME "::rm_rf(" + p.str() + ")",
-                                    "rmdir(" + p.str() + ") failed", errno);
-    }
-}
-
-//!
-//! \brief Recursively removes a directory tree.
-//!
-//! Recursively removes a directory tree, which can contain both files and
-//! subdirectories.  This will raise an error if asked to remove the root
-//! directory.
-//!
-//! Mount points are not crossed; if one is found, an error is raised.
-//!
-static
-void
-rm_rf(const impl::path& p)
-{
-    if (p.is_root())
-        throw std::runtime_error("Cannot delete root directory for "
-                                 "safety reasons");
-
-    rm_rf_aux(p, p, impl::file_info(p));
-}
-
-static
-std::vector< impl::path >
-find_mount_points(const impl::path& p, const impl::file_info& parentinfo)
-{
-    impl::file_info pinfo(p);
-    std::vector< impl::path > mntpts;
-
-    if (pinfo.get_type() == impl::file_info::dir_type) {
-        impl::directory dir(p);
-        dir.erase(".");
-        dir.erase("..");
-
-        for (impl::directory::iterator iter = dir.begin(); iter != dir.end();
-             iter++) {
-            const impl::file_info& entry = (*iter).second;
-            std::vector< impl::path > aux =
-                find_mount_points(entry.get_path(), pinfo);
-            mntpts.insert(mntpts.end(), aux.begin(), aux.end());
-        }
-    }
-
-    if (pinfo.get_device() != parentinfo.get_device())
-        mntpts.push_back(p);
-
-    return mntpts;
-}
-*/
-
 void
 impl::cleanup(const path& p)
 {
     atf_error_t err;
-    atf_fs_path_t p2;
 
-    atf_fs_path_init_fmt(&p2, "%s", p.c_str());
-
-    err = atf_fs_cleanup(&p2);
-    if (atf_is_error(err)) {
-        atf_fs_path_fini(&p2);
+    err = atf_fs_cleanup(p.c_path());
+    if (atf_is_error(err))
         throw_atf_error(err);
-    }
-
-    atf_fs_path_fini(&p2);
-/*
-    std::vector< path > mntpts = find_mount_points(p, file_info(p));
-    for (std::vector< path >::const_iterator iter = mntpts.begin();
-         iter != mntpts.end(); iter++) {
-        // At least, FreeBSD's unmount(2) requires the path to be absolute.
-        // Let's make it absolute in all cases just to be safe that this does
-        // not affect other systems.
-        path p2 = (*iter).is_absolute() ? (*iter) : (*iter).to_absolute();
-#if defined(HAVE_UNMOUNT)
-        if (::unmount(p2.c_str(), 0) == -1)
-            throw system_error(IMPL_NAME "::cleanup(" + p.str() + ")",
-                               "unmount(" + p2.str() + ") failed", errno);
-#else
-        // We could use umount(2) instead if it was available... but
-        // trying to do so under, e.g. Linux, is a nightmare because we
-        // also have to update /etc/mtab to match what we did.  It is
-        // simpler to just leave the system-specific umount(8) tool deal
-        // with it, at least for now.
-        int res = std::system(("umount '" + p2.str() + "'").c_str());
-        if (res == -1 || !WIFEXITED(res) || WEXITSTATUS(res) != EXIT_SUCCESS)
-            throw std::runtime_error("Failed to execute umount '" +
-                                     p2.str() + "'");
-#endif
-    }
-    rm_rf(p);
-*/
 }
