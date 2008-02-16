@@ -348,3 +348,9 @@ atf_equal_dynstr_cstring(const atf_dynstr_t *ad, const char *str)
 {
     return strcmp(ad->m_data, str) == 0;
 }
+
+bool
+atf_equal_dynstr_dynstr(const atf_dynstr_t *s1, const atf_dynstr_t *s2)
+{
+    return strcmp(s1->m_data, s2->m_data) == 0;
+}

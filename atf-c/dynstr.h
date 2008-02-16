@@ -83,5 +83,6 @@ atf_error_t atf_dynstr_prepend_fmt(atf_dynstr_t *, const char *, ...);
 
 /* Operators */
 bool atf_equal_dynstr_cstring(const atf_dynstr_t *, const char *);
+bool atf_equal_dynstr_dynstr(const atf_dynstr_t *, const atf_dynstr_t *);
 
 #endif /* ATF_C_DYNSTR_H */
