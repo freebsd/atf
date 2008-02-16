@@ -365,6 +365,35 @@ CLEANFILES += installcheck.log
 pkgtests_DATA = tests/atf/Atffile
 EXTRA_DIST += $(pkgtests_DATA)
 
+atf_atf_c_DATA = tests/atf/atf-c/Atffile
+atf_atf_cdir = $(pkgtestsdir)/atf-c
+EXTRA_DIST += $(atf_atf_c_DATA)
+
+atf_atf_c_PROGRAMS = tests/atf/atf-c/t_dynstr
+tests_atf_atf_c_t_dynstr_SOURCES = tests/atf/atf-c/t_dynstr.c
+tests_atf_atf_c_t_dynstr_LDADD = -latf-c
+tests_atf_atf_c_t_dynstr_LDFLAGS = -L.
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_error
+tests_atf_atf_c_t_error_SOURCES = tests/atf/atf-c/t_error.c
+tests_atf_atf_c_t_error_LDADD = -latf-c
+tests_atf_atf_c_t_error_LDFLAGS = -L.
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_fs
+tests_atf_atf_c_t_fs_SOURCES = tests/atf/atf-c/t_fs.c
+tests_atf_atf_c_t_fs_LDADD = -latf-c
+tests_atf_atf_c_t_fs_LDFLAGS = -L.
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_text
+tests_atf_atf_c_t_text_SOURCES = tests/atf/atf-c/t_text.c
+tests_atf_atf_c_t_text_LDADD = -latf-c
+tests_atf_atf_c_t_text_LDFLAGS = -L.
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_ui
+tests_atf_atf_c_t_ui_SOURCES = tests/atf/atf-c/t_ui.c
+tests_atf_atf_c_t_ui_LDADD = -latf-c
+tests_atf_atf_c_t_ui_LDFLAGS = -L.
+
 atf_data_DATA = tests/atf/data/Atffile
 atf_datadir = $(pkgtestsdir)/data
 EXTRA_DIST += $(atf_data_DATA)
@@ -377,35 +406,6 @@ tests/atf/data/t_pkg_config: \
 		$(ATF_COMPILE_DEPS)
 	test -d tests/atf/data || mkdir -p tests/atf/data
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/data/t_pkg_config.sh
-
-atf_c_api_DATA = tests/atf/c-api/Atffile
-atf_c_apidir = $(pkgtestsdir)/c-api
-EXTRA_DIST += $(atf_c_api_DATA)
-
-atf_c_api_PROGRAMS = tests/atf/c-api/t_dynstr
-tests_atf_c_api_t_dynstr_SOURCES = tests/atf/c-api/t_dynstr.c
-tests_atf_c_api_t_dynstr_LDADD = -latf-c
-tests_atf_c_api_t_dynstr_LDFLAGS = -L.
-
-atf_c_api_PROGRAMS += tests/atf/c-api/t_error
-tests_atf_c_api_t_error_SOURCES = tests/atf/c-api/t_error.c
-tests_atf_c_api_t_error_LDADD = -latf-c
-tests_atf_c_api_t_error_LDFLAGS = -L.
-
-atf_c_api_PROGRAMS += tests/atf/c-api/t_fs
-tests_atf_c_api_t_fs_SOURCES = tests/atf/c-api/t_fs.c
-tests_atf_c_api_t_fs_LDADD = -latf-c
-tests_atf_c_api_t_fs_LDFLAGS = -L.
-
-atf_c_api_PROGRAMS += tests/atf/c-api/t_text
-tests_atf_c_api_t_text_SOURCES = tests/atf/c-api/t_text.c
-tests_atf_c_api_t_text_LDADD = -latf-c
-tests_atf_c_api_t_text_LDFLAGS = -L.
-
-atf_c_api_PROGRAMS += tests/atf/c-api/t_ui
-tests_atf_c_api_t_ui_SOURCES = tests/atf/c-api/t_ui.c
-tests_atf_c_api_t_ui_LDADD = -latf-c
-tests_atf_c_api_t_ui_LDFLAGS = -L.
 
 atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_atffile_1 \
