@@ -71,6 +71,8 @@ size_t atf_dynstr_length(atf_dynstr_t *);
 atf_error_t atf_dynstr_append_ap(atf_dynstr_t *, const char *, va_list);
 atf_error_t atf_dynstr_append_fmt(atf_dynstr_t *, const char *, ...);
 void atf_dynstr_clear(atf_dynstr_t *);
+atf_error_t atf_dynstr_prepend_ap(atf_dynstr_t *, const char *, va_list);
+atf_error_t atf_dynstr_prepend_fmt(atf_dynstr_t *, const char *, ...);
 
 /* Operators */
 bool atf_equal_dynstr_cstring(const atf_dynstr_t *, const char *);

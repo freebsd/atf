@@ -71,6 +71,39 @@ resize(atf_dynstr_t *ad, size_t newsize)
     return err;
 }
 
+atf_error_t
+prepend_or_append(atf_dynstr_t *ad, const char *fmt, va_list ap,
+                  bool prepend)
+{
+    char *aux;
+    atf_error_t err;
+    size_t newlen;
+
+    err = atf_text_format_ap(&aux, fmt, ap);
+    if (atf_is_error(err))
+        goto out;
+    newlen = ad->m_length + strlen(aux);
+
+    if (newlen + sizeof(char) > ad->m_datasize) {
+        err = resize(ad, newlen + sizeof(char));
+        if (atf_is_error(err))
+            goto out_free;
+    }
+
+    if (prepend) {
+        memmove(ad->m_data + strlen(aux), ad->m_data, ad->m_length + 1);
+        memcpy(ad->m_data, aux, strlen(aux));
+    } else
+        strcpy(ad->m_data + ad->m_length, aux);
+    ad->m_length = newlen;
+    err = atf_no_error();
+
+out_free:
+    free(aux);
+out:
+    return err;
+}
+
 /* ---------------------------------------------------------------------
  * The "atf_dynstr" type.
  * --------------------------------------------------------------------- */
@@ -212,29 +245,7 @@ atf_dynstr_length(atf_dynstr_t *ad)
 atf_error_t
 atf_dynstr_append_ap(atf_dynstr_t *ad, const char *fmt, va_list ap)
 {
-    char *aux;
-    atf_error_t err;
-    size_t newlen;
-
-    err = atf_text_format_ap(&aux, fmt, ap);
-    if (atf_is_error(err))
-        goto out;
-    newlen = ad->m_length + strlen(aux);
-
-    if (newlen + sizeof(char) > ad->m_datasize) {
-        err = resize(ad, newlen + sizeof(char));
-        if (atf_is_error(err))
-            goto out_free;
-    }
-
-    strcat(ad->m_data, aux);
-    ad->m_length = newlen;
-    err = atf_no_error();
-
-out_free:
-    free(aux);
-out:
-    return err;
+    return prepend_or_append(ad, fmt, ap, false);
 }
 
 atf_error_t
@@ -244,7 +255,7 @@ atf_dynstr_append_fmt(atf_dynstr_t *ad, const char *fmt, ...)
     atf_error_t err;
 
     va_start(ap, fmt);
-    err = atf_dynstr_append_ap(ad, fmt, ap);
+    err = prepend_or_append(ad, fmt, ap, false);
     va_end(ap);
 
     return err;
@@ -255,6 +266,25 @@ atf_dynstr_clear(atf_dynstr_t *ad)
 {
     ad->m_data[0] = '\0';
     ad->m_length = 0;
+}
+
+atf_error_t
+atf_dynstr_prepend_ap(atf_dynstr_t *ad, const char *fmt, va_list ap)
+{
+    return prepend_or_append(ad, fmt, ap, true);
+}
+
+atf_error_t
+atf_dynstr_prepend_fmt(atf_dynstr_t *ad, const char *fmt, ...)
+{
+    va_list ap;
+    atf_error_t err;
+
+    va_start(ap, fmt);
+    err = prepend_or_append(ad, fmt, ap, true);
+    va_end(ap);
+
+    return err;
 }
 
 /*

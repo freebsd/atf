@@ -362,6 +362,92 @@ ATF_TC_BODY(clear, tc)
     atf_dynstr_fini(&str);
 }
 
+static
+void
+check_prepend(atf_error_t (*prepend)(atf_dynstr_t *, const char *, ...))
+{
+    const size_t maxlen = 8192;
+    char buf[maxlen];
+    size_t i;
+    atf_dynstr_t str;
+
+    printf("Prepending with plain string\n");
+    buf[0] = '\0';
+    ATF_CHECK(!atf_is_error(atf_dynstr_init(&str)));
+    for (i = 0; i < maxlen; i++) {
+        if (strcmp(atf_dynstr_cstring(&str), buf) != 0) {
+            fprintf(stderr, "Failed at iteration %zd\n", i);
+            atf_tc_fail("Failed to prepend character at iteration %d", i);
+        }
+
+        memmove(buf + 1, buf, i + 1);
+        if (i % 2 == 0) {
+            ATF_CHECK(!atf_is_error(prepend(&str, "%s", "a")));
+            buf[0] = 'a';
+        } else {
+            ATF_CHECK(!atf_is_error(prepend(&str, "%s", "b")));
+            buf[0] = 'b';
+        }
+    }
+    atf_dynstr_fini(&str);
+
+    printf("Prepending with formatted string\n");
+    buf[0] = '\0';
+    ATF_CHECK(!atf_is_error(atf_dynstr_init(&str)));
+    for (i = 0; i < maxlen; i++) {
+        if (strcmp(atf_dynstr_cstring(&str), buf) != 0) {
+            fprintf(stderr, "Failed at iteration %zd\n", i);
+            atf_tc_fail("Failed to prepend character at iteration %d", i);
+        }
+
+        memmove(buf + 1, buf, i + 1);
+        if (i % 2 == 0) {
+            ATF_CHECK(!atf_is_error(prepend(&str, "%s", "a")));
+            buf[0] = 'a';
+        } else {
+            ATF_CHECK(!atf_is_error(prepend(&str, "%s", "b")));
+            buf[0] = 'b';
+        }
+    }
+    atf_dynstr_fini(&str);
+}
+
+static
+atf_error_t
+prepend_ap_aux(atf_dynstr_t *str, const char *fmt, ...)
+{
+    va_list ap;
+    atf_error_t err;
+
+    va_start(ap, fmt);
+    err = atf_dynstr_prepend_ap(str, fmt, ap);
+    va_end(ap);
+
+    return err;
+}
+
+ATF_TC(prepend_ap);
+ATF_TC_HEAD(prepend_ap, tc)
+{
+    atf_tc_set_var("descr", "Checks that prepending a string to another "
+                            "one works");
+}
+ATF_TC_BODY(prepend_ap, tc)
+{
+    check_prepend(prepend_ap_aux);
+}
+
+ATF_TC(prepend_fmt);
+ATF_TC_HEAD(prepend_fmt, tc)
+{
+    atf_tc_set_var("descr", "Checks that prepending a string to another "
+                            "one works");
+}
+ATF_TC_BODY(prepend_fmt, tc)
+{
+    check_prepend(atf_dynstr_prepend_fmt);
+}
+
 /*
  * Operators.
  */
@@ -409,6 +495,8 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, append_ap);
     ATF_TP_ADD_TC(tp, append_fmt);
     ATF_TP_ADD_TC(tp, clear);
+    ATF_TP_ADD_TC(tp, prepend_ap);
+    ATF_TP_ADD_TC(tp, prepend_fmt);
 
     /* Operators. */
     ATF_TP_ADD_TC(tp, equal);
