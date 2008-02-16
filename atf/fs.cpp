@@ -658,12 +658,18 @@ find_mount_points(const impl::path& p, const impl::file_info& parentinfo)
 void
 impl::cleanup(const path& p)
 {
-    int ret;
+    atf_error_t err;
+    atf_fs_path_t p2;
 
-    ret = atf_fs_cleanup(p.c_str());
-    if (ret != 0)
-        throw system_error("atf_fs_cleanup(" + p.str() + ")",
-                           "failed", errno);
+    atf_fs_path_init_fmt(&p2, "%s", p.c_str());
+
+    err = atf_fs_cleanup(&p2);
+    if (atf_is_error(err)) {
+        atf_fs_path_fini(&p2);
+        throw_atf_error(err);
+    }
+
+    atf_fs_path_fini(&p2);
 /*
     std::vector< path > mntpts = find_mount_points(p, file_info(p));
     for (std::vector< path >::const_iterator iter = mntpts.begin();

@@ -392,6 +392,11 @@ tests_atf_c_api_t_error_SOURCES = tests/atf/c-api/t_error.c
 tests_atf_c_api_t_error_LDADD = -latf-c
 tests_atf_c_api_t_error_LDFLAGS = -L.
 
+atf_c_api_PROGRAMS += tests/atf/c-api/t_fs
+tests_atf_c_api_t_fs_SOURCES = tests/atf/c-api/t_fs.c
+tests_atf_c_api_t_fs_LDADD = -latf-c
+tests_atf_c_api_t_fs_LDFLAGS = -L.
+
 atf_c_api_PROGRAMS += tests/atf/c-api/t_text
 tests_atf_c_api_t_text_SOURCES = tests/atf/c-api/t_text.c
 tests_atf_c_api_t_text_LDADD = -latf-c

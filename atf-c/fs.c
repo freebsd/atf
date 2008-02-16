@@ -44,12 +44,73 @@
 #include <sys/stat.h>
 
 #include <dirent.h>
+#include <errno.h>
+#include <libgen.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
 #include "atf-c/fs.h"
+#include "atf-c/sanity.h"
 #include "atf-c/text.h"
+
+/* ---------------------------------------------------------------------
+ * Auxiliary functions.
+ * --------------------------------------------------------------------- */
+
+static
+atf_error_t
+normalize(atf_dynstr_t *d, char *p)
+{
+    const char *ptr;
+    char *last;
+    atf_error_t err;
+    bool first;
+
+    PRE(strlen(p) > 0);
+    PRE(atf_dynstr_length(d) == 0);
+
+    if (p[0] == '/')
+        err = atf_dynstr_append_fmt(d, "/");
+    else
+        err = atf_no_error();
+
+    first = true;
+    ptr = strtok_r(p, "/", &last);
+    while (!atf_is_error(err) && ptr != NULL) {
+        if (strlen(ptr) > 0) {
+            err = atf_dynstr_append_fmt(d, "%s%s", first ? "" : "/", ptr);
+            first = false;
+        }
+
+        ptr = strtok_r(NULL, "/", &last);
+    }
+
+    return err;
+}
+
+static
+atf_error_t
+normalize_ap(atf_dynstr_t *d, const char *p, va_list ap)
+{
+    char *str;
+    atf_error_t err;
+
+    err = atf_dynstr_init(d);
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_text_format_ap(&str, p, ap);
+    if (atf_is_error(err))
+        atf_dynstr_fini(d);
+    else {
+        err = normalize(d, str);
+        free(str);
+    }
+
+out:
+    return err;
+}
 
 static
 int
@@ -113,12 +174,188 @@ atf_fs_cleanup_aux(const char *p, dev_t parent_device)
     return 0;
 }
 
-int
-atf_fs_cleanup(const char *p)
+/* ---------------------------------------------------------------------
+ * The "atf_fs_path" type.
+ * --------------------------------------------------------------------- */
+
+/*
+ * Constructors/destructors.
+ */
+
+atf_error_t
+atf_fs_path_init_ap(atf_fs_path_t *p, const char *fmt, va_list ap)
+{
+    atf_object_init(&p->m_object);
+
+    return normalize_ap(&p->m_data, fmt, ap);
+}
+
+atf_error_t
+atf_fs_path_init_fmt(atf_fs_path_t *p, const char *fmt, ...)
+{
+    va_list ap;
+    atf_error_t err;
+
+    va_start(ap, fmt);
+    err = atf_fs_path_init_ap(p, fmt, ap);
+    va_end(ap);
+
+    return err;
+}
+
+void
+atf_fs_path_fini(atf_fs_path_t *p)
+{
+    atf_dynstr_fini(&p->m_data);
+
+    atf_object_fini(&p->m_object);
+}
+
+/*
+ * Getters.
+ */
+
+atf_error_t
+atf_fs_path_branch_path(const atf_fs_path_t *p, atf_fs_path_t *bp)
+{
+    const ssize_t endpos = atf_dynstr_rfind_ch(&p->m_data, '/');
+    atf_error_t err;
+
+    if (endpos == atf_dynstr_npos)
+        err = atf_fs_path_init_fmt(bp, ".");
+    else if (endpos == 0)
+        err = atf_fs_path_init_fmt(bp, "/");
+    else {
+        atf_object_init(&bp->m_object);
+        err = atf_dynstr_init_substr(&bp->m_data, &p->m_data, 0, endpos);
+    }
+
+#if defined(HAVE_CONST_DIRNAME)
+    INV(atf_equal_dynstr_cstring(&bp->m_data,
+                                 dirname(atf_dynstr_cstring(&p->m_data))));
+#endif /* defined(HAVE_CONST_DIRNAME) */
+
+    return err;
+}
+
+const char *
+atf_fs_path_cstring(const atf_fs_path_t *p)
+{
+    return atf_dynstr_cstring(&p->m_data);
+}
+
+atf_error_t
+atf_fs_path_leaf_name(const atf_fs_path_t *p, atf_dynstr_t *ln)
+{
+    ssize_t begpos = atf_dynstr_rfind_ch(&p->m_data, '/');
+    atf_error_t err;
+
+    if (begpos == atf_dynstr_npos)
+        begpos = 0;
+    else
+        begpos++;
+
+    err = atf_dynstr_init_substr(ln, &p->m_data, begpos, atf_dynstr_npos);
+
+#if defined(HAVE_CONST_BASENAME)
+    INV(atf_equal_dynstr_cstring(ln,
+                                 basename(atf_dynstr_cstring(&p->m_data))));
+#endif /* defined(HAVE_CONST_BASENAME) */
+
+    return err;
+}
+
+bool
+atf_fs_path_is_absolute(const atf_fs_path_t *p)
+{
+    return atf_dynstr_cstring(&p->m_data)[0] == '/';
+}
+
+bool
+atf_fs_path_is_root(const atf_fs_path_t *p)
+{
+    return atf_equal_dynstr_cstring(&p->m_data, "/");
+}
+
+/*
+ * Modifiers.
+ */
+
+atf_error_t
+atf_fs_path_append_ap(atf_fs_path_t *p, const char *fmt, va_list ap)
+{
+    atf_dynstr_t aux;
+    atf_error_t err;
+
+    err = normalize_ap(&aux, fmt, ap);
+    if (!atf_is_error(err)) {
+        const char *auxstr = atf_dynstr_cstring(&aux);
+        const bool needslash = auxstr[0] != '/';
+
+        err = atf_dynstr_append_fmt(&p->m_data, "%s%s",
+                                    needslash ? "/" : "", auxstr);
+
+        atf_dynstr_fini(&aux);
+    }
+
+    return err;
+}
+
+atf_error_t
+atf_fs_path_append_fmt(atf_fs_path_t *p, const char *fmt, ...)
+{
+    va_list ap;
+    atf_error_t err;
+
+    va_start(ap, fmt);
+    err = atf_fs_path_append_ap(p, fmt, ap);
+    va_end(ap);
+
+    return err;
+}
+
+atf_error_t
+atf_fs_path_to_absolute(atf_fs_path_t *p)
+{
+    char *cwd;
+    atf_error_t err;
+
+    PRE(!atf_fs_path_is_absolute(p));
+
+    cwd = getcwd(NULL, 0);
+    if (cwd == NULL) {
+        err = atf_libc_error(errno, "Cannot determine current directory");
+        goto out;
+    }
+
+    err = atf_dynstr_prepend_fmt(&p->m_data, "%s", cwd);
+
+    free(cwd);
+out:
+    return err;
+}
+
+/*
+ * Operators.
+ */
+
+bool atf_equal_fs_path_fs_path(const atf_fs_path_t *p1,
+                               const atf_fs_path_t *p2)
+{
+    return atf_equal_dynstr_dynstr(&p1->m_data, &p2->m_data);
+}
+
+/* ---------------------------------------------------------------------
+ * Free functions.
+ * --------------------------------------------------------------------- */
+
+atf_error_t
+atf_fs_cleanup(const atf_fs_path_t *p)
 {
     struct stat sb;
 
-    lstat(p, &sb);
+    lstat(p->m_data.m_data, &sb);
 
-    return atf_fs_cleanup_aux(p, sb.st_dev);
+    atf_fs_cleanup_aux(p->m_data.m_data, sb.st_dev);
+    return atf_no_error();
 }

@@ -37,8 +37,49 @@
 #if !defined(ATF_C_FS_H)
 #define ATF_C_FS_H
 
+#include <stdarg.h>
+#include <stdbool.h>
+
+#include <atf-c/dynstr.h>
+#include <atf-c/error.h>
 #include <atf-c/object.h>
 
-int atf_fs_cleanup(const char *);
+/* ---------------------------------------------------------------------
+ * The "atf_fs_path" type.
+ * --------------------------------------------------------------------- */
+
+struct atf_fs_path {
+    atf_object_t m_object;
+
+    atf_dynstr_t m_data;
+};
+typedef struct atf_fs_path atf_fs_path_t;
+
+/* Constructors/destructors. */
+atf_error_t atf_fs_path_init_ap(atf_fs_path_t *, const char *, va_list);
+atf_error_t atf_fs_path_init_fmt(atf_fs_path_t *, const char *, ...);
+void atf_fs_path_fini(atf_fs_path_t *);
+
+/* Getters. */
+atf_error_t atf_fs_path_branch_path(const atf_fs_path_t *, atf_fs_path_t *);
+const char *atf_fs_path_cstring(const atf_fs_path_t *);
+atf_error_t atf_fs_path_leaf_name(const atf_fs_path_t *, atf_dynstr_t *);
+bool atf_fs_path_is_absolute(const atf_fs_path_t *);
+bool atf_fs_path_is_root(const atf_fs_path_t *);
+
+/* Modifiers. */
+atf_error_t atf_fs_path_append_ap(atf_fs_path_t *, const char *, va_list);
+atf_error_t atf_fs_path_append_fmt(atf_fs_path_t *, const char *, ...);
+atf_error_t atf_fs_path_to_absolute(atf_fs_path_t *);
+
+/* Operators. */
+bool atf_equal_fs_path_fs_path(const atf_fs_path_t *,
+                               const atf_fs_path_t *);
+
+/* ---------------------------------------------------------------------
+ * Free functions.
+ * --------------------------------------------------------------------- */
+
+atf_error_t atf_fs_cleanup(const atf_fs_path_t *);
 
 #endif // !defined(ATF_C_FS_H)

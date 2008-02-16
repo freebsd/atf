@@ -142,6 +142,8 @@ atf_tc_run(atf_tc_t *tc)
     char workdir[1024];
     pid_t pid;
     atf_tcr_t tcr;
+    atf_error_t err;
+    atf_fs_path_t path;
 
     strcpy(workdir, "/tmp/atf.XXXXXX");
     if (mkdtemp(workdir) == NULL) {
@@ -158,7 +160,12 @@ atf_tc_run(atf_tc_t *tc)
     }
     tc->m_workdir = NULL;
 
-    atf_fs_cleanup(workdir);
+    err = atf_fs_path_init_fmt(&path, "%s", workdir);
+    if (atf_is_error(err)) {
+        printf("FATAL\n");
+    }
+    atf_fs_cleanup(&path);
+    atf_fs_path_fini(&path);
 
     return tcr;
 }
