@@ -142,15 +142,20 @@ unknown_type_error(const char *path, int type)
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
-static atf_error_t cleanup_aux(const atf_fs_path_t *, dev_t);
-static atf_error_t cleanup_aux_dirents(const atf_fs_path_t *, dev_t, DIR *);
+static atf_error_t cleanup_aux(const atf_fs_path_t *, dev_t, bool);
+static atf_error_t cleanup_aux_dir(const char *, dev_t, bool);
 static atf_error_t do_unmount(const atf_fs_path_t *);
 static atf_error_t normalize(atf_dynstr_t *, char *);
 static atf_error_t normalize_ap(atf_dynstr_t *, const char *, va_list);
 
+/* The erase parameter in this routine is to control nested mount points.
+ * We want to descend into a mount point to unmount anything that is
+ * mounted under it, but we do not want to delete any files while doing
+ * this traversal.  In other words, we erase files until we cross the
+ * first mount point, and after that point we only scan and unmount. */
 static
 atf_error_t
-cleanup_aux(const atf_fs_path_t *p, dev_t parent_device)
+cleanup_aux(const atf_fs_path_t *p, dev_t parent_device, bool erase)
 {
     const char *pstr = atf_fs_path_cstring(p);
     atf_error_t err;
@@ -160,33 +165,32 @@ cleanup_aux(const atf_fs_path_t *p, dev_t parent_device)
     if (atf_is_error(err))
         goto out;
 
+    if (atf_fs_stat_get_type(&st) == atf_fs_stat_dir_type) {
+        err = cleanup_aux_dir(pstr, atf_fs_stat_get_device(&st),
+                              atf_fs_stat_get_device(&st) == parent_device);
+        if (atf_is_error(err))
+            goto out_st;
+    }
+
     if (atf_fs_stat_get_device(&st) != parent_device) {
         err = do_unmount(p);
         if (atf_is_error(err))
             goto out_st;
     }
 
-    if (atf_fs_stat_get_type(&st) == atf_fs_stat_dir_type) {
-        DIR *d;
-
-        d = opendir(pstr);
-        if (d == NULL)
-            err = atf_libc_error(errno, "Cannot open directory %s", pstr);
-        else {
-            err = cleanup_aux_dirents(p, atf_fs_stat_get_device(&st), d);
-            closedir(d);
-
-            if (!atf_is_error(err)) {
-                if (rmdir(pstr) == -1)
-                    err = atf_libc_error(errno, "Cannot remove directory "
-                                         "%s", pstr);
-            }
+    if (erase) {
+        if (atf_fs_stat_get_type(&st) == atf_fs_stat_dir_type) {
+            if (rmdir(pstr) == -1)
+                err = atf_libc_error(errno, "Cannot remove directory "
+                                     "%s", pstr);
+            else
+                INV(!atf_is_error(err));
+        } else {
+            if (unlink(pstr) == -1)
+                err = atf_libc_error(errno, "Cannot remove file %s", pstr);
+            else
+                INV(!atf_is_error(err));
         }
-    } else {
-        if (unlink(pstr) == -1)
-            err = atf_libc_error(errno, "Cannot remove file %s", pstr);
-        else
-            INV(!atf_is_error(err));
     }
 
 out_st:
@@ -197,29 +201,33 @@ out:
 
 static
 atf_error_t
-cleanup_aux_dirents(const atf_fs_path_t *p, dev_t this_device, DIR *d)
+cleanup_aux_dir(const char *pstr, dev_t this_device, bool erase)
 {
+    DIR *d;
     atf_error_t err;
     struct dirent *de;
 
+    d = opendir(pstr);
+    if (d == NULL) {
+        err = atf_libc_error(errno, "Cannot open directory %s", pstr);
+        goto out;
+    }
+
     err = atf_no_error();
     while (!atf_is_error(err) && (de = readdir(d)) != NULL) {
-        atf_fs_path_t p2;
+        atf_fs_path_t p;
 
-        err = atf_fs_path_copy(&p2, p);
-        if (atf_is_error(err))
-            goto out;
+        err = atf_fs_path_init_fmt(&p, "%s/%s", pstr, de->d_name);
+        if (!atf_is_error(err)) {
+            if (strcmp(de->d_name, ".") != 0 &&
+                strcmp(de->d_name, "..") != 0)
+                err = cleanup_aux(&p, this_device, erase);
 
-        err = atf_fs_path_append_fmt(&p2, "%s", de->d_name);
-        if (atf_is_error(err))
-            goto out_p2;
-
-        if (strcmp(de->d_name, ".") != 0 && strcmp(de->d_name, "..") != 0)
-            err = cleanup_aux(&p2, this_device);
-
-out_p2:
-        atf_fs_path_fini(&p2);
+            atf_fs_path_fini(&p);
+        }
     }
+
+    closedir(d);
 
 out:
     return err;
@@ -241,9 +249,11 @@ do_unmount(const atf_fs_path_t *p)
     if (atf_is_error(err))
         goto out;
 
-    err = atf_fs_path_to_absolute(&p2);
-    if (atf_is_error(err))
-        goto out_p2;
+    if (!atf_fs_path_is_absolute(&p2)) {
+        err = atf_fs_path_to_absolute(&p2);
+        if (atf_is_error(err))
+            goto out_p2;
+    }
     p2str = atf_fs_path_cstring(&p2);
 
 #if defined(HAVE_UNMOUNT)
@@ -671,7 +681,7 @@ atf_fs_cleanup(const atf_fs_path_t *p)
     if (atf_is_error(err))
         return err;
 
-    err = cleanup_aux(p, atf_fs_stat_get_device(&info));
+    err = cleanup_aux(p, atf_fs_stat_get_device(&info), true);
 
     atf_fs_stat_fini(&info);
 
