@@ -180,6 +180,28 @@ atf_dynstr_init_fmt(atf_dynstr_t *ad, const char *fmt, ...)
 }
 
 atf_error_t
+atf_dynstr_init_raw(atf_dynstr_t *ad, const void *mem, size_t memlen)
+{
+    atf_error_t err;
+
+    atf_object_init(&ad->m_object);
+
+    ad->m_data = (char *)malloc(memlen + 1);
+    if (ad->m_data == NULL)
+        err = atf_no_memory_error();
+    else {
+        ad->m_datasize = memlen + 1;
+        memcpy(ad->m_data, mem, memlen);
+        ad->m_data[memlen] = '\0';
+        ad->m_length = strlen(ad->m_data);
+        INV(ad->m_length <= memlen);
+        err = atf_no_error();
+    }
+
+    return err;
+}
+
+atf_error_t
 atf_dynstr_init_rep(atf_dynstr_t *ad, size_t len, char ch)
 {
     atf_error_t err;

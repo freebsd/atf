@@ -148,6 +148,34 @@ ATF_TC_BODY(init_fmt, tc)
     atf_dynstr_fini(&str);
 }
 
+ATF_TC(init_raw);
+ATF_TC_HEAD(init_raw, tc)
+{
+    atf_tc_set_var("descr", "Checks the construction of a string using"
+                            "a raw memory pointer");
+}
+ATF_TC_BODY(init_raw, tc)
+{
+    const char *src = "String 1, String 2";
+    atf_dynstr_t str;
+    atf_error_t err;
+
+    err = atf_dynstr_init_raw(&str, src, 8);
+    ATF_CHECK(!atf_is_error(err));
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 1") == 0);
+    atf_dynstr_fini(&str);
+
+    err = atf_dynstr_init_raw(&str, src + 10, 8);
+    ATF_CHECK(!atf_is_error(err));
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 2") == 0);
+    atf_dynstr_fini(&str);
+
+    err = atf_dynstr_init_raw(&str, "String\0Lost", 11);
+    ATF_CHECK(!atf_is_error(err));
+    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String") == 0);
+    atf_dynstr_fini(&str);
+}
+
 ATF_TC(init_rep);
 ATF_TC_HEAD(init_rep, tc)
 {
@@ -484,6 +512,7 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, init);
     ATF_TP_ADD_TC(tp, init_ap);
     ATF_TP_ADD_TC(tp, init_fmt);
+    ATF_TP_ADD_TC(tp, init_raw);
     ATF_TP_ADD_TC(tp, init_rep);
     ATF_TP_ADD_TC(tp, fini_disown);
 

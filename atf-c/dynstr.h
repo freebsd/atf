@@ -59,6 +59,7 @@ typedef struct atf_dynstr atf_dynstr_t;
 atf_error_t atf_dynstr_init(atf_dynstr_t *);
 atf_error_t atf_dynstr_init_ap(atf_dynstr_t *, const char *, va_list);
 atf_error_t atf_dynstr_init_fmt(atf_dynstr_t *, const char *, ...);
+atf_error_t atf_dynstr_init_raw(atf_dynstr_t *, const void *, size_t);
 atf_error_t atf_dynstr_init_rep(atf_dynstr_t *, size_t, char);
 void atf_dynstr_fini(atf_dynstr_t *);
 char *atf_dynstr_fini_disown(atf_dynstr_t *);
