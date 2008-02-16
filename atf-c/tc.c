@@ -235,6 +235,7 @@ body_child(const atf_tc_t *tc)
 {
     atf_disable_exit_checks();
 
+    chdir(tc->m_workdir);
     current_tc = tc;
     tc->m_body(tc);
     atf_tc_pass();
