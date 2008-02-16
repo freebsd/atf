@@ -52,6 +52,7 @@ struct atf_object {
 typedef struct atf_object atf_object_t;
 
 void atf_object_init(atf_object_t *);
+void atf_object_copy(atf_object_t *, const atf_object_t *);
 void atf_object_fini(atf_object_t *);
 
 /* ---------------------------------------------------------------------
