@@ -56,6 +56,10 @@ extern "C" {
 #include <stdexcept>
 #include <vector>
 
+extern "C" {
+#include "atf-c/object.h"
+}
+
 #include "atf/application.hpp"
 #include "atf/config.hpp"
 #include "atf/env.hpp"
@@ -511,6 +515,8 @@ impl::tc::fork_body(const std::string& workdir)
     } else if (pid == 0) {
         int errcode;
 
+        atf_disable_exit_checks();
+
         ::setpgid(::getpid(), 0);
 
         // Unexpected errors detected in the child process are mentioned
@@ -613,6 +619,8 @@ impl::tc::fork_cleanup(const std::string& workdir)
         std::cerr << "WARNING: Could not fork to run test case's cleanup "
                      "routine for " << workdir << std::endl;
     } else if (pid == 0) {
+        atf_disable_exit_checks();
+
         int errcode = EXIT_FAILURE;
         try {
             sanitize_process(atf::fs::path(workdir));
