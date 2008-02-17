@@ -352,7 +352,7 @@ atf_tc_fail(const char *fmt, ...)
     va_list ap;
 
     va_start(ap, fmt);
-    atf_text_format(&reason, fmt, ap);
+    atf_text_format_ap(&reason, fmt, ap);
     va_end(ap);
 
     write_tcr(current_tc, "failed", reason);
@@ -377,7 +377,7 @@ atf_tc_skip(const char *fmt, ...)
     va_list ap;
 
     va_start(ap, fmt);
-    atf_text_format(&reason, fmt, ap);
+    atf_text_format_ap(&reason, fmt, ap);
     va_end(ap);
 
     write_tcr(current_tc, "skipped", reason);
