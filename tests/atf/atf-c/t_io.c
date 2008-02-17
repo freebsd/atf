@@ -38,9 +38,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <atf.h>
 
+#include "atf-c/dynstr.h"
 #include "atf-c/io.h"
 
 #define CE(stm) ATF_CHECK(!atf_is_error(stm))

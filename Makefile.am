@@ -126,6 +126,8 @@ libatf_c_la_SOURCES = atf-c/config.c \
                       atf-c/ui.h \
                       atf-c/tc.c \
                       atf-c/tc.h \
+                      atf-c/tcr.c \
+                      atf-c/tcr.h \
                       atf-c/tp.c \
                       atf-c/tp.h \
                       atf-c/tp_main.c
@@ -414,6 +416,16 @@ atf_atf_c_PROGRAMS += tests/atf/atf-c/t_list
 tests_atf_atf_c_t_list_SOURCES = tests/atf/atf-c/t_list.c
 tests_atf_atf_c_t_list_LDADD = -latf-c
 tests_atf_atf_c_t_list_LDFLAGS = -L.
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_tc
+tests_atf_atf_c_t_tc_SOURCES = tests/atf/atf-c/t_tc.c
+tests_atf_atf_c_t_tc_LDADD = -latf-c
+tests_atf_atf_c_t_tc_LDFLAGS = -L.
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_tcr
+tests_atf_atf_c_t_tcr_SOURCES = tests/atf/atf-c/t_tcr.c
+tests_atf_atf_c_t_tcr_LDADD = -latf-c
+tests_atf_atf_c_t_tcr_LDFLAGS = -L.
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_text
 tests_atf_atf_c_t_text_SOURCES = tests/atf/atf-c/t_text.c

@@ -176,8 +176,6 @@ list_tcs(atf_tp_t *tp, atf_list_t *tcnames)
         atf_tc_t *tc = atf_list_iter_data(iter);
         const size_t len = strlen(tc->m_ident);
 
-        tc->m_head(tc);
-
         if (col < len)
             col = len;
     }

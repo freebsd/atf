@@ -39,6 +39,7 @@
 
 #include <atf.h>
 
+#include "atf-c/dynstr.h"
 #include "atf-c/env.h"
 #include "atf-c/ui.h"
 

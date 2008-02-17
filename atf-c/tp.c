@@ -42,6 +42,7 @@
 #include "expand.h"
 #include "io.h"
 #include "sanity.h"
+#include "tcr.h"
 #include "tp.h"
 
 static
@@ -152,9 +153,9 @@ atf_tp_run(atf_tp_t *tp, atf_list_t *tcnames)
 
     atf_tp_filter_tcs(tp, tcnames, &tcs);
 
-    atf_io_write(tp->m_results_fd,
+    atf_io_write_fmt(tp->m_results_fd,
                  "Content-Type: application/X-atf-tcs; version=\"1\"\n\n");
-    atf_io_write(tp->m_results_fd, "tcs-count: %d\n",
+    atf_io_write_fmt(tp->m_results_fd, "tcs-count: %d\n",
                  atf_list_size(&tcs));
 
     code = EXIT_SUCCESS;
@@ -162,10 +163,17 @@ atf_tp_run(atf_tp_t *tp, atf_list_t *tcnames)
     atf_list_for_each(iter, &tcs) {
         atf_tc_t *tc = atf_list_iter_data(iter);
         atf_tcr_t tcr;
+        atf_error_t err;
 
-        atf_io_write(tp->m_results_fd, "tp-start: %s\n", tc->m_ident);
+        atf_io_write_fmt(tp->m_results_fd, "tp-start: %s\n", tc->m_ident);
 
-        tcr = atf_tc_run(tc);
+        err = atf_tc_run(tc, &tcr);
+        if (atf_is_error(err)) {
+            char buf[1024];
+            atf_error_format(err, buf, sizeof(buf));
+            fprintf(stderr, "fatal: %s\n", buf);
+            return 1;
+        }
 
         if (count < atf_list_size(&tcs)) {
             fprintf(stdout, "__atf_tc_separator__\n");
@@ -175,17 +183,19 @@ atf_tp_run(atf_tp_t *tp, atf_list_t *tcnames)
         fflush(stderr);
 
         {
-            int status = atf_tcr_get_status(&tcr);
-            if (status == atf_tcr_passed) {
-                atf_io_write(tp->m_results_fd, "tp-end: %s, passed\n",
+            int status = atf_tcr_get_state(&tcr);
+            if (status == atf_tcr_passed_state) {
+                atf_io_write_fmt(tp->m_results_fd, "tp-end: %s, passed\n",
                              tc->m_ident);
-            } else if (status == atf_tcr_failed) {
-                atf_io_write(tp->m_results_fd, "tp-end: %s, failed, %s\n",
-                             tc->m_ident, atf_tcr_get_reason(&tcr));
+            } else if (status == atf_tcr_failed_state) {
+                const atf_dynstr_t *reason = atf_tcr_get_reason(&tcr);
+                atf_io_write_fmt(tp->m_results_fd, "tp-end: %s, failed, %s\n",
+                             tc->m_ident, atf_dynstr_cstring(reason));
                 code = EXIT_FAILURE;
-            } else if (status == atf_tcr_skipped) {
-                atf_io_write(tp->m_results_fd, "tp-end: %s, skipped, %s\n",
-                             tc->m_ident, atf_tcr_get_reason(&tcr));
+            } else if (status == atf_tcr_skipped_state) {
+                const atf_dynstr_t *reason = atf_tcr_get_reason(&tcr);
+                atf_io_write_fmt(tp->m_results_fd, "tp-end: %s, skipped, %s\n",
+                             tc->m_ident, atf_dynstr_cstring(reason));
                 code = EXIT_FAILURE;
             } else
                 UNREACHABLE;
