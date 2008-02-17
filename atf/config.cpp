@@ -36,6 +36,10 @@
 
 #include <map>
 
+extern "C" {
+#include "atf-c/config.h"
+}
+
 #include "atf/config.hpp"
 #include "atf/env.hpp"
 #include "atf/sanity.hpp"
@@ -54,68 +58,13 @@ init_variables(void)
 {
     PRE(m_variables.empty());
 
-    if (atf::env::has("ATF_ARCH")) {
-        const std::string& val = atf::env::get("ATF_ARCH");
-        if (!val.empty())
-            m_variables["atf_arch"] = val;
-        else
-            m_variables["atf_arch"] = ATF_ARCH;
-    } else
-        m_variables["atf_arch"] = ATF_ARCH;
-
-    if (atf::env::has("ATF_CONFDIR")) {
-        const std::string& val = atf::env::get("ATF_CONFDIR");
-        if (!val.empty())
-            m_variables["atf_confdir"] = val;
-        else
-            m_variables["atf_confdir"] = ATF_CONFDIR;
-    } else
-        m_variables["atf_confdir"] = ATF_CONFDIR;
-
-    if (atf::env::has("ATF_LIBEXECDIR")) {
-        const std::string& val = atf::env::get("ATF_LIBEXECDIR");
-        if (!val.empty())
-            m_variables["atf_libexecdir"] = val;
-        else
-            m_variables["atf_libexecdir"] = ATF_LIBEXECDIR;
-    } else
-        m_variables["atf_libexecdir"] = ATF_LIBEXECDIR;
-
-    if (atf::env::has("ATF_MACHINE")) {
-        const std::string& val = atf::env::get("ATF_MACHINE");
-        if (!val.empty())
-            m_variables["atf_machine"] = val;
-        else
-            m_variables["atf_machine"] = ATF_MACHINE;
-    } else
-        m_variables["atf_machine"] = ATF_MACHINE;
-
-    if (atf::env::has("ATF_PKGDATADIR")) {
-        const std::string& val = atf::env::get("ATF_PKGDATADIR");
-        if (!val.empty())
-            m_variables["atf_pkgdatadir"] = val;
-        else
-            m_variables["atf_pkgdatadir"] = ATF_PKGDATADIR;
-    } else
-        m_variables["atf_pkgdatadir"] = ATF_PKGDATADIR;
-
-    if (atf::env::has("ATF_SHELL")) {
-        const std::string& val = atf::env::get("ATF_SHELL");
-        if (!val.empty())
-            m_variables["atf_shell"] = val;
-        else
-            m_variables["atf_shell"] = ATF_SHELL;
-    } else
-        m_variables["atf_shell"] = ATF_SHELL;
-
-    if (atf::env::has("ATF_WORKDIR")) {
-        const std::string& val = atf::env::get("ATF_WORKDIR");
-        if (!val.empty())
-            m_variables["atf_workdir"] = val;
-        else
-            m_variables["atf_workdir"] = ATF_WORKDIR;
-    } else
-        m_variables["atf_workdir"] = ATF_WORKDIR;
+    m_variables["atf_arch"] = atf_config_get("atf_arch");
+    m_variables["atf_confdir"] = atf_config_get("atf_confdir");
+    m_variables["atf_libexecdir"] = atf_config_get("atf_libexecdir");
+    m_variables["atf_machine"] = atf_config_get("atf_machine");
+    m_variables["atf_pkgdatadir"] = atf_config_get("atf_pkgdatadir");
+    m_variables["atf_shell"] = atf_config_get("atf_shell");
+    m_variables["atf_workdir"] = atf_config_get("atf_workdir");
 
     POST(!m_variables.empty());
 }
@@ -148,6 +97,10 @@ atf::config::has(const std::string& varname)
     return m_variables.find(varname) != m_variables.end();
 }
 
+extern "C" {
+void __atf_config_reinit(void);
+}
+
 namespace atf {
 namespace config {
 //
@@ -161,6 +114,7 @@ namespace config {
 void
 __reinit(void)
 {
+    __atf_config_reinit();
     m_variables.clear();
 }
 } // namespace config

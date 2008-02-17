@@ -100,7 +100,9 @@ EXTRA_DIST += admin/revision-dist.h
 # -------------------------------------------------------------------------
 
 lib_LTLIBRARIES = libatf-c.la
-libatf_c_la_SOURCES = atf-c/dynstr.c \
+libatf_c_la_SOURCES = atf-c/config.c \
+                      atf-c/config.h \
+                      atf-c/dynstr.c \
                       atf-c/dynstr.h \
                       atf-c/env.c \
                       atf-c/env.h \
@@ -373,7 +375,12 @@ atf_atf_c_DATA = tests/atf/atf-c/Atffile
 atf_atf_cdir = $(pkgtestsdir)/atf-c
 EXTRA_DIST += $(atf_atf_c_DATA)
 
-atf_atf_c_PROGRAMS = tests/atf/atf-c/t_dynstr
+atf_atf_c_PROGRAMS = tests/atf/atf-c/t_config
+tests_atf_atf_c_t_config_SOURCES = tests/atf/atf-c/t_config.c
+tests_atf_atf_c_t_config_LDADD = -latf-c
+tests_atf_atf_c_t_config_LDFLAGS = -L.
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_dynstr
 tests_atf_atf_c_t_dynstr_SOURCES = tests/atf/atf-c/t_dynstr.c
 tests_atf_atf_c_t_dynstr_LDADD = -latf-c
 tests_atf_atf_c_t_dynstr_LDFLAGS = -L.
