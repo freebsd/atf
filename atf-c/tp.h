@@ -54,7 +54,7 @@ void atf_tp_fini(atf_tp_t *);
 
 void atf_tp_set_results_fd(atf_tp_t *, int);
 
-int atf_tp_run(atf_tp_t *);
+int atf_tp_run(atf_tp_t *, atf_list_t *);
 
 void atf_tp_add_tc(atf_tp_t *, struct atf_tc *);
 

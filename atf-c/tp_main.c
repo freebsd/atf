@@ -231,7 +231,21 @@ atf_tp_main(int argc, char **argv, int (*add_tcs_hook)(atf_tp_t *))
 
     add_tcs_hook(&tp); /* XXX Handle error */
 
-    ret = atf_tp_run(&tp);
+    {
+        atf_list_t tcnames;
+        char **argptr;
+        char all[] = "*";
+
+        atf_list_init(&tcnames);
+        if (argc == 0) {
+            atf_list_append(&tcnames, all);
+        } else {
+            for (argptr = argv; *argptr != NULL; argptr++)
+                atf_list_append(&tcnames, *argptr);
+        }
+        ret = atf_tp_run(&tp, &tcnames);
+        atf_list_fini(&tcnames);
+    }
 
 out:
     atf_tp_fini(&tp);

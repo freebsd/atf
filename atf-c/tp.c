@@ -39,6 +39,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "expand.h"
 #include "io.h"
 #include "sanity.h"
 #include "tp.h"
@@ -60,6 +61,45 @@ find_tc(atf_tp_t *tp, const char *ident)
         }
     }
     return tc;
+}
+
+static
+void
+match_tcs(atf_tp_t *tp, const char *name, atf_list_t *tcs)
+{
+    atf_list_iter_t iter;
+
+    atf_list_for_each(iter, &tp->m_tcs) {
+        atf_tc_t *tc = atf_list_iter_data(iter);
+
+        if (atf_expand_is_glob(name)) {
+            bool matches;
+
+            atf_expand_matches_glob(name, tc->m_ident, &matches);
+            if (matches) {
+                atf_list_append(tcs, tc);
+            }
+        } else {
+            if (strcmp(name, tc->m_ident) == 0) {
+                atf_list_append(tcs, tc);
+            }
+        }
+    }
+}
+
+static
+void
+filter_tcs(atf_tp_t *tp, atf_list_t *names, atf_list_t *tcs)
+{
+    atf_list_iter_t iter;
+
+    atf_list_init(tcs);
+
+    atf_list_for_each(iter, names) {
+        const char *name = atf_list_iter_data(iter);
+
+        match_tcs(tp, name, tcs);
+    }
 }
 
 void
@@ -104,20 +144,23 @@ atf_tp_set_results_fd(atf_tp_t *tp, int fd)
 }
 
 int
-atf_tp_run(atf_tp_t *tp)
+atf_tp_run(atf_tp_t *tp, atf_list_t *tcnames)
 {
     int code;
     size_t count;
+    atf_list_t tcs;
     atf_list_iter_t iter;
+
+    filter_tcs(tp, tcnames, &tcs);
 
     atf_io_write(tp->m_results_fd,
                  "Content-Type: application/X-atf-tcs; version=\"1\"\n\n");
     atf_io_write(tp->m_results_fd, "tcs-count: %d\n",
-                 atf_list_size(&tp->m_tcs));
+                 atf_list_size(&tcs));
 
     code = EXIT_SUCCESS;
     count = 0;
-    atf_list_for_each(iter, &tp->m_tcs) {
+    atf_list_for_each(iter, &tcs) {
         atf_tc_t *tc = atf_list_iter_data(iter);
         atf_tcr_t tcr;
 
@@ -125,7 +168,7 @@ atf_tp_run(atf_tp_t *tp)
 
         tcr = atf_tc_run(tc);
 
-        if (count < atf_list_size(&tp->m_tcs)) {
+        if (count < atf_list_size(&tcs)) {
             fprintf(stdout, "__atf_tc_separator__\n");
             fprintf(stderr, "__atf_tc_separator__\n");
         }
@@ -153,6 +196,8 @@ atf_tp_run(atf_tp_t *tp)
 
         count++;
     }
+
+    atf_list_fini(&tcs);
 
     return code;
 }
