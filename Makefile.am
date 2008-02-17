@@ -106,6 +106,8 @@ libatf_c_la_SOURCES = atf-c/dynstr.c \
                       atf-c/env.h \
                       atf-c/error.c \
                       atf-c/error.h \
+                      atf-c/expand.c \
+                      atf-c/expand.h \
                       atf-c/fs.c \
                       atf-c/fs.h \
                       atf-c/io.c \
@@ -378,6 +380,11 @@ atf_atf_c_PROGRAMS += tests/atf/atf-c/t_error
 tests_atf_atf_c_t_error_SOURCES = tests/atf/atf-c/t_error.c
 tests_atf_atf_c_t_error_LDADD = -latf-c
 tests_atf_atf_c_t_error_LDFLAGS = -L.
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_expand
+tests_atf_atf_c_t_expand_SOURCES = tests/atf/atf-c/t_expand.c
+tests_atf_atf_c_t_expand_LDADD = -latf-c
+tests_atf_atf_c_t_expand_LDFLAGS = -L.
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_fs
 tests_atf_atf_c_t_fs_SOURCES = tests/atf/atf-c/t_fs.c

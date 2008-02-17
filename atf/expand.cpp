@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,13 +35,7 @@
 //
 
 extern "C" {
-#include <regex.h>
-
-// REG_BASIC is just a synonym for 0, provided as a counterpart to
-// REG_EXTENDED to improve readability.  It is not provided by all systems.
-#if !defined(REG_BASIC)
-#define REG_BASIC 0
-#endif // !defined(REG_BASIC)
+#include "atf-c/expand.h"
 }
 
 #include "atf/exceptions.hpp"
@@ -50,92 +44,6 @@ extern "C" {
 
 namespace impl = atf::expand;
 #define IMPL_NAME "atf::expand"
-
-// ------------------------------------------------------------------------
-// Auxiliary functions.
-// ------------------------------------------------------------------------
-
-//
-// Auxiliary function that converts a glob pattern into a regular
-// expression ready to be processed by ::regcomp.  It is currently very
-// limited and does not handle errors; those are handled when compiling
-// the regular expression.
-//
-static
-std::string
-glob_to_regex(const std::string& glob)
-{
-    std::string regex;
-
-    regex = "^";
-    for (std::string::const_iterator iter = glob.begin();
-         iter != glob.end(); iter++) {
-        // NOTE: Keep this in sync with is_glob!
-        if (*iter == '*')
-            regex += ".*";
-        else if (*iter == '?')
-            regex += ".";
-        else
-            regex += *iter;
-    }
-    regex += "$";
-
-    return regex;
-}
-
-//
-// Auxiliary function that constructs and throws a pattern_error object
-// based on the error code returned by one of ::regcomp or ::regexec and
-// their corresponding ::regex_t object.
-//
-static inline
-void
-throw_pattern_error(int errcode, const regex_t* preg)
-{
-    // Calculate the length of the error message by using ::regerror with
-    // a very small buffer.
-    char lenbuf[1];
-    size_t len = ::regerror(errcode, preg, lenbuf, 1);
-    INV(len > 1);
-
-    // Allocate a big-enough buffer to hold the complete error message and
-    // throw an exception containing it.
-    atf::utils::auto_array< char > buf(new char[len]);
-    size_t len2 = ::regerror(errcode, preg, buf.get(), len);
-    INV(len == len2);
-    throw impl::pattern_error(buf);
-}
-
-// ------------------------------------------------------------------------
-// The "pattern_error" class.
-// ------------------------------------------------------------------------
-
-impl::pattern_error::pattern_error(atf::utils::auto_array< char >& w) :
-    std::runtime_error(w.get())
-{
-    m_sd = new shared_data();
-    m_sd->m_refs = 1;
-    m_sd->m_what = w.release();
-}
-
-impl::pattern_error::pattern_error(const pattern_error& pe) :
-    std::runtime_error(pe.m_sd->m_what),
-    m_sd(pe.m_sd)
-{
-    m_sd->m_refs++;
-}
-
-impl::pattern_error::~pattern_error(void)
-    throw()
-{
-    if (m_sd->m_refs > 0)
-        m_sd->m_refs--;
-    else {
-        delete [] m_sd->m_what;
-        m_sd->m_what = NULL;
-        delete m_sd;
-    }
-}
 
 // ------------------------------------------------------------------------
 // Free functions.
@@ -158,30 +66,18 @@ impl::expand_glob(const std::string& glob,
 bool
 impl::is_glob(const std::string& glob)
 {
-    // NOTE: Keep this in sync with glob_to_regex!
-    return (glob.find('*') != std::string::npos) ||
-           (glob.find('?') != std::string::npos);
+    return atf_expand_is_glob(glob.c_str());
 }
 
 bool
 impl::matches_glob(const std::string& glob, const std::string& candidate)
 {
-    int res;
-    ::regex_t preg;
+    bool result;
+    atf_error_t err;
 
-    // Special case: regcomp does not like empty patterns.
-    if (glob.empty())
-        return candidate.empty();
+    err = atf_expand_matches_glob(glob.c_str(), candidate.c_str(), &result);
+    if (atf_is_error(err))
+        throw_atf_error(err);
 
-    // Convert the glob pattern into a regular expression and compile it.
-    std::string regex = glob_to_regex(glob);
-    res = ::regcomp(&preg, regex.c_str(), REG_BASIC);
-    if (res != 0)
-        throw_pattern_error(res, &preg);
-
-    // Check if the regular expression matches the candidate.
-    res = ::regexec(&preg, candidate.c_str(), 0, NULL, 0);
-    if (res != 0 && res != REG_NOMATCH)
-        throw_pattern_error(res, &preg);
-    return res == 0;
+    return result;
 }
