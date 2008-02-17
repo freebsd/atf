@@ -37,8 +37,6 @@
 #if !defined(ATF_C_TC_H)
 #define ATF_C_TC_H
 
-#include <sys/queue.h>
-
 #include <stddef.h>
 #include <unistd.h>
 
@@ -77,8 +75,6 @@ struct atf_tc {
 
     const char *m_ident;
 
-    TAILQ_ENTRY(atf_tc) m_link;
-
     const char *m_workdir;
 
     void (*m_head)(struct atf_tc *);
@@ -86,8 +82,6 @@ struct atf_tc {
     void (*m_cleanup)(const struct atf_tc *);
 };
 typedef struct atf_tc atf_tc_t;
-
-TAILQ_HEAD(atf_tc_list, atf_tc);
 
 void atf_tc_init(atf_tc_t *);
 void atf_tc_fini(atf_tc_t *);

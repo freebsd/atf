@@ -48,11 +48,16 @@ atf_tc_t *
 find_tc(const atf_tp_t *tp, const char *ident)
 {
     atf_tc_t *tc;
+    atf_list_iter_t iter;
 
     tc = NULL;
-    TAILQ_FOREACH(tc, &tp->m_tcs, m_link) {
-        if (strcmp(tc->m_ident, ident) == 0)
+    atf_list_for_each(iter, &tp->m_tcs) {
+        atf_tc_t *tc2;
+        tc2 = atf_list_iter_data(iter);
+        if (strcmp(tc2->m_ident, ident) == 0) {
+            tc = tc2;
             break;
+        }
     }
     return tc;
 }
@@ -62,8 +67,7 @@ atf_tp_add_tc(atf_tp_t *tp, atf_tc_t *tc)
 {
     PRE(find_tc(tp, tc->m_ident) == NULL);
 
-    TAILQ_INSERT_TAIL(&tp->m_tcs, tc, m_link);
-    tp->m_tcs_count++;
+    atf_list_append(&tp->m_tcs, tc);
 
     POST(find_tc(tp, tc->m_ident) != NULL);
 }
@@ -74,18 +78,20 @@ atf_tp_init(atf_tp_t *tp)
     atf_object_init(&tp->m_object);
 
     tp->m_results_fd = STDOUT_FILENO;
-    TAILQ_INIT(&tp->m_tcs);
-    tp->m_tcs_count = 0;
+
+    atf_list_init(&tp->m_tcs);
 }
 
 void
 atf_tp_fini(atf_tp_t *tp)
 {
-    atf_tc_t *tc;
+    atf_list_iter_t iter;
 
-    TAILQ_FOREACH(tc, &tp->m_tcs, m_link) {
+    atf_list_for_each(iter, &tp->m_tcs) {
+        atf_tc_t *tc = atf_list_iter_data(iter);
         atf_tc_fini(tc);
     }
+    atf_list_fini(&tp->m_tcs);
 
     atf_object_fini(&tp->m_object);
 }
@@ -101,21 +107,25 @@ int
 atf_tp_run(atf_tp_t *tp)
 {
     int code;
-    atf_tc_t *tc;
+    size_t count;
+    atf_list_iter_t iter;
 
     atf_io_write(tp->m_results_fd,
                  "Content-Type: application/X-atf-tcs; version=\"1\"\n\n");
-    atf_io_write(tp->m_results_fd, "tcs-count: %d\n", tp->m_tcs_count);
+    atf_io_write(tp->m_results_fd, "tcs-count: %d\n",
+                 atf_list_size(&tp->m_tcs));
 
     code = EXIT_SUCCESS;
-    TAILQ_FOREACH(tc, &tp->m_tcs, m_link) {
+    count = 0;
+    atf_list_for_each(iter, &tp->m_tcs) {
+        atf_tc_t *tc = atf_list_iter_data(iter);
         atf_tcr_t tcr;
 
         atf_io_write(tp->m_results_fd, "tp-start: %s\n", tc->m_ident);
 
         tcr = atf_tc_run(tc);
 
-        if (tc != TAILQ_LAST(&tp->m_tcs, atf_tc_list)) {
+        if (count < atf_list_size(&tp->m_tcs)) {
             fprintf(stdout, "__atf_tc_separator__\n");
             fprintf(stderr, "__atf_tc_separator__\n");
         }
@@ -140,6 +150,8 @@ atf_tp_run(atf_tp_t *tp)
         }
 
         atf_tcr_fini(&tcr);
+
+        count++;
     }
 
     return code;

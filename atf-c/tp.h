@@ -37,6 +37,7 @@
 #if !defined(ATF_C_TP_H)
 #define ATF_C_TP_H
 
+#include <atf-c/list.h>
 #include <atf-c/object.h>
 #include <atf-c/tc.h>
 
@@ -44,8 +45,7 @@ struct atf_tp {
     atf_object_t m_object;
 
     int m_results_fd;
-    struct atf_tc_list m_tcs;
-    size_t m_tcs_count;
+    atf_list_t m_tcs;
 };
 typedef struct atf_tp atf_tp_t;
 
