@@ -96,5 +96,5 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, format);
     ATF_TP_ADD_TC(tp, format_ap);
 
-    return 0;
+    return atf_no_error();
 }

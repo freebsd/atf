@@ -163,5 +163,5 @@ ATF_TP_ADD_TCS(tp)
     /* Add the test cases for the free functions. */
     /* TODO */
 
-    return 0;
+    return atf_no_error();
 }

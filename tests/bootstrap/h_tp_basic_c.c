@@ -83,5 +83,5 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, skip);
     ATF_TP_ADD_TC(tp, default);
 
-    return 0;
+    return atf_no_error();
 }

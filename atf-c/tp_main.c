@@ -41,8 +41,10 @@
 #include <unistd.h>
 
 #include "dynstr.h"
+#include "expand.h"
 #include "object.h"
 #include "sanity.h"
+#include "tc.h"
 #include "tp.h"
 #include "ui.h"
 
@@ -162,6 +164,74 @@ usage_error(const char *fmt, ...)
 }
 
 static
+bool
+parse_rflag(const char *arg, int *value)
+{
+    if (strlen(arg) != 1 || !isdigit(arg[0])) {
+        usage_error("Invalid value for -r; must be a single digit.");
+        return false;
+    }
+
+    *value = arg[0] - '0';
+
+    return true;
+}
+
+static
+atf_error_t
+match_tcs(const atf_tp_t *tp, const char *glob, atf_list_t *ids)
+{
+    atf_error_t err;
+    atf_list_citer_t iter;
+
+    err = atf_no_error();
+    atf_list_for_each_c(iter, atf_tp_get_tcs(tp)) {
+        const atf_tc_t *tc = atf_list_citer_data(iter);
+        const char *ident = atf_tc_get_ident(tc);
+
+        if (atf_expand_is_glob(glob)) {
+            bool matches;
+
+            atf_expand_matches_glob(glob, ident, &matches);
+            if (matches)
+                err = atf_list_append(ids, strdup(ident)); // XXX Leak
+        } else {
+            if (strcmp(glob, tc->m_ident) == 0)
+                err = atf_list_append(ids, strdup(ident)); // XXX Leak
+        }
+
+        if (atf_is_error(err))
+            break;
+    }
+
+    return err;
+}
+
+static
+atf_error_t
+filter_tcs(const atf_tp_t *tp, const atf_list_t *globs, atf_list_t *ids)
+{
+    atf_error_t err;
+    atf_list_citer_t iter;
+
+    err = atf_list_init(ids);
+    if (atf_is_error(err))
+        goto out;
+
+    atf_list_for_each_c(iter, globs) {
+        const char *glob = atf_list_citer_data(iter);
+        err = match_tcs(tp, glob, ids);
+        if (atf_is_error(err)) {
+            atf_list_fini(ids);
+            goto out;
+        }
+    }
+
+out:
+    return err;
+}
+
+static
 int
 list_tcs(atf_tp_t *tp, atf_list_t *tcnames)
 {
@@ -169,7 +239,7 @@ list_tcs(atf_tp_t *tp, atf_list_t *tcnames)
     atf_list_iter_t iter;
     size_t col;
 
-    atf_tp_filter_tcs(tp, tcnames, &tcs);
+    filter_tcs(tp, tcnames, &tcs);
 
     col = 0;
     atf_list_for_each(iter, &tcs) {
@@ -193,31 +263,19 @@ list_tcs(atf_tp_t *tp, atf_list_t *tcnames)
     return 0;
 }
 
-static
-bool
-parse_rflag(const char *arg, int *value)
-{
-    if (strlen(arg) != 1 || !isdigit(arg[0])) {
-        usage_error("Invalid value for -r; must be a single digit.");
-        return false;
-    }
-
-    *value = arg[0] - '0';
-
-    return true;
-}
-
 int
 atf_tp_main(int argc, char **argv, int (*add_tcs_hook)(atf_tp_t *))
 {
     bool lflag;
     int ch, ret;
     atf_tp_t tp;
+    int fd;
 
     atf_init_objects();
 
     atf_tp_init(&tp);
 
+    fd = STDOUT_FILENO;
     lflag = false;
     while ((ch = getopt(argc, argv, ":hlr:s:v:")) != -1) {
         switch (ch) {
@@ -232,12 +290,10 @@ atf_tp_main(int argc, char **argv, int (*add_tcs_hook)(atf_tp_t *))
 
         case 'r':
             {
-                int v;
-                if (!parse_rflag(optarg, &v)) {
+                if (!parse_rflag(optarg, &fd)) {
                     ret = EXIT_FAILURE;
                     goto out;
                 }
-                atf_tp_set_results_fd(&tp, v);
             }
             break;
 
@@ -278,8 +334,15 @@ atf_tp_main(int argc, char **argv, int (*add_tcs_hook)(atf_tp_t *))
         }
         if (lflag)
             ret = list_tcs(&tp, &tcnames);
-        else
-            ret = atf_tp_run(&tp, &tcnames);
+        else {
+            size_t failed;
+            atf_list_t matched;
+
+            filter_tcs(&tp, &tcnames, &matched);
+            atf_tp_run(&tp, &matched, fd, &failed);
+            atf_list_fini(&matched);
+            ret = failed > 0 ? EXIT_FAILURE : EXIT_SUCCESS;
+        }
         atf_list_fini(&tcnames);
     }
 

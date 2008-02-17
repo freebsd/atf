@@ -271,5 +271,5 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, no_memory_new);
     ATF_TP_ADD_TC(tp, no_memory_format);
 
-    return 0;
+    return atf_no_error();
 }

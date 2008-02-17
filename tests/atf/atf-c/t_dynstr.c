@@ -630,5 +630,5 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, equal_cstring);
     ATF_TP_ADD_TC(tp, equal_dynstr);
 
-    return 0;
+    return atf_no_error();
 }

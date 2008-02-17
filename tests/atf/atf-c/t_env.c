@@ -124,5 +124,5 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, set);
     ATF_TP_ADD_TC(tp, unset);
 
-    return 0;
+    return atf_no_error();
 }

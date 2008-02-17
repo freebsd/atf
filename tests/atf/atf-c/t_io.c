@@ -151,5 +151,5 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, readline);
     ATF_TP_ADD_TC(tp, write_fmt);
 
-    return 0;
+    return atf_no_error();
 }

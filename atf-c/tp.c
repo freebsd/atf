@@ -35,27 +35,29 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
-#include "expand.h"
-#include "io.h"
-#include "sanity.h"
-#include "tcr.h"
-#include "tp.h"
+#include "atf-c/io.h"
+#include "atf-c/sanity.h"
+#include "atf-c/tc.h"
+#include "atf-c/tcr.h"
+#include "atf-c/tp.h"
+
+/* ---------------------------------------------------------------------
+ * Auxiliary functions.
+ * --------------------------------------------------------------------- */
 
 static
-atf_tc_t *
-find_tc(atf_tp_t *tp, const char *ident)
+const atf_tc_t *
+find_tc(const atf_tp_t *tp, const char *ident)
 {
-    atf_tc_t *tc;
-    atf_list_iter_t iter;
+    const atf_tc_t *tc;
+    atf_list_citer_t iter;
 
     tc = NULL;
-    atf_list_for_each(iter, &tp->m_tcs) {
-        atf_tc_t *tc2;
-        tc2 = atf_list_iter_data(iter);
+    atf_list_for_each_c(iter, &tp->m_tcs) {
+        const atf_tc_t *tc2;
+        tc2 = atf_list_citer_data(iter);
         if (strcmp(tc2->m_ident, ident) == 0) {
             tc = tc2;
             break;
@@ -64,62 +66,31 @@ find_tc(atf_tp_t *tp, const char *ident)
     return tc;
 }
 
-static
-void
-match_tcs(atf_tp_t *tp, const char *name, atf_list_t *tcs)
-{
-    atf_list_iter_t iter;
+/* ---------------------------------------------------------------------
+ * The "atf_tp" type.
+ * --------------------------------------------------------------------- */
 
-    atf_list_for_each(iter, &tp->m_tcs) {
-        atf_tc_t *tc = atf_list_iter_data(iter);
+/*
+ * Constructors/destructors.
+ */
 
-        if (atf_expand_is_glob(name)) {
-            bool matches;
-
-            atf_expand_matches_glob(name, tc->m_ident, &matches);
-            if (matches) {
-                atf_list_append(tcs, tc);
-            }
-        } else {
-            if (strcmp(name, tc->m_ident) == 0) {
-                atf_list_append(tcs, tc);
-            }
-        }
-    }
-}
-
-void
-atf_tp_filter_tcs(atf_tp_t *tp, atf_list_t *names, atf_list_t *tcs)
-{
-    atf_list_iter_t iter;
-
-    atf_list_init(tcs);
-
-    atf_list_for_each(iter, names) {
-        const char *name = atf_list_iter_data(iter);
-
-        match_tcs(tp, name, tcs);
-    }
-}
-
-void
-atf_tp_add_tc(atf_tp_t *tp, atf_tc_t *tc)
-{
-    PRE(find_tc(tp, tc->m_ident) == NULL);
-
-    atf_list_append(&tp->m_tcs, tc);
-
-    POST(find_tc(tp, tc->m_ident) != NULL);
-}
-
-void
+atf_error_t
 atf_tp_init(atf_tp_t *tp)
 {
+    atf_error_t err;
+
     atf_object_init(&tp->m_object);
 
-    tp->m_results_fd = STDOUT_FILENO;
+    err = atf_list_init(&tp->m_tcs);
+    if (atf_is_error(err))
+        goto err_object;
 
-    atf_list_init(&tp->m_tcs);
+    INV(!atf_is_error(err));
+    return err;
+
+err_object:
+    atf_object_fini(&tp->m_object);
+    return err;
 }
 
 void
@@ -136,77 +107,99 @@ atf_tp_fini(atf_tp_t *tp)
     atf_object_fini(&tp->m_object);
 }
 
-void
-atf_tp_set_results_fd(atf_tp_t *tp, int fd)
+/*
+ * Getters.
+ */
+
+const atf_list_t *
+atf_tp_get_tcs(const atf_tp_t *tp)
 {
-    assert(fd >= 0 && fd <= 9);
-    tp->m_results_fd = fd;
+    return &tp->m_tcs;
 }
 
-int
-atf_tp_run(atf_tp_t *tp, atf_list_t *tcnames)
+/*
+ * Modifiers.
+ */
+
+atf_error_t
+atf_tp_add_tc(atf_tp_t *tp, atf_tc_t *tc)
 {
-    int code;
+    atf_error_t err;
+
+    PRE(find_tc(tp, tc->m_ident) == NULL);
+
+    err = atf_list_append(&tp->m_tcs, tc);
+
+    POST(find_tc(tp, tc->m_ident) != NULL);
+
+    return err;
+}
+
+/* ---------------------------------------------------------------------
+ * Free functions.
+ * --------------------------------------------------------------------- */
+
+atf_error_t
+atf_tp_run(const atf_tp_t *tp, const atf_list_t *ids, int fd,
+           size_t *failcount)
+{
+    atf_error_t err;
+    atf_list_citer_t iter;
     size_t count;
-    atf_list_t tcs;
-    atf_list_iter_t iter;
 
-    atf_tp_filter_tcs(tp, tcnames, &tcs);
+    err = atf_io_write_fmt(fd, "Content-Type: application/X-atf-tcs; "
+                           "version=\"1\"\n\n");
+    if (atf_is_error(err))
+        goto out;
+    err = atf_io_write_fmt(fd, "tcs-count: %d\n", atf_list_size(ids));
+    if (atf_is_error(err))
+        goto out;
 
-    atf_io_write_fmt(tp->m_results_fd,
-                 "Content-Type: application/X-atf-tcs; version=\"1\"\n\n");
-    atf_io_write_fmt(tp->m_results_fd, "tcs-count: %d\n",
-                 atf_list_size(&tcs));
-
-    code = EXIT_SUCCESS;
-    count = 0;
-    atf_list_for_each(iter, &tcs) {
-        atf_tc_t *tc = atf_list_iter_data(iter);
+    *failcount = count = 0;
+    atf_list_for_each_c(iter, ids) {
+        const char *ident = atf_list_citer_data(iter);
+        const atf_tc_t *tc;
         atf_tcr_t tcr;
-        atf_error_t err;
+        int state;
 
-        atf_io_write_fmt(tp->m_results_fd, "tp-start: %s\n", tc->m_ident);
+        err = atf_io_write_fmt(fd, "tc-start: %s\n", ident);
+        if (atf_is_error(err))
+            goto out;
+
+        tc = find_tc(tp, ident);
+        PRE(tc != NULL);
 
         err = atf_tc_run(tc, &tcr);
-        if (atf_is_error(err)) {
-            char buf[1024];
-            atf_error_format(err, buf, sizeof(buf));
-            fprintf(stderr, "fatal: %s\n", buf);
-            return 1;
-        }
+        if (atf_is_error(err))
+            goto out;
 
-        if (count < atf_list_size(&tcs)) {
+        count++;
+        if (count < atf_list_size(ids)) {
             fprintf(stdout, "__atf_tc_separator__\n");
             fprintf(stderr, "__atf_tc_separator__\n");
         }
         fflush(stdout);
         fflush(stderr);
 
-        {
-            int status = atf_tcr_get_state(&tcr);
-            if (status == atf_tcr_passed_state) {
-                atf_io_write_fmt(tp->m_results_fd, "tp-end: %s, passed\n",
-                             tc->m_ident);
-            } else if (status == atf_tcr_failed_state) {
-                const atf_dynstr_t *reason = atf_tcr_get_reason(&tcr);
-                atf_io_write_fmt(tp->m_results_fd, "tp-end: %s, failed, %s\n",
-                             tc->m_ident, atf_dynstr_cstring(reason));
-                code = EXIT_FAILURE;
-            } else if (status == atf_tcr_skipped_state) {
-                const atf_dynstr_t *reason = atf_tcr_get_reason(&tcr);
-                atf_io_write_fmt(tp->m_results_fd, "tp-end: %s, skipped, %s\n",
-                             tc->m_ident, atf_dynstr_cstring(reason));
-                code = EXIT_FAILURE;
-            } else
-                UNREACHABLE;
-        }
-
+        state = atf_tcr_get_state(&tcr);
+        if (state == atf_tcr_passed_state) {
+            err = atf_io_write_fmt(fd, "tc-end: %s, passed\n", ident);
+        } else if (state == atf_tcr_failed_state) {
+            const atf_dynstr_t *reason = atf_tcr_get_reason(&tcr);
+            err = atf_io_write_fmt(fd, "tc-end: %s, failed, %s\n", ident,
+                                   atf_dynstr_cstring(reason));
+            *failcount++;
+        } else if (state == atf_tcr_skipped_state) {
+            const atf_dynstr_t *reason = atf_tcr_get_reason(&tcr);
+            err = atf_io_write_fmt(fd, "tc-end: %s, skipped, %s\n", ident,
+                                   atf_dynstr_cstring(reason));
+        } else
+            UNREACHABLE;
         atf_tcr_fini(&tcr);
-
-        count++;
+        if (atf_is_error(err))
+            goto out;
     }
 
-    atf_list_fini(&tcs);
-
-    return code;
+out:
+    return err;
 }

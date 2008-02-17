@@ -186,5 +186,5 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, list_for_each);
     ATF_TP_ADD_TC(tp, list_for_each_c);
 
-    return 0;
+    return atf_no_error();
 }

@@ -173,5 +173,5 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, matches_glob_star);
     ATF_TP_ADD_TC(tp, matches_glob_question);
 
-    return 0;
+    return atf_no_error();
 }

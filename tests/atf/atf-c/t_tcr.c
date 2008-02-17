@@ -152,5 +152,5 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, get_state);
     ATF_TP_ADD_TC(tp, get_reason);
 
-    return 0;
+    return atf_no_error();
 }
