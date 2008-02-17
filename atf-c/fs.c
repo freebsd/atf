@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -684,6 +684,24 @@ atf_fs_cleanup(const atf_fs_path_t *p)
     err = cleanup_aux(p, atf_fs_stat_get_device(&info), true);
 
     atf_fs_stat_fini(&info);
+
+    return err;
+}
+
+atf_error_t
+atf_fs_mkdtemp(atf_fs_path_t *p)
+{
+    atf_error_t err;
+    char *tmpl;
+
+    tmpl = p->m_data.m_data; // XXX: Ugly
+    PRE(strstr(tmpl, "XXXXXX") != NULL);
+
+    if (mkdtemp(tmpl) == NULL)
+        err = atf_libc_error(errno, "Cannot create temporary directory "
+                             "with template '%s'", tmpl);
+    else
+        err = atf_no_error();
 
     return err;
 }

@@ -126,5 +126,6 @@ bool atf_fs_stat_is_other_executable(const atf_fs_stat_t *);
  * --------------------------------------------------------------------- */
 
 atf_error_t atf_fs_cleanup(const atf_fs_path_t *);
+atf_error_t atf_fs_mkdtemp(atf_fs_path_t *);
 
 #endif // !defined(ATF_C_FS_H)

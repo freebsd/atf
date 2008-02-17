@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,6 +74,20 @@ create_file(const char *p, int mode)
     fd = open(p, O_CREAT | O_WRONLY | O_TRUNC, mode);
     if (fd == -1)
         atf_tc_fail("Could not create helper file %s", p);
+}
+
+static
+bool
+exists(const atf_fs_path_t *p)
+{
+    return access(atf_fs_path_cstring(p), F_OK) == 0;
+}
+
+static
+bool
+not_exists(const atf_fs_path_t *p)
+{
+    return access(atf_fs_path_cstring(p), F_OK) == -1 && errno == ENOENT;
 }
 
 /* ---------------------------------------------------------------------
@@ -532,10 +546,56 @@ ATF_TC_BODY(cleanup, tc)
 
     CE(atf_fs_path_init_fmt(&root, "root"));
     CE(atf_fs_cleanup(&root));
-    ATF_CHECK(access("root", F_OK) == -1 && errno == ENOENT);
+    ATF_CHECK(not_exists(&root));
     atf_fs_path_fini(&root);
 
     /* TODO: Cleanup with mount points, just as in tools/t_atf_cleanup. */
+}
+
+ATF_TC(mkdtemp);
+ATF_TC_HEAD(mkdtemp, tc)
+{
+    atf_tc_set_var(tc, "descr", "Tests the atf_fs_mkdtemp function");
+}
+ATF_TC_BODY(mkdtemp, tc)
+{
+    atf_fs_path_t p1, p2;
+    atf_fs_stat_t s1, s2;
+
+    CE(atf_fs_path_init_fmt(&p1, "testdir.XXXXXX"));
+    CE(atf_fs_path_init_fmt(&p2, "testdir.XXXXXX"));
+    CE(atf_fs_mkdtemp(&p1));
+    CE(atf_fs_mkdtemp(&p2));
+    ATF_CHECK(!atf_equal_fs_path_fs_path(&p1, &p2));
+    ATF_CHECK(exists(&p1));
+    ATF_CHECK(exists(&p2));
+
+    CE(atf_fs_stat_init(&s1, &p1));
+    ATF_CHECK( atf_fs_stat_is_owner_readable(&s1));
+    ATF_CHECK( atf_fs_stat_is_owner_writable(&s1));
+    ATF_CHECK( atf_fs_stat_is_owner_executable(&s1));
+    ATF_CHECK(!atf_fs_stat_is_group_readable(&s1));
+    ATF_CHECK(!atf_fs_stat_is_group_writable(&s1));
+    ATF_CHECK(!atf_fs_stat_is_group_executable(&s1));
+    ATF_CHECK(!atf_fs_stat_is_other_readable(&s1));
+    ATF_CHECK(!atf_fs_stat_is_other_writable(&s1));
+    ATF_CHECK(!atf_fs_stat_is_other_executable(&s1));
+
+    CE(atf_fs_stat_init(&s2, &p2));
+    ATF_CHECK( atf_fs_stat_is_owner_readable(&s2));
+    ATF_CHECK( atf_fs_stat_is_owner_writable(&s2));
+    ATF_CHECK( atf_fs_stat_is_owner_executable(&s2));
+    ATF_CHECK(!atf_fs_stat_is_group_readable(&s2));
+    ATF_CHECK(!atf_fs_stat_is_group_writable(&s2));
+    ATF_CHECK(!atf_fs_stat_is_group_executable(&s2));
+    ATF_CHECK(!atf_fs_stat_is_other_readable(&s2));
+    ATF_CHECK(!atf_fs_stat_is_other_writable(&s2));
+    ATF_CHECK(!atf_fs_stat_is_other_executable(&s2));
+
+    atf_fs_stat_fini(&s2);
+    atf_fs_stat_fini(&s1);
+    atf_fs_path_fini(&p2);
+    atf_fs_path_fini(&p1);
 }
 
 /* ---------------------------------------------------------------------
@@ -561,6 +621,7 @@ ATF_TP_ADD_TCS(tp)
 
     /* Add the tests for the free functions. */
     ATF_TP_ADD_TC(tp, cleanup);
+    ATF_TP_ADD_TC(tp, mkdtemp);
 
     return 0;
 }
