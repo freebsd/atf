@@ -60,7 +60,8 @@ test_format(const atf_error_t err, char *buf, size_t buflen)
 ATF_TC(error_new);
 ATF_TC_HEAD(error_new, tc)
 {
-    atf_tc_set_var("descr", "Checks the construction of an error object");
+    atf_tc_set_var(tc, "descr", "Checks the construction of an error "
+                   "object");
 }
 ATF_TC_BODY(error_new, tc)
 {
@@ -85,8 +86,8 @@ ATF_TC_BODY(error_new, tc)
 ATF_TC(error_new_wo_memory);
 ATF_TC_HEAD(error_new_wo_memory, tc)
 {
-    atf_tc_set_var("descr", "Checks that an unavailable memory error "
-                            "raised when constructing an error object "
+    atf_tc_set_var(tc, "descr", "Checks that an unavailable memory error "
+                   "raised when constructing an error object "
                             "is properly converted to the no_memory "
                             "static error type");
 }
@@ -106,8 +107,8 @@ ATF_TC_BODY(error_new_wo_memory, tc)
 ATF_TC(no_error);
 ATF_TC_HEAD(no_error, tc)
 {
-    atf_tc_set_var("descr", "Checks that constructing a non-error object "
-                            "works");
+    atf_tc_set_var(tc, "descr", "Checks that constructing a non-error "
+                   "object works");
 }
 ATF_TC_BODY(no_error, tc)
 {
@@ -120,8 +121,8 @@ ATF_TC_BODY(no_error, tc)
 ATF_TC(is_error);
 ATF_TC_HEAD(is_error, tc)
 {
-    atf_tc_set_var("descr", "Checks the is_error method to determine if "
-                            "an error object holds success or an error");
+    atf_tc_set_var(tc, "descr", "Checks the is_error method to determine "
+                   "if an error object holds success or an error");
 }
 ATF_TC_BODY(is_error, tc)
 {
@@ -138,8 +139,8 @@ ATF_TC_BODY(is_error, tc)
 ATF_TC(format);
 ATF_TC_HEAD(format, tc)
 {
-    atf_tc_set_var("descr", "Checks the default formatting function and "
-                            "the ability to change it");
+    atf_tc_set_var(tc, "descr", "Checks the default formatting function "
+                   "and the ability to change it");
 }
 ATF_TC_BODY(format, tc)
 {
@@ -168,7 +169,7 @@ ATF_TC_BODY(format, tc)
 ATF_TC(libc_new);
 ATF_TC_HEAD(libc_new, tc)
 {
-    atf_tc_set_var("descr", "Checks the construction of libc errors");
+    atf_tc_set_var(tc, "descr", "Checks the construction of libc errors");
 }
 ATF_TC_BODY(libc_new, tc)
 {
@@ -188,7 +189,7 @@ ATF_TC_BODY(libc_new, tc)
 ATF_TC(libc_format);
 ATF_TC_HEAD(libc_format, tc)
 {
-    atf_tc_set_var("descr", "Checks the formatting of libc errors");
+    atf_tc_set_var(tc, "descr", "Checks the formatting of libc errors");
 }
 ATF_TC_BODY(libc_format, tc)
 {
@@ -221,7 +222,7 @@ ATF_TC_BODY(libc_format, tc)
 ATF_TC(no_memory_new);
 ATF_TC_HEAD(no_memory_new, tc)
 {
-    atf_tc_set_var("descr", "Checks the construction of no_memory errors");
+    atf_tc_set_var(tc, "descr", "Checks the construction of no_memory errors");
 }
 ATF_TC_BODY(no_memory_new, tc)
 {
@@ -236,7 +237,7 @@ ATF_TC_BODY(no_memory_new, tc)
 ATF_TC(no_memory_format);
 ATF_TC_HEAD(no_memory_format, tc)
 {
-    atf_tc_set_var("descr", "Checks the formatting of no_memory errors");
+    atf_tc_set_var(tc, "descr", "Checks the formatting of no_memory errors");
 }
 ATF_TC_BODY(no_memory_format, tc)
 {

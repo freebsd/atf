@@ -87,9 +87,8 @@ match_tcs(atf_tp_t *tp, const char *name, atf_list_t *tcs)
     }
 }
 
-static
 void
-filter_tcs(atf_tp_t *tp, atf_list_t *names, atf_list_t *tcs)
+atf_tp_filter_tcs(atf_tp_t *tp, atf_list_t *names, atf_list_t *tcs)
 {
     atf_list_iter_t iter;
 
@@ -151,7 +150,7 @@ atf_tp_run(atf_tp_t *tp, atf_list_t *tcnames)
     atf_list_t tcs;
     atf_list_iter_t iter;
 
-    filter_tcs(tp, tcnames, &tcs);
+    atf_tp_filter_tcs(tp, tcnames, &tcs);
 
     atf_io_write(tp->m_results_fd,
                  "Content-Type: application/X-atf-tcs; version=\"1\"\n\n");

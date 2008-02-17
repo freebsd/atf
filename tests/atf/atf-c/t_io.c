@@ -52,7 +52,7 @@
 ATF_TC(readline);
 ATF_TC_HEAD(readline, tc)
 {
-    atf_tc_set_var("descr", "Tests the atf_io_readline function");
+    atf_tc_set_var(tc, "descr", "Tests the atf_io_readline function");
 }
 ATF_TC_BODY(readline, tc)
 {
@@ -107,7 +107,7 @@ ATF_TC_BODY(readline, tc)
 ATF_TC(write);
 ATF_TC_HEAD(write, tc)
 {
-    atf_tc_set_var("descr", "Tests the atf_io_write function");
+    atf_tc_set_var(tc, "descr", "Tests the atf_io_write function");
 }
 ATF_TC_BODY(write, tc)
 {

@@ -44,8 +44,8 @@
 ATF_TC(format);
 ATF_TC_HEAD(format, tc)
 {
-    atf_tc_set_var("descr", "Checks the construction of free-form strings "
-                            "using a variable parameters list");
+    atf_tc_set_var(tc, "descr", "Checks the construction of free-form "
+                   "strings using a variable parameters list");
 }
 ATF_TC_BODY(format, tc)
 {
@@ -75,8 +75,8 @@ format_ap(char **dest, const char *fmt, ...)
 ATF_TC(format_ap);
 ATF_TC_HEAD(format_ap, tc)
 {
-    atf_tc_set_var("descr", "Checks the construction of free-form strings "
-                            "using a va_list argument");
+    atf_tc_set_var(tc, "descr", "Checks the construction of free-form "
+                   "strings using a va_list argument");
 }
 ATF_TC_BODY(format_ap, tc)
 {

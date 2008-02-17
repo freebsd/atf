@@ -51,14 +51,15 @@ static void usage_error(const char *, ...);
 
 static
 int
-print_tag_ap(const char *tag, bool repeat, const char *fmt, va_list ap)
+print_tag_ap(const char *tag, bool repeat, size_t col,
+             const char *fmt, va_list ap)
 {
     int ret;
     atf_dynstr_t dest;
 
     atf_dynstr_init(&dest);
 
-    if (atf_ui_format_ap(&dest, tag, repeat, 0, fmt, ap) != 0) {
+    if (atf_ui_format_ap(&dest, tag, repeat, col, fmt, ap) != 0) {
         ret = 0;
         goto out;
     }
@@ -72,13 +73,13 @@ out:
 
 static
 int
-print_tag(const char *tag, bool repeat, const char *fmt, ...)
+print_tag(const char *tag, bool repeat, size_t col, const char *fmt, ...)
 {
     int ret;
     va_list ap;
 
     va_start(ap, fmt);
-    ret = print_tag_ap(tag, repeat, fmt, ap);
+    ret = print_tag_ap(tag, repeat, col, fmt, ap);
     va_end(ap);
 
     return ret;
@@ -88,7 +89,7 @@ static
 int
 print(const char *msg)
 {
-    return print_tag("", false, msg);
+    return print_tag("", false, 0, msg);
 }
 
 static
@@ -100,7 +101,7 @@ print_error_ap(const char *fmt, va_list ap)
     if (atf_dynstr_init_fmt(&tag, "%s: ERROR: ", getprogname()) != 0)
         atf_dynstr_init(&tag);
 
-    print_tag_ap(atf_dynstr_cstring(&tag), true, fmt, ap);
+    print_tag_ap(atf_dynstr_cstring(&tag), true, 0, fmt, ap);
 
     atf_dynstr_fini(&tag);
 }
@@ -120,24 +121,24 @@ static
 void
 usage(void)
 {
-    print_tag("Usage: ", false,
+    print_tag("Usage: ", false, 0,
               "%s [options] [test_case1 [.. test_caseN]]",
               getprogname());
     printf("\n");
     print("This is an independent atf test program.");
     printf("\n");
     print("Available options:");
-    print_tag("    -h              ", false,
+    print_tag("    -h              ", false, 0,
               "Shows this help message");
-    print_tag("    -l              ", false,
+    print_tag("    -l              ", false, 0,
               "List test cases and their purpose");
-    print_tag("    -r fd           ", false,
+    print_tag("    -r fd           ", false, 0,
               "The file descriptor to which the test program "
               "will send the results of the test cases");
-    print_tag("    -s srcdir       ", false,
+    print_tag("    -s srcdir       ", false, 0,
               "Directory where the test's data files are "
               "located");
-    print_tag("    -v var=value    ", false,
+    print_tag("    -v var=value    ", false, 0,
               "Sets the configuration variable `var' to `value'");
     printf("\n");
     print("For more details please see atf-test-program(1) and atf(7).");
@@ -155,9 +156,43 @@ usage_error(const char *fmt, ...)
     va_end(ap);
 
     atf_dynstr_init_fmt(&tag, "%s: ", getprogname());
-    print_tag(atf_dynstr_cstring(&tag), true,
+    print_tag(atf_dynstr_cstring(&tag), true, 0,
               "Type `%s -h' for more details.", getprogname());
     atf_dynstr_fini(&tag);
+}
+
+static
+int
+list_tcs(atf_tp_t *tp, atf_list_t *tcnames)
+{
+    atf_list_t tcs;
+    atf_list_iter_t iter;
+    size_t col;
+
+    atf_tp_filter_tcs(tp, tcnames, &tcs);
+
+    col = 0;
+    atf_list_for_each(iter, &tcs) {
+        atf_tc_t *tc = atf_list_iter_data(iter);
+        const size_t len = strlen(tc->m_ident);
+
+        tc->m_head(tc);
+
+        if (col < len)
+            col = len;
+    }
+    col += 4;
+
+    atf_list_for_each(iter, &tcs) {
+        atf_tc_t *tc = atf_list_iter_data(iter);
+        const atf_dynstr_t *descr = atf_tc_get_var(tc, "descr");
+
+        print_tag(tc->m_ident, false, col, "%s", atf_dynstr_cstring(descr));
+    }
+
+    atf_list_fini(&tcs);
+
+    return 0;
 }
 
 static
@@ -243,7 +278,10 @@ atf_tp_main(int argc, char **argv, int (*add_tcs_hook)(atf_tp_t *))
             for (argptr = argv; *argptr != NULL; argptr++)
                 atf_list_append(&tcnames, *argptr);
         }
-        ret = atf_tp_run(&tp, &tcnames);
+        if (lflag)
+            ret = list_tcs(&tp, &tcnames);
+        else
+            ret = atf_tp_run(&tp, &tcnames);
         atf_list_fini(&tcnames);
     }
 

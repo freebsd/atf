@@ -41,6 +41,7 @@
 #include <unistd.h>
 
 #include <atf-c/dynstr.h>
+#include <atf-c/list.h>
 #include <atf-c/object.h>
 
 /* ---------------------------------------------------------------------
@@ -74,6 +75,7 @@ struct atf_tc {
     atf_object_t m_object;
 
     const char *m_ident;
+    atf_list_t m_vars;
 
     const char *m_workdir;
 
@@ -92,6 +94,8 @@ void atf_tc_fail(const char *, ...);
 void atf_tc_pass(void);
 void atf_tc_skip(const char *, ...);
 
-void atf_tc_set_var(const char *, const char *, ...);
+const atf_dynstr_t *atf_tc_get_var(atf_tc_t *, const char *);
+bool atf_tc_has_var(atf_tc_t *, const char *);
+void atf_tc_set_var(atf_tc_t *, const char *, const char *, ...);
 
 #endif /* ATF_C_TC_H */

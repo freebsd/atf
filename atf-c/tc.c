@@ -55,6 +55,15 @@ static void body_parent(const atf_tc_t *, pid_t, atf_tcr_t *);
 static void body_child(const atf_tc_t *) __attribute__((noreturn));
 
 /* ---------------------------------------------------------------------
+ * Auxiliary functions.
+ * --------------------------------------------------------------------- */
+
+struct var {
+    const char *m_name;
+    atf_dynstr_t m_value;
+};
+
+/* ---------------------------------------------------------------------
  * The "atf_tcr" type.
  * --------------------------------------------------------------------- */
 
@@ -127,12 +136,25 @@ atf_tc_init(atf_tc_t *tc)
 {
     atf_object_init(&tc->m_object);
 
+    atf_list_init(&tc->m_vars);
+
     tc->m_workdir = NULL;
 }
 
 void
 atf_tc_fini(atf_tc_t *tc)
 {
+    atf_list_iter_t iter;
+
+    atf_list_for_each(iter, &tc->m_vars) {
+        struct var *v = atf_list_iter_data(iter);
+
+        atf_dynstr_fini(&v->m_value);
+
+        free(v);
+    }
+    atf_list_fini(&tc->m_vars);
+
     atf_object_fini(&tc->m_object);
 }
 
@@ -170,9 +192,56 @@ atf_tc_run(atf_tc_t *tc)
     return tcr;
 }
 
-void
-atf_tc_set_var(const char *var, const char *value, ...)
+const atf_dynstr_t *
+atf_tc_get_var(atf_tc_t *tc, const char *name)
 {
+    atf_list_iter_t iter;
+
+    PRE(atf_tc_has_var(tc, name));
+
+    atf_list_for_each(iter, &tc->m_vars) {
+        struct var *v = atf_list_iter_data(iter);
+
+        if (strcmp(v->m_name, name) == 0)
+            return &v->m_value;
+    }
+
+    UNREACHABLE;
+    return NULL;
+}
+
+bool
+atf_tc_has_var(atf_tc_t *tc, const char *name)
+{
+    atf_list_iter_t iter;
+
+    atf_list_for_each(iter, &tc->m_vars) {
+        struct var *v = atf_list_iter_data(iter);
+
+        if (strcmp(v->m_name, name) == 0)
+            return true;
+    }
+
+    return false;
+}
+
+void
+atf_tc_set_var(atf_tc_t *tc, const char *name, const char *fmt, ...)
+{
+    struct var *v;
+    va_list ap;
+
+    PRE(!atf_tc_has_var(tc, name));
+
+    v = (struct var *)malloc(sizeof(*v));
+
+    v->m_name = name;
+
+    va_start(ap, fmt);
+    atf_dynstr_init_ap(&v->m_value, fmt, ap);
+    va_end(ap);
+
+    atf_list_append(&tc->m_vars, v);
 }
 
 /*

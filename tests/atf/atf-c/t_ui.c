@@ -373,7 +373,7 @@ run_tests(const char *tc)
 ATF_TC(wo_tag);
 ATF_TC_HEAD(wo_tag, tc)
 {
-    atf_tc_set_var("descr", "Checks formatting without tags");
+    atf_tc_set_var(tc, "descr", "Checks formatting without tags");
 }
 ATF_TC_BODY(wo_tag, tc)
 {
@@ -383,8 +383,8 @@ ATF_TC_BODY(wo_tag, tc)
 ATF_TC(wo_tag_col);
 ATF_TC_HEAD(wo_tag_col, tc)
 {
-    atf_tc_set_var("descr", "Checks formatting without tags and with a "
-                            "non-zero starting column");
+    atf_tc_set_var(tc, "descr", "Checks formatting without tags and with a "
+                   "non-zero starting column");
 }
 ATF_TC_BODY(wo_tag_col, tc)
 {
@@ -394,7 +394,7 @@ ATF_TC_BODY(wo_tag_col, tc)
 ATF_TC(w_tag_no_repeat);
 ATF_TC_HEAD(w_tag_no_repeat, tc)
 {
-    atf_tc_set_var("descr", "Checks formatting with a tag");
+    atf_tc_set_var(tc, "descr", "Checks formatting with a tag");
 }
 ATF_TC_BODY(w_tag_no_repeat, tc)
 {
@@ -404,8 +404,8 @@ ATF_TC_BODY(w_tag_no_repeat, tc)
 ATF_TC(w_tag_repeat);
 ATF_TC_HEAD(w_tag_repeat, tc)
 {
-    atf_tc_set_var("descr", "Checks formatting with a tag and repeating "
-                            "it on each line");
+    atf_tc_set_var(tc, "descr", "Checks formatting with a tag and repeating "
+                   "it on each line");
 }
 ATF_TC_BODY(w_tag_repeat, tc)
 {
@@ -415,8 +415,8 @@ ATF_TC_BODY(w_tag_repeat, tc)
 ATF_TC(w_tag_col);
 ATF_TC_HEAD(w_tag_col, tc)
 {
-    atf_tc_set_var("descr", "Checks formatting with a tag and starting at "
-                            "a column greater than its length");
+    atf_tc_set_var(tc, "descr", "Checks formatting with a tag and starting "
+                   "at a column greater than its length");
 }
 ATF_TC_BODY(w_tag_col, tc)
 {
@@ -426,8 +426,8 @@ ATF_TC_BODY(w_tag_col, tc)
 ATF_TC(paragraphs);
 ATF_TC_HEAD(paragraphs, tc)
 {
-    atf_tc_set_var("descr", "Checks formatting a string that contains "
-                            "multiple paragraphs");
+    atf_tc_set_var(tc, "descr", "Checks formatting a string that contains "
+                   "multiple paragraphs");
 }
 ATF_TC_BODY(paragraphs, tc)
 {
@@ -437,8 +437,8 @@ ATF_TC_BODY(paragraphs, tc)
 ATF_TC(format);
 ATF_TC_HEAD(format, tc)
 {
-    atf_tc_set_var("descr", "Checks formatting with a variable list of "
-                            "arguments");
+    atf_tc_set_var(tc, "descr", "Checks formatting with a variable list of "
+                   "arguments");
 }
 ATF_TC_BODY(format, tc)
 {

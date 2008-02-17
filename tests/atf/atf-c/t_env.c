@@ -55,7 +55,7 @@
 ATF_TC(has);
 ATF_TC_HEAD(has, tc)
 {
-    atf_tc_set_var("descr", "Tests the atf_env_has function");
+    atf_tc_set_var(tc, "descr", "Tests the atf_env_has function");
 }
 ATF_TC_BODY(has, tc)
 {
@@ -66,7 +66,7 @@ ATF_TC_BODY(has, tc)
 ATF_TC(get);
 ATF_TC_HEAD(get, tc)
 {
-    atf_tc_set_var("descr", "Tests the atf_env_get function");
+    atf_tc_set_var(tc, "descr", "Tests the atf_env_get function");
 }
 ATF_TC_BODY(get, tc)
 {
@@ -82,7 +82,7 @@ ATF_TC_BODY(get, tc)
 ATF_TC(set);
 ATF_TC_HEAD(set, tc)
 {
-    atf_tc_set_var("descr", "Tests the atf_env_set function");
+    atf_tc_set_var(tc, "descr", "Tests the atf_env_set function");
 }
 ATF_TC_BODY(set, tc)
 {
@@ -104,7 +104,7 @@ ATF_TC_BODY(set, tc)
 ATF_TC(unset);
 ATF_TC_HEAD(unset, tc)
 {
-    atf_tc_set_var("descr", "Tests the atf_env_unset function");
+    atf_tc_set_var(tc, "descr", "Tests the atf_env_unset function");
 }
 ATF_TC_BODY(unset, tc)
 {
