@@ -396,6 +396,11 @@ tests_atf_atf_c_t_fs_SOURCES = tests/atf/atf-c/t_fs.c
 tests_atf_atf_c_t_fs_LDADD = -latf-c
 tests_atf_atf_c_t_fs_LDFLAGS = -L.
 
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_io
+tests_atf_atf_c_t_io_SOURCES = tests/atf/atf-c/t_io.c
+tests_atf_atf_c_t_io_LDADD = -latf-c
+tests_atf_atf_c_t_io_LDFLAGS = -L.
+
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_text
 tests_atf_atf_c_t_text_SOURCES = tests/atf/atf-c/t_text.c
 tests_atf_atf_c_t_text_LDADD = -latf-c
