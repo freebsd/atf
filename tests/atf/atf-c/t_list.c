@@ -130,6 +130,46 @@ ATF_TC_BODY(list_for_each, tc)
     }
 }
 
+ATF_TC(list_for_each_c);
+ATF_TC_HEAD(list_for_each_c, tc)
+{
+    atf_tc_set_var(tc, "descr", "Checks the atf_list_for_each_c macro");
+}
+ATF_TC_BODY(list_for_each_c, tc)
+{
+    atf_list_t list;
+    atf_list_citer_t iter;
+    size_t count;
+    int i, nums[10], size;
+
+    printf("Iterating over empty list\n");
+    CE(atf_list_init(&list));
+    count = 0;
+    atf_list_for_each_c(iter, &list) {
+        count++;
+        printf("Item count is now %zd\n", count);
+    }
+    ATF_CHECK_EQUAL(count, 0);
+    atf_list_fini(&list);
+
+    for (size = 0; size <= 10; size++) {
+        printf("Iterating over list of %d elements\n", size);
+        CE(atf_list_init(&list));
+        for (i = 0; i < size; i++) {
+            nums[i] = i + 1;
+            CE(atf_list_append(&list, &nums[i]));
+        }
+        count = 0;
+        atf_list_for_each_c(iter, &list) {
+            printf("Retrieved item: %d\n",
+                   *(const int *)atf_list_citer_data(iter));
+            count++;
+        }
+        ATF_CHECK_EQUAL(count, size);
+        atf_list_fini(&list);
+    }
+}
+
 /* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
@@ -144,6 +184,7 @@ ATF_TP_ADD_TCS(tp)
 
     /* Macros. */
     ATF_TP_ADD_TC(tp, list_for_each);
+    ATF_TP_ADD_TC(tp, list_for_each_c);
 
     return 0;
 }

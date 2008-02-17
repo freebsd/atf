@@ -43,6 +43,24 @@
 #include <atf-c/object.h>
 
 /* ---------------------------------------------------------------------
+ * The "atf_list_citer" type.
+ * --------------------------------------------------------------------- */
+
+struct atf_list_citer {
+    const struct atf_list *m_list;
+    const void *m_entry;
+};
+typedef struct atf_list_citer atf_list_citer_t;
+
+/* Getters. */
+const void *atf_list_citer_data(const atf_list_citer_t);
+atf_list_citer_t atf_list_citer_next(const atf_list_citer_t);
+
+/* Operators. */
+bool atf_equal_list_citer_list_citer(const atf_list_citer_t,
+                                     const atf_list_citer_t);
+
+/* ---------------------------------------------------------------------
  * The "atf_list_iter" type.
  * --------------------------------------------------------------------- */
 
@@ -67,8 +85,8 @@ bool atf_equal_list_iter_list_iter(const atf_list_iter_t,
 struct atf_list {
     atf_object_t m_object;
 
-    atf_list_iter_t m_begin;
-    atf_list_iter_t m_end;
+    void *m_begin;
+    void *m_end;
 
     size_t m_size;
 };
@@ -80,7 +98,9 @@ void atf_list_fini(atf_list_t *);
 
 /* Getters. */
 atf_list_iter_t atf_list_begin(atf_list_t *);
+atf_list_citer_t atf_list_begin_c(const atf_list_t *);
 atf_list_iter_t atf_list_end(atf_list_t *);
+atf_list_citer_t atf_list_end_c(const atf_list_t *);
 size_t atf_list_size(const atf_list_t *);
 
 /* Modifiers. */
@@ -91,5 +111,9 @@ atf_error_t atf_list_append(atf_list_t *, void *);
     for (iter = atf_list_begin(list); \
          !atf_equal_list_iter_list_iter((iter), atf_list_end(list)); \
          iter = atf_list_iter_next(iter))
+#define atf_list_for_each_c(iter, list) \
+    for (iter = atf_list_begin_c(list); \
+         !atf_equal_list_citer_list_citer((iter), atf_list_end_c(list)); \
+         iter = atf_list_citer_next(iter))
 
 #endif /* ATF_C_LIST_H */

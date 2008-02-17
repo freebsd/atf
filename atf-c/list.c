@@ -50,6 +50,26 @@ struct list_entry {
 };
 
 static
+atf_list_citer_t
+entry_to_citer(const atf_list_t *l, const struct list_entry *le)
+{
+    atf_list_citer_t iter;
+    iter.m_list = l;
+    iter.m_entry = le;
+    return iter;
+}
+
+static
+atf_list_iter_t
+entry_to_iter(atf_list_t *l, struct list_entry *le)
+{
+    atf_list_iter_t iter;
+    iter.m_list = l;
+    iter.m_entry = le;
+    return iter;
+}
+
+static
 struct list_entry *
 new_entry(void *object)
 {
@@ -81,6 +101,43 @@ new_entry_and_link(void *object, struct list_entry *prev,
     }
 
     return le;
+}
+
+/* ---------------------------------------------------------------------
+ * The "atf_list_citer" type.
+ * --------------------------------------------------------------------- */
+
+/*
+ * Getters.
+ */
+
+const void *
+atf_list_citer_data(const atf_list_citer_t citer)
+{
+    const struct list_entry *le = citer.m_entry;
+    PRE(le != NULL);
+    return le->m_object;
+}
+
+atf_list_citer_t
+atf_list_citer_next(const atf_list_citer_t citer)
+{
+    const struct list_entry *le = citer.m_entry;
+    atf_list_citer_t newciter;
+
+    PRE(le != NULL);
+
+    newciter = citer;
+    newciter.m_entry = le->m_next;
+
+    return newciter;
+}
+
+bool
+atf_equal_list_citer_list_citer(const atf_list_citer_t i1,
+                                const atf_list_citer_t i2)
+{
+    return i1.m_list == i2.m_list && i1.m_entry == i2.m_entry;
 }
 
 /* ---------------------------------------------------------------------
@@ -150,13 +207,9 @@ atf_list_init(atf_list_t *l)
     leend->m_next = NULL;
     leend->m_prev = lebeg;
 
-    l->m_begin.m_list = l;
-    l->m_begin.m_entry = lebeg;
-
-    l->m_end.m_list = l;
-    l->m_end.m_entry = leend;
-
     l->m_size = 0;
+    l->m_begin = lebeg;
+    l->m_end = leend;
 
     atf_object_init(&l->m_object);
 
@@ -169,7 +222,7 @@ atf_list_fini(atf_list_t *l)
     struct list_entry *le;
     size_t freed;
 
-    le = (struct list_entry *)(l->m_begin.m_entry);
+    le = (struct list_entry *)l->m_begin;
     freed = 0;
     while (le != NULL) {
         struct list_entry *lenext;
@@ -192,13 +245,27 @@ atf_list_fini(atf_list_t *l)
 atf_list_iter_t
 atf_list_begin(atf_list_t *l)
 {
-    return atf_list_iter_next(l->m_begin);
+    struct list_entry *le = l->m_begin;
+    return entry_to_iter(l, le->m_next);
+}
+
+atf_list_citer_t
+atf_list_begin_c(const atf_list_t *l)
+{
+    const struct list_entry *le = l->m_begin;
+    return entry_to_citer(l, le->m_next);
 }
 
 atf_list_iter_t
 atf_list_end(atf_list_t *l)
 {
-    return l->m_end;
+    return entry_to_iter(l, l->m_end);
+}
+
+atf_list_citer_t
+atf_list_end_c(const atf_list_t *l)
+{
+    return entry_to_citer(l, l->m_end);
 }
 
 size_t
@@ -217,7 +284,7 @@ atf_list_append(atf_list_t *l, void *data)
     struct list_entry *le, *next, *prev;
     atf_error_t err;
 
-    next = (struct list_entry *)l->m_end.m_entry;
+    next = (struct list_entry *)l->m_end;
     prev = next->m_prev;
     le = new_entry_and_link(data, prev, next);
     if (le == NULL)
