@@ -190,13 +190,13 @@ atf_list_fini(atf_list_t *l)
  */
 
 atf_list_iter_t
-atf_list_begin(const atf_list_t *l)
+atf_list_begin(atf_list_t *l)
 {
     return atf_list_iter_next(l->m_begin);
 }
 
 atf_list_iter_t
-atf_list_end(const atf_list_t *l)
+atf_list_end(atf_list_t *l)
 {
     return l->m_end;
 }

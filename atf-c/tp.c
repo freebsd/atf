@@ -45,7 +45,7 @@
 
 static
 atf_tc_t *
-find_tc(const atf_tp_t *tp, const char *ident)
+find_tc(atf_tp_t *tp, const char *ident)
 {
     atf_tc_t *tc;
     atf_list_iter_t iter;

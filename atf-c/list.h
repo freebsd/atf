@@ -79,8 +79,8 @@ atf_error_t atf_list_init(atf_list_t *);
 void atf_list_fini(atf_list_t *);
 
 /* Getters. */
-atf_list_iter_t atf_list_begin(const atf_list_t *);
-atf_list_iter_t atf_list_end(const atf_list_t *);
+atf_list_iter_t atf_list_begin(atf_list_t *);
+atf_list_iter_t atf_list_end(atf_list_t *);
 size_t atf_list_size(const atf_list_t *);
 
 /* Modifiers. */
