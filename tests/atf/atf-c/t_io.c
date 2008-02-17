@@ -104,12 +104,12 @@ ATF_TC_BODY(readline, tc)
     }
 }
 
-ATF_TC(write);
-ATF_TC_HEAD(write, tc)
+ATF_TC(write_fmt);
+ATF_TC_HEAD(write_fmt, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_io_write function");
+    atf_tc_set_var(tc, "descr", "Tests the atf_io_write_fmt function");
 }
-ATF_TC_BODY(write, tc)
+ATF_TC_BODY(write_fmt, tc)
 {
     {
         int fd;
@@ -117,8 +117,8 @@ ATF_TC_BODY(write, tc)
         fd = open("test", O_WRONLY | O_CREAT | O_TRUNC, 0644);
         ATF_CHECK(fd != -1);
 
-        CE(atf_io_write(fd, "Plain string\n"));
-        CE(atf_io_write(fd, "Formatted %s %d\n", "string", 5));
+        CE(atf_io_write_fmt(fd, "Plain string\n"));
+        CE(atf_io_write_fmt(fd, "Formatted %s %d\n", "string", 5));
 
         close(fd);
     }
@@ -126,11 +126,14 @@ ATF_TC_BODY(write, tc)
     {
         int fd;
         char buf[1024];
+        ssize_t cnt;
 
         fd = open("test", O_RDONLY);
         ATF_CHECK(fd != -1);
 
-        ATF_CHECK(read(fd, buf, sizeof(buf)) != -1);
+        cnt = read(fd, buf, sizeof(buf));
+        ATF_CHECK(cnt != -1);
+        buf[cnt] = '\0';
         ATF_CHECK(strcmp(buf, "Plain string\nFormatted string 5\n") == 0);
 
         close(fd);
@@ -144,7 +147,7 @@ ATF_TC_BODY(write, tc)
 ATF_TP_ADD_TCS(tp)
 {
     ATF_TP_ADD_TC(tp, readline);
-    ATF_TP_ADD_TC(tp, write);
+    ATF_TP_ADD_TC(tp, write_fmt);
 
     return 0;
 }

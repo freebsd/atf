@@ -66,13 +66,11 @@ atf_io_readline(int fd, atf_dynstr_t *dest)
 }
 
 atf_error_t
-atf_io_write(int fd, const char *fmt, ...)
+atf_io_write_ap(int fd, const char *fmt, va_list ap)
 {
     atf_error_t err;
-    va_list ap;
     atf_dynstr_t str;
 
-    va_start(ap, fmt);
     err = atf_dynstr_init_ap(&str, fmt, ap);
     if (!atf_is_error(err)) {
         ssize_t cnt = write(fd, atf_dynstr_cstring(&str),
@@ -88,6 +86,18 @@ atf_io_write(int fd, const char *fmt, ...)
 
         atf_dynstr_fini(&str);
     }
+
+    return err;
+}
+
+atf_error_t
+atf_io_write_fmt(int fd, const char *fmt, ...)
+{
+    atf_error_t err;
+    va_list ap;
+
+    va_start(ap, fmt);
+    err = atf_io_write_ap(fd, fmt, ap);
     va_end(ap);
 
     return err;

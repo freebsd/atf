@@ -37,6 +37,8 @@
 #if !defined(ATF_C_IO_H)
 #define ATF_C_IO_H
 
+#include <stdarg.h>
+
 #include <atf-c/error.h>
 
 struct atf_dynstr;
@@ -45,6 +47,7 @@ struct atf_dynstr;
  * raw file descriptors. */
 
 atf_error_t atf_io_readline(int, struct atf_dynstr *);
-atf_error_t atf_io_write(int, const char *, ...);
+atf_error_t atf_io_write_ap(int, const char *, va_list);
+atf_error_t atf_io_write_fmt(int, const char *, ...);
 
 #endif // !defined(ATF_C_IO_H)
