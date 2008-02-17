@@ -64,17 +64,15 @@ impl::has(const std::string& name)
 void
 impl::set(const std::string& name, const std::string& val)
 {
-    int ret = atf_env_set(name.c_str(), val.c_str());
-    if (ret != 0)
-        throw atf::system_error(IMPL_NAME "::set(" + name + ", " +
-                                val + ")", "failed", ret);
+    atf_error_t err = atf_env_set(name.c_str(), val.c_str());
+    if (atf_is_error(err))
+        throw_atf_error(err);
 }
 
 void
 impl::unset(const std::string& name)
 {
-    int ret = atf_env_unset(name.c_str());
-    if (ret != 0)
-        throw atf::system_error(IMPL_NAME "::unset(" + name + ")",
-                                "failed", ret);
+    atf_error_t err = atf_env_unset(name.c_str());
+    if (atf_is_error(err))
+        throw_atf_error(err);
 }

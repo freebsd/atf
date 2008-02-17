@@ -376,6 +376,11 @@ tests_atf_atf_c_t_dynstr_SOURCES = tests/atf/atf-c/t_dynstr.c
 tests_atf_atf_c_t_dynstr_LDADD = -latf-c
 tests_atf_atf_c_t_dynstr_LDFLAGS = -L.
 
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_env
+tests_atf_atf_c_t_env_SOURCES = tests/atf/atf-c/t_env.c
+tests_atf_atf_c_t_env_LDADD = -latf-c
+tests_atf_atf_c_t_env_LDFLAGS = -L.
+
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_error
 tests_atf_atf_c_t_error_SOURCES = tests/atf/atf-c/t_error.c
 tests_atf_atf_c_t_error_LDADD = -latf-c
