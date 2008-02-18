@@ -34,6 +34,7 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -142,6 +143,27 @@ ATF_TC_BODY(write_fmt, tc)
     }
 }
 
+ATF_TC(write_fmt_fail);
+ATF_TC_HEAD(write_fmt_fail, tc)
+{
+    atf_tc_set_var(tc, "descr", "Tests the atf_io_write_fmt function "
+                   "writing to an invalid file descriptor");
+}
+ATF_TC_BODY(write_fmt_fail, tc)
+{
+    const int fd = 16;
+    atf_error_t err;
+    char buf[1024];
+
+    close(fd);
+
+    err = atf_io_write_fmt(fd, "Plain string\n");
+    ATF_CHECK(atf_error_is(err, "libc"));
+    ATF_CHECK_EQUAL(atf_libc_error_code(err), EBADF);
+    atf_error_format(err, buf, sizeof(buf));
+    ATF_CHECK(strstr(buf, "Plain string") != NULL);
+}
+
 /* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
@@ -150,6 +172,7 @@ ATF_TP_ADD_TCS(tp)
 {
     ATF_TP_ADD_TC(tp, readline);
     ATF_TP_ADD_TC(tp, write_fmt);
+    ATF_TP_ADD_TC(tp, write_fmt_fail);
 
     return atf_no_error();
 }

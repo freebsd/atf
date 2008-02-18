@@ -78,7 +78,8 @@ atf_io_write_ap(int fd, const char *fmt, va_list ap)
 
         if (cnt == -1)
             err = atf_libc_error(errno, "Failed to write '%s' to file "
-                                 "descriptor %d", str, fd);
+                                 "descriptor %d", atf_dynstr_cstring(&str),
+                                 fd);
         else {
             INV(cnt == atf_dynstr_length(&str));
             err = atf_no_error();
