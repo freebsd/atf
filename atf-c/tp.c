@@ -111,6 +111,14 @@ atf_tp_fini(atf_tp_t *tp)
  * Getters.
  */
 
+const atf_tc_t *
+atf_tp_get_tc(const atf_tp_t *tp, const char *id)
+{
+    const atf_tc_t *tc = find_tc(tp, id);
+    PRE(tc != NULL);
+    return tc;
+}
+
 const atf_list_t *
 atf_tp_get_tcs(const atf_tp_t *tp)
 {

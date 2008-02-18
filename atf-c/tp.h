@@ -59,6 +59,7 @@ atf_error_t atf_tp_init(atf_tp_t *);
 void atf_tp_fini(atf_tp_t *);
 
 /* Getters. */
+const atf_tc_t *atf_tp_get_tc(const atf_tp_t *, const char *);
 const atf_list_t *atf_tp_get_tcs(const atf_tp_t *);
 
 /* Modifiers. */
