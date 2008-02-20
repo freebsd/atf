@@ -35,7 +35,7 @@
 //
 
 #if defined(HAVE_CONFIG_H)
-#include "acconfig.h"
+#include "bconfig.h"
 #endif
 #include "revision.h"
 
