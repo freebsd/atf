@@ -45,7 +45,7 @@ AC_DEFINE(PACKAGE_COPYRIGHT,
           ["Copyright (c) 2007, 2008 The NetBSD Foundation, Inc."],
           [Define to the copyright string applicable to this package.])
 AC_CONFIG_AUX_DIR([admin])
-AC_CONFIG_HEADERS([acconfig.h])
+AC_CONFIG_HEADERS([bconfig.h])
 AC_CONFIG_MACRO_DIR([admin])
 AC_CONFIG_SRCDIR([atf.hpp])
 AC_CONFIG_TESTDIR([tests/bootstrap])
