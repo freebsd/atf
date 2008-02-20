@@ -133,6 +133,23 @@ libatf_c_la_SOURCES = atf-c/config.c \
                       atf-c/tp_main.c
 
 include_HEADERS = atf-c.h
+atf_c_HEADERS = atf-c/config.h \
+                atf-c/dynstr.h \
+                atf-c/env.h \
+                atf-c/error.h \
+                atf-c/expand.h \
+                atf-c/fs.h \
+                atf-c/io.h \
+                atf-c/list.h \
+                atf-c/macros.h \
+                atf-c/object.h \
+                atf-c/sanity.h \
+                atf-c/text.h \
+                atf-c/ui.h \
+                atf-c/tc.h \
+                atf-c/tcr.h \
+                atf-c/tp.h
+atf_cdir = $(includedir)/atf-c
 
 # -------------------------------------------------------------------------
 # `atf-c++' directory.
