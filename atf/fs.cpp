@@ -34,7 +34,9 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "config.h"
+#if defined(HAVE_CONFIG_H)
+#include "acconfig.h"
+#endif
 
 extern "C" {
 #include <sys/param.h>
