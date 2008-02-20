@@ -37,7 +37,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <atf.h>
+#include <atf-c.h>
 
 #include "atf-c/dynstr.h"
 #include "atf-c/env.h"

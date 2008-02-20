@@ -34,7 +34,7 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <atf.h>
+#include <atf-c.h>
 
 #include "atf-c/expand.h"
 

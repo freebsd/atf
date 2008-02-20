@@ -36,7 +36,7 @@
 
 #include <stdio.h>
 
-#include <atf.h>
+#include <atf-c.h>
 
 #include "atf-c/list.h"
 

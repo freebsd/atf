@@ -41,7 +41,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <atf.h>
+#include <atf-c.h>
 
 #include "atf-c/dynstr.h"
 #include "atf-c/io.h"

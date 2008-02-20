@@ -36,7 +36,7 @@
 
 #include <string.h>
 
-#include <atf.h>
+#include <atf-c.h>
 
 #include "atf-c/tcr.h"
 
