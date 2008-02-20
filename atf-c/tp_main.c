@@ -176,6 +176,21 @@ struct params {
 };
 
 static
+atf_error_t
+params_init(struct params *p)
+{
+    atf_error_t err;
+
+    p->m_do_list = false;
+    p->m_do_usage = false;
+    p->m_fd = STDOUT_FILENO;
+
+    err = atf_list_init(&p->m_tcglobs);
+
+    return err;
+}
+
+static
 void
 params_fini(struct params *p)
 {
@@ -350,13 +365,10 @@ process_params(int argc, char **argv, struct params *p)
     atf_error_t err;
     int ch;
 
-    /* Initialize defaults. */
-    p->m_do_list = false;
-    p->m_do_usage = false;
-    p->m_fd = STDOUT_FILENO;
-    atf_list_init(&p->m_tcglobs);
+    err = params_init(p);
+    if (atf_is_error(err))
+        goto out;
 
-    err = atf_no_error();
     while (!atf_is_error(err) &&
            (ch = getopt(argc, argv, GETOPT_POSIX ":hlr:s:v:")) != -1) {
         switch (ch) {
@@ -404,6 +416,7 @@ process_params(int argc, char **argv, struct params *p)
     if (atf_is_error(err))
         params_fini(p);
 
+out:
     return err;
 }
 
