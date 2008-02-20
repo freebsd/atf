@@ -948,7 +948,25 @@ tests/atf/tools/t_atf_run: $(srcdir)/tests/atf/tools/t_atf_run.sh \
 check_LIBRARIES = tests/build/libuseless.a
 
 tests_build_libuseless_a_SOURCES = \
+    tests/build/t_include_atf_c_h.cpp \
     tests/build/t_include_atf_c++_hpp.cpp \
+    tests/build/atf-c/t_include_config_h.c \
+    tests/build/atf-c/t_include_dynstr_h.c \
+    tests/build/atf-c/t_include_env_h.c \
+    tests/build/atf-c/t_include_error_h.c \
+    tests/build/atf-c/t_include_expand_h.c \
+    tests/build/atf-c/t_include_fs_h.c \
+    tests/build/atf-c/t_include_io_h.c \
+    tests/build/atf-c/t_include_list_h.c \
+    tests/build/atf-c/t_include_macros_h.c \
+    tests/build/atf-c/t_include_object_h.c \
+    tests/build/atf-c/t_include_sanity_h.c \
+    tests/build/atf-c/t_include_tc_h.c \
+    tests/build/atf-c/t_include_tcr_h.c \
+    tests/build/atf-c/t_include_text_h.c \
+    tests/build/atf-c/t_include_tp_h.c \
+    tests/build/atf-c/t_include_ui_h.c \
+    tests/build/atf-c/t_use_macros_h.c \
     tests/build/atf-c++/t_include_application_hpp.cpp \
     tests/build/atf-c++/t_include_atffile_hpp.cpp \
     tests/build/atf-c++/t_include_config_hpp.cpp \
