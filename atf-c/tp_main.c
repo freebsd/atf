@@ -111,7 +111,8 @@ FREE_FORM_ERROR(user);
 
 static
 atf_error_t
-print_tag(const char *tag, bool repeat, size_t col, const char *fmt, ...)
+print_tag(FILE *f, const char *tag, bool repeat, size_t col,
+          const char *fmt, ...)
 {
     atf_error_t err;
     va_list ap;
@@ -127,7 +128,7 @@ print_tag(const char *tag, bool repeat, size_t col, const char *fmt, ...)
     if (atf_is_error(err))
         goto out_dest;
 
-    printf("%s\n", atf_dynstr_cstring(&dest));
+    fprintf(f, "%s\n", atf_dynstr_cstring(&dest));
 
 out_dest:
     atf_dynstr_fini(&dest);
@@ -154,10 +155,11 @@ print_error(const atf_error_t err)
         atf_error_format(err, buf, sizeof(buf));
 
         atf_dynstr_init_fmt(&tag, "%s: ", getprogname());
-        print_tag(atf_dynstr_cstring(&tag), true, 0, "ERROR: %s", buf);
+        print_tag(stderr, atf_dynstr_cstring(&tag), true, 0,
+                  "ERROR: %s", buf);
 
         if (atf_error_is(err, "usage"))
-            print_tag(atf_dynstr_cstring(&tag), true, 0,
+            print_tag(stderr, atf_dynstr_cstring(&tag), true, 0,
                       "Type `%s -h' for more details.", getprogname());
 
         atf_dynstr_fini(&tag);
@@ -318,7 +320,8 @@ list_tcs(const atf_tp_t *tp, const atf_list_t *tcids)
         const atf_tc_t *tc = atf_tp_get_tc(tp, id);
         const atf_dynstr_t *descr = atf_tc_get_var(tc, "descr");
 
-        err = print_tag(id, false, col, "%s", atf_dynstr_cstring(descr));
+        err = print_tag(stdout, id, false, col, "%s",
+                        atf_dynstr_cstring(descr));
         if (atf_is_error(err))
             break;
     }
@@ -334,27 +337,28 @@ static
 void
 usage(void)
 {
-    print_tag("Usage: ", false, 0,
+    print_tag(stdout, "Usage: ", false, 0,
               "%s [options] [test_case1 [.. test_caseN]]",
               getprogname());
     printf("\n");
-    print_tag("", false, 0, "This is an independent atf test program.");
+    print_tag(stdout, "", false, 0, "This is an independent atf test "
+              "program.");
     printf("\n");
-    print_tag("", false, 0, "Available options:");
-    print_tag("    -h              ", false, 0,
+    print_tag(stdout, "", false, 0, "Available options:");
+    print_tag(stdout, "    -h              ", false, 0,
               "Shows this help message");
-    print_tag("    -l              ", false, 0,
+    print_tag(stdout, "    -l              ", false, 0,
               "List test cases and their purpose");
-    print_tag("    -r fd           ", false, 0,
+    print_tag(stdout, "    -r fd           ", false, 0,
               "The file descriptor to which the test program "
               "will send the results of the test cases");
-    print_tag("    -s srcdir       ", false, 0,
+    print_tag(stdout, "    -s srcdir       ", false, 0,
               "Directory where the test's data files are "
               "located");
-    print_tag("    -v var=value    ", false, 0,
+    print_tag(stdout, "    -v var=value    ", false, 0,
               "Sets the configuration variable `var' to `value'");
     printf("\n");
-    print_tag("", false, 0, "For more details please see "
+    print_tag(stdout, "", false, 0, "For more details please see "
               "atf-test-program(1) and atf(7).");
 }
 
