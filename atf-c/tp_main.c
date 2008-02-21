@@ -435,14 +435,13 @@ controlled_main(int argc, char **argv,
     if (atf_is_error(err))
         goto out;
 
-    if (p.m_do_usage && argc != 2) {
-        err = usage_error("-h must be given alone.");
-        goto out_p;
-    }
-
     if (p.m_do_usage) {
-        usage();
-        *exitcode = EXIT_SUCCESS;
+        if (argc != 2) {
+            err = usage_error("-h must be given alone.");
+        } else {
+            usage();
+            *exitcode = EXIT_SUCCESS;
+        }
         goto out_p;
     }
 

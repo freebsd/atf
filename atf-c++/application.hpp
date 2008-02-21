@@ -81,6 +81,8 @@ public:
 // ------------------------------------------------------------------------
 
 class app {
+    bool m_hflag;
+
     void process_options(void);
     void usage(std::ostream&);
 

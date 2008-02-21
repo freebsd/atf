@@ -1040,7 +1040,6 @@ _atf_usage()
                                         "\`var' to \`value'"
     echo
     _atf_echo "For more details please see atf-test-program(1) and atf(7)."
-    exit 0
 }
 
 #
@@ -1074,12 +1073,13 @@ main()
     _atf_config_set workdir $(atf-config -t atf_workdir)
 
     # Process command-line options first.
+    _numargs=${#}
+    _hflag=false
     _lflag=false
     while getopts :hlr:s:v: arg; do
         case ${arg} in
         h)
-            _atf_usage
-            # NOTREACHED
+            _hflag=true
             ;;
 
         l)
@@ -1105,6 +1105,13 @@ main()
         esac
     done
     shift `expr ${OPTIND} - 1`
+
+    if [ ${_hflag} = true ]; then
+        [ ${_numargs} -eq 1 ] || _atf_syntax_error "-h must be given alone."
+        _atf_usage
+        true
+        return
+    fi
 
     # First of all, make sure that the source directory is correct.  It
     # doesn't matter if the user did not change it, because the default
