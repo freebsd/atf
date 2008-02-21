@@ -284,7 +284,7 @@ impl::app::run(int argc, char* const* argv)
 
         if (m_hflag) {
             if (oldargc != 2)
-                throw usage_error("-h must be used alone.");
+                throw usage_error("-h must be given alone.");
 
             usage(std::cout);
             errcode = EXIT_SUCCESS;
