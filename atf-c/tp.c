@@ -196,7 +196,7 @@ atf_tp_run(const atf_tp_t *tp, const atf_list_t *ids, int fd,
             const atf_dynstr_t *reason = atf_tcr_get_reason(&tcr);
             err = atf_io_write_fmt(fd, "tc-end: %s, failed, %s\n", ident,
                                    atf_dynstr_cstring(reason));
-            *failcount++;
+            (*failcount)++;
         } else if (state == atf_tcr_skipped_state) {
             const atf_dynstr_t *reason = atf_tcr_get_reason(&tcr);
             err = atf_io_write_fmt(fd, "tc-end: %s, skipped, %s\n", ident,
