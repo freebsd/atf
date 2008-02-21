@@ -157,6 +157,10 @@ format_aux(atf_dynstr_t *dest,
     if (col == 0)
         col = strlen(tag);
 
+    str2 = str + strlen(str);
+    while (str2 != str && *--str2 == '\n')
+        *str2 = '\0';
+
     str2 = strtok_r(str, "\n", &last);
     do {
         const bool first = (str2 == str);

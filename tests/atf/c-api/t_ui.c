@@ -68,6 +68,15 @@ struct test {
         "",
         false,
         0,
+        "12345  ",
+        "12345",
+    },
+
+    {
+        "wo_tag",
+        "",
+        false,
+        0,
         "12345 7890",
         "12345 7890",
     },
@@ -270,6 +279,15 @@ struct test {
     /*
      * paragraphs
      */
+
+    {
+        "paragraphs",
+        "",
+        false,
+        0,
+        "1 3 5\n\n",
+        "1 3 5"
+    },
 
     {
         "paragraphs",
