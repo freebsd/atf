@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,10 +45,10 @@ extern "C" {
 #include <string>
 #include <vector>
 
-#include "atf/formats.hpp"
-#include "atf/io.hpp"
-#include "atf/parser.hpp"
-#include "atf/sanity.hpp"
+#include "atf-c++/formats.hpp"
+#include "atf-c++/io.hpp"
+#include "atf-c++/parser.hpp"
+#include "atf-c++/sanity.hpp"
 
 class atffile_reader : protected atf::formats::atf_atffile_reader {
     void

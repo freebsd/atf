@@ -39,9 +39,11 @@
 
 #include <stdbool.h>
 
+#include <atf-c/error.h>
+
 const char *atf_env_get(const char *);
 bool atf_env_has(const char *);
-int atf_env_set(const char *, const char *);
-int atf_env_unset(const char *);
+atf_error_t atf_env_set(const char *, const char *);
+atf_error_t atf_env_unset(const char *);
 
 #endif // !defined(ATF_C_ENV_H)

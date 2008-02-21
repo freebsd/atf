@@ -34,12 +34,12 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <atf.h>
+#include <atf-c.h>
 
 ATF_TC(pass);
 ATF_TC_HEAD(pass, tc)
 {
-    atf_tc_set_var("descr", "An empty test case that always passes");
+    atf_tc_set_var(tc, "descr", "An empty test case that always passes");
 }
 ATF_TC_BODY(pass, tc)
 {
@@ -49,7 +49,7 @@ ATF_TC_BODY(pass, tc)
 ATF_TC(fail);
 ATF_TC_HEAD(fail, tc)
 {
-    atf_tc_set_var("descr", "An empty test case that always fails");
+    atf_tc_set_var(tc, "descr", "An empty test case that always fails");
 }
 ATF_TC_BODY(fail, tc)
 {
@@ -59,7 +59,7 @@ ATF_TC_BODY(fail, tc)
 ATF_TC(skip);
 ATF_TC_HEAD(skip, tc)
 {
-    atf_tc_set_var("descr", "An empty test case that is always skipped");
+    atf_tc_set_var(tc, "descr", "An empty test case that is always skipped");
 }
 ATF_TC_BODY(skip, tc)
 {
@@ -69,8 +69,8 @@ ATF_TC_BODY(skip, tc)
 ATF_TC(default);
 ATF_TC_HEAD(default, tc)
 {
-    atf_tc_set_var("descr", "A test case that passes without explicitly "
-                 "stating it");
+    atf_tc_set_var(tc, "descr", "A test case that passes without explicitly "
+                   "stating it");
 }
 ATF_TC_BODY(default, tc)
 {
@@ -83,5 +83,5 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, skip);
     ATF_TP_ADD_TC(tp, default);
 
-    return 0;
+    return atf_no_error();
 }

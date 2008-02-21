@@ -63,6 +63,12 @@ atf_object_init(atf_object_t *o)
 }
 
 void
+atf_object_copy(atf_object_t *dest, const atf_object_t *src)
+{
+    atf_object_init(dest);
+}
+
+void
 atf_object_fini(atf_object_t *o)
 {
     PRE(initialized);

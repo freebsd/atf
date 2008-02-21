@@ -43,18 +43,23 @@
 #define ATF_TC(tc) \
     static void atfu_ ## tc ## _head(atf_tc_t *); \
     static void atfu_ ## tc ## _body(const atf_tc_t *); \
-    static atf_tc_t atfu_ ## tc ## _tc = { \
+    static atf_tc_t atfu_ ## tc ## _tc; \
+    static atf_tc_pack_t atfu_ ## tc ## _tc_pack = { \
         .m_ident = #tc, \
         .m_head = atfu_ ## tc ## _head, \
         .m_body = atfu_ ## tc ## _body, \
         .m_cleanup = NULL, \
     };
 
+#define ATF_TC_NAME(tc) \
+    (atfu_ ## tc ## _tc)
+
 #define ATF_TC_WITH_CLEANUP(tc) \
     static void atfu_ ## tc ## _head(atf_tc_t *); \
     static void atfu_ ## tc ## _body(const atf_tc_t *); \
     static void atfu_ ## tc ## _cleanup(const atf_tc_t *); \
-    static atf_tc_t atfu_ ## tc ## _tc = { \
+    static atf_tc_t atfu_ ## tc ## _tc; \
+    static atf_tc_pack_t atfu_ ## tc ## _tc_pack = { \
         .m_ident = #tc, \
         .m_head = atfu_ ## tc ## _head, \
         .m_body = atfu_ ## tc ## _body, \
@@ -66,19 +71,28 @@
     void \
     atfu_ ## tc ## _head(atf_tc_t *tcptr)
 
+#define ATF_TC_HEAD_NAME(tc) \
+    (atfu_ ## tc ## _head)
+
 #define ATF_TC_BODY(tc, tcptr) \
     static \
     void \
     atfu_ ## tc ## _body(const atf_tc_t *tcptr)
+
+#define ATF_TC_BODY_NAME(tc) \
+    (atfu_ ## tc ## _body)
 
 #define ATF_TC_CLEANUP(tc, tcptr) \
     static \
     void \
     atfu_ ## tc ## _cleanup(const atf_tc_t *tcptr)
 
+#define ATF_TC_CLEANUP_NAME(tc) \
+    (atfu_ ## tc ## _cleanup)
+
 #define ATF_TP_ADD_TCS(tps) \
-    static int atfu_tp_add_tcs(atf_tp_t *); \
-    int atf_tp_main(int, char **, int (*)(atf_tp_t *)); \
+    static atf_error_t atfu_tp_add_tcs(atf_tp_t *); \
+    int atf_tp_main(int, char **, atf_error_t (*)(atf_tp_t *)); \
     \
     int \
     main(int argc, char **argv) \
@@ -86,13 +100,19 @@
         return atf_tp_main(argc, argv, atfu_tp_add_tcs); \
     } \
     static \
-    int \
+    atf_error_t \
     atfu_tp_add_tcs(atf_tp_t *tps)
 
 #define ATF_TP_ADD_TC(tp, tc) \
     do { \
-        atf_tc_init(&atfu_ ## tc ## _tc); \
-        atf_tp_add_tc(tp, &atfu_ ## tc ## _tc); \
+        atf_error_t atfu_err; \
+        atfu_err = atf_tc_init_pack(&atfu_ ## tc ## _tc, \
+                                    &atfu_ ## tc ## _tc_pack); \
+        if (atf_is_error(atfu_err)) \
+            return atfu_err; \
+        atfu_err = atf_tp_add_tc(tp, &atfu_ ## tc ## _tc); \
+        if (atf_is_error(atfu_err)) \
+            return atfu_err; \
     } while (0)
 
 #define ATF_CHECK(x) \

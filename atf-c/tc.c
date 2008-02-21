@@ -44,128 +44,221 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-#include "fs.h"
-#include "io.h"
-#include "sanity.h"
-#include "tc.h"
-#include "text.h"
-
-static void body_parent(const atf_tc_t *, pid_t, atf_tcr_t *);
-static void body_child(const atf_tc_t *) __attribute__((noreturn));
+#include "atf-c/config.h"
+#include "atf-c/fs.h"
+#include "atf-c/io.h"
+#include "atf-c/sanity.h"
+#include "atf-c/tc.h"
+#include "atf-c/tcr.h"
+#include "atf-c/text.h"
 
 /* ---------------------------------------------------------------------
- * The "atf_tcr" type.
+ * Auxiliary types and functions.
  * --------------------------------------------------------------------- */
 
-const int atf_tcr_passed = 0;
-const int atf_tcr_failed = 1;
-const int atf_tcr_skipped = 2;
+struct var {
+    const char *m_name;
+    atf_dynstr_t m_value;
+};
 
-inline
-bool
-status_allows_reason(int status)
-{
-    return status == atf_tcr_failed || status == atf_tcr_skipped;
-}
+/* Parent-only stuff. */
+static atf_error_t body_parent(const atf_tc_t *, const atf_fs_path_t *,
+                               pid_t, atf_tcr_t *);
+static atf_error_t get_tc_result(const atf_fs_path_t *, atf_tcr_t *);
+static atf_error_t parse_tc_result(int, atf_tcr_t *);
 
-void
-atf_tcr_init(atf_tcr_t *tcr, int status)
-{
-    atf_object_init(&tcr->m_object);
-
-    PRE(!status_allows_reason(status));
-    tcr->m_status = status;
-    atf_dynstr_init(&tcr->m_reason);
-}
-
-int
-atf_tcr_init_reason(atf_tcr_t *tcr, int status, const char *reason, ...)
-{
-    va_list ap;
-    atf_error_t err;
-
-    PRE(status_allows_reason(status));
-
-    atf_object_init(&tcr->m_object);
-
-    tcr->m_status = status;
-    va_start(ap, reason);
-    err = atf_dynstr_init_ap(&tcr->m_reason, reason, ap);
-    va_end(ap);
-
-    return atf_is_error(err) ? 1 : 0;
-}
-
-void
-atf_tcr_fini(atf_tcr_t *tcr)
-{
-    atf_dynstr_fini(&tcr->m_reason);
-
-    atf_object_fini(&tcr->m_object);
-}
-
-int
-atf_tcr_get_status(const atf_tcr_t *tcr)
-{
-    return tcr->m_status;
-}
-
-const char *
-atf_tcr_get_reason(const atf_tcr_t *tcr)
-{
-    PRE(status_allows_reason(tcr->m_status));
-    return atf_dynstr_cstring(&tcr->m_reason);
-}
+/* Child-only stuff. */
+static void body_child(const atf_tc_t *, const atf_fs_path_t *)
+            __attribute__((noreturn));
+static void fatal_atf_error(const char *, atf_error_t)
+            __attribute__((noreturn));
+static void fatal_libc_error(const char *, int)
+            __attribute__((noreturn));
+static void write_tcr(const atf_tc_t *, const char *, const char *,
+                      va_list *);
 
 /* ---------------------------------------------------------------------
  * The "atf_tc" type.
  * --------------------------------------------------------------------- */
 
-void
-atf_tc_init(atf_tc_t *tc)
+/*
+ * Constructors/destructors.
+ */
+
+atf_error_t
+atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
+            atf_tc_body_t body, atf_tc_cleanup_t cleanup)
 {
+    atf_error_t err;
+
     atf_object_init(&tc->m_object);
 
-    tc->m_workdir = NULL;
+    err = atf_list_init(&tc->m_vars);
+    if (atf_is_error(err))
+        goto err_object;
+
+    tc->m_ident = ident;
+    tc->m_head = head;
+    tc->m_body = body;
+    tc->m_cleanup = cleanup;
+
+    /* XXX Should the head be able to return error codes? */
+    tc->m_head(tc);
+
+    INV(!atf_is_error(err));
+    return err;
+
+err_object:
+    atf_object_fini(&tc->m_object);
+
+    return err;
+}
+
+atf_error_t
+atf_tc_init_pack(atf_tc_t *tc, const atf_tc_pack_t *pack)
+{
+    return atf_tc_init(tc, pack->m_ident, pack->m_head, pack->m_body,
+                       pack->m_cleanup);
 }
 
 void
 atf_tc_fini(atf_tc_t *tc)
 {
+    atf_list_iter_t iter;
+
+    atf_list_for_each(iter, &tc->m_vars) {
+        struct var *v = atf_list_iter_data(iter);
+
+        atf_dynstr_fini(&v->m_value);
+        free(v);
+    }
+    atf_list_fini(&tc->m_vars);
+
     atf_object_fini(&tc->m_object);
 }
 
-atf_tcr_t
-atf_tc_run(atf_tc_t *tc)
+/*
+ * Getters.
+ */
+
+const char *
+atf_tc_get_ident(const atf_tc_t *tc)
 {
-    char workdir[1024];
-    pid_t pid;
-    atf_tcr_t tcr;
-
-    strcpy(workdir, "/tmp/atf.XXXXXX");
-    if (mkdtemp(workdir) == NULL) {
-    }
-
-    tc->m_workdir = workdir;
-    pid = fork();
-    if (pid == -1) {
-    } else if (pid == 0) {
-        body_child(tc);
-        UNREACHABLE;
-    } else {
-        body_parent(tc, pid, &tcr);
-    }
-    tc->m_workdir = NULL;
-
-    atf_fs_cleanup(workdir);
-
-    return tcr;
+    return tc->m_ident;
 }
 
-void
-atf_tc_set_var(const char *var, const char *value, ...)
+const atf_dynstr_t *
+atf_tc_get_var(const atf_tc_t *tc, const char *name)
 {
+    const atf_dynstr_t *val;
+    atf_list_citer_t iter;
+
+    PRE(atf_tc_has_var(tc, name));
+
+    val = NULL;
+    atf_list_for_each_c(iter, &tc->m_vars) {
+        const struct var *v = atf_list_citer_data(iter);
+
+        if (strcmp(v->m_name, name) == 0) {
+            INV(val == NULL);
+            val = &v->m_value;
+        }
+    }
+    INV(val != NULL);
+
+    return val;
+}
+
+bool
+atf_tc_has_var(const atf_tc_t *tc, const char *name)
+{
+    bool found;
+    atf_list_citer_t iter;
+
+    found = false;
+    atf_list_for_each_c(iter, &tc->m_vars) {
+        const struct var *v = atf_list_citer_data(iter);
+
+        if (strcmp(v->m_name, name) == 0) {
+            INV(!found);
+            found = true;
+        }
+    }
+
+    return found;
+}
+
+/*
+ * Modifiers.
+ */
+
+atf_error_t
+atf_tc_set_var(atf_tc_t *tc, const char *name, const char *fmt, ...)
+{
+    atf_error_t err;
+    struct var *v;
+    va_list ap;
+
+    PRE(!atf_tc_has_var(tc, name));
+
+    v = (struct var *)malloc(sizeof(*v));
+    if (v == NULL)
+        err = atf_no_memory_error();
+    else {
+        v->m_name = name;
+
+        va_start(ap, fmt);
+        err = atf_dynstr_init_ap(&v->m_value, fmt, ap);
+        va_end(ap);
+
+        if (atf_is_error(err))
+            atf_dynstr_fini(&v->m_value);
+        else
+            err = atf_list_append(&tc->m_vars, v);
+    }
+
+    return err;
+}
+
+/* ---------------------------------------------------------------------
+ * Free functions.
+ * --------------------------------------------------------------------- */
+
+atf_error_t
+atf_tc_run(const atf_tc_t *tc, atf_tcr_t *tcr)
+{
+    atf_error_t err;
+    atf_fs_path_t workdir;
+    pid_t pid;
+
+    err = atf_fs_path_init_fmt(&workdir, "%s/atf.XXXXXX",
+                               atf_config_get("atf_workdir"));
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_fs_mkdtemp(&workdir);
+    if (atf_is_error(err))
+        goto out_workdir;
+
+    pid = fork();
+    if (pid == -1) {
+        err = atf_libc_error(errno, "Cannot fork to run test case body "
+                             "of %s", tc->m_ident);
+    } else if (pid == 0) {
+        body_child(tc, &workdir);
+        UNREACHABLE;
+        abort();
+    } else {
+        err = body_parent(tc, &workdir, pid, tcr);
+    }
+
+    (void)atf_fs_cleanup(&workdir);
+out_workdir:
+    atf_fs_path_fini(&workdir);
+out:
+    return err;
 }
 
 /*
@@ -173,59 +266,103 @@ atf_tc_set_var(const char *var, const char *value, ...)
  */
 
 static
-void
-body_parent(const atf_tc_t *tc, pid_t pid, atf_tcr_t *tcr)
+atf_error_t
+body_parent(const atf_tc_t *tc, const atf_fs_path_t *workdir, pid_t pid,
+            atf_tcr_t *tcr)
 {
-    int fd, ws;
-    atf_dynstr_t status, reason;
+    atf_error_t err;
+    int state;
 
-    if (waitpid(pid, &ws, 0) == -1) {
-        int err = errno;
-        atf_tcr_init_reason(tcr, atf_tcr_failed,
-                            "Error waiting for child process: %s\n",
-                            strerror(err));
-        return;
+    if (waitpid(pid, &state, 0) == -1) {
+        err = atf_libc_error(errno, "Error waiting for child process "
+                             "%d", pid);
+        goto out;
     }
 
-    {
-        char *filename;
-        int err;
+    if (!WIFEXITED(state) || WEXITSTATUS(state) != EXIT_SUCCESS)
+        err = atf_tcr_init_reason(tcr, atf_tcr_failed_state,
+                                  "Test case did not exit cleanly; "
+                                  "state was %d", state);
+    else
+        err = get_tc_result(workdir, tcr);
 
-        atf_text_format(&filename, "%s/tc-result", tc->m_workdir);
-        fd = open(filename, O_RDONLY);
-        err = errno;
-        free(filename);
+out:
+    return err;
+}
 
-        if (fd == -1) {
-            atf_tcr_init_reason(tcr, atf_tcr_failed,
-                                "Error opening status file: %s\n",
-                                strerror(err));
-            return;
-        }
+static
+atf_error_t
+get_tc_result(const atf_fs_path_t *workdir, atf_tcr_t *tcr)
+{
+    atf_error_t err;
+    int fd;
+    atf_fs_path_t tcrfile;
+
+    err = atf_fs_path_copy(&tcrfile, workdir);
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_fs_path_append_fmt(&tcrfile, "tc-result");
+    if (atf_is_error(err))
+        goto out_tcrfile;
+
+    fd = open(atf_fs_path_cstring(&tcrfile), O_RDONLY);
+    if (fd == -1) {
+        err = atf_libc_error(errno, "Cannot retrieve test case result");
+        goto out_tcrfile;
     }
 
-    atf_dynstr_init(&status);
-    atf_dynstr_init(&reason);
+    err = parse_tc_result(fd, tcr);
 
-    atf_io_readline(fd, &status);
-    if (atf_equal_dynstr_cstring(&status, "passed"))
-        atf_tcr_init(tcr, atf_tcr_passed);
+    close(fd);
+out_tcrfile:
+    atf_fs_path_fini(&tcrfile);
+out:
+    return err;
+}
+
+static
+atf_error_t
+parse_tc_result(int fd, atf_tcr_t *tcr)
+{
+    atf_error_t err;
+    atf_dynstr_t state, reason;
+
+    err = atf_dynstr_init(&state);
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_dynstr_init(&reason);
+    if (atf_is_error(err))
+        goto out_state;
+
+    err = atf_io_readline(fd, &state);
+    if (atf_is_error(err))
+        goto out_reason;
+
+    if (atf_equal_dynstr_cstring(&state, "passed"))
+        err = atf_tcr_init(tcr, atf_tcr_passed_state);
     else {
-        atf_io_readline(fd, &reason);
-        if (atf_equal_dynstr_cstring(&status, "failed"))
-            atf_tcr_init_reason(tcr, atf_tcr_failed, "%s",
-                                atf_dynstr_cstring(&reason));
-        else if (atf_equal_dynstr_cstring(&status, "skipped"))
-            atf_tcr_init_reason(tcr, atf_tcr_skipped, "%s",
-                                atf_dynstr_cstring(&reason));
+        err = atf_io_readline(fd, &reason);
+        if (atf_is_error(err))
+            goto out_reason;
+
+        if (atf_equal_dynstr_cstring(&state, "failed"))
+            err = atf_tcr_init_reason(tcr, atf_tcr_failed_state, "%s",
+                                      atf_dynstr_cstring(&reason));
+        else if (atf_equal_dynstr_cstring(&state, "skipped"))
+            err = atf_tcr_init_reason(tcr, atf_tcr_skipped_state, "%s",
+                                      atf_dynstr_cstring(&reason));
         else
             UNREACHABLE;
     }
 
+out_reason:
     atf_dynstr_fini(&reason);
-    atf_dynstr_fini(&status);
-
-    close(fd);
+out_state:
+    atf_dynstr_fini(&state);
+out:
+    return err;
 }
 
 /*
@@ -233,54 +370,104 @@ body_parent(const atf_tc_t *tc, pid_t pid, atf_tcr_t *tcr)
  */
 
 static const atf_tc_t *current_tc = NULL;
+static const atf_fs_path_t *current_workdir = NULL;
 
 static
 void
-body_child(const atf_tc_t *tc)
+body_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
 {
     atf_disable_exit_checks();
 
     current_tc = tc;
+    current_workdir = workdir;
+
+    if (chdir(atf_fs_path_cstring(workdir)) == -1)
+        atf_tc_fail("Cannot enter work directory '%s'",
+                    atf_fs_path_cstring(workdir));
+
     tc->m_body(tc);
+
     atf_tc_pass();
+
     UNREACHABLE;
+    abort();
 }
 
 static
 void
-write_tcr(const atf_tc_t *tc, const char *status, char *reason)
+fatal_atf_error(const char *prefix, atf_error_t err)
 {
-    char *filename;
-    FILE *f;
+    char buf[1024];
 
-    atf_text_format(&filename, "%s/tc-result", tc->m_workdir);
+    INV(atf_is_error(err));
 
-    f = fopen(filename, "w");
-    if (f == NULL) {
-        fprintf(stderr, "Failed to open results file");
-        abort();
-    }
-    fprintf(f, "%s\n", status);
-    if (reason != NULL)
-        fprintf(f, "%s\n", reason);
-    fclose(f);
+    atf_error_format(err, buf, sizeof(buf));
+    atf_error_free(err);
 
-    free(filename);
+    fprintf(stderr, "%s: %s", prefix, buf);
+
+    abort();
+}
+
+static
+void
+fatal_libc_error(const char *prefix, int err)
+{
+    fprintf(stderr, "%s: %s", prefix, strerror(err));
+
+    abort();
+}
+
+static
+void
+write_tcr(const atf_tc_t *tc, const char *state, const char *reason,
+          va_list *ap)
+{
+    atf_error_t err;
+    int fd;
+    atf_fs_path_t tcrfile;
+
+    err = atf_fs_path_copy(&tcrfile, current_workdir);
+    if (atf_is_error(err))
+        fatal_atf_error("Cannot write test case results", err);
+
+    err = atf_fs_path_append_fmt(&tcrfile, "tc-result");
+    if (atf_is_error(err))
+        fatal_atf_error("Cannot write test case results", err);
+
+    fd = open(atf_fs_path_cstring(&tcrfile),
+              O_WRONLY | O_CREAT | O_TRUNC, 0755);
+    if (fd == -1)
+        fatal_libc_error("Cannot write test case results", errno);
+
+    err = atf_io_write_fmt(fd, "%s\n", state);
+    if (atf_is_error(err))
+        fatal_atf_error("Cannot write test case results", err);
+
+    if (reason != NULL) {
+        INV(ap != NULL);
+        err = atf_io_write_ap(fd, reason, *ap);
+        if (atf_is_error(err))
+            fatal_atf_error("Cannot write test case results", err);
+        err = atf_io_write_fmt(fd, "\n");
+        if (atf_is_error(err))
+            fatal_atf_error("Cannot write test case results", err);
+    } else
+        INV(ap == NULL);
+
+    close(fd);
 }
 
 void
 atf_tc_fail(const char *fmt, ...)
 {
-    char *reason;
     va_list ap;
 
+    PRE(current_tc != NULL);
+
     va_start(ap, fmt);
-    atf_text_format(&reason, fmt, ap);
+    write_tcr(current_tc, "failed", fmt, &ap);
     va_end(ap);
-
-    write_tcr(current_tc, "failed", reason);
-
-    free(reason);
 
     exit(EXIT_SUCCESS);
 }
@@ -288,7 +475,9 @@ atf_tc_fail(const char *fmt, ...)
 void
 atf_tc_pass(void)
 {
-    write_tcr(current_tc, "passed", NULL);
+    PRE(current_tc != NULL);
+
+    write_tcr(current_tc, "passed", NULL, NULL);
 
     exit(EXIT_SUCCESS);
 }
@@ -296,16 +485,13 @@ atf_tc_pass(void)
 void
 atf_tc_skip(const char *fmt, ...)
 {
-    char *reason;
     va_list ap;
 
+    PRE(current_tc != NULL);
+
     va_start(ap, fmt);
-    atf_text_format(&reason, fmt, ap);
+    write_tcr(current_tc, "skipped", fmt, &ap);
     va_end(ap);
-
-    write_tcr(current_tc, "skipped", reason);
-
-    free(reason);
 
     exit(EXIT_SUCCESS);
 }

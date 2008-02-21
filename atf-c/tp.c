@@ -35,112 +35,179 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
-#include "io.h"
-#include "sanity.h"
-#include "tp.h"
+#include "atf-c/io.h"
+#include "atf-c/sanity.h"
+#include "atf-c/tc.h"
+#include "atf-c/tcr.h"
+#include "atf-c/tp.h"
+
+/* ---------------------------------------------------------------------
+ * Auxiliary functions.
+ * --------------------------------------------------------------------- */
 
 static
-atf_tc_t *
+const atf_tc_t *
 find_tc(const atf_tp_t *tp, const char *ident)
 {
-    atf_tc_t *tc;
+    const atf_tc_t *tc;
+    atf_list_citer_t iter;
 
     tc = NULL;
-    TAILQ_FOREACH(tc, &tp->m_tcs, m_link) {
-        if (strcmp(tc->m_ident, ident) == 0)
+    atf_list_for_each_c(iter, &tp->m_tcs) {
+        const atf_tc_t *tc2;
+        tc2 = atf_list_citer_data(iter);
+        if (strcmp(tc2->m_ident, ident) == 0) {
+            tc = tc2;
             break;
+        }
     }
     return tc;
 }
 
-void
-atf_tp_add_tc(atf_tp_t *tp, atf_tc_t *tc)
-{
-    PRE(find_tc(tp, tc->m_ident) == NULL);
+/* ---------------------------------------------------------------------
+ * The "atf_tp" type.
+ * --------------------------------------------------------------------- */
 
-    TAILQ_INSERT_TAIL(&tp->m_tcs, tc, m_link);
-    tp->m_tcs_count++;
+/*
+ * Constructors/destructors.
+ */
 
-    POST(find_tc(tp, tc->m_ident) != NULL);
-}
-
-void
+atf_error_t
 atf_tp_init(atf_tp_t *tp)
 {
+    atf_error_t err;
+
     atf_object_init(&tp->m_object);
 
-    tp->m_results_fd = STDOUT_FILENO;
-    TAILQ_INIT(&tp->m_tcs);
-    tp->m_tcs_count = 0;
+    err = atf_list_init(&tp->m_tcs);
+    if (atf_is_error(err))
+        goto err_object;
+
+    INV(!atf_is_error(err));
+    return err;
+
+err_object:
+    atf_object_fini(&tp->m_object);
+    return err;
 }
 
 void
 atf_tp_fini(atf_tp_t *tp)
 {
-    atf_tc_t *tc;
+    atf_list_iter_t iter;
 
-    TAILQ_FOREACH(tc, &tp->m_tcs, m_link) {
+    atf_list_for_each(iter, &tp->m_tcs) {
+        atf_tc_t *tc = atf_list_iter_data(iter);
         atf_tc_fini(tc);
     }
+    atf_list_fini(&tp->m_tcs);
 
     atf_object_fini(&tp->m_object);
 }
 
-void
-atf_tp_set_results_fd(atf_tp_t *tp, int fd)
+/*
+ * Getters.
+ */
+
+const atf_tc_t *
+atf_tp_get_tc(const atf_tp_t *tp, const char *id)
 {
-    assert(fd >= 0 && fd <= 9);
-    tp->m_results_fd = fd;
+    const atf_tc_t *tc = find_tc(tp, id);
+    PRE(tc != NULL);
+    return tc;
 }
 
-int
-atf_tp_run(atf_tp_t *tp)
+const atf_list_t *
+atf_tp_get_tcs(const atf_tp_t *tp)
 {
-    int code;
-    atf_tc_t *tc;
+    return &tp->m_tcs;
+}
 
-    atf_io_write(tp->m_results_fd,
-                 "Content-Type: application/X-atf-tcs; version=\"1\"\n\n");
-    atf_io_write(tp->m_results_fd, "tcs-count: %d\n", tp->m_tcs_count);
+/*
+ * Modifiers.
+ */
 
-    code = EXIT_SUCCESS;
-    TAILQ_FOREACH(tc, &tp->m_tcs, m_link) {
+atf_error_t
+atf_tp_add_tc(atf_tp_t *tp, atf_tc_t *tc)
+{
+    atf_error_t err;
+
+    PRE(find_tc(tp, tc->m_ident) == NULL);
+
+    err = atf_list_append(&tp->m_tcs, tc);
+
+    POST(find_tc(tp, tc->m_ident) != NULL);
+
+    return err;
+}
+
+/* ---------------------------------------------------------------------
+ * Free functions.
+ * --------------------------------------------------------------------- */
+
+atf_error_t
+atf_tp_run(const atf_tp_t *tp, const atf_list_t *ids, int fd,
+           size_t *failcount)
+{
+    atf_error_t err;
+    atf_list_citer_t iter;
+    size_t count;
+
+    err = atf_io_write_fmt(fd, "Content-Type: application/X-atf-tcs; "
+                           "version=\"1\"\n\n");
+    if (atf_is_error(err))
+        goto out;
+    err = atf_io_write_fmt(fd, "tcs-count: %d\n", atf_list_size(ids));
+    if (atf_is_error(err))
+        goto out;
+
+    *failcount = count = 0;
+    atf_list_for_each_c(iter, ids) {
+        const char *ident = atf_list_citer_data(iter);
+        const atf_tc_t *tc;
         atf_tcr_t tcr;
+        int state;
 
-        atf_io_write(tp->m_results_fd, "tp-start: %s\n", tc->m_ident);
+        err = atf_io_write_fmt(fd, "tc-start: %s\n", ident);
+        if (atf_is_error(err))
+            goto out;
 
-        tcr = atf_tc_run(tc);
+        tc = find_tc(tp, ident);
+        PRE(tc != NULL);
 
-        if (tc != TAILQ_LAST(&tp->m_tcs, atf_tc_list)) {
+        err = atf_tc_run(tc, &tcr);
+        if (atf_is_error(err))
+            goto out;
+
+        count++;
+        if (count < atf_list_size(ids)) {
             fprintf(stdout, "__atf_tc_separator__\n");
             fprintf(stderr, "__atf_tc_separator__\n");
         }
         fflush(stdout);
         fflush(stderr);
 
-        {
-            int status = atf_tcr_get_status(&tcr);
-            if (status == atf_tcr_passed) {
-                atf_io_write(tp->m_results_fd, "tp-end: %s, passed\n",
-                             tc->m_ident);
-            } else if (status == atf_tcr_failed) {
-                atf_io_write(tp->m_results_fd, "tp-end: %s, failed, %s\n",
-                             tc->m_ident, atf_tcr_get_reason(&tcr));
-                code = EXIT_FAILURE;
-            } else if (status == atf_tcr_skipped) {
-                atf_io_write(tp->m_results_fd, "tp-end: %s, skipped, %s\n",
-                             tc->m_ident, atf_tcr_get_reason(&tcr));
-                code = EXIT_FAILURE;
-            } else
-                UNREACHABLE;
-        }
-
+        state = atf_tcr_get_state(&tcr);
+        if (state == atf_tcr_passed_state) {
+            err = atf_io_write_fmt(fd, "tc-end: %s, passed\n", ident);
+        } else if (state == atf_tcr_failed_state) {
+            const atf_dynstr_t *reason = atf_tcr_get_reason(&tcr);
+            err = atf_io_write_fmt(fd, "tc-end: %s, failed, %s\n", ident,
+                                   atf_dynstr_cstring(reason));
+            (*failcount)++;
+        } else if (state == atf_tcr_skipped_state) {
+            const atf_dynstr_t *reason = atf_tcr_get_reason(&tcr);
+            err = atf_io_write_fmt(fd, "tc-end: %s, skipped, %s\n", ident,
+                                   atf_dynstr_cstring(reason));
+        } else
+            UNREACHABLE;
         atf_tcr_fini(&tcr);
+        if (atf_is_error(err))
+            goto out;
     }
 
-    return code;
+out:
+    return err;
 }

@@ -37,36 +37,32 @@
 #if !defined(ATF_C_TC_H)
 #define ATF_C_TC_H
 
-#include <sys/queue.h>
-
-#include <stddef.h>
-#include <unistd.h>
-
-#include <atf-c/dynstr.h>
+#include <atf-c/error.h>
+#include <atf-c/list.h>
 #include <atf-c/object.h>
 
+struct atf_dynstr;
+struct atf_tcr;
+
+struct atf_tc;
+
+typedef void (*atf_tc_head_t)(struct atf_tc *);
+typedef void (*atf_tc_body_t)(const struct atf_tc *);
+typedef void (*atf_tc_cleanup_t)(const struct atf_tc *);
+
 /* ---------------------------------------------------------------------
- * The "atf_tcr" type.
+ * The "atf_tc_pack" type.
  * --------------------------------------------------------------------- */
 
-extern const int atf_tcr_passed;
-extern const int atf_tcr_failed;
-extern const int atf_tcr_skipped;
+/* For static initialization only. */
+struct atf_tc_pack {
+    const char *m_ident;
 
-struct atf_tcr {
-    atf_object_t m_object;
-
-    int m_status;
-    atf_dynstr_t m_reason;
+    atf_tc_head_t m_head;
+    atf_tc_body_t m_body;
+    atf_tc_cleanup_t m_cleanup;
 };
-typedef struct atf_tcr atf_tcr_t;
-
-void atf_tcr_init(atf_tcr_t *, int);
-int atf_tcr_init_reason(atf_tcr_t *, int, const char *, ...);
-void atf_tcr_fini(atf_tcr_t *);
-
-int atf_tcr_get_status(const atf_tcr_t *);
-const char *atf_tcr_get_reason(const atf_tcr_t *);
+typedef const struct atf_tc_pack atf_tc_pack_t;
 
 /* ---------------------------------------------------------------------
  * The "atf_tc" type.
@@ -77,27 +73,40 @@ struct atf_tc {
 
     const char *m_ident;
 
-    TAILQ_ENTRY(atf_tc) m_link;
+    /* Ideally we would use a map here instead of a list for efficient
+     * look up but... 1) a list is easier to implement and 2) test cases
+     * have very few variables (generally less than 10). */
+    atf_list_t m_vars;
 
-    const char *m_workdir;
-
-    void (*m_head)(struct atf_tc *);
-    void (*m_body)(const struct atf_tc *);
-    void (*m_cleanup)(const struct atf_tc *);
+    atf_tc_head_t m_head;
+    atf_tc_body_t m_body;
+    atf_tc_cleanup_t m_cleanup;
 };
 typedef struct atf_tc atf_tc_t;
 
-TAILQ_HEAD(atf_tc_list, atf_tc);
-
-void atf_tc_init(atf_tc_t *);
+/* Constructors/destructors. */
+atf_error_t atf_tc_init(atf_tc_t *, const char *, atf_tc_head_t,
+                        atf_tc_body_t, atf_tc_cleanup_t);
+atf_error_t atf_tc_init_pack(atf_tc_t *, atf_tc_pack_t *);
 void atf_tc_fini(atf_tc_t *);
 
-atf_tcr_t atf_tc_run(atf_tc_t *);
+/* Getters. */
+const char *atf_tc_get_ident(const atf_tc_t *);
+const struct atf_dynstr *atf_tc_get_var(const atf_tc_t *, const char *);
+bool atf_tc_has_var(const atf_tc_t *, const char *);
 
-void atf_tc_fail(const char *, ...);
-void atf_tc_pass(void);
-void atf_tc_skip(const char *, ...);
+/* Modifiers. */
+atf_error_t atf_tc_set_var(atf_tc_t *, const char *, const char *, ...);
 
-void atf_tc_set_var(const char *, const char *, ...);
+/* ---------------------------------------------------------------------
+ * Free functions.
+ * --------------------------------------------------------------------- */
+
+atf_error_t atf_tc_run(const atf_tc_t *, struct atf_tcr *);
+
+/* To be run from test case bodies only. */
+void atf_tc_fail(const char *, ...) __attribute__((noreturn));
+void atf_tc_pass(void) __attribute__((noreturn));
+void atf_tc_skip(const char *, ...) __attribute__((noreturn));
 
 #endif /* ATF_C_TC_H */

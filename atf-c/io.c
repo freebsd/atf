@@ -41,33 +41,65 @@
 #include <unistd.h>
 
 #include "atf-c/dynstr.h"
+#include "atf-c/sanity.h"
 
-int
+atf_error_t
 atf_io_readline(int fd, atf_dynstr_t *dest)
 {
     char ch[2];
-    ssize_t ret;
+    ssize_t cnt;
+    atf_error_t err;
 
     ch[1] = '\0';
-    while ((ret = read(fd, &ch[0], sizeof(ch[0]))) == sizeof(ch[0]) &&
+    while ((cnt = read(fd, &ch[0], sizeof(ch[0]))) == sizeof(ch[0]) &&
            ch[0] != '\n') {
         atf_dynstr_append_fmt(dest, ch);
     }
-    return ret == -1 ? errno : 0;
+
+    if (cnt == -1)
+        err = atf_libc_error(errno, "Failed to read line from file "
+                             "descriptor %d", fd);
+    else
+        err = atf_no_error();
+
+    return err;
 }
 
-int
-atf_io_write(int fd, const char *fmt, ...)
+atf_error_t
+atf_io_write_ap(int fd, const char *fmt, va_list ap)
 {
-    ssize_t cnt;
-    va_list ap;
+    atf_error_t err;
     atf_dynstr_t str;
 
+    err = atf_dynstr_init_ap(&str, fmt, ap);
+    if (!atf_is_error(err)) {
+        ssize_t cnt = write(fd, atf_dynstr_cstring(&str),
+                            atf_dynstr_length(&str));
+
+        if (cnt == -1)
+            err = atf_libc_error(errno, "Failed to write '%s' to file "
+                                 "descriptor %d", atf_dynstr_cstring(&str),
+                                 fd);
+        else {
+            INV(cnt == atf_dynstr_length(&str));
+            err = atf_no_error();
+        }
+
+        atf_dynstr_fini(&str);
+    }
+
+    return err;
+}
+
+atf_error_t
+atf_io_write_fmt(int fd, const char *fmt, ...)
+{
+    atf_error_t err;
+    va_list ap;
+
     va_start(ap, fmt);
-    atf_dynstr_init_ap(&str, fmt, ap);
-    cnt = write(fd, atf_dynstr_cstring(&str), atf_dynstr_length(&str));
-    atf_dynstr_fini(&str);
+    err = atf_io_write_ap(fd, fmt, ap);
     va_end(ap);
 
-    return cnt;
+    return err;
 }

@@ -37,25 +37,38 @@
 #if !defined(ATF_C_TP_H)
 #define ATF_C_TP_H
 
+#include <atf-c/error.h>
+#include <atf-c/list.h>
 #include <atf-c/object.h>
-#include <atf-c/tc.h>
+
+struct atf_tc;
+
+/* ---------------------------------------------------------------------
+ * The "atf_tp" type.
+ * --------------------------------------------------------------------- */
 
 struct atf_tp {
     atf_object_t m_object;
 
-    int m_results_fd;
-    struct atf_tc_list m_tcs;
-    size_t m_tcs_count;
+    atf_list_t m_tcs;
 };
 typedef struct atf_tp atf_tp_t;
 
-void atf_tp_init(atf_tp_t *);
+/* Constructors/destructors. */
+atf_error_t atf_tp_init(atf_tp_t *);
 void atf_tp_fini(atf_tp_t *);
 
-void atf_tp_set_results_fd(atf_tp_t *, int);
+/* Getters. */
+const struct atf_tc *atf_tp_get_tc(const atf_tp_t *, const char *);
+const atf_list_t *atf_tp_get_tcs(const atf_tp_t *);
 
-int atf_tp_run(atf_tp_t *);
+/* Modifiers. */
+atf_error_t atf_tp_add_tc(atf_tp_t *, struct atf_tc *);
 
-void atf_tp_add_tc(atf_tp_t *, struct atf_tc *);
+/* ---------------------------------------------------------------------
+ * Free functions.
+ * --------------------------------------------------------------------- */
+
+atf_error_t atf_tp_run(const atf_tp_t *, const atf_list_t *, int, size_t *);
 
 #endif /* ATF_C_TP_H */
