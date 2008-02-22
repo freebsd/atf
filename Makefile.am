@@ -983,6 +983,7 @@ tests_build_libuseless_a_SOURCES = \
     tests/build/atf-c/t_include_io_h.c \
     tests/build/atf-c/t_include_list_h.c \
     tests/build/atf-c/t_include_macros_h.c \
+    tests/build/atf-c/t_include_map_h.c \
     tests/build/atf-c/t_include_object_h.c \
     tests/build/atf-c/t_include_sanity_h.c \
     tests/build/atf-c/t_include_tc_h.c \
