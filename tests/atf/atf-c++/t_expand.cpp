@@ -166,61 +166,61 @@ ATF_TEST_CASE_BODY(expand_glob_base)
 {
     using atf::expand::expand_glob;
 
-    std::set< std::string > candidates;
-    candidates.insert("foo");
-    candidates.insert("bar");
-    candidates.insert("baz");
-    candidates.insert("foobar");
-    candidates.insert("foobarbaz");
-    candidates.insert("foobarbazfoo");
+    std::vector< std::string > candidates;
+    candidates.push_back("foo");
+    candidates.push_back("bar");
+    candidates.push_back("baz");
+    candidates.push_back("foobar");
+    candidates.push_back("foobarbaz");
+    candidates.push_back("foobarbazfoo");
 
-    std::set< std::string > exps;
+    std::vector< std::string > exps;
 
     exps = expand_glob("foo", candidates);
     ATF_CHECK_EQUAL(exps.size(), 1);
-    ATF_CHECK(exps.find("foo") != exps.end());
+    ATF_CHECK(exps[0] == "foo");
 
     exps = expand_glob("bar", candidates);
     ATF_CHECK_EQUAL(exps.size(), 1);
-    ATF_CHECK(exps.find("bar") != exps.end());
+    ATF_CHECK(exps[0] == "bar");
 
     exps = expand_glob("foo*", candidates);
     ATF_CHECK_EQUAL(exps.size(), 4);
-    ATF_CHECK(exps.find("foo") != exps.end());
-    ATF_CHECK(exps.find("foobar") != exps.end());
-    ATF_CHECK(exps.find("foobarbaz") != exps.end());
-    ATF_CHECK(exps.find("foobarbazfoo") != exps.end());
+    ATF_CHECK(exps[0] == "foo");
+    ATF_CHECK(exps[1] == "foobar");
+    ATF_CHECK(exps[2] == "foobarbaz");
+    ATF_CHECK(exps[3] == "foobarbazfoo");
 
     exps = expand_glob("*foo", candidates);
     ATF_CHECK_EQUAL(exps.size(), 2);
-    ATF_CHECK(exps.find("foo") != exps.end());
-    ATF_CHECK(exps.find("foobarbazfoo") != exps.end());
+    ATF_CHECK(exps[0] == "foo");
+    ATF_CHECK(exps[1] == "foobarbazfoo");
 
     exps = expand_glob("*foo*", candidates);
     ATF_CHECK_EQUAL(exps.size(), 4);
-    ATF_CHECK(exps.find("foo") != exps.end());
-    ATF_CHECK(exps.find("foobar") != exps.end());
-    ATF_CHECK(exps.find("foobarbaz") != exps.end());
-    ATF_CHECK(exps.find("foobarbazfoo") != exps.end());
+    ATF_CHECK(exps[0] == "foo");
+    ATF_CHECK(exps[1] == "foobar");
+    ATF_CHECK(exps[2] == "foobarbaz");
+    ATF_CHECK(exps[3] == "foobarbazfoo");
 
     exps = expand_glob("ba", candidates);
     ATF_CHECK_EQUAL(exps.size(), 0);
 
     exps = expand_glob("ba*", candidates);
     ATF_CHECK_EQUAL(exps.size(), 2);
-    ATF_CHECK(exps.find("bar") != exps.end());
-    ATF_CHECK(exps.find("baz") != exps.end());
+    ATF_CHECK(exps[0] == "bar");
+    ATF_CHECK(exps[1] == "baz");
 
     exps = expand_glob("*ba", candidates);
     ATF_CHECK_EQUAL(exps.size(), 0);
 
     exps = expand_glob("*ba*", candidates);
     ATF_CHECK_EQUAL(exps.size(), 5);
-    ATF_CHECK(exps.find("bar") != exps.end());
-    ATF_CHECK(exps.find("baz") != exps.end());
-    ATF_CHECK(exps.find("foobar") != exps.end());
-    ATF_CHECK(exps.find("foobarbaz") != exps.end());
-    ATF_CHECK(exps.find("foobarbazfoo") != exps.end());
+    ATF_CHECK(exps[0] == "bar");
+    ATF_CHECK(exps[1] == "baz");
+    ATF_CHECK(exps[2] == "foobar");
+    ATF_CHECK(exps[3] == "foobarbaz");
+    ATF_CHECK(exps[4] == "foobarbazfoo");
 }
 
 ATF_TEST_CASE(expand_glob_tps);
@@ -235,30 +235,30 @@ ATF_TEST_CASE_BODY(expand_glob_tps)
 {
     using atf::expand::expand_glob;
 
-    std::set< std::string > candidates;
-    candidates.insert("Atffile");
-    candidates.insert("h_foo");
-    candidates.insert("t_foo");
-    candidates.insert("t_bar");
-    candidates.insert("t_baz");
-    candidates.insert("foo_helper");
-    candidates.insert("foo_test");
-    candidates.insert("bar_test");
-    candidates.insert("baz_test");
+    std::vector< std::string > candidates;
+    candidates.push_back("Atffile");
+    candidates.push_back("h_foo");
+    candidates.push_back("t_foo");
+    candidates.push_back("t_bar");
+    candidates.push_back("t_baz");
+    candidates.push_back("foo_helper");
+    candidates.push_back("foo_test");
+    candidates.push_back("bar_test");
+    candidates.push_back("baz_test");
 
-    std::set< std::string > exps;
+    std::vector< std::string > exps;
 
     exps = expand_glob("t_*", candidates);
     ATF_CHECK_EQUAL(exps.size(), 3);
-    ATF_CHECK(exps.find("t_foo") != exps.end());
-    ATF_CHECK(exps.find("t_bar") != exps.end());
-    ATF_CHECK(exps.find("t_baz") != exps.end());
+    ATF_CHECK(exps[0] == "t_foo");
+    ATF_CHECK(exps[1] == "t_bar");
+    ATF_CHECK(exps[2] == "t_baz");
 
     exps = expand_glob("*_test", candidates);
     ATF_CHECK_EQUAL(exps.size(), 3);
-    ATF_CHECK(exps.find("foo_test") != exps.end());
-    ATF_CHECK(exps.find("bar_test") != exps.end());
-    ATF_CHECK(exps.find("baz_test") != exps.end());
+    ATF_CHECK(exps[0] == "foo_test");
+    ATF_CHECK(exps[1] == "bar_test");
+    ATF_CHECK(exps[2] == "baz_test");
 }
 
 ATF_INIT_TEST_CASES(tcs)

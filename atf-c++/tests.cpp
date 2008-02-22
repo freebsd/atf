@@ -709,7 +709,7 @@ private:
     int m_results_fd;
     std::auto_ptr< std::ostream > m_results_os;
     atf::fs::path m_srcdir;
-    std::set< std::string > m_tcnames;
+    std::vector< std::string > m_tcnames;
 
     atf::tests::vars_map m_vars;
 
@@ -720,7 +720,8 @@ private:
     tc_vector m_tcs;
 
     tc_vector init_tcs(void);
-    static tc_vector filter_tcs(tc_vector, const std::set< std::string >&);
+    static tc_vector filter_tcs(tc_vector,
+                                const std::vector< std::string >&);
 
     std::ostream& results_stream(void);
 
@@ -837,7 +838,7 @@ public:
 };
 
 tp::tc_vector
-tp::filter_tcs(tc_vector tcs, const std::set< std::string >& tcnames)
+tp::filter_tcs(tc_vector tcs, const std::vector< std::string >& tcnames)
 {
     tc_vector tcso;
 
@@ -847,30 +848,31 @@ tp::filter_tcs(tc_vector tcs, const std::set< std::string >& tcnames)
         tcso = tcs;
     } else {
         // Collect all the test cases' identifiers.
-        std::set< std::string > ids;
+        std::vector< std::string > ids;
         for (tc_vector::iterator iter = tcs.begin();
              iter != tcs.end(); iter++) {
             impl::tc* tc = *iter;
 
-            ids.insert(tc->get("ident"));
+            ids.push_back(tc->get("ident"));
         }
 
         // Iterate over all names provided by the user and, for each one,
         // expand it as if it were a glob pattern.  Collect all expansions.
-        std::set< std::string > exps;
-        for (std::set< std::string >::const_iterator iter = tcnames.begin();
+        std::vector< std::string > exps;
+        for (std::vector< std::string >::const_iterator iter = tcnames.begin();
              iter != tcnames.end(); iter++) {
             const std::string& glob = *iter;
 
-            std::set< std::string > ms = atf::expand::expand_glob(glob, ids);
+            std::vector< std::string > ms =
+                atf::expand::expand_glob(glob, ids);
             if (ms.empty())
                 throw std::runtime_error("Unknown test case `" + glob + "'");
-            exps.insert(ms.begin(), ms.end());
+            exps.insert(exps.end(), ms.begin(), ms.end());
         }
 
         // For each expansion, locate its corresponding test case and add
         // it to the output set.
-        for (std::set< std::string >::const_iterator iter = exps.begin();
+        for (std::vector< std::string >::const_iterator iter = exps.begin();
              iter != exps.end(); iter++) {
             const std::string& name = *iter;
 
@@ -968,7 +970,7 @@ tp::main(void)
                                  "source directory `" + m_srcdir.str() + "'");
 
     for (int i = 0; i < m_argc; i++)
-        m_tcnames.insert(m_argv[i]);
+        m_tcnames.push_back(m_argv[i]);
 
     if (m_lflag)
         errcode = list_tcs();

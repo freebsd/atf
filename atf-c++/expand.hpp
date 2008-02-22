@@ -37,9 +37,9 @@
 #if !defined(_ATF_CXX_EXPAND_HPP_)
 #define _ATF_CXX_EXPAND_HPP_
 
-#include <set>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include <atf-c++/utils.hpp>
 
@@ -118,8 +118,19 @@ public:
 //! Given a glob pattern and a set of candidate strings, checks which of
 //! those strings match the glob pattern and returns them.
 //!
-std::set< std::string > expand_glob(const std::string&,
-                                    const std::set< std::string >&);
+template< class T >
+std::vector< std::string > expand_glob(const std::string& glob,
+                                       const T& candidates)
+{
+    std::vector< std::string > exps;
+
+    for (typename T::const_iterator iter = candidates.begin();
+         iter != candidates.end(); iter++)
+        if (matches_glob(glob, *iter))
+            exps.push_back(*iter);
+
+    return exps;
+}
 
 //!
 //! \brief Checks if the given string is a glob pattern.

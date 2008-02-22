@@ -538,7 +538,7 @@ _atf_error()
 # _atf_expand_glob glob
 #
 #   Prints all test case identifiers that match the provided glob
-#   pattern.  The results are sorted alphabetically.
+#   pattern.
 #
 _atf_expand_glob()
 {
@@ -555,12 +555,10 @@ _atf_expand_glob()
     done
 
     set -- ${_matched}
-    {
-        while [ ${#} -gt 0 ]; do
-            echo ${1}
-            shift
-        done
-    } | sort
+    while [ ${#} -gt 0 ]; do
+        echo ${1}
+        shift
+    done
 }
 
 #

@@ -52,6 +52,8 @@ tc-end: default, passed
 ])
 AT_CHECK([TEST_HELPER(${h}) -r3 3>resout], 1, [ignore], [ignore])
 AT_CHECK([cmp -s resout expres], [0], [], [])
+AT_CHECK([TEST_HELPER(${h}) -r3 3>resout "*"], 1, [ignore], [ignore])
+AT_CHECK([cmp -s resout expres], [0], [], [])
 
 AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="1"
 
@@ -60,6 +62,17 @@ tc-start: pass
 tc-end: pass, passed
 ])
 AT_CHECK([TEST_HELPER(${h}) -r3 pass 3>resout], 0, [ignore], [ignore])
+AT_CHECK([cmp -s resout expres], [0], [], [])
+
+AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="1"
+
+tcs-count: 2
+tc-start: pass
+tc-end: pass, passed
+tc-start: pass
+tc-end: pass, passed
+])
+AT_CHECK([TEST_HELPER(${h}) -r3 pass "p*" 3>resout], 0, [ignore], [ignore])
 AT_CHECK([cmp -s resout expres], [0], [], [])
 
 AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="1"
@@ -74,10 +87,10 @@ AT_CHECK([cmp -s resout expres], [0], [], [])
 AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="1"
 
 tcs-count: 2
-tc-start: default
-tc-end: default, passed
 tc-start: fail
 tc-end: fail, failed, On purpose
+tc-start: default
+tc-end: default, passed
 ])
 AT_CHECK([TEST_HELPER(${h}) -r3 "*f*" 3>resout], 1, [ignore], [ignore])
 AT_CHECK([cmp -s resout expres], [0], [], [])

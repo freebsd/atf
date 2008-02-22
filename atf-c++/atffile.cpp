@@ -54,11 +54,11 @@ class reader : public atf::formats::atf_atffile_reader {
     got_tp(const std::string& name, bool isglob)
     {
         if (isglob) {
-            std::set< std::string > ms =
+            std::vector< std::string > ms =
                 atf::expand::expand_glob(name, m_dir.names());
             // Cannot use m_tps.insert(iterator, begin, end) here because it
             // does not work under Solaris.
-            for (std::set< std::string >::const_iterator iter = ms.begin();
+            for (std::vector< std::string >::const_iterator iter = ms.begin();
                  iter != ms.end(); iter++)
                 m_tps.push_back(*iter);
         } else {
