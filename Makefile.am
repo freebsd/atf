@@ -117,6 +117,8 @@ libatf_c_la_SOURCES = atf-c/config.c \
                       atf-c/list.c \
                       atf-c/list.h \
                       atf-c/macros.h \
+                      atf-c/map.c \
+                      atf-c/map.h \
                       atf-c/object.c \
                       atf-c/object.h \
                       atf-c/sanity.h \
@@ -441,6 +443,11 @@ atf_atf_c_PROGRAMS += tests/atf/atf-c/t_list
 tests_atf_atf_c_t_list_SOURCES = tests/atf/atf-c/t_list.c
 tests_atf_atf_c_t_list_LDADD = -latf-c
 tests_atf_atf_c_t_list_LDFLAGS = -L.
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_map
+tests_atf_atf_c_t_map_SOURCES = tests/atf/atf-c/t_map.c
+tests_atf_atf_c_t_map_LDADD = -latf-c
+tests_atf_atf_c_t_map_LDFLAGS = -L.
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_tc
 tests_atf_atf_c_t_tc_SOURCES = tests/atf/atf-c/t_tc.c
