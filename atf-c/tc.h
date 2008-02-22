@@ -38,7 +38,7 @@
 #define ATF_C_TC_H
 
 #include <atf-c/error.h>
-#include <atf-c/list.h>
+#include <atf-c/map.h>
 #include <atf-c/object.h>
 
 struct atf_dynstr;
@@ -73,10 +73,7 @@ struct atf_tc {
 
     const char *m_ident;
 
-    /* Ideally we would use a map here instead of a list for efficient
-     * look up but... 1) a list is easier to implement and 2) test cases
-     * have very few variables (generally less than 10). */
-    atf_list_t m_vars;
+    atf_map_t m_vars;
 
     atf_tc_head_t m_head;
     atf_tc_body_t m_body;
@@ -92,7 +89,7 @@ void atf_tc_fini(atf_tc_t *);
 
 /* Getters. */
 const char *atf_tc_get_ident(const atf_tc_t *);
-const struct atf_dynstr *atf_tc_get_var(const atf_tc_t *, const char *);
+const char *atf_tc_get_var(const atf_tc_t *, const char *);
 bool atf_tc_has_var(const atf_tc_t *, const char *);
 
 /* Modifiers. */

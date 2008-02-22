@@ -136,8 +136,7 @@ ATF_TC_BODY(vars, tcin)
     ATF_CHECK(!atf_tc_has_var(&tc, "test-var"));
     CE(atf_tc_set_var(&tc, "test-var", "Test value"));
     ATF_CHECK(atf_tc_has_var(&tc, "test-var"));
-    ATF_CHECK(strcmp(atf_dynstr_cstring(atf_tc_get_var(&tc, "test-var")),
-                     "Test value") == 0);
+    ATF_CHECK(strcmp(atf_tc_get_var(&tc, "test-var"), "Test value") == 0);
     atf_tc_fini(&tc);
 }
 

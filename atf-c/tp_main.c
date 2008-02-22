@@ -318,10 +318,9 @@ list_tcs(const atf_tp_t *tp, const atf_list_t *tcids)
     atf_list_for_each_c(iter, tcids) {
         const char *id = atf_list_citer_data(iter);
         const atf_tc_t *tc = atf_tp_get_tc(tp, id);
-        const atf_dynstr_t *descr = atf_tc_get_var(tc, "descr");
+        const char *descr = atf_tc_get_var(tc, "descr");
 
-        err = print_tag(stdout, id, false, col, "%s",
-                        atf_dynstr_cstring(descr));
+        err = print_tag(stdout, id, false, col, "%s", descr);
         if (atf_is_error(err))
             break;
     }

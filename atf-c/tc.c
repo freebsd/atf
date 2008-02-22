@@ -58,11 +58,6 @@
  * Auxiliary types and functions.
  * --------------------------------------------------------------------- */
 
-struct var {
-    const char *m_name;
-    atf_dynstr_t m_value;
-};
-
 /* Parent-only stuff. */
 static atf_error_t body_parent(const atf_tc_t *, const atf_fs_path_t *,
                                pid_t, atf_tcr_t *);
@@ -95,7 +90,7 @@ atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
 
     atf_object_init(&tc->m_object);
 
-    err = atf_list_init(&tc->m_vars);
+    err = atf_map_init(&tc->m_vars);
     if (atf_is_error(err))
         goto err_object;
 
@@ -126,15 +121,7 @@ atf_tc_init_pack(atf_tc_t *tc, const atf_tc_pack_t *pack)
 void
 atf_tc_fini(atf_tc_t *tc)
 {
-    atf_list_iter_t iter;
-
-    atf_list_for_each(iter, &tc->m_vars) {
-        struct var *v = atf_list_iter_data(iter);
-
-        atf_dynstr_fini(&v->m_value);
-        free(v);
-    }
-    atf_list_fini(&tc->m_vars);
+    atf_map_fini(&tc->m_vars);
 
     atf_object_fini(&tc->m_object);
 }
@@ -149,23 +136,15 @@ atf_tc_get_ident(const atf_tc_t *tc)
     return tc->m_ident;
 }
 
-const atf_dynstr_t *
+const char *
 atf_tc_get_var(const atf_tc_t *tc, const char *name)
 {
-    const atf_dynstr_t *val;
-    atf_list_citer_t iter;
+    const char *val;
+    atf_map_citer_t iter;
 
     PRE(atf_tc_has_var(tc, name));
-
-    val = NULL;
-    atf_list_for_each_c(iter, &tc->m_vars) {
-        const struct var *v = atf_list_citer_data(iter);
-
-        if (strcmp(v->m_name, name) == 0) {
-            INV(val == NULL);
-            val = &v->m_value;
-        }
-    }
+    iter = atf_map_find_c(&tc->m_vars, name);
+    val = atf_map_citer_data(iter);
     INV(val != NULL);
 
     return val;
@@ -174,20 +153,11 @@ atf_tc_get_var(const atf_tc_t *tc, const char *name)
 bool
 atf_tc_has_var(const atf_tc_t *tc, const char *name)
 {
-    bool found;
-    atf_list_citer_t iter;
+    atf_map_citer_t end, iter;
 
-    found = false;
-    atf_list_for_each_c(iter, &tc->m_vars) {
-        const struct var *v = atf_list_citer_data(iter);
-
-        if (strcmp(v->m_name, name) == 0) {
-            INV(!found);
-            found = true;
-        }
-    }
-
-    return found;
+    iter = atf_map_find_c(&tc->m_vars, name);
+    end = atf_map_end_c(&tc->m_vars);
+    return !atf_equal_map_citer_map_citer(iter, end);
 }
 
 /*
@@ -198,26 +168,19 @@ atf_error_t
 atf_tc_set_var(atf_tc_t *tc, const char *name, const char *fmt, ...)
 {
     atf_error_t err;
-    struct var *v;
+    char *value;
     va_list ap;
 
     PRE(!atf_tc_has_var(tc, name));
 
-    v = (struct var *)malloc(sizeof(*v));
-    if (v == NULL)
-        err = atf_no_memory_error();
-    else {
-        v->m_name = name;
+    va_start(ap, fmt);
+    err = atf_text_format_ap(&value, fmt, ap);
+    va_end(ap);
 
-        va_start(ap, fmt);
-        err = atf_dynstr_init_ap(&v->m_value, fmt, ap);
-        va_end(ap);
-
-        if (atf_is_error(err))
-            atf_dynstr_fini(&v->m_value);
-        else
-            err = atf_list_append(&tc->m_vars, v);
-    }
+    if (!atf_is_error(err))
+        err = atf_map_insert(&tc->m_vars, name, value, true);
+    else
+        free(value);
 
     return err;
 }
