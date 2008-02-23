@@ -126,6 +126,8 @@ libatf_c_la_SOURCES = atf-c/config.c \
                       atf-c/text.h \
                       atf-c/ui.c \
                       atf-c/ui.h \
+                      atf-c/user.c \
+                      atf-c/user.h \
                       atf-c/tc.c \
                       atf-c/tc.h \
                       atf-c/tcr.c \
@@ -468,6 +470,11 @@ atf_atf_c_PROGRAMS += tests/atf/atf-c/t_ui
 tests_atf_atf_c_t_ui_SOURCES = tests/atf/atf-c/t_ui.c
 tests_atf_atf_c_t_ui_LDADD = -latf-c
 tests_atf_atf_c_t_ui_LDFLAGS = -L.
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_user
+tests_atf_atf_c_t_user_SOURCES = tests/atf/atf-c/t_user.c
+tests_atf_atf_c_t_user_LDADD = -latf-c
+tests_atf_atf_c_t_user_LDFLAGS = -L.
 
 atf_atf_c___DATA = tests/atf/atf-c++/Atffile
 atf_atf_c__dir = $(pkgtestsdir)/atf-c++
