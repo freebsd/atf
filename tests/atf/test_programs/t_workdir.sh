@@ -134,6 +134,27 @@ cleanup_body()
     done
 }
 
+atf_test_case missing
+missing_head()
+{
+    atf_set "descr" "Tests that an error is raised if the work directory" \
+                    "does not exist"
+}
+missing_body()
+{
+    srcdir=$(atf_get_srcdir)
+    h_cpp=${srcdir}/h_cpp
+    h_sh=${srcdir}/h_sh
+    tmpdir=$(pwd -P)/workdir
+
+    for h in ${h_cpp} ${h_sh}; do
+        atf_check "${h} -s ${srcdir} \
+                   -v pathfile=$(pwd)/path -v workdir=${tmpdir} \
+                   workdir_path" 1 null stderr
+        atf_check "grep 'Cannot find.*${tmpdir}' stderr" 0 ignore null
+    done
+}
+
 # -------------------------------------------------------------------------
 # Main.
 # -------------------------------------------------------------------------
@@ -144,6 +165,7 @@ atf_init_test_cases()
     atf_add_test_case tmpdir
     atf_add_test_case conf
     atf_add_test_case cleanup
+    atf_add_test_case missing
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
