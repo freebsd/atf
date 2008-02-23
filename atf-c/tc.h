@@ -58,6 +58,8 @@ typedef void (*atf_tc_cleanup_t)(const struct atf_tc *);
 struct atf_tc_pack {
     const char *m_ident;
 
+    const atf_map_t *m_config;
+
     atf_tc_head_t m_head;
     atf_tc_body_t m_body;
     atf_tc_cleanup_t m_cleanup;
@@ -74,6 +76,7 @@ struct atf_tc {
     const char *m_ident;
 
     atf_map_t m_vars;
+    const atf_map_t *m_config;
 
     atf_tc_head_t m_head;
     atf_tc_body_t m_body;
@@ -83,11 +86,14 @@ typedef struct atf_tc atf_tc_t;
 
 /* Constructors/destructors. */
 atf_error_t atf_tc_init(atf_tc_t *, const char *, atf_tc_head_t,
-                        atf_tc_body_t, atf_tc_cleanup_t);
-atf_error_t atf_tc_init_pack(atf_tc_t *, atf_tc_pack_t *);
+                        atf_tc_body_t, atf_tc_cleanup_t,
+                        const atf_map_t *);
+atf_error_t atf_tc_init_pack(atf_tc_t *, atf_tc_pack_t *,
+                             const atf_map_t *);
 void atf_tc_fini(atf_tc_t *);
 
 /* Getters. */
+const atf_map_t *atf_tc_get_config(const atf_tc_t *);
 const char *atf_tc_get_ident(const atf_tc_t *);
 const char *atf_tc_get_var(const atf_tc_t *, const char *);
 bool atf_tc_has_var(const atf_tc_t *, const char *);

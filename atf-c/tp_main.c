@@ -48,6 +48,7 @@
 #include "atf-c/dynstr.h"
 #include "atf-c/expand.h"
 #include "atf-c/object.h"
+#include "atf-c/map.h"
 #include "atf-c/sanity.h"
 #include "atf-c/tc.h"
 #include "atf-c/tp.h"
@@ -175,6 +176,7 @@ struct params {
     bool m_do_usage;
     int m_fd;
     atf_list_t m_tcglobs;
+    atf_map_t m_config;
 };
 
 static
@@ -188,7 +190,14 @@ params_init(struct params *p)
     p->m_fd = STDOUT_FILENO;
 
     err = atf_list_init(&p->m_tcglobs);
+    if (atf_is_error(err))
+        goto out;
 
+    err = atf_map_init(&p->m_config);
+    if (atf_is_error(err))
+        atf_list_fini(&p->m_tcglobs);
+
+out:
     return err;
 }
 
@@ -197,6 +206,8 @@ void
 params_fini(struct params *p)
 {
     atf_list_iter_t iter;
+
+    atf_map_fini(&p->m_config);
 
     atf_list_for_each(iter, &p->m_tcglobs)
         free(atf_list_iter_data(iter));
@@ -218,6 +229,28 @@ parse_rflag(const char *arg, int *value)
     *value = arg[0] - '0';
     INV(*value >= 0 && *value <= 9);
     err = atf_no_error();
+
+out:
+    return err;
+}
+
+static
+atf_error_t
+parse_vflag(char *arg, atf_map_t *config)
+{
+    atf_error_t err;
+    char *split;
+
+    split = strchr(arg, '=');
+    if (split == NULL) {
+        err = usage_error("-v requires an argument of the form var=value");
+        goto out;
+    }
+
+    *split = '\0';
+    split++;
+
+    err = atf_map_insert(config, arg, split, false);
 
 out:
     return err;
@@ -392,7 +425,7 @@ process_params(int argc, char **argv, struct params *p)
             break;
 
         case 'v':
-            /* TODO */
+            err = parse_vflag(optarg, &p->m_config);
             break;
 
         case ':':
@@ -448,7 +481,9 @@ controlled_main(int argc, char **argv,
         goto out_p;
     }
 
-    atf_tp_init(&tp);
+    err = atf_tp_init(&tp, &p.m_config);
+    if (atf_is_error(err))
+        goto out_p;
 
     err = add_tcs_hook(&tp);
     if (atf_is_error(err))

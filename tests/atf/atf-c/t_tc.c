@@ -77,13 +77,13 @@ ATF_TC_BODY(init, tcin)
     atf_tc_t tc;
 
     CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
-                   ATF_TC_BODY_NAME(empty), NULL));
+                   ATF_TC_BODY_NAME(empty), NULL, NULL));
     ATF_CHECK(strcmp(atf_tc_get_ident(&tc), "test1") == 0);
     ATF_CHECK(!atf_tc_has_var(&tc, "test-var"));
     atf_tc_fini(&tc);
 
     CE(atf_tc_init(&tc, "test2", ATF_TC_HEAD_NAME(test_var),
-                   ATF_TC_BODY_NAME(empty), NULL));
+                   ATF_TC_BODY_NAME(empty), NULL, NULL));
     ATF_CHECK(strcmp(atf_tc_get_ident(&tc), "test2") == 0);
     ATF_CHECK(atf_tc_has_var(&tc, "test-var"));
     atf_tc_fini(&tc);
@@ -110,12 +110,12 @@ ATF_TC_BODY(init_pack, tcin)
         .m_cleanup = NULL,
     };
 
-    CE(atf_tc_init_pack(&tc, &tcp1));
+    CE(atf_tc_init_pack(&tc, &tcp1, NULL));
     ATF_CHECK(strcmp(atf_tc_get_ident(&tc), "test1") == 0);
     ATF_CHECK(!atf_tc_has_var(&tc, "test-var"));
     atf_tc_fini(&tc);
 
-    CE(atf_tc_init_pack(&tc, &tcp2));
+    CE(atf_tc_init_pack(&tc, &tcp2, NULL));
     ATF_CHECK(strcmp(atf_tc_get_ident(&tc), "test2") == 0);
     ATF_CHECK(atf_tc_has_var(&tc, "test-var"));
     atf_tc_fini(&tc);
@@ -132,11 +132,32 @@ ATF_TC_BODY(vars, tcin)
     atf_tc_t tc;
 
     CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
-                   ATF_TC_BODY_NAME(empty), NULL));
+                   ATF_TC_BODY_NAME(empty), NULL, NULL));
     ATF_CHECK(!atf_tc_has_var(&tc, "test-var"));
     CE(atf_tc_set_var(&tc, "test-var", "Test value"));
     ATF_CHECK(atf_tc_has_var(&tc, "test-var"));
     ATF_CHECK(strcmp(atf_tc_get_var(&tc, "test-var"), "Test value") == 0);
+    atf_tc_fini(&tc);
+}
+
+ATF_TC(config);
+ATF_TC_HEAD(config, tc)
+{
+    atf_tc_set_var(tc, "descr", "Tests the atf_tc_get_config function");
+}
+ATF_TC_BODY(config, tcin)
+{
+    atf_tc_t tc;
+    atf_map_t config;
+
+    CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
+                   ATF_TC_BODY_NAME(empty), NULL, NULL));
+    ATF_CHECK(atf_tc_get_config(&tc) == NULL);
+
+    CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
+                   ATF_TC_BODY_NAME(empty), NULL, &config));
+    ATF_CHECK(atf_tc_get_config(&tc) == &config);
+
     atf_tc_fini(&tc);
 }
 
@@ -158,6 +179,7 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, init);
     ATF_TP_ADD_TC(tp, init_pack);
     ATF_TP_ADD_TC(tp, vars);
+    ATF_TP_ADD_TC(tp, config);
 
     /* Add the test cases for the free functions. */
     /* TODO */

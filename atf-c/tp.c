@@ -75,15 +75,19 @@ find_tc(const atf_tp_t *tp, const char *ident)
  */
 
 atf_error_t
-atf_tp_init(atf_tp_t *tp)
+atf_tp_init(atf_tp_t *tp, struct atf_map *config)
 {
     atf_error_t err;
+
+    PRE(config != NULL);
 
     atf_object_init(&tp->m_object);
 
     err = atf_list_init(&tp->m_tcs);
     if (atf_is_error(err))
         goto err_object;
+
+    tp->m_config = config;
 
     INV(!atf_is_error(err));
     return err;
@@ -110,6 +114,12 @@ atf_tp_fini(atf_tp_t *tp)
 /*
  * Getters.
  */
+
+const struct atf_map *
+atf_tp_get_config(const atf_tp_t *tp)
+{
+    return tp->m_config;
+}
 
 const atf_tc_t *
 atf_tp_get_tc(const atf_tp_t *tp, const char *id)

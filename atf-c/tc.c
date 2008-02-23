@@ -84,7 +84,8 @@ static void write_tcr(const atf_tc_t *, const char *, const char *,
 
 atf_error_t
 atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
-            atf_tc_body_t body, atf_tc_cleanup_t cleanup)
+            atf_tc_body_t body, atf_tc_cleanup_t cleanup,
+            const atf_map_t *config)
 {
     atf_error_t err;
 
@@ -98,6 +99,7 @@ atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
     tc->m_head = head;
     tc->m_body = body;
     tc->m_cleanup = cleanup;
+    tc->m_config = config;
 
     /* XXX Should the head be able to return error codes? */
     tc->m_head(tc);
@@ -112,10 +114,11 @@ err_object:
 }
 
 atf_error_t
-atf_tc_init_pack(atf_tc_t *tc, const atf_tc_pack_t *pack)
+atf_tc_init_pack(atf_tc_t *tc, const atf_tc_pack_t *pack,
+                 const atf_map_t *config)
 {
     return atf_tc_init(tc, pack->m_ident, pack->m_head, pack->m_body,
-                       pack->m_cleanup);
+                       pack->m_cleanup, config);
 }
 
 void
@@ -129,6 +132,12 @@ atf_tc_fini(atf_tc_t *tc)
 /*
  * Getters.
  */
+
+const atf_map_t *
+atf_tc_get_config(const atf_tc_t *tc)
+{
+    return tc->m_config;
+}
 
 const char *
 atf_tc_get_ident(const atf_tc_t *tc)
