@@ -147,11 +147,12 @@ missing_head()
 missing_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
     tmpdir=$(pwd -P)/workdir
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         atf_check "${h} -s ${srcdir} \
                    -v pathfile=$(pwd)/path -v workdir=${tmpdir} \
                    workdir_path" 1 null stderr
