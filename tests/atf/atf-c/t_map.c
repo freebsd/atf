@@ -99,6 +99,173 @@ ATF_TC_BODY(find_c, tc)
     atf_map_fini(&map);
 }
 
+ATF_TC(get_bool);
+ATF_TC_HEAD(get_bool, tc)
+{
+    atf_tc_set_var(tc, "descr", "Checks the atf_map_get_bool function");
+}
+ATF_TC_BODY(get_bool, tc)
+{
+    atf_map_t map;
+    bool b;
+
+    CE(atf_map_init(&map));
+    CE(atf_map_insert(&map, "T1", strdup("true"), true));
+    CE(atf_map_insert(&map, "T2", strdup("TRUE"), true));
+    CE(atf_map_insert(&map, "T3", strdup("yes"), true));
+    CE(atf_map_insert(&map, "T4", strdup("YES"), true));
+    CE(atf_map_insert(&map, "F1", strdup("false"), true));
+    CE(atf_map_insert(&map, "F2", strdup("FALSE"), true));
+    CE(atf_map_insert(&map, "F3", strdup("no"), true));
+    CE(atf_map_insert(&map, "F4", strdup("NO"), true));
+    CE(atf_map_insert(&map, "I1", strdup("true2"), true));
+    CE(atf_map_insert(&map, "I2", strdup("false2"), true));
+    CE(atf_map_insert(&map, "I3", strdup(""), true));
+    CE(atf_map_insert(&map, "I4", strdup("foo"), true));
+
+    CE(atf_map_get_bool(&map, "T1", &b)); ATF_CHECK(b);
+    CE(atf_map_get_bool(&map, "T2", &b)); ATF_CHECK(b);
+    CE(atf_map_get_bool(&map, "T3", &b)); ATF_CHECK(b);
+    CE(atf_map_get_bool(&map, "T4", &b)); ATF_CHECK(b);
+
+    CE(atf_map_get_bool(&map, "F1", &b)); ATF_CHECK(!b);
+    CE(atf_map_get_bool(&map, "F2", &b)); ATF_CHECK(!b);
+    CE(atf_map_get_bool(&map, "F3", &b)); ATF_CHECK(!b);
+    CE(atf_map_get_bool(&map, "F4", &b)); ATF_CHECK(!b);
+
+    ATF_CHECK(atf_is_error(atf_map_get_bool(&map, "I1", &b)));
+    ATF_CHECK(atf_is_error(atf_map_get_bool(&map, "I2", &b)));
+    ATF_CHECK(atf_is_error(atf_map_get_bool(&map, "I3", &b)));
+    ATF_CHECK(atf_is_error(atf_map_get_bool(&map, "I4", &b)));
+
+    atf_map_fini(&map);
+}
+
+ATF_TC(get_bool_wd);
+ATF_TC_HEAD(get_bool_wd, tc)
+{
+    atf_tc_set_var(tc, "descr", "Checks the atf_map_get_bool_wd function");
+}
+ATF_TC_BODY(get_bool_wd, tc)
+{
+    atf_map_t map;
+    bool b;
+
+    CE(atf_map_init(&map));
+    CE(atf_map_insert(&map, "T1", strdup("true"), true));
+    CE(atf_map_insert(&map, "F1", strdup("false"), true));
+    CE(atf_map_insert(&map, "I1", strdup("true2"), true));
+
+    CE(atf_map_get_bool_wd(&map, "T1", false, &b)); ATF_CHECK(b);
+    CE(atf_map_get_bool_wd(&map, "F1", true, &b)); ATF_CHECK(!b);
+    ATF_CHECK(atf_is_error(atf_map_get_bool_wd(&map, "I1", false, &b)));
+    CE(atf_map_get_bool_wd(&map, "U1", true, &b)); ATF_CHECK(b);
+    CE(atf_map_get_bool_wd(&map, "U2", false, &b)); ATF_CHECK(!b);
+
+    atf_map_fini(&map);
+}
+
+ATF_TC(get_cstring);
+ATF_TC_HEAD(get_cstring, tc)
+{
+    atf_tc_set_var(tc, "descr", "Checks the atf_map_get_cstring function");
+}
+ATF_TC_BODY(get_cstring, tc)
+{
+    atf_map_t map;
+    const char *str;
+
+    CE(atf_map_init(&map));
+    CE(atf_map_insert(&map, "1", strdup("foo"), true));
+    CE(atf_map_insert(&map, "2", strdup("bar"), true));
+
+    CE(atf_map_get_cstring(&map, "1", &str));
+    ATF_CHECK(strcmp(str, "foo") == 0);
+    CE(atf_map_get_cstring(&map, "2", &str));
+    ATF_CHECK(strcmp(str, "bar") == 0);
+
+    atf_map_fini(&map);
+}
+
+ATF_TC(get_cstring_wd);
+ATF_TC_HEAD(get_cstring_wd, tc)
+{
+    atf_tc_set_var(tc, "descr", "Checks the atf_map_get_cstring_wd function");
+}
+ATF_TC_BODY(get_cstring_wd, tc)
+{
+    atf_map_t map;
+    const char *str;
+
+    CE(atf_map_init(&map));
+    CE(atf_map_insert(&map, "1", strdup("foo"), true));
+    CE(atf_map_insert(&map, "2", strdup("bar"), true));
+
+    CE(atf_map_get_cstring_wd(&map, "1", "bar", &str));
+    ATF_CHECK(strcmp(str, "foo") == 0);
+    CE(atf_map_get_cstring_wd(&map, "2", "foo", &str));
+    ATF_CHECK(strcmp(str, "bar") == 0);
+    CE(atf_map_get_cstring_wd(&map, "3", "baz", &str));
+    ATF_CHECK(strcmp(str, "baz") == 0);
+
+    atf_map_fini(&map);
+}
+
+ATF_TC(get_long);
+ATF_TC_HEAD(get_long, tc)
+{
+    atf_tc_set_var(tc, "descr", "Checks the atf_map_get_long function");
+}
+ATF_TC_BODY(get_long, tc)
+{
+    atf_map_t map;
+    long l;
+
+    CE(atf_map_init(&map));
+    CE(atf_map_insert(&map, "O1", strdup("0"), true));
+    CE(atf_map_insert(&map, "O2", strdup("-5"), true));
+    CE(atf_map_insert(&map, "O3", strdup("5"), true));
+    CE(atf_map_insert(&map, "O4", strdup("123456789"), true));
+    CE(atf_map_insert(&map, "E1", strdup(""), true));
+    CE(atf_map_insert(&map, "E2", strdup("foo"), true));
+    CE(atf_map_insert(&map, "E3", strdup("12345x"), true));
+
+    CE(atf_map_get_long(&map, "O1", &l)); ATF_CHECK_EQUAL(l, 0);
+    CE(atf_map_get_long(&map, "O2", &l)); ATF_CHECK_EQUAL(l, -5);
+    CE(atf_map_get_long(&map, "O3", &l)); ATF_CHECK_EQUAL(l, 5);
+    CE(atf_map_get_long(&map, "O4", &l)); ATF_CHECK_EQUAL(l, 123456789);
+    ATF_CHECK(atf_is_error(atf_map_get_long(&map, "E1", &l)));
+    ATF_CHECK(atf_is_error(atf_map_get_long(&map, "E2", &l)));
+    ATF_CHECK(atf_is_error(atf_map_get_long(&map, "E3", &l)));
+
+    atf_map_fini(&map);
+}
+
+ATF_TC(get_long_wd);
+ATF_TC_HEAD(get_long_wd, tc)
+{
+    atf_tc_set_var(tc, "descr", "Checks the atf_map_get_long_wd function");
+}
+ATF_TC_BODY(get_long_wd, tc)
+{
+    atf_map_t map;
+    long l;
+
+    CE(atf_map_init(&map));
+    CE(atf_map_insert(&map, "O1", strdup("0"), true));
+    CE(atf_map_insert(&map, "O2", strdup("-5"), true));
+    CE(atf_map_insert(&map, "O3", strdup("5"), true));
+    CE(atf_map_insert(&map, "E1", strdup(""), true));
+
+    CE(atf_map_get_long_wd(&map, "O1", 123, &l)); ATF_CHECK_EQUAL(l, 0);
+    CE(atf_map_get_long_wd(&map, "O2", 123, &l)); ATF_CHECK_EQUAL(l, -5);
+    CE(atf_map_get_long_wd(&map, "O3", 123, &l)); ATF_CHECK_EQUAL(l, 5);
+    ATF_CHECK(atf_is_error(atf_map_get_long_wd(&map, "E1", 123, &l)));
+    CE(atf_map_get_long_wd(&map, "U1", 123, &l)); ATF_CHECK_EQUAL(l, 123);
+
+    atf_map_fini(&map);
+}
+
 /*
  * Modifiers.
  */
@@ -135,6 +302,12 @@ ATF_TP_ADD_TCS(tp)
 
     /* Getters. */
     ATF_TP_ADD_TC(tp, find_c);
+    ATF_TP_ADD_TC(tp, get_bool);
+    ATF_TP_ADD_TC(tp, get_bool_wd);
+    ATF_TP_ADD_TC(tp, get_cstring);
+    ATF_TP_ADD_TC(tp, get_cstring_wd);
+    ATF_TP_ADD_TC(tp, get_long);
+    ATF_TP_ADD_TC(tp, get_long_wd);
 
     /* Modifiers. */
     ATF_TP_ADD_TC(tp, map_insert);
