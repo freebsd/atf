@@ -373,18 +373,18 @@ ATF_TC_BODY(path_to_absolute, tc)
     ATF_CHECK(mkdir("dir", 0755) != -1);
 
     for (n = names; *n != NULL; n++) {
-        atf_fs_path_t p;
+        atf_fs_path_t p, p2;
         atf_fs_stat_t st1, st2;
 
         CE(atf_fs_path_init_fmt(&p, "%s", *n));
         CE(atf_fs_stat_init(&st1, &p));
         printf("Relative path: %s\n", atf_fs_path_cstring(&p));
 
-        CE(atf_fs_path_to_absolute(&p));
-        printf("Absolute path: %s\n", atf_fs_path_cstring(&p));
+        CE(atf_fs_path_to_absolute(&p, &p2));
+        printf("Absolute path: %s\n", atf_fs_path_cstring(&p2));
 
-        ATF_CHECK(atf_fs_path_is_absolute(&p));
-        CE(atf_fs_stat_init(&st2, &p));
+        ATF_CHECK(atf_fs_path_is_absolute(&p2));
+        CE(atf_fs_stat_init(&st2, &p2));
 
         ATF_CHECK_EQUAL(atf_fs_stat_get_device(&st1),
                         atf_fs_stat_get_device(&st2));
@@ -393,6 +393,7 @@ ATF_TC_BODY(path_to_absolute, tc)
 
         atf_fs_stat_fini(&st2);
         atf_fs_stat_fini(&st1);
+        atf_fs_path_fini(&p2);
         atf_fs_path_fini(&p);
 
         printf("\n");
@@ -552,6 +553,29 @@ ATF_TC_BODY(cleanup, tc)
     /* TODO: Cleanup with mount points, just as in tools/t_atf_cleanup. */
 }
 
+ATF_TC(getcwd);
+ATF_TC_HEAD(getcwd, tc)
+{
+    atf_tc_set_var(tc, "descr", "Tests the atf_fs_getcwd function");
+}
+ATF_TC_BODY(getcwd, tc)
+{
+    atf_fs_path_t cwd1, cwd2;
+
+    create_dir ("root", 0755);
+
+    CE(atf_fs_getcwd(&cwd1));
+    ATF_CHECK(chdir("root") != -1);
+    CE(atf_fs_getcwd(&cwd2));
+
+    CE(atf_fs_path_append_fmt(&cwd1, "root"));
+
+    ATF_CHECK(atf_equal_fs_path_fs_path(&cwd1, &cwd2));
+
+    atf_fs_path_fini(&cwd2);
+    atf_fs_path_fini(&cwd1);
+}
+
 ATF_TC(mkdtemp);
 ATF_TC_HEAD(mkdtemp, tc)
 {
@@ -621,6 +645,7 @@ ATF_TP_ADD_TCS(tp)
 
     /* Add the tests for the free functions. */
     ATF_TP_ADD_TC(tp, cleanup);
+    ATF_TP_ADD_TC(tp, getcwd);
     ATF_TP_ADD_TC(tp, mkdtemp);
 
     return atf_no_error();

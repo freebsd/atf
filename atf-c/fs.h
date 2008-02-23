@@ -74,7 +74,8 @@ bool atf_fs_path_is_root(const atf_fs_path_t *);
 /* Modifiers. */
 atf_error_t atf_fs_path_append_ap(atf_fs_path_t *, const char *, va_list);
 atf_error_t atf_fs_path_append_fmt(atf_fs_path_t *, const char *, ...);
-atf_error_t atf_fs_path_to_absolute(atf_fs_path_t *);
+atf_error_t atf_fs_path_append_path(atf_fs_path_t *, const atf_fs_path_t *);
+atf_error_t atf_fs_path_to_absolute(const atf_fs_path_t *, atf_fs_path_t *);
 
 /* Operators. */
 bool atf_equal_fs_path_fs_path(const atf_fs_path_t *,
@@ -126,6 +127,7 @@ bool atf_fs_stat_is_other_executable(const atf_fs_stat_t *);
  * --------------------------------------------------------------------- */
 
 atf_error_t atf_fs_cleanup(const atf_fs_path_t *);
+atf_error_t atf_fs_getcwd(atf_fs_path_t *);
 atf_error_t atf_fs_mkdtemp(atf_fs_path_t *);
 
 #endif // !defined(ATF_C_FS_H)

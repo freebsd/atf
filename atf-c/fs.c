@@ -238,29 +238,25 @@ atf_error_t
 do_unmount(const atf_fs_path_t *p)
 {
     atf_error_t err;
-    atf_fs_path_t p2;
-    const char *p2str;
+    atf_fs_path_t pa;
+    const char *pastr;
 
     // At least, FreeBSD's unmount(2) requires the path to be absolute.
     // Let's make it absolute in all cases just to be safe that this does
     // not affect other systems.
 
-    err = atf_fs_path_copy(&p2, p);
-    if (atf_is_error(err))
-        goto out;
-
-    if (!atf_fs_path_is_absolute(&p2)) {
-        err = atf_fs_path_to_absolute(&p2);
+    if (!atf_fs_path_is_absolute(p)) {
+        err = atf_fs_path_to_absolute(p, &pa);
         if (atf_is_error(err))
-            goto out_p2;
+            goto out;
     }
-    p2str = atf_fs_path_cstring(&p2);
+    pastr = atf_fs_path_cstring(&pa);
 
 #if defined(HAVE_UNMOUNT)
-    if (unmount(p2str, 0) == -1)
-        err = atf_libc_error(errno, "Cannot unmount %s", p2str);
+    if (unmount(pastr, 0) == -1)
+        err = atf_libc_error(errno, "Cannot unmount %s", pastr);
     else
-        INV(!atf_is_error(err));
+        err = atf_no_error();
 #else
     {
         // We could use umount(2) instead if it was available... but
@@ -270,7 +266,7 @@ do_unmount(const atf_fs_path_t *p)
         // with it, at least for now.
         char *cmd;
 
-        err = atf_text_format(&cmd, "unmount '%s'", p2str);
+        err = atf_text_format(&cmd, "unmount '%s'", pastr);
         if (!atf_is_error(err)) {
             int state = system(cmd);
             if (state == -1)
@@ -282,8 +278,7 @@ do_unmount(const atf_fs_path_t *p)
     }
 #endif
 
-out_p2:
-    atf_fs_path_fini(&p2);
+    atf_fs_path_fini(&pa);
 out:
     return err;
 }
@@ -491,22 +486,26 @@ atf_fs_path_append_fmt(atf_fs_path_t *p, const char *fmt, ...)
 }
 
 atf_error_t
-atf_fs_path_to_absolute(atf_fs_path_t *p)
+atf_fs_path_append_path(atf_fs_path_t *p, const atf_fs_path_t *p2)
 {
-    char *cwd;
+    return atf_fs_path_append_fmt(p, "%s", atf_dynstr_cstring(&p2->m_data));
+}
+
+atf_error_t
+atf_fs_path_to_absolute(const atf_fs_path_t *p, atf_fs_path_t *pa)
+{
     atf_error_t err;
 
     PRE(!atf_fs_path_is_absolute(p));
 
-    cwd = getcwd(NULL, 0);
-    if (cwd == NULL) {
-        err = atf_libc_error(errno, "Cannot determine current directory");
+    err = atf_fs_getcwd(pa);
+    if (atf_is_error(err))
         goto out;
-    }
 
-    err = atf_dynstr_prepend_fmt(&p->m_data, "%s/", cwd);
+    err = atf_fs_path_append_path(pa, p);
+    if (atf_is_error(err))
+        atf_fs_path_fini(pa);
 
-    free(cwd);
 out:
     return err;
 }
@@ -685,6 +684,25 @@ atf_fs_cleanup(const atf_fs_path_t *p)
 
     atf_fs_stat_fini(&info);
 
+    return err;
+}
+
+atf_error_t
+atf_fs_getcwd(atf_fs_path_t *p)
+{
+    atf_error_t err;
+    char *cwd;
+
+    cwd = getcwd(NULL, 0);
+    if (cwd == NULL) {
+        err = atf_libc_error(errno, "Cannot determine current directory");
+        goto out;
+    }
+
+    err = atf_fs_path_init_fmt(p, "%s", cwd);
+    free(cwd);
+
+out:
     return err;
 }
 

@@ -245,13 +245,15 @@ impl::path
 impl::path::to_absolute(void)
     const
 {
-    path p2 = *this;
+    atf_fs_path_t pa;
 
-    atf_error_t err = atf_fs_path_to_absolute(&p2.m_path);
+    atf_error_t err = atf_fs_path_to_absolute(&m_path, &pa);
     if (atf_is_error(err))
         throw_atf_error(err);
 
-    return p2;
+    path p(atf_fs_path_cstring(&pa));
+    atf_fs_path_fini(&pa);
+    return p;
 }
 
 impl::path&
@@ -548,17 +550,15 @@ impl::have_prog_in_path(const std::string& prog)
 impl::path
 impl::get_current_dir(void)
 {
-#if defined(MAXPATHLEN)
-    char buf[MAXPATHLEN];
+    atf_fs_path_t cwd;
 
-    if (::getcwd(buf, sizeof(buf)) == NULL)
-        throw system_error(IMPL_NAME "::get_current_dir",
-                           "getcwd(3) failed", errno);
+    atf_error_t err = atf_fs_getcwd(&cwd);
+    if (atf_is_error(err))
+        throw_atf_error(err);
 
-    return path(buf);
-#else // !defined(MAXPATHLEN)
-#   error "Not implemented."
-#endif // defined(MAXPATHLEN)
+    path p(atf_fs_path_cstring(&cwd));
+    atf_fs_path_fini(&cwd);
+    return p;
 }
 
 bool
