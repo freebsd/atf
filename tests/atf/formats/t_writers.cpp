@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,10 +37,9 @@
 #include <iostream>
 #include <sstream>
 
-#include <atf.hpp>
-
-#include "atf/formats.hpp"
-#include "atf/text.hpp"
+#include "atf-c++/formats.hpp"
+#include "atf-c++/macros.hpp"
+#include "atf-c++/text.hpp"
 
 static
 void

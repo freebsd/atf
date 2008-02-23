@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,7 @@ def_undef_head()
 def_undef_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
@@ -55,7 +56,7 @@ def_undef_body()
         mangleenv="${mangleenv} ${v}=bogus-value"
     done
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         atf_check "${mangleenv} ${h} -s ${srcdir} -r3 \
                    env_list 3>resout" 0 stdout ignore
 
@@ -77,10 +78,11 @@ home_head()
 home_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         atf_check "HOME=foo ${h} -s ${srcdir} env_home" 0 ignore ignore
     done
 }

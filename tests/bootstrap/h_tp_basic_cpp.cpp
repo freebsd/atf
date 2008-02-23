@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <atf.hpp>
+#include <atf-c++.hpp>
 
 ATF_TEST_CASE(pass);
 

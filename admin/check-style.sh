@@ -2,7 +2,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -96,7 +96,9 @@ find_sources() {
               -name "*.am" -o \
               -name "*.at" -o \
               -name "*.awk" -o \
+              -name "*.c" -o \
               -name "*.cpp" -o \
+              -name "*.h" -o \
               -name "*.hpp" -o \
               -name "*.m4" -o \
               -name "*.sh" \
@@ -120,6 +122,9 @@ guess_formats() {
             ;;
         *.[0-9])
             echo common man
+            ;;
+        *.c|*.h)
+            echo common c
             ;;
         *.cpp|*.hpp)
             echo common cpp

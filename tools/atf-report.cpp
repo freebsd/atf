@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,12 +40,12 @@
 #include <utility>
 #include <vector>
 
-#include "atf/application.hpp"
-#include "atf/fs.hpp"
-#include "atf/formats.hpp"
-#include "atf/sanity.hpp"
-#include "atf/text.hpp"
-#include "atf/ui.hpp"
+#include "atf-c++/application.hpp"
+#include "atf-c++/fs.hpp"
+#include "atf-c++/formats.hpp"
+#include "atf-c++/sanity.hpp"
+#include "atf-c++/text.hpp"
+#include "atf-c++/ui.hpp"
 
 typedef std::auto_ptr< std::ostream > ostream_ptr;
 

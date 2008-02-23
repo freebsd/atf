@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -43,11 +43,12 @@ default_head()
 default_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
     tmpdir=$(cd $(atf-config -t atf_workdir) && pwd -P)
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         atf_check "${h} -s ${srcdir} \
                   -v pathfile=$(pwd)/path workdir_path" 0 ignore ignore
         atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore ignore
@@ -64,12 +65,13 @@ tmpdir_head()
 tmpdir_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
     tmpdir=$(pwd -P)/workdir
     mkdir ${tmpdir}
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         atf_check "ATF_WORKDIR=${tmpdir} ${h} -s ${srcdir} \
                    -v pathfile=$(pwd)/path workdir_path" 0 ignore ignore
         atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore ignore
@@ -86,12 +88,13 @@ conf_head()
 conf_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
     tmpdir=$(pwd -P)/workdir
     mkdir ${tmpdir}
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         atf_check "${h} -s ${srcdir} \
                    -v pathfile=$(pwd)/path -v workdir=${tmpdir} \
                    workdir_path" 0 ignore ignore
@@ -109,12 +112,13 @@ cleanup_head()
 cleanup_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
     tmpdir=$(pwd -P)/workdir
     mkdir ${tmpdir}
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         # First try to clean a work directory that, supposedly, does not
         # have any subdirectories.
         atf_check "${h} -s ${srcdir} \
