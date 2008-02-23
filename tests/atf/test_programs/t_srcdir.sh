@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ default_body()
 {
     create_files
 
-    for h in h_cpp h_sh; do
+    for h in h_c h_cpp h_sh; do
         hp=$(atf_get_srcdir)/${h}
         cp ${hp} tmp
         atf_check "cd tmp && ./${h} srcdir_exists" 0 ignore ignore
@@ -72,7 +72,7 @@ sflag_body()
 
     # XXX Shouldn't have to use absolute pathnames for -s.  Fix this.
 
-    for h in h_cpp h_sh; do
+    for h in h_c h_cpp h_sh; do
         hp=$(atf_get_srcdir)/${h}
         cp ${hp} tmp
         atf_check "cd tmp && ./${h} -s $(pwd)/tmp \

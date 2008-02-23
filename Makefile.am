@@ -879,7 +879,12 @@ tests/atf/test_programs/t_workdir: \
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_workdir.sh
 
-atf_test_programs_PROGRAMS = tests/atf/test_programs/h_cpp
+atf_test_programs_PROGRAMS = tests/atf/test_programs/h_c
+tests_atf_test_programs_h_c_SOURCES = tests/atf/test_programs/h_c.cpp
+tests_atf_test_programs_h_c_LDADD = -latf-c++
+tests_atf_test_programs_h_c_LDFLAGS = -L.
+
+atf_test_programs_PROGRAMS += tests/atf/test_programs/h_cpp
 tests_atf_test_programs_h_cpp_SOURCES = tests/atf/test_programs/h_cpp.cpp
 tests_atf_test_programs_h_cpp_LDADD = -latf-c++
 tests_atf_test_programs_h_cpp_LDFLAGS = -L.

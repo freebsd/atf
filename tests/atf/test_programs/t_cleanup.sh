@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -60,10 +60,11 @@ hook_head()
 hook_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         run_tests ${h} pass passed 0
         run_tests ${h} fail failed 1
         run_tests ${h} skip skipped 0
@@ -80,10 +81,11 @@ curdir_head()
 curdir_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         atf_check '${h} -s ${srcdir} -r3 cleanup_curdir 3>resout' \
                   0 stdout ignore
         atf_check 'grep "Old value: 1234" stdout' 0 ignore null
@@ -99,10 +101,11 @@ on_signal_head()
 on_signal_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh= # ${srcdir}/h_sh XXX The test is broken; disabled for now.
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         ${h} -s ${srcdir} -r3 -v "tmpfile=$(pwd)/tmpfile" \
             cleanup_sigterm 3>resout
         atf_check "grep 'cleanup_sigterm, failed' resout" 0 ignore null
@@ -120,10 +123,11 @@ fork_head()
 fork_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         ${h} -s ${srcdir} -r3 -v "tmpfile=$(pwd)/tmpfile" \
             cleanup_fork 3>resout
         atf_check "grep 'cleanup_fork, passed' resout" 0 ignore null
