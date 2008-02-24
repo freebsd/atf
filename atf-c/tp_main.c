@@ -47,6 +47,7 @@
 
 #include "atf-c/dynstr.h"
 #include "atf-c/expand.h"
+#include "atf-c/fs.h"
 #include "atf-c/object.h"
 #include "atf-c/map.h"
 #include "atf-c/sanity.h"
@@ -175,6 +176,7 @@ struct params {
     bool m_do_list;
     bool m_do_usage;
     int m_fd;
+    const char *m_srcdir;
     atf_list_t m_tcglobs;
     atf_map_t m_config;
 };
@@ -188,6 +190,7 @@ params_init(struct params *p)
     p->m_do_list = false;
     p->m_do_usage = false;
     p->m_fd = STDOUT_FILENO;
+    p->m_srcdir = ".";
 
     err = atf_list_init(&p->m_tcglobs);
     if (atf_is_error(err))
@@ -421,7 +424,7 @@ process_params(int argc, char **argv, struct params *p)
             break;
 
         case 's':
-            /* TODO */
+            p->m_srcdir = optarg;
             break;
 
         case 'v':
@@ -458,6 +461,56 @@ out:
 
 static
 atf_error_t
+handle_srcdir(struct params *p)
+{
+    atf_error_t err;
+    atf_fs_path_t exe, srcdir;
+    bool b;
+
+    err = atf_fs_path_init_fmt(&srcdir, "%s", p->m_srcdir);
+    if (atf_is_error(err))
+        goto out;
+
+    if (!atf_fs_path_is_absolute(&srcdir)) {
+        atf_fs_path_t srcdirabs;
+
+        err = atf_fs_path_to_absolute(&srcdir, &srcdirabs);
+        if (atf_is_error(err))
+            goto out_srcdir;
+
+        atf_fs_path_fini(&srcdir);
+        srcdir = srcdirabs;
+    }
+
+    err = atf_fs_path_copy(&exe, &srcdir);
+    if (atf_is_error(err))
+        goto out_srcdir;
+
+    err = atf_fs_path_append_fmt(&exe, "%s", getprogname());
+    if (atf_is_error(err))
+        goto out_exe;
+
+    err = atf_fs_exists(&exe, &b);
+    if (!atf_is_error(err)) {
+        if (b) {
+            err = atf_map_insert(&p->m_config, "srcdir",
+                                 strdup(atf_fs_path_cstring(&srcdir)), true);
+        } else {
+            err = user_error("Cannot find the test program in the source "
+                             "directory `%s'", p->m_srcdir);
+        }
+    }
+
+out_exe:
+    atf_fs_path_fini(&exe);
+out_srcdir:
+    atf_fs_path_fini(&srcdir);
+out:
+    return err;
+}
+
+static
+atf_error_t
 controlled_main(int argc, char **argv,
                 atf_error_t (*add_tcs_hook)(atf_tp_t *),
                 int *exitcode)
@@ -480,6 +533,10 @@ controlled_main(int argc, char **argv,
         }
         goto out_p;
     }
+
+    err = handle_srcdir(&p);
+    if (atf_is_error(err))
+        goto out_p;
 
     err = atf_tp_init(&tp, &p.m_config);
     if (atf_is_error(err))

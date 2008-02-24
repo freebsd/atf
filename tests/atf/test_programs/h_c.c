@@ -645,11 +645,18 @@ ATF_TC_HEAD(srcdir_exists, tc)
 }
 ATF_TC_BODY(srcdir_exists, tc)
 {
-/*
-    TODO: Adapt when we have a way to query the source directory.
-    if (!atf::fs::exists(atf::fs::path(get_srcdir()) / "datafile"))
+    const atf_map_t *config = atf_tc_get_config(tc);
+    const char *srcdir;
+    atf_fs_path_t p;
+    bool b;
+
+    CE(atf_map_get_cstring(config, "srcdir", &srcdir));
+
+    CE(atf_fs_path_init_fmt(&p, "%s/datafile", srcdir));
+    CE(atf_fs_exists(&p, &b));
+    if (!b)
         atf_tc_fail("Cannot find datafile");
-*/
+    atf_fs_path_fini(&p);
 }
 
 // ------------------------------------------------------------------------
