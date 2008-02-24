@@ -71,6 +71,7 @@ static void fatal_atf_error(const char *, atf_error_t)
             __attribute__((noreturn));
 static void fatal_libc_error(const char *, int)
             __attribute__((noreturn));
+static atf_error_t format_reason(atf_dynstr_t *, const char *, va_list);
 static void write_tcr(const atf_tc_t *, const char *, const char *,
                       va_list *);
 
@@ -391,6 +392,48 @@ fatal_libc_error(const char *prefix, int err)
 }
 
 static
+atf_error_t
+format_reason(atf_dynstr_t *reason, const char *fmt, va_list ap)
+{
+    atf_error_t err;
+    atf_dynstr_t tmp;
+
+    err = atf_dynstr_init_ap(&tmp, fmt, ap);
+    if (atf_is_error(err))
+        goto out;
+
+    /* There is no reason for calling rfind instead of find other than
+     * find is not implemented. */
+    if (atf_dynstr_rfind_ch(&tmp, '\n') == atf_dynstr_npos) {
+        err = atf_dynstr_copy(reason, &tmp);
+    } else {
+        const char *iter;
+
+        err = atf_dynstr_init_fmt(reason, "BOGUS REASON (THE ORIGINAL "
+                                  "HAD NEWLINES): ");
+        if (atf_is_error(err))
+            goto out_tmp;
+
+        for (iter = atf_dynstr_cstring(&tmp); *iter != '\0'; iter++) {
+            if (*iter == '\n')
+                err = atf_dynstr_append_fmt(reason, "<<NEWLINE>>");
+            else
+                err = atf_dynstr_append_fmt(reason, "%c", *iter);
+
+            if (atf_is_error(err)) {
+                atf_dynstr_fini(reason);
+                break;
+            }
+        }
+    }
+
+out_tmp:
+    atf_dynstr_fini(&tmp);
+out:
+    return err;
+}
+
+static
 void
 write_tcr(const atf_tc_t *tc, const char *state, const char *reason,
           va_list *ap)
@@ -417,13 +460,18 @@ write_tcr(const atf_tc_t *tc, const char *state, const char *reason,
         fatal_atf_error("Cannot write test case results", err);
 
     if (reason != NULL) {
+        atf_dynstr_t r;
+
+        err = format_reason(&r, reason, *ap);
+        if (atf_is_error(err))
+            fatal_atf_error("Cannot write test case results", err);
+
         INV(ap != NULL);
-        err = atf_io_write_ap(fd, reason, *ap);
+        err = atf_io_write_fmt(fd, "%s\n", atf_dynstr_cstring(&r));
         if (atf_is_error(err))
             fatal_atf_error("Cannot write test case results", err);
-        err = atf_io_write_fmt(fd, "\n");
-        if (atf_is_error(err))
-            fatal_atf_error("Cannot write test case results", err);
+
+        atf_dynstr_fini(&r);
     } else
         INV(ap == NULL);
 
