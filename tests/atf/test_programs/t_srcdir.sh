@@ -92,7 +92,7 @@ relative_body()
 {
     create_files
 
-    for h in h_cpp h_sh; do
+    for h in h_c h_cpp h_sh; do
         hp=$(atf_get_srcdir)/${h}
         cp ${hp} tmp
 
