@@ -474,7 +474,14 @@ impl::change_directory(const path& dir)
 bool
 impl::exists(const path& p)
 {
-    return safe_access(p, atf_fs_access_f, ENOENT);
+    atf_error_t err;
+    bool b;
+
+    err = atf_fs_exists(p.c_path(), &b);
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return b;
 }
 
 bool

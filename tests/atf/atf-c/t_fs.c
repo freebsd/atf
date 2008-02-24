@@ -553,6 +553,45 @@ ATF_TC_BODY(cleanup, tc)
     /* TODO: Cleanup with mount points, just as in tools/t_atf_cleanup. */
 }
 
+ATF_TC(exists);
+ATF_TC_HEAD(exists, tc)
+{
+    atf_tc_set_var(tc, "descr", "Tests the atf_fs_exists function");
+}
+ATF_TC_BODY(exists, tc)
+{
+    atf_error_t err;
+    atf_fs_path_t pdir, pfile;
+    bool b;
+
+    CE(atf_fs_path_init_fmt(&pdir, "dir"));
+    CE(atf_fs_path_init_fmt(&pfile, "dir/file"));
+
+    create_dir(atf_fs_path_cstring(&pdir), 0755);
+    create_file(atf_fs_path_cstring(&pfile), 0644);
+
+    printf("Checking existence of a directory\n");
+    CE(atf_fs_exists(&pdir, &b));
+    ATF_CHECK(b);
+
+    printf("Checking existence of a file\n");
+    CE(atf_fs_exists(&pfile, &b));
+    ATF_CHECK(b);
+
+    printf("Checking existence of a file inside a directory without "
+           "permissions\n");
+    ATF_CHECK(chmod(atf_fs_path_cstring(&pdir), 0000) != -1);
+    err = atf_fs_exists(&pfile, &b);
+    ATF_CHECK(atf_is_error(err));
+    ATF_CHECK(atf_error_is(err, "libc"));
+    ATF_CHECK(chmod(atf_fs_path_cstring(&pdir), 0755) != -1);
+
+    printf("Checking existence of a non-existent file\n");
+    ATF_CHECK(unlink(atf_fs_path_cstring(&pfile)) != -1);
+    CE(atf_fs_exists(&pfile, &b));
+    ATF_CHECK(!b);
+}
+
 ATF_TC(eaccess);
 ATF_TC_HEAD(eaccess, tc)
 {
@@ -749,6 +788,7 @@ ATF_TP_ADD_TCS(tp)
     /* Add the tests for the free functions. */
     ATF_TP_ADD_TC(tp, cleanup);
     ATF_TP_ADD_TC(tp, eaccess);
+    ATF_TP_ADD_TC(tp, exists);
     ATF_TP_ADD_TC(tp, getcwd);
     ATF_TP_ADD_TC(tp, mkdtemp);
 

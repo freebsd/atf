@@ -760,6 +760,24 @@ out:
 }
 
 atf_error_t
+atf_fs_exists(const atf_fs_path_t *p, bool *b)
+{
+    atf_error_t err;
+
+    err = atf_fs_eaccess(p, atf_fs_access_f);
+    if (atf_is_error(err)) {
+        if (atf_error_is(err, "libc") && atf_libc_error_code(err) == ENOENT) {
+            atf_error_free(err);
+            err = atf_no_error();
+            *b = false;
+        }
+    } else
+        *b = true;
+
+    return err;
+}
+
+atf_error_t
 atf_fs_getcwd(atf_fs_path_t *p)
 {
     atf_error_t err;
