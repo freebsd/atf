@@ -732,7 +732,7 @@ tp::tp(const tc_vector& tcs) :
     app(m_description, "atf-test-program(1)", "atf(7)"),
     m_lflag(false),
     m_results_fd(STDOUT_FILENO),
-    m_srcdir(atf::fs::get_current_dir()),
+    m_srcdir("."),
     m_tcs(tcs)
 {
     m_vars["workdir"] = atf::config::get("atf_workdir");
@@ -958,6 +958,9 @@ tp::main(void)
     if (!atf::fs::exists(m_srcdir / m_prog_name))
         throw std::runtime_error("Cannot find the test program in the "
                                  "source directory `" + m_srcdir.str() + "'");
+
+    if (!m_srcdir.is_absolute())
+        m_srcdir = m_srcdir.to_absolute();
 
     for (int i = 0; i < m_argc; i++)
         m_tcnames.insert(m_argv[i]);
