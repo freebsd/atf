@@ -74,7 +74,7 @@ Results_File=
 # The test program's source directory: i.e. where its auxiliary data files
 # and helper utilities can be found.  Defaults to the current directory
 # but can be overriden through the '-s' flag.
-Source_Dir=$(pwd)
+Source_Dir=.
 
 # Indicates the test case we are currently processing.
 Test_Case=
@@ -1115,6 +1115,13 @@ main()
     # doesn't matter if the user did not change it, because the default
     # value may not work.  (TODO: It possibly should, even though it is
     # not a big deal because atf-run deals with this.)
+    case ${Source_Dir} in
+        /*)
+            ;;
+        *)
+            Source_Dir=$(pwd)/${Source_Dir}
+            ;;
+    esac
     [ -f ${Source_Dir}/${Prog_Name} ] || \
         _atf_error 1 "Cannot find the test program in the source" \
                      "directory \`${Source_Dir}'"
