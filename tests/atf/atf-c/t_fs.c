@@ -553,6 +553,109 @@ ATF_TC_BODY(cleanup, tc)
     /* TODO: Cleanup with mount points, just as in tools/t_atf_cleanup. */
 }
 
+ATF_TC(eaccess);
+ATF_TC_HEAD(eaccess, tc)
+{
+    atf_tc_set_var(tc, "descr", "Tests the atf_fs_eaccess function");
+}
+ATF_TC_BODY(eaccess, tc)
+{
+    const int modes[] = { atf_fs_access_f, atf_fs_access_r, atf_fs_access_w,
+                          atf_fs_access_x, 0 };
+    const int *m;
+    struct tests {
+        mode_t fmode;
+        int amode;
+        int error;
+    } tests[] = {
+        { 0000, atf_fs_access_r, EACCES },
+        { 0000, atf_fs_access_w, EACCES },
+        { 0000, atf_fs_access_x, EACCES },
+
+        { 0001, atf_fs_access_r, EACCES },
+        { 0001, atf_fs_access_w, EACCES },
+        { 0001, atf_fs_access_x, EACCES },
+        { 0002, atf_fs_access_r, EACCES },
+        { 0002, atf_fs_access_w, EACCES },
+        { 0002, atf_fs_access_x, EACCES },
+        { 0004, atf_fs_access_r, EACCES },
+        { 0004, atf_fs_access_w, EACCES },
+        { 0004, atf_fs_access_x, EACCES },
+
+        { 0010, atf_fs_access_r, EACCES },
+        { 0010, atf_fs_access_w, EACCES },
+        { 0010, atf_fs_access_x, 0 },
+        { 0020, atf_fs_access_r, EACCES },
+        { 0020, atf_fs_access_w, 0 },
+        { 0020, atf_fs_access_x, EACCES },
+        { 0040, atf_fs_access_r, 0 },
+        { 0040, atf_fs_access_w, EACCES },
+        { 0040, atf_fs_access_x, EACCES },
+
+        { 0100, atf_fs_access_r, EACCES },
+        { 0100, atf_fs_access_w, EACCES },
+        { 0100, atf_fs_access_x, 0 },
+        { 0200, atf_fs_access_r, EACCES },
+        { 0200, atf_fs_access_w, 0 },
+        { 0200, atf_fs_access_x, EACCES },
+        { 0400, atf_fs_access_r, 0 },
+        { 0400, atf_fs_access_w, EACCES },
+        { 0400, atf_fs_access_x, EACCES },
+
+        { 0, 0, 0 }
+    };
+    struct tests *t;
+    atf_fs_path_t p;
+    atf_error_t err;
+
+    CE(atf_fs_path_init_fmt(&p, "the-file"));
+
+    printf("Non-existent file checks\n");
+    for (m = &modes[0]; *m != 0; m++) {
+        err = atf_fs_eaccess(&p, *m);
+        ATF_CHECK(atf_is_error(err));
+        ATF_CHECK(atf_error_is(err, "libc"));
+        ATF_CHECK_EQUAL(atf_libc_error_code(err), ENOENT);
+        atf_error_free(err);
+    }
+
+    create_file(atf_fs_path_cstring(&p), 0000);
+    ATF_CHECK(chown(atf_fs_path_cstring(&p), geteuid(), getegid()) != -1);
+
+    for (t = &tests[0]; t->amode != 0; t++) {
+        printf("\n");
+        printf("File mode     : %04o\n", t->fmode);
+        printf("Access mode   : 0x%02x\n", t->amode);
+
+        ATF_CHECK(chmod(atf_fs_path_cstring(&p), t->fmode) != -1);
+
+        /* First, existence check. */
+        err = atf_fs_eaccess(&p, atf_fs_access_f);
+        ATF_CHECK(!atf_is_error(err));
+
+        /* Now do the specific test case. */
+        printf("Expected error: %d\n", t->error);
+        err = atf_fs_eaccess(&p, t->amode);
+        if (atf_is_error(err)) {
+            if (atf_error_is(err, "libc"))
+                printf("Error         : %d\n", atf_libc_error_code(err));
+            else
+                printf("Error         : Non-libc error\n");
+        } else
+                printf("Error         : None\n");
+        if (t->error == 0) {
+            ATF_CHECK(!atf_is_error(err));
+        } else {
+            ATF_CHECK(atf_is_error(err));
+            ATF_CHECK(atf_error_is(err, "libc"));
+            ATF_CHECK_EQUAL(atf_libc_error_code(err), t->error);
+            atf_error_free(err);
+        }
+    }
+
+    atf_fs_path_fini(&p);
+}
+
 ATF_TC(getcwd);
 ATF_TC_HEAD(getcwd, tc)
 {
@@ -645,6 +748,7 @@ ATF_TP_ADD_TCS(tp)
 
     /* Add the tests for the free functions. */
     ATF_TP_ADD_TC(tp, cleanup);
+    ATF_TP_ADD_TC(tp, eaccess);
     ATF_TP_ADD_TC(tp, getcwd);
     ATF_TP_ADD_TC(tp, mkdtemp);
 

@@ -126,7 +126,13 @@ bool atf_fs_stat_is_other_executable(const atf_fs_stat_t *);
  * Free functions.
  * --------------------------------------------------------------------- */
 
+extern const int atf_fs_access_f;
+extern const int atf_fs_access_r;
+extern const int atf_fs_access_w;
+extern const int atf_fs_access_x;
+
 atf_error_t atf_fs_cleanup(const atf_fs_path_t *);
+atf_error_t atf_fs_eaccess(const atf_fs_path_t *, int);
 atf_error_t atf_fs_getcwd(atf_fs_path_t *);
 atf_error_t atf_fs_mkdtemp(atf_fs_path_t *);
 
