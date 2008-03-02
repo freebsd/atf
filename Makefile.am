@@ -149,12 +149,12 @@ atf_c_HEADERS = atf-c/config.h \
                 atf-c/map.h \
                 atf-c/object.h \
                 atf-c/sanity.h \
-                atf-c/text.h \
-                atf-c/ui.h \
-                atf-c/user.h \
                 atf-c/tc.h \
                 atf-c/tcr.h \
-                atf-c/tp.h
+                atf-c/text.h \
+                atf-c/tp.h \
+                atf-c/ui.h \
+                atf-c/user.h
 atf_cdir = $(includedir)/atf-c
 
 # -------------------------------------------------------------------------
