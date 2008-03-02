@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -166,6 +166,36 @@ atf_check_equal_eval_fail_body()
 }
 
 # -------------------------------------------------------------------------
+# Helper tests for "t_config".
+# -------------------------------------------------------------------------
+
+atf_test_case config_get
+config_get_head()
+{
+    atf_set "descr" "Helper test case for the t_config test program"
+}
+config_get_body()
+{
+    if atf_config_has ${TEST_VARIABLE}; then
+        echo "${TEST_VARIABLE} = $(atf_config_get ${TEST_VARIABLE})"
+    fi
+}
+
+atf_test_case config_has
+config_has_head()
+{
+    atf_set "descr" "Helper test case for the t_config test program"
+}
+config_has_body()
+{
+    if atf_config_has ${TEST_VARIABLE}; then
+        echo "${TEST_VARIABLE} found"
+    else
+        echo "${TEST_VARIABLE} not found"
+    fi
+}
+
+# -------------------------------------------------------------------------
 # Helper tests for "t_normalize".
 # -------------------------------------------------------------------------
 
@@ -250,6 +280,10 @@ atf_init_test_cases()
     atf_add_test_case atf_check_equal_fail
     atf_add_test_case atf_check_equal_eval_ok
     atf_add_test_case atf_check_equal_eval_fail
+
+    # Add helper tests for t_config.
+    atf_add_test_case config_get
+    atf_add_test_case config_has
 
     # Add helper tests for t_normalize.
     atf_add_test_case normalize

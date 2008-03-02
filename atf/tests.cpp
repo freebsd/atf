@@ -355,12 +355,14 @@ impl::tc::get_srcdir(void)
 }
 
 void
-impl::tc::init(const vars_map& c, const std::string& srcdir)
+impl::tc::init(const vars_map& c, const std::string& srcdir,
+               const std::string& workdir)
 {
     PRE(m_meta_data.empty());
 
     m_config = c; // XXX Uh, deep copy.  Should be a reference...
     m_srcdir = srcdir;
+    m_workdir = workdir;
 
     m_meta_data["ident"] = m_ident;
     m_meta_data["timeout"] = "300";
@@ -375,8 +377,7 @@ impl::tcr
 impl::tc::safe_run(void)
     const
 {
-    atf::fs::temp_dir workdir
-        (atf::fs::path(m_config.get("workdir")) / "atf.XXXXXX");
+    atf::fs::temp_dir workdir(atf::fs::path(m_workdir) / "atf.XXXXXX");
     impl::tcr tcr = fork_body(workdir.get_path().str());
     fork_cleanup(workdir.get_path().str());
     return tcr;
@@ -701,6 +702,7 @@ private:
     int m_results_fd;
     std::auto_ptr< std::ostream > m_results_os;
     atf::fs::path m_srcdir;
+    atf::fs::path m_workdir;
     std::set< std::string > m_tcnames;
 
     atf::tests::vars_map m_vars;
@@ -733,9 +735,9 @@ tp::tp(const tc_vector& tcs) :
     m_lflag(false),
     m_results_fd(STDOUT_FILENO),
     m_srcdir("."),
+    m_workdir(atf::config::get("atf_workdir")),
     m_tcs(tcs)
 {
-    m_vars["workdir"] = atf::config::get("atf_workdir");
 }
 
 std::string
@@ -759,6 +761,8 @@ tp::specific_options(void)
                                       "files are located"));
     opts.insert(option('v', "var=value", "Sets the configuration variable "
                                          "`var' to `value'"));
+    opts.insert(option('w', "workdir", "Directory where the test's "
+                                       "temporary files are located"));
     return opts;
 }
 
@@ -789,6 +793,10 @@ tp::process_option(int ch, const char* arg)
         }
         break;
 
+    case 'w':
+        m_workdir = atf::fs::path(arg);
+        break;
+
     default:
         UNREACHABLE;
     }
@@ -803,7 +811,7 @@ tp::init_tcs(void)
          iter != tcs.end(); iter++) {
         impl::tc* tc = *iter;
 
-        tc->init(m_vars, m_srcdir.str());
+        tc->init(m_vars, m_srcdir.str(), m_workdir.str());
     }
 
     return tcs;
@@ -919,9 +927,9 @@ tp::run_tcs(void)
 {
     tc_vector tcs = filter_tcs(init_tcs(), m_tcnames);
 
-    if (!atf::fs::exists(atf::fs::path(m_vars.get("workdir"))))
+    if (!atf::fs::exists(m_workdir))
         throw std::runtime_error("Cannot find the work directory `" +
-                                 m_vars.get("workdir") + "'");
+                                 m_workdir.str() + "'");
 
     int errcode = EXIT_SUCCESS;
 

@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -80,8 +80,7 @@ atf_test_case conf
 conf_head()
 {
     atf_set "descr" "Tests that the work directory is used correctly when" \
-                    "overridden through the test program's 'workdir'" \
-                    "configuration option"
+                    "overridden through the test program's -w flag"
 }
 conf_body()
 {
@@ -93,7 +92,7 @@ conf_body()
 
     for h in ${h_cpp} ${h_sh}; do
         atf_check "${h} -s ${srcdir} \
-                   -v pathfile=$(pwd)/path -v workdir=${tmpdir} \
+                   -v pathfile=$(pwd)/path -w ${tmpdir} \
                    workdir_path" 0 ignore ignore
         atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore null
     done
@@ -118,7 +117,7 @@ cleanup_body()
         # First try to clean a work directory that, supposedly, does not
         # have any subdirectories.
         atf_check "${h} -s ${srcdir} \
-                   -v pathfile=$(pwd)/path -v workdir=${tmpdir} \
+                   -v pathfile=$(pwd)/path -w ${tmpdir} \
                    workdir_path" 0 ignore ignore
         atf_check "test -d $(cat path)" 1 null null
         set -- ${tmpdir}/atf.*
@@ -129,7 +128,7 @@ cleanup_body()
         # Now do the same but with a work directory that has subdirectories.
         # The program will have to recurse into them to clean them all.
         atf_check "${h} -s ${srcdir} -v pathfile=$(pwd)/path \
-                   -v workdir=${tmpdir} workdir_cleanup" 0 ignore ignore
+                   -w ${tmpdir} workdir_cleanup" 0 ignore ignore
         atf_check "test -d $(cat path)" 1 null null
     done
 }
@@ -149,7 +148,7 @@ missing_body()
 
     for h in ${h_cpp} ${h_sh}; do
         atf_check "${h} -s ${srcdir} \
-                   -v pathfile=$(pwd)/path -v workdir=${tmpdir} \
+                   -v pathfile=$(pwd)/path -w ${tmpdir} \
                    workdir_path" 1 null stderr
         atf_check "grep 'Cannot find.*${tmpdir}' stderr" 0 ignore null
     done
