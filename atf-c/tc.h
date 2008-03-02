@@ -42,9 +42,9 @@
 #include <atf-c/object.h>
 
 struct atf_dynstr;
-struct atf_tcr;
-
+struct atf_fs_path;
 struct atf_tc;
+struct atf_tcr;
 
 typedef void (*atf_tc_head_t)(struct atf_tc *);
 typedef void (*atf_tc_body_t)(const struct atf_tc *);
@@ -105,7 +105,8 @@ atf_error_t atf_tc_set_var(atf_tc_t *, const char *, const char *, ...);
  * Free functions.
  * --------------------------------------------------------------------- */
 
-atf_error_t atf_tc_run(const atf_tc_t *, struct atf_tcr *);
+atf_error_t atf_tc_run(const atf_tc_t *, struct atf_tcr *,
+                       const struct atf_fs_path *);
 
 /* To be run from test case bodies only. */
 void atf_tc_fail(const char *, ...) __attribute__((noreturn));

@@ -69,64 +69,6 @@ namespace impl = atf::fs;
 // ------------------------------------------------------------------------
 
 //!
-//! \brief A version of access(2) using the effective user.
-//!
-//! An implementation of access(2) but using the effective user value
-//! instead of the real one.  Also avoids false positives for root when
-//! asking for execute permissions, which appear in SunOS.
-//!
-static
-int
-effective_access(const impl::path& p, int mode)
-{
-    struct stat st;
-
-    if (::lstat(p.c_str(), &st) == -1)
-        return -1;
-
-    // Early return if we are only checking for existence and the file
-    // exists (stat call returned).
-    if (F_OK == 0 && mode == 0)
-        return 0;
-    else if (mode & F_OK)
-        return 0;
-
-    bool ok = false;
-    if (atf::user::is_root()) {
-        if (!ok && !(mode & X_OK)) {
-            // Allow root to read/write any file.
-            ok = true;
-        }
-
-        if (!ok && (st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))) {
-            // Allow root to execute the file if any of its execution bits
-            // are set.
-            ok = true;
-        }
-    } else {
-        if (!ok && (atf::user::euid() == st.st_uid)) {
-            ok = ((mode & R_OK) && (st.st_mode & S_IRUSR)) ||
-                 ((mode & W_OK) && (st.st_mode & S_IWUSR)) ||
-                 ((mode & X_OK) && (st.st_mode & S_IXUSR));
-        }
-        if (!ok && (atf::user::is_member_of_group(st.st_gid))) {
-            ok = ((mode & R_OK) && (st.st_mode & S_IRGRP)) ||
-                 ((mode & W_OK) && (st.st_mode & S_IWGRP)) ||
-                 ((mode & X_OK) && (st.st_mode & S_IXGRP));
-        }
-        if (!ok) {
-            ok = ((mode & R_OK) && (st.st_mode & S_IROTH)) ||
-                 ((mode & W_OK) && (st.st_mode & S_IWOTH)) ||
-                 ((mode & X_OK) && (st.st_mode & S_IXOTH));
-        }
-    }
-
-    if (!ok)
-        errno = EACCES;
-    return ok ? 0 : -1;
-}
-
-//!
 //! \brief A controlled version of access(2).
 //!
 //! This function reimplements the standard access(2) system call to
@@ -139,14 +81,25 @@ safe_access(const impl::path& p, int mode, int experr)
 {
     bool ok;
 
-    int res = effective_access(p, mode);
-    if (res == 0)
+    atf_error_t err = atf_fs_eaccess(p.c_path(), mode);
+    if (atf_is_error(err)) {
+        if (atf_error_is(err, "libc")) {
+            if (atf_libc_error_code(err) == experr)
+                ok = false;
+            else {
+                atf::throw_atf_error(err);
+                // XXX Silence warning; maybe throw_atf_error should be
+                // an exception and not a function.
+                ok = false;
+            }
+        } else {
+            atf::throw_atf_error(err);
+            // XXX Silence warning; maybe throw_atf_error should be
+            // an exception and not a function.
+            ok = false;
+        }
+    } else
         ok = true;
-    else if (res == -1 && errno == experr)
-        ok = false;
-    else
-        throw atf::system_error("effective_access(" + p.str() + ")",
-                                "access(2) failed", errno);
 
     return ok;
 }
@@ -521,7 +474,14 @@ impl::change_directory(const path& dir)
 bool
 impl::exists(const path& p)
 {
-    return safe_access(p, F_OK, ENOENT);
+    atf_error_t err;
+    bool b;
+
+    err = atf_fs_exists(p.c_path(), &b);
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return b;
 }
 
 bool
@@ -566,7 +526,7 @@ impl::is_executable(const path& p)
 {
     if (!exists(p))
         return false;
-    return safe_access(p, X_OK, EACCES);
+    return safe_access(p, atf_fs_access_x, EACCES);
 }
 
 void

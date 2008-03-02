@@ -55,6 +55,7 @@
 #include "atf-c/fs.h"
 #include "atf-c/sanity.h"
 #include "atf-c/text.h"
+#include "atf-c/user.h"
 
 /* ---------------------------------------------------------------------
  * The "child" error type.
@@ -670,6 +671,11 @@ atf_fs_stat_is_other_executable(const atf_fs_stat_t *st)
  * Free functions.
  * --------------------------------------------------------------------- */
 
+const int atf_fs_access_f = 1 << 0;
+const int atf_fs_access_r = 1 << 1;
+const int atf_fs_access_w = 1 << 2;
+const int atf_fs_access_x = 1 << 3;
+
 atf_error_t
 atf_fs_cleanup(const atf_fs_path_t *p)
 {
@@ -683,6 +689,90 @@ atf_fs_cleanup(const atf_fs_path_t *p)
     err = cleanup_aux(p, atf_fs_stat_get_device(&info), true);
 
     atf_fs_stat_fini(&info);
+
+    return err;
+}
+
+/*
+ * An implementation of access(2) but using the effective user value
+ * instead of the real one.  Also avoids false positives for root when
+ * asking for execute permissions, which appear in SunOS.
+ */
+atf_error_t
+atf_fs_eaccess(const atf_fs_path_t *p, int mode)
+{
+    atf_error_t err;
+    struct stat st;
+    bool ok;
+
+    PRE(mode & atf_fs_access_f || mode & atf_fs_access_r ||
+        mode & atf_fs_access_w || mode & atf_fs_access_x);
+
+    if (lstat(atf_fs_path_cstring(p), &st) == -1) {
+        err = atf_libc_error(errno, "Cannot get information from file %s",
+                             atf_fs_path_cstring(p));
+        goto out;
+    }
+
+    err = atf_no_error();
+
+    /* Early return if we are only checking for existence and the file
+     * exists (stat call returned). */
+    if (mode & atf_fs_access_f)
+        goto out;
+
+    ok = false;
+    if (atf_user_is_root()) {
+        if (!ok && !(mode & atf_fs_access_x)) {
+            // Allow root to read/write any file.
+            ok = true;
+        }
+
+        if (!ok && (st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))) {
+            /* Allow root to execute the file if any of its execution bits
+             * are set. */
+            ok = true;
+        }
+    } else {
+        if (!ok && (atf_user_euid() == st.st_uid)) {
+            ok = ((mode & atf_fs_access_r) && (st.st_mode & S_IRUSR)) ||
+                 ((mode & atf_fs_access_w) && (st.st_mode & S_IWUSR)) ||
+                 ((mode & atf_fs_access_x) && (st.st_mode & S_IXUSR));
+        }
+        if (!ok && atf_user_is_member_of_group(st.st_gid)) {
+            ok = ((mode & atf_fs_access_r) && (st.st_mode & S_IRGRP)) ||
+                 ((mode & atf_fs_access_w) && (st.st_mode & S_IWGRP)) ||
+                 ((mode & atf_fs_access_x) && (st.st_mode & S_IXGRP));
+        }
+        if (!ok && ((atf_user_euid() != st.st_uid) &&
+                    !atf_user_is_member_of_group(st.st_gid))) {
+            ok = ((mode & atf_fs_access_r) && (st.st_mode & S_IROTH)) ||
+                 ((mode & atf_fs_access_w) && (st.st_mode & S_IWOTH)) ||
+                 ((mode & atf_fs_access_x) && (st.st_mode & S_IXOTH));
+        }
+    }
+
+    if (!ok)
+        err = atf_libc_error(EACCES, "Access check failed");
+
+out:
+    return err;
+}
+
+atf_error_t
+atf_fs_exists(const atf_fs_path_t *p, bool *b)
+{
+    atf_error_t err;
+
+    err = atf_fs_eaccess(p, atf_fs_access_f);
+    if (atf_is_error(err)) {
+        if (atf_error_is(err, "libc") && atf_libc_error_code(err) == ENOENT) {
+            atf_error_free(err);
+            err = atf_no_error();
+            *b = false;
+        }
+    } else
+        *b = true;
 
     return err;
 }

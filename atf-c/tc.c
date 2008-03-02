@@ -35,6 +35,7 @@
  */
 
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 
 #include <errno.h>
@@ -47,6 +48,7 @@
 #include <unistd.h>
 
 #include "atf-c/config.h"
+#include "atf-c/env.h"
 #include "atf-c/fs.h"
 #include "atf-c/io.h"
 #include "atf-c/sanity.h"
@@ -61,16 +63,24 @@
 /* Parent-only stuff. */
 static atf_error_t body_parent(const atf_tc_t *, const atf_fs_path_t *,
                                pid_t, atf_tcr_t *);
+static atf_error_t cleanup_parent(const atf_tc_t *, pid_t);
+static atf_error_t fork_body(const atf_tc_t *, const atf_fs_path_t *,
+                             atf_tcr_t *);
+static atf_error_t fork_cleanup(const atf_tc_t *, const atf_fs_path_t *);
 static atf_error_t get_tc_result(const atf_fs_path_t *, atf_tcr_t *);
 static atf_error_t parse_tc_result(int, atf_tcr_t *);
 
 /* Child-only stuff. */
 static void body_child(const atf_tc_t *, const atf_fs_path_t *)
             __attribute__((noreturn));
+static void cleanup_child(const atf_tc_t *, const atf_fs_path_t *)
+            __attribute__((noreturn));
 static void fatal_atf_error(const char *, atf_error_t)
             __attribute__((noreturn));
 static void fatal_libc_error(const char *, int)
             __attribute__((noreturn));
+static atf_error_t format_reason(atf_dynstr_t *, const char *, va_list);
+static atf_error_t prepare_child(const atf_tc_t *, const atf_fs_path_t *);
 static void write_tcr(const atf_tc_t *, const char *, const char *,
                       va_list *);
 
@@ -199,34 +209,33 @@ atf_tc_set_var(atf_tc_t *tc, const char *name, const char *fmt, ...)
  * --------------------------------------------------------------------- */
 
 atf_error_t
-atf_tc_run(const atf_tc_t *tc, atf_tcr_t *tcr)
+atf_tc_run(const atf_tc_t *tc, atf_tcr_t *tcr,
+           const atf_fs_path_t *workdirbase)
 {
-    atf_error_t err;
+    atf_error_t err, cleanuperr;
     atf_fs_path_t workdir;
-    pid_t pid;
 
-    err = atf_fs_path_init_fmt(&workdir, "%s/atf.XXXXXX",
-                               atf_config_get("atf_workdir"));
+    err = atf_fs_path_copy(&workdir, workdirbase);
     if (atf_is_error(err))
         goto out;
+
+    err = atf_fs_path_append_fmt(&workdir, "atf.XXXXXX");
+    if (atf_is_error(err))
+        goto out_workdir;
 
     err = atf_fs_mkdtemp(&workdir);
     if (atf_is_error(err))
         goto out_workdir;
 
-    pid = fork();
-    if (pid == -1) {
-        err = atf_libc_error(errno, "Cannot fork to run test case body "
-                             "of %s", tc->m_ident);
-    } else if (pid == 0) {
-        body_child(tc, &workdir);
-        UNREACHABLE;
-        abort();
-    } else {
-        err = body_parent(tc, &workdir, pid, tcr);
-    }
+    err = fork_body(tc, &workdir, tcr);
+    cleanuperr = fork_cleanup(tc, &workdir);
+    if (!atf_is_error(cleanuperr))
+        (void)atf_fs_cleanup(&workdir);
+    if (!atf_is_error(err))
+        err = cleanuperr;
+    else if (atf_is_error(cleanuperr))
+        atf_error_free(cleanuperr);
 
-    (void)atf_fs_cleanup(&workdir);
 out_workdir:
     atf_fs_path_fini(&workdir);
 out:
@@ -259,6 +268,77 @@ body_parent(const atf_tc_t *tc, const atf_fs_path_t *workdir, pid_t pid,
         err = get_tc_result(workdir, tcr);
 
 out:
+    return err;
+}
+
+static
+atf_error_t
+cleanup_parent(const atf_tc_t *tc, pid_t pid)
+{
+    atf_error_t err;
+    int state;
+
+    if (waitpid(pid, &state, 0) == -1) {
+        err = atf_libc_error(errno, "Error waiting for child process "
+                             "%d", pid);
+        goto out;
+    }
+
+    if (!WIFEXITED(state) || WEXITSTATUS(state) != EXIT_SUCCESS)
+        /* XXX Not really a libc error. */
+        err = atf_libc_error(EINVAL, "Child process did not exit cleanly");
+    else
+        err = atf_no_error();
+
+out:
+    return err;
+}
+
+static
+atf_error_t
+fork_body(const atf_tc_t *tc, const atf_fs_path_t *workdir, atf_tcr_t *tcr)
+{
+    atf_error_t err;
+    pid_t pid;
+
+    pid = fork();
+    if (pid == -1) {
+        err = atf_libc_error(errno, "Cannot fork to run test case body "
+                             "of %s", tc->m_ident);
+    } else if (pid == 0) {
+        body_child(tc, workdir);
+        UNREACHABLE;
+        abort();
+    } else {
+        err = body_parent(tc, workdir, pid, tcr);
+    }
+
+    return err;
+}
+
+static
+atf_error_t
+fork_cleanup(const atf_tc_t *tc, const atf_fs_path_t *workdir)
+{
+    atf_error_t err;
+    pid_t pid;
+
+    if (tc->m_cleanup == NULL)
+        err = atf_no_error();
+    else {
+        pid = fork();
+        if (pid == -1) {
+            err = atf_libc_error(errno, "Cannot fork to run test case "
+                                 "cleanup of %s", tc->m_ident);
+        } else if (pid == 0) {
+            cleanup_child(tc, workdir);
+            UNREACHABLE;
+            abort();
+        } else {
+            err = cleanup_parent(tc, pid);
+        }
+    }
+
     return err;
 }
 
@@ -345,21 +425,107 @@ static const atf_tc_t *current_tc = NULL;
 static const atf_fs_path_t *current_workdir = NULL;
 
 static
-void
-body_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
+atf_error_t
+prepare_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
 {
-    atf_disable_exit_checks();
+    atf_error_t err;
 
     current_tc = tc;
     current_workdir = workdir;
 
-    if (chdir(atf_fs_path_cstring(workdir)) == -1)
-        atf_tc_fail("Cannot enter work directory '%s'",
-                    atf_fs_path_cstring(workdir));
+    umask(S_IWGRP | S_IWOTH);
 
+    err = atf_env_set("HOME", atf_fs_path_cstring(workdir));
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("LANG");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("LC_ALL");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("LC_COLLATE");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("LC_CTYPE");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("LC_MESSAGES");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("LC_MONETARY");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("LC_NUMERIC");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("LC_TIME");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("TZ");
+    if (atf_is_error(err))
+        goto out;
+
+    if (chdir(atf_fs_path_cstring(workdir)) == -1) {
+        err = atf_libc_error(errno, "Cannot enter work directory '%s'",
+                             atf_fs_path_cstring(workdir));
+        goto out;
+    }
+
+    err = atf_no_error();
+
+out:
+    return err;
+}
+
+static
+void
+body_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
+{
+    atf_error_t err;
+
+    atf_disable_exit_checks();
+
+    err = prepare_child(tc, workdir);
+    if (atf_is_error(err)) {
+        char buf[4096];
+
+        atf_error_format(err, buf, sizeof(buf));
+        atf_error_free(err);
+
+        atf_tc_fail("Error while preparing child process: %s", buf);
+    }
     tc->m_body(tc);
-
     atf_tc_pass();
+
+    UNREACHABLE;
+    abort();
+}
+
+static
+void
+cleanup_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
+{
+    atf_error_t err;
+
+    atf_disable_exit_checks();
+
+    err = prepare_child(tc, workdir);
+    if (atf_is_error(err))
+        exit(EXIT_FAILURE);
+    else {
+        tc->m_cleanup(tc);
+        exit(EXIT_SUCCESS);
+    }
 
     UNREACHABLE;
     abort();
@@ -391,6 +557,48 @@ fatal_libc_error(const char *prefix, int err)
 }
 
 static
+atf_error_t
+format_reason(atf_dynstr_t *reason, const char *fmt, va_list ap)
+{
+    atf_error_t err;
+    atf_dynstr_t tmp;
+
+    err = atf_dynstr_init_ap(&tmp, fmt, ap);
+    if (atf_is_error(err))
+        goto out;
+
+    /* There is no reason for calling rfind instead of find other than
+     * find is not implemented. */
+    if (atf_dynstr_rfind_ch(&tmp, '\n') == atf_dynstr_npos) {
+        err = atf_dynstr_copy(reason, &tmp);
+    } else {
+        const char *iter;
+
+        err = atf_dynstr_init_fmt(reason, "BOGUS REASON (THE ORIGINAL "
+                                  "HAD NEWLINES): ");
+        if (atf_is_error(err))
+            goto out_tmp;
+
+        for (iter = atf_dynstr_cstring(&tmp); *iter != '\0'; iter++) {
+            if (*iter == '\n')
+                err = atf_dynstr_append_fmt(reason, "<<NEWLINE>>");
+            else
+                err = atf_dynstr_append_fmt(reason, "%c", *iter);
+
+            if (atf_is_error(err)) {
+                atf_dynstr_fini(reason);
+                break;
+            }
+        }
+    }
+
+out_tmp:
+    atf_dynstr_fini(&tmp);
+out:
+    return err;
+}
+
+static
 void
 write_tcr(const atf_tc_t *tc, const char *state, const char *reason,
           va_list *ap)
@@ -417,13 +625,18 @@ write_tcr(const atf_tc_t *tc, const char *state, const char *reason,
         fatal_atf_error("Cannot write test case results", err);
 
     if (reason != NULL) {
+        atf_dynstr_t r;
+
+        err = format_reason(&r, reason, *ap);
+        if (atf_is_error(err))
+            fatal_atf_error("Cannot write test case results", err);
+
         INV(ap != NULL);
-        err = atf_io_write_ap(fd, reason, *ap);
+        err = atf_io_write_fmt(fd, "%s\n", atf_dynstr_cstring(&r));
         if (atf_is_error(err))
             fatal_atf_error("Cannot write test case results", err);
-        err = atf_io_write_fmt(fd, "\n");
-        if (atf_is_error(err))
-            fatal_atf_error("Cannot write test case results", err);
+
+        atf_dynstr_fini(&r);
     } else
         INV(ap == NULL);
 

@@ -107,6 +107,7 @@ class tc {
     vars_map m_config;
 
     std::string m_srcdir;
+    std::string m_workdir;
 
     void ensure_boolean(const std::string&);
     void ensure_integral(const std::string&);
@@ -138,7 +139,7 @@ public:
 
     const std::string& get_srcdir(void) const;
 
-    void init(const vars_map&, const std::string&);
+    void init(const vars_map&, const std::string&, const std::string&);
     tcr run(void) const;
 };
 
