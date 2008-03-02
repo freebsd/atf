@@ -45,6 +45,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "atf-c/config.h"
 #include "atf-c/dynstr.h"
 #include "atf-c/expand.h"
 #include "atf-c/fs.h"
@@ -177,6 +178,7 @@ struct params {
     bool m_do_usage;
     int m_fd;
     const char *m_srcdir;
+    const char *m_workdir;
     atf_list_t m_tcglobs;
     atf_map_t m_config;
 };
@@ -191,6 +193,7 @@ params_init(struct params *p)
     p->m_do_usage = false;
     p->m_fd = STDOUT_FILENO;
     p->m_srcdir = ".";
+    p->m_workdir = atf_config_get("atf_workdir");
 
     err = atf_list_init(&p->m_tcglobs);
     if (atf_is_error(err))
@@ -392,6 +395,9 @@ usage(void)
               "located");
     print_tag(stdout, "    -v var=value    ", false, 0,
               "Sets the configuration variable `var' to `value'");
+    print_tag(stdout, "    -w workdir      ", false, 0,
+              "Directory where the test's temporary files are "
+              "located");
     printf("\n");
     print_tag(stdout, "", false, 0, "For more details please see "
               "atf-test-program(1) and atf(7).");
@@ -409,7 +415,7 @@ process_params(int argc, char **argv, struct params *p)
         goto out;
 
     while (!atf_is_error(err) &&
-           (ch = getopt(argc, argv, GETOPT_POSIX ":hlr:s:v:")) != -1) {
+           (ch = getopt(argc, argv, GETOPT_POSIX ":hlr:s:v:w:")) != -1) {
         switch (ch) {
         case 'h':
             p->m_do_usage = true;
@@ -429,6 +435,10 @@ process_params(int argc, char **argv, struct params *p)
 
         case 'v':
             err = parse_vflag(optarg, &p->m_config);
+            break;
+
+        case 'w':
+            p->m_workdir = optarg;
             break;
 
         case ':':
@@ -511,6 +521,34 @@ out:
 
 static
 atf_error_t
+handle_workdir(struct params *p, atf_fs_path_t *workdir)
+{
+    atf_error_t err;
+    bool b;
+
+    err = atf_fs_path_init_fmt(workdir, "%s", p->m_workdir);
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_fs_exists(workdir, &b);
+    if (atf_is_error(err)) {
+        atf_fs_path_fini(workdir);
+        goto out;
+    }
+
+    if (!b) {
+        atf_fs_path_fini(workdir);
+        err = user_error("Cannot find the work directory `%s'",
+                         p->m_workdir);
+    } else
+        INV(!atf_is_error(err));
+
+out:
+    return err;
+}
+
+static
+atf_error_t
 controlled_main(int argc, char **argv,
                 atf_error_t (*add_tcs_hook)(atf_tp_t *),
                 int *exitcode)
@@ -519,6 +557,7 @@ controlled_main(int argc, char **argv,
     struct params p;
     atf_tp_t tp;
     atf_list_t tcids;
+    atf_fs_path_t workdir;
 
     err = process_params(argc, argv, &p);
     if (atf_is_error(err))
@@ -538,9 +577,13 @@ controlled_main(int argc, char **argv,
     if (atf_is_error(err))
         goto out_p;
 
-    err = atf_tp_init(&tp, &p.m_config);
+    err = handle_workdir(&p, &workdir);
     if (atf_is_error(err))
         goto out_p;
+
+    err = atf_tp_init(&tp, &p.m_config);
+    if (atf_is_error(err))
+        goto out_workdir;
 
     err = add_tcs_hook(&tp);
     if (atf_is_error(err))
@@ -556,7 +599,7 @@ controlled_main(int argc, char **argv,
             *exitcode = EXIT_SUCCESS;
     } else {
         size_t failed;
-        err = atf_tp_run(&tp, &tcids, p.m_fd, &failed);
+        err = atf_tp_run(&tp, &tcids, p.m_fd, &workdir, &failed);
         if (!atf_is_error(err))
             *exitcode = failed > 0 ? EXIT_FAILURE : EXIT_SUCCESS;
     }
@@ -571,6 +614,8 @@ controlled_main(int argc, char **argv,
     }
 out_tp:
     atf_tp_fini(&tp);
+out_workdir:
+    atf_fs_path_fini(&workdir);
 out_p:
     params_fini(&p);
 out:

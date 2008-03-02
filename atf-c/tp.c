@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "atf-c/fs.h"
 #include "atf-c/io.h"
 #include "atf-c/sanity.h"
 #include "atf-c/tc.h"
@@ -159,7 +160,7 @@ atf_tp_add_tc(atf_tp_t *tp, atf_tc_t *tc)
 
 atf_error_t
 atf_tp_run(const atf_tp_t *tp, const atf_list_t *ids, int fd,
-           size_t *failcount)
+           const atf_fs_path_t *workdir, size_t *failcount)
 {
     atf_error_t err;
     atf_list_citer_t iter;
@@ -187,7 +188,7 @@ atf_tp_run(const atf_tp_t *tp, const atf_list_t *ids, int fd,
         tc = find_tc(tp, ident);
         PRE(tc != NULL);
 
-        err = atf_tc_run(tc, &tcr);
+        err = atf_tc_run(tc, &tcr, workdir);
         if (atf_is_error(err))
             goto out;
 

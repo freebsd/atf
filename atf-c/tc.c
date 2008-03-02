@@ -209,15 +209,19 @@ atf_tc_set_var(atf_tc_t *tc, const char *name, const char *fmt, ...)
  * --------------------------------------------------------------------- */
 
 atf_error_t
-atf_tc_run(const atf_tc_t *tc, atf_tcr_t *tcr)
+atf_tc_run(const atf_tc_t *tc, atf_tcr_t *tcr,
+           const atf_fs_path_t *workdirbase)
 {
     atf_error_t err, cleanuperr;
     atf_fs_path_t workdir;
 
-    err = atf_fs_path_init_fmt(&workdir, "%s/atf.XXXXXX",
-                               atf_config_get("atf_workdir"));
+    err = atf_fs_path_copy(&workdir, workdirbase);
     if (atf_is_error(err))
         goto out;
+
+    err = atf_fs_path_append_fmt(&workdir, "atf.XXXXXX");
+    if (atf_is_error(err))
+        goto out_workdir;
 
     err = atf_fs_mkdtemp(&workdir);
     if (atf_is_error(err))

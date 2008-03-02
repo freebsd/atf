@@ -41,6 +41,7 @@
 #include <atf-c/list.h>
 #include <atf-c/object.h>
 
+struct atf_fs_path;
 struct atf_map;
 struct atf_tc;
 
@@ -72,6 +73,7 @@ atf_error_t atf_tp_add_tc(atf_tp_t *, struct atf_tc *);
  * Free functions.
  * --------------------------------------------------------------------- */
 
-atf_error_t atf_tp_run(const atf_tp_t *, const atf_list_t *, int, size_t *);
+atf_error_t atf_tp_run(const atf_tp_t *, const atf_list_t *, int,
+                       const struct atf_fs_path *, size_t *);
 
 #endif /* ATF_C_TP_H */
