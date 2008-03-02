@@ -47,6 +47,7 @@
 #include <unistd.h>
 
 #include "atf-c/config.h"
+#include "atf-c/env.h"
 #include "atf-c/fs.h"
 #include "atf-c/io.h"
 #include "atf-c/sanity.h"
@@ -78,7 +79,7 @@ static void fatal_atf_error(const char *, atf_error_t)
 static void fatal_libc_error(const char *, int)
             __attribute__((noreturn));
 static atf_error_t format_reason(atf_dynstr_t *, const char *, va_list);
-static void prepare_child(const atf_tc_t *, const atf_fs_path_t *);
+static atf_error_t prepare_child(const atf_tc_t *, const atf_fs_path_t *);
 static void write_tcr(const atf_tc_t *, const char *, const char *,
                       va_list *);
 
@@ -419,24 +420,83 @@ static const atf_tc_t *current_tc = NULL;
 static const atf_fs_path_t *current_workdir = NULL;
 
 static
-void
+atf_error_t
 prepare_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
 {
+    atf_error_t err;
+
     current_tc = tc;
     current_workdir = workdir;
 
-    if (chdir(atf_fs_path_cstring(workdir)) == -1)
-        atf_tc_fail("Cannot enter work directory '%s'",
-                    atf_fs_path_cstring(workdir));
+    err = atf_env_set("HOME", atf_fs_path_cstring(workdir));
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("LANG");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("LC_ALL");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("LC_COLLATE");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("LC_CTYPE");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("LC_MESSAGES");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("LC_MONETARY");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("LC_NUMERIC");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("LC_TIME");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_env_unset("TZ");
+    if (atf_is_error(err))
+        goto out;
+
+    if (chdir(atf_fs_path_cstring(workdir)) == -1) {
+        err = atf_libc_error(errno, "Cannot enter work directory '%s'",
+                             atf_fs_path_cstring(workdir));
+        goto out;
+    }
+
+    err = atf_no_error();
+
+out:
+    return err;
 }
 
 static
 void
 body_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
 {
+    atf_error_t err;
+
     atf_disable_exit_checks();
 
-    prepare_child(tc, workdir);
+    err = prepare_child(tc, workdir);
+    if (atf_is_error(err)) {
+        char buf[4096];
+
+        atf_error_format(err, buf, sizeof(buf));
+        atf_error_free(err);
+
+        atf_tc_fail("Error while preparing child process: %s", buf);
+    }
     tc->m_body(tc);
     atf_tc_pass();
 
@@ -448,11 +508,20 @@ static
 void
 cleanup_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
 {
+    atf_error_t err;
+
     atf_disable_exit_checks();
 
-    prepare_child(tc, workdir);
-    tc->m_cleanup(tc);
-    exit(EXIT_SUCCESS);
+    err = prepare_child(tc, workdir);
+    if (atf_is_error(err))
+        exit(EXIT_FAILURE);
+    else {
+        tc->m_cleanup(tc);
+        exit(EXIT_SUCCESS);
+    }
+
+    UNREACHABLE;
+    abort();
 }
 
 static
