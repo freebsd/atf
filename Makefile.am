@@ -146,6 +146,7 @@ atf_c_HEADERS = atf-c/config.h \
                 atf-c/io.h \
                 atf-c/list.h \
                 atf-c/macros.h \
+                atf-c/map.h \
                 atf-c/object.h \
                 atf-c/sanity.h \
                 atf-c/text.h \
