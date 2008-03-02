@@ -19,6 +19,10 @@ Plans for 0.5
 * Merge the 'org.NetBSD.atf.src.c' branch, which provides a C-only
   interface for test cases.
 
+* Centralize the names of the helpers used in test_programs in a single
+  place.  The current code must explicitly mention the three different
+  helpers, which is annoying and may hide some test cases during merges.
+
 
 Plans for 0.6
 =============

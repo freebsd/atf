@@ -46,10 +46,11 @@ ident_head()
 ident_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         atf_check "${h} -s ${srcdir} -r3 ident_1 3>resout" 0 ignore ignore
         atf_check "grep passed resout" 0 ignore null
         atf_check "${h} -s ${srcdir} -r3 ident_2 3>resout" 0 ignore ignore
@@ -69,10 +70,11 @@ require_arch_head()
 require_arch_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         echo "Check for the real architecture"
         arch=$(atf-config -t atf_arch)
         atf_check "${h} -s ${srcdir} -r3 -v arch='${arch}' \
@@ -123,10 +125,11 @@ require_config_head()
 require_config_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         atf_check "${h} -s ${srcdir} -r3 require_config 3>resout" \
                   0 ignore ignore
         atf_check 'grep "skipped" resout' 0 ignore null
@@ -157,10 +160,11 @@ require_machine_head()
 require_machine_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         echo "Check for the real machine type"
         machine=$(atf-config -t atf_machine)
         atf_check "${h} -s ${srcdir} -r3 -v machine='${machine}' \
@@ -206,10 +210,11 @@ require_machine_body()
 common_tests() {
     where=${1}
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         # Check absolute paths.
         atf_check "${h} -s ${srcdir} -r3 -v 'progs=/bin/cp' \
                    require_progs_${where} 3>resout" 0 ignore ignore
@@ -254,10 +259,11 @@ require_progs_header_body()
     common_tests head
 
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         # Check a couple of absolute path names.  The second must make
         # the check fail.
         atf_check "${h} -s ${srcdir} -r3 \
@@ -310,10 +316,11 @@ require_user_root_head()
 require_user_root_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         atf_check "${h} -s ${srcdir} -r3 require_user_root \
             3>resout" 0 ignore ignore
         if [ $(id -u) -eq 0 ]; then
@@ -332,10 +339,11 @@ require_user_unprivileged_head()
 require_user_unprivileged_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         atf_check "${h} -s ${srcdir} -r3 require_user_unprivileged \
             3>resout" 0 ignore ignore
         if [ $(id -u) -eq 0 ]; then
@@ -356,10 +364,11 @@ require_user_multiple_head()
 require_user_multiple_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         atf_check "${h} -s ${srcdir} -r3 'require_user*' 3>resout" \
             0 ignore ignore
         grep "skipped" resout >skips
@@ -382,10 +391,11 @@ timeout_head()
 timeout_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         atf_check "${h} -s ${srcdir} \
             -v timeout=0 -v sleep=1 \
             -r3 timeout 3>resout" 0 ignore ignore
