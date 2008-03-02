@@ -347,20 +347,31 @@ atf_map_insert(atf_map_t *m, const char *key, void *value, bool managed)
 {
     struct map_entry *me;
     atf_error_t err;
+    atf_map_iter_t iter;
 
-    PRE(atf_equal_map_citer_map_citer(atf_map_find_c(m, key),
-                                      atf_map_end_c(m)));
-
-    me = new_entry(key, value, managed);
-    if (me == NULL)
-        err = atf_no_memory_error();
-    else {
-        err = atf_list_append(&m->m_list, me);
-        if (atf_is_error(err)) {
-            if (managed)
-                free(value);
-            free(me);
+    iter = atf_map_find(m, key);
+    if (atf_equal_map_iter_map_iter(iter, atf_map_end(m))) {
+        me = new_entry(key, value, managed);
+        if (me == NULL)
+            err = atf_no_memory_error();
+        else {
+            err = atf_list_append(&m->m_list, me);
+            if (atf_is_error(err)) {
+                if (managed)
+                    free(value);
+                free(me);
+            }
         }
+    } else {
+        me = iter.m_entry;
+        if (me->m_managed)
+            free(me->m_value);
+
+        INV(strcmp(me->m_key, key) == 0);
+        me->m_value = value;
+        me->m_managed = managed;
+
+        err = atf_no_error();
     }
 
     return err;

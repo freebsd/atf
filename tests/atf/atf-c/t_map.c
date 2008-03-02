@@ -278,9 +278,13 @@ ATF_TC_HEAD(map_insert, tc)
 ATF_TC_BODY(map_insert, tc)
 {
     atf_map_t map;
-    char buf[] = "Test string";
+    char buf[] = "1st test string";
+    char buf2[] = "2nd test string";
+    const char *ptr;
 
     CE(atf_map_init(&map));
+
+    printf("Inserting some values\n");
     ATF_CHECK_EQUAL(atf_map_size(&map), 0);
     CE(atf_map_insert(&map, "K1", buf, false));
     ATF_CHECK_EQUAL(atf_map_size(&map), 1);
@@ -288,6 +292,13 @@ ATF_TC_BODY(map_insert, tc)
     ATF_CHECK_EQUAL(atf_map_size(&map), 2);
     CE(atf_map_insert(&map, "K3", buf, false));
     ATF_CHECK_EQUAL(atf_map_size(&map), 3);
+
+    printf("Replacing a value\n");
+    CE(atf_map_get_cstring(&map, "K3", &ptr)); ATF_CHECK_EQUAL(ptr, buf);
+    CE(atf_map_insert(&map, "K3", buf2, false));
+    ATF_CHECK_EQUAL(atf_map_size(&map), 3);
+    CE(atf_map_get_cstring(&map, "K3", &ptr)); ATF_CHECK_EQUAL(ptr, buf2);
+
     atf_map_fini(&map);
 }
 
