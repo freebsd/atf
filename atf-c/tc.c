@@ -35,6 +35,7 @@
  */
 
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 
 #include <errno.h>
@@ -427,6 +428,8 @@ prepare_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
 
     current_tc = tc;
     current_workdir = workdir;
+
+    umask(S_IWGRP | S_IWOTH);
 
     err = atf_env_set("HOME", atf_fs_path_cstring(workdir));
     if (atf_is_error(err))
