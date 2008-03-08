@@ -35,6 +35,7 @@
  */
 
 #include <sys/types.h>
+#include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 
@@ -52,6 +53,7 @@
 #include "atf-c/fs.h"
 #include "atf-c/io.h"
 #include "atf-c/sanity.h"
+#include "atf-c/signals.h"
 #include "atf-c/tc.h"
 #include "atf-c/tcr.h"
 #include "atf-c/text.h"
@@ -61,6 +63,7 @@
  * --------------------------------------------------------------------- */
 
 /* Parent-only stuff. */
+struct timeout_data;
 static atf_error_t body_parent(const atf_tc_t *, const atf_fs_path_t *,
                                pid_t, atf_tcr_t *);
 static atf_error_t cleanup_parent(const atf_tc_t *, pid_t);
@@ -69,6 +72,10 @@ static atf_error_t fork_body(const atf_tc_t *, const atf_fs_path_t *,
 static atf_error_t fork_cleanup(const atf_tc_t *, const atf_fs_path_t *);
 static atf_error_t get_tc_result(const atf_fs_path_t *, atf_tcr_t *);
 static atf_error_t parse_tc_result(int, atf_tcr_t *);
+static atf_error_t program_timeout(pid_t, const atf_tc_t *,
+                                   struct timeout_data *);
+static void unprogram_timeout(struct timeout_data *);
+static void sigalrm_handler(int);
 
 /* Child-only stuff. */
 static void body_child(const atf_tc_t *, const atf_fs_path_t *)
@@ -101,15 +108,19 @@ atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
 
     atf_object_init(&tc->m_object);
 
-    err = atf_map_init(&tc->m_vars);
-    if (atf_is_error(err))
-        goto err_object;
-
     tc->m_ident = ident;
     tc->m_head = head;
     tc->m_body = body;
     tc->m_cleanup = cleanup;
     tc->m_config = config;
+
+    err = atf_map_init(&tc->m_vars);
+    if (atf_is_error(err))
+        goto err_object;
+
+    err = atf_tc_set_var(tc, "timeout", "300");
+    if (atf_is_error(err))
+        goto err_map;
 
     /* XXX Should the head be able to return error codes? */
     tc->m_head(tc);
@@ -117,6 +128,8 @@ atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
     INV(!atf_is_error(err));
     return err;
 
+err_map:
+    atf_map_fini(&tc->m_vars);
 err_object:
     atf_object_fini(&tc->m_object);
 
@@ -190,8 +203,6 @@ atf_tc_set_var(atf_tc_t *tc, const char *name, const char *fmt, ...)
     char *value;
     va_list ap;
 
-    PRE(!atf_tc_has_var(tc, name));
-
     va_start(ap, fmt);
     err = atf_text_format_ap(&value, fmt, ap);
     va_end(ap);
@@ -246,6 +257,73 @@ out:
  * Parent-only stuff.
  */
 
+static bool sigalrm_killed = false;
+static pid_t sigalrm_pid = -1;
+
+static
+void
+sigalrm_handler(int signo)
+{
+    INV(signo == SIGALRM);
+
+    if (sigalrm_pid != -1) {
+        killpg(sigalrm_pid, SIGTERM);
+        sigalrm_killed = true;
+    }
+}
+
+struct timeout_data {
+    bool m_programmed;
+    atf_signal_programmer_t m_sigalrm;
+};
+
+static
+atf_error_t
+program_timeout(pid_t pid, const atf_tc_t *tc, struct timeout_data *td)
+{
+    atf_error_t err;
+    long timeout;
+
+    err = atf_map_get_long(&tc->m_vars, "timeout", &timeout);
+    if (atf_is_error(err))
+        goto out;
+
+    td->m_programmed = timeout != 0;
+    if (td->m_programmed) {
+        sigalrm_pid = pid;
+        sigalrm_killed = false;
+
+        err = atf_signal_programmer_init(&td->m_sigalrm, SIGALRM,
+                                         sigalrm_handler);
+        if (atf_is_error(err))
+            goto out;
+
+        struct itimerval itv;
+        timerclear(&itv.it_interval);
+        timerclear(&itv.it_value);
+        itv.it_value.tv_sec = timeout;
+        if (setitimer(ITIMER_REAL, &itv, NULL) == -1) {
+            atf_signal_programmer_fini(&td->m_sigalrm);
+            err = atf_libc_error(errno, "Failed to program timeout "
+                                 "with %ld seconds", timeout);
+        }
+    }
+
+out:
+    return err;
+}
+
+static
+void
+unprogram_timeout(struct timeout_data *td)
+{
+    if (td->m_programmed) {
+        atf_signal_programmer_fini(&td->m_sigalrm);
+        sigalrm_pid = -1;
+        sigalrm_killed = false;
+    }
+}
+
 static
 atf_error_t
 body_parent(const atf_tc_t *tc, const atf_fs_path_t *workdir, pid_t pid,
@@ -253,21 +331,38 @@ body_parent(const atf_tc_t *tc, const atf_fs_path_t *workdir, pid_t pid,
 {
     atf_error_t err;
     int state;
+    struct timeout_data td;
 
-    if (waitpid(pid, &state, 0) == -1) {
-        err = atf_libc_error(errno, "Error waiting for child process "
-                             "%d", pid);
-        goto out;
+    err = program_timeout(pid, tc, &td);
+    if (atf_is_error(err)) {
+        char buf[4096];
+
+        atf_error_format(err, buf, sizeof(buf));
+        fprintf(stderr, "Error programming test case's timeout: %s", buf);
+        atf_error_free(err);
+        killpg(pid, SIGKILL);
     }
 
-    if (!WIFEXITED(state) || WEXITSTATUS(state) != EXIT_SUCCESS)
-        err = atf_tcr_init_reason(tcr, atf_tcr_failed_state,
-                                  "Test case did not exit cleanly; "
-                                  "state was %d", state);
-    else
-        err = get_tc_result(workdir, tcr);
+    if (waitpid(pid, &state, 0) == -1) {
+        if (errno == EINTR && sigalrm_killed)
+            err = atf_tcr_init_reason(tcr, atf_tcr_failed_state,
+                                      "Test case timed out after %s "
+                                      "seconds",
+                                      atf_tc_get_var(tc, "timeout"));
+        else
+            err = atf_libc_error(errno, "Error waiting for child process "
+                                 "%d", pid);
+    } else {
+        if (!WIFEXITED(state) || WEXITSTATUS(state) != EXIT_SUCCESS)
+            err = atf_tcr_init_reason(tcr, atf_tcr_failed_state,
+                                      "Test case did not exit cleanly; "
+                                      "state was %d", state);
+        else
+            err = get_tc_result(workdir, tcr);
+    }
 
-out:
+    unprogram_timeout(&td);
+
     return err;
 }
 
@@ -429,9 +524,13 @@ atf_error_t
 prepare_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
 {
     atf_error_t err;
+    int ret;
 
     current_tc = tc;
     current_workdir = workdir;
+
+    ret = setpgid(getpid(), 0);
+    INV(ret != -1);
 
     umask(S_IWGRP | S_IWOTH);
 
