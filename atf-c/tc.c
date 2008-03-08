@@ -288,8 +288,7 @@ program_timeout(pid_t pid, const atf_tc_t *tc, struct timeout_data *td)
     if (atf_is_error(err))
         goto out;
 
-    td->m_programmed = timeout != 0;
-    if (td->m_programmed) {
+    if (timeout != 0) {
         sigalrm_pid = pid;
         sigalrm_killed = false;
 
@@ -307,7 +306,10 @@ program_timeout(pid_t pid, const atf_tc_t *tc, struct timeout_data *td)
             err = atf_libc_error(errno, "Failed to program timeout "
                                  "with %ld seconds", timeout);
         }
-    }
+
+        td->m_programmed = !atf_is_error(err);
+    } else
+        td->m_programmed = false;
 
 out:
     return err;
