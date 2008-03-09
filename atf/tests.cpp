@@ -465,8 +465,8 @@ impl::tc::check_requirements(void)
             if (!user::is_unprivileged())
                 throw tcr::skipped("Requires an unprivileged user");
         } else
-            throw tcr::skipped("Invalid value in the require.user "
-                               "property");
+            throw tcr::failed("Invalid value in the require.user "
+                              "property");
     }
 
     if (has("require.progs")) {

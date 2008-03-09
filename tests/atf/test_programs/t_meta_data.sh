@@ -314,7 +314,7 @@ require_user_root_body()
     h_sh=${srcdir}/h_sh
 
     for h in ${h_cpp} ${h_sh}; do
-        atf_check "${h} -s ${srcdir} -r3 require_user_root \
+        atf_check "${h} -s ${srcdir} -r3 -v user=root require_user \
             3>resout" 0 ignore ignore
         if [ $(id -u) -eq 0 ]; then
             atf_check 'grep "passed" resout' 0 ignore null
@@ -336,7 +336,7 @@ require_user_unprivileged_body()
     h_sh=${srcdir}/h_sh
 
     for h in ${h_cpp} ${h_sh}; do
-        atf_check "${h} -s ${srcdir} -r3 require_user_unprivileged \
+        atf_check "${h} -s ${srcdir} -r3 -v user=unprivileged require_user \
             3>resout" 0 ignore ignore
         if [ $(id -u) -eq 0 ]; then
             atf_check 'grep "skipped" resout' 0 ignore null
@@ -360,13 +360,37 @@ require_user_multiple_body()
     h_sh=${srcdir}/h_sh
 
     for h in ${h_cpp} ${h_sh}; do
-        atf_check "${h} -s ${srcdir} -r3 'require_user*' 3>resout" \
-            0 ignore ignore
+        if [ $(id -u) -eq 0 ]; then
+            users="-v user=unprivileged -v user2=unprivileged -v user3=root"
+        else
+            users="-v user=root -v user2=root -v user3=unprivileged"
+        fi
+        atf_check "${h} -s ${srcdir} -r3 ${users} require_user \
+            require_user2 require_user3 3>resout" 0 ignore ignore
         grep "skipped" resout >skips
         [ $(count_lines skips) -lt 2 ] && \
             atf_fail "Test program aborted prematurely"
         [ $(count_lines skips) -gt 2 ] && \
             atf_fail "Test program returned more skips than expected"
+    done
+}
+
+atf_test_case require_user_bad
+require_user_bad_head()
+{
+    atf_set "descr" "Tests that passing an invalid value to require.user" \
+                    "raises an error"
+}
+require_user_bad_body()
+{
+    srcdir=$(atf_get_srcdir)
+    h_cpp=${srcdir}/h_cpp
+    h_sh=${srcdir}/h_sh
+
+    for h in ${h_cpp} ${h_sh}; do
+        atf_check "${h} -s ${srcdir} -r3 -v user=foo require_user \
+            3>resout" 1 ignore ignore
+        atf_check 'grep "failed.*Invalid" resout' 0 ignore null
     done
 }
 
@@ -424,6 +448,7 @@ atf_init_test_cases()
     atf_add_test_case require_user_root
     atf_add_test_case require_user_unprivileged
     atf_add_test_case require_user_multiple
+    atf_add_test_case require_user_bad
     atf_add_test_case timeout
 }
 

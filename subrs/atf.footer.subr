@@ -754,7 +754,7 @@ _atf_run_body()
     "")
         ;;
     *)
-        _atf_error 128 "Invalid value in the require.user property"
+        atf_fail "Invalid value in the require.user property"
         ;;
     esac
 
