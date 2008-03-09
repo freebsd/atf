@@ -82,6 +82,7 @@ static void sigalrm_handler(int);
 static void body_child(const atf_tc_t *, const atf_fs_path_t *)
             __attribute__((noreturn));
 static atf_error_t check_arch(const char *, void *);
+static atf_error_t check_config(const char *, void *);
 static atf_error_t check_machine(const char *, void *);
 static atf_error_t check_requirements(const atf_tc_t *);
 static void cleanup_child(const atf_tc_t *, const atf_fs_path_t *)
@@ -641,6 +642,20 @@ check_arch(const char *arch, void *data)
 
 static
 atf_error_t
+check_config(const char *var, void *data)
+{
+    atf_map_citer_t iter;
+    const atf_map_t *config = atf_tc_get_config(current_tc);
+
+    iter = atf_map_find_c(config, var);
+    if (atf_equal_map_citer_map_citer(iter, atf_map_end_c(config)))
+        atf_tc_skip("Required configuration variable %s not defined", var);
+
+    return atf_no_error();
+}
+
+static
+atf_error_t
 check_machine(const char *machine, void *data)
 {
     bool *found = data;
@@ -673,6 +688,18 @@ check_requirements(const atf_tc_t *tc)
             if (!found)
                 atf_tc_skip("Requires one of the '%s' architectures",
                             arches);
+        }
+    }
+
+    if (atf_tc_has_var(tc, "require.config")) {
+        const char *vars = atf_tc_get_var(tc, "require.config");
+
+        if (strlen(vars) == 0)
+            atf_tc_fail("Invalid value in the require.config property");
+        else {
+            err = atf_text_for_each_word(vars, " ", check_config, NULL);
+            if (atf_is_error(err))
+                goto out;
         }
     }
 
