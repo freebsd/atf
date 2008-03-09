@@ -41,6 +41,78 @@
 
 #include "atf-c/text.h"
 
+/* ---------------------------------------------------------------------
+ * Auxiliary functions.
+ * --------------------------------------------------------------------- */
+
+#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+
+/* ---------------------------------------------------------------------
+ * Test cases for the free functions.
+ * --------------------------------------------------------------------- */
+
+static
+atf_error_t
+word_acum(const char *word, void *data)
+{
+    char *acum = data;
+
+    strcat(acum, word);
+
+    return atf_no_error();
+}
+
+static
+atf_error_t
+word_count(const char *word, void *data)
+{
+    size_t *counter = data;
+
+    (*counter)++;
+
+    return atf_no_error();
+}
+
+ATF_TC(for_each_word);
+ATF_TC_HEAD(for_each_word, tc)
+{
+    atf_tc_set_var(tc, "descr", "Checks the atf_text_for_each_word"
+                   "function");
+}
+ATF_TC_BODY(for_each_word, tc)
+{
+    size_t cnt;
+    char acum[1024];
+
+    cnt = 0;
+    strcpy(acum, "");
+    CE(atf_text_for_each_word("1 2 3", " ", word_count, &cnt));
+    CE(atf_text_for_each_word("1 2 3", " ", word_acum, acum));
+    ATF_CHECK(cnt == 3);
+    ATF_CHECK(strcmp(acum, "123") == 0);
+
+    cnt = 0;
+    strcpy(acum, "");
+    CE(atf_text_for_each_word("1 2 3", ".", word_count, &cnt));
+    CE(atf_text_for_each_word("1 2 3", ".", word_acum, acum));
+    ATF_CHECK(cnt == 1);
+    ATF_CHECK(strcmp(acum, "1 2 3") == 0);
+
+    cnt = 0;
+    strcpy(acum, "");
+    CE(atf_text_for_each_word("1 2 3 4 5", " ", word_count, &cnt));
+    CE(atf_text_for_each_word("1 2 3 4 5", " ", word_acum, acum));
+    ATF_CHECK(cnt == 5);
+    ATF_CHECK(strcmp(acum, "12345") == 0);
+
+    cnt = 0;
+    strcpy(acum, "");
+    CE(atf_text_for_each_word("1 2.3.4 5", " .", word_count, &cnt));
+    CE(atf_text_for_each_word("1 2.3.4 5", " .", word_acum, acum));
+    ATF_CHECK(cnt == 5);
+    ATF_CHECK(strcmp(acum, "12345") == 0);
+}
+
 ATF_TC(format);
 ATF_TC_HEAD(format, tc)
 {
@@ -93,6 +165,7 @@ ATF_TC_BODY(format_ap, tc)
 
 ATF_TP_ADD_TCS(tp)
 {
+    ATF_TP_ADD_TC(tp, for_each_word);
     ATF_TP_ADD_TC(tp, format);
     ATF_TP_ADD_TC(tp, format_ap);
 
