@@ -23,8 +23,28 @@ Plans for 0.5
   place.  The current code must explicitly mention the three different
   helpers, which is annoying and may hide some test cases during merges.
 
+* Remove most of atf-c++/tests.cpp's code and back it up by the atf-c
+  implementation.
+
+* Add a module to atf-c to manage dynamic memory.  Should abstract malloc,
+  free, and any other call that can return new memory blocks (e.g. what
+  to do with strdup?).  The idea is to be able to control the proper
+  balancing of calls to these functions.  (Trivial checks only; for better
+  testing just use Valgrind, for example.)
+
 
 Plans for 0.6
+=============
+
+* Add a binary atf-check tool that replaces atf-sh's atf_check function.
+  I suspect this will speed things up considerably, and will also expose
+  this extremely useful functionality to C/C++ test programs.
+
+* Add support for ATF_REQUIRE, making ATF_CHECK non-fatal.  See Boost.Test
+  for details on this idea.  Most useful for unit tests.
+
+
+Plans for 0.7
 =============
 
 * Add a tool to collect multiple outputs of atf-run (from different
@@ -55,6 +75,9 @@ Plans for pre-1.0
 =================
 
 * Fix all occurrences of XXX, TODO and FIXME.
+
+* Think of a way to properly add tests for (almost?) all error paths.
+  Most of them are probably broken already.
 
 * Improve error reporting: aside from clarifying error messages, this also
   implies adding more error cases to give them more semantic meaning at the
