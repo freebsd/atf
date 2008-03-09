@@ -125,12 +125,20 @@ atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
     if (atf_is_error(err))
         goto err_object;
 
+    err = atf_tc_set_var(tc, "ident", ident);
+    if (atf_is_error(err))
+        goto err_map;
+
     err = atf_tc_set_var(tc, "timeout", "300");
     if (atf_is_error(err))
         goto err_map;
 
     /* XXX Should the head be able to return error codes? */
     tc->m_head(tc);
+
+    if (strcmp(atf_tc_get_var(tc, "ident"), ident) != 0)
+        atf_tc_fail("Test case head modified the read-only 'ident' "
+                    "property");
 
     INV(!atf_is_error(err));
     return err;
