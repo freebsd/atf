@@ -111,6 +111,7 @@ atf_error_t atf_tc_run(const atf_tc_t *, struct atf_tcr *,
 /* To be run from test case bodies only. */
 void atf_tc_fail(const char *, ...) __attribute__((noreturn));
 void atf_tc_pass(void) __attribute__((noreturn));
+void atf_tc_require_prog(const char *);
 void atf_tc_skip(const char *, ...) __attribute__((noreturn));
 
 #endif /* ATF_C_TC_H */

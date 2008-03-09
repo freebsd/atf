@@ -530,7 +530,7 @@ ATF_TC_BODY(require_progs_body, tc)
     const char *progs;
 
     CE(atf_map_get_cstring(config, "progs", &progs));
-    /* TODO: Add call to require progs. */
+    atf_tc_require_prog(progs);
 }
 
 ATF_TC(require_progs_head);

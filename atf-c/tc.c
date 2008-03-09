@@ -84,6 +84,8 @@ static void body_child(const atf_tc_t *, const atf_fs_path_t *)
 static atf_error_t check_arch(const char *, void *);
 static atf_error_t check_config(const char *, void *);
 static atf_error_t check_machine(const char *, void *);
+static atf_error_t check_prog(const char *, void *);
+static atf_error_t check_prog_in_dir(const char *, void *);
 static atf_error_t check_requirements(const atf_tc_t *);
 static void cleanup_child(const atf_tc_t *, const atf_fs_path_t *)
             __attribute__((noreturn));
@@ -666,6 +668,84 @@ check_machine(const char *machine, void *data)
     return atf_no_error();
 }
 
+struct prog_found_pair {
+    const char *prog;
+    bool found;
+};
+
+static
+atf_error_t
+check_prog(const char *prog, void *data)
+{
+    atf_error_t err;
+    atf_fs_path_t p;
+
+    err = atf_fs_path_init_fmt(&p, "%s", prog);
+    if (atf_is_error(err))
+        goto out;
+
+    if (atf_fs_path_is_absolute(&p)) {
+        if (atf_is_error(atf_fs_eaccess(&p, atf_fs_access_x)))
+            atf_tc_skip("The required program %s could not be found", prog);
+    } else {
+        const char *path = atf_env_get("PATH");
+        struct prog_found_pair pf;
+        atf_fs_path_t bp;
+
+        err = atf_fs_path_branch_path(&p, &bp);
+        if (atf_is_error(err))
+            goto out_p;
+
+        if (strcmp(atf_fs_path_cstring(&bp), ".") != 0)
+            atf_tc_fail("Relative paths are not allowed when searching for "
+                        "a program (%s)", prog);
+
+        pf.prog = prog;
+        pf.found = false;
+        err = atf_text_for_each_word(path, ":", check_prog_in_dir, &pf);
+        if (atf_is_error(err))
+            goto out_bp;
+
+        if (!pf.found)
+            atf_tc_skip("The required program %s could not be found in "
+                        "the PATH", prog);
+
+out_bp:
+        atf_fs_path_fini(&bp);
+    }
+
+out_p:
+    atf_fs_path_fini(&p);
+out:
+    return err;
+}
+
+static
+atf_error_t
+check_prog_in_dir(const char *dir, void *data)
+{
+    struct prog_found_pair *pf = data;
+    atf_error_t err;
+
+    if (pf->found)
+        err = atf_no_error();
+    else {
+        atf_fs_path_t p;
+
+        err = atf_fs_path_init_fmt(&p, "%s/%s", dir, pf->prog);
+        if (atf_is_error(err))
+            goto out_p;
+
+        if (!atf_is_error(atf_fs_eaccess(&p, atf_fs_access_x)))
+            pf->found = true;
+
+out_p:
+        atf_fs_path_fini(&p);
+    }
+
+    return err;
+}
+
 static
 atf_error_t
 check_requirements(const atf_tc_t *tc)
@@ -718,6 +798,18 @@ check_requirements(const atf_tc_t *tc)
             if (!found)
                 atf_tc_skip("Requires one of the '%s' machine types",
                             machines);
+        }
+    }
+
+    if (atf_tc_has_var(tc, "require.progs")) {
+        const char *progs = atf_tc_get_var(tc, "require.progs");
+
+        if (strlen(progs) == 0)
+            atf_tc_fail("Invalid value in the require.progs property");
+        else {
+            err = atf_text_for_each_word(progs, " ", check_prog, NULL);
+            if (atf_is_error(err))
+                goto out;
         }
     }
 
@@ -893,6 +985,16 @@ atf_tc_pass(void)
     write_tcr(current_tc, "passed", NULL, NULL);
 
     exit(EXIT_SUCCESS);
+}
+
+void
+atf_tc_require_prog(const char *prog)
+{
+    atf_error_t err;
+
+    err = check_prog(prog, NULL);
+    if (atf_is_error(err))
+        atf_tc_fail("atf_tc_require_prog failed"); /* XXX Correct? */
 }
 
 void
