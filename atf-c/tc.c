@@ -57,6 +57,7 @@
 #include "atf-c/tc.h"
 #include "atf-c/tcr.h"
 #include "atf-c/text.h"
+#include "atf-c/user.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary types and functions.
@@ -80,6 +81,7 @@ static void sigalrm_handler(int);
 /* Child-only stuff. */
 static void body_child(const atf_tc_t *, const atf_fs_path_t *)
             __attribute__((noreturn));
+static void check_requirements(const atf_tc_t *);
 static void cleanup_child(const atf_tc_t *, const atf_fs_path_t *)
             __attribute__((noreturn));
 static void fatal_atf_error(const char *, atf_error_t)
@@ -605,11 +607,30 @@ body_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
 
         atf_tc_fail("Error while preparing child process: %s", buf);
     }
+    check_requirements(tc);
     tc->m_body(tc);
     atf_tc_pass();
 
     UNREACHABLE;
     abort();
+}
+
+static
+void
+check_requirements(const atf_tc_t *tc)
+{
+    if (atf_tc_has_var(tc, "require.user")) {
+        const char *u = atf_tc_get_var(tc, "require.user");
+
+        if (strcmp(u, "root") == 0) {
+            if (!atf_user_is_root())
+                atf_tc_skip("Requires root privileges");
+        } else if (strcmp(u, "unprivileged") == 0) {
+            if (atf_user_is_root())
+                atf_tc_skip("Requires an unprivileged user");
+        } else
+            atf_tc_fail("Invalid value in the require.user property");
+    }
 }
 
 static

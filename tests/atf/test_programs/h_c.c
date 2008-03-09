@@ -548,47 +548,51 @@ ATF_TC_BODY(require_progs_head, tc)
 {
 }
 
-ATF_TC(require_user_root);
-ATF_TC_HEAD(require_user_root, tc)
+ATF_TC(require_user);
+ATF_TC_HEAD(require_user, tc)
 {
+    const atf_map_t *config = atf_tc_get_config(tc);
+    const char *user;
+
     atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
                    "test program");
-    atf_tc_set_var(tc, "require.user", "root");
+
+    atf_map_get_cstring_wd(config, "user", "not-set", &user);
+    atf_tc_set_var(tc, "require.user", user);
 }
-ATF_TC_BODY(require_user_root, tc)
+ATF_TC_BODY(require_user, tc)
 {
 }
 
-ATF_TC(require_user_root2);
-ATF_TC_HEAD(require_user_root2, tc)
+ATF_TC(require_user2);
+ATF_TC_HEAD(require_user2, tc)
 {
+    const atf_map_t *config = atf_tc_get_config(tc);
+    const char *user;
+
     atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
                    "test program");
-    atf_tc_set_var(tc, "require.user", "root");
+
+    atf_map_get_cstring_wd(config, "user2", "not-set", &user);
+    atf_tc_set_var(tc, "require.user", user);
 }
-ATF_TC_BODY(require_user_root2, tc)
+ATF_TC_BODY(require_user2, tc)
 {
 }
 
-ATF_TC(require_user_unprivileged);
-ATF_TC_HEAD(require_user_unprivileged, tc)
+ATF_TC(require_user3);
+ATF_TC_HEAD(require_user3, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-    atf_tc_set_var(tc, "require.user", "unprivileged");
-}
-ATF_TC_BODY(require_user_unprivileged, tc)
-{
-}
+    const atf_map_t *config = atf_tc_get_config(tc);
+    const char *user;
 
-ATF_TC(require_user_unprivileged2);
-ATF_TC_HEAD(require_user_unprivileged2, tc)
-{
     atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
                    "test program");
-    atf_tc_set_var(tc, "require.user", "unprivileged");
+
+    atf_map_get_cstring_wd(config, "user3", "not-set", &user);
+    atf_tc_set_var(tc, "require.user", user);
 }
-ATF_TC_BODY(require_user_unprivileged2, tc)
+ATF_TC_BODY(require_user3, tc)
 {
 }
 
@@ -760,10 +764,9 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, require_machine);
     ATF_TP_ADD_TC(tp, require_progs_body);
     ATF_TP_ADD_TC(tp, require_progs_head);
-    ATF_TP_ADD_TC(tp, require_user_root);
-    ATF_TP_ADD_TC(tp, require_user_root2);
-    ATF_TP_ADD_TC(tp, require_user_unprivileged);
-    ATF_TP_ADD_TC(tp, require_user_unprivileged2);
+    ATF_TP_ADD_TC(tp, require_user);
+    ATF_TP_ADD_TC(tp, require_user2);
+    ATF_TP_ADD_TC(tp, require_user3);
     ATF_TP_ADD_TC(tp, timeout);
     ATF_TP_ADD_TC(tp, timeout2);
 

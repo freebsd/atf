@@ -393,10 +393,11 @@ require_user_bad_head()
 require_user_bad_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
     h_sh=${srcdir}/h_sh
 
-    for h in ${h_cpp} ${h_sh}; do
+    for h in ${h_c} ${h_cpp} ${h_sh}; do
         atf_check "${h} -s ${srcdir} -r3 -v user=foo require_user \
             3>resout" 1 ignore ignore
         atf_check 'grep "failed.*Invalid" resout' 0 ignore null
