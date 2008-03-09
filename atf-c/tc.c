@@ -81,7 +81,9 @@ static void sigalrm_handler(int);
 /* Child-only stuff. */
 static void body_child(const atf_tc_t *, const atf_fs_path_t *)
             __attribute__((noreturn));
-static void check_requirements(const atf_tc_t *);
+static atf_error_t check_arch(const char *, void *);
+static atf_error_t check_machine(const char *, void *);
+static atf_error_t check_requirements(const atf_tc_t *);
 static void cleanup_child(const atf_tc_t *, const atf_fs_path_t *)
             __attribute__((noreturn));
 static void fatal_atf_error(const char *, atf_error_t)
@@ -599,7 +601,20 @@ body_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
     atf_disable_exit_checks();
 
     err = prepare_child(tc, workdir);
-    if (atf_is_error(err)) {
+    if (atf_is_error(err))
+        goto print_err;
+    err = check_requirements(tc);
+    if (atf_is_error(err))
+        goto print_err;
+    tc->m_body(tc);
+    atf_tc_pass();
+
+    UNREACHABLE;
+    abort();
+
+print_err:
+    INV(atf_is_error(err));
+    {
         char buf[4096];
 
         atf_error_format(err, buf, sizeof(buf));
@@ -607,18 +622,78 @@ body_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
 
         atf_tc_fail("Error while preparing child process: %s", buf);
     }
-    check_requirements(tc);
-    tc->m_body(tc);
-    atf_tc_pass();
 
     UNREACHABLE;
     abort();
 }
 
 static
-void
+atf_error_t
+check_arch(const char *arch, void *data)
+{
+    bool *found = data;
+
+    if (strcmp(arch, atf_config_get("atf_arch")) == 0)
+        *found = true;
+
+    return atf_no_error();
+}
+
+static
+atf_error_t
+check_machine(const char *machine, void *data)
+{
+    bool *found = data;
+
+    if (strcmp(machine, atf_config_get("atf_machine")) == 0)
+        *found = true;
+
+    return atf_no_error();
+}
+
+static
+atf_error_t
 check_requirements(const atf_tc_t *tc)
 {
+    atf_error_t err;
+
+    err = atf_no_error();
+
+    if (atf_tc_has_var(tc, "require.arch")) {
+        const char *arches = atf_tc_get_var(tc, "require.arch");
+        bool found = false;
+
+        if (strlen(arches) == 0)
+            atf_tc_fail("Invalid value in the require.arch property");
+        else {
+            err = atf_text_for_each_word(arches, " ", check_arch, &found);
+            if (atf_is_error(err))
+                goto out;
+
+            if (!found)
+                atf_tc_skip("Requires one of the '%s' architectures",
+                            arches);
+        }
+    }
+
+    if (atf_tc_has_var(tc, "require.machine")) {
+        const char *machines = atf_tc_get_var(tc, "require.machine");
+        bool found = false;
+
+        if (strlen(machines) == 0)
+            atf_tc_fail("Invalid value in the require.machine property");
+        else {
+            err = atf_text_for_each_word(machines, " ", check_machine,
+                                         &found);
+            if (atf_is_error(err))
+                goto out;
+
+            if (!found)
+                atf_tc_skip("Requires one of the '%s' machine types",
+                            machines);
+        }
+    }
+
     if (atf_tc_has_var(tc, "require.user")) {
         const char *u = atf_tc_get_var(tc, "require.user");
 
@@ -631,6 +706,10 @@ check_requirements(const atf_tc_t *tc)
         } else
             atf_tc_fail("Invalid value in the require.user property");
     }
+
+    INV(!atf_is_error(err));
+out:
+    return err;
 }
 
 static
