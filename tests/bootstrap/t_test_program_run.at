@@ -1,7 +1,7 @@
 dnl
 dnl Automated Testing Framework (atf)
 dnl
-dnl Copyright (c) 2007 The NetBSD Foundation, Inc.
+dnl Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 dnl All rights reserved.
 dnl
 dnl Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ dnl
 
 AT_SETUP([test_program: output format and exit codes])
 
-for h in tp_basic_cpp tp_basic_sh; do
+for h in tp_basic_c tp_basic_cpp tp_basic_sh; do
 
 AT_CHECK([TEST_HELPER(${h})], 1, [stdout], [stderr])
 AT_CHECK([COUNT_IN_LINES([grep __atf_tc_separator__ stdout], 3)], [0], [], [])
