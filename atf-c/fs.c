@@ -42,6 +42,7 @@
 #include <sys/param.h>
 #include <sys/mount.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 #include <dirent.h>
 #include <errno.h>
@@ -302,6 +303,7 @@ normalize(atf_dynstr_t *d, char *p)
         err = atf_no_error();
 
     first = true;
+    last = NULL; /* Silence GCC warning. */
     ptr = strtok_r(p, "/", &last);
     while (!atf_is_error(err) && ptr != NULL) {
         if (strlen(ptr) > 0) {

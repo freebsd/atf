@@ -62,6 +62,8 @@
 #   define GETOPT_POSIX ""
 #endif
 
+static const char *progname = NULL;
+
 /* ---------------------------------------------------------------------
  * The "usage" and "user" error types.
  * --------------------------------------------------------------------- */
@@ -150,20 +152,20 @@ print_error(const atf_error_t err)
 
         atf_error_format(err, buf, sizeof(buf));
 
-        fprintf(stderr, "%s: %s\n", getprogname(), buf);
+        fprintf(stderr, "%s: %s\n", progname, buf);
     } else {
         atf_dynstr_t tag;
         char buf[4096];
 
         atf_error_format(err, buf, sizeof(buf));
 
-        atf_dynstr_init_fmt(&tag, "%s: ", getprogname());
+        atf_dynstr_init_fmt(&tag, "%s: ", progname);
         print_tag(stderr, atf_dynstr_cstring(&tag), true, 0,
                   "ERROR: %s", buf);
 
         if (atf_error_is(err, "usage"))
             print_tag(stderr, atf_dynstr_cstring(&tag), true, 0,
-                      "Type `%s -h' for more details.", getprogname());
+                      "Type `%s -h' for more details.", progname);
 
         atf_dynstr_fini(&tag);
     }
@@ -376,8 +378,7 @@ void
 usage(void)
 {
     print_tag(stdout, "Usage: ", false, 0,
-              "%s [options] [test_case1 [.. test_caseN]]",
-              getprogname());
+              "%s [options] [test_case1 [.. test_caseN]]", progname);
     printf("\n");
     print_tag(stdout, "", false, 0, "This is an independent atf test "
               "program.");
@@ -496,7 +497,7 @@ handle_srcdir(struct params *p)
     if (atf_is_error(err))
         goto out_srcdir;
 
-    err = atf_fs_path_append_fmt(&exe, "%s", getprogname());
+    err = atf_fs_path_append_fmt(&exe, "%s", progname);
     if (atf_is_error(err))
         goto out_exe;
 
@@ -629,6 +630,12 @@ atf_tp_main(int argc, char **argv, atf_error_t (*add_tcs_hook)(atf_tp_t *))
     int exitcode;
 
     atf_init_objects();
+
+    progname = strrchr(argv[0], '/');
+    if (progname == NULL)
+        progname = argv[0];
+    else
+        progname++;
 
     exitcode = EXIT_FAILURE; /* Silence GCC warning. */
     err = controlled_main(argc, argv, add_tcs_hook, &exitcode);

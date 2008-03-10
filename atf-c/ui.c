@@ -109,6 +109,7 @@ format_paragraph(atf_dynstr_t *dest,
     if (atf_is_error(err))
         goto out_pads;
 
+    last = NULL; /* Silence GCC warning. */
     str2 = strtok_r(str, " ", &last);
     curcol = col;
     do {
@@ -161,6 +162,7 @@ format_aux(atf_dynstr_t *dest,
     while (str2 != str && *--str2 == '\n')
         *str2 = '\0';
 
+    last = NULL; /* Silence GCC warning. */
     str2 = strtok_r(str, "\n", &last);
     do {
         const bool first = (str2 == str);
