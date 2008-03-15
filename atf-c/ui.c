@@ -190,8 +190,11 @@ atf_ui_format_ap(atf_dynstr_t *dest,
 {
     char *src;
     atf_error_t err;
+    va_list ap2;
 
-    err = atf_text_format_ap(&src, fmt, ap);
+    va_copy(ap2, ap);
+    err = atf_text_format_ap(&src, fmt, ap2);
+    va_end(ap2);
     if (!atf_is_error(err)) {
         err = format_aux(dest, tag, repeat, col, src);
         free(src);

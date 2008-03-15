@@ -323,12 +323,15 @@ normalize_ap(atf_dynstr_t *d, const char *p, va_list ap)
 {
     char *str;
     atf_error_t err;
+    va_list ap2;
 
     err = atf_dynstr_init(d);
     if (atf_is_error(err))
         goto out;
 
-    err = atf_text_format_ap(&str, p, ap);
+    va_copy(ap2, ap);
+    err = atf_text_format_ap(&str, p, ap2);
+    va_end(ap2);
     if (atf_is_error(err))
         atf_dynstr_fini(d);
     else {
@@ -351,9 +354,16 @@ out:
 atf_error_t
 atf_fs_path_init_ap(atf_fs_path_t *p, const char *fmt, va_list ap)
 {
+    atf_error_t err;
+    va_list ap2;
+
     atf_object_init(&p->m_object);
 
-    return normalize_ap(&p->m_data, fmt, ap);
+    va_copy(ap2, ap);
+    err = normalize_ap(&p->m_data, fmt, ap2);
+    va_end(ap2);
+
+    return err;
 }
 
 atf_error_t
@@ -460,8 +470,11 @@ atf_fs_path_append_ap(atf_fs_path_t *p, const char *fmt, va_list ap)
 {
     atf_dynstr_t aux;
     atf_error_t err;
+    va_list ap2;
 
-    err = normalize_ap(&aux, fmt, ap);
+    va_copy(ap2, ap);
+    err = normalize_ap(&aux, fmt, ap2);
+    va_end(ap2);
     if (!atf_is_error(err)) {
         const char *auxstr = atf_dynstr_cstring(&aux);
         const bool needslash = auxstr[0] != '/';

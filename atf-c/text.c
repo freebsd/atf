@@ -84,8 +84,11 @@ atf_text_format_ap(char **dest, const char *fmt, va_list ap)
 {
     atf_error_t err;
     atf_dynstr_t tmp;
+    va_list ap2;
 
-    err = atf_dynstr_init_ap(&tmp, fmt, ap);
+    va_copy(ap2, ap);
+    err = atf_dynstr_init_ap(&tmp, fmt, ap2);
+    va_end(ap2);
     if (!atf_is_error(err))
         *dest = atf_dynstr_fini_disown(&tmp);
 
