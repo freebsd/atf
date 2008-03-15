@@ -167,14 +167,13 @@ format_aux(atf_dynstr_t *dest,
     do {
         const bool first = (str2 == str);
         err = format_paragraph(dest, tag, repeat, col, first, str2);
-        if (!atf_is_error(err) && last != NULL) {
+        str2 = strtok_r(NULL, "\n", &last);
+        if (!atf_is_error(err) && str2 != NULL) {
             if (repeat)
                 err = atf_dynstr_append_fmt(dest, "\n%s\n", tag);
             else
                 err = atf_dynstr_append_fmt(dest, "\n\n");
         }
-
-        str2 = strtok_r(NULL, "\n", &last);
     } while (str2 != NULL && !atf_is_error(err));
 
     return 0;
