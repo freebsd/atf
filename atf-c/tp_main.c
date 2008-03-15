@@ -415,6 +415,7 @@ process_params(int argc, char **argv, struct params *p)
     if (atf_is_error(err))
         goto out;
 
+    opterr = 0;
     while (!atf_is_error(err) &&
            (ch = getopt(argc, argv, GETOPT_POSIX ":hlr:s:v:w:")) != -1) {
         switch (ch) {
