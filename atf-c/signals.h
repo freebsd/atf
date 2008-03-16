@@ -34,84 +34,53 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_TC_H)
-#define ATF_C_TC_H
+#if !defined(ATF_C_SIGNALS_H)
+#define ATF_C_SIGNALS_H
+
+#include <signal.h>
+#include <stdbool.h>
 
 #include <atf-c/error.h>
-#include <atf-c/map.h>
 #include <atf-c/object.h>
 
-struct atf_dynstr;
-struct atf_fs_path;
-struct atf_tc;
-struct atf_tcr;
-
-typedef void (*atf_tc_head_t)(struct atf_tc *);
-typedef void (*atf_tc_body_t)(const struct atf_tc *);
-typedef void (*atf_tc_cleanup_t)(const struct atf_tc *);
+extern const int atf_signals_last_signo;
+typedef void (*atf_signal_handler_t)(int);
 
 /* ---------------------------------------------------------------------
- * The "atf_tc_pack" type.
+ * The "atf_signal_programmer" type.
  * --------------------------------------------------------------------- */
 
-/* For static initialization only. */
-struct atf_tc_pack {
-    const char *m_ident;
-
-    const atf_map_t *m_config;
-
-    atf_tc_head_t m_head;
-    atf_tc_body_t m_body;
-    atf_tc_cleanup_t m_cleanup;
-};
-typedef const struct atf_tc_pack atf_tc_pack_t;
-
-/* ---------------------------------------------------------------------
- * The "atf_tc" type.
- * --------------------------------------------------------------------- */
-
-struct atf_tc {
+struct atf_signal_programmer {
     atf_object_t m_object;
 
-    const char *m_ident;
-
-    atf_map_t m_vars;
-    const atf_map_t *m_config;
-
-    atf_tc_head_t m_head;
-    atf_tc_body_t m_body;
-    atf_tc_cleanup_t m_cleanup;
+    int m_signo;
+    atf_signal_handler_t m_handler;
+    struct sigaction m_oldsa;
 };
-typedef struct atf_tc atf_tc_t;
+typedef struct atf_signal_programmer atf_signal_programmer_t;
 
 /* Constructors/destructors. */
-atf_error_t atf_tc_init(atf_tc_t *, const char *, atf_tc_head_t,
-                        atf_tc_body_t, atf_tc_cleanup_t,
-                        const atf_map_t *);
-atf_error_t atf_tc_init_pack(atf_tc_t *, atf_tc_pack_t *,
-                             const atf_map_t *);
-void atf_tc_fini(atf_tc_t *);
-
-/* Getters. */
-const atf_map_t *atf_tc_get_config(const atf_tc_t *);
-const char *atf_tc_get_ident(const atf_tc_t *);
-const char *atf_tc_get_var(const atf_tc_t *, const char *);
-bool atf_tc_has_var(const atf_tc_t *, const char *);
-
-/* Modifiers. */
-atf_error_t atf_tc_set_var(atf_tc_t *, const char *, const char *, ...);
+atf_error_t atf_signal_programmer_init(atf_signal_programmer_t *, int,
+                                       atf_signal_handler_t);
+void atf_signal_programmer_fini(atf_signal_programmer_t *);
 
 /* ---------------------------------------------------------------------
- * Free functions.
+ * The "atf_signal_holder" type.
  * --------------------------------------------------------------------- */
 
-atf_error_t atf_tc_run(const atf_tc_t *, struct atf_tcr *,
-                       const struct atf_fs_path *);
+struct atf_signal_holder {
+    atf_object_t m_object;
 
-/* To be run from test case bodies only. */
-void atf_tc_fail(const char *, ...) __attribute__((noreturn));
-void atf_tc_pass(void) __attribute__((noreturn));
-void atf_tc_require_prog(const char *);
-void atf_tc_skip(const char *, ...) __attribute__((noreturn));
+    int m_signo;
+    atf_signal_programmer_t m_sp;
+};
+typedef struct atf_signal_holder atf_signal_holder_t;
 
-#endif /* ATF_C_TC_H */
+/* Constructors/destructors. */
+atf_error_t atf_signal_holder_init(atf_signal_holder_t *, int);
+void atf_signal_holder_fini(atf_signal_holder_t *);
+
+/* Modifiers. */
+void atf_signal_holder_process(atf_signal_holder_t *);
+
+#endif /* ATF_C_SIGNALS_H */

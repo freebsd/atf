@@ -329,46 +329,35 @@ require_progs_head_body()
     :
 }
 
-atf_test_case require_user_root
-require_user_root_head()
+atf_test_case require_user
+require_user_head()
 {
     atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "require.user" "root"
+    atf_set "require.user" "$(atf_config_get user)"
 }
-require_user_root_body()
+require_user_body()
 {
     :
 }
 
-atf_test_case require_user_root2
-require_user_root2_head()
+atf_test_case require_user2
+require_user2_head()
 {
     atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "require.user" "root"
+    atf_set "require.user" "$(atf_config_get user2)"
 }
-require_user_root2_body()
+require_user2_body()
 {
     :
 }
 
-atf_test_case require_user_unprivileged
-require_user_unprivileged_head()
+atf_test_case require_user3
+require_user3_head()
 {
     atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "require.user" "unprivileged"
+    atf_set "require.user" "$(atf_config_get user3)"
 }
-require_user_unprivileged_body()
-{
-    :
-}
-
-atf_test_case require_user_unprivileged2
-require_user_unprivileged2_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "require.user" "unprivileged"
-}
-require_user_unprivileged2_body()
+require_user3_body()
 {
     :
 }
@@ -482,10 +471,9 @@ atf_init_test_cases()
     atf_add_test_case require_machine
     atf_add_test_case require_progs_body
     atf_add_test_case require_progs_head
-    atf_add_test_case require_user_root
-    atf_add_test_case require_user_root2
-    atf_add_test_case require_user_unprivileged
-    atf_add_test_case require_user_unprivileged2
+    atf_add_test_case require_user
+    atf_add_test_case require_user2
+    atf_add_test_case require_user3
     atf_add_test_case timeout
     atf_add_test_case timeout2
 

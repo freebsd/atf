@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,46 +34,23 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_TP_H)
-#define ATF_C_TP_H
+#if !defined(ATF_C_USER_H)
+#define ATF_C_USER_H
 
-#include <atf-c/error.h>
-#include <atf-c/list.h>
-#include <atf-c/object.h>
+#include <sys/types.h>
 
-struct atf_fs_path;
-struct atf_map;
-struct atf_tc;
+#include <stdbool.h>
 
-/* ---------------------------------------------------------------------
- * The "atf_tp" type.
- * --------------------------------------------------------------------- */
-
-struct atf_tp {
-    atf_object_t m_object;
-
-    atf_list_t m_tcs;
-    const struct atf_map *m_config;
-};
-typedef struct atf_tp atf_tp_t;
-
-/* Constructors/destructors. */
-atf_error_t atf_tp_init(atf_tp_t *, struct atf_map *);
-void atf_tp_fini(atf_tp_t *);
-
-/* Getters. */
-const struct atf_map *atf_tp_get_config(const atf_tp_t *);
-const struct atf_tc *atf_tp_get_tc(const atf_tp_t *, const char *);
-const atf_list_t *atf_tp_get_tcs(const atf_tp_t *);
-
-/* Modifiers. */
-atf_error_t atf_tp_add_tc(atf_tp_t *, struct atf_tc *);
+/* TODO: Would be nice to have an atf_user_t type and transform all of
+ * the functions below to methods. */
 
 /* ---------------------------------------------------------------------
  * Free functions.
  * --------------------------------------------------------------------- */
 
-atf_error_t atf_tp_run(const atf_tp_t *, const atf_list_t *, int,
-                       const struct atf_fs_path *, size_t *);
+uid_t atf_user_euid(void);
+bool atf_user_is_member_of_group(gid_t);
+bool atf_user_is_root(void);
+bool atf_user_is_unprivileged(void);
 
-#endif /* ATF_C_TP_H */
+#endif // !defined(ATF_C_USER_H)

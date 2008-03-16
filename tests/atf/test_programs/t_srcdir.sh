@@ -70,8 +70,6 @@ sflag_body()
 {
     create_files
 
-    # XXX Shouldn't have to use absolute pathnames for -s.  Fix this.
-
     for h in h_c h_cpp h_sh; do
         hp=$(atf_get_srcdir)/${h}
         cp ${hp} tmp
@@ -84,10 +82,39 @@ sflag_body()
     done
 }
 
+atf_test_case relative
+relative_head()
+{
+    atf_set "descr" "Checks that passing a relative path through -s" \
+                    "works"
+}
+relative_body()
+{
+    create_files
+
+    for h in h_c h_cpp h_sh; do
+        hp=$(atf_get_srcdir)/${h}
+        cp ${hp} tmp
+
+        for p in tmp tmp/. ./tmp; do
+            echo "Helper is: ${h}"
+            echo "Using source directory: ${p}"
+
+            atf_check "./tmp/${h} -s ${p} \
+                       srcdir_exists" 0 ignore ignore
+            atf_check "${hp} srcdir_exists" 1 null stderr
+            atf_check 'grep "Cannot.*find.*source.*directory" stderr' \
+                      0 ignore null
+            atf_check "${hp} -s ${p} srcdir_exists" 0 ignore ignore
+        done
+    done
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case default
     atf_add_test_case sflag
+    atf_add_test_case relative
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

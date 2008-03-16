@@ -43,35 +43,15 @@ extern "C" {
 
 #include <map>
 
+extern "C" {
+#include "atf-c/signals.h"
+}
+
 namespace atf {
 namespace signals {
 
-//
-// Define last_signo to the last signal number valid for the system.
-// This is tricky.  For example, NetBSD defines SIGPWR as the last valid
-// number, whereas Mac OS X defines it as SIGTHR.  Both share the same
-// signal number (32).  If none of these are available, we assume that
-// the highest signal is SIGUSR2.
-//
-// TODO: Make this a configure check that uses ::kill and finds the first
-// number that returns EINVAL.  The result is probably usable in the
-// shell interface too.
-//
-#if defined(SIGTHR) && defined(SIGPWR)
-#   if SIGTHR > SIGPWR
-static const int last_signo = SIGTHR;
-#   elif SIGPWR < SIGTHR
-static const int last_signo = SIGPWR;
-#   else
-static const int last_signo = SIGPWR;
-#   endif
-#elif defined(SIGTHR)
-static const int last_signo = SIGTHR;
-#elif defined(SIGPWR)
-static const int last_signo = SIGPWR;
-#else
-static const int last_signo = SIGUSR2;
-#endif
+extern const int last_signo;
+typedef atf_signal_handler_t handler;
 
 // ------------------------------------------------------------------------
 // The "signal_holder" class.
@@ -81,14 +61,7 @@ static const int last_signo = SIGUSR2;
 // A RAII model to hold a signal while the object is alive.
 //
 class signal_holder {
-    int m_signal;
-    bool m_happened;
-    struct sigaction m_sanew, m_saold;
-    static std::map< int, signal_holder* > m_holders;
-
-    static void handler(int);
-
-    void program(void);
+    atf_signal_holder_t m_sh;
 
 public:
     signal_holder(int);
@@ -105,11 +78,10 @@ public:
 // A RAII model to program a signal while the object is alive.
 //
 class signal_programmer {
-    int m_signal;
-    struct sigaction m_saold;
+    atf_signal_programmer_t m_sp;
 
 public:
-    signal_programmer(int s, void (*handler)(int));
+    signal_programmer(int, handler);
     ~signal_programmer(void);
 };
 

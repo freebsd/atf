@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,46 +34,51 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_TP_H)
-#define ATF_C_TP_H
+#include <sys/param.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-#include <atf-c/error.h>
-#include <atf-c/list.h>
-#include <atf-c/object.h>
-
-struct atf_fs_path;
-struct atf_map;
-struct atf_tc;
-
-/* ---------------------------------------------------------------------
- * The "atf_tp" type.
- * --------------------------------------------------------------------- */
-
-struct atf_tp {
-    atf_object_t m_object;
-
-    atf_list_t m_tcs;
-    const struct atf_map *m_config;
-};
-typedef struct atf_tp atf_tp_t;
-
-/* Constructors/destructors. */
-atf_error_t atf_tp_init(atf_tp_t *, struct atf_map *);
-void atf_tp_fini(atf_tp_t *);
-
-/* Getters. */
-const struct atf_map *atf_tp_get_config(const atf_tp_t *);
-const struct atf_tc *atf_tp_get_tc(const atf_tp_t *, const char *);
-const atf_list_t *atf_tp_get_tcs(const atf_tp_t *);
-
-/* Modifiers. */
-atf_error_t atf_tp_add_tc(atf_tp_t *, struct atf_tc *);
+#include "atf-c/sanity.h"
+#include "atf-c/user.h"
 
 /* ---------------------------------------------------------------------
  * Free functions.
  * --------------------------------------------------------------------- */
 
-atf_error_t atf_tp_run(const atf_tp_t *, const atf_list_t *, int,
-                       const struct atf_fs_path *, size_t *);
+uid_t
+atf_user_euid(void)
+{
+    return geteuid();
+}
 
-#endif /* ATF_C_TP_H */
+bool
+atf_user_is_member_of_group(gid_t gid)
+{
+    static gid_t groups[NGROUPS_MAX];
+    static int ngroups = -1;
+    bool found;
+    int i;
+
+    if (ngroups == -1) {
+        ngroups = getgroups(NGROUPS_MAX, groups);
+        INV(ngroups >= 0);
+    }
+
+    found = false;
+    for (i = 0; !found && i < ngroups; i++)
+        if (groups[i] == gid)
+            found = true;
+    return found;
+}
+
+bool
+atf_user_is_root(void)
+{
+    return geteuid() == 0;
+}
+
+bool
+atf_user_is_unprivileged(void)
+{
+    return geteuid() != 0;
+}

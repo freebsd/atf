@@ -109,6 +109,7 @@ format_paragraph(atf_dynstr_t *dest,
     if (atf_is_error(err))
         goto out_pads;
 
+    last = NULL; /* Silence GCC warning. */
     str2 = strtok_r(str, " ", &last);
     curcol = col;
     do {
@@ -161,18 +162,18 @@ format_aux(atf_dynstr_t *dest,
     while (str2 != str && *--str2 == '\n')
         *str2 = '\0';
 
+    last = NULL; /* Silence GCC warning. */
     str2 = strtok_r(str, "\n", &last);
     do {
         const bool first = (str2 == str);
         err = format_paragraph(dest, tag, repeat, col, first, str2);
-        if (!atf_is_error(err) && last != NULL) {
+        str2 = strtok_r(NULL, "\n", &last);
+        if (!atf_is_error(err) && str2 != NULL) {
             if (repeat)
                 err = atf_dynstr_append_fmt(dest, "\n%s\n", tag);
             else
                 err = atf_dynstr_append_fmt(dest, "\n\n");
         }
-
-        str2 = strtok_r(NULL, "\n", &last);
     } while (str2 != NULL && !atf_is_error(err));
 
     return 0;
@@ -189,8 +190,11 @@ atf_ui_format_ap(atf_dynstr_t *dest,
 {
     char *src;
     atf_error_t err;
+    va_list ap2;
 
-    err = atf_text_format_ap(&src, fmt, ap);
+    va_copy(ap2, ap);
+    err = atf_text_format_ap(&src, fmt, ap2);
+    va_end(ap2);
     if (!atf_is_error(err)) {
         err = format_aux(dest, tag, repeat, col, src);
         free(src);

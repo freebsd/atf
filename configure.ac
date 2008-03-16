@@ -86,6 +86,7 @@ ATF_MODULE_APPLICATION
 ATF_MODULE_ENV
 ATF_MODULE_FS
 ATF_MODULE_SANITY
+ATF_MODULE_SIGNALS
 
 dnl -----------------------------------------------------------------------
 dnl Architecture and machine checks.
