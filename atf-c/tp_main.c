@@ -229,7 +229,7 @@ parse_rflag(const char *arg, int *value)
 {
     atf_error_t err;
 
-    if (strlen(arg) != 1 || !isdigit(arg[0])) {
+    if (strlen(arg) != 1 || !isdigit((int)arg[0])) {
         err = usage_error("Invalid value for -r; must be a single digit.");
         goto out;
     }
