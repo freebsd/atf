@@ -67,7 +67,7 @@ guess_topdir() {
     olddir=$(pwd)
     topdir=$(pwd)
     while [ ${topdir} != / ]; do
-        if [ -f ./atf.hpp ]; then
+        if [ -f ./atf-c.h ]; then
             break
         else
             cd ..
@@ -159,7 +159,7 @@ check_file() {
 #
 main() {
     topdir=$(guess_topdir)
-    if [ ! -f ${topdir}/atf.hpp ]; then
+    if [ ! -f ${topdir}/atf-c.h ]; then
         err "Could not locate the project's top directory"
     fi
 
