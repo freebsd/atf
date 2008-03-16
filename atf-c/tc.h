@@ -38,13 +38,13 @@
 #define ATF_C_TC_H
 
 #include <atf-c/error.h>
-#include <atf-c/list.h>
+#include <atf-c/map.h>
 #include <atf-c/object.h>
 
 struct atf_dynstr;
-struct atf_tcr;
-
+struct atf_fs_path;
 struct atf_tc;
+struct atf_tcr;
 
 typedef void (*atf_tc_head_t)(struct atf_tc *);
 typedef void (*atf_tc_body_t)(const struct atf_tc *);
@@ -57,6 +57,8 @@ typedef void (*atf_tc_cleanup_t)(const struct atf_tc *);
 /* For static initialization only. */
 struct atf_tc_pack {
     const char *m_ident;
+
+    const atf_map_t *m_config;
 
     atf_tc_head_t m_head;
     atf_tc_body_t m_body;
@@ -73,10 +75,8 @@ struct atf_tc {
 
     const char *m_ident;
 
-    /* Ideally we would use a map here instead of a list for efficient
-     * look up but... 1) a list is easier to implement and 2) test cases
-     * have very few variables (generally less than 10). */
-    atf_list_t m_vars;
+    atf_map_t m_vars;
+    const atf_map_t *m_config;
 
     atf_tc_head_t m_head;
     atf_tc_body_t m_body;
@@ -86,13 +86,16 @@ typedef struct atf_tc atf_tc_t;
 
 /* Constructors/destructors. */
 atf_error_t atf_tc_init(atf_tc_t *, const char *, atf_tc_head_t,
-                        atf_tc_body_t, atf_tc_cleanup_t);
-atf_error_t atf_tc_init_pack(atf_tc_t *, atf_tc_pack_t *);
+                        atf_tc_body_t, atf_tc_cleanup_t,
+                        const atf_map_t *);
+atf_error_t atf_tc_init_pack(atf_tc_t *, atf_tc_pack_t *,
+                             const atf_map_t *);
 void atf_tc_fini(atf_tc_t *);
 
 /* Getters. */
+const atf_map_t *atf_tc_get_config(const atf_tc_t *);
 const char *atf_tc_get_ident(const atf_tc_t *);
-const struct atf_dynstr *atf_tc_get_var(const atf_tc_t *, const char *);
+const char *atf_tc_get_var(const atf_tc_t *, const char *);
 bool atf_tc_has_var(const atf_tc_t *, const char *);
 
 /* Modifiers. */
@@ -102,11 +105,13 @@ atf_error_t atf_tc_set_var(atf_tc_t *, const char *, const char *, ...);
  * Free functions.
  * --------------------------------------------------------------------- */
 
-atf_error_t atf_tc_run(const atf_tc_t *, struct atf_tcr *);
+atf_error_t atf_tc_run(const atf_tc_t *, struct atf_tcr *,
+                       const struct atf_fs_path *);
 
 /* To be run from test case bodies only. */
 void atf_tc_fail(const char *, ...) __attribute__((noreturn));
 void atf_tc_pass(void) __attribute__((noreturn));
+void atf_tc_require_prog(const char *);
 void atf_tc_skip(const char *, ...) __attribute__((noreturn));
 
 #endif /* ATF_C_TC_H */

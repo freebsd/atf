@@ -78,8 +78,11 @@ prepend_or_append(atf_dynstr_t *ad, const char *fmt, va_list ap,
     char *aux;
     atf_error_t err;
     size_t newlen;
+    va_list ap2;
 
-    err = atf_text_format_ap(&aux, fmt, ap);
+    va_copy(ap2, ap);
+    err = atf_text_format_ap(&aux, fmt, ap2);
+    va_end(ap2);
     if (atf_is_error(err))
         goto out;
     newlen = ad->m_length + strlen(aux);
@@ -155,7 +158,12 @@ atf_dynstr_init_ap(atf_dynstr_t *ad, const char *fmt, va_list ap)
         if (ad->m_data == NULL) {
             err = atf_no_memory_error();
         } else {
-            int ret = vsnprintf(ad->m_data, ad->m_datasize, fmt, ap);
+            va_list ap2;
+            int ret;
+
+            va_copy(ap2, ap);
+            ret = vsnprintf(ad->m_data, ad->m_datasize, fmt, ap2);
+            va_end(ap2);
             if (ret < 0) {
                 err = atf_libc_error(errno, "Cannot format string");
             } else {
@@ -317,7 +325,14 @@ atf_dynstr_rfind_ch(const atf_dynstr_t *ad, char ch)
 atf_error_t
 atf_dynstr_append_ap(atf_dynstr_t *ad, const char *fmt, va_list ap)
 {
-    return prepend_or_append(ad, fmt, ap, false);
+    atf_error_t err;
+    va_list ap2;
+
+    va_copy(ap2, ap);
+    err = prepend_or_append(ad, fmt, ap2, false);
+    va_end(ap2);
+
+    return err;
 }
 
 atf_error_t
@@ -343,7 +358,14 @@ atf_dynstr_clear(atf_dynstr_t *ad)
 atf_error_t
 atf_dynstr_prepend_ap(atf_dynstr_t *ad, const char *fmt, va_list ap)
 {
-    return prepend_or_append(ad, fmt, ap, true);
+    atf_error_t err;
+    va_list ap2;
+
+    va_copy(ap2, ap);
+    err = prepend_or_append(ad, fmt, ap2, true);
+    va_end(ap2);
+
+    return err;
 }
 
 atf_error_t

@@ -359,12 +359,14 @@ impl::tc::get_srcdir(void)
 }
 
 void
-impl::tc::init(const vars_map& c, const std::string& srcdir)
+impl::tc::init(const vars_map& c, const std::string& srcdir,
+               const std::string& workdir)
 {
     PRE(m_meta_data.empty());
 
     m_config = c; // XXX Uh, deep copy.  Should be a reference...
     m_srcdir = srcdir;
+    m_workdir = workdir;
 
     m_meta_data["ident"] = m_ident;
     m_meta_data["timeout"] = "300";
@@ -379,8 +381,7 @@ impl::tcr
 impl::tc::safe_run(void)
     const
 {
-    atf::fs::temp_dir workdir
-        (atf::fs::path(m_config.get("workdir")) / "atf.XXXXXX");
+    atf::fs::temp_dir workdir(atf::fs::path(m_workdir) / "atf.XXXXXX");
     impl::tcr tcr = fork_body(workdir.get_path().str());
     fork_cleanup(workdir.get_path().str());
     return tcr;
@@ -468,8 +469,8 @@ impl::tc::check_requirements(void)
             if (!user::is_unprivileged())
                 throw tcr::skipped("Requires an unprivileged user");
         } else
-            throw tcr::skipped("Invalid value in the require.user "
-                               "property");
+            throw tcr::failed("Invalid value in the require.user "
+                              "property");
     }
 
     if (has("require.progs")) {
@@ -709,7 +710,8 @@ private:
     int m_results_fd;
     std::auto_ptr< std::ostream > m_results_os;
     atf::fs::path m_srcdir;
-    std::set< std::string > m_tcnames;
+    atf::fs::path m_workdir;
+    std::vector< std::string > m_tcnames;
 
     atf::tests::vars_map m_vars;
 
@@ -720,7 +722,8 @@ private:
     tc_vector m_tcs;
 
     tc_vector init_tcs(void);
-    static tc_vector filter_tcs(tc_vector, const std::set< std::string >&);
+    static tc_vector filter_tcs(tc_vector,
+                                const std::vector< std::string >&);
 
     std::ostream& results_stream(void);
 
@@ -740,10 +743,10 @@ tp::tp(const tc_vector& tcs) :
     app(m_description, "atf-test-program(1)", "atf(7)"),
     m_lflag(false),
     m_results_fd(STDOUT_FILENO),
-    m_srcdir(atf::fs::get_current_dir()),
+    m_srcdir("."),
+    m_workdir(atf::config::get("atf_workdir")),
     m_tcs(tcs)
 {
-    m_vars["workdir"] = atf::config::get("atf_workdir");
 }
 
 std::string
@@ -767,6 +770,8 @@ tp::specific_options(void)
                                       "files are located"));
     opts.insert(option('v', "var=value", "Sets the configuration variable "
                                          "`var' to `value'"));
+    opts.insert(option('w', "workdir", "Directory where the test's "
+                                       "temporary files are located"));
     return opts;
 }
 
@@ -797,6 +802,10 @@ tp::process_option(int ch, const char* arg)
         }
         break;
 
+    case 'w':
+        m_workdir = atf::fs::path(arg);
+        break;
+
     default:
         UNREACHABLE;
     }
@@ -811,7 +820,7 @@ tp::init_tcs(void)
          iter != tcs.end(); iter++) {
         impl::tc* tc = *iter;
 
-        tc->init(m_vars, m_srcdir.str());
+        tc->init(m_vars, m_srcdir.str(), m_workdir.str());
     }
 
     return tcs;
@@ -837,7 +846,7 @@ public:
 };
 
 tp::tc_vector
-tp::filter_tcs(tc_vector tcs, const std::set< std::string >& tcnames)
+tp::filter_tcs(tc_vector tcs, const std::vector< std::string >& tcnames)
 {
     tc_vector tcso;
 
@@ -847,30 +856,31 @@ tp::filter_tcs(tc_vector tcs, const std::set< std::string >& tcnames)
         tcso = tcs;
     } else {
         // Collect all the test cases' identifiers.
-        std::set< std::string > ids;
+        std::vector< std::string > ids;
         for (tc_vector::iterator iter = tcs.begin();
              iter != tcs.end(); iter++) {
             impl::tc* tc = *iter;
 
-            ids.insert(tc->get("ident"));
+            ids.push_back(tc->get("ident"));
         }
 
         // Iterate over all names provided by the user and, for each one,
         // expand it as if it were a glob pattern.  Collect all expansions.
-        std::set< std::string > exps;
-        for (std::set< std::string >::const_iterator iter = tcnames.begin();
+        std::vector< std::string > exps;
+        for (std::vector< std::string >::const_iterator iter = tcnames.begin();
              iter != tcnames.end(); iter++) {
             const std::string& glob = *iter;
 
-            std::set< std::string > ms = atf::expand::expand_glob(glob, ids);
+            std::vector< std::string > ms =
+                atf::expand::expand_glob(glob, ids);
             if (ms.empty())
                 throw std::runtime_error("Unknown test case `" + glob + "'");
-            exps.insert(ms.begin(), ms.end());
+            exps.insert(exps.end(), ms.begin(), ms.end());
         }
 
         // For each expansion, locate its corresponding test case and add
         // it to the output set.
-        for (std::set< std::string >::const_iterator iter = exps.begin();
+        for (std::vector< std::string >::const_iterator iter = exps.begin();
              iter != exps.end(); iter++) {
             const std::string& name = *iter;
 
@@ -927,9 +937,9 @@ tp::run_tcs(void)
 {
     tc_vector tcs = filter_tcs(init_tcs(), m_tcnames);
 
-    if (!atf::fs::exists(atf::fs::path(m_vars.get("workdir"))))
+    if (!atf::fs::exists(m_workdir))
         throw std::runtime_error("Cannot find the work directory `" +
-                                 m_vars.get("workdir") + "'");
+                                 m_workdir.str() + "'");
 
     int errcode = EXIT_SUCCESS;
 
@@ -967,8 +977,11 @@ tp::main(void)
         throw std::runtime_error("Cannot find the test program in the "
                                  "source directory `" + m_srcdir.str() + "'");
 
+    if (!m_srcdir.is_absolute())
+        m_srcdir = m_srcdir.to_absolute();
+
     for (int i = 0; i < m_argc; i++)
-        m_tcnames.insert(m_argv[i]);
+        m_tcnames.push_back(m_argv[i]);
 
     if (m_lflag)
         errcode = list_tcs();

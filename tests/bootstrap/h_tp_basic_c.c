@@ -34,7 +34,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <atf.h>
+#include <atf-c.h>
 
 ATF_TC(pass);
 ATF_TC_HEAD(pass, tc)

@@ -34,99 +34,48 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-extern "C" {
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <signal.h>
-#include <unistd.h>
-}
-
-#include <cerrno>
-
 #include "atf-c++/exceptions.hpp"
-#include "atf-c++/sanity.hpp"
 #include "atf-c++/signals.hpp"
 
 namespace impl = atf::signals;
 #define IMPL_NAME "atf::signals"
 
+const int impl::last_signo = atf_signals_last_signo;
+
 // ------------------------------------------------------------------------
 // The "signal_holder" class.
 // ------------------------------------------------------------------------
 
-std::map< int, impl::signal_holder* > impl::signal_holder::m_holders;
-
-void
-impl::signal_holder::handler(int s)
+impl::signal_holder::signal_holder(int signo)
 {
-    m_holders[s]->m_happened = true;
-}
-
-void
-impl::signal_holder::program(void)
-{
-    if (::sigaction(m_signal, &m_sanew, &m_saold) == -1)
-        throw atf::system_error(IMPL_NAME "::signal_holder::signal_holder",
-                                "sigaction(2) failed", errno);
-}
-
-impl::signal_holder::signal_holder(int s) :
-    m_signal(s),
-    m_happened(false)
-{
-    m_sanew.sa_handler = handler;
-    sigemptyset(&m_sanew.sa_mask);
-    m_sanew.sa_flags = 0;
-
-    program();
-    PRE(m_holders.find(m_signal) == m_holders.end());
-    m_holders[m_signal] = this;
+    atf_error_t err = atf_signal_holder_init(&m_sh, signo);
+    if (atf_is_error(err))
+        throw_atf_error(err);
 }
 
 impl::signal_holder::~signal_holder(void)
 {
-    int res = ::sigaction(m_signal, &m_saold, NULL);
-    INV(res == 0);
-    if (m_happened)
-        ::kill(::getpid(), m_signal);
+    atf_signal_holder_fini(&m_sh);
 }
 
 void
 impl::signal_holder::process(void)
 {
-    if (m_happened) {
-        int res = ::sigaction(m_signal, &m_saold, NULL);
-        if (res == -1)
-            throw atf::system_error(IMPL_NAME "::signal_holder::signal_holder",
-                                    "sigaction(2) failed", errno);
-        m_happened = false;
-        ::kill(::getpid(), m_signal);
-        program();
-    }
+    atf_signal_holder_process(&m_sh);
 }
 
 // ------------------------------------------------------------------------
 // The "signal_programmer" class.
 // ------------------------------------------------------------------------
 
-impl::signal_programmer::signal_programmer(int s, void (*handler)(int)) :
-    m_signal(s)
+impl::signal_programmer::signal_programmer(int signo, handler h)
 {
-    struct sigaction sa;
-
-    sa.sa_handler = handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-
-    if (::sigaction(m_signal, &sa, &m_saold) == -1)
-        throw atf::system_error(IMPL_NAME
-                                "::signal_programmer::signal_programmer",
-                                "sigaction(2) failed", errno);
+    atf_error_t err = atf_signal_programmer_init(&m_sp, signo, h);
+    if (atf_is_error(err))
+        throw_atf_error(err);
 }
 
 impl::signal_programmer::~signal_programmer(void)
 {
-    int res = ::sigaction(m_signal, &m_saold, NULL);
-    INV(res == 0);
+    atf_signal_programmer_fini(&m_sp);
 }

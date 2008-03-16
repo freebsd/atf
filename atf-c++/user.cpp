@@ -34,14 +34,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if defined(HAVE_CONFIG_H)
-#include "acconfig.h"
-#endif
-
 extern "C" {
-#include <sys/param.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include "atf-c/user.h"
 }
 
 #include "atf-c++/sanity.hpp"
@@ -53,35 +47,23 @@ namespace impl = atf::user;
 uid_t
 impl::euid(void)
 {
-    return ::geteuid();
+    return atf_user_euid();
 }
 
 bool
 impl::is_member_of_group(gid_t gid)
 {
-    static gid_t groups[NGROUPS_MAX];
-    static int ngroups = -1;
-
-    if (ngroups == -1) {
-        ngroups = ::getgroups(NGROUPS_MAX, groups);
-        INV(ngroups >= 0);
-    }
-
-    bool found = false;
-    for (int i = 0; !found && i < ngroups; i++)
-        if (groups[i] == gid)
-            found = true;
-    return found;
+    return atf_user_is_member_of_group(gid);
 }
 
 bool
 impl::is_root(void)
 {
-    return ::geteuid() == 0;
+    return atf_user_is_root();
 }
 
 bool
 impl::is_unprivileged(void)
 {
-    return ::geteuid() != 0;
+    return atf_user_is_unprivileged();
 }

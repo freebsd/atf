@@ -373,18 +373,18 @@ ATF_TC_BODY(path_to_absolute, tc)
     ATF_CHECK(mkdir("dir", 0755) != -1);
 
     for (n = names; *n != NULL; n++) {
-        atf_fs_path_t p;
+        atf_fs_path_t p, p2;
         atf_fs_stat_t st1, st2;
 
         CE(atf_fs_path_init_fmt(&p, "%s", *n));
         CE(atf_fs_stat_init(&st1, &p));
         printf("Relative path: %s\n", atf_fs_path_cstring(&p));
 
-        CE(atf_fs_path_to_absolute(&p));
-        printf("Absolute path: %s\n", atf_fs_path_cstring(&p));
+        CE(atf_fs_path_to_absolute(&p, &p2));
+        printf("Absolute path: %s\n", atf_fs_path_cstring(&p2));
 
-        ATF_CHECK(atf_fs_path_is_absolute(&p));
-        CE(atf_fs_stat_init(&st2, &p));
+        ATF_CHECK(atf_fs_path_is_absolute(&p2));
+        CE(atf_fs_stat_init(&st2, &p2));
 
         ATF_CHECK_EQUAL(atf_fs_stat_get_device(&st1),
                         atf_fs_stat_get_device(&st2));
@@ -393,6 +393,7 @@ ATF_TC_BODY(path_to_absolute, tc)
 
         atf_fs_stat_fini(&st2);
         atf_fs_stat_fini(&st1);
+        atf_fs_path_fini(&p2);
         atf_fs_path_fini(&p);
 
         printf("\n");
@@ -552,6 +553,171 @@ ATF_TC_BODY(cleanup, tc)
     /* TODO: Cleanup with mount points, just as in tools/t_atf_cleanup. */
 }
 
+ATF_TC(exists);
+ATF_TC_HEAD(exists, tc)
+{
+    atf_tc_set_var(tc, "descr", "Tests the atf_fs_exists function");
+}
+ATF_TC_BODY(exists, tc)
+{
+    atf_error_t err;
+    atf_fs_path_t pdir, pfile;
+    bool b;
+
+    CE(atf_fs_path_init_fmt(&pdir, "dir"));
+    CE(atf_fs_path_init_fmt(&pfile, "dir/file"));
+
+    create_dir(atf_fs_path_cstring(&pdir), 0755);
+    create_file(atf_fs_path_cstring(&pfile), 0644);
+
+    printf("Checking existence of a directory\n");
+    CE(atf_fs_exists(&pdir, &b));
+    ATF_CHECK(b);
+
+    printf("Checking existence of a file\n");
+    CE(atf_fs_exists(&pfile, &b));
+    ATF_CHECK(b);
+
+    printf("Checking existence of a file inside a directory without "
+           "permissions\n");
+    ATF_CHECK(chmod(atf_fs_path_cstring(&pdir), 0000) != -1);
+    err = atf_fs_exists(&pfile, &b);
+    ATF_CHECK(atf_is_error(err));
+    ATF_CHECK(atf_error_is(err, "libc"));
+    ATF_CHECK(chmod(atf_fs_path_cstring(&pdir), 0755) != -1);
+
+    printf("Checking existence of a non-existent file\n");
+    ATF_CHECK(unlink(atf_fs_path_cstring(&pfile)) != -1);
+    CE(atf_fs_exists(&pfile, &b));
+    ATF_CHECK(!b);
+}
+
+ATF_TC(eaccess);
+ATF_TC_HEAD(eaccess, tc)
+{
+    atf_tc_set_var(tc, "descr", "Tests the atf_fs_eaccess function");
+}
+ATF_TC_BODY(eaccess, tc)
+{
+    const int modes[] = { atf_fs_access_f, atf_fs_access_r, atf_fs_access_w,
+                          atf_fs_access_x, 0 };
+    const int *m;
+    struct tests {
+        mode_t fmode;
+        int amode;
+        int error;
+    } tests[] = {
+        { 0000, atf_fs_access_r, EACCES },
+        { 0000, atf_fs_access_w, EACCES },
+        { 0000, atf_fs_access_x, EACCES },
+
+        { 0001, atf_fs_access_r, EACCES },
+        { 0001, atf_fs_access_w, EACCES },
+        { 0001, atf_fs_access_x, EACCES },
+        { 0002, atf_fs_access_r, EACCES },
+        { 0002, atf_fs_access_w, EACCES },
+        { 0002, atf_fs_access_x, EACCES },
+        { 0004, atf_fs_access_r, EACCES },
+        { 0004, atf_fs_access_w, EACCES },
+        { 0004, atf_fs_access_x, EACCES },
+
+        { 0010, atf_fs_access_r, EACCES },
+        { 0010, atf_fs_access_w, EACCES },
+        { 0010, atf_fs_access_x, 0 },
+        { 0020, atf_fs_access_r, EACCES },
+        { 0020, atf_fs_access_w, 0 },
+        { 0020, atf_fs_access_x, EACCES },
+        { 0040, atf_fs_access_r, 0 },
+        { 0040, atf_fs_access_w, EACCES },
+        { 0040, atf_fs_access_x, EACCES },
+
+        { 0100, atf_fs_access_r, EACCES },
+        { 0100, atf_fs_access_w, EACCES },
+        { 0100, atf_fs_access_x, 0 },
+        { 0200, atf_fs_access_r, EACCES },
+        { 0200, atf_fs_access_w, 0 },
+        { 0200, atf_fs_access_x, EACCES },
+        { 0400, atf_fs_access_r, 0 },
+        { 0400, atf_fs_access_w, EACCES },
+        { 0400, atf_fs_access_x, EACCES },
+
+        { 0, 0, 0 }
+    };
+    struct tests *t;
+    atf_fs_path_t p;
+    atf_error_t err;
+
+    CE(atf_fs_path_init_fmt(&p, "the-file"));
+
+    printf("Non-existent file checks\n");
+    for (m = &modes[0]; *m != 0; m++) {
+        err = atf_fs_eaccess(&p, *m);
+        ATF_CHECK(atf_is_error(err));
+        ATF_CHECK(atf_error_is(err, "libc"));
+        ATF_CHECK_EQUAL(atf_libc_error_code(err), ENOENT);
+        atf_error_free(err);
+    }
+
+    create_file(atf_fs_path_cstring(&p), 0000);
+    ATF_CHECK(chown(atf_fs_path_cstring(&p), geteuid(), getegid()) != -1);
+
+    for (t = &tests[0]; t->amode != 0; t++) {
+        printf("\n");
+        printf("File mode     : %04o\n", t->fmode);
+        printf("Access mode   : 0x%02x\n", t->amode);
+
+        ATF_CHECK(chmod(atf_fs_path_cstring(&p), t->fmode) != -1);
+
+        /* First, existence check. */
+        err = atf_fs_eaccess(&p, atf_fs_access_f);
+        ATF_CHECK(!atf_is_error(err));
+
+        /* Now do the specific test case. */
+        printf("Expected error: %d\n", t->error);
+        err = atf_fs_eaccess(&p, t->amode);
+        if (atf_is_error(err)) {
+            if (atf_error_is(err, "libc"))
+                printf("Error         : %d\n", atf_libc_error_code(err));
+            else
+                printf("Error         : Non-libc error\n");
+        } else
+                printf("Error         : None\n");
+        if (t->error == 0) {
+            ATF_CHECK(!atf_is_error(err));
+        } else {
+            ATF_CHECK(atf_is_error(err));
+            ATF_CHECK(atf_error_is(err, "libc"));
+            ATF_CHECK_EQUAL(atf_libc_error_code(err), t->error);
+            atf_error_free(err);
+        }
+    }
+
+    atf_fs_path_fini(&p);
+}
+
+ATF_TC(getcwd);
+ATF_TC_HEAD(getcwd, tc)
+{
+    atf_tc_set_var(tc, "descr", "Tests the atf_fs_getcwd function");
+}
+ATF_TC_BODY(getcwd, tc)
+{
+    atf_fs_path_t cwd1, cwd2;
+
+    create_dir ("root", 0755);
+
+    CE(atf_fs_getcwd(&cwd1));
+    ATF_CHECK(chdir("root") != -1);
+    CE(atf_fs_getcwd(&cwd2));
+
+    CE(atf_fs_path_append_fmt(&cwd1, "root"));
+
+    ATF_CHECK(atf_equal_fs_path_fs_path(&cwd1, &cwd2));
+
+    atf_fs_path_fini(&cwd2);
+    atf_fs_path_fini(&cwd1);
+}
+
 ATF_TC(mkdtemp);
 ATF_TC_HEAD(mkdtemp, tc)
 {
@@ -621,6 +787,9 @@ ATF_TP_ADD_TCS(tp)
 
     /* Add the tests for the free functions. */
     ATF_TP_ADD_TC(tp, cleanup);
+    ATF_TP_ADD_TC(tp, eaccess);
+    ATF_TP_ADD_TC(tp, exists);
+    ATF_TP_ADD_TC(tp, getcwd);
     ATF_TP_ADD_TC(tp, mkdtemp);
 
     return atf_no_error();

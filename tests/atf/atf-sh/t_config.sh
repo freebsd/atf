@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -41,8 +41,17 @@ has_head()
 }
 has_body()
 {
-    atf_config_has "workdir" || atf_fail "Missing expected variable"
-    atf_config_has "undefined" && atf_fail "Found unexpected variable"
+    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir) -r3 3>/dev/null"
+
+    atf_check "TEST_VARIABLE=foo ${h} config_has" 0 stdout null
+    atf_check "grep 'foo not found' stdout" 0 ignore null
+
+    atf_check "TEST_VARIABLE=foo ${h} -v foo=bar config_has" 0 stdout null
+    atf_check "grep 'foo found' stdout" 0 ignore null
+
+    echo "Checking for deprecated variables"
+    atf_check "TEST_VARIABLE=workdir ${h} config_has" 0 stdout null
+    atf_check "grep 'workdir not found' stdout" 0 ignore null
 }
 
 atf_test_case get
@@ -52,6 +61,8 @@ get_head()
 }
 get_body()
 {
+    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir) -r3 3>/dev/null"
+
     echo "Querying an undefined variable"
     ( atf_config_get "undefined" ) >out 2>err && \
         atf_fail "Getting an undefined variable succeeded"
@@ -63,16 +74,11 @@ get_body()
     [ "${v}" = "the default value" ] || \
         atf_fail "Default value does not work"
 
-    echo "Querying an known defined variable"
-    v=$(atf_config_get "workdir")
-    case "${v}" in
-        /*)
-            ;;
+    atf_check "TEST_VARIABLE=foo ${h} -v foo=bar config_get" 0 stdout null
+    atf_check "grep 'foo = bar' stdout" 0 ignore null
 
-        *)
-            atf_fail "Getting a known variable did not work"
-            ;;
-    esac
+    atf_check "TEST_VARIABLE=foo ${h} -v foo=baz config_get" 0 stdout null
+    atf_check "grep 'foo = baz' stdout" 0 ignore null
 }
 
 atf_init_test_cases()

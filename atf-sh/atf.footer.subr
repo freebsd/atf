@@ -74,7 +74,7 @@ Results_File=
 # The test program's source directory: i.e. where its auxiliary data files
 # and helper utilities can be found.  Defaults to the current directory
 # but can be overriden through the '-s' flag.
-Source_Dir=$(pwd)
+Source_Dir=.
 
 # Indicates the test case we are currently processing.
 Test_Case=
@@ -83,7 +83,11 @@ Test_Case=
 # Subset of ${Defined_Test_Cases}.
 Test_Cases=
 
-# The test case's work directory.
+# The test case's work directory.  The semantics of this variable are a
+# bit screwed.  When running the parent program (not the test case's body),
+# this points to the test _program_'s directory.  When we have reexecuted
+# the code through _atf_shortcut_exec, this points to the test _case_'s
+# work directory, which is a subdirectory of the other one.
 Work_Dir=
 
 # ------------------------------------------------------------------------
@@ -538,7 +542,7 @@ _atf_error()
 # _atf_expand_glob glob
 #
 #   Prints all test case identifiers that match the provided glob
-#   pattern.  The results are sorted alphabetically.
+#   pattern.
 #
 _atf_expand_glob()
 {
@@ -555,12 +559,10 @@ _atf_expand_glob()
     done
 
     set -- ${_matched}
-    {
-        while [ ${#} -gt 0 ]; do
-            echo ${1}
-            shift
-        done
-    } | sort
+    while [ ${#} -gt 0 ]; do
+        echo ${1}
+        shift
+    done
 }
 
 #
@@ -750,7 +752,7 @@ _atf_run_body()
     "")
         ;;
     *)
-        _atf_error 128 "Invalid value in the require.user property"
+        atf_fail "Invalid value in the require.user property"
         ;;
     esac
 
@@ -763,19 +765,25 @@ _atf_run_body()
     ${1}_body
 }
 
+#
+# _atf_program_timeout pid workdir
+#
+#   Prepares and launches in the background a script that will kill the
+#   current test case's body (specified by the pid) after it times out.
+#
 _atf_program_timeout()
 {
-    cat >${Work_Dir}/timeout.sh <<EOF
+    cat >${2}/timeout.sh <<EOF
 #! /bin/sh
 _timeout=$(atf_get timeout)
 if [ \${_timeout} -gt 0 ]; then
     sleep \${_timeout}
-    touch ${Work_Dir}/atf.timed.out
+    touch ${2}/atf.timed.out
     ${Atf_Killpg} $1 >/dev/null 2>&1
 fi
 EOF
-    chmod +x ${Work_Dir}/timeout.sh
-    ${Atf_Exec} -g ${Work_Dir}/timeout.sh >/dev/null 2>&1 &
+    chmod +x ${2}/timeout.sh
+    ${Atf_Exec} -g ${2}/timeout.sh >/dev/null 2>&1 &
     echo $!
 }
 
@@ -802,31 +810,30 @@ _atf_run_tc()
 
     _atf_internal_set srcdir "${Source_Dir}"
 
-    Results_File=$(mktemp $(atf_config_get workdir)/atf.XXXXXX)
+    Results_File=$(mktemp ${Work_Dir}/atf.XXXXXX)
 
-    Work_Dir=$(mktemp -d $(atf_config_get workdir)/atf.XXXXXX)
+    _workdir=$(mktemp -d ${Work_Dir}/atf.XXXXXX)
     if [ ${?} -eq 0 ]; then
-        _atf_shortcut_exec ${1}; _body_pid=$!
-        _timeout_pid=$(_atf_program_timeout ${_body_pid})
+        _atf_shortcut_exec ${1} ${_workdir}; _body_pid=$!
+        _timeout_pid=$(_atf_program_timeout ${_body_pid} ${_workdir})
         wait ${_body_pid}
         _ret=$?
-        if [ -f ${Work_Dir}/atf.timed.out ]; then
+        if [ -f ${_workdir}/atf.timed.out ]; then
             ( atf_fail "Test case timed out after $(atf_get timeout) seconds" )
             _ret=${?}
         else
             ${Atf_Killpg} ${_timeout_pid}
         fi
-        ( cd ${Work_Dir} ; ${1}_cleanup )
+        ( cd ${_workdir} ; ${1}_cleanup )
         if [ ${2} -gt 1 ]; then
             echo __atf_tc_separator__
             echo __atf_tc_separator__ 1>&2
         fi
-        ${Atf_Cleanup} ${Work_Dir}
+        ${Atf_Cleanup} ${_workdir}
     else
         ( atf_fail "Could not create the work directory" )
         _ret=${?}
     fi
-    Work_Dir=
 
     # Set a default exit status if the test case did not report any.
     if [ -z "$(cat ${Results_File})" ]; then
@@ -863,9 +870,8 @@ _atf_run_tcs()
 {
     # Now check that the base work directory exists.  We do not want to
     # bother creating it.
-    [ -d $(atf_config_get workdir) ] || \
-        _atf_error 1 "Cannot find the work directory" \
-                     "\`$(atf_config_get workdir)'"
+    [ -d "${Work_Dir}" ] || \
+        _atf_error 1 "Cannot find the work directory \`${Work_Dir}'"
 
     _atf_init_output "${@}"
 
@@ -903,7 +909,7 @@ _atf_shortcut_entry()
     _shortcut_tc=${_ATF_SHORTCUT}; unset _ATF_SHORTCUT
 
     # Global initialization, as found in main.
-    if [ -f ${_config_file} ]; then
+    if [ -n "${_config_file}" -a -f "${_config_file}" ]; then
         . ${_config_file}
         rm ${_config_file}
     fi
@@ -951,7 +957,7 @@ _atf_shortcut_exec()
         _ATF_RESULTS_FILE=${Results_File} \
         _ATF_SHORTCUT=${1} \
         _ATF_SOURCE_DIR=${Source_Dir} \
-        _ATF_WORK_DIR=${Work_Dir} \
+        _ATF_WORK_DIR=${2} \
         ${Source_Dir}/${Prog_Name} &
 }
 
@@ -1038,9 +1044,10 @@ _atf_usage()
                                         "files are located"
     _atf_echo -t "    -v var=value    " "Sets the configuration variable" \
                                         "\`var' to \`value'"
+    _atf_echo -t "    -w workdir      " "Directory where the test's" \
+                                        "temporary files are located"
     echo
     _atf_echo "For more details please see atf-test-program(1) and atf(7)."
-    exit 0
 }
 
 #
@@ -1071,15 +1078,16 @@ main()
     fi
 
     # The test program's base directory where it will put temporary files.
-    _atf_config_set workdir $(atf-config -t atf_workdir)
+    Work_Dir=$(atf-config -t atf_workdir)
 
     # Process command-line options first.
+    _numargs=${#}
+    _hflag=false
     _lflag=false
-    while getopts :hlr:s:v: arg; do
+    while getopts :hlr:s:v:w: arg; do
         case ${arg} in
         h)
-            _atf_usage
-            # NOTREACHED
+            _hflag=true
             ;;
 
         l)
@@ -1098,6 +1106,10 @@ main()
             _atf_config_set_from_str "${OPTARG}"
             ;;
 
+        w)
+            Work_Dir=${OPTARG}
+            ;;
+
         \?)
             _atf_syntax_error "Unknown option -${OPTARG}."
             # NOTREACHED
@@ -1106,10 +1118,24 @@ main()
     done
     shift `expr ${OPTIND} - 1`
 
+    if [ ${_hflag} = true ]; then
+        [ ${_numargs} -eq 1 ] || _atf_syntax_error "-h must be given alone."
+        _atf_usage
+        true
+        return
+    fi
+
     # First of all, make sure that the source directory is correct.  It
     # doesn't matter if the user did not change it, because the default
     # value may not work.  (TODO: It possibly should, even though it is
     # not a big deal because atf-run deals with this.)
+    case ${Source_Dir} in
+        /*)
+            ;;
+        *)
+            Source_Dir=$(pwd)/${Source_Dir}
+            ;;
+    esac
     [ -f ${Source_Dir}/${Prog_Name} ] || \
         _atf_error 1 "Cannot find the test program in the source" \
                      "directory \`${Source_Dir}'"

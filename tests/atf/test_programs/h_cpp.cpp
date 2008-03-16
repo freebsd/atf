@@ -388,43 +388,33 @@ ATF_TEST_CASE_BODY(require_progs_head)
 {
 }
 
-ATF_TEST_CASE(require_user_root);
-ATF_TEST_CASE_HEAD(require_user_root)
+ATF_TEST_CASE(require_user);
+ATF_TEST_CASE_HEAD(require_user)
 {
     set("descr", "Helper test case for the t_meta_data test program");
-    set("require.user", "root");
+    set("require.user", config().get("user", "not-set"));
 }
-ATF_TEST_CASE_BODY(require_user_root)
+ATF_TEST_CASE_BODY(require_user)
 {
 }
 
-ATF_TEST_CASE(require_user_root2);
-ATF_TEST_CASE_HEAD(require_user_root2)
+ATF_TEST_CASE(require_user2);
+ATF_TEST_CASE_HEAD(require_user2)
 {
     set("descr", "Helper test case for the t_meta_data test program");
-    set("require.user", "root");
+    set("require.user", config().get("user2", "not-set"));
 }
-ATF_TEST_CASE_BODY(require_user_root2)
+ATF_TEST_CASE_BODY(require_user2)
 {
 }
 
-ATF_TEST_CASE(require_user_unprivileged);
-ATF_TEST_CASE_HEAD(require_user_unprivileged)
+ATF_TEST_CASE(require_user3);
+ATF_TEST_CASE_HEAD(require_user3)
 {
     set("descr", "Helper test case for the t_meta_data test program");
-    set("require.user", "unprivileged");
+    set("require.user", config().get("user3", "not-set"));
 }
-ATF_TEST_CASE_BODY(require_user_unprivileged)
-{
-}
-
-ATF_TEST_CASE(require_user_unprivileged2);
-ATF_TEST_CASE_HEAD(require_user_unprivileged2)
-{
-    set("descr", "Helper test case for the t_meta_data test program");
-    set("require.user", "unprivileged");
-}
-ATF_TEST_CASE_BODY(require_user_unprivileged2)
+ATF_TEST_CASE_BODY(require_user3)
 {
 }
 
@@ -578,10 +568,9 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, require_machine);
     ATF_ADD_TEST_CASE(tcs, require_progs_body);
     ATF_ADD_TEST_CASE(tcs, require_progs_head);
-    ATF_ADD_TEST_CASE(tcs, require_user_root);
-    ATF_ADD_TEST_CASE(tcs, require_user_root2);
-    ATF_ADD_TEST_CASE(tcs, require_user_unprivileged);
-    ATF_ADD_TEST_CASE(tcs, require_user_unprivileged2);
+    ATF_ADD_TEST_CASE(tcs, require_user);
+    ATF_ADD_TEST_CASE(tcs, require_user2);
+    ATF_ADD_TEST_CASE(tcs, require_user3);
     ATF_ADD_TEST_CASE(tcs, timeout);
     ATF_ADD_TEST_CASE(tcs, timeout2);
 

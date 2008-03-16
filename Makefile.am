@@ -117,13 +117,19 @@ libatf_c_la_SOURCES = atf-c/config.c \
                       atf-c/list.c \
                       atf-c/list.h \
                       atf-c/macros.h \
+                      atf-c/map.c \
+                      atf-c/map.h \
                       atf-c/object.c \
                       atf-c/object.h \
                       atf-c/sanity.h \
+                      atf-c/signals.c \
+                      atf-c/signals.h \
                       atf-c/text.c \
                       atf-c/text.h \
                       atf-c/ui.c \
                       atf-c/ui.h \
+                      atf-c/user.c \
+                      atf-c/user.h \
                       atf-c/tc.c \
                       atf-c/tc.h \
                       atf-c/tcr.c \
@@ -133,6 +139,26 @@ libatf_c_la_SOURCES = atf-c/config.c \
                       atf-c/tp_main.c
 
 include_HEADERS = atf-c.h
+atf_c_HEADERS = atf-c/config.h \
+                atf-c/dynstr.h \
+                atf-c/env.h \
+                atf-c/error.h \
+                atf-c/expand.h \
+                atf-c/fs.h \
+                atf-c/io.h \
+                atf-c/list.h \
+                atf-c/macros.h \
+                atf-c/map.h \
+                atf-c/object.h \
+                atf-c/sanity.h \
+                atf-c/signals.h \
+                atf-c/tc.h \
+                atf-c/tcr.h \
+                atf-c/text.h \
+                atf-c/tp.h \
+                atf-c/ui.h \
+                atf-c/user.h
+atf_cdir = $(includedir)/atf-c
 
 # -------------------------------------------------------------------------
 # `atf-c++' directory.
@@ -425,6 +451,16 @@ tests_atf_atf_c_t_list_SOURCES = tests/atf/atf-c/t_list.c
 tests_atf_atf_c_t_list_LDADD = -latf-c
 tests_atf_atf_c_t_list_LDFLAGS = -L.
 
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_map
+tests_atf_atf_c_t_map_SOURCES = tests/atf/atf-c/t_map.c
+tests_atf_atf_c_t_map_LDADD = -latf-c
+tests_atf_atf_c_t_map_LDFLAGS = -L.
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_signals
+tests_atf_atf_c_t_signals_SOURCES = tests/atf/atf-c/t_signals.c
+tests_atf_atf_c_t_signals_LDADD = -latf-c
+tests_atf_atf_c_t_signals_LDFLAGS = -L.
+
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_tc
 tests_atf_atf_c_t_tc_SOURCES = tests/atf/atf-c/t_tc.c
 tests_atf_atf_c_t_tc_LDADD = -latf-c
@@ -444,6 +480,11 @@ atf_atf_c_PROGRAMS += tests/atf/atf-c/t_ui
 tests_atf_atf_c_t_ui_SOURCES = tests/atf/atf-c/t_ui.c
 tests_atf_atf_c_t_ui_LDADD = -latf-c
 tests_atf_atf_c_t_ui_LDFLAGS = -L.
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_user
+tests_atf_atf_c_t_user_SOURCES = tests/atf/atf-c/t_user.c
+tests_atf_atf_c_t_user_LDADD = -latf-c
+tests_atf_atf_c_t_user_LDFLAGS = -L.
 
 atf_atf_c___DATA = tests/atf/atf-c++/Atffile
 atf_atf_c__dir = $(pkgtestsdir)/atf-c++
@@ -855,7 +896,12 @@ tests/atf/test_programs/t_workdir: \
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_workdir.sh
 
-atf_test_programs_PROGRAMS = tests/atf/test_programs/h_cpp
+atf_test_programs_PROGRAMS = tests/atf/test_programs/h_c
+tests_atf_test_programs_h_c_SOURCES = tests/atf/test_programs/h_c.c
+tests_atf_test_programs_h_c_LDADD = -latf-c
+tests_atf_test_programs_h_c_LDFLAGS = -L.
+
+atf_test_programs_PROGRAMS += tests/atf/test_programs/h_cpp
 tests_atf_test_programs_h_cpp_SOURCES = tests/atf/test_programs/h_cpp.cpp
 tests_atf_test_programs_h_cpp_LDADD = -latf-c++
 tests_atf_test_programs_h_cpp_LDFLAGS = -L.
@@ -948,7 +994,27 @@ tests/atf/tools/t_atf_run: $(srcdir)/tests/atf/tools/t_atf_run.sh \
 check_LIBRARIES = tests/build/libuseless.a
 
 tests_build_libuseless_a_SOURCES = \
+    tests/build/t_include_atf_c_h.cpp \
     tests/build/t_include_atf_c++_hpp.cpp \
+    tests/build/atf-c/t_include_config_h.c \
+    tests/build/atf-c/t_include_dynstr_h.c \
+    tests/build/atf-c/t_include_env_h.c \
+    tests/build/atf-c/t_include_error_h.c \
+    tests/build/atf-c/t_include_expand_h.c \
+    tests/build/atf-c/t_include_fs_h.c \
+    tests/build/atf-c/t_include_io_h.c \
+    tests/build/atf-c/t_include_list_h.c \
+    tests/build/atf-c/t_include_macros_h.c \
+    tests/build/atf-c/t_include_map_h.c \
+    tests/build/atf-c/t_include_object_h.c \
+    tests/build/atf-c/t_include_sanity_h.c \
+    tests/build/atf-c/t_include_signals_h.c \
+    tests/build/atf-c/t_include_tc_h.c \
+    tests/build/atf-c/t_include_tcr_h.c \
+    tests/build/atf-c/t_include_text_h.c \
+    tests/build/atf-c/t_include_tp_h.c \
+    tests/build/atf-c/t_include_ui_h.c \
+    tests/build/atf-c/t_use_macros_h.c \
     tests/build/atf-c++/t_include_application_hpp.cpp \
     tests/build/atf-c++/t_include_atffile_hpp.cpp \
     tests/build/atf-c++/t_include_config_hpp.cpp \

@@ -37,18 +37,25 @@ dnl
 AT_SETUP([test_program: compare the user-visible interfaces])
 
 dnl Ask for help.
-AT_CHECK([TEST_HELPER(tp_basic_c) -h], [0], [stdout], [])
+AT_CHECK([TEST_HELPER_NO_S(tp_basic_c) -h], [0], [stdout], [])
 sed 's,tp_basic_c,tp_basic_cpp,g' <stdout >expout
-AT_CHECK([TEST_HELPER(tp_basic_cpp) -h], [0], [expout], [])
+AT_CHECK([TEST_HELPER_NO_S(tp_basic_cpp) -h], [0], [expout], [])
 sed 's,tp_basic_c,tp_basic_sh,g' <stdout >expout
-AT_CHECK([TEST_HELPER(tp_basic_sh) -h], [0], [expout], [])
+AT_CHECK([TEST_HELPER_NO_S(tp_basic_sh) -h], [0], [expout], [])
 
 dnl Ask for help, force line wrapping.
-AT_CHECK([COLUMNS=20 TEST_HELPER(tp_basic_c) -h], [0], [stdout], [])
+AT_CHECK([COLUMNS=20 TEST_HELPER_NO_S(tp_basic_c) -h], [0], [stdout], [])
 sed 's,tp_basic_c,tp_basic_cpp,g' <stdout >expout
-AT_CHECK([COLUMNS=20 TEST_HELPER(tp_basic_cpp) -h], [0], [expout], [])
+AT_CHECK([COLUMNS=20 TEST_HELPER_NO_S(tp_basic_cpp) -h], [0], [expout], [])
 sed 's,tp_basic_c,tp_basic_sh,g' <stdout >expout
-AT_CHECK([COLUMNS=20 TEST_HELPER(tp_basic_sh) -h], [0], [expout], [])
+AT_CHECK([COLUMNS=20 TEST_HELPER_NO_S(tp_basic_sh) -h], [0], [expout], [])
+
+dnl Ask for help alongside another option (-s), which is an error.
+AT_CHECK([TEST_HELPER(tp_basic_c) -h], [1], [], [stderr])
+sed 's,tp_basic_c,tp_basic_cpp,g' <stderr >experr
+AT_CHECK([TEST_HELPER(tp_basic_cpp) -h], [1], [], [experr])
+sed 's,tp_basic_c,tp_basic_sh,g' <stderr >experr
+AT_CHECK([TEST_HELPER(tp_basic_sh) -h], [1], [], [experr])
 
 dnl Give an invalid option.
 AT_CHECK([TEST_HELPER(tp_basic_c) -Z], [1], [], [stderr])
@@ -56,6 +63,13 @@ sed 's,tp_basic_c,tp_basic_cpp,g' <stderr >experr
 AT_CHECK([TEST_HELPER(tp_basic_cpp) -Z], [1], [], [experr])
 sed 's,tp_basic_c,tp_basic_sh,g' <stderr >experr
 AT_CHECK([TEST_HELPER(tp_basic_sh) -Z], [1], [], [experr])
+
+dnl Give an invalid option alongside -h.
+AT_CHECK([TEST_HELPER(tp_basic_c) -Z -h], [1], [], [stderr])
+sed 's,tp_basic_c,tp_basic_cpp,g' <stderr >experr
+AT_CHECK([TEST_HELPER(tp_basic_cpp) -Z -h], [1], [], [experr])
+sed 's,tp_basic_c,tp_basic_sh,g' <stderr >experr
+AT_CHECK([TEST_HELPER(tp_basic_sh) -Z -h], [1], [], [experr])
 
 dnl List all tests.
 AT_CHECK([TEST_HELPER(tp_basic_c) -l], [0], [stdout], [])

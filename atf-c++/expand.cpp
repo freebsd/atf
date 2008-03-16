@@ -49,20 +49,6 @@ namespace impl = atf::expand;
 // Free functions.
 // ------------------------------------------------------------------------
 
-std::set< std::string >
-impl::expand_glob(const std::string& glob,
-                 const std::set< std::string >& candidates)
-{
-    std::set< std::string > exps;
-
-    for (std::set< std::string >::const_iterator iter = candidates.begin();
-         iter != candidates.end(); iter++)
-        if (matches_glob(glob, *iter))
-            exps.insert(*iter);
-
-    return exps;
-}
-
 bool
 impl::is_glob(const std::string& glob)
 {

@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "atf-c/fs.h"
 #include "atf-c/io.h"
 #include "atf-c/sanity.h"
 #include "atf-c/tc.h"
@@ -75,15 +76,19 @@ find_tc(const atf_tp_t *tp, const char *ident)
  */
 
 atf_error_t
-atf_tp_init(atf_tp_t *tp)
+atf_tp_init(atf_tp_t *tp, struct atf_map *config)
 {
     atf_error_t err;
+
+    PRE(config != NULL);
 
     atf_object_init(&tp->m_object);
 
     err = atf_list_init(&tp->m_tcs);
     if (atf_is_error(err))
         goto err_object;
+
+    tp->m_config = config;
 
     INV(!atf_is_error(err));
     return err;
@@ -110,6 +115,12 @@ atf_tp_fini(atf_tp_t *tp)
 /*
  * Getters.
  */
+
+const struct atf_map *
+atf_tp_get_config(const atf_tp_t *tp)
+{
+    return tp->m_config;
+}
 
 const atf_tc_t *
 atf_tp_get_tc(const atf_tp_t *tp, const char *id)
@@ -149,7 +160,7 @@ atf_tp_add_tc(atf_tp_t *tp, atf_tc_t *tc)
 
 atf_error_t
 atf_tp_run(const atf_tp_t *tp, const atf_list_t *ids, int fd,
-           size_t *failcount)
+           const atf_fs_path_t *workdir, size_t *failcount)
 {
     atf_error_t err;
     atf_list_citer_t iter;
@@ -177,7 +188,7 @@ atf_tp_run(const atf_tp_t *tp, const atf_list_t *ids, int fd,
         tc = find_tc(tp, ident);
         PRE(tc != NULL);
 
-        err = atf_tc_run(tc, &tcr);
+        err = atf_tc_run(tc, &tcr, workdir);
         if (atf_is_error(err))
             goto out;
 
@@ -196,7 +207,7 @@ atf_tp_run(const atf_tp_t *tp, const atf_list_t *ids, int fd,
             const atf_dynstr_t *reason = atf_tcr_get_reason(&tcr);
             err = atf_io_write_fmt(fd, "tc-end: %s, failed, %s\n", ident,
                                    atf_dynstr_cstring(reason));
-            *failcount++;
+            (*failcount)++;
         } else if (state == atf_tcr_skipped_state) {
             const atf_dynstr_t *reason = atf_tcr_get_reason(&tcr);
             err = atf_io_write_fmt(fd, "tc-end: %s, skipped, %s\n", ident,

@@ -34,8 +34,37 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string.h>
+#include <stdlib.h>
+
 #include "atf-c/dynstr.h"
 #include "atf-c/text.h"
+
+atf_error_t
+atf_text_for_each_word(const char *instr, const char *sep,
+                       atf_error_t (*func)(const char *, void *),
+                       void *data)
+{
+    atf_error_t err;
+    char *str, *str2, *last;
+
+    str = strdup(instr);
+    if (str == NULL) {
+        err = atf_no_memory_error();
+        goto out;
+    }
+
+    err = atf_no_error();
+    str2 = strtok_r(str, sep, &last);
+    while (str2 != NULL && !atf_is_error(err)) {
+        err = func(str2, data);
+        str2 = strtok_r(NULL, sep, &last);
+    }
+
+    free(str);
+out:
+    return err;
+}
 
 atf_error_t
 atf_text_format(char **dest, const char *fmt, ...)
@@ -55,8 +84,11 @@ atf_text_format_ap(char **dest, const char *fmt, va_list ap)
 {
     atf_error_t err;
     atf_dynstr_t tmp;
+    va_list ap2;
 
-    err = atf_dynstr_init_ap(&tmp, fmt, ap);
+    va_copy(ap2, ap);
+    err = atf_dynstr_init_ap(&tmp, fmt, ap2);
+    va_end(ap2);
     if (!atf_is_error(err))
         *dest = atf_dynstr_fini_disown(&tmp);
 

@@ -107,7 +107,8 @@
     do { \
         atf_error_t atfu_err; \
         atfu_err = atf_tc_init_pack(&atfu_ ## tc ## _tc, \
-                                    &atfu_ ## tc ## _tc_pack); \
+                                    &atfu_ ## tc ## _tc_pack, \
+                                    atf_tp_get_config(tp)); \
         if (atf_is_error(atfu_err)) \
             return atfu_err; \
         atfu_err = atf_tp_add_tc(tp, &atfu_ ## tc ## _tc); \
