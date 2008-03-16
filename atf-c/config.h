@@ -41,4 +41,4 @@
 
 const char *atf_config_get(const char *);
 
-#endif // !defined(ATF_C_CONFIG_H)
+#endif /* !defined(ATF_C_CONFIG_H) */

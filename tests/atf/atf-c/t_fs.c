@@ -109,8 +109,8 @@ ATF_TC_BODY(path_normalize, tc)
         { "..", "..", },
 
         { "/", "/", },
-        { "//", "/", },
-        { "///", "/", },
+        { "//", "/", }, /* NO_CHECK_STYLE */
+        { "///", "/", }, /* NO_CHECK_STYLE */
 
         { "foo", "foo", },
         { "foo/", "foo", },
@@ -121,9 +121,9 @@ ATF_TC_BODY(path_normalize, tc)
         { "/foo/bar", "/foo/bar", },
         { "/foo/bar/", "/foo/bar", },
 
-        { "///foo", "/foo", },
-        { "///foo///bar", "/foo/bar", },
-        { "///foo///bar///", "/foo/bar", },
+        { "///foo", "/foo", }, /* NO_CHECK_STYLE */
+        { "///foo///bar", "/foo/bar", }, /* NO_CHECK_STYLE */
+        { "///foo///bar///", "/foo/bar", }, /* NO_CHECK_STYLE */
 
         { NULL, NULL }
     };
@@ -178,10 +178,10 @@ ATF_TC_BODY(path_is_absolute, tc)
         bool abs;
     } tests[] = {
         { "/", true },
-        { "////", true },
-        { "////a", true },
-        { "//a//", true },
-        { "a////", false },
+        { "////", true }, /* NO_CHECK_STYLE */
+        { "////a", true }, /* NO_CHECK_STYLE */
+        { "//a//", true }, /* NO_CHECK_STYLE */
+        { "a////", false }, /* NO_CHECK_STYLE */
         { "../foo", false },
         { NULL, false },
     };
@@ -218,10 +218,10 @@ ATF_TC_BODY(path_is_root, tc)
         bool root;
     } tests[] = {
         { "/", true },
-        { "////", true },
-        { "////a", false },
-        { "//a//", false },
-        { "a////", false },
+        { "////", true }, /* NO_CHECK_STYLE */
+        { "////a", false }, /* NO_CHECK_STYLE */
+        { "//a//", false }, /* NO_CHECK_STYLE */
+        { "a////", false }, /* NO_CHECK_STYLE */
         { "../foo", false },
         { NULL, false },
     };
@@ -334,7 +334,7 @@ ATF_TC_BODY(path_append, tc)
         { "foo", "bar", "foo/bar" },
         { "foo/", "/bar", "foo/bar" },
         { "foo/", "/bar/baz", "foo/bar/baz" },
-        { "foo/", "///bar///baz", "foo/bar/baz" },
+        { "foo/", "///bar///baz", "foo/bar/baz" }, /* NO_CHECK_STYLE */
 
         { NULL, NULL, NULL }
     };

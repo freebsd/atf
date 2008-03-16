@@ -39,10 +39,10 @@
 void
 atf_check_inside_if(void)
 {
-    // Make sure that ATF_CHECK can be used inside an if statement that
-    // does not have braces.  Earlier versions of it generated an error
-    // if there was an else clause because they confused the compiler
-    // by defining an unprotected nested if.
+    /* Make sure that ATF_CHECK can be used inside an if statement that
+     * does not have braces.  Earlier versions of it generated an error
+     * if there was an else clause because they confused the compiler
+     * by defining an unprotected nested if. */
     if (true)
         ATF_CHECK(true);
     else
@@ -52,10 +52,10 @@ atf_check_inside_if(void)
 void
 atf_check_equal_inside_if(void)
 {
-    // Make sure that ATF_CHECK_EQUAL can be used inside an if statement
-    // that does not have braces.  Earlier versions of it generated an
-    // error if there was an else clause because they confused the
-    // compiler by defining an unprotected nested if.
+    /* Make sure that ATF_CHECK_EQUAL can be used inside an if statement
+     * that does not have braces.  Earlier versions of it generated an
+     * error if there was an else clause because they confused the
+     * compiler by defining an unprotected nested if. */
     if (true)
         ATF_CHECK_EQUAL(true, true);
     else

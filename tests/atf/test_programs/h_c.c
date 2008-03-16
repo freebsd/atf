@@ -1,38 +1,38 @@
-//
-// Automated Testing Framework (atf)
-//
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-// 1. Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-// 3. All advertising materials mentioning features or use of this
-//    software must display the following acknowledgement:
-//        This product includes software developed by the NetBSD
-//        Foundation, Inc. and its contributors.
-// 4. Neither the name of The NetBSD Foundation nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND
-// CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
-// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-// IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS BE LIABLE FOR ANY
-// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
-// GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-// IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
-// IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
+/*
+ * Automated Testing Framework (atf)
+ *
+ * Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this
+ *    software must display the following acknowledgement:
+ *        This product includes software developed by the NetBSD
+ *        Foundation, Inc. and its contributors.
+ * 4. Neither the name of The NetBSD Foundation nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND
+ * CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -50,9 +50,9 @@
 #include "atf-c/fs.h"
 #include "atf-c/text.h"
 
-// ------------------------------------------------------------------------
-// Auxiliary functions.
-// ------------------------------------------------------------------------
+/* ---------------------------------------------------------------------
+ * Auxiliary functions.
+ * --------------------------------------------------------------------- */
 
 #define CE(stm) ATF_CHECK(!atf_is_error(stm))
 
@@ -106,9 +106,9 @@ touch(const char *path)
     close(fd);
 }
 
-// ------------------------------------------------------------------------
-// Helper tests for "t_cleanup".
-// ------------------------------------------------------------------------
+/* ---------------------------------------------------------------------
+ * Helper tests for "t_cleanup".
+ * --------------------------------------------------------------------- */
 
 ATF_TC_WITH_CLEANUP(cleanup_pass);
 ATF_TC_HEAD(cleanup_pass, tc)
@@ -261,9 +261,9 @@ ATF_TC_CLEANUP(cleanup_fork, tc)
     close(3);
 }
 
-// ------------------------------------------------------------------------
-// Helper tests for "t_config".
-// ------------------------------------------------------------------------
+/* ---------------------------------------------------------------------
+ * Helper tests for "t_config".
+ * --------------------------------------------------------------------- */
 
 ATF_TC(config_unset);
 ATF_TC_HEAD(config_unset, tc)
@@ -331,9 +331,9 @@ ATF_TC_BODY(config_multi_value, tc)
     ATF_CHECK(strcmp(value, "foo bar") == 0);
 }
 
-// ------------------------------------------------------------------------
-// Helper tests for "t_env".
-// ------------------------------------------------------------------------
+/* ---------------------------------------------------------------------
+ * Helper tests for "t_env".
+ * --------------------------------------------------------------------- */
 
 ATF_TC(env_home);
 ATF_TC_HEAD(env_home, tc)
@@ -371,9 +371,9 @@ ATF_TC_BODY(env_list, tc)
     system("env");
 }
 
-// ------------------------------------------------------------------------
-// Helper tests for "t_fork".
-// ------------------------------------------------------------------------
+/* ---------------------------------------------------------------------
+ * Helper tests for "t_fork".
+ * --------------------------------------------------------------------- */
 
 ATF_TC(fork_mangle_fds);
 ATF_TC_HEAD(fork_mangle_fds, tc)
@@ -442,9 +442,9 @@ ATF_TC_BODY(fork_umask, tc)
     printf("umask: %04o\n", umask(0));
 }
 
-// ------------------------------------------------------------------------
-// Helper tests for "t_meta_data".
-// ------------------------------------------------------------------------
+/* ---------------------------------------------------------------------
+ * Helper tests for "t_meta_data".
+ * --------------------------------------------------------------------- */
 
 ATF_TC(ident_1);
 ATF_TC_HEAD(ident_1, tc)
@@ -638,9 +638,9 @@ ATF_TC_BODY(timeout2, tc)
     sleep(s);
 }
 
-// ------------------------------------------------------------------------
-// Helper tests for "t_srcdir".
-// ------------------------------------------------------------------------
+/* ---------------------------------------------------------------------
+ * Helper tests for "t_srcdir".
+ * --------------------------------------------------------------------- */
 
 ATF_TC(srcdir_exists);
 ATF_TC_HEAD(srcdir_exists, tc)
@@ -664,9 +664,9 @@ ATF_TC_BODY(srcdir_exists, tc)
     atf_fs_path_fini(&p);
 }
 
-// ------------------------------------------------------------------------
-// Helper tests for "t_status".
-// ------------------------------------------------------------------------
+/* ---------------------------------------------------------------------
+ * Helper tests for "t_status".
+ * --------------------------------------------------------------------- */
 
 ATF_TC(status_newlines_fail);
 ATF_TC_HEAD(status_newlines_fail, tc)
@@ -690,9 +690,9 @@ ATF_TC_BODY(status_newlines_skip, tc)
     atf_tc_skip("First line\nSecond line");
 }
 
-// ------------------------------------------------------------------------
-// Helper tests for "t_workdir".
-// ------------------------------------------------------------------------
+/* ---------------------------------------------------------------------
+ * Helper tests for "t_workdir".
+ * --------------------------------------------------------------------- */
 
 ATF_TC(workdir_path);
 ATF_TC_HEAD(workdir_path, tc)
@@ -728,13 +728,13 @@ ATF_TC_BODY(workdir_cleanup, tc)
     touch("2/3/1");
 }
 
-// ------------------------------------------------------------------------
-// Main.
-// ------------------------------------------------------------------------
+/* ---------------------------------------------------------------------
+ * Main.
+ * --------------------------------------------------------------------- */
 
 ATF_TP_ADD_TCS(tp)
 {
-    // Add helper tests for t_cleanup.
+    /* Add helper tests for t_cleanup. */
     ATF_TP_ADD_TC(tp, cleanup_pass);
     ATF_TP_ADD_TC(tp, cleanup_fail);
     ATF_TP_ADD_TC(tp, cleanup_skip);
@@ -742,22 +742,22 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, cleanup_sigterm);
     ATF_TP_ADD_TC(tp, cleanup_fork);
 
-    // Add helper tests for t_config.
+    /* Add helper tests for t_config. */
     ATF_TP_ADD_TC(tp, config_unset);
     ATF_TP_ADD_TC(tp, config_empty);
     ATF_TP_ADD_TC(tp, config_value);
     ATF_TP_ADD_TC(tp, config_multi_value);
 
-    // Add helper tests for t_env.
+    /* Add helper tests for t_env. */
     ATF_TP_ADD_TC(tp, env_home);
     ATF_TP_ADD_TC(tp, env_list);
 
-    // Add helper tests for t_fork.
+    /* Add helper tests for t_fork. */
     ATF_TP_ADD_TC(tp, fork_mangle_fds);
     ATF_TP_ADD_TC(tp, fork_stop);
     ATF_TP_ADD_TC(tp, fork_umask);
 
-    // Add helper tests for t_meta_data.
+    /* Add helper tests for t_meta_data. */
     ATF_TP_ADD_TC(tp, ident_1);
     ATF_TP_ADD_TC(tp, ident_2);
     ATF_TP_ADD_TC(tp, require_arch);
@@ -771,14 +771,14 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, timeout);
     ATF_TP_ADD_TC(tp, timeout2);
 
-    // Add helper tests for t_srcdir.
+    /* Add helper tests for t_srcdir. */
     ATF_TP_ADD_TC(tp, srcdir_exists);
 
-    // Add helper tests for t_status.
+    /* Add helper tests for t_status. */
     ATF_TP_ADD_TC(tp, status_newlines_fail);
     ATF_TP_ADD_TC(tp, status_newlines_skip);
 
-    // Add helper tests for t_workdir.
+    /* Add helper tests for t_workdir. */
     ATF_TP_ADD_TC(tp, workdir_path);
     ATF_TP_ADD_TC(tp, workdir_cleanup);
 

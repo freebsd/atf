@@ -50,4 +50,4 @@ atf_error_t atf_io_readline(int, struct atf_dynstr *);
 atf_error_t atf_io_write_ap(int, const char *, va_list);
 atf_error_t atf_io_write_fmt(int, const char *, ...);
 
-#endif // !defined(ATF_C_IO_H)
+#endif /* !defined(ATF_C_IO_H) */

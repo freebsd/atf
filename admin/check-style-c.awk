@@ -72,7 +72,7 @@ BEGIN {
 }
 
 /assert[ \t]*\(/ {
-    warn("Use the macros in sanity.hpp instead of assert");
+    warn("Use the macros in sanity.h instead of assert");
 }
 
 /include.*assert.h/ {

@@ -243,9 +243,9 @@ do_unmount(const atf_fs_path_t *p)
     atf_fs_path_t pa;
     const char *pastr;
 
-    // At least, FreeBSD's unmount(2) requires the path to be absolute.
-    // Let's make it absolute in all cases just to be safe that this does
-    // not affect other systems.
+    /* At least, FreeBSD's unmount(2) requires the path to be absolute.
+     * Let's make it absolute in all cases just to be safe that this does
+     * not affect other systems. */
 
     if (!atf_fs_path_is_absolute(p)) {
         err = atf_fs_path_to_absolute(p, &pa);
@@ -261,11 +261,11 @@ do_unmount(const atf_fs_path_t *p)
         err = atf_no_error();
 #else
     {
-        // We could use umount(2) instead if it was available... but
-        // trying to do so under, e.g. Linux, is a nightmare because we
-        // also have to update /etc/mtab to match what we did.  It is
-        // simpler to just leave the system-specific umount(8) tool deal
-        // with it, at least for now.
+        /* We could use umount(2) instead if it was available... but
+         * trying to do so under, e.g. Linux, is a nightmare because we
+         * also have to update /etc/mtab to match what we did.  It is
+         * simpler to just leave the system-specific umount(8) tool deal
+         * with it, at least for now. */
         char *cmd;
 
         err = atf_text_format(&cmd, "unmount '%s'", pastr);
@@ -739,7 +739,7 @@ atf_fs_eaccess(const atf_fs_path_t *p, int mode)
     ok = false;
     if (atf_user_is_root()) {
         if (!ok && !(mode & atf_fs_access_x)) {
-            // Allow root to read/write any file.
+            /* Allow root to read/write any file. */
             ok = true;
         }
 
@@ -817,7 +817,7 @@ atf_fs_mkdtemp(atf_fs_path_t *p)
     atf_error_t err;
     char *tmpl;
 
-    tmpl = p->m_data.m_data; // XXX: Ugly
+    tmpl = p->m_data.m_data; /* XXX: Ugly */
     PRE(strstr(tmpl, "XXXXXX") != NULL);
 
     if (mkdtemp(tmpl) == NULL)

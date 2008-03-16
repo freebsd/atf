@@ -53,4 +53,4 @@ bool atf_user_is_member_of_group(gid_t);
 bool atf_user_is_root(void);
 bool atf_user_is_unprivileged(void);
 
-#endif // !defined(ATF_C_USER_H)
+#endif /* !defined(ATF_C_USER_H) */
