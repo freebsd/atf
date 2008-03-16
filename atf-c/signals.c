@@ -34,6 +34,10 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#if defined(HAVE_CONFIG_H)
+#include "bconfig.h"
+#endif
+
 #include <sys/types.h>
 
 #include <errno.h>
@@ -43,32 +47,6 @@
 #include "atf-c/sanity.h"
 #include "atf-c/signals.h"
 
-/*
- * Define atf_signals_last_signo to the last signal number valid for
- * the system.  This is tricky.  For example, NetBSD defines SIGPWR as
- * the last valid number, whereas Mac OS X defines it as SIGTHR.  Both
- * share the same signal number (32).  If none of these are available,
- * we assume that the highest signal is SIGUSR2.
- *
- * TODO: Make this a configure check that uses kill and finds the first
- * number that returns EINVAL.  The result is probably usable in the
- * shell interface too.
- */
-#if defined(SIGTHR) && defined(SIGPWR)
-#   if SIGTHR > SIGPWR
-#       define LAST_SIGNO SIGTHR
-#   elif SIGPWR < SIGTHR
-#       define LAST_SIGNO SIGPWR
-#   else
-#       define LAST_SIGNO SIGPWR
-#   endif
-#elif defined(SIGTHR)
-#   define LAST_SIGNO SIGTHR
-#elif defined(SIGPWR)
-#   define LAST_SIGNO SIGPWR
-#else
-#   define LAST_SIGNO SIGUSR2
-#endif
 const int atf_signals_last_signo = LAST_SIGNO;
 
 /* ---------------------------------------------------------------------
