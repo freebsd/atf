@@ -332,8 +332,10 @@ impl::tc::get_bool(const std::string& var)
         return true;
     else if (val == "false")
         return false;
-    else
+    else {
         UNREACHABLE;
+        return false;
+    }
 }
 
 bool

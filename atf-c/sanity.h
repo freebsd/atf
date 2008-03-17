@@ -37,11 +37,36 @@
 #if !defined(ATF_C_SANITY_H)
 #define ATF_C_SANITY_H
 
-#include <assert.h>
+void atf_sanity_inv(const char *, int, const char *);
+void atf_sanity_pre(const char *, int, const char *);
+void atf_sanity_post(const char *, int, const char *);
 
-#define INV(x) assert(x)
-#define PRE(x) assert(x)
-#define POST(x) assert(x)
-#define UNREACHABLE assert(0)
+#if !defined(NDEBUG)
+
+#define INV(x) \
+    do { \
+        if (!(x)) \
+            atf_sanity_inv(__FILE__, __LINE__, #x); \
+    } while (0);
+#define PRE(x) \
+    do { \
+        if (!(x)) \
+            atf_sanity_pre(__FILE__, __LINE__, #x); \
+    } while (0);
+#define POST(x) \
+    do { \
+        if (!(x)) \
+            atf_sanity_post(__FILE__, __LINE__, #x); \
+    } while (0);
+
+#else /* defined(NDEBUG) */
+
+#define INV(x)
+#define PRE(x)
+#define POST(x)
+
+#endif /* !defined(NDEBUG) */
+
+#define UNREACHABLE INV(0)
 
 #endif /* ATF_C_SANITY_H */

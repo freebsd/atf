@@ -301,11 +301,6 @@ impl::app::run(int argc, char* const* argv)
         std::cerr << ui::format_error(m_prog_name, std::string(e.what()))
                   << std::endl;
         errcode = EXIT_FAILURE;
-    } catch (const atf::sanity::sanity_error& e) {
-        std::cerr << ui::format_error(m_prog_name,
-                                      std::string(e.what()) + "\n" + bug)
-                  << std::endl;
-        errcode = EXIT_FAILURE;
     } catch (const std::exception& e) {
         std::cerr << ui::format_error(m_prog_name,
                                       std::string("Caught unexpected error: ")

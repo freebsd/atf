@@ -502,6 +502,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
     } else if (pid == 0) {
         run_test_program_child(tp, outpipe, errpipe, respipe);
         UNREACHABLE;
+        errcode = EXIT_FAILURE;
     } else {
         errcode = run_test_program_parent(tp, w, outpipe, errpipe,
                                           respipe, pid);
