@@ -50,7 +50,7 @@ default_body()
 {
     create_files
 
-    for h in h_cpp h_sh; do
+    for h in h_c h_cpp h_sh; do
         hp=$(atf_get_srcdir)/${h}
         cp ${hp} tmp
         atf_check "cd tmp && ./${h} srcdir_exists" 0 ignore ignore
@@ -70,7 +70,7 @@ sflag_body()
 {
     create_files
 
-    for h in h_cpp h_sh; do
+    for h in h_c h_cpp h_sh; do
         hp=$(atf_get_srcdir)/${h}
         cp ${hp} tmp
         atf_check "cd tmp && ./${h} -s $(pwd)/tmp \
@@ -92,7 +92,7 @@ relative_body()
 {
     create_files
 
-    for h in h_cpp h_sh; do
+    for h in h_c h_cpp h_sh; do
         hp=$(atf_get_srcdir)/${h}
         cp ${hp} tmp
 

@@ -35,7 +35,7 @@
 //
 
 #if defined(HAVE_CONFIG_H)
-#include "config.h"
+#include "bconfig.h"
 #endif
 
 extern "C" {
@@ -51,18 +51,18 @@ extern "C" {
 #include <map>
 #include <string>
 
-#include "atf/application.hpp"
-#include "atf/atffile.hpp"
-#include "atf/config.hpp"
-#include "atf/env.hpp"
-#include "atf/exceptions.hpp"
-#include "atf/formats.hpp"
-#include "atf/fs.hpp"
-#include "atf/io.hpp"
-#include "atf/parser.hpp"
-#include "atf/sanity.hpp"
-#include "atf/tests.hpp"
-#include "atf/text.hpp"
+#include "atf-c++/application.hpp"
+#include "atf-c++/atffile.hpp"
+#include "atf-c++/config.hpp"
+#include "atf-c++/env.hpp"
+#include "atf-c++/exceptions.hpp"
+#include "atf-c++/formats.hpp"
+#include "atf-c++/fs.hpp"
+#include "atf-c++/io.hpp"
+#include "atf-c++/parser.hpp"
+#include "atf-c++/sanity.hpp"
+#include "atf-c++/tests.hpp"
+#include "atf-c++/text.hpp"
 
 class config : public atf::formats::atf_config_reader {
     atf::tests::vars_map m_vars;
@@ -502,6 +502,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
     } else if (pid == 0) {
         run_test_program_child(tp, outpipe, errpipe, respipe);
         UNREACHABLE;
+        errcode = EXIT_FAILURE;
     } else {
         errcode = run_test_program_parent(tp, w, outpipe, errpipe,
                                           respipe, pid);

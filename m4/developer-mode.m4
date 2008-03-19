@@ -52,29 +52,31 @@ AC_DEFUN([ATF_DEVELOPER_MODE], [
                    esac])
 
     if test ${enable_developer} = yes; then
-        try_flags="-g \
-                   -Wabi \
-                   -Wall \
-                   -Wcast-qual \
-                   -Wctor-dtor-privacy \
-                   -Werror \
-                   -Wextra \
-                   -Wno-deprecated \
-                   -Wno-non-template-friend \
-                   -Wno-pmf-conversions \
-                   -Wno-sign-compare \
-                   -Wno-unused-parameter \
-                   -Wnon-virtual-dtor \
-                   -Woverloaded-virtual \
-                   -Wpointer-arith \
-                   -Wredundant-decls \
-                   -Wreorder \
-                   -Wreturn-type \
-                   -Wshadow \
-                   -Wsign-promo \
-                   -Wswitch \
-                   -Wsynth \
-                   -Wwrite-strings"
+        try_c_flags="-g \
+                     -Wall \
+                     -Wcast-qual \
+                     -Werror \
+                     -Wextra \
+                     -Wno-sign-compare \
+                     -Wno-unused-parameter \
+                     -Wpointer-arith \
+                     -Wredundant-decls \
+                     -Wreturn-type \
+                     -Wshadow \
+                     -Wswitch \
+                     -Wwrite-strings"
+
+        try_cxx_flags="-Wabi \
+                       -Wctor-dtor-privacy \
+                       -Wno-deprecated \
+                       -Wno-non-template-friend \
+                       -Wno-pmf-conversions \
+                       -Wnon-virtual-dtor \
+                       -Woverloaded-virtual \
+                       -Wreorder \
+                       -Wsign-promo \
+                       -Wsynth"
+
         #
         # The following flags should also be enabled but cannot be.  Reasons
         # given below.
@@ -83,12 +85,29 @@ AC_DEFUN([ATF_DEVELOPER_MODE], [
         #                   Mac OS X.  This is due to the way _IOR is defined.
         #
     else
-        try_flags="-DNDEBUG"
+        try_c_flags="-DNDEBUG"
     fi
-    try_flags="${try_flags} -D_FORTIFY_SOURCE=2"
+    try_c_flags="${try_c_flags} -D_FORTIFY_SOURCE=2"
 
+    AC_LANG_PUSH(C)
     valid=""
-    for f in ${try_flags}
+    for f in ${try_c_flags}
+    do
+        AC_MSG_CHECKING(whether ${CC} supports ${f})
+        saved_cflags="${CFLAGS}"
+        CFLAGS="${CFLAGS} ${f}"
+        AC_LINK_IFELSE([int main(void) { return 0; }],
+                       AC_MSG_RESULT(yes)
+                       valid="${valid} ${f}",
+                       AC_MSG_RESULT(no))
+        CFLAGS="${saved_cflags}"
+    done
+    CFLAGS="${CFLAGS} ${valid}"
+    AC_LANG_POP()
+
+    AC_LANG_PUSH(C++)
+    valid=""
+    for f in ${try_c_flags} ${try_cxx_flags}
     do
         AC_MSG_CHECKING(whether ${CXX} supports ${f})
         saved_cxxflags="${CXXFLAGS}"
@@ -100,4 +119,5 @@ AC_DEFUN([ATF_DEVELOPER_MODE], [
         CXXFLAGS="${saved_cxxflags}"
     done
     CXXFLAGS="${CXXFLAGS} ${valid}"
+    AC_LANG_POP()
 ])

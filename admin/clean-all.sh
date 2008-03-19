@@ -2,7 +2,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@
 
 Prog_Name=${0##*/}
 
-if [ ! -f ./atf.hpp ]; then
+if [ ! -f ./atf-c.h ]; then
     echo "${Prog_Name}: must be run from atf source's top directory" 1>&2
     exit 1
 fi
@@ -55,7 +55,7 @@ rm -f .gdb_history
 rm -f Makefile.in
 rm -f aclocal.m4
 rm -rf autom4te.cache
-rm -f config.h.in
+rm -f bconfig.h.in
 rm -f configure
 rm -f mkinstalldirs
 rm -f atf-*.tar.gz

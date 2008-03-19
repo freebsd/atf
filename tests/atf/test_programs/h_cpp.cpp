@@ -48,10 +48,10 @@ extern "C" {
 #include <iostream>
 #include <stdexcept>
 
-#include "atf/env.hpp"
-#include "atf/fs.hpp"
-#include "atf/macros.hpp"
-#include "atf/text.hpp"
+#include "atf-c++/env.hpp"
+#include "atf-c++/fs.hpp"
+#include "atf-c++/macros.hpp"
+#include "atf-c++/text.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
