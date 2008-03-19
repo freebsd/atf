@@ -62,7 +62,7 @@ ATF_COMPILE_SH = ./tools/atf-host-compile
 check-readme:
 	$(srcdir)/admin/check-readme.sh $(srcdir)/README
 
-.phony: check-style
+.PHONY: check-style
 check-style:
 	$(srcdir)/admin/check-style.sh
 
