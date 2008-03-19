@@ -251,7 +251,9 @@ ATF_TEST_CASE_HEAD(env_list)
 }
 ATF_TEST_CASE_BODY(env_list)
 {
-    std::system("env");
+    int exitcode = std::system("env");
+    ATF_CHECK(WIFEXITED(exitcode));
+    ATF_CHECK(WEXITSTATUS(exitcode) == EXIT_SUCCESS);
 }
 
 // ------------------------------------------------------------------------

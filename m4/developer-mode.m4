@@ -85,6 +85,7 @@ AC_DEFUN([ATF_DEVELOPER_MODE], [
     else
         try_flags="-DNDEBUG"
     fi
+    try_flags="${try_flags} -D_FORTIFY_SOURCE=2"
 
     valid=""
     for f in ${try_flags}

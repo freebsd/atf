@@ -570,7 +570,12 @@ call_hook(const std::string& tool, const std::string& hook)
     atf::fs::path p = atf::fs::path(atf::config::get("atf_pkgdatadir")) /
                       (tool + ".hooks");
     std::string cmd = sh + " '" + p.str() + "' '" + hook + "'";
-    std::system(cmd.c_str());
+    int exitcode = std::system(cmd.c_str());
+    if (!WIFEXITED(exitcode) || WEXITSTATUS(exitcode) != EXIT_SUCCESS)
+        throw std::runtime_error("Failed to run the '" + hook + "' hook "
+                                 "for '" + tool + "'; command was '" +
+                                 cmd + "'; exit code " +
+                                 atf::text::to_string(exitcode));
 }
 
 int
