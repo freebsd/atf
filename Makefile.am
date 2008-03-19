@@ -63,7 +63,7 @@ ATF_COMPILE_SH = ./tools/atf-host-compile
 check-install:
 	$(srcdir)/admin/check-install.sh $(srcdir)/INSTALL
 
-.phony: check-style
+.PHONY: check-style
 check-style:
 	$(srcdir)/admin/check-style.sh
 
