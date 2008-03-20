@@ -34,13 +34,12 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <errno.h>
-#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "atf-c/map.h"
 #include "atf-c/sanity.h"
+#include "atf-c/text.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -223,7 +222,6 @@ atf_map_size(const atf_map_t *m)
 atf_error_t
 atf_map_get_bool(const atf_map_t *m, const char *key, bool *b)
 {
-    atf_error_t err;
     atf_map_citer_t iter;
     const char *value;
 
@@ -231,21 +229,7 @@ atf_map_get_bool(const atf_map_t *m, const char *key, bool *b)
     PRE(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(m)));
     value = atf_map_citer_data(iter);
 
-    if (strcasecmp(value, "yes") == 0 ||
-        strcasecmp(value, "true") == 0) {
-        *b = true;
-        err = atf_no_error();
-    } else if (strcasecmp(value, "no") == 0 ||
-               strcasecmp(value, "false") == 0) {
-        *b = false;
-        err = atf_no_error();
-    } else {
-        /* XXX Not really a libc error. */
-        err = atf_libc_error(EINVAL, "Cannot convert string '%s' "
-                             "to boolean", value);
-    }
-
-    return err;
+    return atf_text_to_bool(value, b);
 }
 
 atf_error_t
@@ -298,28 +282,14 @@ atf_map_get_cstring_wd(const atf_map_t *m, const char *key, const char *def,
 atf_error_t
 atf_map_get_long(const atf_map_t *m, const char *key, long *l)
 {
-    atf_error_t err;
     atf_map_citer_t iter;
     const char *value;
-    char *endptr;
-    long tmp;
 
     iter = atf_map_find_c(m, key);
     PRE(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(m)));
     value = atf_map_citer_data(iter);
 
-    errno = 0;
-    tmp = strtol(value, &endptr, 10);
-    if (value[0] == '\0' || *endptr != '\0')
-        err = atf_libc_error(EINVAL, "'%s' is not a number", value);
-    else if (errno == ERANGE || (tmp == LONG_MAX || tmp == LONG_MIN))
-        err = atf_libc_error(ERANGE, "'%s' is out of range", value);
-    else {
-        *l = tmp;
-        err = atf_no_error();
-    }
-
-    return err;
+    return atf_text_to_long(value, l);
 }
 
 atf_error_t
