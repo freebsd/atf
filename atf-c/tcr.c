@@ -50,6 +50,51 @@ state_allows_reason(atf_tcr_state_t state)
     return state == atf_tcr_failed_state || state == atf_tcr_skipped_state;
 }
 
+static
+atf_error_t
+format_reason(atf_dynstr_t *reason, const char *fmt, va_list ap)
+{
+    atf_error_t err;
+    atf_dynstr_t tmp;
+    va_list ap2;
+
+    va_copy(ap2, ap);
+    err = atf_dynstr_init_ap(&tmp, fmt, ap2);
+    va_end(ap2);
+    if (atf_is_error(err))
+        goto out;
+
+    /* There is no reason for calling rfind instead of find other than
+     * find is not implemented. */
+    if (atf_dynstr_rfind_ch(&tmp, '\n') == atf_dynstr_npos) {
+        err = atf_dynstr_copy(reason, &tmp);
+    } else {
+        const char *iter;
+
+        err = atf_dynstr_init_fmt(reason, "BOGUS REASON (THE ORIGINAL "
+                                  "HAD NEWLINES): ");
+        if (atf_is_error(err))
+            goto out_tmp;
+
+        for (iter = atf_dynstr_cstring(&tmp); *iter != '\0'; iter++) {
+            if (*iter == '\n')
+                err = atf_dynstr_append_fmt(reason, "<<NEWLINE>>");
+            else
+                err = atf_dynstr_append_fmt(reason, "%c", *iter);
+
+            if (atf_is_error(err)) {
+                atf_dynstr_fini(reason);
+                break;
+            }
+        }
+    }
+
+out_tmp:
+    atf_dynstr_fini(&tmp);
+out:
+    return err;
+}
+
 /* ---------------------------------------------------------------------
  * The "atf_tcr" type.
  * --------------------------------------------------------------------- */
@@ -90,10 +135,10 @@ err_object:
 }
 
 atf_error_t
-atf_tcr_init_reason(atf_tcr_t *tcr, atf_tcr_state_t state,
-                    const char *reason, ...)
+atf_tcr_init_reason_ap(atf_tcr_t *tcr, atf_tcr_state_t state,
+                       const char *fmt, va_list ap)
 {
-    va_list ap;
+    va_list ap2;
     atf_error_t err;
 
     PRE(state_allows_reason(state));
@@ -102,9 +147,9 @@ atf_tcr_init_reason(atf_tcr_t *tcr, atf_tcr_state_t state,
 
     tcr->m_state = state;
 
-    va_start(ap, reason);
-    err = atf_dynstr_init_ap(&tcr->m_reason, reason, ap);
-    va_end(ap);
+    va_copy(ap2, ap);
+    err = format_reason(&tcr->m_reason, fmt, ap2);
+    va_end(ap2);
     if (atf_is_error(err))
         goto err_object;
 
@@ -113,6 +158,20 @@ atf_tcr_init_reason(atf_tcr_t *tcr, atf_tcr_state_t state,
 
 err_object:
     atf_object_fini(&tcr->m_object);
+
+    return err;
+}
+
+atf_error_t
+atf_tcr_init_reason_fmt(atf_tcr_t *tcr, atf_tcr_state_t state,
+                        const char *fmt, ...)
+{
+    va_list ap;
+    atf_error_t err;
+
+    va_start(ap, fmt);
+    err = atf_tcr_init_reason_ap(tcr, state, fmt, ap);
+    va_end(ap);
 
     return err;
 }
@@ -139,4 +198,10 @@ atf_tcr_get_reason(const atf_tcr_t *tcr)
 {
     PRE(state_allows_reason(tcr->m_state));
     return &tcr->m_reason;
+}
+
+bool
+atf_tcr_has_reason(const atf_tcr_t *tcr)
+{
+    return state_allows_reason(tcr->m_state);
 }

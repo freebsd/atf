@@ -37,6 +37,9 @@
 #if !defined(ATF_C_TCR_H)
 #define ATF_C_TCR_H
 
+#include <stdarg.h>
+#include <stdbool.h>
+
 #include <atf-c/dynstr.h>
 #include <atf-c/error.h>
 #include <atf-c/object.h>
@@ -62,12 +65,15 @@ extern const atf_tcr_state_t atf_tcr_skipped_state;
 
 /* Constructors/destructors. */
 atf_error_t atf_tcr_init(atf_tcr_t *, int);
-atf_error_t atf_tcr_init_reason(atf_tcr_t *, atf_tcr_state_t,
-                                const char *, ...);
+atf_error_t atf_tcr_init_reason_ap(atf_tcr_t *, atf_tcr_state_t,
+                                   const char *, va_list);
+atf_error_t atf_tcr_init_reason_fmt(atf_tcr_t *, atf_tcr_state_t,
+                                    const char *, ...);
 void atf_tcr_fini(atf_tcr_t *);
 
 /* Getters. */
 atf_tcr_state_t atf_tcr_get_state(const atf_tcr_t *);
 const atf_dynstr_t *atf_tcr_get_reason(const atf_tcr_t *);
+bool atf_tcr_has_reason(const atf_tcr_t *);
 
 #endif /* ATF_C_TCR_H */

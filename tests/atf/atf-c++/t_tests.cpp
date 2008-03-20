@@ -42,74 +42,50 @@
 // Tests for the "tcr" class.
 // ------------------------------------------------------------------------
 
-ATF_TEST_CASE(tcr_default_ctor);
-ATF_TEST_CASE_HEAD(tcr_default_ctor)
-{
-    set("descr", "Tests that the default constructor creates a failed "
-                 "result.");
-}
-ATF_TEST_CASE_BODY(tcr_default_ctor)
-{
-    using atf::tests::tcr;
-
-    tcr tcr;
-    ATF_CHECK(tcr.get_status() == tcr::status_failed);
-}
-
-ATF_TEST_CASE(tcr_passed_ctor);
-ATF_TEST_CASE_HEAD(tcr_passed_ctor)
+ATF_TEST_CASE(tcr_ctor_wo_reason);
+ATF_TEST_CASE_HEAD(tcr_ctor_wo_reason)
 {
     set("descr", "Tests that the passed pseudo-constructor works.");
 }
-ATF_TEST_CASE_BODY(tcr_passed_ctor)
+ATF_TEST_CASE_BODY(tcr_ctor_wo_reason)
 {
     using atf::tests::tcr;
 
-    tcr tcr = tcr::passed();
-    ATF_CHECK(tcr.get_status() == tcr::status_passed);
+    tcr tcr(tcr::passed_state);
+    ATF_CHECK(tcr.get_state() == tcr::passed_state);
 }
 
-ATF_TEST_CASE(tcr_skipped_ctor);
-ATF_TEST_CASE_HEAD(tcr_skipped_ctor)
+ATF_TEST_CASE(tcr_ctor_w_reason);
+ATF_TEST_CASE_HEAD(tcr_ctor_w_reason)
 {
     set("descr", "Tests that the skipped pseudo-constructor works.");
 }
-ATF_TEST_CASE_BODY(tcr_skipped_ctor)
+ATF_TEST_CASE_BODY(tcr_ctor_w_reason)
 {
     using atf::tests::tcr;
 
     {
-        tcr tcr = tcr::skipped("Reason 1");
-        ATF_CHECK(tcr.get_status() == tcr::status_skipped);
-        ATF_CHECK_EQUAL(tcr.get_reason(), "Reason 1");
+        tcr t(tcr::skipped_state, "Reason 1");
+        ATF_CHECK(t.get_state() == tcr::skipped_state);
+        ATF_CHECK_EQUAL(t.get_reason(), "Reason 1");
     }
 
     {
-        tcr tcr = tcr::skipped("Reason 2");
-        ATF_CHECK(tcr.get_status() == tcr::status_skipped);
-        ATF_CHECK_EQUAL(tcr.get_reason(), "Reason 2");
-    }
-}
-
-ATF_TEST_CASE(tcr_failed_ctor);
-ATF_TEST_CASE_HEAD(tcr_failed_ctor)
-{
-    set("descr", "Tests that the failed pseudo-constructor works.");
-}
-ATF_TEST_CASE_BODY(tcr_failed_ctor)
-{
-    using atf::tests::tcr;
-
-    {
-        tcr tcr = tcr::failed("Reason 1");
-        ATF_CHECK(tcr.get_status() == tcr::status_failed);
-        ATF_CHECK_EQUAL(tcr.get_reason(), "Reason 1");
+        tcr t(tcr::skipped_state, "Reason 2");
+        ATF_CHECK(t.get_state() == tcr::skipped_state);
+        ATF_CHECK_EQUAL(t.get_reason(), "Reason 2");
     }
 
     {
-        tcr tcr = tcr::failed("Reason 2");
-        ATF_CHECK(tcr.get_status() == tcr::status_failed);
-        ATF_CHECK_EQUAL(tcr.get_reason(), "Reason 2");
+        tcr t(tcr::failed_state, "Reason 1");
+        ATF_CHECK(t.get_state() == tcr::failed_state);
+        ATF_CHECK_EQUAL(t.get_reason(), "Reason 1");
+    }
+
+    {
+        tcr t(tcr::failed_state, "Reason 2");
+        ATF_CHECK(t.get_state() == tcr::failed_state);
+        ATF_CHECK_EQUAL(t.get_reason(), "Reason 2");
     }
 }
 
@@ -120,8 +96,6 @@ ATF_TEST_CASE_BODY(tcr_failed_ctor)
 ATF_INIT_TEST_CASES(tcs)
 {
     // Add tests for the "tcr" class.
-    ATF_ADD_TEST_CASE(tcs, tcr_default_ctor);
-    ATF_ADD_TEST_CASE(tcs, tcr_passed_ctor);
-    ATF_ADD_TEST_CASE(tcs, tcr_skipped_ctor);
-    ATF_ADD_TEST_CASE(tcs, tcr_failed_ctor);
+    ATF_ADD_TEST_CASE(tcs, tcr_ctor_wo_reason);
+    ATF_ADD_TEST_CASE(tcs, tcr_ctor_w_reason);
 }

@@ -40,6 +40,10 @@
 #include <map>
 #include <string>
 
+extern "C" {
+#include "atf-c/tcr.h"
+}
+
 namespace atf {
 namespace tests {
 
@@ -78,23 +82,24 @@ public:
 //! different classes, one for each status.
 //!
 class tcr {
+    atf_tcr_t m_tcr;
+
 public:
-    enum status { status_passed, status_skipped, status_failed };
+    typedef atf_tcr_state_t state;
 
-    tcr(void);
+    static const state passed_state;
+    static const state failed_state;
+    static const state skipped_state;
 
-    static tcr passed(void);
-    static tcr skipped(const std::string&);
-    static tcr failed(const std::string&);
+    tcr(state);
+    tcr(state, const std::string&);
+    tcr(const tcr&);
+    ~tcr(void);
 
-    status get_status(void) const;
-    const std::string& get_reason(void) const;
+    state get_state(void) const;
+    const std::string get_reason(void) const;
 
-private:
-    status m_status;
-    std::string m_reason;
-
-    tcr(status, const std::string&);
+    tcr& operator=(const tcr&);
 };
 
 // ------------------------------------------------------------------------

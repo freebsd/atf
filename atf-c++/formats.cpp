@@ -758,6 +758,7 @@ impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
 {
     using atf::parser::parse_error;
     using namespace atf_tcs;
+    using atf::tests::tcr;
 
     std::pair< size_t, headers_map > hml = read_headers(m_is, 1);
     validate_content_type(hml.second, "application/X-atf-tcs", 1);
@@ -808,7 +809,7 @@ impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
                 t = p.expect(passed_type, skipped_type, failed_type,
                              "passed, failed or skipped");
                 if (t.type() == passed_type) {
-                    CALLBACK(p, got_tc_end(tests::tcr::passed()));
+                    CALLBACK(p, got_tc_end(tcr(tcr::passed_state)));
                 } else if (t.type() == failed_type) {
                     t = p.expect(comma_type, "`,'");
                     std::string reason = text::trim(p.rest_of_line());
@@ -816,7 +817,7 @@ impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
                         throw parse_error(t.lineno(),
                                           "Empty reason for failed "
                                           "test case result");
-                    CALLBACK(p, got_tc_end(tests::tcr::failed(reason)));
+                    CALLBACK(p, got_tc_end(tcr(tcr::failed_state, reason)));
                 } else if (t.type() == skipped_type) {
                     t = p.expect(comma_type, "`,'");
                     std::string reason = text::trim(p.rest_of_line());
@@ -824,7 +825,7 @@ impl::atf_tcs_reader::read(atf::io::unbuffered_istream& out,
                         throw parse_error(t.lineno(),
                                           "Empty reason for skipped "
                                           "test case result");
-                    CALLBACK(p, got_tc_end(tests::tcr::skipped(reason)));
+                    CALLBACK(p, got_tc_end(tcr(tcr::skipped_state, reason)));
                 } else
                     UNREACHABLE;
 
@@ -890,22 +891,14 @@ impl::atf_tcs_writer::end_tc(const atf::tests::tcr& tcr)
     m_cerr.flush();
 
     std::string end = "tc-end: " + m_tcname + ", ";
-    switch (tcr.get_status()) {
-    case tests::tcr::status_passed:
+    if (tcr.get_state() == tests::tcr::passed_state)
         end += "passed";
-        break;
-
-    case tests::tcr::status_failed:
+    else if (tcr.get_state() == tests::tcr::failed_state)
         end += "failed, " + tcr.get_reason();
-        break;
-
-    case tests::tcr::status_skipped:
+    else if (tcr.get_state() == tests::tcr::skipped_state)
         end += "skipped, " + tcr.get_reason();
-        break;
-
-    default:
+    else
         UNREACHABLE;
-    }
     m_os << end << std::endl;
     m_os.flush();
 }
@@ -1054,6 +1047,7 @@ impl::atf_tps_reader::read_tc(void* pptr)
 {
     using atf::parser::parse_error;
     using namespace atf_tps;
+    using atf::tests::tcr;
 
     atf::parser::parser< tokenizer >& p =
         *reinterpret_cast< atf::parser::parser< tokenizer >* >
@@ -1105,21 +1099,21 @@ impl::atf_tps_reader::read_tc(void* pptr)
     t = p.expect(passed_type, failed_type, skipped_type,
                  "passed, failed or skipped");
     if (t.type() == passed_type) {
-        CALLBACK(p, got_tc_end(tests::tcr::passed()));
+        CALLBACK(p, got_tc_end(tcr(tcr::passed_state)));
     } else if (t.type() == failed_type) {
         t = p.expect(comma_type, "`,'");
         std::string reason = text::trim(p.rest_of_line());
         if (reason.empty())
             throw parse_error(t.lineno(),
                               "Empty reason for failed test case result");
-        CALLBACK(p, got_tc_end(tests::tcr::failed(reason)));
+        CALLBACK(p, got_tc_end(tcr(tcr::failed_state, reason)));
     } else if (t.type() == skipped_type) {
         t = p.expect(comma_type, "`,'");
         std::string reason = text::trim(p.rest_of_line());
         if (reason.empty())
             throw parse_error(t.lineno(),
                               "Empty reason for skipped test case result");
-        CALLBACK(p, got_tc_end(tests::tcr::skipped(reason)));
+        CALLBACK(p, got_tc_end(tcr(tcr::skipped_state, reason)));
     } else
         UNREACHABLE;
 
@@ -1248,22 +1242,14 @@ void
 impl::atf_tps_writer::end_tc(const atf::tests::tcr& tcr)
 {
     std::string str = "tc-end: " + m_tcname + ", ";
-    switch (tcr.get_status()) {
-    case atf::tests::tcr::status_passed:
+    if (tcr.get_state() == atf::tests::tcr::passed_state)
         str += "passed";
-        break;
-
-    case atf::tests::tcr::status_skipped:
+    else if (tcr.get_state() == atf::tests::tcr::skipped_state)
         str += "skipped, " + tcr.get_reason();
-        break;
-
-    case atf::tests::tcr::status_failed:
+    else if (tcr.get_state() == atf::tests::tcr::failed_state)
         str += "failed, " + tcr.get_reason();
-        break;
-
-    default:
+    else
         UNREACHABLE;
-    }
     m_os << str << std::endl;
     m_os.flush();
 }
