@@ -123,7 +123,7 @@ ATF_TEST_CASE_BODY(tcs)
         exprss << "tc-start: foo" << std::endl;
         CHECK;
 
-        w.end_tc(atf::tests::tcr::passed());
+        w.end_tc(atf::tests::tcr(atf::tests::tcr::passed_state));
         exprss << "tc-end: foo, passed" << std::endl;
         CHECK;
     }
@@ -141,7 +141,8 @@ ATF_TEST_CASE_BODY(tcs)
         exprss << "tc-start: foo" << std::endl;
         CHECK;
 
-        w.end_tc(atf::tests::tcr::failed("Failed reason, comma"));
+        w.end_tc(atf::tests::tcr(atf::tests::tcr::failed_state,
+                                 "Failed reason, comma"));
         exprss << "tc-end: foo, failed, Failed reason, comma" << std::endl;
         CHECK;
     }
@@ -159,7 +160,8 @@ ATF_TEST_CASE_BODY(tcs)
         exprss << "tc-start: foo" << std::endl;
         CHECK;
 
-        w.end_tc(atf::tests::tcr::skipped("Skipped reason, comma"));
+        w.end_tc(atf::tests::tcr(atf::tests::tcr::skipped_state,
+                                 "Skipped reason, comma"));
         exprss << "tc-end: foo, skipped, Skipped reason, comma" << std::endl;
         CHECK;
     }
@@ -177,7 +179,7 @@ ATF_TEST_CASE_BODY(tcs)
         exprss << "tc-start: foo" << std::endl;
         CHECK;
 
-        w.end_tc(atf::tests::tcr::passed());
+        w.end_tc(atf::tests::tcr(atf::tests::tcr::passed_state));
         exprss << "tc-end: foo, passed" << std::endl;
         exposs << "__atf_tc_separator__" << std::endl;
         expess << "__atf_tc_separator__" << std::endl;
@@ -187,7 +189,8 @@ ATF_TEST_CASE_BODY(tcs)
         exprss << "tc-start: bar" << std::endl;
         CHECK;
 
-        w.end_tc(atf::tests::tcr::failed("The reason"));
+        w.end_tc(atf::tests::tcr(atf::tests::tcr::failed_state,
+                                 "The reason"));
         exprss << "tc-end: bar, failed, The reason" << std::endl;
         exposs << "__atf_tc_separator__" << std::endl;
         expess << "__atf_tc_separator__" << std::endl;
@@ -197,7 +200,8 @@ ATF_TEST_CASE_BODY(tcs)
         exprss << "tc-start: baz" << std::endl;
         CHECK;
 
-        w.end_tc(atf::tests::tcr::skipped("The reason"));
+        w.end_tc(atf::tests::tcr(atf::tests::tcr::skipped_state,
+                                 "The reason"));
         exprss << "tc-end: baz, skipped, The reason" << std::endl;
         CHECK;
     }
@@ -349,7 +353,7 @@ ATF_TEST_CASE_BODY(tps)
         expss << "tc-start: passtc" << std::endl;
         CHECK;
 
-        w.end_tc(atf::tests::tcr::passed());
+        w.end_tc(atf::tests::tcr(atf::tests::tcr::passed_state));
         expss << "tc-end: passtc, passed" << std::endl;
         CHECK;
 
@@ -357,7 +361,8 @@ ATF_TEST_CASE_BODY(tps)
         expss << "tc-start: failtc" << std::endl;
         CHECK;
 
-        w.end_tc(atf::tests::tcr::failed("The reason"));
+        w.end_tc(atf::tests::tcr(atf::tests::tcr::failed_state,
+                                 "The reason"));
         expss << "tc-end: failtc, failed, The reason" << std::endl;
         CHECK;
 
@@ -365,7 +370,8 @@ ATF_TEST_CASE_BODY(tps)
         expss << "tc-start: skiptc" << std::endl;
         CHECK;
 
-        w.end_tc(atf::tests::tcr::skipped("The reason"));
+        w.end_tc(atf::tests::tcr(atf::tests::tcr::skipped_state,
+                                 "The reason"));
         expss << "tc-end: skiptc, skipped, The reason" << std::endl;
         CHECK;
 
@@ -406,7 +412,7 @@ ATF_TEST_CASE_BODY(tps)
         expss << "tc-se:an error message" << std::endl;
         CHECK;
 
-        w.end_tc(atf::tests::tcr::passed());
+        w.end_tc(atf::tests::tcr(atf::tests::tcr::passed_state));
         expss << "tc-end: thetc, passed" << std::endl;
         CHECK;
 

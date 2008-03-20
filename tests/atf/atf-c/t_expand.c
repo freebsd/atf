@@ -62,7 +62,7 @@ matches_glob(const char *glob, const char *candidate)
 ATF_TC(is_glob);
 ATF_TC_HEAD(is_glob, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_expand_is_glob function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_expand_is_glob function");
 }
 ATF_TC_BODY(is_glob, tc)
 {
@@ -84,8 +84,8 @@ ATF_TC_BODY(is_glob, tc)
 ATF_TC(matches_glob_plain);
 ATF_TC_HEAD(matches_glob_plain, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_expand_is_glob function by "
-                   "using plain text strings as globs");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_expand_is_glob function "
+                      "by using plain text strings as globs");
 }
 ATF_TC_BODY(matches_glob_plain, tc)
 {
@@ -101,8 +101,8 @@ ATF_TC_BODY(matches_glob_plain, tc)
 ATF_TC(matches_glob_star);
 ATF_TC_HEAD(matches_glob_star, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_expand_is_glob function by "
-                   "using the '*' glob-character");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_expand_is_glob function "
+                      "by using the '*' glob-character");
 }
 ATF_TC_BODY(matches_glob_star, tc)
 {
@@ -139,8 +139,8 @@ ATF_TC_BODY(matches_glob_star, tc)
 ATF_TC(matches_glob_question);
 ATF_TC_HEAD(matches_glob_question, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_expand_is_glob function by "
-                   "using the '?' glob-character");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_expand_is_glob function  "
+                      "by using the '?' glob-character");
 }
 ATF_TC_BODY(matches_glob_question, tc)
 {

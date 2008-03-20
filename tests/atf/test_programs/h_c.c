@@ -113,7 +113,7 @@ touch(const char *path)
 ATF_TC_WITH_CLEANUP(cleanup_pass);
 ATF_TC_HEAD(cleanup_pass, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_cleanup test "
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_cleanup test "
                "program");
 }
 ATF_TC_BODY(cleanup_pass, tc)
@@ -133,8 +133,8 @@ ATF_TC_CLEANUP(cleanup_pass, tc)
 ATF_TC_WITH_CLEANUP(cleanup_fail);
 ATF_TC_HEAD(cleanup_fail, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_cleanup test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_cleanup test "
+                      "program");
 }
 ATF_TC_BODY(cleanup_fail, tc)
 {
@@ -154,8 +154,8 @@ ATF_TC_CLEANUP(cleanup_fail, tc)
 ATF_TC_WITH_CLEANUP(cleanup_skip);
 ATF_TC_HEAD(cleanup_skip, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_cleanup test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_cleanup test "
+                      "program");
 }
 ATF_TC_BODY(cleanup_skip, tc)
 {
@@ -175,8 +175,8 @@ ATF_TC_CLEANUP(cleanup_skip, tc)
 ATF_TC_WITH_CLEANUP(cleanup_curdir);
 ATF_TC_HEAD(cleanup_curdir, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_cleanup test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_cleanup test "
+                      "program");
 }
 ATF_TC_BODY(cleanup_curdir, tc)
 {
@@ -204,8 +204,8 @@ ATF_TC_CLEANUP(cleanup_curdir, tc)
 ATF_TC_WITH_CLEANUP(cleanup_sigterm);
 ATF_TC_HEAD(cleanup_sigterm, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_cleanup test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_cleanup test "
+                      "program");
 }
 ATF_TC_BODY(cleanup_sigterm, tc)
 {
@@ -227,8 +227,8 @@ ATF_TC_CLEANUP(cleanup_sigterm, tc)
 ATF_TC_WITH_CLEANUP(cleanup_fork);
 ATF_TC_HEAD(cleanup_fork, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_cleanup test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_cleanup test "
+                      "program");
 }
 ATF_TC_BODY(cleanup_fork, tc)
 {
@@ -247,8 +247,8 @@ ATF_TC_CLEANUP(cleanup_fork, tc)
 ATF_TC(config_unset);
 ATF_TC_HEAD(config_unset, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_config test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_config test "
+                      "program");
 }
 ATF_TC_BODY(config_unset, tc)
 {
@@ -258,8 +258,8 @@ ATF_TC_BODY(config_unset, tc)
 ATF_TC(config_empty);
 ATF_TC_HEAD(config_empty, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_config test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_config test "
+                      "program");
 }
 ATF_TC_BODY(config_empty, tc)
 {
@@ -270,8 +270,8 @@ ATF_TC_BODY(config_empty, tc)
 ATF_TC(config_value);
 ATF_TC_HEAD(config_value, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_config test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_config test "
+                      "program");
 }
 ATF_TC_BODY(config_value, tc)
 {
@@ -282,8 +282,8 @@ ATF_TC_BODY(config_value, tc)
 ATF_TC(config_multi_value);
 ATF_TC_HEAD(config_multi_value, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_config test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_config test "
+                      "program");
 }
 ATF_TC_BODY(config_multi_value, tc)
 {
@@ -298,8 +298,8 @@ ATF_TC_BODY(config_multi_value, tc)
 ATF_TC(env_home);
 ATF_TC_HEAD(env_home, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_env test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_env test "
+                      "program");
 }
 ATF_TC_BODY(env_home, tc)
 {
@@ -323,8 +323,8 @@ ATF_TC_BODY(env_home, tc)
 ATF_TC(env_list);
 ATF_TC_HEAD(env_list, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_env test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_env test "
+                      "program");
 }
 ATF_TC_BODY(env_list, tc)
 {
@@ -338,8 +338,8 @@ ATF_TC_BODY(env_list, tc)
 ATF_TC(fork_mangle_fds);
 ATF_TC_HEAD(fork_mangle_fds, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_fork test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_fork test "
+                      "program");
 }
 ATF_TC_BODY(fork_mangle_fds, tc)
 {
@@ -365,8 +365,8 @@ ATF_TC_BODY(fork_mangle_fds, tc)
 ATF_TC(fork_stop);
 ATF_TC_HEAD(fork_stop, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_fork test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_fork test "
+                      "program");
 }
 ATF_TC_BODY(fork_stop, tc)
 {
@@ -392,8 +392,8 @@ ATF_TC_BODY(fork_stop, tc)
 ATF_TC(fork_umask);
 ATF_TC_HEAD(fork_umask, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_fork test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_fork test "
+                      "program");
 }
 ATF_TC_BODY(fork_umask, tc)
 {
@@ -407,31 +407,31 @@ ATF_TC_BODY(fork_umask, tc)
 ATF_TC(ident_1);
 ATF_TC_HEAD(ident_1, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
 }
 ATF_TC_BODY(ident_1, tc)
 {
-    ATF_CHECK(strcmp(atf_tc_get_var(tc, "ident"), "ident_1") == 0);
+    ATF_CHECK(strcmp(atf_tc_get_md_var(tc, "ident"), "ident_1") == 0);
 }
 
 ATF_TC(ident_2);
 ATF_TC_HEAD(ident_2, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
 }
 ATF_TC_BODY(ident_2, tc)
 {
-    ATF_CHECK(strcmp(atf_tc_get_var(tc, "ident"), "ident_2") == 0);
+    ATF_CHECK(strcmp(atf_tc_get_md_var(tc, "ident"), "ident_2") == 0);
 }
 
 ATF_TC(require_arch);
 ATF_TC_HEAD(require_arch, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-    atf_tc_set_var(tc, "require.arch", "%s",
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "require.arch", "%s",
                    atf_tc_get_config_var_wd(tc, "arch", "not-set"));
 }
 ATF_TC_BODY(require_arch, tc)
@@ -441,9 +441,9 @@ ATF_TC_BODY(require_arch, tc)
 ATF_TC(require_config);
 ATF_TC_HEAD(require_config, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-    atf_tc_set_var(tc, "require.config", "var1 var2");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "require.config", "var1 var2");
 }
 ATF_TC_BODY(require_config, tc)
 {
@@ -454,9 +454,9 @@ ATF_TC_BODY(require_config, tc)
 ATF_TC(require_machine);
 ATF_TC_HEAD(require_machine, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-    atf_tc_set_var(tc, "require.machine", "%s",
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "require.machine", "%s",
                    atf_tc_get_config_var_wd(tc, "machine", "not-set"));
 }
 ATF_TC_BODY(require_machine, tc)
@@ -466,8 +466,8 @@ ATF_TC_BODY(require_machine, tc)
 ATF_TC(require_progs_body);
 ATF_TC_HEAD(require_progs_body, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
 }
 ATF_TC_BODY(require_progs_body, tc)
 {
@@ -477,9 +477,9 @@ ATF_TC_BODY(require_progs_body, tc)
 ATF_TC(require_progs_head);
 ATF_TC_HEAD(require_progs_head, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-    atf_tc_set_var(tc, "require.progs", "%s",
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "require.progs", "%s",
                    atf_tc_get_config_var_wd(tc, "progs", "not-set"));
 }
 ATF_TC_BODY(require_progs_head, tc)
@@ -489,9 +489,9 @@ ATF_TC_BODY(require_progs_head, tc)
 ATF_TC(require_user);
 ATF_TC_HEAD(require_user, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-    atf_tc_set_var(tc, "require.user", "%s",
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "require.user", "%s",
                    atf_tc_get_config_var_wd(tc, "user", "not-set"));
 }
 ATF_TC_BODY(require_user, tc)
@@ -501,9 +501,9 @@ ATF_TC_BODY(require_user, tc)
 ATF_TC(require_user2);
 ATF_TC_HEAD(require_user2, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-    atf_tc_set_var(tc, "require.user", "%s",
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "require.user", "%s",
                    atf_tc_get_config_var_wd(tc, "user2", "not-set"));
 }
 ATF_TC_BODY(require_user2, tc)
@@ -513,9 +513,9 @@ ATF_TC_BODY(require_user2, tc)
 ATF_TC(require_user3);
 ATF_TC_HEAD(require_user3, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-    atf_tc_set_var(tc, "require.user", "%s",
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "require.user", "%s",
                    atf_tc_get_config_var_wd(tc, "user3", "not-set"));
 }
 ATF_TC_BODY(require_user3, tc)
@@ -525,9 +525,9 @@ ATF_TC_BODY(require_user3, tc)
 ATF_TC(timeout);
 ATF_TC_HEAD(timeout, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-    atf_tc_set_var(tc, "timeout", "%s",
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "timeout", "%s",
                    atf_tc_get_config_var_wd(tc, "timeout", "0"));
 }
 ATF_TC_BODY(timeout, tc)
@@ -541,9 +541,9 @@ ATF_TC_BODY(timeout, tc)
 ATF_TC(timeout2);
 ATF_TC_HEAD(timeout2, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-    atf_tc_set_var(tc, "timeout", "%s",
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "timeout", "%s",
                    atf_tc_get_config_var_wd(tc, "timeout2", "0"));
 }
 ATF_TC_BODY(timeout2, tc)
@@ -561,8 +561,8 @@ ATF_TC_BODY(timeout2, tc)
 ATF_TC(srcdir_exists);
 ATF_TC_HEAD(srcdir_exists, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_srcdir test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_srcdir test "
+                      "program");
 }
 ATF_TC_BODY(srcdir_exists, tc)
 {
@@ -584,8 +584,8 @@ ATF_TC_BODY(srcdir_exists, tc)
 ATF_TC(status_newlines_fail);
 ATF_TC_HEAD(status_newlines_fail, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_status test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_status test "
+                      "program");
 }
 ATF_TC_BODY(status_newlines_fail, tc)
 {
@@ -595,8 +595,8 @@ ATF_TC_BODY(status_newlines_fail, tc)
 ATF_TC(status_newlines_skip);
 ATF_TC_HEAD(status_newlines_skip, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_status test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_status test "
+                      "program");
 }
 ATF_TC_BODY(status_newlines_skip, tc)
 {
@@ -610,8 +610,8 @@ ATF_TC_BODY(status_newlines_skip, tc)
 ATF_TC(workdir_path);
 ATF_TC_HEAD(workdir_path, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_workdir test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_workdir test "
+                      "program");
 }
 ATF_TC_BODY(workdir_path, tc)
 {
@@ -621,8 +621,8 @@ ATF_TC_BODY(workdir_path, tc)
 ATF_TC(workdir_cleanup);
 ATF_TC_HEAD(workdir_cleanup, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_workdir test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_workdir test "
+                      "program");
 }
 ATF_TC_BODY(workdir_cleanup, tc)
 {

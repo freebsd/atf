@@ -77,20 +77,20 @@
         const
 
 #define ATF_FAIL(reason) \
-    throw atf::tests::tcr::failed(reason)
+    throw atf::tests::tcr(atf::tests::tcr::failed_state, reason)
 
 #define ATF_SKIP(reason) \
-    throw atf::tests::tcr::skipped(reason)
+    throw atf::tests::tcr(atf::tests::tcr::skipped_state, reason)
 
 #define ATF_PASS() \
-    throw atf::tests::tcr::passed()
+    throw atf::tests::tcr(atf::tests::tcr::passed_state)
 
 #define ATF_CHECK(x) \
     do { \
         if (!(x)) { \
             std::ostringstream __atf_ss; \
             __atf_ss << "Line " << __LINE__ << ": " << #x << " not met"; \
-            throw atf::tests::tcr::failed(__atf_ss.str()); \
+            throw atf::tests::tcr(atf::tests::tcr::failed_state, __atf_ss.str()); \
         } \
     } while (false)
 
@@ -100,7 +100,8 @@
             std::ostringstream __atf_ss; \
             __atf_ss << "Line " << __LINE__ << ": " << #x << " != " << #y \
                      << " (" << (x) << " != " << (y) << ")"; \
-            throw atf::tests::tcr::failed(__atf_ss.str()); \
+            throw atf::tests::tcr(atf::tests::tcr::failed_state, \
+                                  __atf_ss.str()); \
         } \
     } while (false)
 
@@ -110,7 +111,8 @@
         std::ostringstream __atf_ss; \
         __atf_ss << "Line " << __LINE__ << ": " #x " did not throw " \
                     #e " as expected"; \
-        throw atf::tests::tcr::failed(__atf_ss.str()); \
+        throw atf::tests::tcr(atf::tests::tcr::failed_state, \
+                              __atf_ss.str()); \
     } catch (const e& __atf_eo) { \
     } catch (const atf::tests::tcr&) { \
         throw; \
@@ -118,12 +120,14 @@
         std::ostringstream __atf_ss; \
         __atf_ss << "Line " << __LINE__ << ": " #x " threw an " \
                     "unexpected error (not " #e "): " << __atf_e.what(); \
-        throw atf::tests::tcr::failed(__atf_ss.str()); \
+        throw atf::tests::tcr(atf::tests::tcr::failed_state, \
+                              __atf_ss.str()); \
     } catch (...) { \
         std::ostringstream __atf_ss; \
         __atf_ss << "Line " << __LINE__ << ": " #x " threw an " \
                     "unexpected error (not " #e ")"; \
-        throw atf::tests::tcr::failed(__atf_ss.str()); \
+        throw atf::tests::tcr(atf::tests::tcr::failed_state, \
+                              __atf_ss.str()); \
     }
 
 #define ATF_INIT_TEST_CASES(tcs) \

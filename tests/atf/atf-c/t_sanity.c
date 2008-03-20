@@ -180,7 +180,7 @@ require_ndebug(void)
 ATF_TC(inv);
 ATF_TC_HEAD(inv, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the INV macro");
+    atf_tc_set_md_var(tc, "descr", "Tests the INV macro");
 }
 ATF_TC_BODY(inv, tc)
 {
@@ -193,7 +193,7 @@ ATF_TC_BODY(inv, tc)
 ATF_TC(pre);
 ATF_TC_HEAD(pre, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the PRE macro");
+    atf_tc_set_md_var(tc, "descr", "Tests the PRE macro");
 }
 ATF_TC_BODY(pre, tc)
 {
@@ -206,7 +206,7 @@ ATF_TC_BODY(pre, tc)
 ATF_TC(post);
 ATF_TC_HEAD(post, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the POST macro");
+    atf_tc_set_md_var(tc, "descr", "Tests the POST macro");
 }
 ATF_TC_BODY(post, tc)
 {
@@ -219,7 +219,7 @@ ATF_TC_BODY(post, tc)
 ATF_TC(unreachable);
 ATF_TC_HEAD(unreachable, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the UNREACHABLE macro");
+    atf_tc_set_md_var(tc, "descr", "Tests the UNREACHABLE macro");
 }
 ATF_TC_BODY(unreachable, tc)
 {

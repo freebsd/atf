@@ -78,7 +78,8 @@ test2_handler(int signo)
 ATF_TC(last_signo);
 ATF_TC_HEAD(last_signo, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the value of atf_signals_last_signo");
+    atf_tc_set_md_var(tc, "descr", "Tests the value of "
+                      "atf_signals_last_signo");
 }
 ATF_TC_BODY(last_signo, tc)
 {
@@ -104,8 +105,8 @@ ATF_TC_BODY(last_signo, tc)
 ATF_TC(signal_holder_init);
 ATF_TC_HEAD(signal_holder_init, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_signal_holder_init "
-                   "function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_signal_holder_init "
+                      "function");
 }
 ATF_TC_BODY(signal_holder_init, tc)
 {
@@ -126,8 +127,8 @@ ATF_TC_BODY(signal_holder_init, tc)
 ATF_TC(signal_holder_fini);
 ATF_TC_HEAD(signal_holder_fini, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_signal_holder_fini "
-                   "function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_signal_holder_fini "
+                      "function");
 }
 ATF_TC_BODY(signal_holder_fini, tc)
 {
@@ -159,8 +160,8 @@ ATF_TC_BODY(signal_holder_fini, tc)
 ATF_TC(signal_holder_process);
 ATF_TC_HEAD(signal_holder_process, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_signal_holder_process "
-                   "function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_signal_holder_process "
+                      "function");
 }
 ATF_TC_BODY(signal_holder_process, tc)
 {
@@ -191,8 +192,8 @@ ATF_TC_BODY(signal_holder_process, tc)
 ATF_TC(signal_programmer_init);
 ATF_TC_HEAD(signal_programmer_init, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_signal_programmer_init "
-                   "function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_signal_programmer_init "
+                      "function");
 }
 ATF_TC_BODY(signal_programmer_init, tc)
 {
@@ -212,8 +213,8 @@ ATF_TC_BODY(signal_programmer_init, tc)
 ATF_TC(signal_programmer_fini);
 ATF_TC_HEAD(signal_programmer_fini, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_signal_programmer_fini "
-                   "function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_signal_programmer_fini "
+                      "function");
 }
 ATF_TC_BODY(signal_programmer_fini, tc)
 {

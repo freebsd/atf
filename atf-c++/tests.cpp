@@ -195,58 +195,71 @@ impl::vars_map::parse(const std::string& str)
 // The "tcr" class.
 // ------------------------------------------------------------------------
 
-impl::tcr::tcr(void) :
-    m_status(status_failed),
-    m_reason("Uninitialized test case result")
+const impl::tcr::state impl::tcr::passed_state = atf_tcr_passed_state;
+const impl::tcr::state impl::tcr::failed_state = atf_tcr_failed_state;
+const impl::tcr::state impl::tcr::skipped_state = atf_tcr_skipped_state;
+
+impl::tcr::tcr(state s)
 {
+    PRE(s == passed_state);
+
+    atf_error_t err = atf_tcr_init(&m_tcr, s);
+    if (atf_is_error(err))
+        throw_atf_error(err);
 }
 
-impl::tcr::tcr(impl::tcr::status s, const std::string& r) :
-    m_status(s)
+impl::tcr::tcr(state s, const std::string& r)
 {
-    if (r.find('\n') == std::string::npos)
-        m_reason = r;
-    else {
-        m_reason = "BOGUS REASON (THE ORIGINAL HAD NEWLINES): ";
-        for (std::string::size_type i = 0; i < r.length(); i++) {
-            if (r[i] == '\n')
-                m_reason += "<<NEWLINE>>";
-            else if (r[i] != '\r')
-                m_reason += r[i];
-        }
-    }
+    PRE(s == failed_state || s == skipped_state);
+    PRE(!r.empty());
+
+    atf_error_t err = atf_tcr_init_reason_fmt(&m_tcr, s, "%s", r.c_str());
+    if (atf_is_error(err))
+        throw_atf_error(err);
 }
 
-impl::tcr
-impl::tcr::passed(void)
+impl::tcr::tcr(const tcr& o)
 {
-    return tcr(status_passed, "");
+    if (o.get_state() == passed_state)
+        atf_tcr_init(&m_tcr, o.get_state());
+    else
+        atf_tcr_init_reason_fmt(&m_tcr, o.get_state(), "%s",
+                                o.get_reason().c_str());
 }
 
-impl::tcr
-impl::tcr::skipped(const std::string& reason)
+impl::tcr::~tcr(void)
 {
-    return tcr(status_skipped, reason);
+    atf_tcr_fini(&m_tcr);
 }
 
-impl::tcr
-impl::tcr::failed(const std::string& reason)
-{
-    return tcr(status_failed, reason);
-}
-
-impl::tcr::status
-impl::tcr::get_status(void)
+impl::tcr::state
+impl::tcr::get_state(void)
     const
 {
-    return m_status;
+    return atf_tcr_get_state(&m_tcr);
 }
 
-const std::string&
+const std::string
 impl::tcr::get_reason(void)
     const
 {
-    return m_reason;
+    const atf_dynstr_t* r = atf_tcr_get_reason(&m_tcr);
+    return atf_dynstr_cstring(r);
+}
+
+impl::tcr&
+impl::tcr::operator=(const tcr& o)
+{
+    if (this != &o) {
+        atf_tcr_fini(&m_tcr);
+
+        if (o.get_state() == passed_state)
+            atf_tcr_init(&m_tcr, o.get_state());
+        else
+            atf_tcr_init_reason_fmt(&m_tcr, o.get_state(), "%s",
+                                    o.get_reason().c_str());
+    }
+    return *this;
 }
 
 // ------------------------------------------------------------------------
@@ -433,8 +446,8 @@ impl::tc::check_requirements(void)
                 found = true;
         }
         if (!a.empty() && !found)
-            throw tcr::skipped("Requires one of the '" + a +
-                               "' architectures");
+            throw tcr(tcr::skipped_state, "Requires one of the '" + a +
+                      "' architectures");
     }
 
     if (has("require.machine")) {
@@ -447,8 +460,8 @@ impl::tc::check_requirements(void)
                 found = true;
         }
         if (!m.empty() && !found)
-            throw tcr::skipped("Requires one of the '" + m +
-                               "' machine types");
+            throw tcr(tcr::skipped_state, "Requires one of the '" + m +
+                      "' machine types");
     }
 
     if (has("require.config")) {
@@ -457,8 +470,8 @@ impl::tc::check_requirements(void)
         for (std::vector< std::string >::const_iterator iter = vars.begin();
              iter != vars.end(); iter++) {
             if (!m_config.has(*iter))
-                throw tcr::skipped("Required configuration variable " +
-                                   *iter + " not defined");
+                throw tcr(tcr::skipped_state, "Required configuration "
+                          "variable " + *iter + " not defined");
         }
     }
 
@@ -466,13 +479,13 @@ impl::tc::check_requirements(void)
         const std::string& u = get("require.user");
         if (u == "root") {
             if (!user::is_root())
-                throw tcr::skipped("Requires root privileges");
+                throw tcr(tcr::skipped_state, "Requires root privileges");
         } else if (u == "unprivileged") {
             if (!user::is_unprivileged())
-                throw tcr::skipped("Requires an unprivileged user");
+                throw tcr(tcr::skipped_state, "Requires an unprivileged user");
         } else
-            throw tcr::failed("Invalid value in the require.user "
-                              "property");
+            throw tcr(tcr::failed_state, "Invalid value in the require.user "
+                      "property");
     }
 
     if (has("require.progs")) {
@@ -508,13 +521,13 @@ impl::tcr
 impl::tc::fork_body(const std::string& workdir)
     const
 {
-    tcr tcr;
+    tcr tcrr(tcr::failed_state, "Uninitialized");
 
     fs::path result(fs::path(workdir) / "tc-result");
 
     pid_t pid = ::fork();
     if (pid == -1) {
-        tcr = tcr::failed("Coult not fork to run test case");
+        tcrr = tcr(tcr::failed_state, "Coult not fork to run test case");
     } else if (pid == 0) {
         int errcode;
 
@@ -530,7 +543,7 @@ impl::tc::fork_body(const std::string& workdir)
             sanitize_process(atf::fs::path(workdir));
             check_requirements();
             body();
-            throw impl::tcr::passed();
+            throw tcr(tcr::passed_state);
         } catch (const impl::tcr& tcre) {
             std::ofstream os(result.c_str());
             if (!os) {
@@ -539,11 +552,11 @@ impl::tc::fork_body(const std::string& workdir)
                           << std::endl;
                 errcode = EXIT_FAILURE;
             } else {
-                if (tcre.get_status() == impl::tcr::status_passed)
+                if (tcre.get_state() == impl::tcr::passed_state)
                     os << "passed\n";
-                else if (tcre.get_status() == impl::tcr::status_failed)
+                else if (tcre.get_state() == impl::tcr::failed_state)
                     os << "failed\n" << tcre.get_reason() << '\n';
-                else if (tcre.get_status() == impl::tcr::status_skipped)
+                else if (tcre.get_state() == impl::tcr::skipped_state)
                     os << "skipped\n" << tcre.get_reason() << '\n';
                 os.close();
                 errcode = EXIT_SUCCESS;
@@ -568,49 +581,49 @@ impl::tc::fork_body(const std::string& workdir)
         int status;
         if (::waitpid(pid, &status, 0) != pid) {
             if (errno == EINTR && timeout::killed)
-                tcr = tcr::failed("Test case timed out after " +
-                                  get("timeout") + " seconds");
+                tcrr = tcr(tcr::failed_state, "Test case timed out after " +
+                           get("timeout") + " seconds");
             else
-                tcr = tcr::failed("Error while waiting for process " +
-                                  atf::text::to_string(pid) + ": " +
-                                  ::strerror(errno));
+                tcrr = tcr(tcr::failed_state, "Error while waiting for "
+                           "process " + atf::text::to_string(pid) + ": " +
+                           ::strerror(errno));
         } else {
             if (WIFEXITED(status)) {
                 if (WEXITSTATUS(status) == EXIT_SUCCESS) {
                     std::ifstream is(result.c_str());
                     if (!is) {
-                        tcr = tcr::failed("Could not open results file for "
-                                          "reading");
+                        tcrr = tcr(tcr::failed_state, "Could not open "
+                                   "results file for reading");
                     } else {
                         std::string line;
                         std::getline(is, line);
                         if (line == "passed") {
-                            tcr = tcr::passed();
+                            tcrr = tcr(tcr::passed_state);
                         } else if (line == "failed") {
                             std::getline(is, line);
-                            tcr = tcr::failed(line);
+                            tcrr = tcr(tcr::failed_state, line);
                         } else if (line == "skipped") {
                             std::getline(is, line);
-                            tcr = tcr::skipped(line);
+                            tcrr = tcr(tcr::skipped_state, line);
                         } else {
-                            tcr = tcr::failed("Test case failed to report its "
-                                              "status");
+                            tcrr = tcr(tcr::failed_state, "Test case failed "
+                                       "to report its status");
                         }
                         is.close();
                     }
                 } else
-                    tcr = tcr::failed("Test case returned non-OK status; "
-                                      "see its stderr output for more "
-                                      "details");
+                    tcrr = tcr(tcr::failed_state,
+                               "Test case returned non-OK status; "
+                               "see its stderr output for more details");
             } else if (WIFSIGNALED(status)) {
-                tcr = tcr::failed("Test case received signal " +
-                                  atf::text::to_string(WTERMSIG(status)));
+                tcrr = tcr(tcr::failed_state, "Test case received signal " +
+                             atf::text::to_string(WTERMSIG(status)));
             } else
                 UNREACHABLE;
         }
     }
 
-    return tcr;
+    return tcrr;
 }
 
 void
@@ -657,18 +670,18 @@ impl::tc::run(void)
 {
     PRE(!m_meta_data.empty());
 
-    tcr tcr;
+    tcr tcrr(tcr::failed_state, "UNINITIALIZED");
 
     try {
-        tcr = safe_run();
+        tcrr = safe_run();
     } catch (const std::exception& e) {
-        tcr = tcr::failed(std::string("Unhandled exception: ") +
-                          e.what());
+        tcrr = tcr(tcr::failed_state, std::string("Unhandled exception: ") +
+                   e.what());
     } catch (...) {
-        tcr = tcr::failed("Unknown unhandled exception");
+        tcrr = tcr(tcr::failed_state, "Unknown unhandled exception");
     }
 
-    return tcr;
+    return tcrr;
 }
 
 void
@@ -687,13 +700,13 @@ impl::tc::require_prog(const std::string& prog)
 
     if (p.is_absolute()) {
         if (!fs::is_executable(p))
-            throw impl::tcr::skipped("The required program " + prog +
-                                     " could not be found");
+            throw tcr(tcr::skipped_state, "The required program " + prog +
+                      " could not be found");
     } else {
         INV(p.branch_path() == fs::path("."));
         if (!fs::have_prog_in_path(prog))
-            throw impl::tcr::skipped("The required program " + prog +
-                                     " could not be found in the PATH");
+            throw tcr(tcr::skipped_state, "The required program " + prog +
+                      " could not be found in the PATH");
     }
 }
 
@@ -963,7 +976,7 @@ tp::run_tcs(void)
         sigint.process();
         sigterm.process();
 
-        if (tcr.get_status() == impl::tcr::status_failed)
+        if (tcr.get_state() == impl::tcr::failed_state)
             errcode = EXIT_FAILURE;
     }
 

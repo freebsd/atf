@@ -56,7 +56,7 @@
 ATF_TC(init);
 ATF_TC_HEAD(init, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the empty constructor");
+    atf_tc_set_md_var(tc, "descr", "Checks the empty constructor");
 }
 ATF_TC_BODY(init, tc)
 {
@@ -82,8 +82,8 @@ init_fmt(atf_dynstr_t *str, const char *fmt, ...)
 ATF_TC(init_ap);
 ATF_TC_HEAD(init_ap, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the formatted constructor using a "
-                   "va_list argument");
+    atf_tc_set_md_var(tc, "descr", "Checks the formatted constructor using "
+                      "a va_list argument");
 }
 ATF_TC_BODY(init_ap, tc)
 {
@@ -112,8 +112,8 @@ ATF_TC_BODY(init_ap, tc)
 ATF_TC(init_fmt);
 ATF_TC_HEAD(init_fmt, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the formatted constructor using a "
-                   "variable list of parameters");
+    atf_tc_set_md_var(tc, "descr", "Checks the formatted constructor using "
+                      "a variable list of parameters");
 }
 ATF_TC_BODY(init_fmt, tc)
 {
@@ -143,8 +143,8 @@ ATF_TC_BODY(init_fmt, tc)
 ATF_TC(init_raw);
 ATF_TC_HEAD(init_raw, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the construction of a string using"
-                   "a raw memory pointer");
+    atf_tc_set_md_var(tc, "descr", "Checks the construction of a string "
+                      "using a raw memory pointer");
 }
 ATF_TC_BODY(init_raw, tc)
 {
@@ -171,8 +171,8 @@ ATF_TC_BODY(init_raw, tc)
 ATF_TC(init_rep);
 ATF_TC_HEAD(init_rep, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the construction of a string by "
-                   "repeating characters");
+    atf_tc_set_md_var(tc, "descr", "Checks the construction of a string by "
+                      "repeating characters");
 }
 ATF_TC_BODY(init_rep, tc)
 {
@@ -215,8 +215,8 @@ ATF_TC_BODY(init_rep, tc)
 ATF_TC(init_substr);
 ATF_TC_HEAD(init_substr, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the construction of a string using"
-                   "a substring of another one");
+    atf_tc_set_md_var(tc, "descr", "Checks the construction of a string "
+                      "using a substring of another one");
 }
 ATF_TC_BODY(init_substr, tc)
 {
@@ -253,7 +253,7 @@ ATF_TC_BODY(init_substr, tc)
 ATF_TC(copy);
 ATF_TC_HEAD(copy, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the atf_dynstr_copy constructor");
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_dynstr_copy constructor");
 }
 ATF_TC_BODY(copy, tc)
 {
@@ -275,8 +275,8 @@ ATF_TC_BODY(copy, tc)
 ATF_TC(fini_disown);
 ATF_TC_HEAD(fini_disown, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks grabbing ownership of the internal "
-                   "plain C string");
+    atf_tc_set_md_var(tc, "descr", "Checks grabbing ownership of the "
+                      "internal plain C string");
 }
 ATF_TC_BODY(fini_disown, tc)
 {
@@ -299,8 +299,8 @@ ATF_TC_BODY(fini_disown, tc)
 ATF_TC(cstring);
 ATF_TC_HEAD(cstring, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the method to obtain a plain C "
-                   "string");
+    atf_tc_set_md_var(tc, "descr", "Checks the method to obtain a plain C "
+                      "string");
 }
 ATF_TC_BODY(cstring, tc)
 {
@@ -323,7 +323,7 @@ ATF_TC_BODY(cstring, tc)
 ATF_TC(length);
 ATF_TC_HEAD(length, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the method to obtain the length");
+    atf_tc_set_md_var(tc, "descr", "Checks the method to obtain the length");
 }
 ATF_TC_BODY(length, tc)
 {
@@ -340,9 +340,8 @@ ATF_TC_BODY(length, tc)
 ATF_TC(rfind_ch);
 ATF_TC_HEAD(rfind_ch, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the method to locate the first "
-                   "occurrence of a character starting from "
-                            "the end");
+    atf_tc_set_md_var(tc, "descr", "Checks the method to locate the first "
+                      "occurrence of a character starting from the end");
 }
 ATF_TC_BODY(rfind_ch, tc)
 {
@@ -422,8 +421,8 @@ append_ap_aux(atf_dynstr_t *str, const char *fmt, ...)
 ATF_TC(append_ap);
 ATF_TC_HEAD(append_ap, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks that appending a string to another "
-                   "one works");
+    atf_tc_set_md_var(tc, "descr", "Checks that appending a string to "
+                      "another one works");
 }
 ATF_TC_BODY(append_ap, tc)
 {
@@ -433,8 +432,8 @@ ATF_TC_BODY(append_ap, tc)
 ATF_TC(append_fmt);
 ATF_TC_HEAD(append_fmt, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks that appending a string to another "
-                   "one works");
+    atf_tc_set_md_var(tc, "descr", "Checks that appending a string to "
+                      "another one works");
 }
 ATF_TC_BODY(append_fmt, tc)
 {
@@ -444,7 +443,7 @@ ATF_TC_BODY(append_fmt, tc)
 ATF_TC(clear);
 ATF_TC_HEAD(clear, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks clearing a string");
+    atf_tc_set_md_var(tc, "descr", "Checks clearing a string");
 }
 ATF_TC_BODY(clear, tc)
 {
@@ -534,8 +533,8 @@ prepend_ap_aux(atf_dynstr_t *str, const char *fmt, ...)
 ATF_TC(prepend_ap);
 ATF_TC_HEAD(prepend_ap, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks that prepending a string to another "
-                   "one works");
+    atf_tc_set_md_var(tc, "descr", "Checks that prepending a string to "
+                      "another one works");
 }
 ATF_TC_BODY(prepend_ap, tc)
 {
@@ -545,8 +544,8 @@ ATF_TC_BODY(prepend_ap, tc)
 ATF_TC(prepend_fmt);
 ATF_TC_HEAD(prepend_fmt, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks that prepending a string to another "
-                   "one works");
+    atf_tc_set_md_var(tc, "descr", "Checks that prepending a string to "
+                      "another one works");
 }
 ATF_TC_BODY(prepend_fmt, tc)
 {
@@ -560,8 +559,8 @@ ATF_TC_BODY(prepend_fmt, tc)
 ATF_TC(equal_cstring);
 ATF_TC_HEAD(equal_cstring, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the atf_equal_dynstr_cstring "
-                   "function");
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_equal_dynstr_cstring "
+                      "function");
 }
 ATF_TC_BODY(equal_cstring, tc)
 {
@@ -583,8 +582,8 @@ ATF_TC_BODY(equal_cstring, tc)
 ATF_TC(equal_dynstr);
 ATF_TC_HEAD(equal_dynstr, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the atf_equal_dynstr_dynstr "
-                   "function");
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_equal_dynstr_dynstr "
+                      "function");
 }
 ATF_TC_BODY(equal_dynstr, tc)
 {
