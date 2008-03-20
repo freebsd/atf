@@ -45,7 +45,7 @@
  * --------------------------------------------------------------------- */
 
 struct map_entry {
-    const char *m_key;
+    char *m_key;
     void *m_value;
     bool m_managed;
 };
@@ -58,9 +58,14 @@ new_entry(const char *key, void *value, bool managed)
 
     me = (struct map_entry *)malloc(sizeof(*me));
     if (me != NULL) {
-        me->m_key = key;
-        me->m_value = value;
-        me->m_managed = managed;
+        me->m_key = strdup(key);
+        if (me->m_key == NULL) {
+            free(me);
+            me = NULL;
+        } else {
+            me->m_value = value;
+            me->m_managed = managed;
+        }
     }
 
     return me;
@@ -145,6 +150,7 @@ atf_map_fini(atf_map_t *m)
 
         if (me->m_managed)
             free(me->m_value);
+        free(me->m_key);
         free(me);
     }
     atf_list_fini(&m->m_list);

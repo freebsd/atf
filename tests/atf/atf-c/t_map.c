@@ -142,6 +142,39 @@ ATF_TC_BODY(map_insert, tc)
     atf_map_fini(&map);
 }
 
+/*
+ * Other.
+ */
+
+ATF_TC(stable_keys);
+ATF_TC_HEAD(stable_keys, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Checks that the keys do not change "
+                      "even if their original values do");
+}
+ATF_TC_BODY(stable_keys, tc)
+{
+    atf_map_t map;
+    atf_map_citer_t iter;
+    char key[] = "K1";
+
+    CE(atf_map_init(&map));
+
+    CE(atf_map_insert(&map, key, strdup("test-value"), true));
+    iter = atf_map_find_c(&map, "K1");
+    ATF_CHECK(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
+    iter = atf_map_find_c(&map, "K2");
+    ATF_CHECK(atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
+
+    strcpy(key, "K2");
+    iter = atf_map_find_c(&map, "K1");
+    ATF_CHECK(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
+    iter = atf_map_find_c(&map, "K2");
+    ATF_CHECK(atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
+
+    atf_map_fini(&map);
+}
+
 /* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
@@ -156,6 +189,9 @@ ATF_TP_ADD_TCS(tp)
 
     /* Modifiers. */
     ATF_TP_ADD_TC(tp, map_insert);
+
+    /* Other. */
+    ATF_TP_ADD_TC(tp, stable_keys);
 
     return atf_no_error();
 }
