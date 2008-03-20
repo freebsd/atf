@@ -44,86 +44,90 @@
 #include <atf-c++/tests.hpp>
 
 #define ATF_TEST_CASE(name) \
-    class atf_tc_ ## name : public atf::tests::tc { \
+    class atfu_tc_ ## name : public atf::tests::tc { \
         void head(void); \
         void body(void) const; \
     public: \
-        atf_tc_ ## name(void) : atf::tests::tc(#name) {} \
+        atfu_tc_ ## name(void) : atf::tests::tc(#name) {} \
     }; \
-    static atf_tc_ ## name atf_tc_ ## name;
+    static atfu_tc_ ## name atfu_tc_ ## name;
 
 #define ATF_TEST_CASE_WITH_CLEANUP(name) \
-    class atf_tc_ ## name : public atf::tests::tc { \
+    class atfu_tc_ ## name : public atf::tests::tc { \
         void head(void); \
         void body(void) const; \
         void cleanup(void) const; \
     public: \
-        atf_tc_ ## name(void) : atf::tests::tc(#name) {} \
+        atfu_tc_ ## name(void) : atf::tests::tc(#name) {} \
     }; \
-    static atf_tc_ ## name atf_tc_ ## name;
+    static atfu_tc_ ## name atfu_tc_ ## name;
 
 #define ATF_TEST_CASE_HEAD(name) \
     void \
-    atf_tc_ ## name::head(void)
+    atfu_tc_ ## name::head(void)
 
 #define ATF_TEST_CASE_BODY(name) \
     void \
-    atf_tc_ ## name::body(void) \
+    atfu_tc_ ## name::body(void) \
         const
 
 #define ATF_TEST_CASE_CLEANUP(name) \
     void \
-    atf_tc_ ## name::cleanup(void) \
+    atfu_tc_ ## name::cleanup(void) \
         const
 
 #define ATF_FAIL(reason) \
-    throw atf::tests::tcr::failed(reason)
+    throw atf::tests::tcr(atf::tests::tcr::failed_state, reason)
 
 #define ATF_SKIP(reason) \
-    throw atf::tests::tcr::skipped(reason)
+    throw atf::tests::tcr(atf::tests::tcr::skipped_state, reason)
 
 #define ATF_PASS() \
-    throw atf::tests::tcr::passed()
+    throw atf::tests::tcr(atf::tests::tcr::passed_state)
 
 #define ATF_CHECK(x) \
     do { \
         if (!(x)) { \
-            std::ostringstream __atf_ss; \
-            __atf_ss << "Line " << __LINE__ << ": " << #x << " not met"; \
-            throw atf::tests::tcr::failed(__atf_ss.str()); \
+            std::ostringstream atfu_ss; \
+            atfu_ss << "Line " << __LINE__ << ": " << #x << " not met"; \
+            throw atf::tests::tcr(atf::tests::tcr::failed_state, atfu_ss.str()); \
         } \
     } while (false)
 
 #define ATF_CHECK_EQUAL(x, y) \
     do { \
         if ((x) != (y)) { \
-            std::ostringstream __atf_ss; \
-            __atf_ss << "Line " << __LINE__ << ": " << #x << " != " << #y \
+            std::ostringstream atfu_ss; \
+            atfu_ss << "Line " << __LINE__ << ": " << #x << " != " << #y \
                      << " (" << (x) << " != " << (y) << ")"; \
-            throw atf::tests::tcr::failed(__atf_ss.str()); \
+            throw atf::tests::tcr(atf::tests::tcr::failed_state, \
+                                  atfu_ss.str()); \
         } \
     } while (false)
 
 #define ATF_CHECK_THROW(x, e) \
     try { \
         x; \
-        std::ostringstream __atf_ss; \
-        __atf_ss << "Line " << __LINE__ << ": " #x " did not throw " \
+        std::ostringstream atfu_ss; \
+        atfu_ss << "Line " << __LINE__ << ": " #x " did not throw " \
                     #e " as expected"; \
-        throw atf::tests::tcr::failed(__atf_ss.str()); \
-    } catch (const e& __atf_eo) { \
+        throw atf::tests::tcr(atf::tests::tcr::failed_state, \
+                              atfu_ss.str()); \
+    } catch (const e& atfu_eo) { \
     } catch (const atf::tests::tcr&) { \
         throw; \
-    } catch (const std::exception& __atf_e) { \
-        std::ostringstream __atf_ss; \
-        __atf_ss << "Line " << __LINE__ << ": " #x " threw an " \
-                    "unexpected error (not " #e "): " << __atf_e.what(); \
-        throw atf::tests::tcr::failed(__atf_ss.str()); \
+    } catch (const std::exception& atfu_e) { \
+        std::ostringstream atfu_ss; \
+        atfu_ss << "Line " << __LINE__ << ": " #x " threw an " \
+                    "unexpected error (not " #e "): " << atfu_e.what(); \
+        throw atf::tests::tcr(atf::tests::tcr::failed_state, \
+                              atfu_ss.str()); \
     } catch (...) { \
-        std::ostringstream __atf_ss; \
-        __atf_ss << "Line " << __LINE__ << ": " #x " threw an " \
+        std::ostringstream atfu_ss; \
+        atfu_ss << "Line " << __LINE__ << ": " #x " threw an " \
                     "unexpected error (not " #e ")"; \
-        throw atf::tests::tcr::failed(__atf_ss.str()); \
+        throw atf::tests::tcr(atf::tests::tcr::failed_state, \
+                              atfu_ss.str()); \
     }
 
 #define ATF_INIT_TEST_CASES(tcs) \
@@ -137,16 +141,16 @@
     int \
     main(int argc, char* const* argv) \
     { \
-        void __atf_init_tcs(std::vector< atf::tests::tc * >&); \
+        void atfu_init_tcs(std::vector< atf::tests::tc * >&); \
         std::vector< atf::tests::tc * > tcs; \
-        __atf_init_tcs(tcs); \
+        atfu_init_tcs(tcs); \
         return atf::tests::run_tp(argc, argv, tcs); \
     } \
     \
     void \
-    __atf_init_tcs(std::vector< atf::tests::tc * >& tcs)
+    atfu_init_tcs(std::vector< atf::tests::tc * >& tcs)
 
 #define ATF_ADD_TEST_CASE(tcs, tc) \
-    (tcs).push_back(&(atf_tc_ ## tc));
+    (tcs).push_back(&(atfu_tc_ ## tc));
 
 #endif // !defined(_ATF_CXX_MACROS_HPP_)

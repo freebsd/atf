@@ -45,6 +45,10 @@ extern "C" {
 #include <string>
 #include <vector>
 
+extern "C" {
+#include "atf-c/object.h"
+}
+
 #include "atf-c++/formats.hpp"
 #include "atf-c++/io.hpp"
 #include "atf-c++/parser.hpp"
@@ -132,22 +136,14 @@ class tcs_reader : protected atf::formats::atf_tcs_reader {
     got_tc_end(const atf::tests::tcr& tcr)
     {
         std::string r;
-        switch (tcr.get_status()) {
-        case atf::tests::tcr::status_passed:
+        if (tcr.get_state() == atf::tests::tcr::passed_state)
             r = "passed";
-            break;
-
-        case atf::tests::tcr::status_failed:
+        else if (tcr.get_state() == atf::tests::tcr::failed_state)
             r = "failed, " + tcr.get_reason();
-            break;
-
-        case atf::tests::tcr::status_skipped:
+        else if (tcr.get_state() == atf::tests::tcr::skipped_state)
             r = "skipped, " + tcr.get_reason();
-            break;
-
-        default:
+        else
             UNREACHABLE;
-        }
 
         std::cout << "got_tc_end(" << r << ")" << std::endl;
     }
@@ -231,22 +227,14 @@ class tps_reader : protected atf::formats::atf_tps_reader {
     got_tc_end(const atf::tests::tcr& tcr)
     {
         std::string r;
-        switch (tcr.get_status()) {
-        case atf::tests::tcr::status_passed:
+        if (tcr.get_state() == atf::tests::tcr::passed_state)
             r = "passed";
-            break;
-
-        case atf::tests::tcr::status_failed:
+        else if (tcr.get_state() == atf::tests::tcr::failed_state)
             r = "failed, " + tcr.get_reason();
-            break;
-
-        case atf::tests::tcr::status_skipped:
+        else if (tcr.get_state() == atf::tests::tcr::skipped_state)
             r = "skipped, " + tcr.get_reason();
-            break;
-
-        default:
+        else
             UNREACHABLE;
-        }
 
         std::cout << "got_tc_end(" << r << ")" << std::endl;
     }
@@ -304,6 +292,8 @@ process(const std::string& file, const std::string& outname = "",
 int
 main(int argc, char* argv[])
 {
+    atf_init_objects();
+
     try {
         if (argc < 3) {
             std::cerr << "Missing arguments" << std::endl;

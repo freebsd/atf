@@ -151,13 +151,13 @@ public:
     write_tc_end(const atf::tests::tcr& tcr)
     {
         std::string str = "tc, ";
-        if (tcr.get_status() == atf::tests::tcr::status_passed) {
+        if (tcr.get_state() == atf::tests::tcr::passed_state) {
             str += m_tpname + ", " + m_tcname + ", passed";
-        } else if (tcr.get_status() == atf::tests::tcr::status_failed) {
+        } else if (tcr.get_state() == atf::tests::tcr::failed_state) {
             str += m_tpname + ", " + m_tcname + ", failed, " +
                    tcr.get_reason();
             m_failed = true;
-        } else if (tcr.get_status() == atf::tests::tcr::status_skipped) {
+        } else if (tcr.get_state() == atf::tests::tcr::skipped_state) {
             str += m_tpname + ", " + m_tcname + ", skipped, " +
                    tcr.get_reason();
         } else
@@ -256,15 +256,15 @@ class ticker_writer : public writer {
     {
         std::string str;
 
-        atf::tests::tcr::status s = tcr.get_status();
-        if (s == atf::tests::tcr::status_passed) {
+        atf::tests::tcr::state s = tcr.get_state();
+        if (s == atf::tests::tcr::passed_state) {
             str = "Passed.";
             m_tcs_passed++;
-        } else if (s == atf::tests::tcr::status_failed) {
+        } else if (s == atf::tests::tcr::failed_state) {
             str = "Failed: " + tcr.get_reason();
             m_tcs_failed++;
             m_failed_tcs.push_back(m_tpname + ":" + m_tcname);
-        } else if (s == atf::tests::tcr::status_skipped) {
+        } else if (s == atf::tests::tcr::skipped_state) {
             str = "Skipped: " + tcr.get_reason();
             m_tcs_skipped++;
         } else
@@ -414,13 +414,13 @@ class xml_writer : public writer {
     {
         std::string str;
 
-        atf::tests::tcr::status s = tcr.get_status();
-        if (s == atf::tests::tcr::status_passed) {
+        atf::tests::tcr::state s = tcr.get_state();
+        if (s == atf::tests::tcr::passed_state) {
             (*m_os) << "<passed />" << std::endl;
-        } else if (s == atf::tests::tcr::status_failed) {
+        } else if (s == atf::tests::tcr::failed_state) {
             (*m_os) << "<failed>" << elemval(tcr.get_reason())
                     << "</failed>" << std::endl;
-        } else if (s == atf::tests::tcr::status_skipped) {
+        } else if (s == atf::tests::tcr::skipped_state) {
             (*m_os) << "<skipped>" << elemval(tcr.get_reason())
                     << "</skipped>" << std::endl;
         } else

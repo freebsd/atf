@@ -118,12 +118,12 @@ class muxer : public atf::formats::atf_tcs_reader {
     void
     got_tc_end(const atf::tests::tcr& tcr)
     {
-        const atf::tests::tcr::status& s = tcr.get_status();
-        if (s == atf::tests::tcr::status_passed) {
+        const atf::tests::tcr::state& s = tcr.get_state();
+        if (s == atf::tests::tcr::passed_state) {
             m_passed++;
-        } else if (s == atf::tests::tcr::status_skipped) {
+        } else if (s == atf::tests::tcr::skipped_state) {
             m_skipped++;
-        } else if (s == atf::tests::tcr::status_failed) {
+        } else if (s == atf::tests::tcr::failed_state) {
             m_failed++;
         } else
             UNREACHABLE;
@@ -174,7 +174,8 @@ public:
             m_writer.start_tp(m_tp.str(), 0);
         if (!m_tcname.empty()) {
             INV(!reason.empty());
-            got_tc_end(atf::tests::tcr::failed("Bogus test program"));
+            got_tc_end(atf::tests::tcr(atf::tests::tcr::failed_state,
+                                       "Bogus test program"));
         }
 
         m_writer.end_tp(reason);
