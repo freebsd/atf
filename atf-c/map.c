@@ -39,7 +39,6 @@
 
 #include "atf-c/map.h"
 #include "atf-c/sanity.h"
-#include "atf-c/text.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
