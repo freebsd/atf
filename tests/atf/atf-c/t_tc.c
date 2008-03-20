@@ -34,6 +34,7 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdbool.h>
 #include <string.h>
 
 #include <atf-c.h>
@@ -143,22 +144,36 @@ ATF_TC_BODY(vars, tcin)
 ATF_TC(config);
 ATF_TC_HEAD(config, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_tc_get_config function");
+    atf_tc_set_var(tc, "descr", "Tests the atf_tc_get_config_var, "
+                   "atf_tc_get_config_var_wd and atf_tc_has_config_var "
+                   "functions");
 }
 ATF_TC_BODY(config, tcin)
 {
     atf_tc_t tc;
     atf_map_t config;
 
+    CE(atf_map_init(&config));
+    CE(atf_map_insert(&config, "test-var", strdup("test-value"), true));
+
     CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
                    ATF_TC_BODY_NAME(empty), NULL, NULL));
-    ATF_CHECK(atf_tc_get_config(&tc) == NULL);
+    ATF_CHECK(!atf_tc_has_config_var(&tc, "test-var"));
+    ATF_CHECK(!atf_tc_has_var(&tc, "test-var"));
+    atf_tc_fini(&tc);
 
     CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
                    ATF_TC_BODY_NAME(empty), NULL, &config));
-    ATF_CHECK(atf_tc_get_config(&tc) == &config);
-
+    ATF_CHECK(atf_tc_has_config_var(&tc, "test-var"));
+    ATF_CHECK(strcmp(atf_tc_get_config_var(&tc, "test-var"),
+                     "test-value") == 0);
+    ATF_CHECK(!atf_tc_has_var(&tc, "test-var"));
+    ATF_CHECK(!atf_tc_has_config_var(&tc, "test-var2"));
+    ATF_CHECK(strcmp(atf_tc_get_config_var_wd(&tc, "test-var2", "def-value"),
+                     "def-value") == 0);
     atf_tc_fini(&tc);
+
+    atf_map_fini(&config);
 }
 
 /* ---------------------------------------------------------------------

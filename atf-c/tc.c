@@ -171,16 +171,38 @@ atf_tc_fini(atf_tc_t *tc)
  * Getters.
  */
 
-const atf_map_t *
-atf_tc_get_config(const atf_tc_t *tc)
-{
-    return tc->m_config;
-}
-
 const char *
 atf_tc_get_ident(const atf_tc_t *tc)
 {
     return tc->m_ident;
+}
+
+const char *
+atf_tc_get_config_var(const atf_tc_t *tc, const char *name)
+{
+    const char *val;
+    atf_map_citer_t iter;
+
+    PRE(atf_tc_has_config_var(tc, name));
+    iter = atf_map_find_c(tc->m_config, name);
+    val = atf_map_citer_data(iter);
+    INV(val != NULL);
+
+    return val;
+}
+
+const char *
+atf_tc_get_config_var_wd(const atf_tc_t *tc, const char *name,
+                         const char *defval)
+{
+    const char *val;
+
+    if (!atf_tc_has_config_var(tc, name))
+        val = defval;
+    else
+        val = atf_tc_get_config_var(tc, name);
+
+    return val;
 }
 
 const char *
@@ -195,6 +217,23 @@ atf_tc_get_var(const atf_tc_t *tc, const char *name)
     INV(val != NULL);
 
     return val;
+}
+
+bool
+atf_tc_has_config_var(const atf_tc_t *tc, const char *name)
+{
+    bool found;
+    atf_map_citer_t end, iter;
+
+    if (tc->m_config == NULL)
+        found = false;
+    else {
+        iter = atf_map_find_c(tc->m_config, name);
+        end = atf_map_end_c(tc->m_config);
+        found = !atf_equal_map_citer_map_citer(iter, end);
+    }
+
+    return found;
 }
 
 bool
@@ -654,11 +693,7 @@ static
 atf_error_t
 check_config(const char *var, void *data)
 {
-    atf_map_citer_t iter;
-    const atf_map_t *config = atf_tc_get_config(current_tc);
-
-    iter = atf_map_find_c(config, var);
-    if (atf_equal_map_citer_map_citer(iter, atf_map_end_c(config)))
+    if (!atf_tc_has_config_var(current_tc, var))
         atf_tc_skip("Required configuration variable %s not defined", var);
 
     return atf_no_error();
