@@ -97,7 +97,7 @@ not_exists(const atf_fs_path_t *p)
 ATF_TC(path_normalize);
 ATF_TC_HEAD(path_normalize, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the path's normalization");
+    atf_tc_set_md_var(tc, "descr", "Tests the path's normalization");
 }
 ATF_TC_BODY(path_normalize, tc)
 {
@@ -147,7 +147,7 @@ ATF_TC_BODY(path_normalize, tc)
 ATF_TC(path_copy);
 ATF_TC_HEAD(path_copy, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_fs_path_copy constructor");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_path_copy constructor");
 }
 ATF_TC_BODY(path_copy, tc)
 {
@@ -169,7 +169,7 @@ ATF_TC_BODY(path_copy, tc)
 ATF_TC(path_is_absolute);
 ATF_TC_HEAD(path_is_absolute, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the path::is_absolute function");
+    atf_tc_set_md_var(tc, "descr", "Tests the path::is_absolute function");
 }
 ATF_TC_BODY(path_is_absolute, tc)
 {
@@ -209,7 +209,7 @@ ATF_TC_BODY(path_is_absolute, tc)
 ATF_TC(path_is_root);
 ATF_TC_HEAD(path_is_root, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the path::is_root function");
+    atf_tc_set_md_var(tc, "descr", "Tests the path::is_root function");
 }
 ATF_TC_BODY(path_is_root, tc)
 {
@@ -249,7 +249,8 @@ ATF_TC_BODY(path_is_root, tc)
 ATF_TC(path_branch_path);
 ATF_TC_HEAD(path_branch_path, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_fs_path_branch_path function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_path_branch_path "
+                      "function");
 }
 ATF_TC_BODY(path_branch_path, tc)
 {
@@ -285,7 +286,8 @@ ATF_TC_BODY(path_branch_path, tc)
 ATF_TC(path_leaf_name);
 ATF_TC_HEAD(path_leaf_name, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_fs_path_leaf_name function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_path_leaf_name "
+                      "function");
 }
 ATF_TC_BODY(path_leaf_name, tc)
 {
@@ -322,7 +324,8 @@ ATF_TC_BODY(path_leaf_name, tc)
 ATF_TC(path_append);
 ATF_TC_HEAD(path_append, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the concatenation of multiple paths");
+    atf_tc_set_md_var(tc, "descr", "Tests the concatenation of multiple "
+                      "paths");
 }
 ATF_TC_BODY(path_append, tc)
 {
@@ -363,7 +366,8 @@ ATF_TC_BODY(path_append, tc)
 ATF_TC(path_to_absolute);
 ATF_TC_HEAD(path_to_absolute, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_fs_path_to_absolute function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_path_to_absolute "
+                      "function");
 }
 ATF_TC_BODY(path_to_absolute, tc)
 {
@@ -403,7 +407,7 @@ ATF_TC_BODY(path_to_absolute, tc)
 ATF_TC(path_equal);
 ATF_TC_HEAD(path_equal, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the equality operators for paths");
+    atf_tc_set_md_var(tc, "descr", "Tests the equality operators for paths");
 }
 ATF_TC_BODY(path_equal, tc)
 {
@@ -429,8 +433,8 @@ ATF_TC_BODY(path_equal, tc)
 ATF_TC(stat_type);
 ATF_TC_HEAD(stat_type, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_fs_stat_get_type function "
-                   "and, indirectly, the constructor");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_stat_get_type function "
+                      "and, indirectly, the constructor");
 }
 ATF_TC_BODY(stat_type, tc)
 {
@@ -456,7 +460,7 @@ ATF_TC_BODY(stat_type, tc)
 ATF_TC(stat_perms);
 ATF_TC_HEAD(stat_perms, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_fs_stat_is_* functions");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_stat_is_* functions");
 }
 ATF_TC_BODY(stat_perms, tc)
 {
@@ -533,7 +537,7 @@ ATF_TC_BODY(stat_perms, tc)
 ATF_TC(cleanup);
 ATF_TC_HEAD(cleanup, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_fs_cleanup function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_cleanup function");
 }
 ATF_TC_BODY(cleanup, tc)
 {
@@ -556,7 +560,7 @@ ATF_TC_BODY(cleanup, tc)
 ATF_TC(exists);
 ATF_TC_HEAD(exists, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_fs_exists function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_exists function");
 }
 ATF_TC_BODY(exists, tc)
 {
@@ -595,7 +599,7 @@ ATF_TC_BODY(exists, tc)
 ATF_TC(eaccess);
 ATF_TC_HEAD(eaccess, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_fs_eaccess function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_eaccess function");
 }
 ATF_TC_BODY(eaccess, tc)
 {
@@ -698,7 +702,7 @@ ATF_TC_BODY(eaccess, tc)
 ATF_TC(getcwd);
 ATF_TC_HEAD(getcwd, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_fs_getcwd function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_getcwd function");
 }
 ATF_TC_BODY(getcwd, tc)
 {
@@ -721,7 +725,7 @@ ATF_TC_BODY(getcwd, tc)
 ATF_TC(mkdtemp);
 ATF_TC_HEAD(mkdtemp, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_fs_mkdtemp function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_mkdtemp function");
 }
 ATF_TC_BODY(mkdtemp, tc)
 {

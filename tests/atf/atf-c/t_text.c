@@ -76,8 +76,8 @@ word_count(const char *word, void *data)
 ATF_TC(for_each_word);
 ATF_TC_HEAD(for_each_word, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the atf_text_for_each_word"
-                   "function");
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_text_for_each_word"
+                      "function");
 }
 ATF_TC_BODY(for_each_word, tc)
 {
@@ -116,8 +116,8 @@ ATF_TC_BODY(for_each_word, tc)
 ATF_TC(format);
 ATF_TC_HEAD(format, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the construction of free-form "
-                   "strings using a variable parameters list");
+    atf_tc_set_md_var(tc, "descr", "Checks the construction of free-form "
+                      "strings using a variable parameters list");
 }
 ATF_TC_BODY(format, tc)
 {
@@ -147,8 +147,8 @@ format_ap(char **dest, const char *fmt, ...)
 ATF_TC(format_ap);
 ATF_TC_HEAD(format_ap, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the construction of free-form "
-                   "strings using a va_list argument");
+    atf_tc_set_md_var(tc, "descr", "Checks the construction of free-form "
+                      "strings using a va_list argument");
 }
 ATF_TC_BODY(format_ap, tc)
 {
@@ -162,7 +162,7 @@ ATF_TC_BODY(format_ap, tc)
 ATF_TC(to_bool);
 ATF_TC_HEAD(to_bool, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the atf_text_to_bool function");
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_text_to_bool function");
 }
 ATF_TC_BODY(to_bool, tc)
 {
@@ -217,7 +217,7 @@ ATF_TC_BODY(to_bool, tc)
 ATF_TC(to_long);
 ATF_TC_HEAD(to_long, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the atf_text_to_long function");
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_text_to_long function");
 }
 ATF_TC_BODY(to_long, tc)
 {

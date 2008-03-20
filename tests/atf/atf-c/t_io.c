@@ -55,7 +55,7 @@
 ATF_TC(readline);
 ATF_TC_HEAD(readline, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_io_readline function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_io_readline function");
 }
 ATF_TC_BODY(readline, tc)
 {
@@ -110,7 +110,7 @@ ATF_TC_BODY(readline, tc)
 ATF_TC(write_fmt);
 ATF_TC_HEAD(write_fmt, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_io_write_fmt function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_io_write_fmt function");
 }
 ATF_TC_BODY(write_fmt, tc)
 {
@@ -146,8 +146,8 @@ ATF_TC_BODY(write_fmt, tc)
 ATF_TC(write_fmt_fail);
 ATF_TC_HEAD(write_fmt_fail, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_io_write_fmt function "
-                   "writing to an invalid file descriptor");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_io_write_fmt function "
+                      "writing to an invalid file descriptor");
 }
 ATF_TC_BODY(write_fmt_fail, tc)
 {

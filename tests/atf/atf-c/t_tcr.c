@@ -51,7 +51,7 @@
 ATF_TC(init);
 ATF_TC_HEAD(init, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_tcr_init function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_tcr_init function");
 }
 ATF_TC_BODY(init, tc)
 {
@@ -64,7 +64,7 @@ ATF_TC_BODY(init, tc)
 ATF_TC(init_reason);
 ATF_TC_HEAD(init_reason, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_tcr_init_reason function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_tcr_init_reason function");
 }
 ATF_TC_BODY(init_reason, tc)
 {
@@ -88,7 +88,7 @@ ATF_TC_BODY(init_reason, tc)
 ATF_TC(get_state);
 ATF_TC_HEAD(get_state, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_tcr_get_state function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_tcr_get_state function");
 }
 ATF_TC_BODY(get_state, tc)
 {
@@ -110,7 +110,7 @@ ATF_TC_BODY(get_state, tc)
 ATF_TC(get_reason);
 ATF_TC_HEAD(get_reason, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_tcr_get_reason function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_tcr_get_reason function");
 }
 ATF_TC_BODY(get_reason, tc)
 {

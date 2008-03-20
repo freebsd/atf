@@ -125,18 +125,18 @@ atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
     if (atf_is_error(err))
         goto err_object;
 
-    err = atf_tc_set_var(tc, "ident", ident);
+    err = atf_tc_set_md_var(tc, "ident", ident);
     if (atf_is_error(err))
         goto err_map;
 
-    err = atf_tc_set_var(tc, "timeout", "300");
+    err = atf_tc_set_md_var(tc, "timeout", "300");
     if (atf_is_error(err))
         goto err_map;
 
     /* XXX Should the head be able to return error codes? */
     tc->m_head(tc);
 
-    if (strcmp(atf_tc_get_var(tc, "ident"), ident) != 0)
+    if (strcmp(atf_tc_get_md_var(tc, "ident"), ident) != 0)
         atf_tc_fail("Test case head modified the read-only 'ident' "
                     "property");
 
@@ -206,12 +206,12 @@ atf_tc_get_config_var_wd(const atf_tc_t *tc, const char *name,
 }
 
 const char *
-atf_tc_get_var(const atf_tc_t *tc, const char *name)
+atf_tc_get_md_var(const atf_tc_t *tc, const char *name)
 {
     const char *val;
     atf_map_citer_t iter;
 
-    PRE(atf_tc_has_var(tc, name));
+    PRE(atf_tc_has_md_var(tc, name));
     iter = atf_map_find_c(&tc->m_vars, name);
     val = atf_map_citer_data(iter);
     INV(val != NULL);
@@ -237,7 +237,7 @@ atf_tc_has_config_var(const atf_tc_t *tc, const char *name)
 }
 
 bool
-atf_tc_has_var(const atf_tc_t *tc, const char *name)
+atf_tc_has_md_var(const atf_tc_t *tc, const char *name)
 {
     atf_map_citer_t end, iter;
 
@@ -251,7 +251,7 @@ atf_tc_has_var(const atf_tc_t *tc, const char *name)
  */
 
 atf_error_t
-atf_tc_set_var(atf_tc_t *tc, const char *name, const char *fmt, ...)
+atf_tc_set_md_var(atf_tc_t *tc, const char *name, const char *fmt, ...)
 {
     atf_error_t err;
     char *value;
@@ -338,7 +338,7 @@ program_timeout(pid_t pid, const atf_tc_t *tc, struct timeout_data *td)
     atf_error_t err;
     long timeout;
 
-    err = atf_text_to_long(atf_tc_get_var(tc, "timeout"), &timeout);
+    err = atf_text_to_long(atf_tc_get_md_var(tc, "timeout"), &timeout);
     if (atf_is_error(err))
         goto out;
 
@@ -404,7 +404,7 @@ body_parent(const atf_tc_t *tc, const atf_fs_path_t *workdir, pid_t pid,
             err = atf_tcr_init_reason(tcr, atf_tcr_failed_state,
                                       "Test case timed out after %s "
                                       "seconds",
-                                      atf_tc_get_var(tc, "timeout"));
+                                      atf_tc_get_md_var(tc, "timeout"));
         else
             err = atf_libc_error(errno, "Error waiting for child process "
                                  "%d", pid);
@@ -797,8 +797,8 @@ check_requirements(const atf_tc_t *tc)
 
     err = atf_no_error();
 
-    if (atf_tc_has_var(tc, "require.arch")) {
-        const char *arches = atf_tc_get_var(tc, "require.arch");
+    if (atf_tc_has_md_var(tc, "require.arch")) {
+        const char *arches = atf_tc_get_md_var(tc, "require.arch");
         bool found = false;
 
         if (strlen(arches) == 0)
@@ -814,8 +814,8 @@ check_requirements(const atf_tc_t *tc)
         }
     }
 
-    if (atf_tc_has_var(tc, "require.config")) {
-        const char *vars = atf_tc_get_var(tc, "require.config");
+    if (atf_tc_has_md_var(tc, "require.config")) {
+        const char *vars = atf_tc_get_md_var(tc, "require.config");
 
         if (strlen(vars) == 0)
             atf_tc_fail("Invalid value in the require.config property");
@@ -826,8 +826,8 @@ check_requirements(const atf_tc_t *tc)
         }
     }
 
-    if (atf_tc_has_var(tc, "require.machine")) {
-        const char *machines = atf_tc_get_var(tc, "require.machine");
+    if (atf_tc_has_md_var(tc, "require.machine")) {
+        const char *machines = atf_tc_get_md_var(tc, "require.machine");
         bool found = false;
 
         if (strlen(machines) == 0)
@@ -844,8 +844,8 @@ check_requirements(const atf_tc_t *tc)
         }
     }
 
-    if (atf_tc_has_var(tc, "require.progs")) {
-        const char *progs = atf_tc_get_var(tc, "require.progs");
+    if (atf_tc_has_md_var(tc, "require.progs")) {
+        const char *progs = atf_tc_get_md_var(tc, "require.progs");
 
         if (strlen(progs) == 0)
             atf_tc_fail("Invalid value in the require.progs property");
@@ -856,8 +856,8 @@ check_requirements(const atf_tc_t *tc)
         }
     }
 
-    if (atf_tc_has_var(tc, "require.user")) {
-        const char *u = atf_tc_get_var(tc, "require.user");
+    if (atf_tc_has_md_var(tc, "require.user")) {
+        const char *u = atf_tc_get_md_var(tc, "require.user");
 
         if (strcmp(u, "root") == 0) {
             if (!atf_user_is_root())

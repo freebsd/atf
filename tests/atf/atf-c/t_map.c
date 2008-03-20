@@ -54,7 +54,7 @@
 ATF_TC(map_init);
 ATF_TC_HEAD(map_init, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the atf_map_init function");
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_map_init function");
 }
 ATF_TC_BODY(map_init, tc)
 {
@@ -72,7 +72,7 @@ ATF_TC_BODY(map_init, tc)
 ATF_TC(find_c);
 ATF_TC_HEAD(find_c, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the atf_map_find_c function");
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_map_find_c function");
 }
 ATF_TC_BODY(find_c, tc)
 {
@@ -106,7 +106,7 @@ ATF_TC_BODY(find_c, tc)
 ATF_TC(map_insert);
 ATF_TC_HEAD(map_insert, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the atf_map_insert function");
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_map_insert function");
 }
 ATF_TC_BODY(map_insert, tc)
 {

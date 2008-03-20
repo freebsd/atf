@@ -57,7 +57,7 @@ ATF_TC_HEAD(empty, tc)
 
 ATF_TC_HEAD(test_var, tc)
 {
-    atf_tc_set_var(tc, "test-var", "Test text");
+    atf_tc_set_md_var(tc, "test-var", "Test text");
 }
 
 ATF_TC_BODY(empty, tc)
@@ -71,7 +71,7 @@ ATF_TC_BODY(empty, tc)
 ATF_TC(init);
 ATF_TC_HEAD(init, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_tc_init function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_tc_init function");
 }
 ATF_TC_BODY(init, tcin)
 {
@@ -80,20 +80,20 @@ ATF_TC_BODY(init, tcin)
     CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
                    ATF_TC_BODY_NAME(empty), NULL, NULL));
     ATF_CHECK(strcmp(atf_tc_get_ident(&tc), "test1") == 0);
-    ATF_CHECK(!atf_tc_has_var(&tc, "test-var"));
+    ATF_CHECK(!atf_tc_has_md_var(&tc, "test-var"));
     atf_tc_fini(&tc);
 
     CE(atf_tc_init(&tc, "test2", ATF_TC_HEAD_NAME(test_var),
                    ATF_TC_BODY_NAME(empty), NULL, NULL));
     ATF_CHECK(strcmp(atf_tc_get_ident(&tc), "test2") == 0);
-    ATF_CHECK(atf_tc_has_var(&tc, "test-var"));
+    ATF_CHECK(atf_tc_has_md_var(&tc, "test-var"));
     atf_tc_fini(&tc);
 }
 
 ATF_TC(init_pack);
 ATF_TC_HEAD(init_pack, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_tc_init_pack function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_tc_init_pack function");
 }
 ATF_TC_BODY(init_pack, tcin)
 {
@@ -113,20 +113,20 @@ ATF_TC_BODY(init_pack, tcin)
 
     CE(atf_tc_init_pack(&tc, &tcp1, NULL));
     ATF_CHECK(strcmp(atf_tc_get_ident(&tc), "test1") == 0);
-    ATF_CHECK(!atf_tc_has_var(&tc, "test-var"));
+    ATF_CHECK(!atf_tc_has_md_var(&tc, "test-var"));
     atf_tc_fini(&tc);
 
     CE(atf_tc_init_pack(&tc, &tcp2, NULL));
     ATF_CHECK(strcmp(atf_tc_get_ident(&tc), "test2") == 0);
-    ATF_CHECK(atf_tc_has_var(&tc, "test-var"));
+    ATF_CHECK(atf_tc_has_md_var(&tc, "test-var"));
     atf_tc_fini(&tc);
 }
 
 ATF_TC(vars);
 ATF_TC_HEAD(vars, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_tc_get_var, atf_tc_has_var "
-                   "and atf_tc_set_var functions");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_tc_get_md_var, "
+                      "atf_tc_has_md_var and atf_tc_set_md_var functions");
 }
 ATF_TC_BODY(vars, tcin)
 {
@@ -134,19 +134,19 @@ ATF_TC_BODY(vars, tcin)
 
     CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
                    ATF_TC_BODY_NAME(empty), NULL, NULL));
-    ATF_CHECK(!atf_tc_has_var(&tc, "test-var"));
-    CE(atf_tc_set_var(&tc, "test-var", "Test value"));
-    ATF_CHECK(atf_tc_has_var(&tc, "test-var"));
-    ATF_CHECK(strcmp(atf_tc_get_var(&tc, "test-var"), "Test value") == 0);
+    ATF_CHECK(!atf_tc_has_md_var(&tc, "test-var"));
+    CE(atf_tc_set_md_var(&tc, "test-var", "Test value"));
+    ATF_CHECK(atf_tc_has_md_var(&tc, "test-var"));
+    ATF_CHECK(strcmp(atf_tc_get_md_var(&tc, "test-var"), "Test value") == 0);
     atf_tc_fini(&tc);
 }
 
 ATF_TC(config);
 ATF_TC_HEAD(config, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_tc_get_config_var, "
-                   "atf_tc_get_config_var_wd and atf_tc_has_config_var "
-                   "functions");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_tc_get_config_var, "
+                      "atf_tc_get_config_var_wd and atf_tc_has_config_var "
+                      "functions");
 }
 ATF_TC_BODY(config, tcin)
 {
@@ -159,7 +159,7 @@ ATF_TC_BODY(config, tcin)
     CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
                    ATF_TC_BODY_NAME(empty), NULL, NULL));
     ATF_CHECK(!atf_tc_has_config_var(&tc, "test-var"));
-    ATF_CHECK(!atf_tc_has_var(&tc, "test-var"));
+    ATF_CHECK(!atf_tc_has_md_var(&tc, "test-var"));
     atf_tc_fini(&tc);
 
     CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
@@ -167,7 +167,7 @@ ATF_TC_BODY(config, tcin)
     ATF_CHECK(atf_tc_has_config_var(&tc, "test-var"));
     ATF_CHECK(strcmp(atf_tc_get_config_var(&tc, "test-var"),
                      "test-value") == 0);
-    ATF_CHECK(!atf_tc_has_var(&tc, "test-var"));
+    ATF_CHECK(!atf_tc_has_md_var(&tc, "test-var"));
     ATF_CHECK(!atf_tc_has_config_var(&tc, "test-var2"));
     ATF_CHECK(strcmp(atf_tc_get_config_var_wd(&tc, "test-var2", "def-value"),
                      "def-value") == 0);

@@ -51,7 +51,7 @@
 ATF_TC(euid);
 ATF_TC_HEAD(euid, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_user_euid function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_user_euid function");
 }
 ATF_TC_BODY(euid, tc)
 {
@@ -61,8 +61,8 @@ ATF_TC_BODY(euid, tc)
 ATF_TC(is_member_of_group);
 ATF_TC_HEAD(is_member_of_group, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_user_is_member_of_group "
-                   "function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_user_is_member_of_group "
+                      "function");
 }
 ATF_TC_BODY(is_member_of_group, tc)
 {
@@ -107,7 +107,7 @@ ATF_TC_BODY(is_member_of_group, tc)
 ATF_TC(is_root);
 ATF_TC_HEAD(is_root, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_user_is_root function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_user_is_root function");
 }
 ATF_TC_BODY(is_root, tc)
 {
@@ -120,8 +120,8 @@ ATF_TC_BODY(is_root, tc)
 ATF_TC(is_unprivileged);
 ATF_TC_HEAD(is_unprivileged, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_user_is_unprivileged "
-                   "function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_user_is_unprivileged "
+                      "function");
 }
 ATF_TC_BODY(is_unprivileged, tc)
 {

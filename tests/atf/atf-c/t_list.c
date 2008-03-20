@@ -53,7 +53,7 @@
 ATF_TC(list_init);
 ATF_TC_HEAD(list_init, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the atf_list_init function");
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_list_init function");
 }
 ATF_TC_BODY(list_init, tc)
 {
@@ -71,7 +71,7 @@ ATF_TC_BODY(list_init, tc)
 ATF_TC(list_append);
 ATF_TC_HEAD(list_append, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the atf_list_append function");
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_list_append function");
 }
 ATF_TC_BODY(list_append, tc)
 {
@@ -94,7 +94,7 @@ ATF_TC_BODY(list_append, tc)
 ATF_TC(list_for_each);
 ATF_TC_HEAD(list_for_each, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the atf_list_for_each macro");
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_list_for_each macro");
 }
 ATF_TC_BODY(list_for_each, tc)
 {
@@ -133,7 +133,7 @@ ATF_TC_BODY(list_for_each, tc)
 ATF_TC(list_for_each_c);
 ATF_TC_HEAD(list_for_each_c, tc)
 {
-    atf_tc_set_var(tc, "descr", "Checks the atf_list_for_each_c macro");
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_list_for_each_c macro");
 }
 ATF_TC_BODY(list_for_each_c, tc)
 {
