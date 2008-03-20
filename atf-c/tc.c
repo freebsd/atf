@@ -338,7 +338,7 @@ program_timeout(pid_t pid, const atf_tc_t *tc, struct timeout_data *td)
     atf_error_t err;
     long timeout;
 
-    err = atf_map_get_long(&tc->m_vars, "timeout", &timeout);
+    err = atf_text_to_long(atf_tc_get_var(tc, "timeout"), &timeout);
     if (atf_is_error(err))
         goto out;
 
