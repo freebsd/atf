@@ -41,8 +41,12 @@
 #include <string>
 
 extern "C" {
-#include "atf-c/tcr.h"
+#include <atf-c/tc.h>
+#include <atf-c/tcr.h>
 }
+
+#include <atf-c++/fs.hpp>
+#include <atf-c++/utils.hpp>
 
 namespace atf {
 namespace tests {
@@ -50,6 +54,8 @@ namespace tests {
 // ------------------------------------------------------------------------
 // The "vars_map" class.
 // ------------------------------------------------------------------------
+
+/* XXX Kill this. */
 
 class vars_map : public std::map< std::string, std::string >
 {
@@ -106,23 +112,10 @@ public:
 // The "tc" class.
 // ------------------------------------------------------------------------
 
-class tc {
+class tc : public atf::utils::noncopyable {
     std::string m_ident;
-    vars_map m_meta_data;
-    vars_map m_config;
-
-    std::string m_srcdir;
-    std::string m_workdir;
-
-    void ensure_boolean(const std::string&);
-    void ensure_integral(const std::string&);
-    void ensure_not_empty(const std::string&);
-
-    tcr safe_run(void) const;
-    tcr fork_body(const std::string&) const;
-    void fork_cleanup(const std::string&) const;
-
-    void check_requirements(void) const;
+    atf_map_t m_config;
+    atf_tc_t m_tc;
 
 protected:
     virtual void head(void) = 0;
@@ -131,21 +124,34 @@ protected:
 
     void require_prog(const std::string&) const;
 
+    static void wrap_head(atf_tc_t *);
+    static void wrap_body(const atf_tc_t *);
+    static void wrap_cleanup(const atf_tc_t *);
+
 public:
     tc(const std::string&);
     virtual ~tc(void);
 
-    const std::string& get(const std::string&) const;
-    bool get_bool(const std::string&) const;
+    void init(const vars_map&);
+
+    /* XXX Add _md_var to non-config functions. */
+    const std::string get_config_var(const std::string&) const;
+    const std::string get_config_var(const std::string&, const std::string&)
+        const;
+    const std::string get(const std::string&) const;
+    bool has_config_var(const std::string&) const;
     bool has(const std::string&) const;
     void set(const std::string&, const std::string&);
 
-    const vars_map& config(void) const;
+    /* XXX Huh? */
+    const std::string get_srcdir(void) const;
 
-    const std::string& get_srcdir(void) const;
+    tcr run(const fs::path&) const;
 
-    void init(const vars_map&, const std::string&, const std::string&);
-    tcr run(void) const;
+    /* To be called from the child process only. */
+    static void pass(void);
+    static void fail(const std::string&);
+    static void skip(const std::string&);
 };
 
 } // namespace tests

@@ -49,8 +49,7 @@
         void body(void) const; \
     public: \
         atfu_tc_ ## name(void) : atf::tests::tc(#name) {} \
-    }; \
-    static atfu_tc_ ## name atfu_tc_ ## name;
+    };
 
 #define ATF_TEST_CASE_WITH_CLEANUP(name) \
     class atfu_tc_ ## name : public atf::tests::tc { \
@@ -59,8 +58,7 @@
         void cleanup(void) const; \
     public: \
         atfu_tc_ ## name(void) : atf::tests::tc(#name) {} \
-    }; \
-    static atfu_tc_ ## name atfu_tc_ ## name;
+    };
 
 #define ATF_TEST_CASE_HEAD(name) \
     void \
@@ -76,14 +74,11 @@
     atfu_tc_ ## name::cleanup(void) \
         const
 
-#define ATF_FAIL(reason) \
-    throw atf::tests::tcr(atf::tests::tcr::failed_state, reason)
+#define ATF_FAIL(reason) atf::tests::tc::fail(reason)
 
-#define ATF_SKIP(reason) \
-    throw atf::tests::tcr(atf::tests::tcr::skipped_state, reason)
+#define ATF_SKIP(reason) atf::tests::tc::skip(reason)
 
-#define ATF_PASS() \
-    throw atf::tests::tcr(atf::tests::tcr::passed_state)
+#define ATF_PASS() atf::tests::tc::pass()
 
 #define ATF_CHECK(x) \
     do { \
@@ -134,23 +129,26 @@
     namespace atf { \
         namespace tests { \
             int run_tp(int, char* const*, \
-                       const std::vector< atf::tests::tc * >&); \
+                       void (*)(std::vector< atf::tests::tc * >&)); \
         } \
     } \
+    \
+    static void atfu_init_tcs(std::vector< atf::tests::tc * >&); \
     \
     int \
     main(int argc, char* const* argv) \
     { \
-        void atfu_init_tcs(std::vector< atf::tests::tc * >&); \
-        std::vector< atf::tests::tc * > tcs; \
-        atfu_init_tcs(tcs); \
-        return atf::tests::run_tp(argc, argv, tcs); \
+        return atf::tests::run_tp(argc, argv, atfu_init_tcs); \
     } \
     \
+    static \
     void \
     atfu_init_tcs(std::vector< atf::tests::tc * >& tcs)
 
-#define ATF_ADD_TEST_CASE(tcs, tc) \
-    (tcs).push_back(&(atfu_tc_ ## tc));
+#define ATF_ADD_TEST_CASE(tcs, tcname) \
+    do { \
+        atf::tests::tc* tcptr = new atfu_tc_ ## tcname(); \
+        (tcs).push_back(tcptr); \
+    } while (0);
 
 #endif // !defined(_ATF_CXX_MACROS_HPP_)

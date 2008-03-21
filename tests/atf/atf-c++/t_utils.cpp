@@ -52,6 +52,7 @@ public:
     void* operator new(size_t size)
     {
         ATF_FAIL("New called but should have been new[]");
+        return new int(5);
     }
 
     void* operator new[](size_t size)
