@@ -6,6 +6,7 @@ tp: t_env
 tp: t_config
 tp: t_text
 tp: t_fs
+tp: t_macros
 tp: t_io
 tp: t_expand
 tp: t_user
