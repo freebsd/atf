@@ -451,6 +451,11 @@ tests_atf_atf_c_t_list_SOURCES = tests/atf/atf-c/t_list.c
 tests_atf_atf_c_t_list_LDADD = -latf-c
 tests_atf_atf_c_t_list_LDFLAGS = -L.
 
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_macros
+tests_atf_atf_c_t_macros_SOURCES = tests/atf/atf-c/t_macros.c
+tests_atf_atf_c_t_macros_LDADD = -latf-c
+tests_atf_atf_c_t_macros_LDFLAGS = -L.
+
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_map
 tests_atf_atf_c_t_map_SOURCES = tests/atf/atf-c/t_map.c
 tests_atf_atf_c_t_map_LDADD = -latf-c
