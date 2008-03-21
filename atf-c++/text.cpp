@@ -36,6 +36,11 @@
 
 #include <cctype>
 
+extern "C" {
+#include "atf-c/text.h"
+}
+
+#include "atf-c++/exceptions.hpp"
 #include "atf-c++/text.hpp"
 
 namespace impl = atf::text;
@@ -81,4 +86,16 @@ impl::trim(const std::string& str)
         return str.substr(pos1);
     else
         return str.substr(pos1, pos2 - pos1 + 1);
+}
+
+bool
+impl::to_bool(const std::string& str)
+{
+    bool b;
+
+    atf_error_t err = atf_text_to_bool(str.c_str(), &b);
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return b;
 }

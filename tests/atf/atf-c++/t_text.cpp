@@ -239,6 +239,32 @@ ATF_TEST_CASE_BODY(trim)
     ATF_CHECK_EQUAL(trim("foo bar \t"), "foo bar");
 }
 
+ATF_TEST_CASE(to_bool);
+ATF_TEST_CASE_HEAD(to_bool)
+{
+    set("descr", "Tests the to_string function");
+}
+ATF_TEST_CASE_BODY(to_bool)
+{
+    using atf::text::to_bool;
+
+    ATF_CHECK(to_bool("true"));
+    ATF_CHECK(to_bool("TRUE"));
+    ATF_CHECK(to_bool("yes"));
+    ATF_CHECK(to_bool("YES"));
+
+    ATF_CHECK(!to_bool("false"));
+    ATF_CHECK(!to_bool("FALSE"));
+    ATF_CHECK(!to_bool("no"));
+    ATF_CHECK(!to_bool("NO"));
+
+    ATF_CHECK_THROW(to_bool(""), std::runtime_error);
+    ATF_CHECK_THROW(to_bool("tru"), std::runtime_error);
+    ATF_CHECK_THROW(to_bool("true2"), std::runtime_error);
+    ATF_CHECK_THROW(to_bool("fals"), std::runtime_error);
+    ATF_CHECK_THROW(to_bool("false2"), std::runtime_error);
+}
+
 ATF_TEST_CASE(to_string);
 ATF_TEST_CASE_HEAD(to_string)
 {
@@ -281,6 +307,7 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, split);
     ATF_ADD_TEST_CASE(tcs, split_delims);
     ATF_ADD_TEST_CASE(tcs, trim);
+    ATF_ADD_TEST_CASE(tcs, to_bool);
     ATF_ADD_TEST_CASE(tcs, to_string);
     ATF_ADD_TEST_CASE(tcs, to_type);
 }
