@@ -525,6 +525,11 @@ tests_atf_atf_c___t_io_SOURCES = tests/atf/atf-c++/t_io.cpp
 tests_atf_atf_c___t_io_LDADD = -latf-c++
 tests_atf_atf_c___t_io_LDFLAGS = -L.
 
+atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_macros
+tests_atf_atf_c___t_macros_SOURCES = tests/atf/atf-c++/t_macros.cpp
+tests_atf_atf_c___t_macros_LDADD = -latf-c++
+tests_atf_atf_c___t_macros_LDFLAGS = -L.
+
 atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_parser
 tests_atf_atf_c___t_parser_SOURCES = tests/atf/atf-c++/t_parser.cpp
 tests_atf_atf_c___t_parser_LDADD = -latf-c++

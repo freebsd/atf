@@ -73,3 +73,15 @@ atf_check_throw_runtime_error(void)
     // catch clause.
     ATF_CHECK_THROW((void)0, std::runtime_error);
 }
+
+void
+atf_check_throw_inside_if(void)
+{
+    // Make sure that ATF_CHECK_THROW can be used inside an if statement
+    // that does not have braces.  Earlier versions of it generated an
+    // error because a trailing ; after a catch block was not allowed.
+    if (true)
+        ATF_CHECK_THROW((void)0, std::runtime_error);
+    else
+        ATF_CHECK_THROW((void)1, std::runtime_error);
+}
