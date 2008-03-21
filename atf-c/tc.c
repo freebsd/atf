@@ -578,7 +578,7 @@ atf_error_t
 prepare_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
 {
     atf_error_t err;
-    int ret;
+    int i, ret;
 
     current_tc = tc;
     current_workdir = workdir;
@@ -587,6 +587,9 @@ prepare_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
     INV(ret != -1);
 
     umask(S_IWGRP | S_IWOTH);
+
+    for (i = 1; i <= atf_signals_last_signo; i++)
+        atf_signal_reset(i);
 
     err = atf_env_set("HOME", atf_fs_path_cstring(workdir));
     if (atf_is_error(err))
