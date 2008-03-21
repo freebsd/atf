@@ -406,14 +406,6 @@ impl::tc::run(const fs::path& workdirbase)
     return tcrr;
 }
 
-const std::string
-impl::tc::get_srcdir(void)
-    const
-{
-    // XXX Remove this.
-    return get_config_var("srcdir");
-}
-
 void
 impl::tc::cleanup(void)
     const
@@ -483,6 +475,8 @@ private:
 
     void (*m_add_tcs)(tc_vector&);
     tc_vector m_tcs;
+
+    void handle_srcdir(void);
 
     tc_vector init_tcs(void);
     static tc_vector filter_tcs(tc_vector,
@@ -583,6 +577,19 @@ tp::process_option(int ch, const char* arg)
     default:
         UNREACHABLE;
     }
+}
+
+void
+tp::handle_srcdir(void)
+{
+    if (!atf::fs::exists(m_srcdir / m_prog_name))
+        throw std::runtime_error("Cannot find the test program in the "
+                                 "source directory `" + m_srcdir.str() + "'");
+
+    if (!m_srcdir.is_absolute())
+        m_srcdir = m_srcdir.to_absolute();
+
+    m_vars["srcdir"] = m_srcdir.str();
 }
 
 tp::tc_vector
@@ -745,15 +752,7 @@ tp::main(void)
 {
     int errcode;
 
-    if (!atf::fs::exists(m_srcdir / m_prog_name))
-        throw std::runtime_error("Cannot find the test program in the "
-                                 "source directory `" + m_srcdir.str() + "'");
-
-    if (!m_srcdir.is_absolute())
-        m_srcdir = m_srcdir.to_absolute();
-
-    // XXX Kill m_srcdir?
-    m_vars["srcdir"] = m_srcdir.str();
+    handle_srcdir();
 
     for (int i = 0; i < m_argc; i++)
         m_tcnames.push_back(m_argv[i]);

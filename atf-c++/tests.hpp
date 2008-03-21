@@ -143,9 +143,6 @@ public:
     bool has(const std::string&) const;
     void set(const std::string&, const std::string&);
 
-    /* XXX Huh? */
-    const std::string get_srcdir(void) const;
-
     tcr run(const fs::path&) const;
 
     /* To be called from the child process only. */
