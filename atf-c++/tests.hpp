@@ -134,14 +134,13 @@ public:
 
     void init(const vars_map&);
 
-    /* XXX Add _md_var to non-config functions. */
     const std::string get_config_var(const std::string&) const;
     const std::string get_config_var(const std::string&, const std::string&)
         const;
-    const std::string get(const std::string&) const;
+    const std::string get_md_var(const std::string&) const;
     bool has_config_var(const std::string&) const;
-    bool has(const std::string&) const;
-    void set(const std::string&, const std::string&);
+    bool has_md_var(const std::string&) const;
+    void set_md_var(const std::string&, const std::string&);
 
     tcr run(const fs::path&) const;
 

@@ -83,8 +83,8 @@ ssize_t test_array::m_nblocks = 0;
 ATF_TEST_CASE(auto_array_scope);
 ATF_TEST_CASE_HEAD(auto_array_scope)
 {
-    set("descr", "Tests the automatic scope handling in the auto_array "
-                 "smart pointer class");
+    set_md_var("descr", "Tests the automatic scope handling in the "
+               "auto_array smart pointer class");
 }
 ATF_TEST_CASE_BODY(auto_array_scope)
 {
@@ -101,8 +101,8 @@ ATF_TEST_CASE_BODY(auto_array_scope)
 ATF_TEST_CASE(auto_array_copy);
 ATF_TEST_CASE_HEAD(auto_array_copy)
 {
-    set("descr", "Tests the auto_array smart pointer class' copy "
-                 "constructor");
+    set_md_var("descr", "Tests the auto_array smart pointer class' copy "
+               "constructor");
 }
 ATF_TEST_CASE_BODY(auto_array_copy)
 {
@@ -125,8 +125,8 @@ ATF_TEST_CASE_BODY(auto_array_copy)
 ATF_TEST_CASE(auto_array_get);
 ATF_TEST_CASE_HEAD(auto_array_get)
 {
-    set("descr", "Tests the auto_array smart pointer class' get "
-                 "method");
+    set_md_var("descr", "Tests the auto_array smart pointer class' get "
+               "method");
 }
 ATF_TEST_CASE_BODY(auto_array_get)
 {
@@ -140,8 +140,8 @@ ATF_TEST_CASE_BODY(auto_array_get)
 ATF_TEST_CASE(auto_array_release);
 ATF_TEST_CASE_HEAD(auto_array_release)
 {
-    set("descr", "Tests the auto_array smart pointer class' release "
-                 "method");
+    set_md_var("descr", "Tests the auto_array smart pointer class' release "
+               "method");
 }
 ATF_TEST_CASE_BODY(auto_array_release)
 {
@@ -162,8 +162,8 @@ ATF_TEST_CASE_BODY(auto_array_release)
 ATF_TEST_CASE(auto_array_reset);
 ATF_TEST_CASE_HEAD(auto_array_reset)
 {
-    set("descr", "Tests the auto_array smart pointer class' reset "
-                 "method");
+    set_md_var("descr", "Tests the auto_array smart pointer class' reset "
+               "method");
 }
 ATF_TEST_CASE_BODY(auto_array_reset)
 {
@@ -187,8 +187,8 @@ ATF_TEST_CASE_BODY(auto_array_reset)
 ATF_TEST_CASE(auto_array_assign);
 ATF_TEST_CASE_HEAD(auto_array_assign)
 {
-    set("descr", "Tests the auto_array smart pointer class' assignment "
-                 "operator");
+    set_md_var("descr", "Tests the auto_array smart pointer class' "
+               "assignment operator");
 }
 ATF_TEST_CASE_BODY(auto_array_assign)
 {
@@ -212,8 +212,8 @@ ATF_TEST_CASE_BODY(auto_array_assign)
 ATF_TEST_CASE(auto_array_access);
 ATF_TEST_CASE_HEAD(auto_array_access)
 {
-    set("descr", "Tests the auto_array smart pointer class' access "
-                 "operator");
+    set_md_var("descr", "Tests the auto_array smart pointer class' access "
+               "operator");
 }
 ATF_TEST_CASE_BODY(auto_array_access)
 {

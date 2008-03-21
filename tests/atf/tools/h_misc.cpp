@@ -46,7 +46,7 @@
 ATF_TEST_CASE(atf_run_config);
 ATF_TEST_CASE_HEAD(atf_run_config)
 {
-    set("descr", "Helper test case for the t_atf_run test program");
+    set_md_var("descr", "Helper test case for the t_atf_run test program");
 }
 ATF_TEST_CASE_BODY(atf_run_config)
 {
@@ -59,7 +59,7 @@ ATF_TEST_CASE_BODY(atf_run_config)
 ATF_TEST_CASE(atf_run_fds);
 ATF_TEST_CASE_HEAD(atf_run_fds)
 {
-    set("descr", "Helper test case for the t_atf_run test program");
+    set_md_var("descr", "Helper test case for the t_atf_run test program");
 }
 ATF_TEST_CASE_BODY(atf_run_fds)
 {
@@ -72,7 +72,7 @@ ATF_TEST_CASE_BODY(atf_run_fds)
 ATF_TEST_CASE(atf_run_testvar);
 ATF_TEST_CASE_HEAD(atf_run_testvar)
 {
-    set("descr", "Helper test case for the t_atf_run test program");
+    set_md_var("descr", "Helper test case for the t_atf_run test program");
 }
 ATF_TEST_CASE_BODY(atf_run_testvar)
 {
@@ -88,7 +88,7 @@ ATF_TEST_CASE_BODY(atf_run_testvar)
 ATF_TEST_CASE(atf_report_diff);
 ATF_TEST_CASE_HEAD(atf_report_diff)
 {
-    set("descr", "Helper test case for the t_atf_report test program");
+    set_md_var("descr", "Helper test case for the t_atf_report test program");
 }
 ATF_TEST_CASE_BODY(atf_report_diff)
 {

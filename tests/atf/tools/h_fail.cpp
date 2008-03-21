@@ -39,7 +39,7 @@
 ATF_TEST_CASE(main);
 ATF_TEST_CASE_HEAD(main)
 {
-    set("descr", "Helper test case that always fails");
+    set_md_var("descr", "Helper test case that always fails");
 }
 ATF_TEST_CASE_BODY(main)
 {

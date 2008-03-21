@@ -349,7 +349,7 @@ impl::tc::has_config_var(const std::string& var)
 }
 
 bool
-impl::tc::has(const std::string& var)
+impl::tc::has_md_var(const std::string& var)
     const
 {
     return atf_tc_has_md_var(&m_tc, var.c_str());
@@ -370,14 +370,14 @@ impl::tc::get_config_var(const std::string& var, const std::string& defval)
 }
 
 const std::string
-impl::tc::get(const std::string& var)
+impl::tc::get_md_var(const std::string& var)
     const
 {
     return atf_tc_get_md_var(&m_tc, var.c_str());
 }
 
 void
-impl::tc::set(const std::string& var, const std::string& val)
+impl::tc::set_md_var(const std::string& var, const std::string& val)
 {
     atf_error_t err = atf_tc_set_md_var(&m_tc, var.c_str(), val.c_str());
     if (atf_is_error(err))
@@ -620,7 +620,7 @@ public:
 
     bool operator()(const impl::tc* tc)
     {
-        return tc->get("ident") == m_ident;
+        return tc->get_md_var("ident") == m_ident;
     }
 };
 
@@ -640,7 +640,7 @@ tp::filter_tcs(tc_vector tcs, const std::vector< std::string >& tcnames)
              iter != tcs.end(); iter++) {
             impl::tc* tc = *iter;
 
-            ids.push_back(tc->get("ident"));
+            ids.push_back(tc->get_md_var("ident"));
         }
 
         // Iterate over all names provided by the user and, for each one,
@@ -683,16 +683,16 @@ tp::list_tcs(void)
          iter != tcs.end(); iter++) {
         const impl::tc* tc = *iter;
 
-        if (maxlen < tc->get("ident").length())
-            maxlen = tc->get("ident").length();
+        if (maxlen < tc->get_md_var("ident").length())
+            maxlen = tc->get_md_var("ident").length();
     }
 
     for (tc_vector::const_iterator iter = tcs.begin();
          iter != tcs.end(); iter++) {
         const impl::tc* tc = *iter;
 
-        std::cout << atf::ui::format_text_with_tag(tc->get("descr"),
-                                                   tc->get("ident"),
+        std::cout << atf::ui::format_text_with_tag(tc->get_md_var("descr"),
+                                                   tc->get_md_var("ident"),
                                                    false, maxlen + 4)
                   << std::endl;
     }
@@ -732,7 +732,7 @@ tp::run_tcs(void)
          iter != tcs.end(); iter++) {
         impl::tc* tc = *iter;
 
-        w.start_tc(tc->get("ident"));
+        w.start_tc(tc->get_md_var("ident"));
         impl::tcr tcr = tc->run(m_workdir);
         w.end_tc(tcr);
 

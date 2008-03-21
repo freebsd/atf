@@ -45,7 +45,7 @@
 ATF_TEST_CASE(tcr_ctor_wo_reason);
 ATF_TEST_CASE_HEAD(tcr_ctor_wo_reason)
 {
-    set("descr", "Tests that the passed pseudo-constructor works.");
+    set_md_var("descr", "Tests that the passed pseudo-constructor works.");
 }
 ATF_TEST_CASE_BODY(tcr_ctor_wo_reason)
 {
@@ -58,7 +58,7 @@ ATF_TEST_CASE_BODY(tcr_ctor_wo_reason)
 ATF_TEST_CASE(tcr_ctor_w_reason);
 ATF_TEST_CASE_HEAD(tcr_ctor_w_reason)
 {
-    set("descr", "Tests that the skipped pseudo-constructor works.");
+    set_md_var("descr", "Tests that the skipped pseudo-constructor works.");
 }
 ATF_TEST_CASE_BODY(tcr_ctor_w_reason)
 {

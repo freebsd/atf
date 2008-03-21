@@ -74,7 +74,7 @@ check_equal(const std::string& str, const std::string& exp)
 ATF_TEST_CASE(tcs);
 ATF_TEST_CASE_HEAD(tcs)
 {
-    set("descr", "Verifies the application/X-atf-tcs writer");
+    set_md_var("descr", "Verifies the application/X-atf-tcs writer");
 }
 ATF_TEST_CASE_BODY(tcs)
 {
@@ -213,7 +213,7 @@ ATF_TEST_CASE_BODY(tcs)
 ATF_TEST_CASE(tps);
 ATF_TEST_CASE_HEAD(tps)
 {
-    set("descr", "Verifies the application/X-atf-tps writer");
+    set_md_var("descr", "Verifies the application/X-atf-tps writer");
 }
 ATF_TEST_CASE_BODY(tps)
 {

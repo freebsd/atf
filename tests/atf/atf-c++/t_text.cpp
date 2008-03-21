@@ -43,7 +43,7 @@
 ATF_TEST_CASE(join);
 ATF_TEST_CASE_HEAD(join)
 {
-    set("descr", "Tests the join function");
+    set_md_var("descr", "Tests the join function");
 }
 ATF_TEST_CASE_BODY(join)
 {
@@ -117,7 +117,7 @@ ATF_TEST_CASE_BODY(join)
 ATF_TEST_CASE(split);
 ATF_TEST_CASE_HEAD(split)
 {
-    set("descr", "Tests the split function");
+    set_md_var("descr", "Tests the split function");
 }
 ATF_TEST_CASE_BODY(split)
 {
@@ -182,7 +182,7 @@ ATF_TEST_CASE_BODY(split)
 ATF_TEST_CASE(split_delims);
 ATF_TEST_CASE_HEAD(split_delims)
 {
-    set("descr", "Tests the split function using different delimiters");
+    set_md_var("descr", "Tests the split function using different delimiters");
 }
 ATF_TEST_CASE_BODY(split_delims)
 {
@@ -216,7 +216,7 @@ ATF_TEST_CASE_BODY(split_delims)
 ATF_TEST_CASE(trim);
 ATF_TEST_CASE_HEAD(trim)
 {
-    set("descr", "Tests the trim function");
+    set_md_var("descr", "Tests the trim function");
 }
 ATF_TEST_CASE_BODY(trim)
 {
@@ -242,7 +242,7 @@ ATF_TEST_CASE_BODY(trim)
 ATF_TEST_CASE(to_bool);
 ATF_TEST_CASE_HEAD(to_bool)
 {
-    set("descr", "Tests the to_string function");
+    set_md_var("descr", "Tests the to_string function");
 }
 ATF_TEST_CASE_BODY(to_bool)
 {
@@ -268,7 +268,7 @@ ATF_TEST_CASE_BODY(to_bool)
 ATF_TEST_CASE(to_string);
 ATF_TEST_CASE_HEAD(to_string)
 {
-    set("descr", "Tests the to_string function");
+    set_md_var("descr", "Tests the to_string function");
 }
 ATF_TEST_CASE_BODY(to_string)
 {
@@ -282,7 +282,7 @@ ATF_TEST_CASE_BODY(to_string)
 ATF_TEST_CASE(to_type);
 ATF_TEST_CASE_HEAD(to_type)
 {
-    set("descr", "Tests the to_type function");
+    set_md_var("descr", "Tests the to_type function");
 }
 ATF_TEST_CASE_BODY(to_type)
 {

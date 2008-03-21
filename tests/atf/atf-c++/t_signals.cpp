@@ -88,8 +88,8 @@ namespace sigusr1_2 {
 ATF_TEST_CASE(signal_holder_preserve);
 ATF_TEST_CASE_HEAD(signal_holder_preserve)
 {
-    set("descr", "Tests that signal_holder preserves the original signal "
-                 "handler and restores it upon destruction");
+    set_md_var("descr", "Tests that signal_holder preserves the original "
+               "signal handler and restores it upon destruction");
 }
 ATF_TEST_CASE_BODY(signal_holder_preserve)
 {
@@ -114,8 +114,8 @@ ATF_TEST_CASE_BODY(signal_holder_preserve)
 ATF_TEST_CASE(signal_holder_destructor);
 ATF_TEST_CASE_HEAD(signal_holder_destructor)
 {
-    set("descr", "Tests that signal_holder processes a pending signal "
-                 "upon destruction");
+    set_md_var("descr", "Tests that signal_holder processes a pending "
+               "signal upon destruction");
 }
 ATF_TEST_CASE_BODY(signal_holder_destructor)
 {
@@ -140,8 +140,8 @@ ATF_TEST_CASE_BODY(signal_holder_destructor)
 ATF_TEST_CASE(signal_holder_process);
 ATF_TEST_CASE_HEAD(signal_holder_process)
 {
-    set("descr", "Tests that signal_holder's process method works to "
-                 "process a delayed signal explicitly");
+    set_md_var("descr", "Tests that signal_holder's process method works "
+               "to process a delayed signal explicitly");
 }
 ATF_TEST_CASE_BODY(signal_holder_process)
 {
@@ -175,8 +175,8 @@ ATF_TEST_CASE_BODY(signal_holder_process)
 ATF_TEST_CASE(signal_programmer_program);
 ATF_TEST_CASE_HEAD(signal_programmer_program)
 {
-    set("descr", "Tests that signal_programmer correctly installs a "
-                 "handler");
+    set_md_var("descr", "Tests that signal_programmer correctly installs a "
+               "handler");
 }
 ATF_TEST_CASE_BODY(signal_programmer_program)
 {
@@ -192,8 +192,8 @@ ATF_TEST_CASE_BODY(signal_programmer_program)
 ATF_TEST_CASE(signal_programmer_preserve);
 ATF_TEST_CASE_HEAD(signal_programmer_preserve)
 {
-    set("descr", "Tests that signal_programmer uninstalls the handler "
-                 "during destruction");
+    set_md_var("descr", "Tests that signal_programmer uninstalls the "
+               "handler during destruction");
 }
 ATF_TEST_CASE_BODY(signal_programmer_preserve)
 {

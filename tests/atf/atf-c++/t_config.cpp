@@ -71,7 +71,7 @@ unset_env_var(const char* name)
 ATF_TEST_CASE(get);
 ATF_TEST_CASE_HEAD(get)
 {
-    set("descr", "Tests the config::get function");
+    set_md_var("descr", "Tests the config::get function");
 }
 ATF_TEST_CASE_BODY(get)
 {
@@ -232,7 +232,7 @@ ATF_TEST_CASE_BODY(get)
 ATF_TEST_CASE(get_all);
 ATF_TEST_CASE_HEAD(get_all)
 {
-    set("descr", "Tests the config::get_all function");
+    set_md_var("descr", "Tests the config::get_all function");
 }
 ATF_TEST_CASE_BODY(get_all)
 {
@@ -253,7 +253,7 @@ ATF_TEST_CASE_BODY(get_all)
 ATF_TEST_CASE(has);
 ATF_TEST_CASE_HEAD(has)
 {
-    set("descr", "Tests the config::has function");
+    set_md_var("descr", "Tests the config::has function");
 }
 ATF_TEST_CASE_BODY(has)
 {

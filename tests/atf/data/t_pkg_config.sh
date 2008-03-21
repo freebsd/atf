@@ -183,7 +183,7 @@ cxx_build_body()
 
 ATF_TEST_CASE(tp);
 ATF_TEST_CASE_HEAD(tp) {
-    set("descr", "A test case");
+    set_md_var("descr", "A test case");
 }
 ATF_TEST_CASE_BODY(tp) {
     std::cout << "Running" << std::endl;

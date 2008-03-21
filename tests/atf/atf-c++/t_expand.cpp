@@ -49,7 +49,7 @@
 ATF_TEST_CASE(is_glob);
 ATF_TEST_CASE_HEAD(is_glob)
 {
-    set("descr", "Tests the is_glob function.");
+    set_md_var("descr", "Tests the is_glob function.");
 }
 ATF_TEST_CASE_BODY(is_glob)
 {
@@ -73,8 +73,8 @@ ATF_TEST_CASE_BODY(is_glob)
 ATF_TEST_CASE(matches_glob_plain);
 ATF_TEST_CASE_HEAD(matches_glob_plain)
 {
-    set("descr", "Tests the matches_glob function by using plain text "
-                 "strings as patterns only.");
+    set_md_var("descr", "Tests the matches_glob function by using plain "
+               "text strings as patterns only.");
 }
 ATF_TEST_CASE_BODY(matches_glob_plain)
 {
@@ -92,8 +92,8 @@ ATF_TEST_CASE_BODY(matches_glob_plain)
 ATF_TEST_CASE(matches_glob_star);
 ATF_TEST_CASE_HEAD(matches_glob_star)
 {
-    set("descr", "Tests the matches_glob function by using the '*' meta-"
-                 "character as part of the pattern.");
+    set_md_var("descr", "Tests the matches_glob function by using the '*' "
+               "meta-character as part of the pattern.");
 }
 ATF_TEST_CASE_BODY(matches_glob_star)
 {
@@ -132,8 +132,8 @@ ATF_TEST_CASE_BODY(matches_glob_star)
 ATF_TEST_CASE(matches_glob_question);
 ATF_TEST_CASE_HEAD(matches_glob_question)
 {
-    set("descr", "Tests the matches_glob function by using the '?' meta-"
-                 "character as part of the pattern.");
+    set_md_var("descr", "Tests the matches_glob function by using the '?' "
+               "meta-character as part of the pattern.");
 }
 ATF_TEST_CASE_BODY(matches_glob_question)
 {
@@ -160,7 +160,8 @@ ATF_TEST_CASE_BODY(matches_glob_question)
 ATF_TEST_CASE(expand_glob_base);
 ATF_TEST_CASE_HEAD(expand_glob_base)
 {
-    set("descr", "Tests the expand_glob function with random patterns.");
+    set_md_var("descr", "Tests the expand_glob function with random "
+               "patterns.");
 }
 ATF_TEST_CASE_BODY(expand_glob_base)
 {
@@ -226,10 +227,10 @@ ATF_TEST_CASE_BODY(expand_glob_base)
 ATF_TEST_CASE(expand_glob_tps);
 ATF_TEST_CASE_HEAD(expand_glob_tps)
 {
-    set("descr", "Tests the expand_glob function with patterns that match "
-                 "typical test program names.  This is just a subcase "
-                 "of expand_base, but it is nice to make sure that "
-                 "it really works.");
+    set_md_var("descr", "Tests the expand_glob function with patterns that "
+               "match typical test program names.  This is just a subcase "
+               "of expand_base, but it is nice to make sure that it really "
+               "works.");
 }
 ATF_TEST_CASE_BODY(expand_glob_tps)
 {

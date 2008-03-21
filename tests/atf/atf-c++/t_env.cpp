@@ -40,7 +40,7 @@
 ATF_TEST_CASE(has_get);
 ATF_TEST_CASE_HEAD(has_get)
 {
-    set("descr", "Tests the has and get functions");
+    set_md_var("descr", "Tests the has and get functions");
 }
 ATF_TEST_CASE_BODY(has_get)
 {
@@ -53,7 +53,7 @@ ATF_TEST_CASE_BODY(has_get)
 ATF_TEST_CASE(set);
 ATF_TEST_CASE_HEAD(set)
 {
-    set("descr", "Tests the set function");
+    set_md_var("descr", "Tests the set function");
 }
 ATF_TEST_CASE_BODY(set)
 {
@@ -71,7 +71,7 @@ ATF_TEST_CASE_BODY(set)
 ATF_TEST_CASE(unset);
 ATF_TEST_CASE_HEAD(unset)
 {
-    set("descr", "Tests the unset function");
+    set_md_var("descr", "Tests the unset function");
 }
 ATF_TEST_CASE_BODY(unset)
 {
