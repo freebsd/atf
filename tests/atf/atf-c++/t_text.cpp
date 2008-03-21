@@ -252,7 +252,7 @@ ATF_TEST_CASE_BODY(to_string)
     ATF_CHECK_EQUAL(to_string("a"), "a");
     ATF_CHECK_EQUAL(to_string(5), "5");
 }
-#include <iostream>
+
 ATF_TEST_CASE(to_type);
 ATF_TEST_CASE_HEAD(to_type)
 {
