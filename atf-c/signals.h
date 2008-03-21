@@ -83,4 +83,10 @@ void atf_signal_holder_fini(atf_signal_holder_t *);
 /* Modifiers. */
 void atf_signal_holder_process(atf_signal_holder_t *);
 
+/* ---------------------------------------------------------------------
+ * Free functions.
+ * --------------------------------------------------------------------- */
+
+void atf_signal_reset(int);
+
 #endif /* ATF_C_SIGNALS_H */

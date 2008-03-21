@@ -35,9 +35,12 @@
  */
 
 #include <sys/types.h>
+#include <sys/wait.h>
+
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include <atf-c.h>
@@ -239,6 +242,46 @@ ATF_TC_BODY(signal_programmer_fini, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Test cases for the free functions.
+ * --------------------------------------------------------------------- */
+
+ATF_TC(signal_reset);
+ATF_TC_HEAD(signal_reset, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_signal_reset function");
+}
+ATF_TC_BODY(signal_reset, tc)
+{
+    pid_t pid = fork();
+    ATF_CHECK(pid != -1);
+    if (pid == 0) {
+        struct sigaction sa;
+
+        sa.sa_handler = test1_handler;
+        sigemptyset(&sa.sa_mask);
+        sa.sa_flags = 0;
+
+        ATF_CHECK(sigaction(SIGTERM, &sa, NULL) != -1);
+        ATF_CHECK(!test1_happened);
+        kill(getpid(), SIGTERM);
+        ATF_CHECK(test1_happened);
+
+        test1_happened = false;
+        atf_signal_reset(SIGTERM);
+        kill(getpid(), SIGTERM);
+
+        printf("Signal was not resetted correctly\n");
+        abort();
+    } else {
+        int ecode;
+
+        ATF_CHECK(waitpid(pid, &ecode, 0) != -1);
+        ATF_CHECK(WIFEXITED(ecode) || WIFSIGNALED(ecode));
+        ATF_CHECK(!WIFSIGNALED(ecode) || WTERMSIG(ecode) == SIGTERM);
+    }
+}
+
+/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -255,6 +298,9 @@ ATF_TP_ADD_TCS(tp)
     /* Add the tests for the "signal_programmer" type. */
     ATF_TP_ADD_TC(tp, signal_programmer_init);
     ATF_TP_ADD_TC(tp, signal_programmer_fini);
+
+    /* Add the tests for the free functions. */
+    ATF_TP_ADD_TC(tp, signal_reset);
 
     return atf_no_error();
 }

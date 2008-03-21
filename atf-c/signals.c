@@ -155,3 +155,19 @@ atf_signal_programmer_fini(atf_signal_programmer_t *sp)
 
     atf_object_fini(&sp->m_object);
 }
+
+/* ---------------------------------------------------------------------
+ * Free functions.
+ * --------------------------------------------------------------------- */
+
+void
+atf_signal_reset(int signo)
+{
+    struct sigaction sa;
+
+    sa.sa_handler = SIG_DFL;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+
+    (void)sigaction(signo, &sa, NULL);
+}
