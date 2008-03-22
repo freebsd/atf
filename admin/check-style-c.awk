@@ -75,8 +75,16 @@ BEGIN {
     warn("Use the macros in sanity.h instead of assert");
 }
 
+/getprogname/ {
+    warn("getprogname(3) is not portable");
+}
+
 /include.*assert.h/ {
     warn("Do not include assert.h");
+}
+
+/setprogname/ {
+    warn("setprogname(3) is not portable");
 }
 
 /\/\// {

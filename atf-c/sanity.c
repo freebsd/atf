@@ -56,11 +56,12 @@ fail(const char *fmt, ...)
     vsnprintf(buf, sizeof(buf), fmt, ap);
     va_end(ap);
     warnx("%s", buf);
-    warnx("");
-    warnx("This is probably a bug in %s or one of the libraries it uses.  "
-          "Please report this problem to " PACKAGE_BUGREPORT " and provide "
-          "as many detatils as possible describing how you got to this "
-          "condition.", getprogname());
+    warnx("%s", "");
+    warnx("This is probably a bug in this application or one of the "
+          "libraries it uses.  If you believe this problem is caused "
+          "by, or is related to " PACKAGE_STRING ", please report it "
+          "to " PACKAGE_BUGREPORT " and provide as many detatils as "
+          "possible describing how you got to this condition.");
 
     abort();
 }
