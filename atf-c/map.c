@@ -34,8 +34,6 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <errno.h>
-#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -47,7 +45,7 @@
  * --------------------------------------------------------------------- */
 
 struct map_entry {
-    const char *m_key;
+    char *m_key;
     void *m_value;
     bool m_managed;
 };
@@ -60,9 +58,14 @@ new_entry(const char *key, void *value, bool managed)
 
     me = (struct map_entry *)malloc(sizeof(*me));
     if (me != NULL) {
-        me->m_key = key;
-        me->m_value = value;
-        me->m_managed = managed;
+        me->m_key = strdup(key);
+        if (me->m_key == NULL) {
+            free(me);
+            me = NULL;
+        } else {
+            me->m_value = value;
+            me->m_managed = managed;
+        }
     }
 
     return me;
@@ -147,6 +150,7 @@ atf_map_fini(atf_map_t *m)
 
         if (me->m_managed)
             free(me->m_value);
+        free(me->m_key);
         free(me);
     }
     atf_list_fini(&m->m_list);
@@ -218,124 +222,6 @@ size_t
 atf_map_size(const atf_map_t *m)
 {
     return atf_list_size(&m->m_list);
-}
-
-atf_error_t
-atf_map_get_bool(const atf_map_t *m, const char *key, bool *b)
-{
-    atf_error_t err;
-    atf_map_citer_t iter;
-    const char *value;
-
-    iter = atf_map_find_c(m, key);
-    PRE(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(m)));
-    value = atf_map_citer_data(iter);
-
-    if (strcasecmp(value, "yes") == 0 ||
-        strcasecmp(value, "true") == 0) {
-        *b = true;
-        err = atf_no_error();
-    } else if (strcasecmp(value, "no") == 0 ||
-               strcasecmp(value, "false") == 0) {
-        *b = false;
-        err = atf_no_error();
-    } else {
-        /* XXX Not really a libc error. */
-        err = atf_libc_error(EINVAL, "Cannot convert string '%s' "
-                             "to boolean", value);
-    }
-
-    return err;
-}
-
-atf_error_t
-atf_map_get_bool_wd(const atf_map_t *m, const char *key, bool def, bool *b)
-{
-    atf_error_t err;
-
-    if (atf_equal_map_citer_map_citer(atf_map_find_c(m, key),
-                                      atf_map_end_c(m))) {
-        *b = def;
-        err = atf_no_error();
-    } else {
-        err = atf_map_get_bool(m, key, b);
-    }
-
-    return err;
-}
-
-atf_error_t
-atf_map_get_cstring(const atf_map_t *m, const char *key, const char **str)
-{
-    atf_map_citer_t iter;
-    const char *value;
-
-    iter = atf_map_find_c(m, key);
-    PRE(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(m)));
-    value = atf_map_citer_data(iter);
-
-    *str = value;
-    return atf_no_error();
-}
-
-atf_error_t
-atf_map_get_cstring_wd(const atf_map_t *m, const char *key, const char *def,
-                       const char **str)
-{
-    atf_error_t err;
-
-    if (atf_equal_map_citer_map_citer(atf_map_find_c(m, key),
-                                      atf_map_end_c(m))) {
-        *str = def;
-        err = atf_no_error();
-    } else {
-        err = atf_map_get_cstring(m, key, str);
-    }
-
-    return err;
-}
-
-atf_error_t
-atf_map_get_long(const atf_map_t *m, const char *key, long *l)
-{
-    atf_error_t err;
-    atf_map_citer_t iter;
-    const char *value;
-    char *endptr;
-    long tmp;
-
-    iter = atf_map_find_c(m, key);
-    PRE(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(m)));
-    value = atf_map_citer_data(iter);
-
-    errno = 0;
-    tmp = strtol(value, &endptr, 10);
-    if (value[0] == '\0' || *endptr != '\0')
-        err = atf_libc_error(EINVAL, "'%s' is not a number", value);
-    else if (errno == ERANGE || (tmp == LONG_MAX || tmp == LONG_MIN))
-        err = atf_libc_error(ERANGE, "'%s' is out of range", value);
-    else {
-        *l = tmp;
-        err = atf_no_error();
-    }
-
-    return err;
-}
-
-atf_error_t
-atf_map_get_long_wd(const atf_map_t *m, const char *key, long def, long *l)
-{
-    atf_error_t err;
-
-    if (atf_equal_map_citer_map_citer(atf_map_find_c(m, key),
-                                      atf_map_end_c(m))) {
-        *l = def;
-        err = atf_no_error();
-    } else {
-        err = atf_map_get_long(m, key, l);
-    }
-
-    return err;
 }
 
 /*

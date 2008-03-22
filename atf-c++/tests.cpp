@@ -99,159 +99,108 @@ namespace timeout {
 } // namespace timeout
 
 // ------------------------------------------------------------------------
-// The "vars_map" class.
-// ------------------------------------------------------------------------
-
-impl::vars_map::vars_map(void)
-{
-}
-
-const std::string&
-impl::vars_map::get(const std::string& key)
-    const
-{
-    const_iterator iter = find(key);
-    if (iter == end())
-        throw std::runtime_error("Could not find variable `" + key +
-                                 "' in map");
-    return (*iter).second;
-}
-
-const std::string&
-impl::vars_map::get(const std::string& key, const std::string& def)
-    const
-{
-    const_iterator iter = find(key);
-    return (iter == end()) ? def : (*iter).second;
-}
-
-bool
-impl::vars_map::get_bool(const std::string& key)
-    const
-{
-    bool val;
-
-    std::string str = text::to_lower(get(key));
-    if (str == "yes" || str == "true")
-        val = true;
-    else if (str == "no" || str == "false")
-        val = false;
-    else
-        throw std::runtime_error("Invalid value for boolean variable `" +
-                                 key + "'");
-
-    return val;
-}
-
-bool
-impl::vars_map::get_bool(const std::string& key, bool def)
-    const
-{
-    bool val;
-
-    const_iterator iter = find(key);
-    if (iter == end())
-        val = def;
-    else {
-        std::string str = text::to_lower((*iter).second);
-        if (str == "yes" || str == "true")
-            val = true;
-        else if (str == "no" || str == "false")
-            val = false;
-        else
-            throw std::runtime_error("Invalid value for boolean "
-                                     "variable `" + key + "'");
-    }
-
-    return val;
-}
-
-bool
-impl::vars_map::has(const std::string& key)
-    const
-{
-    return find(key) != end();
-}
-
-impl::vars_map::value_type
-impl::vars_map::parse(const std::string& str)
-{
-    if (str.empty())
-        throw std::runtime_error("-v requires a non-empty argument");
-
-    std::vector< std::string > ws = atf::text::split(str, "=");
-    if (ws.size() == 1 && str[str.length() - 1] == '=') {
-        return impl::vars_map::value_type(ws[0], "");
-    } else {
-        if (ws.size() != 2)
-            throw std::runtime_error("-v requires an argument of the form "
-                                     "var=value");
-
-        return impl::vars_map::value_type(ws[0], ws[1]);
-    }
-}
-
-// ------------------------------------------------------------------------
 // The "tcr" class.
 // ------------------------------------------------------------------------
 
-impl::tcr::tcr(void) :
-    m_status(status_failed),
-    m_reason("Uninitialized test case result")
+const impl::tcr::state impl::tcr::passed_state = atf_tcr_passed_state;
+const impl::tcr::state impl::tcr::failed_state = atf_tcr_failed_state;
+const impl::tcr::state impl::tcr::skipped_state = atf_tcr_skipped_state;
+
+impl::tcr::tcr(state s)
 {
+    PRE(s == passed_state);
+
+    atf_error_t err = atf_tcr_init(&m_tcr, s);
+    if (atf_is_error(err))
+        throw_atf_error(err);
 }
 
-impl::tcr::tcr(impl::tcr::status s, const std::string& r) :
-    m_status(s)
+impl::tcr::tcr(state s, const std::string& r)
 {
-    if (r.find('\n') == std::string::npos)
-        m_reason = r;
-    else {
-        m_reason = "BOGUS REASON (THE ORIGINAL HAD NEWLINES): ";
-        for (std::string::size_type i = 0; i < r.length(); i++) {
-            if (r[i] == '\n')
-                m_reason += "<<NEWLINE>>";
-            else if (r[i] != '\r')
-                m_reason += r[i];
-        }
-    }
+    PRE(s == failed_state || s == skipped_state);
+    PRE(!r.empty());
+
+    atf_error_t err = atf_tcr_init_reason_fmt(&m_tcr, s, "%s", r.c_str());
+    if (atf_is_error(err))
+        throw_atf_error(err);
 }
 
-impl::tcr
-impl::tcr::passed(void)
+impl::tcr::tcr(const tcr& o)
 {
-    return tcr(status_passed, "");
+    if (o.get_state() == passed_state)
+        atf_tcr_init(&m_tcr, o.get_state());
+    else
+        atf_tcr_init_reason_fmt(&m_tcr, o.get_state(), "%s",
+                                o.get_reason().c_str());
 }
 
-impl::tcr
-impl::tcr::skipped(const std::string& reason)
+impl::tcr::~tcr(void)
 {
-    return tcr(status_skipped, reason);
+    atf_tcr_fini(&m_tcr);
 }
 
-impl::tcr
-impl::tcr::failed(const std::string& reason)
-{
-    return tcr(status_failed, reason);
-}
-
-impl::tcr::status
-impl::tcr::get_status(void)
+impl::tcr::state
+impl::tcr::get_state(void)
     const
 {
-    return m_status;
+    return atf_tcr_get_state(&m_tcr);
 }
 
-const std::string&
+const std::string
 impl::tcr::get_reason(void)
     const
 {
-    return m_reason;
+    const atf_dynstr_t* r = atf_tcr_get_reason(&m_tcr);
+    return atf_dynstr_cstring(r);
+}
+
+impl::tcr&
+impl::tcr::operator=(const tcr& o)
+{
+    if (this != &o) {
+        atf_tcr_fini(&m_tcr);
+
+        if (o.get_state() == passed_state)
+            atf_tcr_init(&m_tcr, o.get_state());
+        else
+            atf_tcr_init_reason_fmt(&m_tcr, o.get_state(), "%s",
+                                    o.get_reason().c_str());
+    }
+    return *this;
 }
 
 // ------------------------------------------------------------------------
 // The "tc" class.
 // ------------------------------------------------------------------------
+
+static std::map< atf_tc_t*, impl::tc* > wraps;
+static std::map< const atf_tc_t*, const impl::tc* > cwraps;
+
+void
+impl::tc::wrap_head(atf_tc_t *tc)
+{
+    std::map< atf_tc_t*, impl::tc* >::iterator iter = wraps.find(tc);
+    INV(iter != wraps.end());
+    (*iter).second->head();
+}
+
+void
+impl::tc::wrap_body(const atf_tc_t *tc)
+{
+    std::map< const atf_tc_t*, const impl::tc* >::const_iterator iter =
+        cwraps.find(tc);
+    INV(iter != cwraps.end());
+    (*iter).second->body();
+}
+
+void
+impl::tc::wrap_cleanup(const atf_tc_t *tc)
+{
+    std::map< const atf_tc_t*, const impl::tc* >::const_iterator iter =
+        cwraps.find(tc);
+    INV(iter != cwraps.end());
+    (*iter).second->cleanup();
+}
 
 impl::tc::tc(const std::string& ident) :
     m_ident(ident)
@@ -260,415 +209,108 @@ impl::tc::tc(const std::string& ident) :
 
 impl::tc::~tc(void)
 {
+    cwraps.erase(&m_tc);
+    wraps.erase(&m_tc);
+
+    atf_tc_fini(&m_tc);
+    atf_map_fini(&m_config);
 }
 
 void
-impl::tc::ensure_boolean(const std::string& name)
+impl::tc::init(const vars_map& config)
 {
-    ensure_not_empty(name);
+    atf_error_t err;
 
-    std::string val = text::to_lower(get(name));
-    if (val == "yes" || val == "true")
-        set(name, "true");
-    else if (val == "no" || val == "false")
-        set(name, "false");
-    else
-        throw std::runtime_error("Invalid value for boolean variable `" +
-                                 name + "'");
-}
+    err = atf_map_init(&m_config);
+    if (atf_is_error(err))
+        throw_atf_error(err);
 
-void
-impl::tc::ensure_integral(const std::string& name)
-{
-    ensure_not_empty(name);
+    for (vars_map::const_iterator iter = config.begin();
+         iter != config.end(); iter++) {
+        const char *var = (*iter).first.c_str();
+        const char *val = (*iter).second.c_str();
 
-    const std::string& val = get(name);
-    for (std::string::const_iterator iter = val.begin(); iter != val.end();
-         iter++) {
-        if (!std::isdigit(*iter))
-            throw std::runtime_error("Invalid value for integral "
-                                     "variable `" + name + "'");
+        err = atf_map_insert(&m_config, var, ::strdup(val), true);
+        if (atf_is_error(err)) {
+            atf_map_fini(&m_config);
+            throw_atf_error(err);
+        }
     }
-}
 
-void
-impl::tc::ensure_not_empty(const std::string& name)
-{
-    if (m_meta_data.find(name) == m_meta_data.end())
-        throw atf::not_found_error< std::string >
-            ("Undefined or empty variable", name);
+    wraps[&m_tc] = this;
+    cwraps[&m_tc] = this;
 
-    vars_map::const_iterator iter = m_meta_data.find(name);
-    INV(iter != m_meta_data.end());
-
-    const std::string& val = (*iter).second;
-    if (val.empty())
-        throw atf::not_found_error< std::string > // XXX Incorrect error
-            ("Undefined or empty variable", name);
-}
-
-void
-impl::tc::set(const std::string& var, const std::string& val)
-{
-    m_meta_data[var] = val;
-}
-
-const std::string&
-impl::tc::get(const std::string& var)
-    const
-{
-    vars_map::const_iterator iter = m_meta_data.find(var);
-    PRE(iter != m_meta_data.end());
-    return (*iter).second;
-}
-
-bool
-impl::tc::get_bool(const std::string& var)
-    const
-{
-    std::string val = get(var);
-
-    if (val == "true")
-        return true;
-    else if (val == "false")
-        return false;
-    else {
-        UNREACHABLE;
-        return false;
+    err = atf_tc_init(&m_tc, m_ident.c_str(), wrap_head, wrap_body,
+                      wrap_cleanup, &m_config);
+    if (atf_is_error(err)) {
+        atf_map_fini(&m_config);
+        throw_atf_error(err);
     }
 }
 
 bool
-impl::tc::has(const std::string& var)
+impl::tc::has_config_var(const std::string& var)
     const
 {
-    vars_map::const_iterator iter = m_meta_data.find(var);
-    return (iter != m_meta_data.end());
+    return atf_tc_has_config_var(&m_tc, var.c_str());
 }
 
-const impl::vars_map&
-impl::tc::config(void)
+bool
+impl::tc::has_md_var(const std::string& var)
     const
 {
-    return m_config;
+    return atf_tc_has_md_var(&m_tc, var.c_str());
 }
 
-const std::string&
-impl::tc::get_srcdir(void)
+const std::string
+impl::tc::get_config_var(const std::string& var)
     const
 {
-    return m_srcdir;
+    return atf_tc_get_config_var(&m_tc, var.c_str());
+}
+
+const std::string
+impl::tc::get_config_var(const std::string& var, const std::string& defval)
+    const
+{
+    return atf_tc_get_config_var_wd(&m_tc, var.c_str(), defval.c_str());
+}
+
+const std::string
+impl::tc::get_md_var(const std::string& var)
+    const
+{
+    return atf_tc_get_md_var(&m_tc, var.c_str());
 }
 
 void
-impl::tc::init(const vars_map& c, const std::string& srcdir,
-               const std::string& workdir)
+impl::tc::set_md_var(const std::string& var, const std::string& val)
 {
-    PRE(m_meta_data.empty());
-
-    m_config = c; // XXX Uh, deep copy.  Should be a reference...
-    m_srcdir = srcdir;
-    m_workdir = workdir;
-
-    m_meta_data["ident"] = m_ident;
-    m_meta_data["timeout"] = "300";
-    head();
-    ensure_not_empty("descr");
-    ensure_not_empty("ident");
-    ensure_integral("timeout");
-    INV(m_meta_data["ident"] == m_ident);
+    atf_error_t err = atf_tc_set_md_var(&m_tc, var.c_str(), val.c_str());
+    if (atf_is_error(err))
+        throw_atf_error(err);
 }
 
 impl::tcr
-impl::tc::safe_run(void)
+impl::tc::run(const fs::path& workdirbase)
     const
 {
-    atf::fs::temp_dir workdir(atf::fs::path(m_workdir) / "atf.XXXXXX");
-    impl::tcr tcr = fork_body(workdir.get_path().str());
-    fork_cleanup(workdir.get_path().str());
-    return tcr;
-}
+    atf_tcr_t tcrc;
+    tcr tcrr(tcr::failed_state, "UNINITIALIZED");
 
-static void
-sanitize_process(const atf::fs::path& workdir)
-{
-    // Reset all signal handlers to their default behavior.
-    struct sigaction sadfl;
-    sadfl.sa_handler = SIG_DFL;
-    sigemptyset(&sadfl.sa_mask);
-    sadfl.sa_flags = 0;
-    for (int i = 0; i < atf::signals::last_signo; i++)
-        ::sigaction(i, &sadfl, NULL);
+    atf_error_t err = atf_tc_run(&m_tc, &tcrc, workdirbase.c_path());
+    if (atf_is_error(err))
+        throw_atf_error(err);
 
-    // Reset critical environment variables to known values.
-    atf::env::set("HOME", workdir.str());
-    atf::env::unset("LANG");
-    atf::env::unset("LC_ALL");
-    atf::env::unset("LC_COLLATE");
-    atf::env::unset("LC_CTYPE");
-    atf::env::unset("LC_MESSAGES");
-    atf::env::unset("LC_MONETARY");
-    atf::env::unset("LC_NUMERIC");
-    atf::env::unset("LC_TIME");
-    atf::env::unset("TZ");
-
-    // Reset the umask.
-    ::umask(S_IWGRP | S_IWOTH);
-
-    // Set the work directory.
-    atf::fs::change_directory(workdir);
-}
-
-void
-impl::tc::check_requirements(void)
-    const
-{
-    if (has("require.arch")) {
-        const std::string& a = get("require.arch");
-        std::vector< std::string > arches = text::split(a, " ");
-        bool found = false;
-        for (std::vector< std::string >::const_iterator iter = arches.begin();
-             iter != arches.end() && !found; iter++) {
-            if ((*iter) == atf::config::get("atf_arch"))
-                found = true;
-        }
-        if (!a.empty() && !found)
-            throw tcr::skipped("Requires one of the '" + a +
-                               "' architectures");
-    }
-
-    if (has("require.machine")) {
-        const std::string& m = get("require.machine");
-        std::vector< std::string > machines = text::split(m, " ");
-        bool found = false;
-        for (std::vector< std::string >::const_iterator iter =
-             machines.begin(); iter != machines.end() && !found; iter++) {
-            if ((*iter) == atf::config::get("atf_machine"))
-                found = true;
-        }
-        if (!m.empty() && !found)
-            throw tcr::skipped("Requires one of the '" + m +
-                               "' machine types");
-    }
-
-    if (has("require.config")) {
-        const std::string& c = get("require.config");
-        std::vector< std::string > vars = text::split(c, " ");
-        for (std::vector< std::string >::const_iterator iter = vars.begin();
-             iter != vars.end(); iter++) {
-            if (!m_config.has(*iter))
-                throw tcr::skipped("Required configuration variable " +
-                                   *iter + " not defined");
-        }
-    }
-
-    if (has("require.user")) {
-        const std::string& u = get("require.user");
-        if (u == "root") {
-            if (!user::is_root())
-                throw tcr::skipped("Requires root privileges");
-        } else if (u == "unprivileged") {
-            if (!user::is_unprivileged())
-                throw tcr::skipped("Requires an unprivileged user");
-        } else
-            throw tcr::failed("Invalid value in the require.user "
-                              "property");
-    }
-
-    if (has("require.progs")) {
-        std::vector< std::string > progs =
-            text::split(get("require.progs"), " ");
-        for (std::vector< std::string >::const_iterator iter =
-             progs.begin(); iter != progs.end(); iter++)
-            require_prog(*iter);
-    }
-}
-
-static
-void
-program_timeout(pid_t pid, const std::string& tostr)
-{
-    PRE(pid != 0);
-
-    INV(!tostr.empty());
-
-    int timeout = atf::text::to_type< int >(tostr);
-
-    if (timeout != 0) {
-        struct itimerval itv;
-        timerclear(&itv.it_interval);
-        timerclear(&itv.it_value);
-        itv.it_value.tv_sec = timeout;
-        timeout::current_body = pid;
-        ::setitimer(ITIMER_REAL, &itv, NULL);
-    }
-}
-
-impl::tcr
-impl::tc::fork_body(const std::string& workdir)
-    const
-{
-    tcr tcr;
-
-    fs::path result(fs::path(workdir) / "tc-result");
-
-    pid_t pid = ::fork();
-    if (pid == -1) {
-        tcr = tcr::failed("Coult not fork to run test case");
-    } else if (pid == 0) {
-        int errcode;
-
-        atf_disable_exit_checks();
-
-        ::setpgid(::getpid(), 0);
-
-        // Unexpected errors detected in the child process are mentioned
-        // in stderr to give the user a chance to see what happened.
-        // This is specially useful in those cases where these errors
-        // cannot be directed to the parent process.
-        try {
-            sanitize_process(atf::fs::path(workdir));
-            check_requirements();
-            body();
-            throw impl::tcr::passed();
-        } catch (const impl::tcr& tcre) {
-            std::ofstream os(result.c_str());
-            if (!os) {
-                std::cerr << "Could not open the temporary file " +
-                             result.str() + " to leave the results in it"
-                          << std::endl;
-                errcode = EXIT_FAILURE;
-            } else {
-                if (tcre.get_status() == impl::tcr::status_passed)
-                    os << "passed\n";
-                else if (tcre.get_status() == impl::tcr::status_failed)
-                    os << "failed\n" << tcre.get_reason() << '\n';
-                else if (tcre.get_status() == impl::tcr::status_skipped)
-                    os << "skipped\n" << tcre.get_reason() << '\n';
-                os.close();
-                errcode = EXIT_SUCCESS;
-            }
-        } catch (const std::runtime_error& e) {
-            std::cerr << "Caught unexpected error: " << e.what() << std::endl;
-            errcode = EXIT_FAILURE;
-        } catch (...) {
-            std::cerr << "Caught unexpected error" << std::endl;
-            errcode = EXIT_FAILURE;
-        }
-        std::exit(errcode);
+    if (atf_tcr_has_reason(&tcrc)) {
+        const atf_dynstr_t* r = atf_tcr_get_reason(&tcrc);
+        tcrr = tcr(atf_tcr_get_state(&tcrc), atf_dynstr_cstring(r));
     } else {
-        // Program the timeout handler.
-        timeout::current_body = 0;
-        timeout::killed = false;
-        atf::signals::signal_programmer sigalrm(SIGALRM,
-                                                timeout::sigalrm_handler);
-        program_timeout(pid, get("timeout"));
-
-        // Wait for the child and deal with its termination status.
-        int status;
-        if (::waitpid(pid, &status, 0) != pid) {
-            if (errno == EINTR && timeout::killed)
-                tcr = tcr::failed("Test case timed out after " +
-                                  get("timeout") + " seconds");
-            else
-                tcr = tcr::failed("Error while waiting for process " +
-                                  atf::text::to_string(pid) + ": " +
-                                  ::strerror(errno));
-        } else {
-            if (WIFEXITED(status)) {
-                if (WEXITSTATUS(status) == EXIT_SUCCESS) {
-                    std::ifstream is(result.c_str());
-                    if (!is) {
-                        tcr = tcr::failed("Could not open results file for "
-                                          "reading");
-                    } else {
-                        std::string line;
-                        std::getline(is, line);
-                        if (line == "passed") {
-                            tcr = tcr::passed();
-                        } else if (line == "failed") {
-                            std::getline(is, line);
-                            tcr = tcr::failed(line);
-                        } else if (line == "skipped") {
-                            std::getline(is, line);
-                            tcr = tcr::skipped(line);
-                        } else {
-                            tcr = tcr::failed("Test case failed to report its "
-                                              "status");
-                        }
-                        is.close();
-                    }
-                } else
-                    tcr = tcr::failed("Test case returned non-OK status; "
-                                      "see its stderr output for more "
-                                      "details");
-            } else if (WIFSIGNALED(status)) {
-                tcr = tcr::failed("Test case received signal " +
-                                  atf::text::to_string(WTERMSIG(status)));
-            } else
-                UNREACHABLE;
-        }
+        tcrr = tcr(atf_tcr_get_state(&tcrc));
     }
 
-    return tcr;
-}
-
-void
-impl::tc::fork_cleanup(const std::string& workdir)
-    const
-{
-    pid_t pid = ::fork();
-    if (pid == -1) {
-        std::cerr << "WARNING: Could not fork to run test case's cleanup "
-                     "routine for " << workdir << std::endl;
-    } else if (pid == 0) {
-        atf_disable_exit_checks();
-
-        int errcode = EXIT_FAILURE;
-        try {
-            sanitize_process(atf::fs::path(workdir));
-            cleanup();
-            errcode = EXIT_SUCCESS;
-        } catch (const std::exception& e) {
-            std::cerr << "WARNING: Caught unexpected exception while "
-                         "running the test case's cleanup routine: "
-                      << e.what() << std::endl;
-        } catch (...) {
-            std::cerr << "WARNING: Caught unknown exception while "
-                         "running the test case's cleanup routine"
-                      << std::endl;
-        }
-        std::exit(errcode);
-    } else {
-        int status;
-        if (::waitpid(pid, &status, 0) == -1)
-            std::cerr << "WARNING: Error while waiting for cleanup process "
-                      << atf::text::to_string(pid) << ": "
-                      << ::strerror(errno) << std::endl;
-        if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)
-            std::cerr << "WARNING: Cleanup process ended unexpectedly"
-                      << std::endl;
-    }
-}
-
-impl::tcr
-impl::tc::run(void)
-    const
-{
-    PRE(!m_meta_data.empty());
-
-    tcr tcr;
-
-    try {
-        tcr = safe_run();
-    } catch (const std::exception& e) {
-        tcr = tcr::failed(std::string("Unhandled exception: ") +
-                          e.what());
-    } catch (...) {
-        tcr = tcr::failed("Unknown unhandled exception");
-    }
-
-    return tcr;
+    atf_tcr_fini(&tcrc);
+    return tcrr;
 }
 
 void
@@ -687,14 +329,31 @@ impl::tc::require_prog(const std::string& prog)
 
     if (p.is_absolute()) {
         if (!fs::is_executable(p))
-            throw impl::tcr::skipped("The required program " + prog +
-                                     " could not be found");
+            skip("The required program " + prog + " could not be found");
     } else {
         INV(p.branch_path() == fs::path("."));
         if (!fs::have_prog_in_path(prog))
-            throw impl::tcr::skipped("The required program " + prog +
-                                     " could not be found in the PATH");
+            skip("The required program " + prog + " could not be found in "
+                 "the PATH");
     }
+}
+
+void
+impl::tc::pass(void)
+{
+    atf_tc_pass();
+}
+
+void
+impl::tc::fail(const std::string& reason)
+{
+    atf_tc_fail("%s", reason.c_str());
+}
+
+void
+impl::tc::skip(const std::string& reason)
+{
+    atf_tc_skip("%s", reason.c_str());
 }
 
 // ------------------------------------------------------------------------
@@ -721,7 +380,11 @@ private:
     options_set specific_options(void) const;
     void process_option(int, const char*);
 
+    void (*m_add_tcs)(tc_vector&);
     tc_vector m_tcs;
+
+    void parse_vflag(const std::string&);
+    void handle_srcdir(void);
 
     tc_vector init_tcs(void);
     static tc_vector filter_tcs(tc_vector,
@@ -733,7 +396,8 @@ private:
     int run_tcs(void);
 
 public:
-    tp(const tc_vector&);
+    tp(void (*)(tc_vector&));
+    ~tp(void);
 
     int main(void);
 };
@@ -741,14 +405,24 @@ public:
 const char* tp::m_description =
     "This is an independent atf test program.";
 
-tp::tp(const tc_vector& tcs) :
+tp::tp(void (*add_tcs)(tc_vector&)) :
     app(m_description, "atf-test-program(1)", "atf(7)"),
     m_lflag(false),
     m_results_fd(STDOUT_FILENO),
     m_srcdir("."),
     m_workdir(atf::config::get("atf_workdir")),
-    m_tcs(tcs)
+    m_add_tcs(add_tcs)
 {
+}
+
+tp::~tp(void)
+{
+    for (tc_vector::iterator iter = m_tcs.begin();
+         iter != m_tcs.end(); iter++) {
+        impl::tc* tc = *iter;
+
+        delete tc;
+    }
 }
 
 std::string
@@ -797,11 +471,7 @@ tp::process_option(int ch, const char* arg)
         break;
 
     case 'v':
-        {
-            atf::tests::vars_map::value_type v =
-                atf::tests::vars_map::parse(arg);
-            m_vars[v.first] = v.second;
-        }
+        parse_vflag(arg);
         break;
 
     case 'w':
@@ -813,19 +483,48 @@ tp::process_option(int ch, const char* arg)
     }
 }
 
+void
+tp::parse_vflag(const std::string& str)
+{
+    if (str.empty())
+        throw std::runtime_error("-v requires a non-empty argument");
+
+    std::vector< std::string > ws = atf::text::split(str, "=");
+    if (ws.size() == 1 && str[str.length() - 1] == '=') {
+        m_vars[ws[0]] = "";
+    } else {
+        if (ws.size() != 2)
+            throw std::runtime_error("-v requires an argument of the form "
+                                     "var=value");
+
+        m_vars[ws[0]] = ws[1];
+    }
+}
+
+void
+tp::handle_srcdir(void)
+{
+    if (!atf::fs::exists(m_srcdir / m_prog_name))
+        throw std::runtime_error("Cannot find the test program in the "
+                                 "source directory `" + m_srcdir.str() + "'");
+
+    if (!m_srcdir.is_absolute())
+        m_srcdir = m_srcdir.to_absolute();
+
+    m_vars["srcdir"] = m_srcdir.str();
+}
+
 tp::tc_vector
 tp::init_tcs(void)
 {
-    tc_vector tcs = m_tcs;
-
-    for (tc_vector::iterator iter = tcs.begin();
-         iter != tcs.end(); iter++) {
+    m_add_tcs(m_tcs);
+    for (tc_vector::iterator iter = m_tcs.begin();
+         iter != m_tcs.end(); iter++) {
         impl::tc* tc = *iter;
 
-        tc->init(m_vars, m_srcdir.str(), m_workdir.str());
+        tc->init(m_vars);
     }
-
-    return tcs;
+    return m_tcs;
 }
 
 //
@@ -843,7 +542,7 @@ public:
 
     bool operator()(const impl::tc* tc)
     {
-        return tc->get("ident") == m_ident;
+        return tc->get_md_var("ident") == m_ident;
     }
 };
 
@@ -863,7 +562,7 @@ tp::filter_tcs(tc_vector tcs, const std::vector< std::string >& tcnames)
              iter != tcs.end(); iter++) {
             impl::tc* tc = *iter;
 
-            ids.push_back(tc->get("ident"));
+            ids.push_back(tc->get_md_var("ident"));
         }
 
         // Iterate over all names provided by the user and, for each one,
@@ -906,16 +605,16 @@ tp::list_tcs(void)
          iter != tcs.end(); iter++) {
         const impl::tc* tc = *iter;
 
-        if (maxlen < tc->get("ident").length())
-            maxlen = tc->get("ident").length();
+        if (maxlen < tc->get_md_var("ident").length())
+            maxlen = tc->get_md_var("ident").length();
     }
 
     for (tc_vector::const_iterator iter = tcs.begin();
          iter != tcs.end(); iter++) {
         const impl::tc* tc = *iter;
 
-        std::cout << atf::ui::format_text_with_tag(tc->get("descr"),
-                                                   tc->get("ident"),
+        std::cout << atf::ui::format_text_with_tag(tc->get_md_var("descr"),
+                                                   tc->get_md_var("ident"),
                                                    false, maxlen + 4)
                   << std::endl;
     }
@@ -955,15 +654,15 @@ tp::run_tcs(void)
          iter != tcs.end(); iter++) {
         impl::tc* tc = *iter;
 
-        w.start_tc(tc->get("ident"));
-        impl::tcr tcr = tc->run();
+        w.start_tc(tc->get_md_var("ident"));
+        impl::tcr tcr = tc->run(m_workdir);
         w.end_tc(tcr);
 
         sighup.process();
         sigint.process();
         sigterm.process();
 
-        if (tcr.get_status() == impl::tcr::status_failed)
+        if (tcr.get_state() == impl::tcr::failed_state)
             errcode = EXIT_FAILURE;
     }
 
@@ -975,12 +674,7 @@ tp::main(void)
 {
     int errcode;
 
-    if (!atf::fs::exists(m_srcdir / m_prog_name))
-        throw std::runtime_error("Cannot find the test program in the "
-                                 "source directory `" + m_srcdir.str() + "'");
-
-    if (!m_srcdir.is_absolute())
-        m_srcdir = m_srcdir.to_absolute();
+    handle_srcdir();
 
     for (int i = 0; i < m_argc; i++)
         m_tcnames.push_back(m_argv[i]);
@@ -1001,12 +695,12 @@ tp::main(void)
 
 namespace atf {
     namespace tests {
-        int run_tp(int, char* const*, const tp::tc_vector&);
+        int run_tp(int, char* const*, void (*)(tp::tc_vector&));
     }
 }
 
 int
-impl::run_tp(int argc, char* const* argv, const tp::tc_vector& tcs)
+impl::run_tp(int argc, char* const* argv, void (*add_tcs)(tp::tc_vector&))
 {
-    return tp(tcs).run(argc, argv);
+    return tp(add_tcs).run(argc, argv);
 }

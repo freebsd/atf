@@ -51,7 +51,7 @@
 ATF_TC(init);
 ATF_TC_HEAD(init, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_tcr_init function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_tcr_init function");
 }
 ATF_TC_BODY(init, tc)
 {
@@ -64,31 +64,32 @@ ATF_TC_BODY(init, tc)
 ATF_TC(init_reason);
 ATF_TC_HEAD(init_reason, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_tcr_init_reason function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_tcr_init_reason_fmt "
+                      "function");
 }
 ATF_TC_BODY(init_reason, tc)
 {
     atf_tcr_t tcr;
 
-    CE(atf_tcr_init_reason(&tcr, atf_tcr_failed_state, "The reason"));
+    CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_failed_state, "The reason"));
     atf_tcr_fini(&tcr);
 
-    CE(atf_tcr_init_reason(&tcr, atf_tcr_failed_state, "The reason "
-                           "with %s %d", "string", 5));
+    CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_failed_state, "The reason "
+                               "with %s %d", "string", 5));
     atf_tcr_fini(&tcr);
 
-    CE(atf_tcr_init_reason(&tcr, atf_tcr_skipped_state, "The reason"));
+    CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_skipped_state, "The reason"));
     atf_tcr_fini(&tcr);
 
-    CE(atf_tcr_init_reason(&tcr, atf_tcr_skipped_state, "The reason "
-                           "with %s %d", "string", 5));
+    CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_skipped_state, "The reason "
+                               "with %s %d", "string", 5));
     atf_tcr_fini(&tcr);
 }
 
 ATF_TC(get_state);
 ATF_TC_HEAD(get_state, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_tcr_get_state function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_tcr_get_state function");
 }
 ATF_TC_BODY(get_state, tc)
 {
@@ -98,11 +99,11 @@ ATF_TC_BODY(get_state, tc)
     ATF_CHECK_EQUAL(atf_tcr_get_state(&tcr), atf_tcr_passed_state);
     atf_tcr_fini(&tcr);
 
-    CE(atf_tcr_init_reason(&tcr, atf_tcr_failed_state, "The reason"));
+    CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_failed_state, "The reason"));
     ATF_CHECK_EQUAL(atf_tcr_get_state(&tcr), atf_tcr_failed_state);
     atf_tcr_fini(&tcr);
 
-    CE(atf_tcr_init_reason(&tcr, atf_tcr_skipped_state, "The reason"));
+    CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_skipped_state, "The reason"));
     ATF_CHECK_EQUAL(atf_tcr_get_state(&tcr), atf_tcr_skipped_state);
     atf_tcr_fini(&tcr);
 }
@@ -110,31 +111,31 @@ ATF_TC_BODY(get_state, tc)
 ATF_TC(get_reason);
 ATF_TC_HEAD(get_reason, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_tcr_get_reason function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_tcr_get_reason function");
 }
 ATF_TC_BODY(get_reason, tc)
 {
     atf_tcr_t tcr;
     const atf_dynstr_t *reason;
 
-    CE(atf_tcr_init_reason(&tcr, atf_tcr_failed_state, "Failed"));
+    CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_failed_state, "Failed"));
     reason = atf_tcr_get_reason(&tcr);
     ATF_CHECK(atf_equal_dynstr_cstring(reason, "Failed"));
     atf_tcr_fini(&tcr);
 
-    CE(atf_tcr_init_reason(&tcr, atf_tcr_failed_state, "Failed with "
-                           "%s %d", "string", 5));
+    CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_failed_state, "Failed with "
+                               "%s %d", "string", 5));
     reason = atf_tcr_get_reason(&tcr);
     ATF_CHECK(atf_equal_dynstr_cstring(reason, "Failed with string 5"));
     atf_tcr_fini(&tcr);
 
-    CE(atf_tcr_init_reason(&tcr, atf_tcr_skipped_state, "Skipped"));
+    CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_skipped_state, "Skipped"));
     reason = atf_tcr_get_reason(&tcr);
     ATF_CHECK(atf_equal_dynstr_cstring(reason, "Skipped"));
     atf_tcr_fini(&tcr);
 
-    CE(atf_tcr_init_reason(&tcr, atf_tcr_skipped_state, "Skipped with "
-                           "%s %d", "string", 5));
+    CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_skipped_state, "Skipped with "
+                               "%s %d", "string", 5));
     reason = atf_tcr_get_reason(&tcr);
     ATF_CHECK(atf_equal_dynstr_cstring(reason, "Skipped with string 5"));
     atf_tcr_fini(&tcr);

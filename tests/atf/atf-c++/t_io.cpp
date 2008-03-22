@@ -133,7 +133,7 @@ systembuf_test_write(std::size_t length, std::size_t bufsize)
 ATF_TEST_CASE(file_handle_ctor);
 ATF_TEST_CASE_HEAD(file_handle_ctor)
 {
-    set("descr", "Tests file_handle's constructors");
+    set_md_var("descr", "Tests file_handle's constructors");
 }
 ATF_TEST_CASE_BODY(file_handle_ctor)
 {
@@ -150,7 +150,7 @@ ATF_TEST_CASE_BODY(file_handle_ctor)
 ATF_TEST_CASE(file_handle_copy);
 ATF_TEST_CASE_HEAD(file_handle_copy)
 {
-    set("descr", "Tests file_handle's copy constructor");
+    set_md_var("descr", "Tests file_handle's copy constructor");
 }
 ATF_TEST_CASE_BODY(file_handle_copy)
 {
@@ -173,7 +173,7 @@ ATF_TEST_CASE_BODY(file_handle_copy)
 ATF_TEST_CASE(file_handle_get);
 ATF_TEST_CASE_HEAD(file_handle_get)
 {
-    set("descr", "Tests the file_handle::get method");
+    set_md_var("descr", "Tests the file_handle::get method");
 }
 ATF_TEST_CASE_BODY(file_handle_get)
 {
@@ -186,7 +186,7 @@ ATF_TEST_CASE_BODY(file_handle_get)
 ATF_TEST_CASE(file_handle_posix_remap);
 ATF_TEST_CASE_HEAD(file_handle_posix_remap)
 {
-    set("descr", "Tests the file_handle::posix_remap method");
+    set_md_var("descr", "Tests the file_handle::posix_remap method");
 }
 ATF_TEST_CASE_BODY(file_handle_posix_remap)
 {
@@ -231,8 +231,8 @@ ATF_TEST_CASE_BODY(file_handle_posix_remap)
 ATF_TEST_CASE(systembuf_short_read);
 ATF_TEST_CASE_HEAD(systembuf_short_read)
 {
-    set("descr", "Tests that a short read (one that fits in the "
-                 "internal buffer) works when using systembuf");
+    set_md_var("descr", "Tests that a short read (one that fits in the "
+               "internal buffer) works when using systembuf");
 }
 ATF_TEST_CASE_BODY(systembuf_short_read)
 {
@@ -242,8 +242,8 @@ ATF_TEST_CASE_BODY(systembuf_short_read)
 ATF_TEST_CASE(systembuf_long_read);
 ATF_TEST_CASE_HEAD(systembuf_long_read)
 {
-    set("descr", "Tests that a long read (one that does not fit in the "
-                 "internal buffer) works when using systembuf");
+    set_md_var("descr", "Tests that a long read (one that does not fit in "
+               "the internal buffer) works when using systembuf");
 }
 ATF_TEST_CASE_BODY(systembuf_long_read)
 {
@@ -253,8 +253,8 @@ ATF_TEST_CASE_BODY(systembuf_long_read)
 ATF_TEST_CASE(systembuf_short_write);
 ATF_TEST_CASE_HEAD(systembuf_short_write)
 {
-    set("descr", "Tests that a short write (one that fits in the "
-                 "internal buffer) works when using systembuf");
+    set_md_var("descr", "Tests that a short write (one that fits in the "
+               "internal buffer) works when using systembuf");
 }
 ATF_TEST_CASE_BODY(systembuf_short_write)
 {
@@ -264,8 +264,8 @@ ATF_TEST_CASE_BODY(systembuf_short_write)
 ATF_TEST_CASE(systembuf_long_write);
 ATF_TEST_CASE_HEAD(systembuf_long_write)
 {
-    set("descr", "Tests that a long write (one that does not fit in the "
-                 "internal buffer) works when using systembuf");
+    set_md_var("descr", "Tests that a long write (one that does not fit "
+               "in the internal buffer) works when using systembuf");
 }
 ATF_TEST_CASE_BODY(systembuf_long_write)
 {
@@ -279,7 +279,7 @@ ATF_TEST_CASE_BODY(systembuf_long_write)
 ATF_TEST_CASE(pipe_read_and_write);
 ATF_TEST_CASE_HEAD(pipe_read_and_write)
 {
-    set("descr", "Tests reading from and writing to a pipe");
+    set_md_var("descr", "Tests reading from and writing to a pipe");
 }
 ATF_TEST_CASE_BODY(pipe_read_and_write)
 {
@@ -305,7 +305,7 @@ ATF_TEST_CASE_BODY(pipe_read_and_write)
 ATF_TEST_CASE(pipe_remap_read);
 ATF_TEST_CASE_HEAD(pipe_remap_read)
 {
-    set("descr", "Tests the pipe::remap_read method");
+    set_md_var("descr", "Tests the pipe::remap_read method");
 }
 ATF_TEST_CASE_BODY(pipe_remap_read)
 {
@@ -330,7 +330,7 @@ ATF_TEST_CASE_BODY(pipe_remap_read)
 ATF_TEST_CASE(pipe_remap_write);
 ATF_TEST_CASE_HEAD(pipe_remap_write)
 {
-    set("descr", "Tests the pipe::remap_write method");
+    set_md_var("descr", "Tests the pipe::remap_write method");
 }
 ATF_TEST_CASE_BODY(pipe_remap_write)
 {
@@ -365,7 +365,7 @@ ATF_TEST_CASE_BODY(pipe_remap_write)
 ATF_TEST_CASE(pistream);
 ATF_TEST_CASE_HEAD(pistream)
 {
-    set("descr", "Tests the pistream class");
+    set_md_var("descr", "Tests the pistream class");
 }
 ATF_TEST_CASE_BODY(pistream)
 {
@@ -397,7 +397,7 @@ ATF_TEST_CASE_BODY(pistream)
 ATF_TEST_CASE(postream);
 ATF_TEST_CASE_HEAD(postream)
 {
-    set("descr", "Tests the postream class");
+    set_md_var("descr", "Tests the postream class");
 }
 ATF_TEST_CASE_BODY(postream)
 {

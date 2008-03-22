@@ -69,7 +69,7 @@ create_files(void)
 ATF_TEST_CASE(path_normalize);
 ATF_TEST_CASE_HEAD(path_normalize)
 {
-    set("descr", "Tests the path's normalization");
+    set_md_var("descr", "Tests the path's normalization");
 }
 ATF_TEST_CASE_BODY(path_normalize)
 {
@@ -94,7 +94,7 @@ ATF_TEST_CASE_BODY(path_normalize)
 ATF_TEST_CASE(path_is_absolute);
 ATF_TEST_CASE_HEAD(path_is_absolute)
 {
-    set("descr", "Tests the path::is_absolute function");
+    set_md_var("descr", "Tests the path::is_absolute function");
 }
 ATF_TEST_CASE_BODY(path_is_absolute)
 {
@@ -111,7 +111,7 @@ ATF_TEST_CASE_BODY(path_is_absolute)
 ATF_TEST_CASE(path_is_root);
 ATF_TEST_CASE_HEAD(path_is_root)
 {
-    set("descr", "Tests the path::is_root function");
+    set_md_var("descr", "Tests the path::is_root function");
 }
 ATF_TEST_CASE_BODY(path_is_root)
 {
@@ -128,7 +128,7 @@ ATF_TEST_CASE_BODY(path_is_root)
 ATF_TEST_CASE(path_branch_path);
 ATF_TEST_CASE_HEAD(path_branch_path)
 {
-    set("descr", "Tests the path::branch_path function");
+    set_md_var("descr", "Tests the path::branch_path function");
 }
 ATF_TEST_CASE_BODY(path_branch_path)
 {
@@ -144,7 +144,7 @@ ATF_TEST_CASE_BODY(path_branch_path)
 ATF_TEST_CASE(path_leaf_name);
 ATF_TEST_CASE_HEAD(path_leaf_name)
 {
-    set("descr", "Tests the path::leaf_name function");
+    set_md_var("descr", "Tests the path::leaf_name function");
 }
 ATF_TEST_CASE_BODY(path_leaf_name)
 {
@@ -160,7 +160,7 @@ ATF_TEST_CASE_BODY(path_leaf_name)
 ATF_TEST_CASE(path_compare_equal);
 ATF_TEST_CASE_HEAD(path_compare_equal)
 {
-    set("descr", "Tests the comparison for equality between paths");
+    set_md_var("descr", "Tests the comparison for equality between paths");
 }
 ATF_TEST_CASE_BODY(path_compare_equal)
 {
@@ -177,7 +177,7 @@ ATF_TEST_CASE_BODY(path_compare_equal)
 ATF_TEST_CASE(path_compare_different);
 ATF_TEST_CASE_HEAD(path_compare_different)
 {
-    set("descr", "Tests the comparison for difference between paths");
+    set_md_var("descr", "Tests the comparison for difference between paths");
 }
 ATF_TEST_CASE_BODY(path_compare_different)
 {
@@ -195,7 +195,7 @@ ATF_TEST_CASE_BODY(path_compare_different)
 ATF_TEST_CASE(path_concat);
 ATF_TEST_CASE_HEAD(path_concat)
 {
-    set("descr", "Tests the concatenation of multiple paths");
+    set_md_var("descr", "Tests the concatenation of multiple paths");
 }
 ATF_TEST_CASE_BODY(path_concat)
 {
@@ -210,8 +210,8 @@ ATF_TEST_CASE_BODY(path_concat)
 ATF_TEST_CASE(path_to_absolute);
 ATF_TEST_CASE_HEAD(path_to_absolute)
 {
-    set("descr", "Tests the conversion of a relative path to an absolute "
-                 "one");
+    set_md_var("descr", "Tests the conversion of a relative path to an "
+               "absolute one");
 }
 ATF_TEST_CASE_BODY(path_to_absolute)
 {
@@ -246,7 +246,7 @@ ATF_TEST_CASE_BODY(path_to_absolute)
 ATF_TEST_CASE(path_op_less);
 ATF_TEST_CASE_HEAD(path_op_less)
 {
-    set("descr", "Tests that the path's less-than operator works");
+    set_md_var("descr", "Tests that the path's less-than operator works");
 }
 ATF_TEST_CASE_BODY(path_op_less)
 {
@@ -267,8 +267,8 @@ ATF_TEST_CASE_BODY(path_op_less)
 ATF_TEST_CASE(directory_read);
 ATF_TEST_CASE_HEAD(directory_read)
 {
-    set("descr", "Tests the directory class creation, which reads the "
-                 "contents of a directory");
+    set_md_var("descr", "Tests the directory class creation, which reads "
+               "the contents of a directory");
 }
 ATF_TEST_CASE_BODY(directory_read)
 {
@@ -288,8 +288,8 @@ ATF_TEST_CASE_BODY(directory_read)
 ATF_TEST_CASE(directory_file_info);
 ATF_TEST_CASE_HEAD(directory_file_info)
 {
-    set("descr", "Tests that the file_info objects attached to the "
-                 "directory are valid");
+    set_md_var("descr", "Tests that the file_info objects attached to the "
+               "directory are valid");
 }
 ATF_TEST_CASE_BODY(directory_file_info)
 {
@@ -319,7 +319,7 @@ ATF_TEST_CASE_BODY(directory_file_info)
 ATF_TEST_CASE(directory_names);
 ATF_TEST_CASE_HEAD(directory_names)
 {
-    set("descr", "Tests the directory's names method");
+    set_md_var("descr", "Tests the directory's names method");
 }
 ATF_TEST_CASE_BODY(directory_names)
 {
@@ -344,7 +344,7 @@ ATF_TEST_CASE_BODY(directory_names)
 ATF_TEST_CASE(file_info_stat);
 ATF_TEST_CASE_HEAD(file_info_stat)
 {
-    set("descr", "Tests the file_info creation and its basic contents");
+    set_md_var("descr", "Tests the file_info creation and its basic contents");
 }
 ATF_TEST_CASE_BODY(file_info_stat)
 {
@@ -369,8 +369,8 @@ ATF_TEST_CASE_BODY(file_info_stat)
 ATF_TEST_CASE(file_info_perms);
 ATF_TEST_CASE_HEAD(file_info_perms)
 {
-    set("descr", "Tests the file_info methods to get the file's "
-                 "permissions");
+    set_md_var("descr", "Tests the file_info methods to get the file's "
+               "permissions");
 }
 ATF_TEST_CASE_BODY(file_info_perms)
 {
@@ -445,7 +445,7 @@ ATF_TEST_CASE_BODY(file_info_perms)
 ATF_TEST_CASE(temp_dir_raii);
 ATF_TEST_CASE_HEAD(temp_dir_raii)
 {
-    set("descr", "Tests the RAII behavior of the temp_dir class");
+    set_md_var("descr", "Tests the RAII behavior of the temp_dir class");
 }
 ATF_TEST_CASE_BODY(temp_dir_raii)
 {
@@ -506,7 +506,7 @@ ATF_TEST_CASE_BODY(temp_dir_raii)
 ATF_TEST_CASE(change_directory);
 ATF_TEST_CASE_HEAD(change_directory)
 {
-    set("descr", "Tests the change_directory function");
+    set_md_var("descr", "Tests the change_directory function");
 }
 ATF_TEST_CASE_BODY(change_directory)
 {
@@ -532,7 +532,7 @@ ATF_TEST_CASE_BODY(change_directory)
 ATF_TEST_CASE(exists);
 ATF_TEST_CASE_HEAD(exists)
 {
-    set("descr", "Tests the exists function");
+    set_md_var("descr", "Tests the exists function");
 }
 ATF_TEST_CASE_BODY(exists)
 {
@@ -555,7 +555,7 @@ ATF_TEST_CASE_BODY(exists)
 ATF_TEST_CASE(get_current_dir);
 ATF_TEST_CASE_HEAD(get_current_dir)
 {
-    set("descr", "Tests the get_current_dir function");
+    set_md_var("descr", "Tests the get_current_dir function");
 }
 ATF_TEST_CASE_BODY(get_current_dir)
 {
@@ -581,7 +581,7 @@ ATF_TEST_CASE_BODY(get_current_dir)
 ATF_TEST_CASE(is_executable);
 ATF_TEST_CASE_HEAD(is_executable)
 {
-    set("descr", "Tests the is_executable function");
+    set_md_var("descr", "Tests the is_executable function");
 }
 ATF_TEST_CASE_BODY(is_executable)
 {
@@ -605,7 +605,7 @@ ATF_TEST_CASE_BODY(is_executable)
 ATF_TEST_CASE(cleanup);
 ATF_TEST_CASE_HEAD(cleanup)
 {
-    set("descr", "Tests the cleanup function");
+    set_md_var("descr", "Tests the cleanup function");
 }
 ATF_TEST_CASE_BODY(cleanup)
 {
@@ -627,7 +627,7 @@ ATF_TEST_CASE_BODY(cleanup)
 ATF_TEST_CASE(remove);
 ATF_TEST_CASE_HEAD(remove)
 {
-    set("descr", "Tests the remove function");
+    set_md_var("descr", "Tests the remove function");
 }
 ATF_TEST_CASE_BODY(remove)
 {

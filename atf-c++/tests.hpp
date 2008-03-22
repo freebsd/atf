@@ -40,6 +40,14 @@
 #include <map>
 #include <string>
 
+extern "C" {
+#include <atf-c/tc.h>
+#include <atf-c/tcr.h>
+}
+
+#include <atf-c++/fs.hpp>
+#include <atf-c++/utils.hpp>
+
 namespace atf {
 namespace tests {
 
@@ -47,20 +55,7 @@ namespace tests {
 // The "vars_map" class.
 // ------------------------------------------------------------------------
 
-class vars_map : public std::map< std::string, std::string >
-{
-public:
-    vars_map(void);
-
-    const std::string& get(const std::string&) const;
-    const std::string& get(const std::string&, const std::string&) const;
-    bool get_bool(const std::string&) const;
-    bool get_bool(const std::string&, bool) const;
-
-    bool has(const std::string&) const;
-
-    static value_type parse(const std::string&);
-};
+typedef std::map< std::string, std::string > vars_map;
 
 // ------------------------------------------------------------------------
 // The "tcr" class.
@@ -78,46 +73,34 @@ public:
 //! different classes, one for each status.
 //!
 class tcr {
+    atf_tcr_t m_tcr;
+
 public:
-    enum status { status_passed, status_skipped, status_failed };
+    typedef atf_tcr_state_t state;
 
-    tcr(void);
+    static const state passed_state;
+    static const state failed_state;
+    static const state skipped_state;
 
-    static tcr passed(void);
-    static tcr skipped(const std::string&);
-    static tcr failed(const std::string&);
+    tcr(state);
+    tcr(state, const std::string&);
+    tcr(const tcr&);
+    ~tcr(void);
 
-    status get_status(void) const;
-    const std::string& get_reason(void) const;
+    state get_state(void) const;
+    const std::string get_reason(void) const;
 
-private:
-    status m_status;
-    std::string m_reason;
-
-    tcr(status, const std::string&);
+    tcr& operator=(const tcr&);
 };
 
 // ------------------------------------------------------------------------
 // The "tc" class.
 // ------------------------------------------------------------------------
 
-class tc {
+class tc : public atf::utils::noncopyable {
     std::string m_ident;
-    vars_map m_meta_data;
-    vars_map m_config;
-
-    std::string m_srcdir;
-    std::string m_workdir;
-
-    void ensure_boolean(const std::string&);
-    void ensure_integral(const std::string&);
-    void ensure_not_empty(const std::string&);
-
-    tcr safe_run(void) const;
-    tcr fork_body(const std::string&) const;
-    void fork_cleanup(const std::string&) const;
-
-    void check_requirements(void) const;
+    atf_map_t m_config;
+    atf_tc_t m_tc;
 
 protected:
     virtual void head(void) = 0;
@@ -126,21 +109,30 @@ protected:
 
     void require_prog(const std::string&) const;
 
+    static void wrap_head(atf_tc_t *);
+    static void wrap_body(const atf_tc_t *);
+    static void wrap_cleanup(const atf_tc_t *);
+
 public:
     tc(const std::string&);
     virtual ~tc(void);
 
-    const std::string& get(const std::string&) const;
-    bool get_bool(const std::string&) const;
-    bool has(const std::string&) const;
-    void set(const std::string&, const std::string&);
+    void init(const vars_map&);
 
-    const vars_map& config(void) const;
+    const std::string get_config_var(const std::string&) const;
+    const std::string get_config_var(const std::string&, const std::string&)
+        const;
+    const std::string get_md_var(const std::string&) const;
+    bool has_config_var(const std::string&) const;
+    bool has_md_var(const std::string&) const;
+    void set_md_var(const std::string&, const std::string&);
 
-    const std::string& get_srcdir(void) const;
+    tcr run(const fs::path&) const;
 
-    void init(const vars_map&, const std::string&, const std::string&);
-    tcr run(void) const;
+    /* To be called from the child process only. */
+    static void pass(void);
+    static void fail(const std::string&);
+    static void skip(const std::string&);
 };
 
 } // namespace tests

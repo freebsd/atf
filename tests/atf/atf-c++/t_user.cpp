@@ -54,7 +54,7 @@ extern "C" {
 ATF_TEST_CASE(euid);
 ATF_TEST_CASE_HEAD(euid)
 {
-    set("descr", "Tests the euid function");
+    set_md_var("descr", "Tests the euid function");
 }
 ATF_TEST_CASE_BODY(euid)
 {
@@ -66,7 +66,7 @@ ATF_TEST_CASE_BODY(euid)
 ATF_TEST_CASE(is_member_of_group);
 ATF_TEST_CASE_HEAD(is_member_of_group)
 {
-    set("descr", "Tests the is_member_of_group function");
+    set_md_var("descr", "Tests the is_member_of_group function");
 }
 ATF_TEST_CASE_BODY(is_member_of_group)
 {
@@ -104,7 +104,7 @@ ATF_TEST_CASE_BODY(is_member_of_group)
 ATF_TEST_CASE(is_root);
 ATF_TEST_CASE_HEAD(is_root)
 {
-    set("descr", "Tests the is_root function");
+    set_md_var("descr", "Tests the is_root function");
 }
 ATF_TEST_CASE_BODY(is_root)
 {
@@ -120,7 +120,7 @@ ATF_TEST_CASE_BODY(is_root)
 ATF_TEST_CASE(is_unprivileged);
 ATF_TEST_CASE_HEAD(is_unprivileged)
 {
-    set("descr", "Tests the is_unprivileged function");
+    set_md_var("descr", "Tests the is_unprivileged function");
 }
 ATF_TEST_CASE_BODY(is_unprivileged)
 {

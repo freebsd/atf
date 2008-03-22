@@ -102,22 +102,6 @@ atf_map_iter_t atf_map_find(atf_map_t *, const char *);
 atf_map_citer_t atf_map_find_c(const atf_map_t *, const char *);
 size_t atf_map_size(const atf_map_t *);
 
-/* XXX These only make sense for maps that contain strings...  Don't
- * know if they really belong there.  A different approach could be to
- * "subclass" atf_map into a different type that assumes values as
- * strings.  But we currently do not need any other kind of map, so
- * this is not really needed. */
-atf_error_t atf_map_get_bool(const atf_map_t *, const char *, bool *);
-atf_error_t atf_map_get_bool_wd(const atf_map_t *, const char *, bool,
-                                bool *);
-atf_error_t atf_map_get_cstring(const atf_map_t *, const char *,
-                                const char **);
-atf_error_t atf_map_get_cstring_wd(const atf_map_t *, const char *,
-                                   const char *, const char **);
-atf_error_t atf_map_get_long(const atf_map_t *, const char *, long *);
-atf_error_t atf_map_get_long_wd(const atf_map_t *, const char *, long,
-                                long *);
-
 /* Modifiers. */
 atf_error_t atf_map_insert(atf_map_t *, const char *, void *, bool);
 

@@ -87,6 +87,11 @@ std::vector< std::string > split(const std::string&, const std::string&);
 std::string trim(const std::string&);
 
 //!
+//! \brief Converts a string to a boolean value.
+//!
+bool to_bool(const std::string&);
+
+//!
 //! \brief Changes the case of a string to lowercase.
 //!
 //! Returns a new string that is a lowercased version of the original

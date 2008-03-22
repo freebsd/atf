@@ -34,6 +34,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <errno.h>
+#include <limits.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -91,6 +93,49 @@ atf_text_format_ap(char **dest, const char *fmt, va_list ap)
     va_end(ap2);
     if (!atf_is_error(err))
         *dest = atf_dynstr_fini_disown(&tmp);
+
+    return err;
+}
+
+atf_error_t
+atf_text_to_bool(const char *str, bool *b)
+{
+    atf_error_t err;
+
+    if (strcasecmp(str, "yes") == 0 ||
+        strcasecmp(str, "true") == 0) {
+        *b = true;
+        err = atf_no_error();
+    } else if (strcasecmp(str, "no") == 0 ||
+               strcasecmp(str, "false") == 0) {
+        *b = false;
+        err = atf_no_error();
+    } else {
+        /* XXX Not really a libc error. */
+        err = atf_libc_error(EINVAL, "Cannot convert string '%s' "
+                             "to boolean", str);
+    }
+
+    return err;
+}
+
+atf_error_t
+atf_text_to_long(const char *str, long *l)
+{
+    atf_error_t err;
+    char *endptr;
+    long tmp;
+
+    errno = 0;
+    tmp = strtol(str, &endptr, 10);
+    if (str[0] == '\0' || *endptr != '\0')
+        err = atf_libc_error(EINVAL, "'%s' is not a number", str);
+    else if (errno == ERANGE || (tmp == LONG_MAX || tmp == LONG_MIN))
+        err = atf_libc_error(ERANGE, "'%s' is out of range", str);
+    else {
+        *l = tmp;
+        err = atf_no_error();
+    }
 
     return err;
 }

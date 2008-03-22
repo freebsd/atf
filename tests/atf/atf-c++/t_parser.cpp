@@ -46,7 +46,7 @@
 ATF_TEST_CASE(token_getters);
 ATF_TEST_CASE_HEAD(token_getters)
 {
-    set("descr", "Tests the token getters");
+    set_md_var("descr", "Tests the token getters");
 }
 ATF_TEST_CASE_BODY(token_getters)
 {
@@ -177,8 +177,8 @@ namespace quotes {
 ATF_TEST_CASE(tokenizer_minimal_nows);
 ATF_TEST_CASE_HEAD(tokenizer_minimal_nows)
 {
-    set("descr", "Tests the tokenizer class using a minimal parser and "
-                 "not skipping whitespace");
+    set_md_var("descr", "Tests the tokenizer class using a minimal parser "
+               "and not skipping whitespace");
 }
 ATF_TEST_CASE_BODY(tokenizer_minimal_nows)
 {
@@ -260,8 +260,8 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_nows)
 ATF_TEST_CASE(tokenizer_minimal_ws);
 ATF_TEST_CASE_HEAD(tokenizer_minimal_ws)
 {
-    set("descr", "Tests the tokenizer class using a minimal parser and "
-                 "skipping whitespace");
+    set_md_var("descr", "Tests the tokenizer class using a minimal parser "
+               "and skipping whitespace");
 }
 ATF_TEST_CASE_BODY(tokenizer_minimal_ws)
 {
@@ -394,8 +394,8 @@ ATF_TEST_CASE_BODY(tokenizer_minimal_ws)
 ATF_TEST_CASE(tokenizer_delims_nows);
 ATF_TEST_CASE_HEAD(tokenizer_delims_nows)
 {
-    set("descr", "Tests the tokenizer class using a parser with some "
-                 "additional delimiters and not skipping whitespace");
+    set_md_var("descr", "Tests the tokenizer class using a parser with some "
+               "additional delimiters and not skipping whitespace");
 }
 ATF_TEST_CASE_BODY(tokenizer_delims_nows)
 {
@@ -467,8 +467,8 @@ ATF_TEST_CASE_BODY(tokenizer_delims_nows)
 ATF_TEST_CASE(tokenizer_delims_ws);
 ATF_TEST_CASE_HEAD(tokenizer_delims_ws)
 {
-    set("descr", "Tests the tokenizer class using a parser with some "
-                 "additional delimiters and skipping whitespace");
+    set_md_var("descr", "Tests the tokenizer class using a parser with some "
+               "additional delimiters and skipping whitespace");
 }
 ATF_TEST_CASE_BODY(tokenizer_delims_ws)
 {
@@ -491,8 +491,8 @@ ATF_TEST_CASE_BODY(tokenizer_delims_ws)
 ATF_TEST_CASE(tokenizer_keywords_nows);
 ATF_TEST_CASE_HEAD(tokenizer_keywords_nows)
 {
-    set("descr", "Tests the tokenizer class using a parser with some "
-                 "additional keywords and not skipping whitespace");
+    set_md_var("descr", "Tests the tokenizer class using a parser with some "
+               "additional keywords and not skipping whitespace");
 }
 ATF_TEST_CASE_BODY(tokenizer_keywords_nows)
 {
@@ -551,8 +551,8 @@ ATF_TEST_CASE_BODY(tokenizer_keywords_nows)
 ATF_TEST_CASE(tokenizer_keywords_ws);
 ATF_TEST_CASE_HEAD(tokenizer_keywords_ws)
 {
-    set("descr", "Tests the tokenizer class using a parser with some "
-                 "additional keywords and not skipping whitespace");
+    set_md_var("descr", "Tests the tokenizer class using a parser with some "
+               "additional keywords and not skipping whitespace");
 }
 ATF_TEST_CASE_BODY(tokenizer_keywords_ws)
 {
@@ -595,8 +595,8 @@ ATF_TEST_CASE_BODY(tokenizer_keywords_ws)
 ATF_TEST_CASE(tokenizer_quotes_nows);
 ATF_TEST_CASE_HEAD(tokenizer_quotes_nows)
 {
-    set("descr", "Tests the tokenizer class using a parser with "
-                 "quoted strings and not skipping whitespace");
+    set_md_var("descr", "Tests the tokenizer class using a parser with "
+               "quoted strings and not skipping whitespace");
 }
 ATF_TEST_CASE_BODY(tokenizer_quotes_nows)
 {
@@ -644,8 +644,8 @@ ATF_TEST_CASE_BODY(tokenizer_quotes_nows)
 ATF_TEST_CASE(tokenizer_quotes_ws);
 ATF_TEST_CASE_HEAD(tokenizer_quotes_ws)
 {
-    set("descr", "Tests the tokenizer class using a parser with "
-                 "quoted strings and skipping whitespace");
+    set_md_var("descr", "Tests the tokenizer class using a parser with "
+               "quoted strings and skipping whitespace");
 }
 ATF_TEST_CASE_BODY(tokenizer_quotes_ws)
 {

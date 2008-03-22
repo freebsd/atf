@@ -43,7 +43,7 @@
 ATF_TEST_CASE(join);
 ATF_TEST_CASE_HEAD(join)
 {
-    set("descr", "Tests the join function");
+    set_md_var("descr", "Tests the join function");
 }
 ATF_TEST_CASE_BODY(join)
 {
@@ -117,7 +117,7 @@ ATF_TEST_CASE_BODY(join)
 ATF_TEST_CASE(split);
 ATF_TEST_CASE_HEAD(split)
 {
-    set("descr", "Tests the split function");
+    set_md_var("descr", "Tests the split function");
 }
 ATF_TEST_CASE_BODY(split)
 {
@@ -182,7 +182,7 @@ ATF_TEST_CASE_BODY(split)
 ATF_TEST_CASE(split_delims);
 ATF_TEST_CASE_HEAD(split_delims)
 {
-    set("descr", "Tests the split function using different delimiters");
+    set_md_var("descr", "Tests the split function using different delimiters");
 }
 ATF_TEST_CASE_BODY(split_delims)
 {
@@ -216,7 +216,7 @@ ATF_TEST_CASE_BODY(split_delims)
 ATF_TEST_CASE(trim);
 ATF_TEST_CASE_HEAD(trim)
 {
-    set("descr", "Tests the trim function");
+    set_md_var("descr", "Tests the trim function");
 }
 ATF_TEST_CASE_BODY(trim)
 {
@@ -239,10 +239,36 @@ ATF_TEST_CASE_BODY(trim)
     ATF_CHECK_EQUAL(trim("foo bar \t"), "foo bar");
 }
 
+ATF_TEST_CASE(to_bool);
+ATF_TEST_CASE_HEAD(to_bool)
+{
+    set_md_var("descr", "Tests the to_string function");
+}
+ATF_TEST_CASE_BODY(to_bool)
+{
+    using atf::text::to_bool;
+
+    ATF_CHECK(to_bool("true"));
+    ATF_CHECK(to_bool("TRUE"));
+    ATF_CHECK(to_bool("yes"));
+    ATF_CHECK(to_bool("YES"));
+
+    ATF_CHECK(!to_bool("false"));
+    ATF_CHECK(!to_bool("FALSE"));
+    ATF_CHECK(!to_bool("no"));
+    ATF_CHECK(!to_bool("NO"));
+
+    ATF_CHECK_THROW(to_bool(""), std::runtime_error);
+    ATF_CHECK_THROW(to_bool("tru"), std::runtime_error);
+    ATF_CHECK_THROW(to_bool("true2"), std::runtime_error);
+    ATF_CHECK_THROW(to_bool("fals"), std::runtime_error);
+    ATF_CHECK_THROW(to_bool("false2"), std::runtime_error);
+}
+
 ATF_TEST_CASE(to_string);
 ATF_TEST_CASE_HEAD(to_string)
 {
-    set("descr", "Tests the to_string function");
+    set_md_var("descr", "Tests the to_string function");
 }
 ATF_TEST_CASE_BODY(to_string)
 {
@@ -252,11 +278,11 @@ ATF_TEST_CASE_BODY(to_string)
     ATF_CHECK_EQUAL(to_string("a"), "a");
     ATF_CHECK_EQUAL(to_string(5), "5");
 }
-#include <iostream>
+
 ATF_TEST_CASE(to_type);
 ATF_TEST_CASE_HEAD(to_type)
 {
-    set("descr", "Tests the to_type function");
+    set_md_var("descr", "Tests the to_type function");
 }
 ATF_TEST_CASE_BODY(to_type)
 {
@@ -281,6 +307,7 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, split);
     ATF_ADD_TEST_CASE(tcs, split_delims);
     ATF_ADD_TEST_CASE(tcs, trim);
+    ATF_ADD_TEST_CASE(tcs, to_bool);
     ATF_ADD_TEST_CASE(tcs, to_string);
     ATF_ADD_TEST_CASE(tcs, to_type);
 }

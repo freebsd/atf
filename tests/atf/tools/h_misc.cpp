@@ -46,20 +46,20 @@
 ATF_TEST_CASE(atf_run_config);
 ATF_TEST_CASE_HEAD(atf_run_config)
 {
-    set("descr", "Helper test case for the t_atf_run test program");
+    set_md_var("descr", "Helper test case for the t_atf_run test program");
 }
 ATF_TEST_CASE_BODY(atf_run_config)
 {
-    std::cout << "1st: " << config().get("1st") << std::endl;
-    std::cout << "2nd: " << config().get("2nd") << std::endl;
-    std::cout << "3rd: " << config().get("3rd") << std::endl;
-    std::cout << "4th: " << config().get("4th") << std::endl;
+    std::cout << "1st: " << get_config_var("1st") << std::endl;
+    std::cout << "2nd: " << get_config_var("2nd") << std::endl;
+    std::cout << "3rd: " << get_config_var("3rd") << std::endl;
+    std::cout << "4th: " << get_config_var("4th") << std::endl;
 }
 
 ATF_TEST_CASE(atf_run_fds);
 ATF_TEST_CASE_HEAD(atf_run_fds)
 {
-    set("descr", "Helper test case for the t_atf_run test program");
+    set_md_var("descr", "Helper test case for the t_atf_run test program");
 }
 ATF_TEST_CASE_BODY(atf_run_fds)
 {
@@ -72,13 +72,13 @@ ATF_TEST_CASE_BODY(atf_run_fds)
 ATF_TEST_CASE(atf_run_testvar);
 ATF_TEST_CASE_HEAD(atf_run_testvar)
 {
-    set("descr", "Helper test case for the t_atf_run test program");
+    set_md_var("descr", "Helper test case for the t_atf_run test program");
 }
 ATF_TEST_CASE_BODY(atf_run_testvar)
 {
-    if (!config().has("testvar"))
+    if (!has_config_var("testvar"))
         ATF_FAIL("testvar variable not defined");
-    std::cout << "testvar: " << config().get("testvar") << std::endl;
+    std::cout << "testvar: " << get_config_var("testvar") << std::endl;
 }
 
 // ------------------------------------------------------------------------
@@ -88,7 +88,7 @@ ATF_TEST_CASE_BODY(atf_run_testvar)
 ATF_TEST_CASE(atf_report_diff);
 ATF_TEST_CASE_HEAD(atf_report_diff)
 {
-    set("descr", "Helper test case for the t_atf_report test program");
+    set_md_var("descr", "Helper test case for the t_atf_report test program");
 }
 ATF_TEST_CASE_BODY(atf_report_diff)
 {

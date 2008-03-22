@@ -97,7 +97,7 @@ c_build_body()
 
 ATF_TC(tp);
 ATF_TC_HEAD(tp, tc) {
-    atf_tc_set_var(tc, "descr", "A test case");
+    atf_tc_set_md_var(tc, "descr", "A test case");
 }
 ATF_TC_BODY(tp, tc) {
     printf("Running\n");
@@ -183,7 +183,7 @@ cxx_build_body()
 
 ATF_TEST_CASE(tp);
 ATF_TEST_CASE_HEAD(tp) {
-    set("descr", "A test case");
+    set_md_var("descr", "A test case");
 }
 ATF_TEST_CASE_BODY(tp) {
     std::cout << "Running" << std::endl;

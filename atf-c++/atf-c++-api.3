@@ -33,7 +33,7 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd January 5, 2008
+.Dd March 22, 2008
 .Dt ATF-C++-API 3
 .Os
 .Sh NAME
@@ -177,43 +177,17 @@ Both of them are strings.
 .Ss Configuration variables
 The test case has read-only access to the current configuration variables
 by means of the
-.Ft vars_map
-.Fn config
-method, which can be called in any of the three parts of a test case.
-.Pp
-The
-.Ft vars_map
-type extends a string-to-string standard C++ map and adds some convenience
-functions to it.
-The
-.Fn has
-method takes the name of a configuration variable and returns a boolean
-indicating whether the map contains it or not.
-If the variable is present, there are several getters to retrieve its
-value.
-.Pp
-The first version of the
-.Fn get
-method takes the name of a variable and returns its value as a textual
-string.
-It assumes that the variable is present in the map and will crash your
-program if it is not.
-The second is an overloaded version of
-.Fn get
-that takes two parameters: the name of a variable and the default value for
-it.
-It returns the variable's value if it is defined, or the default value
-if not.
-.Pp
-Similarly, there are a couple of
-.Fn get_bool
-methods that mimic the previous ones but interpret the variable's textual
-value and return a boolean instead.
+.Ft bool
+.Fn has_config_var
+and the
+.Ft std::string
+.Fn get_config_var
+methods, which can be called in any of the three parts of a test case.
 .Ss Access to the source directory
 It is possible to get the path to the test case's source directory from any
-of its three components by using the
-.Fn get_srcdir
-method.
+of its three components by querying the
+.Sq srcdir
+configuration variable.
 .Ss Requiring programs
 Aside from the
 .Va require.progs

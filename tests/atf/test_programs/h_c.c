@@ -64,7 +64,7 @@ write_cwd(const atf_tc_t *tc, const char *confvar)
     const char *p;
     FILE *f;
 
-    CE(atf_map_get_cstring(atf_tc_get_config(tc), confvar, &p));
+    p = atf_tc_get_config_var(tc, confvar);
 
     f = fopen(p, "w");
     if (f == NULL)
@@ -113,85 +113,70 @@ touch(const char *path)
 ATF_TC_WITH_CLEANUP(cleanup_pass);
 ATF_TC_HEAD(cleanup_pass, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_cleanup test "
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_cleanup test "
                "program");
 }
 ATF_TC_BODY(cleanup_pass, tc)
 {
-    const char *tmp;
-
-    CE(atf_map_get_cstring(atf_tc_get_config(tc), "tmpfile", &tmp));
-    touch(tmp);
+    touch(atf_tc_get_config_var(tc, "tmpfile"));
 }
 ATF_TC_CLEANUP(cleanup_pass, tc)
 {
-    const char *tmp;
     bool cleanup;
 
-    CE(atf_map_get_cstring(atf_tc_get_config(tc), "tmpfile", &tmp));
-    CE(atf_map_get_bool(atf_tc_get_config(tc), "cleanup", &cleanup));
+    CE(atf_text_to_bool(atf_tc_get_config_var(tc, "cleanup"), &cleanup));
 
     if (cleanup)
-        safe_remove(tmp);
+        safe_remove(atf_tc_get_config_var(tc, "tmpfile"));
 }
 
 ATF_TC_WITH_CLEANUP(cleanup_fail);
 ATF_TC_HEAD(cleanup_fail, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_cleanup test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_cleanup test "
+                      "program");
 }
 ATF_TC_BODY(cleanup_fail, tc)
 {
-    const char *tmp;
-
-    CE(atf_map_get_cstring(atf_tc_get_config(tc), "tmpfile", &tmp));
-    touch(tmp);
+    touch(atf_tc_get_config_var(tc, "tmpfile"));
     atf_tc_fail("On purpose");
 }
 ATF_TC_CLEANUP(cleanup_fail, tc)
 {
-    const char *tmp;
     bool cleanup;
 
-    CE(atf_map_get_cstring(atf_tc_get_config(tc), "tmpfile", &tmp));
-    CE(atf_map_get_bool(atf_tc_get_config(tc), "cleanup", &cleanup));
+    CE(atf_text_to_bool(atf_tc_get_config_var(tc, "cleanup"), &cleanup));
 
     if (cleanup)
-        safe_remove(tmp);
+        safe_remove(atf_tc_get_config_var(tc, "tmpfile"));
 }
 
 ATF_TC_WITH_CLEANUP(cleanup_skip);
 ATF_TC_HEAD(cleanup_skip, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_cleanup test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_cleanup test "
+                      "program");
 }
 ATF_TC_BODY(cleanup_skip, tc)
 {
-    const char *tmp;
-
-    CE(atf_map_get_cstring(atf_tc_get_config(tc), "tmpfile", &tmp));
-    touch(tmp);
+    touch(atf_tc_get_config_var(tc, "tmpfile"));
     atf_tc_skip("On purpose");
 }
 ATF_TC_CLEANUP(cleanup_skip, tc)
 {
-    const char *tmp;
     bool cleanup;
 
-    CE(atf_map_get_cstring(atf_tc_get_config(tc), "tmpfile", &tmp));
-    CE(atf_map_get_bool(atf_tc_get_config(tc), "cleanup", &cleanup));
+    CE(atf_text_to_bool(atf_tc_get_config_var(tc, "cleanup"), &cleanup));
 
     if (cleanup)
-        safe_remove(tmp);
+        safe_remove(atf_tc_get_config_var(tc, "tmpfile"));
 }
 
 ATF_TC_WITH_CLEANUP(cleanup_curdir);
 ATF_TC_HEAD(cleanup_curdir, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_cleanup test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_cleanup test "
+                      "program");
 }
 ATF_TC_BODY(cleanup_curdir, tc)
 {
@@ -219,37 +204,31 @@ ATF_TC_CLEANUP(cleanup_curdir, tc)
 ATF_TC_WITH_CLEANUP(cleanup_sigterm);
 ATF_TC_HEAD(cleanup_sigterm, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_cleanup test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_cleanup test "
+                      "program");
 }
 ATF_TC_BODY(cleanup_sigterm, tc)
 {
     char *nofile;
-    const char *tmp;
 
-    CE(atf_map_get_cstring(atf_tc_get_config(tc), "tmpfile", &tmp));
-
-    touch(tmp);
+    touch(atf_tc_get_config_var(tc, "tmpfile"));
     kill(getpid(), SIGTERM);
 
-    CE(atf_text_format(&nofile, "%s.no", tmp));
+    CE(atf_text_format(&nofile, "%s.no",
+                       atf_tc_get_config_var(tc, "tmpfile")));
     touch(nofile);
     free(nofile);
 }
 ATF_TC_CLEANUP(cleanup_sigterm, tc)
 {
-    const char *tmp;
-
-    CE(atf_map_get_cstring(atf_tc_get_config(tc), "tmpfile", &tmp));
-
-    safe_remove(tmp);
+    safe_remove(atf_tc_get_config_var(tc, "tmpfile"));
 }
 
 ATF_TC_WITH_CLEANUP(cleanup_fork);
 ATF_TC_HEAD(cleanup_fork, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_cleanup test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_cleanup test "
+                      "program");
 }
 ATF_TC_BODY(cleanup_fork, tc)
 {
@@ -268,67 +247,48 @@ ATF_TC_CLEANUP(cleanup_fork, tc)
 ATF_TC(config_unset);
 ATF_TC_HEAD(config_unset, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_config test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_config test "
+                      "program");
 }
 ATF_TC_BODY(config_unset, tc)
 {
-    const atf_map_t *config = atf_tc_get_config(tc);
-    atf_map_citer_t iter;
-
-    iter = atf_map_find_c(config, "test");
-    ATF_CHECK(atf_equal_map_citer_map_citer(iter, atf_map_end_c(config)));
+    ATF_CHECK(!atf_tc_has_config_var(tc, "test"));
 }
 
 ATF_TC(config_empty);
 ATF_TC_HEAD(config_empty, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_config test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_config test "
+                      "program");
 }
 ATF_TC_BODY(config_empty, tc)
 {
-    atf_map_citer_t iter;
-    const char *value;
-
-    iter = atf_map_find_c(atf_tc_get_config(tc), "test");
-    value = atf_map_citer_data(iter);
-
-    ATF_CHECK(strlen(value) == 0);
+    ATF_CHECK(atf_tc_has_config_var(tc, "test"));
+    ATF_CHECK(strlen(atf_tc_get_config_var(tc, "test")) == 0);
 }
 
 ATF_TC(config_value);
 ATF_TC_HEAD(config_value, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_config test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_config test "
+                      "program");
 }
 ATF_TC_BODY(config_value, tc)
 {
-    atf_map_citer_t iter;
-    const char *value;
-
-    iter = atf_map_find_c(atf_tc_get_config(tc), "test");
-    value = atf_map_citer_data(iter);
-
-    ATF_CHECK(strcmp(value, "foo") == 0);
+    ATF_CHECK(atf_tc_has_config_var(tc, "test"));
+    ATF_CHECK(strcmp(atf_tc_get_config_var(tc, "test"), "foo") == 0);
 }
 
 ATF_TC(config_multi_value);
 ATF_TC_HEAD(config_multi_value, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_config test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_config test "
+                      "program");
 }
 ATF_TC_BODY(config_multi_value, tc)
 {
-    atf_map_citer_t iter;
-    const char *value;
-
-    iter = atf_map_find_c(atf_tc_get_config(tc), "test");
-    value = atf_map_citer_data(iter);
-
-    ATF_CHECK(strcmp(value, "foo bar") == 0);
+    ATF_CHECK(atf_tc_has_config_var(tc, "test"));
+    ATF_CHECK(strcmp(atf_tc_get_config_var(tc, "test"), "foo bar") == 0);
 }
 
 /* ---------------------------------------------------------------------
@@ -338,8 +298,8 @@ ATF_TC_BODY(config_multi_value, tc)
 ATF_TC(env_home);
 ATF_TC_HEAD(env_home, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_env test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_env test "
+                      "program");
 }
 ATF_TC_BODY(env_home, tc)
 {
@@ -363,8 +323,8 @@ ATF_TC_BODY(env_home, tc)
 ATF_TC(env_list);
 ATF_TC_HEAD(env_list, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_env test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_env test "
+                      "program");
 }
 ATF_TC_BODY(env_list, tc)
 {
@@ -378,15 +338,14 @@ ATF_TC_BODY(env_list, tc)
 ATF_TC(fork_mangle_fds);
 ATF_TC_HEAD(fork_mangle_fds, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_fork test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_fork test "
+                      "program");
 }
 ATF_TC_BODY(fork_mangle_fds, tc)
 {
-    const atf_map_t *config = atf_tc_get_config(tc);
     long resfd;
 
-    CE(atf_map_get_long(config, "resfd", &resfd));
+    CE(atf_text_to_long(atf_tc_get_config_var(tc, "resfd"), &resfd));
 
     if (close(STDIN_FILENO) == -1)
         atf_tc_fail("Failed to close stdin");
@@ -406,17 +365,16 @@ ATF_TC_BODY(fork_mangle_fds, tc)
 ATF_TC(fork_stop);
 ATF_TC_HEAD(fork_stop, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_fork test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_fork test "
+                      "program");
 }
 ATF_TC_BODY(fork_stop, tc)
 {
-    const atf_map_t *config = atf_tc_get_config(tc);
     FILE *f;
     const char *dfstr, *pfstr;
 
-    CE(atf_map_get_cstring(config, "donefile", &dfstr));
-    CE(atf_map_get_cstring(config, "pidfile", &pfstr));
+    dfstr = atf_tc_get_config_var(tc, "donefile");
+    pfstr = atf_tc_get_config_var(tc, "pidfile");
 
     f = fopen(pfstr, "w");
     if (f == NULL)
@@ -434,8 +392,8 @@ ATF_TC_BODY(fork_stop, tc)
 ATF_TC(fork_umask);
 ATF_TC_HEAD(fork_umask, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_fork test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_fork test "
+                      "program");
 }
 ATF_TC_BODY(fork_umask, tc)
 {
@@ -449,36 +407,32 @@ ATF_TC_BODY(fork_umask, tc)
 ATF_TC(ident_1);
 ATF_TC_HEAD(ident_1, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
 }
 ATF_TC_BODY(ident_1, tc)
 {
-    ATF_CHECK(strcmp(atf_tc_get_var(tc, "ident"), "ident_1") == 0);
+    ATF_CHECK(strcmp(atf_tc_get_md_var(tc, "ident"), "ident_1") == 0);
 }
 
 ATF_TC(ident_2);
 ATF_TC_HEAD(ident_2, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
 }
 ATF_TC_BODY(ident_2, tc)
 {
-    ATF_CHECK(strcmp(atf_tc_get_var(tc, "ident"), "ident_2") == 0);
+    ATF_CHECK(strcmp(atf_tc_get_md_var(tc, "ident"), "ident_2") == 0);
 }
 
 ATF_TC(require_arch);
 ATF_TC_HEAD(require_arch, tc)
 {
-    const atf_map_t *config = atf_tc_get_config(tc);
-    const char *arch;
-
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-
-    atf_map_get_cstring_wd(config, "arch", "not-set", &arch);
-    atf_tc_set_var(tc, "require.arch", "%s", arch);
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "require.arch", "%s",
+                   atf_tc_get_config_var_wd(tc, "arch", "not-set"));
 }
 ATF_TC_BODY(require_arch, tc)
 {
@@ -487,33 +441,23 @@ ATF_TC_BODY(require_arch, tc)
 ATF_TC(require_config);
 ATF_TC_HEAD(require_config, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-    atf_tc_set_var(tc, "require.config", "var1 var2");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "require.config", "var1 var2");
 }
 ATF_TC_BODY(require_config, tc)
 {
-    const atf_map_t *config = atf_tc_get_config(tc);
-    const char *v1, *v2;
-
-    CE(atf_map_get_cstring(config, "var1", &v1));
-    CE(atf_map_get_cstring(config, "var2", &v2));
-
-    printf("var1: %s\n", v1);
-    printf("var2: %s\n", v2);
+    printf("var1: %s\n", atf_tc_get_config_var(tc, "var1"));
+    printf("var2: %s\n", atf_tc_get_config_var(tc, "var2"));
 }
 
 ATF_TC(require_machine);
 ATF_TC_HEAD(require_machine, tc)
 {
-    const atf_map_t *config = atf_tc_get_config(tc);
-    const char *machine;
-
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-
-    atf_map_get_cstring_wd(config, "machine", "not-set", &machine);
-    atf_tc_set_var(tc, "require.machine", "%s", machine);
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "require.machine", "%s",
+                   atf_tc_get_config_var_wd(tc, "machine", "not-set"));
 }
 ATF_TC_BODY(require_machine, tc)
 {
@@ -522,28 +466,21 @@ ATF_TC_BODY(require_machine, tc)
 ATF_TC(require_progs_body);
 ATF_TC_HEAD(require_progs_body, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
 }
 ATF_TC_BODY(require_progs_body, tc)
 {
-    const atf_map_t *config = atf_tc_get_config(tc);
-    const char *progs;
-
-    CE(atf_map_get_cstring(config, "progs", &progs));
-    atf_tc_require_prog(progs);
+    atf_tc_require_prog(atf_tc_get_config_var(tc, "progs"));
 }
 
 ATF_TC(require_progs_head);
 ATF_TC_HEAD(require_progs_head, tc)
 {
-    const atf_map_t *config = atf_tc_get_config(tc);
-    const char *progs;
-
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-    atf_map_get_cstring_wd(config, "progs", "not-set", &progs);
-    atf_tc_set_var(tc, "require.progs", "%s", progs);
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "require.progs", "%s",
+                   atf_tc_get_config_var_wd(tc, "progs", "not-set"));
 }
 ATF_TC_BODY(require_progs_head, tc)
 {
@@ -552,14 +489,10 @@ ATF_TC_BODY(require_progs_head, tc)
 ATF_TC(require_user);
 ATF_TC_HEAD(require_user, tc)
 {
-    const atf_map_t *config = atf_tc_get_config(tc);
-    const char *user;
-
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-
-    atf_map_get_cstring_wd(config, "user", "not-set", &user);
-    atf_tc_set_var(tc, "require.user", user);
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "require.user", "%s",
+                   atf_tc_get_config_var_wd(tc, "user", "not-set"));
 }
 ATF_TC_BODY(require_user, tc)
 {
@@ -568,14 +501,10 @@ ATF_TC_BODY(require_user, tc)
 ATF_TC(require_user2);
 ATF_TC_HEAD(require_user2, tc)
 {
-    const atf_map_t *config = atf_tc_get_config(tc);
-    const char *user;
-
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-
-    atf_map_get_cstring_wd(config, "user2", "not-set", &user);
-    atf_tc_set_var(tc, "require.user", user);
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "require.user", "%s",
+                   atf_tc_get_config_var_wd(tc, "user2", "not-set"));
 }
 ATF_TC_BODY(require_user2, tc)
 {
@@ -584,14 +513,10 @@ ATF_TC_BODY(require_user2, tc)
 ATF_TC(require_user3);
 ATF_TC_HEAD(require_user3, tc)
 {
-    const atf_map_t *config = atf_tc_get_config(tc);
-    const char *user;
-
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-
-    atf_map_get_cstring_wd(config, "user3", "not-set", &user);
-    atf_tc_set_var(tc, "require.user", user);
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "require.user", "%s",
+                   atf_tc_get_config_var_wd(tc, "user3", "not-set"));
 }
 ATF_TC_BODY(require_user3, tc)
 {
@@ -600,41 +525,32 @@ ATF_TC_BODY(require_user3, tc)
 ATF_TC(timeout);
 ATF_TC_HEAD(timeout, tc)
 {
-    const atf_map_t *config = atf_tc_get_config(tc);
-    const char *timeout;
-
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-    atf_map_get_cstring_wd(config, "timeout", "0", &timeout);
-    atf_tc_set_var(tc, "timeout", "%s", timeout);
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "timeout", "%s",
+                   atf_tc_get_config_var_wd(tc, "timeout", "0"));
 }
 ATF_TC_BODY(timeout, tc)
 {
-    const atf_map_t *config = atf_tc_get_config(tc);
     long s;
 
-    CE(atf_map_get_long(config, "sleep", &s));
+    CE(atf_text_to_long(atf_tc_get_config_var(tc, "sleep"), &s));
     sleep(s);
 }
 
 ATF_TC(timeout2);
 ATF_TC_HEAD(timeout2, tc)
 {
-    const atf_map_t *config = atf_tc_get_config(tc);
-    const char *timeout2;
-
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_meta_data "
-                   "test program");
-
-    atf_map_get_cstring_wd(config, "timeout2", "0", &timeout2);
-    atf_tc_set_var(tc, "timeout", "%s", timeout2);
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
+                      "test program");
+    atf_tc_set_md_var(tc, "timeout", "%s",
+                   atf_tc_get_config_var_wd(tc, "timeout2", "0"));
 }
 ATF_TC_BODY(timeout2, tc)
 {
-    const atf_map_t *config = atf_tc_get_config(tc);
     long s;
 
-    CE(atf_map_get_long(config, "sleep2", &s));
+    CE(atf_text_to_long(atf_tc_get_config_var(tc, "sleep2"), &s));
     sleep(s);
 }
 
@@ -645,19 +561,16 @@ ATF_TC_BODY(timeout2, tc)
 ATF_TC(srcdir_exists);
 ATF_TC_HEAD(srcdir_exists, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_srcdir test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_srcdir test "
+                      "program");
 }
 ATF_TC_BODY(srcdir_exists, tc)
 {
-    const atf_map_t *config = atf_tc_get_config(tc);
-    const char *srcdir;
     atf_fs_path_t p;
     bool b;
 
-    CE(atf_map_get_cstring(config, "srcdir", &srcdir));
-
-    CE(atf_fs_path_init_fmt(&p, "%s/datafile", srcdir));
+    CE(atf_fs_path_init_fmt(&p, "%s/datafile",
+                            atf_tc_get_config_var(tc, "srcdir")));
     CE(atf_fs_exists(&p, &b));
     if (!b)
         atf_tc_fail("Cannot find datafile");
@@ -671,8 +584,8 @@ ATF_TC_BODY(srcdir_exists, tc)
 ATF_TC(status_newlines_fail);
 ATF_TC_HEAD(status_newlines_fail, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_status test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_status test "
+                      "program");
 }
 ATF_TC_BODY(status_newlines_fail, tc)
 {
@@ -682,8 +595,8 @@ ATF_TC_BODY(status_newlines_fail, tc)
 ATF_TC(status_newlines_skip);
 ATF_TC_HEAD(status_newlines_skip, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_status test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_status test "
+                      "program");
 }
 ATF_TC_BODY(status_newlines_skip, tc)
 {
@@ -697,8 +610,8 @@ ATF_TC_BODY(status_newlines_skip, tc)
 ATF_TC(workdir_path);
 ATF_TC_HEAD(workdir_path, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_workdir test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_workdir test "
+                      "program");
 }
 ATF_TC_BODY(workdir_path, tc)
 {
@@ -708,8 +621,8 @@ ATF_TC_BODY(workdir_path, tc)
 ATF_TC(workdir_cleanup);
 ATF_TC_HEAD(workdir_cleanup, tc)
 {
-    atf_tc_set_var(tc, "descr", "Helper test case for the t_workdir test "
-                   "program");
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_workdir test "
+                      "program");
 }
 ATF_TC_BODY(workdir_cleanup, tc)
 {

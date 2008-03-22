@@ -35,9 +35,12 @@
  */
 
 #include <sys/types.h>
+#include <sys/wait.h>
+
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include <atf-c.h>
@@ -78,7 +81,8 @@ test2_handler(int signo)
 ATF_TC(last_signo);
 ATF_TC_HEAD(last_signo, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the value of atf_signals_last_signo");
+    atf_tc_set_md_var(tc, "descr", "Tests the value of "
+                      "atf_signals_last_signo");
 }
 ATF_TC_BODY(last_signo, tc)
 {
@@ -104,8 +108,8 @@ ATF_TC_BODY(last_signo, tc)
 ATF_TC(signal_holder_init);
 ATF_TC_HEAD(signal_holder_init, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_signal_holder_init "
-                   "function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_signal_holder_init "
+                      "function");
 }
 ATF_TC_BODY(signal_holder_init, tc)
 {
@@ -126,8 +130,8 @@ ATF_TC_BODY(signal_holder_init, tc)
 ATF_TC(signal_holder_fini);
 ATF_TC_HEAD(signal_holder_fini, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_signal_holder_fini "
-                   "function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_signal_holder_fini "
+                      "function");
 }
 ATF_TC_BODY(signal_holder_fini, tc)
 {
@@ -159,8 +163,8 @@ ATF_TC_BODY(signal_holder_fini, tc)
 ATF_TC(signal_holder_process);
 ATF_TC_HEAD(signal_holder_process, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_signal_holder_process "
-                   "function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_signal_holder_process "
+                      "function");
 }
 ATF_TC_BODY(signal_holder_process, tc)
 {
@@ -191,8 +195,8 @@ ATF_TC_BODY(signal_holder_process, tc)
 ATF_TC(signal_programmer_init);
 ATF_TC_HEAD(signal_programmer_init, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_signal_programmer_init "
-                   "function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_signal_programmer_init "
+                      "function");
 }
 ATF_TC_BODY(signal_programmer_init, tc)
 {
@@ -212,8 +216,8 @@ ATF_TC_BODY(signal_programmer_init, tc)
 ATF_TC(signal_programmer_fini);
 ATF_TC_HEAD(signal_programmer_fini, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_signal_programmer_fini "
-                   "function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_signal_programmer_fini "
+                      "function");
 }
 ATF_TC_BODY(signal_programmer_fini, tc)
 {
@@ -238,6 +242,46 @@ ATF_TC_BODY(signal_programmer_fini, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Test cases for the free functions.
+ * --------------------------------------------------------------------- */
+
+ATF_TC(signal_reset);
+ATF_TC_HEAD(signal_reset, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_signal_reset function");
+}
+ATF_TC_BODY(signal_reset, tc)
+{
+    pid_t pid = fork();
+    ATF_CHECK(pid != -1);
+    if (pid == 0) {
+        struct sigaction sa;
+
+        sa.sa_handler = test1_handler;
+        sigemptyset(&sa.sa_mask);
+        sa.sa_flags = 0;
+
+        ATF_CHECK(sigaction(SIGTERM, &sa, NULL) != -1);
+        ATF_CHECK(!test1_happened);
+        kill(getpid(), SIGTERM);
+        ATF_CHECK(test1_happened);
+
+        test1_happened = false;
+        atf_signal_reset(SIGTERM);
+        kill(getpid(), SIGTERM);
+
+        printf("Signal was not resetted correctly\n");
+        abort();
+    } else {
+        int ecode;
+
+        ATF_CHECK(waitpid(pid, &ecode, 0) != -1);
+        ATF_CHECK(WIFEXITED(ecode) || WIFSIGNALED(ecode));
+        ATF_CHECK(!WIFSIGNALED(ecode) || WTERMSIG(ecode) == SIGTERM);
+    }
+}
+
+/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -254,6 +298,9 @@ ATF_TP_ADD_TCS(tp)
     /* Add the tests for the "signal_programmer" type. */
     ATF_TP_ADD_TC(tp, signal_programmer_init);
     ATF_TP_ADD_TC(tp, signal_programmer_fini);
+
+    /* Add the tests for the free functions. */
+    ATF_TP_ADD_TC(tp, signal_reset);
 
     return atf_no_error();
 }

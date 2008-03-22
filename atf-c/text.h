@@ -46,5 +46,7 @@ atf_error_t atf_text_for_each_word(const char *, const char *,
                                    void *);
 atf_error_t atf_text_format(char **, const char *, ...);
 atf_error_t atf_text_format_ap(char **, const char *, va_list);
+atf_error_t atf_text_to_bool(const char *, bool *);
+atf_error_t atf_text_to_long(const char *, long *);
 
 #endif /* ATF_C_TEXT_H */

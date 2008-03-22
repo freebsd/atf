@@ -56,7 +56,7 @@ void __atf_config_reinit(void);
 ATF_TC(get);
 ATF_TC_HEAD(get, tc)
 {
-    atf_tc_set_var(tc, "descr", "Tests the atf_config_get function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_config_get function");
 }
 ATF_TC_BODY(get, tc)
 {
