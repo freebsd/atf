@@ -99,99 +99,6 @@ namespace timeout {
 } // namespace timeout
 
 // ------------------------------------------------------------------------
-// The "vars_map" class.
-// ------------------------------------------------------------------------
-
-impl::vars_map::vars_map(void)
-{
-}
-
-const std::string&
-impl::vars_map::get(const std::string& key)
-    const
-{
-    const_iterator iter = find(key);
-    if (iter == end())
-        throw std::runtime_error("Could not find variable `" + key +
-                                 "' in map");
-    return (*iter).second;
-}
-
-const std::string&
-impl::vars_map::get(const std::string& key, const std::string& def)
-    const
-{
-    const_iterator iter = find(key);
-    return (iter == end()) ? def : (*iter).second;
-}
-
-bool
-impl::vars_map::get_bool(const std::string& key)
-    const
-{
-    bool val;
-
-    std::string str = text::to_lower(get(key));
-    if (str == "yes" || str == "true")
-        val = true;
-    else if (str == "no" || str == "false")
-        val = false;
-    else
-        throw std::runtime_error("Invalid value for boolean variable `" +
-                                 key + "'");
-
-    return val;
-}
-
-bool
-impl::vars_map::get_bool(const std::string& key, bool def)
-    const
-{
-    bool val;
-
-    const_iterator iter = find(key);
-    if (iter == end())
-        val = def;
-    else {
-        std::string str = text::to_lower((*iter).second);
-        if (str == "yes" || str == "true")
-            val = true;
-        else if (str == "no" || str == "false")
-            val = false;
-        else
-            throw std::runtime_error("Invalid value for boolean "
-                                     "variable `" + key + "'");
-    }
-
-    return val;
-}
-
-bool
-impl::vars_map::has(const std::string& key)
-    const
-{
-    return find(key) != end();
-}
-
-impl::vars_map::value_type
-impl::vars_map::parse(const std::string& str)
-{
-    if (str.empty())
-        throw std::runtime_error("-v requires a non-empty argument");
-
-    std::vector< std::string > ws = atf::text::split(str, "=");
-    if (ws.size() == 1 && str[str.length() - 1] == '=') {
-        return impl::vars_map::value_type(ws[0], "");
-    } else {
-        if (ws.size() != 2)
-            throw std::runtime_error("-v requires an argument of the form "
-                                     "var=value");
-
-        return impl::vars_map::value_type(ws[0], ws[1]);
-    }
-}
-
-// ------------------------------------------------------------------------
 // The "tcr" class.
 // ------------------------------------------------------------------------
 
@@ -476,6 +383,7 @@ private:
     void (*m_add_tcs)(tc_vector&);
     tc_vector m_tcs;
 
+    void parse_vflag(const std::string&);
     void handle_srcdir(void);
 
     tc_vector init_tcs(void);
@@ -563,11 +471,7 @@ tp::process_option(int ch, const char* arg)
         break;
 
     case 'v':
-        {
-            atf::tests::vars_map::value_type v =
-                atf::tests::vars_map::parse(arg);
-            m_vars[v.first] = v.second;
-        }
+        parse_vflag(arg);
         break;
 
     case 'w':
@@ -576,6 +480,24 @@ tp::process_option(int ch, const char* arg)
 
     default:
         UNREACHABLE;
+    }
+}
+
+void
+tp::parse_vflag(const std::string& str)
+{
+    if (str.empty())
+        throw std::runtime_error("-v requires a non-empty argument");
+
+    std::vector< std::string > ws = atf::text::split(str, "=");
+    if (ws.size() == 1 && str[str.length() - 1] == '=') {
+        m_vars[ws[0]] = "";
+    } else {
+        if (ws.size() != 2)
+            throw std::runtime_error("-v requires an argument of the form "
+                                     "var=value");
+
+        m_vars[ws[0]] = ws[1];
     }
 }
 

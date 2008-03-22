@@ -55,22 +55,7 @@ namespace tests {
 // The "vars_map" class.
 // ------------------------------------------------------------------------
 
-/* XXX Kill this. */
-
-class vars_map : public std::map< std::string, std::string >
-{
-public:
-    vars_map(void);
-
-    const std::string& get(const std::string&) const;
-    const std::string& get(const std::string&, const std::string&) const;
-    bool get_bool(const std::string&) const;
-    bool get_bool(const std::string&, bool) const;
-
-    bool has(const std::string&) const;
-
-    static value_type parse(const std::string&);
-};
+typedef std::map< std::string, std::string > vars_map;
 
 // ------------------------------------------------------------------------
 // The "tcr" class.

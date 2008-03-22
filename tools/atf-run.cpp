@@ -212,6 +212,8 @@ class atf_run : public atf::application::app {
     std::string specific_args(void) const;
     options_set specific_options(void) const;
 
+    void parse_vflag(const std::string&);
+
     void read_one_config(const atf::fs::path&);
     void read_config(const std::string&);
     std::vector< std::string > conf_args(void) const;
@@ -256,11 +258,7 @@ atf_run::process_option(int ch, const char* arg)
 {
     switch (ch) {
     case 'v':
-        {
-            atf::tests::vars_map::value_type v =
-                atf::tests::vars_map::parse(arg);
-            m_cmdline_vars[v.first] = v.second;
-        }
+        parse_vflag(arg);
         break;
 
     default:
@@ -285,6 +283,24 @@ atf_run::specific_options(void)
                                          "`var' to `value'; overrides "
                                          "values in configuration files"));
     return opts;
+}
+
+void
+atf_run::parse_vflag(const std::string& str)
+{
+    if (str.empty())
+        throw std::runtime_error("-v requires a non-empty argument");
+
+    std::vector< std::string > ws = atf::text::split(str, "=");
+    if (ws.size() == 1 && str[str.length() - 1] == '=') {
+        m_cmdline_vars[ws[0]] = "";
+    } else {
+        if (ws.size() != 2)
+            throw std::runtime_error("-v requires an argument of the form "
+                                     "var=value");
+
+        m_cmdline_vars[ws[0]] = ws[1];
+    }
 }
 
 int
