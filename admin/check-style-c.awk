@@ -99,6 +99,10 @@ BEGIN {
     warn("setprogname(3) is not portable");
 }
 
+/strdup/ {
+    warn("Use atf_text_dup instead of strdup");
+}
+
 /\/\// {
     warn("Do not use C99-style comments");
 }

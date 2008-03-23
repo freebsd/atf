@@ -40,7 +40,23 @@
 #include <stdlib.h>
 
 #include "atf-c/dynstr.h"
+#include "atf-c/mem.h"
 #include "atf-c/text.h"
+
+atf_error_t
+atf_text_dup(char **dest, const char *src)
+{
+    atf_error_t err;
+    char *str;
+
+    err = atf_mem_alloc((void **)&str, strlen(src) + sizeof(char));
+    if (!atf_is_error(err)) {
+        strcpy(str, src);
+        *dest = str;
+    }
+
+    return err;
+}
 
 atf_error_t
 atf_text_for_each_word(const char *instr, const char *sep,

@@ -41,6 +41,7 @@
 
 #include <atf-c/error.h>
 
+atf_error_t atf_text_dup(char **, const char *);
 atf_error_t atf_text_for_each_word(const char *, const char *,
                                    atf_error_t (*)(const char *, void *),
                                    void *);
