@@ -119,6 +119,8 @@ libatf_c_la_SOURCES = atf-c/config.c \
                       atf-c/macros.h \
                       atf-c/map.c \
                       atf-c/map.h \
+                      atf-c/mem.c \
+                      atf-c/mem.h \
                       atf-c/object.c \
                       atf-c/object.h \
                       atf-c/sanity.c \
@@ -150,6 +152,7 @@ atf_c_HEADERS = atf-c/config.h \
                 atf-c/list.h \
                 atf-c/macros.h \
                 atf-c/map.h \
+                atf-c/mem.h \
                 atf-c/object.h \
                 atf-c/sanity.h \
                 atf-c/signals.h \
@@ -460,6 +463,11 @@ atf_atf_c_PROGRAMS += tests/atf/atf-c/t_map
 tests_atf_atf_c_t_map_SOURCES = tests/atf/atf-c/t_map.c
 tests_atf_atf_c_t_map_LDADD = -latf-c
 tests_atf_atf_c_t_map_LDFLAGS = -L.
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_mem
+tests_atf_atf_c_t_mem_SOURCES = tests/atf/atf-c/t_mem.c
+tests_atf_atf_c_t_mem_LDADD = -latf-c
+tests_atf_atf_c_t_mem_LDFLAGS = -L.
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_signals
 tests_atf_atf_c_t_signals_SOURCES = tests/atf/atf-c/t_signals.c
@@ -1016,6 +1024,7 @@ tests_build_libuseless_a_SOURCES = \
     tests/build/atf-c/t_include_list_h.c \
     tests/build/atf-c/t_include_macros_h.c \
     tests/build/atf-c/t_include_map_h.c \
+    tests/build/atf-c/t_include_mem_h.c \
     tests/build/atf-c/t_include_object_h.c \
     tests/build/atf-c/t_include_sanity_h.c \
     tests/build/atf-c/t_include_signals_h.c \
