@@ -46,6 +46,7 @@ extern "C" {
 #include <vector>
 
 extern "C" {
+#include "atf-c/mem.h"
 #include "atf-c/object.h"
 }
 
@@ -292,6 +293,7 @@ process(const std::string& file, const std::string& outname = "",
 int
 main(int argc, char* argv[])
 {
+    atf_mem_sys_init();
     atf_init_objects();
 
     try {

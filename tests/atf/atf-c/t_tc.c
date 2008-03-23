@@ -40,6 +40,7 @@
 #include <atf-c.h>
 
 #include "atf-c/tcr.h"
+#include "atf-c/text.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -152,9 +153,11 @@ ATF_TC_BODY(config, tcin)
 {
     atf_tc_t tc;
     atf_map_t config;
+    char *tmp;
 
     CE(atf_map_init(&config));
-    CE(atf_map_insert(&config, "test-var", strdup("test-value"), true));
+    CE(atf_text_dup(&tmp, "test-value"));
+    CE(atf_map_insert(&config, "test-var", tmp, true));
 
     CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
                    ATF_TC_BODY_NAME(empty), NULL, NULL));

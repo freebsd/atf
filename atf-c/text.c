@@ -66,11 +66,9 @@ atf_text_for_each_word(const char *instr, const char *sep,
     atf_error_t err;
     char *str, *str2, *last;
 
-    str = strdup(instr);
-    if (str == NULL) {
-        err = atf_no_memory_error();
+    err = atf_text_dup(&str, instr);
+    if (atf_is_error(err))
         goto out;
-    }
 
     err = atf_no_error();
     str2 = strtok_r(str, sep, &last);
@@ -79,7 +77,7 @@ atf_text_for_each_word(const char *instr, const char *sep,
         str2 = strtok_r(NULL, sep, &last);
     }
 
-    free(str);
+    atf_mem_free(str);
 out:
     return err;
 }

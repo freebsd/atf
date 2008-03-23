@@ -78,7 +78,7 @@ atf_env_set(const char *name, const char *val)
         if (putenv(buf) == -1)
             err = atf_libc_error(errno, "Cannot set environment variable "
                                  "'%s' to '%s'", name, val);
-        free(buf);
+        atf_mem_free(buf);
     }
 #else
 #   error "Don't know how to set an environment variable."
@@ -103,7 +103,7 @@ atf_env_unset(const char *name)
         if (putenv(buf) == -1)
             err = atf_libc_error(errno, "Cannot unset environment variable"
                                  " '%s'", name);
-        free(buf);
+        atf_mem_free(buf);
     }
 #else
 #   error "Don't know how to unset an environment variable."

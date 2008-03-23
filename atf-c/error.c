@@ -40,6 +40,7 @@
 #include <string.h>
 
 #include "atf-c/error.h"
+#include "atf-c/mem.h"
 #include "atf-c/sanity.h"
 
 /* ---------------------------------------------------------------------
@@ -55,11 +56,14 @@ error_format(const atf_error_t err, char *buf, size_t buflen)
 }
 
 static
-bool
+atf_error_t
 error_init(atf_error_t err, const char *type, void *data, size_t datalen,
            void (*format)(const atf_error_t, char *, size_t))
 {
-    bool ok;
+    /* errret is the error we return and can only be atf_no_error or
+     * atf_no_memory_error.  None of the two use dynamic memory, so it
+     * is safe to allocate and return them from here. */
+    atf_error_t errret;
 
     PRE(data != NULL || datalen == 0);
     PRE(datalen != 0 || data == NULL);
@@ -70,18 +74,16 @@ error_init(atf_error_t err, const char *type, void *data, size_t datalen,
     err->m_type = type;
     err->m_format = (format == NULL) ? error_format : format;
 
-    ok = true;
     if (data == NULL) {
         err->m_data = NULL;
+        errret = atf_no_error();
     } else {
-        err->m_data = malloc(datalen);
-        if (err->m_data == NULL)
-            ok = false;
-        else
+        errret = atf_mem_alloc((void **)&err->m_data, datalen);
+        if (!atf_is_error(errret))
             memcpy(err->m_data, data, datalen);
     }
 
-    return ok;
+    return errret;
 }
 
 /* ---------------------------------------------------------------------
@@ -93,21 +95,26 @@ atf_error_new(const char *type, void *data, size_t datalen,
               void (*format)(const atf_error_t, char *, size_t))
 {
     atf_error_t err;
+    atf_error_t erraux;
 
     PRE(data != NULL || datalen == 0);
     PRE(datalen != 0 || data == NULL);
 
-    err = malloc(sizeof(*err));
-    if (err == NULL)
-        err = atf_no_memory_error();
-    else {
-        if (!error_init(err, type, data, datalen, format)) {
-            free(err);
-            err = atf_no_memory_error();
+    erraux = atf_mem_alloc((void **)&err, sizeof(*err));
+    if (atf_is_error(erraux)) {
+        err = erraux;
+        erraux = atf_no_error();
+    } else {
+        erraux = error_init(err, type, data, datalen, format);
+        if (atf_is_error(erraux)) {
+            atf_mem_free(err);
+            err = erraux;
+            erraux = atf_no_error();
         } else
             err->m_free = true;
     }
 
+    INV(!atf_is_error(erraux));
     INV(err != NULL);
     return err;
 }
@@ -122,12 +129,12 @@ atf_error_free(atf_error_t err)
     freeit = err->m_free;
 
     if (err->m_data != NULL)
-        free(err->m_data);
+        atf_mem_free(err->m_data);
 
     atf_object_fini(&err->m_object);
 
     if (freeit)
-        free(err);
+        atf_mem_free(err);
 }
 
 atf_error_t
@@ -239,6 +246,9 @@ no_memory_format(const atf_error_t err, char *buf, size_t buflen)
 atf_error_t
 atf_no_memory_error(void)
 {
+    /* This CANNOT use dynamic memory, or otherwise we will enter an
+     * infinite loop when failing due to this condition. */
+
     if (!no_memory_error_inited) {
         error_init(&no_memory_error, "no_memory", NULL, 0,
                    no_memory_format);

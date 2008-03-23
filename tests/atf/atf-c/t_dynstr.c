@@ -42,6 +42,7 @@
 #include <atf-c.h>
 
 #include "atf-c/dynstr.h"
+#include "atf-c/mem.h"
 
 #define CE(stm) ATF_CHECK(!atf_is_error(stm))
 
@@ -289,7 +290,7 @@ ATF_TC_BODY(fini_disown, tc)
     cstr2 = atf_dynstr_fini_disown(&str);
 
     ATF_CHECK_EQUAL(cstr, cstr2);
-    free(cstr2);
+    atf_mem_free(cstr2);
 }
 
 /*

@@ -84,12 +84,13 @@ void
 init_config(atf_map_t *config)
 {
     atf_fs_path_t cwd;
+    char *tmp;
 
     CE(atf_map_init(config));
 
     CE(atf_fs_getcwd(&cwd));
-    CE(atf_map_insert(config, "ctldir",
-                      strdup(atf_fs_path_cstring(&cwd)), true));
+    CE(atf_text_dup(&tmp, atf_fs_path_cstring(&cwd)));
+    CE(atf_map_insert(config, "ctldir", tmp, true));
     atf_fs_path_fini(&cwd);
 }
 
@@ -163,9 +164,11 @@ ATF_TC_BODY(check, tc)
         atf_map_t config;
         atf_tc_t tcaux;
         atf_tcr_t tcr;
+        char *tmp;
 
         init_config(&config);
-        CE(atf_map_insert(&config, "condition", strdup(t->cond), true));
+        CE(atf_text_dup(&tmp, t->cond));
+        CE(atf_map_insert(&config, "condition", tmp, true));
 
         printf("Checking with a %s value\n", t->cond);
 
@@ -220,10 +223,13 @@ ATF_TC_BODY(check_equal, tc)
         atf_map_t config;
         atf_tc_t tcaux;
         atf_tcr_t tcr;
+        char *tmp;
 
         init_config(&config);
-        CE(atf_map_insert(&config, "v1", strdup(t->v1), true));
-        CE(atf_map_insert(&config, "v2", strdup(t->v2), true));
+        CE(atf_text_dup(&tmp, t->v1));
+        CE(atf_map_insert(&config, "v1", tmp, true));
+        CE(atf_text_dup(&tmp, t->v2));
+        CE(atf_map_insert(&config, "v2", tmp, true));
 
         printf("Checking with %s, %s and expecting %s\n", t->v1, t->v2,
                t->ok ? "true" : "false");

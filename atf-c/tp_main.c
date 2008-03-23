@@ -51,8 +51,10 @@
 #include "atf-c/fs.h"
 #include "atf-c/object.h"
 #include "atf-c/map.h"
+#include "atf-c/mem.h"
 #include "atf-c/sanity.h"
 #include "atf-c/tc.h"
+#include "atf-c/text.h"
 #include "atf-c/tp.h"
 #include "atf-c/ui.h"
 
@@ -218,7 +220,7 @@ params_fini(struct params *p)
     atf_map_fini(&p->m_config);
 
     atf_list_for_each(iter, &p->m_tcglobs)
-        free(atf_list_iter_data(iter));
+        atf_mem_free(atf_list_iter_data(iter));
 
     atf_list_fini(&p->m_tcglobs);
 }
@@ -287,13 +289,27 @@ match_tcs(const atf_tp_t *tp, const char *glob, atf_list_t *ids)
 
             err = atf_expand_matches_glob(glob, ident, &matches);
             if (!atf_is_error(err) && matches) {
-                err = atf_list_append(ids, strdup(ident));
-                found = true;
+                char *tmp;
+                err = atf_text_dup(&tmp, ident);
+                if (!atf_is_error(err)) {
+                    err = atf_list_append(ids, tmp);
+                    if (atf_is_error(err))
+                        atf_mem_free(tmp);
+                    else
+                        found = true;
+                }
             }
         } else {
             if (strcmp(glob, tc->m_ident) == 0) {
-                err = atf_list_append(ids, strdup(ident));
-                found = true;
+                char *tmp;
+                err = atf_text_dup(&tmp, ident);
+                if (!atf_is_error(err)) {
+                    err = atf_list_append(ids, tmp);
+                    if (atf_is_error(err))
+                        atf_mem_free(tmp);
+                    else
+                        found = true;
+                }
             }
         }
 
@@ -457,11 +473,25 @@ process_params(int argc, char **argv, struct params *p)
 
     if (!atf_is_error(err)) {
         char **arg;
-        for (arg = argv; !atf_is_error(err) && *arg != NULL; arg++)
-            err = atf_list_append(&p->m_tcglobs, strdup(*arg));
+        for (arg = argv; !atf_is_error(err) && *arg != NULL; arg++) {
+            char *tmp;
+            err = atf_text_dup(&tmp, *arg);
+            if (!atf_is_error(err)) {
+                err = atf_list_append(&p->m_tcglobs, tmp);
+                if (atf_is_error(err))
+                    atf_mem_free(tmp);
+            }
+        }
 
-        if (!atf_is_error(err) && atf_list_size(&p->m_tcglobs) == 0)
-            err = atf_list_append(&p->m_tcglobs, strdup("*"));
+        if (!atf_is_error(err) && atf_list_size(&p->m_tcglobs) == 0) {
+            char *tmp;
+            err = atf_text_dup(&tmp, "*");
+            if (!atf_is_error(err)) {
+                err = atf_list_append(&p->m_tcglobs, tmp);
+                if (atf_is_error(err))
+                    atf_mem_free(tmp);
+            }
+        }
     }
 
     if (atf_is_error(err))
@@ -505,8 +535,13 @@ handle_srcdir(struct params *p)
     err = atf_fs_exists(&exe, &b);
     if (!atf_is_error(err)) {
         if (b) {
-            err = atf_map_insert(&p->m_config, "srcdir",
-                                 strdup(atf_fs_path_cstring(&srcdir)), true);
+            char *tmp;
+            err = atf_text_dup(&tmp, atf_fs_path_cstring(&srcdir));
+            if (!atf_is_error(err)) {
+                err = atf_map_insert(&p->m_config, "srcdir", tmp, true);
+                if (atf_is_error(err))
+                    atf_mem_free(tmp);
+            }
         } else {
             err = user_error("Cannot find the test program in the source "
                              "directory `%s'", p->m_srcdir);
@@ -610,7 +645,7 @@ controlled_main(int argc, char **argv,
         atf_list_iter_t iter;
 
         atf_list_for_each(iter, &tcids)
-            free(atf_list_iter_data(iter));
+            atf_mem_free(atf_list_iter_data(iter));
 
         atf_list_fini(&tcids);
     }
@@ -630,6 +665,7 @@ atf_tp_main(int argc, char **argv, atf_error_t (*add_tcs_hook)(atf_tp_t *))
     atf_error_t err;
     int exitcode;
 
+    atf_mem_sys_init();
     atf_init_objects();
 
     progname = strrchr(argv[0], '/');
