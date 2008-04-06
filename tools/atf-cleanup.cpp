@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,9 +37,9 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "atf/application.hpp"
-#include "atf/fs.hpp"
-#include "atf/ui.hpp"
+#include "atf-c++/application.hpp"
+#include "atf-c++/fs.hpp"
+#include "atf-c++/ui.hpp"
 
 class atf_cleanup : public atf::application::app {
     static const char* m_description;

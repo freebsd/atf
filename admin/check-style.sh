@@ -2,7 +2,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ guess_topdir() {
     olddir=$(pwd)
     topdir=$(pwd)
     while [ ${topdir} != / ]; do
-        if [ -f ./atf.hpp ]; then
+        if [ -f ./atf-c.h ]; then
             break
         else
             cd ..
@@ -96,7 +96,9 @@ find_sources() {
               -name "*.am" -o \
               -name "*.at" -o \
               -name "*.awk" -o \
+              -name "*.c" -o \
               -name "*.cpp" -o \
+              -name "*.h" -o \
               -name "*.hpp" -o \
               -name "*.m4" -o \
               -name "*.sh" \
@@ -104,6 +106,7 @@ find_sources() {
               \! -path "*autom4te*" -a \
               -type f -a \
               \! -name "aclocal.m4" \
+              \! -name "bconfig.h" \
               \! -name "*.so.*" \
            \)
 }
@@ -120,6 +123,9 @@ guess_formats() {
             ;;
         *.[0-9])
             echo common man
+            ;;
+        *.c|*.h)
+            echo common c
             ;;
         *.cpp|*.hpp)
             echo common cpp
@@ -154,7 +160,7 @@ check_file() {
 #
 main() {
     topdir=$(guess_topdir)
-    if [ ! -f ${topdir}/atf.hpp ]; then
+    if [ ! -f ${topdir}/atf-c.h ]; then
         err "Could not locate the project's top directory"
     fi
 

@@ -48,6 +48,8 @@ m4_define([GUESS_TOPDIR], {
 
 m4_define([APP_HELPER], [$(GUESS_TOPDIR)/tests/bootstrap/h_$1])
 
+m4_define([TEST_HELPER_NO_S], [$(GUESS_TOPDIR)/tests/bootstrap/h_$1])
+
 m4_define([TEST_HELPER], [$(GUESS_TOPDIR)/tests/bootstrap/h_$1 \
                           -s $(GUESS_TOPDIR)/tests/bootstrap])
 

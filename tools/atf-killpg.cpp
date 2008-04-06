@@ -43,10 +43,10 @@ extern "C" {
 #include <cstdlib>
 #include <iostream>
 
-#include "atf/application.hpp"
-#include "atf/exceptions.hpp"
-#include "atf/sanity.hpp"
-#include "atf/text.hpp"
+#include "atf-c++/application.hpp"
+#include "atf-c++/exceptions.hpp"
+#include "atf-c++/sanity.hpp"
+#include "atf-c++/text.hpp"
 
 class atf_killpg : public atf::application::app {
     static const char* m_description;

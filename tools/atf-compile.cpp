@@ -43,9 +43,9 @@ extern "C" {
 #include <fstream>
 #include <iostream>
 
-#include "atf/application.hpp"
-#include "atf/config.hpp"
-#include "atf/sanity.hpp"
+#include "atf-c++/application.hpp"
+#include "atf-c++/config.hpp"
+#include "atf-c++/sanity.hpp"
 
 static
 void

@@ -35,7 +35,7 @@
 //
 
 #if defined(HAVE_CONFIG_H)
-#include "config.h"
+#include "bconfig.h"
 #endif
 
 extern "C" {
@@ -51,18 +51,18 @@ extern "C" {
 #include <map>
 #include <string>
 
-#include "atf/application.hpp"
-#include "atf/atffile.hpp"
-#include "atf/config.hpp"
-#include "atf/env.hpp"
-#include "atf/exceptions.hpp"
-#include "atf/formats.hpp"
-#include "atf/fs.hpp"
-#include "atf/io.hpp"
-#include "atf/parser.hpp"
-#include "atf/sanity.hpp"
-#include "atf/tests.hpp"
-#include "atf/text.hpp"
+#include "atf-c++/application.hpp"
+#include "atf-c++/atffile.hpp"
+#include "atf-c++/config.hpp"
+#include "atf-c++/env.hpp"
+#include "atf-c++/exceptions.hpp"
+#include "atf-c++/formats.hpp"
+#include "atf-c++/fs.hpp"
+#include "atf-c++/io.hpp"
+#include "atf-c++/parser.hpp"
+#include "atf-c++/sanity.hpp"
+#include "atf-c++/tests.hpp"
+#include "atf-c++/text.hpp"
 
 class config : public atf::formats::atf_config_reader {
     atf::tests::vars_map m_vars;
@@ -118,12 +118,12 @@ class muxer : public atf::formats::atf_tcs_reader {
     void
     got_tc_end(const atf::tests::tcr& tcr)
     {
-        const atf::tests::tcr::status& s = tcr.get_status();
-        if (s == atf::tests::tcr::status_passed) {
+        const atf::tests::tcr::state& s = tcr.get_state();
+        if (s == atf::tests::tcr::passed_state) {
             m_passed++;
-        } else if (s == atf::tests::tcr::status_skipped) {
+        } else if (s == atf::tests::tcr::skipped_state) {
             m_skipped++;
-        } else if (s == atf::tests::tcr::status_failed) {
+        } else if (s == atf::tests::tcr::failed_state) {
             m_failed++;
         } else
             UNREACHABLE;
@@ -174,7 +174,8 @@ public:
             m_writer.start_tp(m_tp.str(), 0);
         if (!m_tcname.empty()) {
             INV(!reason.empty());
-            got_tc_end(atf::tests::tcr::failed("Bogus test program"));
+            got_tc_end(atf::tests::tcr(atf::tests::tcr::failed_state,
+                                       "Bogus test program"));
         }
 
         m_writer.end_tp(reason);
@@ -210,6 +211,8 @@ class atf_run : public atf::application::app {
     void process_option(int, const char*);
     std::string specific_args(void) const;
     options_set specific_options(void) const;
+
+    void parse_vflag(const std::string&);
 
     void read_one_config(const atf::fs::path&);
     void read_config(const std::string&);
@@ -255,11 +258,7 @@ atf_run::process_option(int ch, const char* arg)
 {
     switch (ch) {
     case 'v':
-        {
-            atf::tests::vars_map::value_type v =
-                atf::tests::vars_map::parse(arg);
-            m_cmdline_vars[v.first] = v.second;
-        }
+        parse_vflag(arg);
         break;
 
     default:
@@ -284,6 +283,24 @@ atf_run::specific_options(void)
                                          "`var' to `value'; overrides "
                                          "values in configuration files"));
     return opts;
+}
+
+void
+atf_run::parse_vflag(const std::string& str)
+{
+    if (str.empty())
+        throw std::runtime_error("-v requires a non-empty argument");
+
+    std::vector< std::string > ws = atf::text::split(str, "=");
+    if (ws.size() == 1 && str[str.length() - 1] == '=') {
+        m_cmdline_vars[ws[0]] = "";
+    } else {
+        if (ws.size() != 2)
+            throw std::runtime_error("-v requires an argument of the form "
+                                     "var=value");
+
+        m_cmdline_vars[ws[0]] = ws[1];
+    }
 }
 
 int
@@ -502,6 +519,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
     } else if (pid == 0) {
         run_test_program_child(tp, outpipe, errpipe, respipe);
         UNREACHABLE;
+        errcode = EXIT_FAILURE;
     } else {
         errcode = run_test_program_parent(tp, w, outpipe, errpipe,
                                           respipe, pid);

@@ -45,9 +45,9 @@ AC_DEFINE(PACKAGE_COPYRIGHT,
           ["Copyright (c) 2007, 2008 The NetBSD Foundation, Inc."],
           [Define to the copyright string applicable to this package.])
 AC_CONFIG_AUX_DIR([admin])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_HEADERS([bconfig.h])
 AC_CONFIG_MACRO_DIR([admin])
-AC_CONFIG_SRCDIR([atf.hpp])
+AC_CONFIG_SRCDIR([atf-c.h])
 AC_CONFIG_TESTDIR([tests/bootstrap])
 
 AC_CANONICAL_TARGET
@@ -70,8 +70,12 @@ AC_ARG_ENABLE(unstable-shared,
 AC_PROG_LIBTOOL
 
 dnl -----------------------------------------------------------------------
-dnl Check for the C++ compiler and required features.
+dnl Check for the C and C++ compilers and required features.
 dnl -----------------------------------------------------------------------
+
+AC_LANG(C)
+AC_PROG_CC
+AM_PROG_CC_C_O
 
 AC_LANG(C++)
 AC_PROG_CXX
@@ -82,6 +86,7 @@ ATF_MODULE_APPLICATION
 ATF_MODULE_ENV
 ATF_MODULE_FS
 ATF_MODULE_SANITY
+ATF_MODULE_SIGNALS
 
 dnl -----------------------------------------------------------------------
 dnl Architecture and machine checks.

@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -43,29 +43,32 @@ newlines_head()
 newlines_body()
 {
     srcdir=$(atf_get_srcdir)
+    h_c=${srcdir}/h_c
     h_cpp=${srcdir}/h_cpp
 
-    # NO_CHECK_STYLE_BEGIN
-    cat >expout <<EOF
+    for h in ${h_c} ${h_cpp}; do
+        # NO_CHECK_STYLE_BEGIN
+        cat >expout <<EOF
 Content-Type: application/X-atf-tcs; version="1"
 
 tcs-count: 1
 tc-start: status_newlines_fail
 tc-end: status_newlines_fail, failed, BOGUS REASON (THE ORIGINAL HAD NEWLINES): First line<<NEWLINE>>Second line
 EOF
-    # NO_CHECK_STYLE_END
-    atf_check "${h_cpp} -s ${srcdir} status_newlines_fail" 1 expout null
+        # NO_CHECK_STYLE_END
+        atf_check "${h} -s ${srcdir} status_newlines_fail" 1 expout null
 
-    # NO_CHECK_STYLE_BEGIN
-    cat >expout <<EOF
+        # NO_CHECK_STYLE_BEGIN
+        cat >expout <<EOF
 Content-Type: application/X-atf-tcs; version="1"
 
 tcs-count: 1
 tc-start: status_newlines_skip
 tc-end: status_newlines_skip, skipped, BOGUS REASON (THE ORIGINAL HAD NEWLINES): First line<<NEWLINE>>Second line
 EOF
-    # NO_CHECK_STYLE_END
-    atf_check "${h_cpp} -s ${srcdir} status_newlines_skip" 0 expout null
+        # NO_CHECK_STYLE_END
+        atf_check "${h} -s ${srcdir} status_newlines_skip" 0 expout null
+    done
 }
 
 atf_init_test_cases()
