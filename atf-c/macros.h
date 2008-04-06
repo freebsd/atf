@@ -49,7 +49,7 @@
         .m_head = atfu_ ## tc ## _head, \
         .m_body = atfu_ ## tc ## _body, \
         .m_cleanup = NULL, \
-    };
+    }
 
 #define ATF_TC_NAME(tc) \
     (atfu_ ## tc ## _tc)
@@ -64,7 +64,7 @@
         .m_head = atfu_ ## tc ## _head, \
         .m_body = atfu_ ## tc ## _body, \
         .m_cleanup = atfu_ ## tc ## _cleanup, \
-    };
+    }
 
 #define ATF_TC_HEAD(tc, tcptr) \
     static \

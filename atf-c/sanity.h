@@ -61,9 +61,17 @@ void atf_sanity_post(const char *, int, const char *);
 
 #else /* defined(NDEBUG) */
 
-#define INV(x)
-#define PRE(x)
-#define POST(x)
+#define INV(x) \
+    do { \
+    } while (0)
+
+#define PRE(x) \
+    do { \
+    } while (0)
+
+#define POST(x) \
+    do { \
+    } while (0)
 
 #endif /* !defined(NDEBUG) */
 
