@@ -36,6 +36,7 @@
 
 #include <sys/param.h>
 #include <sys/types.h>
+#include <limits.h>
 #include <unistd.h>
 
 #include "atf-c/sanity.h"
