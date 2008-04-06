@@ -39,7 +39,6 @@
 
 #include <atf-c.h>
 
-#include "atf-c/mem.h"
 #include "atf-c/text.h"
 
 /* ---------------------------------------------------------------------
@@ -51,22 +50,6 @@
 /* ---------------------------------------------------------------------
  * Test cases for the free functions.
  * --------------------------------------------------------------------- */
-
-ATF_TC(dup);
-ATF_TC_HEAD(dup, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Checks the atf_text_dup function");
-}
-ATF_TC_BODY(dup, tc)
-{
-    const char *str = "abcde";
-    char *dupstr;
-
-    CE(atf_text_dup(&dupstr, str));
-    strcpy(dupstr, "12345");
-    ATF_CHECK(strcmp(str, dupstr) != 0);
-    atf_mem_free(dupstr);
-}
 
 static
 atf_error_t
@@ -260,7 +243,6 @@ ATF_TC_BODY(to_long, tc)
 
 ATF_TP_ADD_TCS(tp)
 {
-    ATF_TP_ADD_TC(tp, dup);
     ATF_TP_ADD_TC(tp, for_each_word);
     ATF_TP_ADD_TC(tp, format);
     ATF_TP_ADD_TC(tp, format_ap);
