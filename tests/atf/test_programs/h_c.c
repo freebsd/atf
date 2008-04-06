@@ -36,6 +36,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -195,8 +196,10 @@ ATF_TC_CLEANUP(cleanup_curdir, tc)
     f = fopen("oldvalue", "r");
     if (f != NULL) {
         int i;
-        fscanf(f, "%d", &i);
-        printf("Old value: %d", i);
+        if (fscanf(f, "%d", &i) != 1)
+            fprintf(stderr, "Failed to read old value\n");
+        else
+            printf("Old value: %d", i);
         fclose(f);
     }
 }
@@ -328,7 +331,9 @@ ATF_TC_HEAD(env_list, tc)
 }
 ATF_TC_BODY(env_list, tc)
 {
-    system("env");
+    int exitcode = system("env");
+    ATF_CHECK(WIFEXITED(exitcode));
+    ATF_CHECK(WEXITSTATUS(exitcode) == EXIT_SUCCESS);
 }
 
 /* ---------------------------------------------------------------------
