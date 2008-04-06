@@ -23,12 +23,6 @@ Plans for 0.5
 * Remove most of atf-c++/tests.cpp's code and back it up by the atf-c
   implementation.
 
-* Add a module to atf-c to manage dynamic memory.  Should abstract malloc,
-  free, and any other call that can return new memory blocks (e.g. what
-  to do with strdup?).  The idea is to be able to control the proper
-  balancing of calls to these functions.  (Trivial checks only; for better
-  testing just use Valgrind, for example.)
-
 
 Plans for 0.6
 =============
@@ -39,6 +33,18 @@ Plans for 0.6
 
 * Add support for ATF_REQUIRE, making ATF_CHECK non-fatal.  See Boost.Test
   for details on this idea.  Most useful for unit tests.
+
+* Add a module to atf-c to manage dynamic memory.  Should provide a "mem
+  chunk" object that can only be managed through functions (i.e. not
+  directly) so that access to buffers can be safely controlled.  Dealing
+  with strdup and similar functions, for example, might be complex.
+
+  See these old revisions for a start, but these did not work correctly
+  because the use of (void **) casts brought aliasing problems:
+
+  78eeacf3b9284493e5e96b7866fc1d163a13bc02
+  8e200683a2b70eadca728c2e0347d4790777b3fc
+  872393ed0177cbcc30ffacede228eb3986c42ab7
 
 
 Plans for 0.7
