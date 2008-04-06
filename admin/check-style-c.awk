@@ -75,24 +75,12 @@ BEGIN {
     warn("Use the macros in sanity.h instead of assert");
 }
 
-/[ \t,]free[ \t]*\(/ {
-    if (match($0, "NO_CHECK_STYLE.c.free") == 0) {
-        warn("Use atf_mem_free instead of free");
-    }
-}
-
 /getprogname/ {
     warn("getprogname(3) is not portable");
 }
 
 /include.*assert.h/ {
     warn("Do not include assert.h");
-}
-
-/[ \t,]malloc[ \t]*\(/ {
-    if (match($0, "NO_CHECK_STYLE.c.malloc") == 0) {
-        warn("Use atf_mem_alloc instead of malloc");
-    }
 }
 
 /setprogname/ {
