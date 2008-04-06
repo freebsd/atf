@@ -47,17 +47,17 @@ void atf_sanity_post(const char *, int, const char *);
     do { \
         if (!(x)) \
             atf_sanity_inv(__FILE__, __LINE__, #x); \
-    } while (0);
+    } while (0)
 #define PRE(x) \
     do { \
         if (!(x)) \
             atf_sanity_pre(__FILE__, __LINE__, #x); \
-    } while (0);
+    } while (0)
 #define POST(x) \
     do { \
         if (!(x)) \
             atf_sanity_post(__FILE__, __LINE__, #x); \
-    } while (0);
+    } while (0)
 
 #else /* defined(NDEBUG) */
 
