@@ -177,7 +177,7 @@ ATF_TC_HEAD(init_rep, tc)
 ATF_TC_BODY(init_rep, tc)
 {
     const size_t maxlen = 8192;
-    char buf[maxlen];
+    char buf[maxlen + 1];
     size_t i;
 
     buf[0] = '\0';
@@ -371,7 +371,7 @@ void
 check_append(atf_error_t (*append)(atf_dynstr_t *, const char *, ...))
 {
     const size_t maxlen = 8192;
-    char buf[maxlen];
+    char buf[maxlen + 1];
     size_t i;
     atf_dynstr_t str;
 
@@ -471,7 +471,7 @@ void
 check_prepend(atf_error_t (*prepend)(atf_dynstr_t *, const char *, ...))
 {
     const size_t maxlen = 8192;
-    char buf[maxlen];
+    char buf[maxlen + 1];
     size_t i;
     atf_dynstr_t str;
 
