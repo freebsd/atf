@@ -57,9 +57,7 @@ extern "C" {
 #include <vector>
 
 extern "C" {
-#include "atf-c/mem.h"
 #include "atf-c/object.h"
-#include "atf-c/text.h"
 }
 
 #include "atf-c++/application.hpp"
@@ -231,17 +229,9 @@ impl::tc::init(const vars_map& config)
          iter != config.end(); iter++) {
         const char *var = (*iter).first.c_str();
         const char *val = (*iter).second.c_str();
-        char *tmp;
 
-        err = atf_text_dup(&tmp, val);
+        err = atf_map_insert(&m_config, var, ::strdup(val), true);
         if (atf_is_error(err)) {
-            atf_map_fini(&m_config);
-            throw_atf_error(err);
-        }
-
-        err = atf_map_insert(&m_config, var, tmp, true);
-        if (atf_is_error(err)) {
-            atf_mem_free(tmp);
             atf_map_fini(&m_config);
             throw_atf_error(err);
         }

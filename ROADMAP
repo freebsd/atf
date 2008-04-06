@@ -23,6 +23,12 @@ Plans for 0.5
 * Remove most of atf-c++/tests.cpp's code and back it up by the atf-c
   implementation.
 
+* Add a module to atf-c to manage dynamic memory.  Should abstract malloc,
+  free, and any other call that can return new memory blocks (e.g. what
+  to do with strdup?).  The idea is to be able to control the proper
+  balancing of calls to these functions.  (Trivial checks only; for better
+  testing just use Valgrind, for example.)
+
 
 Plans for 0.6
 =============

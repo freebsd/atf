@@ -49,7 +49,6 @@ extern "C" {
 
 extern "C" {
 #include "atf-c/object.h"
-#include "atf-c/mem.h"
 }
 
 #include "atf-c++/application.hpp"
@@ -123,7 +122,6 @@ impl::app::app(const std::string& description,
     m_manpage(manpage),
     m_global_manpage(global_manpage)
 {
-    atf_mem_sys_init();
     atf_init_objects();
 }
 

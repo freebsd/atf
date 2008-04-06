@@ -40,7 +40,6 @@
 #include <atf-c.h>
 
 #include "atf-c/map.h"
-#include "atf-c/text.h"
 
 #define CE(stm) ATF_CHECK(!atf_is_error(stm))
 
@@ -158,12 +157,10 @@ ATF_TC_BODY(stable_keys, tc)
     atf_map_t map;
     atf_map_citer_t iter;
     char key[] = "K1";
-    char *tmp;
 
     CE(atf_map_init(&map));
 
-    CE(atf_text_dup(&tmp, "test-value"));
-    CE(atf_map_insert(&map, key, tmp, true));
+    CE(atf_map_insert(&map, key, strdup("test-value"), true));
     iter = atf_map_find_c(&map, "K1");
     ATF_CHECK(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
     iter = atf_map_find_c(&map, "K2");

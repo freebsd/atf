@@ -48,7 +48,6 @@
 
 #include "atf-c/env.h"
 #include "atf-c/fs.h"
-#include "atf-c/mem.h"
 #include "atf-c/text.h"
 
 /* ---------------------------------------------------------------------
@@ -218,7 +217,7 @@ ATF_TC_BODY(cleanup_sigterm, tc)
     CE(atf_text_format(&nofile, "%s.no",
                        atf_tc_get_config_var(tc, "tmpfile")));
     touch(nofile);
-    atf_mem_free(nofile);
+    free(nofile);
 }
 ATF_TC_CLEANUP(cleanup_sigterm, tc)
 {

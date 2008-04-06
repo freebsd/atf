@@ -54,7 +54,6 @@
 #include <unistd.h>
 
 #include "atf-c/fs.h"
-#include "atf-c/mem.h"
 #include "atf-c/sanity.h"
 #include "atf-c/text.h"
 #include "atf-c/user.h"
@@ -276,7 +275,7 @@ do_unmount(const atf_fs_path_t *p)
                 err = atf_libc_error(errno, "Failed to run \"%s\"", cmd);
             else if (!WIFEXITED(state) || WEXITSTATUS(state) != EXIT_SUCCESS)
                 err = child_error(cmd, state);
-            atf_mem_free(cmd);
+            free(cmd);
         }
     }
 #endif
@@ -337,7 +336,7 @@ normalize_ap(atf_dynstr_t *d, const char *p, va_list ap)
         atf_dynstr_fini(d);
     else {
         err = normalize(d, str);
-        atf_mem_free(str);
+        free(str);
     }
 
 out:
@@ -806,7 +805,7 @@ atf_fs_getcwd(atf_fs_path_t *p)
     }
 
     err = atf_fs_path_init_fmt(p, "%s", cwd);
-    free(cwd); /* NO_CHECK_STYLE.c.free */
+    free(cwd);
 
 out:
     return err;

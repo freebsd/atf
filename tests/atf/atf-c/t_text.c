@@ -144,7 +144,7 @@ ATF_TC_BODY(format, tc)
     err = atf_text_format(&str, "%s %s %d", "Test", "string", 1);
     ATF_CHECK(!atf_is_error(err));
     ATF_CHECK(strcmp(str, "Test string 1") == 0);
-    atf_mem_free(str);
+    free(str);
 }
 
 static
@@ -173,7 +173,7 @@ ATF_TC_BODY(format_ap, tc)
 
     format_ap(&str, "%s %s %d", "Test", "string", 1);
     ATF_CHECK(strcmp(str, "Test string 1") == 0);
-    atf_mem_free(str);
+    free(str);
 }
 
 ATF_TC(to_bool);

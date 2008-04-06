@@ -38,9 +38,7 @@
 #include <string.h>
 
 #include "atf-c/map.h"
-#include "atf-c/mem.h"
 #include "atf-c/sanity.h"
-#include "atf-c/text.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -53,26 +51,24 @@ struct map_entry {
 };
 
 static
-atf_error_t
-new_entry(struct map_entry **mep, const char *key, void *value, bool managed)
+struct map_entry *
+new_entry(const char *key, void *value, bool managed)
 {
-    atf_error_t err;
     struct map_entry *me;
 
-    err = atf_mem_alloc((void **)&me, sizeof(*me));
-    if (!atf_is_error(err)) {
-        err = atf_text_dup(&me->m_key, key);
-        if (atf_is_error(err)) {
-            atf_mem_free(me);
+    me = (struct map_entry *)malloc(sizeof(*me));
+    if (me != NULL) {
+        me->m_key = strdup(key);
+        if (me->m_key == NULL) {
+            free(me);
+            me = NULL;
         } else {
             me->m_value = value;
             me->m_managed = managed;
-
-            *mep = me;
         }
     }
 
-    return err;
+    return me;
 }
 
 /* ---------------------------------------------------------------------
@@ -153,9 +149,9 @@ atf_map_fini(atf_map_t *m)
         struct map_entry *me = atf_list_iter_data(iter);
 
         if (me->m_managed)
-            atf_mem_free(me->m_value);
-        atf_mem_free(me->m_key);
-        atf_mem_free(me);
+            free(me->m_value);
+        free(me->m_key);
+        free(me);
     }
     atf_list_fini(&m->m_list);
 
@@ -241,20 +237,21 @@ atf_map_insert(atf_map_t *m, const char *key, void *value, bool managed)
 
     iter = atf_map_find(m, key);
     if (atf_equal_map_iter_map_iter(iter, atf_map_end(m))) {
-        me = NULL; /* Silence GCC warning. */
-        err = new_entry(&me, key, value, managed);
-        if (!atf_is_error(err)) {
+        me = new_entry(key, value, managed);
+        if (me == NULL)
+            err = atf_no_memory_error();
+        else {
             err = atf_list_append(&m->m_list, me);
             if (atf_is_error(err)) {
                 if (managed)
-                    atf_mem_free(value);
-                atf_mem_free(me);
+                    free(value);
+                free(me);
             }
         }
     } else {
         me = iter.m_entry;
         if (me->m_managed)
-            atf_mem_free(me->m_value);
+            free(me->m_value);
 
         INV(strcmp(me->m_key, key) == 0);
         me->m_value = value;

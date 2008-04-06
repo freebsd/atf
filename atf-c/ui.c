@@ -45,7 +45,6 @@
 
 #include "atf-c/dynstr.h"
 #include "atf-c/env.h"
-#include "atf-c/mem.h"
 #include "atf-c/sanity.h"
 #include "atf-c/text.h"
 #include "atf-c/ui.h"
@@ -198,7 +197,7 @@ atf_ui_format_ap(atf_dynstr_t *dest,
     va_end(ap2);
     if (!atf_is_error(err)) {
         err = format_aux(dest, tag, repeat, col, src);
-        atf_mem_free(src);
+        free(src);
     }
 
     return err;

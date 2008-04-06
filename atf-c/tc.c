@@ -52,7 +52,6 @@
 #include "atf-c/env.h"
 #include "atf-c/fs.h"
 #include "atf-c/io.h"
-#include "atf-c/mem.h"
 #include "atf-c/sanity.h"
 #include "atf-c/signals.h"
 #include "atf-c/tc.h"
@@ -263,7 +262,7 @@ atf_tc_set_md_var(atf_tc_t *tc, const char *name, const char *fmt, ...)
     if (!atf_is_error(err))
         err = atf_map_insert(&tc->m_vars, name, value, true);
     else
-        atf_mem_free(value);
+        free(value);
 
     return err;
 }
@@ -650,7 +649,6 @@ body_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
 {
     atf_error_t err;
 
-    atf_mem_sys_disable_exit_checks();
     atf_disable_exit_checks();
 
     err = prepare_child(tc, workdir);
@@ -883,7 +881,6 @@ cleanup_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
 {
     atf_error_t err;
 
-    atf_mem_sys_disable_exit_checks();
     atf_disable_exit_checks();
 
     err = prepare_child(tc, workdir);

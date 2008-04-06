@@ -36,7 +36,6 @@
 
 #include <stdlib.h>
 
-#include "atf-c/mem.h"
 #include "atf-c/list.h"
 #include "atf-c/sanity.h"
 
@@ -71,42 +70,37 @@ entry_to_iter(atf_list_t *l, struct list_entry *le)
 }
 
 static
-atf_error_t
-new_entry(struct list_entry **lep, void *object)
+struct list_entry *
+new_entry(void *object)
 {
-    atf_error_t err;
     struct list_entry *le;
 
-    err = atf_mem_alloc((void **)&le, sizeof(*le));
-    if (!atf_is_error(err)) {
+    le = (struct list_entry *)malloc(sizeof(*le));
+    if (le != NULL) {
         le->m_prev = le->m_next = NULL;
         le->m_object = object;
-        *lep = le;
     }
 
-    return err;
+    return le;
 }
 
 static
-atf_error_t
-new_entry_and_link(struct list_entry **lep, void *object,
-                   struct list_entry *prev, struct list_entry *next)
+struct list_entry *
+new_entry_and_link(void *object, struct list_entry *prev,
+                   struct list_entry *next)
 {
-    atf_error_t err;
     struct list_entry *le;
 
-    err = new_entry(&le, object);
-    if (!atf_is_error(err)) {
+    le = new_entry(object);
+    if (le != NULL) {
         le->m_prev = prev;
         le->m_next = next;
 
         prev->m_next = le;
         next->m_prev = le;
-
-        *lep = le;
     }
 
-    return err;
+    return le;
 }
 
 /* ---------------------------------------------------------------------
@@ -194,18 +188,17 @@ atf_equal_list_iter_list_iter(const atf_list_iter_t i1,
 atf_error_t
 atf_list_init(atf_list_t *l)
 {
-    atf_error_t err;
     struct list_entry *lebeg, *leend;
 
-    err = new_entry(&lebeg, NULL);
-    if (atf_is_error(err)) {
-        return err;
+    lebeg = new_entry(NULL);
+    if (lebeg == NULL) {
+        return atf_no_memory_error();
     }
 
-    err = new_entry(&leend, NULL);
-    if (atf_is_error(err)) {
-        atf_mem_free(lebeg);
-        return err;
+    leend = new_entry(NULL);
+    if (leend == NULL) {
+        free(lebeg);
+        return atf_no_memory_error();
     }
 
     lebeg->m_next = leend;
@@ -235,7 +228,7 @@ atf_list_fini(atf_list_t *l)
         struct list_entry *lenext;
 
         lenext = le->m_next;
-        atf_mem_free(le);
+        free(le);
         le = lenext;
 
         freed++;
@@ -293,9 +286,13 @@ atf_list_append(atf_list_t *l, void *data)
 
     next = (struct list_entry *)l->m_end;
     prev = next->m_prev;
-    err = new_entry_and_link(&le, data, prev, next);
-    if (!atf_is_error(err))
+    le = new_entry_and_link(data, prev, next);
+    if (le == NULL)
+        err = atf_no_memory_error();
+    else {
         l->m_size++;
+        err = atf_no_error();
+    }
 
     return err;
 }

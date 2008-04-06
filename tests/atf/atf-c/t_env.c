@@ -40,7 +40,6 @@
 #include <atf-c.h>
 
 #include "atf-c/env.h"
-#include "atf-c/mem.h"
 #include "atf-c/text.h"
 
 /* ---------------------------------------------------------------------
@@ -94,7 +93,7 @@ ATF_TC_BODY(set, tc)
     CE(atf_env_set("PATH", "foo-bar"));
     ATF_CHECK(strcmp(atf_env_get("PATH"), oldval) != 0);
     ATF_CHECK(strcmp(atf_env_get("PATH"), "foo-bar") == 0);
-    atf_mem_free(oldval);
+    free(oldval);
 
     ATF_CHECK(!atf_env_has("_UNDEFINED_VARIABLE_"));
     CE(atf_env_set("_UNDEFINED_VARIABLE_", "foo2-bar2"));

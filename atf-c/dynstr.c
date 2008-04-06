@@ -41,7 +41,6 @@
 #include <string.h>
 
 #include "atf-c/dynstr.h"
-#include "atf-c/mem.h"
 #include "atf-c/sanity.h"
 #include "atf-c/text.h"
 
@@ -58,10 +57,12 @@ resize(atf_dynstr_t *ad, size_t newsize)
 
     PRE(newsize > ad->m_datasize);
 
-    err = atf_mem_alloc((void **)&newdata, newsize);
-    if (!atf_is_error(err)) {
+    newdata = (char *)malloc(newsize);
+    if (newdata == NULL) {
+        err = atf_no_memory_error();
+    } else {
         strcpy(newdata, ad->m_data);
-        atf_mem_free(ad->m_data);
+        free(ad->m_data);
         ad->m_data = newdata;
         ad->m_datasize = newsize;
         err = atf_no_error();
@@ -101,7 +102,7 @@ prepend_or_append(atf_dynstr_t *ad, const char *fmt, va_list ap,
     err = atf_no_error();
 
 out_free:
-    atf_mem_free(aux);
+    free(aux);
 out:
     return err;
 }
@@ -127,8 +128,10 @@ atf_dynstr_init(atf_dynstr_t *ad)
 
     atf_object_init(&ad->m_object);
 
-    err = atf_mem_alloc((void **)&ad->m_data, sizeof(char));
-    if (!atf_is_error(err)) {
+    ad->m_data = (char *)malloc(sizeof(char));
+    if (ad->m_data == NULL) {
+        err = atf_no_memory_error();
+    } else {
         ad->m_data[0] = '\0';
         ad->m_datasize = 1;
         ad->m_length = 0;
@@ -151,8 +154,10 @@ atf_dynstr_init_ap(atf_dynstr_t *ad, const char *fmt, va_list ap)
     err = atf_no_error();
     do {
         ad->m_datasize *= 2;
-        err = atf_mem_alloc((void **)&ad->m_data, ad->m_datasize);
-        if (!atf_is_error(err)) {
+        ad->m_data = (char *)malloc(ad->m_datasize);
+        if (ad->m_data == NULL) {
+            err = atf_no_memory_error();
+        } else {
             va_list ap2;
             int ret;
 
@@ -163,7 +168,7 @@ atf_dynstr_init_ap(atf_dynstr_t *ad, const char *fmt, va_list ap)
                 err = atf_libc_error(errno, "Cannot format string");
             } else {
                 if (ret >= ad->m_datasize) {
-                    atf_mem_free(ad->m_data);
+                    free(ad->m_data);
                     ad->m_data = NULL;
                 }
                 ad->m_length = ret;
@@ -195,8 +200,10 @@ atf_dynstr_init_raw(atf_dynstr_t *ad, const void *mem, size_t memlen)
 
     atf_object_init(&ad->m_object);
 
-    err = atf_mem_alloc((void **)&ad->m_data, memlen + 1);
-    if (!atf_is_error(err)) {
+    ad->m_data = (char *)malloc(memlen + 1);
+    if (ad->m_data == NULL)
+        err = atf_no_memory_error();
+    else {
         ad->m_datasize = memlen + 1;
         memcpy(ad->m_data, mem, memlen);
         ad->m_data[memlen] = '\0';
@@ -219,8 +226,10 @@ atf_dynstr_init_rep(atf_dynstr_t *ad, size_t len, char ch)
         err = atf_no_memory_error();
     else {
         ad->m_datasize = len + sizeof(char);
-        err = atf_mem_alloc((void **)&ad->m_data, ad->m_datasize);
-        if (!atf_is_error(err)) {
+        ad->m_data = (char *)malloc(ad->m_datasize);
+        if (ad->m_data == NULL) {
+            err = atf_no_memory_error();
+        } else {
             memset(ad->m_data, ch, len);
             ad->m_data[len] = '\0';
             ad->m_length = len;
@@ -251,8 +260,10 @@ atf_dynstr_copy(atf_dynstr_t *dest, const atf_dynstr_t *src)
 
     atf_object_copy(&dest->m_object, &src->m_object);
 
-    err = atf_mem_alloc((void **)&dest->m_data, src->m_datasize);
-    if (!atf_is_error(err)) {
+    dest->m_data = (char *)malloc(src->m_datasize);
+    if (dest->m_data == NULL)
+        err = atf_no_memory_error();
+    else {
         memcpy(dest->m_data, src->m_data, src->m_datasize);
         dest->m_datasize = src->m_datasize;
         dest->m_length = src->m_length;
@@ -266,7 +277,7 @@ void
 atf_dynstr_fini(atf_dynstr_t *ad)
 {
     INV(ad->m_data != NULL);
-    atf_mem_free(ad->m_data);
+    free(ad->m_data);
 
     atf_object_fini(&ad->m_object);
 }
