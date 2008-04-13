@@ -583,13 +583,15 @@ ATF_TC_BODY(exists, tc)
     CE(atf_fs_exists(&pfile, &b));
     ATF_CHECK(b);
 
-    printf("Checking existence of a file inside a directory without "
-           "permissions\n");
-    ATF_CHECK(chmod(atf_fs_path_cstring(&pdir), 0000) != -1);
-    err = atf_fs_exists(&pfile, &b);
-    ATF_CHECK(atf_is_error(err));
-    ATF_CHECK(atf_error_is(err, "libc"));
-    ATF_CHECK(chmod(atf_fs_path_cstring(&pdir), 0755) != -1);
+    if (!atf_user_is_root()) {
+        printf("Checking existence of a file inside a directory without "
+               "permissions\n");
+        ATF_CHECK(chmod(atf_fs_path_cstring(&pdir), 0000) != -1);
+        err = atf_fs_exists(&pfile, &b);
+        ATF_CHECK(atf_is_error(err));
+        ATF_CHECK(atf_error_is(err, "libc"));
+        ATF_CHECK(chmod(atf_fs_path_cstring(&pdir), 0755) != -1);
+    }
 
     printf("Checking existence of a non-existent file\n");
     ATF_CHECK(unlink(atf_fs_path_cstring(&pfile)) != -1);
