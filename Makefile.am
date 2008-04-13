@@ -102,6 +102,7 @@ EXTRA_DIST += admin/revision-dist.h
 lib_LTLIBRARIES = libatf-c.la
 libatf_c_la_SOURCES = atf-c/config.c \
                       atf-c/config.h \
+                      atf-c/defs.h \
                       atf-c/dynstr.c \
                       atf-c/dynstr.h \
                       atf-c/env.c \
@@ -141,6 +142,7 @@ libatf_c_la_SOURCES = atf-c/config.c \
 
 include_HEADERS = atf-c.h
 atf_c_HEADERS = atf-c/config.h \
+                atf-c/defs.h \
                 atf-c/dynstr.h \
                 atf-c/env.h \
                 atf-c/error.h \
@@ -160,6 +162,14 @@ atf_c_HEADERS = atf-c/config.h \
                 atf-c/ui.h \
                 atf-c/user.h
 atf_cdir = $(includedir)/atf-c
+
+EXTRA_DIST += atf-c/defs.h.in
+CLEANFILES += atf-c/defs.h
+atf-c/defs.h: $(srcdir)/atf-c/defs.h.in
+	test -d atf-c || mkdir -p atf-c
+	sed -e 's,__ATTRIBUTE_NORETURN__,@ATTRIBUTE_NORETURN@,g' \
+	    <$(srcdir)/atf-c/defs.h.in >atf-c/defs.h.tmp
+	mv atf-c/defs.h.tmp atf-c/defs.h
 
 # -------------------------------------------------------------------------
 # `atf-c++' directory.

@@ -80,7 +80,7 @@ static void sigalrm_handler(int);
 
 /* Child-only stuff. */
 static void body_child(const atf_tc_t *, const atf_fs_path_t *)
-            __attribute__((noreturn));
+            ATF_DEFS_ATTRIBUTE_NORETURN;
 static atf_error_t check_arch(const char *, void *);
 static atf_error_t check_config(const char *, void *);
 static atf_error_t check_machine(const char *, void *);
@@ -88,11 +88,11 @@ static atf_error_t check_prog(const char *, void *);
 static atf_error_t check_prog_in_dir(const char *, void *);
 static atf_error_t check_requirements(const atf_tc_t *);
 static void cleanup_child(const atf_tc_t *, const atf_fs_path_t *)
-            __attribute__((noreturn));
+            ATF_DEFS_ATTRIBUTE_NORETURN;
 static void fatal_atf_error(const char *, atf_error_t)
-            __attribute__((noreturn));
+            ATF_DEFS_ATTRIBUTE_NORETURN;
 static void fatal_libc_error(const char *, int)
-            __attribute__((noreturn));
+            ATF_DEFS_ATTRIBUTE_NORETURN;
 static atf_error_t prepare_child(const atf_tc_t *, const atf_fs_path_t *);
 static void write_tcr(const atf_tc_t *, const atf_tcr_t *);
 
