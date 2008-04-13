@@ -41,3 +41,5 @@ get_helpers()
     echo ${srcdir}/h_cpp
     echo ${srcdir}/h_sh
 }
+
+# vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
