@@ -824,6 +824,8 @@ atf_test_programs_DATA = tests/atf/test_programs/Atffile
 atf_test_programsdir = $(pkgtestsdir)/test_programs
 EXTRA_DIST += $(atf_test_programs_DATA)
 
+EXTRA_DIST += tests/atf/test_programs/common.sh
+
 atf_test_programs_SCRIPTS = tests/atf/test_programs/h_sh
 CLEANFILES += tests/atf/test_programs/h_sh
 EXTRA_DIST += tests/atf/test_programs/h_sh.sh
