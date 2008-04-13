@@ -61,7 +61,7 @@ static
 void
 write_cwd(const atf_tc_t *tc, const char *confvar)
 {
-    char *cwd;
+    atf_fs_path_t cwd;
     const char *p;
     FILE *f;
 
@@ -71,11 +71,9 @@ write_cwd(const atf_tc_t *tc, const char *confvar)
     if (f == NULL)
         atf_tc_fail("Could not open %s for writing", p);
 
-    cwd = getcwd(NULL, 0);
-    if (cwd == NULL)
-        atf_tc_fail("Could not get current directory");
-
-    fprintf(f, "%s\n", cwd);
+    CE(atf_fs_getcwd(&cwd));
+    fprintf(f, "%s\n", atf_fs_path_cstring(&cwd));
+    atf_fs_path_fini(&cwd);
 
     fclose(f);
 }
