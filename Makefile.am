@@ -102,7 +102,6 @@ EXTRA_DIST += admin/revision-dist.h
 lib_LTLIBRARIES = libatf-c.la
 libatf_c_la_SOURCES = atf-c/config.c \
                       atf-c/config.h \
-                      atf-c/defs.h \
                       atf-c/dynstr.c \
                       atf-c/dynstr.h \
                       atf-c/env.c \
@@ -139,6 +138,14 @@ libatf_c_la_SOURCES = atf-c/config.c \
                       atf-c/tp.c \
                       atf-c/tp.h \
                       atf-c/tp_main.c
+nodist_libatf_c_la_SOURCES = \
+                      atf-c/defs.h
+
+# XXX For some reason, the nodist line above does not work as expected.
+# Work this problem around.
+dist-hook: kill-defs-h
+kill-defs-h:
+	rm -f $(distdir)/atf-c/defs.h
 
 include_HEADERS = atf-c.h
 atf_c_HEADERS = atf-c/config.h \
@@ -167,7 +174,7 @@ EXTRA_DIST += atf-c/defs.h.in
 CLEANFILES += atf-c/defs.h
 atf-c/defs.h: $(srcdir)/atf-c/defs.h.in
 	test -d atf-c || mkdir -p atf-c
-	sed -e 's,__ATTRIBUTE_NORETURN__,@ATTRIBUTE_NORETURN@,g' \
+	sed -e 's,__ATTRIBUTE_NORETURN__,$(ATTRIBUTE_NORETURN),g' \
 	    <$(srcdir)/atf-c/defs.h.in >atf-c/defs.h.tmp
 	mv atf-c/defs.h.tmp atf-c/defs.h
 
