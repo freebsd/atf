@@ -798,7 +798,11 @@ atf_fs_getcwd(atf_fs_path_t *p)
     atf_error_t err;
     char *cwd;
 
+#if defined(HAVE_GETCWD_DYN)
     cwd = getcwd(NULL, 0);
+#else
+    cwd = getcwd(NULL, MAXPATHLEN);
+#endif
     if (cwd == NULL) {
         err = atf_libc_error(errno, "Cannot determine current directory");
         goto out;
