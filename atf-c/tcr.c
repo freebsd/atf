@@ -43,7 +43,7 @@
  * Auxiliary types and functions.
  * --------------------------------------------------------------------- */
 
-inline
+static
 bool
 state_allows_reason(atf_tcr_state_t state)
 {
