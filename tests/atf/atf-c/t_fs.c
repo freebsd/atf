@@ -47,6 +47,7 @@
 #include <atf-c.h>
 
 #include "atf-c/fs.h"
+#include "atf-c/user.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -609,43 +610,44 @@ ATF_TC_BODY(eaccess, tc)
     struct tests {
         mode_t fmode;
         int amode;
-        int error;
+        int uerror;
+        int rerror;
     } tests[] = {
-        { 0000, atf_fs_access_r, EACCES },
-        { 0000, atf_fs_access_w, EACCES },
-        { 0000, atf_fs_access_x, EACCES },
+        { 0000, atf_fs_access_r, EACCES, 0 },
+        { 0000, atf_fs_access_w, EACCES, 0 },
+        { 0000, atf_fs_access_x, EACCES, EACCES },
 
-        { 0001, atf_fs_access_r, EACCES },
-        { 0001, atf_fs_access_w, EACCES },
-        { 0001, atf_fs_access_x, EACCES },
-        { 0002, atf_fs_access_r, EACCES },
-        { 0002, atf_fs_access_w, EACCES },
-        { 0002, atf_fs_access_x, EACCES },
-        { 0004, atf_fs_access_r, EACCES },
-        { 0004, atf_fs_access_w, EACCES },
-        { 0004, atf_fs_access_x, EACCES },
+        { 0001, atf_fs_access_r, EACCES, 0 },
+        { 0001, atf_fs_access_w, EACCES, 0 },
+        { 0001, atf_fs_access_x, EACCES, 0 },
+        { 0002, atf_fs_access_r, EACCES, 0 },
+        { 0002, atf_fs_access_w, EACCES, 0 },
+        { 0002, atf_fs_access_x, EACCES, EACCES },
+        { 0004, atf_fs_access_r, EACCES, 0 },
+        { 0004, atf_fs_access_w, EACCES, 0 },
+        { 0004, atf_fs_access_x, EACCES, EACCES },
 
-        { 0010, atf_fs_access_r, EACCES },
-        { 0010, atf_fs_access_w, EACCES },
-        { 0010, atf_fs_access_x, 0 },
-        { 0020, atf_fs_access_r, EACCES },
-        { 0020, atf_fs_access_w, 0 },
-        { 0020, atf_fs_access_x, EACCES },
-        { 0040, atf_fs_access_r, 0 },
-        { 0040, atf_fs_access_w, EACCES },
-        { 0040, atf_fs_access_x, EACCES },
+        { 0010, atf_fs_access_r, EACCES, 0 },
+        { 0010, atf_fs_access_w, EACCES, 0 },
+        { 0010, atf_fs_access_x, 0,      0 },
+        { 0020, atf_fs_access_r, EACCES, 0 },
+        { 0020, atf_fs_access_w, 0,      0 },
+        { 0020, atf_fs_access_x, EACCES, EACCES },
+        { 0040, atf_fs_access_r, 0,      0 },
+        { 0040, atf_fs_access_w, EACCES, 0 },
+        { 0040, atf_fs_access_x, EACCES, EACCES },
 
-        { 0100, atf_fs_access_r, EACCES },
-        { 0100, atf_fs_access_w, EACCES },
-        { 0100, atf_fs_access_x, 0 },
-        { 0200, atf_fs_access_r, EACCES },
-        { 0200, atf_fs_access_w, 0 },
-        { 0200, atf_fs_access_x, EACCES },
-        { 0400, atf_fs_access_r, 0 },
-        { 0400, atf_fs_access_w, EACCES },
-        { 0400, atf_fs_access_x, EACCES },
+        { 0100, atf_fs_access_r, EACCES, 0 },
+        { 0100, atf_fs_access_w, EACCES, 0 },
+        { 0100, atf_fs_access_x, 0,      0 },
+        { 0200, atf_fs_access_r, EACCES, 0 },
+        { 0200, atf_fs_access_w, 0,      0 },
+        { 0200, atf_fs_access_x, EACCES, EACCES },
+        { 0400, atf_fs_access_r, 0,      0 },
+        { 0400, atf_fs_access_w, EACCES, 0 },
+        { 0400, atf_fs_access_x, EACCES, EACCES },
 
-        { 0, 0, 0 }
+        { 0, 0, 0, 0 }
     };
     struct tests *t;
     atf_fs_path_t p;
@@ -666,6 +668,8 @@ ATF_TC_BODY(eaccess, tc)
     ATF_CHECK(chown(atf_fs_path_cstring(&p), geteuid(), getegid()) != -1);
 
     for (t = &tests[0]; t->amode != 0; t++) {
+        const int experr = atf_user_is_root() ? t->rerror : t->uerror;
+
         printf("\n");
         printf("File mode     : %04o\n", t->fmode);
         printf("Access mode   : 0x%02x\n", t->amode);
@@ -677,7 +681,7 @@ ATF_TC_BODY(eaccess, tc)
         ATF_CHECK(!atf_is_error(err));
 
         /* Now do the specific test case. */
-        printf("Expected error: %d\n", t->error);
+        printf("Expected error: %d\n", experr);
         err = atf_fs_eaccess(&p, t->amode);
         if (atf_is_error(err)) {
             if (atf_error_is(err, "libc"))
@@ -686,12 +690,12 @@ ATF_TC_BODY(eaccess, tc)
                 printf("Error         : Non-libc error\n");
         } else
                 printf("Error         : None\n");
-        if (t->error == 0) {
+        if (experr == 0) {
             ATF_CHECK(!atf_is_error(err));
         } else {
             ATF_CHECK(atf_is_error(err));
             ATF_CHECK(atf_error_is(err, "libc"));
-            ATF_CHECK_EQUAL(atf_libc_error_code(err), t->error);
+            ATF_CHECK_EQUAL(atf_libc_error_code(err), experr);
             atf_error_free(err);
         }
     }
