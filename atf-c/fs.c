@@ -247,11 +247,12 @@ do_unmount(const atf_fs_path_t *p)
      * Let's make it absolute in all cases just to be safe that this does
      * not affect other systems. */
 
-    if (!atf_fs_path_is_absolute(p)) {
+    if (!atf_fs_path_is_absolute(p))
         err = atf_fs_path_to_absolute(p, &pa);
-        if (atf_is_error(err))
-            goto out;
-    }
+    else
+        err = atf_fs_path_copy(&pa, p);
+    if (atf_is_error(err))
+        goto out;
     pastr = atf_fs_path_cstring(&pa);
 
 #if defined(HAVE_UNMOUNT)
@@ -268,7 +269,7 @@ do_unmount(const atf_fs_path_t *p)
          * with it, at least for now. */
         char *cmd;
 
-        err = atf_text_format(&cmd, "unmount '%s'", pastr);
+        err = atf_text_format(&cmd, "umount '%s'", pastr);
         if (!atf_is_error(err)) {
             int state = system(cmd);
             if (state == -1)
