@@ -42,11 +42,6 @@ def_undef_head()
 }
 def_undef_body()
 {
-    srcdir=$(atf_get_srcdir)
-    h_c=${srcdir}/h_c
-    h_cpp=${srcdir}/h_cpp
-    h_sh=${srcdir}/h_sh
-
     undef_vars="LANG LC_ALL LC_COLLATE LC_CTYPE LC_MESSAGES LC_MONETARY \
                 LC_NUMERIC LC_TIME TZ"
     def_vars="HOME"
@@ -56,8 +51,8 @@ def_undef_body()
         mangleenv="${mangleenv} ${v}=bogus-value"
     done
 
-    for h in ${h_c} ${h_cpp} ${h_sh}; do
-        atf_check "${mangleenv} ${h} -s ${srcdir} -r3 \
+    for h in $(get_helpers); do
+        atf_check "${mangleenv} ${h} -s $(atf_get_srcdir) -r3 \
                    env_list 3>resout" 0 stdout ignore
 
         for v in ${undef_vars}; do
@@ -77,13 +72,9 @@ home_head()
 }
 home_body()
 {
-    srcdir=$(atf_get_srcdir)
-    h_c=${srcdir}/h_c
-    h_cpp=${srcdir}/h_cpp
-    h_sh=${srcdir}/h_sh
-
     for h in ${h_c} ${h_cpp} ${h_sh}; do
-        atf_check "HOME=foo ${h} -s ${srcdir} env_home" 0 ignore ignore
+        atf_check "HOME=foo ${h} -s $(atf_get_srcdir) env_home" \
+                  0 ignore ignore
     done
 }
 

@@ -16,10 +16,6 @@ on how things develop.
 Plans for 0.5
 =============
 
-* Centralize the names of the helpers used in test_programs in a single
-  place.  The current code must explicitly mention the three different
-  helpers, which is annoying and may hide some test cases during merges.
-
 * Remove most of atf-c++/tests.cpp's code and back it up by the atf-c
   implementation.
 

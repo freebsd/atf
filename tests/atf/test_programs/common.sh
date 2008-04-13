@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+# Copyright (c) 2008 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,51 +34,10 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-atf_test_case newlines
-newlines_head()
+get_helpers()
 {
-    atf_set "descr" "Tests that newlines provided as part of status'" \
-                    "reasons are handled properly"
+    srcdir=$(atf_get_srcdir)
+    echo ${srcdir}/h_c
+    echo ${srcdir}/h_cpp
+    echo ${srcdir}/h_sh
 }
-newlines_body()
-{
-    for h in $(get_helpers); do
-        case ${h} in
-            *h_sh*)
-                # XXX Not implemented.
-                continue
-                ;;
-        esac
-
-        # NO_CHECK_STYLE_BEGIN
-        cat >expout <<EOF
-Content-Type: application/X-atf-tcs; version="1"
-
-tcs-count: 1
-tc-start: status_newlines_fail
-tc-end: status_newlines_fail, failed, BOGUS REASON (THE ORIGINAL HAD NEWLINES): First line<<NEWLINE>>Second line
-EOF
-        # NO_CHECK_STYLE_END
-        atf_check "${h} -s $(atf_get_srcdir) status_newlines_fail" \
-                  1 expout null
-
-        # NO_CHECK_STYLE_BEGIN
-        cat >expout <<EOF
-Content-Type: application/X-atf-tcs; version="1"
-
-tcs-count: 1
-tc-start: status_newlines_skip
-tc-end: status_newlines_skip, skipped, BOGUS REASON (THE ORIGINAL HAD NEWLINES): First line<<NEWLINE>>Second line
-EOF
-        # NO_CHECK_STYLE_END
-        atf_check "${h} -s $(atf_get_srcdir) status_newlines_skip" \
-                  0 expout null
-    done
-}
-
-atf_init_test_cases()
-{
-    atf_add_test_case newlines
-}
-
-# vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

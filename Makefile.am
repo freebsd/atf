@@ -837,74 +837,89 @@ atf_test_programs_SCRIPTS += tests/atf/test_programs/t_cleanup
 CLEANFILES += tests/atf/test_programs/t_cleanup
 EXTRA_DIST += tests/atf/test_programs/t_cleanup.sh
 tests/atf/test_programs/t_cleanup: \
+		$(srcdir)/tests/atf/test_programs/common.sh \
 		$(srcdir)/tests/atf/test_programs/t_cleanup.sh \
 		$(ATF_COMPILE_DEPS)
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_cleanup.sh
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/common.sh \
+	    $(srcdir)/tests/atf/test_programs/t_cleanup.sh
 
 atf_test_programs_SCRIPTS += tests/atf/test_programs/t_config
 CLEANFILES += tests/atf/test_programs/t_config
 EXTRA_DIST += tests/atf/test_programs/t_config.sh
 tests/atf/test_programs/t_config: \
+		$(srcdir)/tests/atf/test_programs/common.sh \
 		$(srcdir)/tests/atf/test_programs/t_config.sh \
 		$(ATF_COMPILE_DEPS)
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_config.sh
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/common.sh \
+	    $(srcdir)/tests/atf/test_programs/t_config.sh
 
 atf_test_programs_SCRIPTS += tests/atf/test_programs/t_env
 CLEANFILES += tests/atf/test_programs/t_env
 EXTRA_DIST += tests/atf/test_programs/t_env.sh
 tests/atf/test_programs/t_env: \
+		$(srcdir)/tests/atf/test_programs/common.sh \
 		$(srcdir)/tests/atf/test_programs/t_env.sh \
 		$(ATF_COMPILE_DEPS)
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_env.sh
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/common.sh \
+	    $(srcdir)/tests/atf/test_programs/t_env.sh
 
 atf_test_programs_SCRIPTS += tests/atf/test_programs/t_fork
 CLEANFILES += tests/atf/test_programs/t_fork
 EXTRA_DIST += tests/atf/test_programs/t_fork.sh
 tests/atf/test_programs/t_fork: \
+		$(srcdir)/tests/atf/test_programs/common.sh \
 		$(srcdir)/tests/atf/test_programs/t_fork.sh \
 		$(ATF_COMPILE_DEPS)
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_fork.sh
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/common.sh \
+	    $(srcdir)/tests/atf/test_programs/t_fork.sh
 
 atf_test_programs_SCRIPTS += tests/atf/test_programs/t_meta_data
 CLEANFILES += tests/atf/test_programs/t_meta_data
 EXTRA_DIST += tests/atf/test_programs/t_meta_data.sh
 tests/atf/test_programs/t_meta_data: \
+		$(srcdir)/tests/atf/test_programs/common.sh \
 		$(srcdir)/tests/atf/test_programs/t_meta_data.sh \
 		$(ATF_COMPILE_DEPS)
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
-	$(ATF_COMPILE_SH) -o $@ \
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/common.sh \
 	    $(srcdir)/tests/atf/test_programs/t_meta_data.sh
 
 atf_test_programs_SCRIPTS += tests/atf/test_programs/t_srcdir
 CLEANFILES += tests/atf/test_programs/t_srcdir
 EXTRA_DIST += tests/atf/test_programs/t_srcdir.sh
 tests/atf/test_programs/t_srcdir: \
+		$(srcdir)/tests/atf/test_programs/common.sh \
 		$(srcdir)/tests/atf/test_programs/t_srcdir.sh \
 		$(ATF_COMPILE_DEPS)
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_srcdir.sh
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/common.sh \
+	    $(srcdir)/tests/atf/test_programs/t_srcdir.sh
 
 atf_test_programs_SCRIPTS += tests/atf/test_programs/t_status
 CLEANFILES += tests/atf/test_programs/t_status
 EXTRA_DIST += tests/atf/test_programs/t_status.sh
 tests/atf/test_programs/t_status: \
+		$(srcdir)/tests/atf/test_programs/common.sh \
 		$(srcdir)/tests/atf/test_programs/t_status.sh \
 		$(ATF_COMPILE_DEPS)
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_status.sh
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/common.sh \
+	    $(srcdir)/tests/atf/test_programs/t_status.sh
 
 atf_test_programs_SCRIPTS += tests/atf/test_programs/t_workdir
 CLEANFILES += tests/atf/test_programs/t_workdir
 EXTRA_DIST += tests/atf/test_programs/t_workdir.sh
 tests/atf/test_programs/t_workdir: \
+		$(srcdir)/tests/atf/test_programs/common.sh \
 		$(srcdir)/tests/atf/test_programs/t_workdir.sh \
 		$(ATF_COMPILE_DEPS)
 	test -d tests/atf/test_programs || mkdir -p tests/atf/test_programs
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/t_workdir.sh
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/test_programs/common.sh \
+	    $(srcdir)/tests/atf/test_programs/t_workdir.sh
 
 atf_test_programs_PROGRAMS = tests/atf/test_programs/h_c
 tests_atf_test_programs_h_c_SOURCES = tests/atf/test_programs/h_c.c

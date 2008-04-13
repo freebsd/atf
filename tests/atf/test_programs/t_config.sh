@@ -42,25 +42,20 @@ vflag_head()
 }
 vflag_body()
 {
-    srcdir=$(atf_get_srcdir)
-    h_c=${srcdir}/h_c
-    h_cpp=${srcdir}/h_cpp
-    h_sh=${srcdir}/h_sh
-
-    for h in ${h_c} ${h_cpp} ${h_sh}; do
-        atf_check "${h} -s ${srcdir} -r3 \
+    for h in $(get_helpers); do
+        atf_check "${h} -s $(atf_get_srcdir) -r3 \
                    config_unset 3>resout" 0 ignore ignore
         atf_check "grep 'passed' resout" 0 ignore null
 
-        atf_check "${h} -s ${srcdir} -r3 -v 'test=' \
+        atf_check "${h} -s $(atf_get_srcdir) -r3 -v 'test=' \
                    config_empty 3>resout" 0 ignore ignore
         atf_check "grep 'passed' resout" 0 ignore null
 
-        atf_check "${h} -s ${srcdir} -r3 -v 'test=foo' \
+        atf_check "${h} -s $(atf_get_srcdir) -r3 -v 'test=foo' \
                    config_value 3>resout" 0 ignore ignore
         atf_check "grep 'passed' resout" 0 ignore null
 
-        atf_check "${h} -s ${srcdir} -r3 -v 'test=foo bar' \
+        atf_check "${h} -s $(atf_get_srcdir) -r3 -v 'test=foo bar' \
                    config_multi_value 3>resout" 0 ignore ignore
         atf_check "grep 'passed' resout" 0 ignore null
     done
