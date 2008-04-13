@@ -189,7 +189,7 @@ dnl -----------------------------------------------------------------------
 dnl Finally, generate output.
 dnl -----------------------------------------------------------------------
 
-AC_OUTPUT([Makefile])
+AC_OUTPUT([Makefile atf-c/defs.h])
 
 if test ${enable_shared} = yes; then
     AC_MSG_WARN([Shared libraries with unstable ABIs/APIs have been enabled.])

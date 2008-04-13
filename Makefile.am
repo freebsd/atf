@@ -170,14 +170,6 @@ atf_c_HEADERS = atf-c/config.h \
                 atf-c/user.h
 atf_cdir = $(includedir)/atf-c
 
-EXTRA_DIST += atf-c/defs.h.in
-CLEANFILES += atf-c/defs.h
-atf-c/defs.h: $(srcdir)/atf-c/defs.h.in
-	test -d atf-c || mkdir -p atf-c
-	sed -e 's,__ATTRIBUTE_NORETURN__,$(ATTRIBUTE_NORETURN),g' \
-	    <$(srcdir)/atf-c/defs.h.in >atf-c/defs.h.tmp
-	mv atf-c/defs.h.tmp atf-c/defs.h
-
 # -------------------------------------------------------------------------
 # `atf-c++' directory.
 # -------------------------------------------------------------------------
