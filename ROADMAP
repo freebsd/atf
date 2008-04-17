@@ -13,13 +13,6 @@ of salt: the focus of a specific release may change completely depending
 on how things develop.
 
 
-Plans for 0.5
-=============
-
-* Remove most of atf-c++/tests.cpp's code and back it up by the atf-c
-  implementation.
-
-
 Plans for 0.6
 =============
 
