@@ -170,6 +170,8 @@ atf_c_HEADERS = atf-c/config.h \
                 atf-c/user.h
 atf_cdir = $(includedir)/atf-c
 
+dist_man_MANS = atf-c/atf-c-api.3
+
 # -------------------------------------------------------------------------
 # `atf-c++' directory.
 # -------------------------------------------------------------------------
@@ -231,7 +233,7 @@ atf_c___HEADERS = atf-c++/application.hpp \
                   atf-c++/utils.hpp
 atf_c__dir = $(includedir)/atf-c++
 
-dist_man_MANS = atf-c++/atf-c++-api.3
+dist_man_MANS += atf-c++/atf-c++-api.3
 
 # -------------------------------------------------------------------------
 # `atf-sh' directory.
