@@ -71,6 +71,7 @@ resize(atf_dynstr_t *ad, size_t newsize)
     return err;
 }
 
+static
 atf_error_t
 prepend_or_append(atf_dynstr_t *ad, const char *fmt, va_list ap,
                   bool prepend)

@@ -64,6 +64,11 @@
 
 static const char *progname = NULL;
 
+/* This prototype is provided by macros.h during instantiation of the test
+ * program, so it can be kept private.  Don't know if that's the best idea
+ * though. */
+int atf_tp_main(int, char **, atf_error_t (*)(atf_tp_t *));
+
 /* ---------------------------------------------------------------------
  * The "usage" and "user" error types.
  * --------------------------------------------------------------------- */

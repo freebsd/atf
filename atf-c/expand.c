@@ -39,7 +39,7 @@
 #include <string.h>
 
 #include "atf-c/dynstr.h"
-#include "atf-c/error.h"
+#include "atf-c/expand.h"
 #include "atf-c/sanity.h"
 
 /* REG_BASIC is just a synonym for 0, provided as a counterpart to

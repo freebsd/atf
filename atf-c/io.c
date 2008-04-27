@@ -41,6 +41,7 @@
 #include <unistd.h>
 
 #include "atf-c/dynstr.h"
+#include "atf-c/io.h"
 #include "atf-c/sanity.h"
 
 atf_error_t

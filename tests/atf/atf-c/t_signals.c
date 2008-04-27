@@ -53,6 +53,7 @@
 
 #define CE(stm) ATF_CHECK(!atf_is_error(stm))
 
+static
 void
 null_handler(int signo)
 {
@@ -60,6 +61,7 @@ null_handler(int signo)
 
 static bool test1_happened = false;
 
+static
 void
 test1_handler(int signo)
 {
@@ -68,6 +70,7 @@ test1_handler(int signo)
 
 static bool test2_happened = false;
 
+static
 void
 test2_handler(int signo)
 {

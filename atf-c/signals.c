@@ -55,6 +55,7 @@ const int atf_signals_last_signo = LAST_SIGNO;
 
 static bool happened[LAST_SIGNO + 1];
 
+static
 void
 holder_handler(int signo)
 {

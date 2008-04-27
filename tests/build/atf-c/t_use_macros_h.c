@@ -36,6 +36,9 @@
 
 #include <atf-c/macros.h>
 
+void atf_check_inside_if(void);
+void atf_check_equal_inside_if(void);
+
 void
 atf_check_inside_if(void)
 {

@@ -50,6 +50,9 @@ static const char *atf_pkgdatadir = NULL;
 static const char *atf_shell = NULL;
 static const char *atf_workdir = NULL;
 
+/* Only used for unit testing, so this prototype is private. */
+void __atf_config_reinit(void);
+
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
