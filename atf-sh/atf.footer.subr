@@ -773,18 +773,21 @@ _atf_run_body()
 #
 _atf_program_timeout()
 {
-    cat >${2}/timeout.sh <<EOF
+    _timeout=$(atf_get timeout)
+
+    if [ ${_timeout} -gt 0 ]; then
+        cat >${2}/timeout.sh <<EOF
 #! /bin/sh
-_timeout=$(atf_get timeout)
-if [ \${_timeout} -gt 0 ]; then
-    sleep \${_timeout}
-    touch ${2}/atf.timed.out
-    ${Atf_Killpg} $1 >/dev/null 2>&1
-fi
+sleep ${_timeout}
+touch ${2}/atf.timed.out
+${Atf_Killpg} ${1} >/dev/null 2>&1
 EOF
-    chmod +x ${2}/timeout.sh
-    ${Atf_Exec} -g ${2}/timeout.sh >/dev/null 2>&1 &
-    echo $!
+
+        ${Atf_Exec} -g /bin/sh ${2}/timeout.sh >/dev/null 2>&1 &
+        echo $!
+    else
+        echo none
+    fi
 }
 
 #
@@ -819,10 +822,13 @@ _atf_run_tc()
         wait ${_body_pid}
         _ret=$?
         if [ -f ${_workdir}/atf.timed.out ]; then
+            [ ${_timeout_pid} != none ] || \
+                _atf_error 128 "Inconsistent status in timeout handling"
             ( atf_fail "Test case timed out after $(atf_get timeout) seconds" )
             _ret=${?}
         else
-            ${Atf_Killpg} ${_timeout_pid}
+            [ ${_timeout_pid} != none ] && \
+                ${Atf_Killpg} ${_timeout_pid} >/dev/null 2>&1
         fi
         ( cd ${_workdir} ; ${1}_cleanup )
         if [ ${2} -gt 1 ]; then
