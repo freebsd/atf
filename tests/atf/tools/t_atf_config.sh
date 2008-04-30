@@ -169,6 +169,9 @@ arch_body()
         i386|i486|i586|i686)
             exp_arch=i386
             ;;
+        x86_64)
+            exp_arch=amd64
+            ;;
         *)
             exp_arch=${machine}
     esac

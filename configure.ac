@@ -92,6 +92,9 @@ case ${machine} in
     i@<:@3-9@:>@86)
         arch=i386
         ;;
+    x86_64)
+        arch=amd64
+        ;;
     *)
         arch=${machine}
         ;;
