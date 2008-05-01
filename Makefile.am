@@ -62,6 +62,7 @@ check-style:
 
 EXTRA_DIST += admin/check-install.sh \
               admin/check-style-common.awk \
+              admin/check-style-c.awk \
               admin/check-style-cpp.awk \
               admin/check-style-man.awk \
               admin/check-style-shell.awk \
