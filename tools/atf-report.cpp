@@ -27,6 +27,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <memory>
