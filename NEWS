@@ -16,14 +16,15 @@ Status:       Experimental
 * Added a C-only binding so that binary test programs do not need to be
   tied to C++ at all.  This binding is now known as the atf-c library.
 
-* Renamed the C++ binding to atf-c++.
+* Renamed the C++ binding to atf-c++ for consistency with the new atf-c.
 
-* Renamed the POSIX shell binding to atf-sh.
+* Renamed the POSIX shell binding to atf-sh for consistency with the new
+  atf-c and atf-c++.
 
 * Added a -w flag to test programs through which it is possible to specify
-  the work directory to be used.  This was possible before by defining the
-  workdir configuration variable (-v workdir=...), but was conceptually
-  wrong.
+  the work directory to be used.  This was possible in prior releases by
+  defining the workdir configuration variable (-v workdir=...), but was a
+  conceptually incorrect mechanism.
 
 * Test programs now preserve the execution order of test cases when they
   are given in the command line.  Even those mentioned more than once are
