@@ -232,7 +232,7 @@ private:
     //! constant because, in the latter case, we cannot define it under
     //! Win32 due to the value being of a complex type.
     //!
-    static const handle_type invalid_value(void);
+    static handle_type invalid_value(void);
 };
 
 // ------------------------------------------------------------------------

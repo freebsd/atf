@@ -133,7 +133,7 @@ impl::file_handle::posix_remap(handle_type h)
     m_handle = h;
 }
 
-const impl::file_handle::handle_type
+impl::file_handle::handle_type
 impl::file_handle::invalid_value(void)
 {
     return -1;
