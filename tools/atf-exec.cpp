@@ -68,8 +68,6 @@ class atf_exec : public atf::application::app {
     unsigned int m_timeout_secs;
     std::string m_timeout_file;
 
-    void atf_exec::handle_timeout(pid_t);
-
 public:
     atf_exec(void);
 
