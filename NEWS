@@ -9,7 +9,14 @@ Version 0.6
 Release date: STILL UNDER DEVELOPMENT; NOT RELEASED YET
 Status:       Experimental
 
-* No changes yet.
+* Make atf-exec be able to kill its child process after a certain period of
+  time; this is controlled through the new -t option.
+
+* Change atf-sh to use atf-exec's -t option to control the test case's
+  timeouts, instead of doing it internally.  Same behavior as before, but
+  noticeably faster.
+
+* atf-exec's -g option and atf-killpg are gone due to the previous change.
 
 
 Version 0.5

@@ -995,14 +995,6 @@ tests/atf/tools/t_atf_exec: $(srcdir)/tests/atf/tools/t_atf_exec.sh \
 	test -d tests/atf/tools || mkdir -p tests/atf/tools
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_exec.sh
 
-atf_tools_SCRIPTS += tests/atf/tools/t_atf_killpg
-CLEANFILES += tests/atf/tools/t_atf_killpg
-EXTRA_DIST += tests/atf/tools/t_atf_killpg.sh
-tests/atf/tools/t_atf_killpg: $(srcdir)/tests/atf/tools/t_atf_killpg.sh \
-                              $(ATF_COMPILE_DEPS)
-	test -d tests/atf/tools || mkdir -p tests/atf/tools
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_killpg.sh
-
 atf_tools_SCRIPTS += tests/atf/tools/t_atf_report
 CLEANFILES += tests/atf/tools/t_atf_report
 EXTRA_DIST += tests/atf/tools/t_atf_report.sh
@@ -1111,12 +1103,6 @@ tools_atf_format_SOURCES = tools/atf-format.cpp
 tools_atf_format_LDADD = -latf-c++
 tools_atf_format_LDFLAGS = -L.
 dist_man_MANS += tools/atf-format.1
-
-libexec_PROGRAMS += tools/atf-killpg
-tools_atf_killpg_SOURCES = tools/atf-killpg.cpp
-tools_atf_killpg_LDADD = -latf-c++
-tools_atf_killpg_LDFLAGS = -L.
-dist_man_MANS += tools/atf-killpg.1
 
 bin_PROGRAMS += tools/atf-report
 tools_atf_report_SOURCES = tools/atf-report.cpp
