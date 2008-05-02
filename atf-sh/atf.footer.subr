@@ -43,7 +43,6 @@ Atf_Arch=$(atf-config -t atf_arch)
 Atf_Cleanup=$(atf-config -t atf_libexecdir)/atf-cleanup
 Atf_Exec=$(atf-config -t atf_libexecdir)/atf-exec
 Atf_Format=$(atf-config -t atf_libexecdir)/atf-format
-Atf_Killpg=$(atf-config -t atf_libexecdir)/atf-killpg
 Atf_Machine=$(atf-config -t atf_machine)
 
 # List of configuration variables set through the command line.  Needed
@@ -759,31 +758,6 @@ _atf_run_body()
 }
 
 #
-# _atf_program_timeout pid workdir
-#
-#   Prepares and launches in the background a script that will kill the
-#   current test case's body (specified by the pid) after it times out.
-#
-_atf_program_timeout()
-{
-    _timeout=$(atf_get timeout)
-
-    if [ ${_timeout} -gt 0 ]; then
-        cat >${2}/timeout.sh <<EOF
-#! /bin/sh
-sleep ${_timeout}
-touch ${2}/atf.timed.out
-${Atf_Killpg} ${1} >/dev/null 2>&1
-EOF
-
-        ${Atf_Exec} -g /bin/sh ${2}/timeout.sh >/dev/null 2>&1 &
-        echo $!
-    else
-        echo none
-    fi
-}
-
-#
 # _atf_run_tc tc nrest
 #
 #   Runs the specified test case.  Prints its exit status to the
@@ -810,18 +784,11 @@ _atf_run_tc()
 
     _workdir=$(mktemp -d ${Work_Dir}/atf.XXXXXX)
     if [ ${?} -eq 0 ]; then
-        _atf_shortcut_exec ${1} ${_workdir}; _body_pid=$!
-        _timeout_pid=$(_atf_program_timeout ${_body_pid} ${_workdir})
-        wait ${_body_pid}
+        _atf_shortcut_exec ${1} ${_workdir}
         _ret=$?
         if [ -f ${_workdir}/atf.timed.out ]; then
-            [ ${_timeout_pid} != none ] || \
-                _atf_error 128 "Inconsistent status in timeout handling"
             ( atf_fail "Test case timed out after $(atf_get timeout) seconds" )
             _ret=${?}
-        else
-            [ ${_timeout_pid} != none ] && \
-                ${Atf_Killpg} ${_timeout_pid} >/dev/null 2>&1
         fi
         ( cd ${_workdir} ; ${1}_cleanup )
         if [ ${2} -gt 1 ]; then
@@ -931,8 +898,7 @@ _atf_shortcut_entry()
 # _atf_shortcut_exec tc
 #
 #   Re-executes the current script in a different process group in order
-#   to process the given test case's body.  $! is set to the child process
-#   on return.
+#   to process the given test case's body.
 #
 #   Keep in sync with _atf_shortcut_entry.
 #
@@ -950,14 +916,14 @@ _atf_shortcut_exec()
     fi
 
     # Now do the real re-execution.
-    ${Atf_Exec} -g env \
+    ${Atf_Exec} -t $(atf_get timeout):${2}/atf.timed.out env \
         _ATF_CONFIG_FILE=${_config_file} \
         _ATF_RESULTS_FD=${Results_Fd} \
         _ATF_RESULTS_FILE=${Results_File} \
         _ATF_SHORTCUT=${1} \
         _ATF_SOURCE_DIR=${Source_Dir} \
         _ATF_WORK_DIR=${2} \
-        ${Source_Dir}/${Prog_Name} &
+        ${Source_Dir}/${Prog_Name}
 }
 
 #

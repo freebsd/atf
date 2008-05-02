@@ -35,11 +35,6 @@ Plans for 0.6
   8e200683a2b70eadca728c2e0347d4790777b3fc
   872393ed0177cbcc30ffacede228eb3986c42ab7
 
-* Optimize timeout handling in atf-sh: there are too many processes
-  involved to run each test case, and this hurts a lot in OS X, for
-  example.  One possibility is to integrate the timeout handling in
-  atf-exec and then kill the auxiliary code in atf.footer.subr.
-
 
 Plans for 0.7
 =============

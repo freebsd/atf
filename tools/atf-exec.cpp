@@ -29,6 +29,7 @@
 
 extern "C" {
 #include <sys/types.h>
+#include <sys/time.h>
 #include <sys/wait.h>
 #include <signal.h>
 #include <unistd.h>
@@ -37,12 +38,24 @@ extern "C" {
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 #include <iostream>
 
 #include "atf-c++/application.hpp"
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/sanity.hpp"
+#include "atf-c++/signals.hpp"
 #include "atf-c++/text.hpp"
+
+namespace sigalarm {
+    static bool happened = false;
+
+    void
+    handler(int signo)
+    {
+        happened = true;
+    }
+}
 
 class atf_exec : public atf::application::app {
     static const char* m_description;
@@ -51,7 +64,11 @@ class atf_exec : public atf::application::app {
     options_set specific_options(void) const;
     void process_option(int, const char*);
 
-    bool m_pgid;
+    void process_option_t(const std::string&);
+    unsigned int m_timeout_secs;
+    std::string m_timeout_file;
+
+    void atf_exec::handle_timeout(pid_t);
 
 public:
     atf_exec(void);
@@ -60,12 +77,11 @@ public:
 };
 
 const char* atf_exec::m_description =
-    "atf-exec executes the given command after modifying its environment "
-    "in different ways.";
+    "atf-exec executes the given command in a controlled manner.";
 
 atf_exec::atf_exec(void) :
     app(m_description, "atf-exec(1)", "atf(7)"),
-    m_pgid(false)
+    m_timeout_secs(0)
 {
 }
 
@@ -82,17 +98,38 @@ atf_exec::specific_options(void)
 {
     using atf::application::option;
     options_set opts;
-    opts.insert(option('g', "", "Creates a new process group under which "
-                                "to run the command"));
+    opts.insert(option('t', "secs:file", "Kills the command after the "
+                                         "specified amount of time and "
+                                         "creates the given file"));
     return opts;
+}
+
+void
+atf_exec::process_option_t(const std::string& arg)
+{
+    using atf::application::usage_error;
+
+    std::string::size_type pos = arg.find(':');
+    if (pos == std::string::npos)
+        throw usage_error("Invalid value for -t option; must be of the "
+                          "form secs:file");
+    if (pos == 0)
+        throw usage_error("Invalid value for -t option; secs cannot be "
+                          "empty");
+    if (pos == arg.length() - 1)
+        throw usage_error("Invalid value for -t option; file cannot be "
+                          "empty");
+
+    m_timeout_secs = atf::text::to_type< unsigned int >(arg.substr(0, pos));
+    m_timeout_file = arg.substr(pos + 1);
 }
 
 void
 atf_exec::process_option(int ch, const char* arg)
 {
     switch (ch) {
-    case 'g':
-        m_pgid = true;
+    case 't':
+        process_option_t(arg);
         break;
 
     default:
@@ -106,15 +143,13 @@ atf_exec::main(void)
     if (m_argc < 1)
         throw atf::application::usage_error("No command specified");
 
-    if (m_pgid) {
-        if (::setpgid(::getpid(), 0) == -1)
-            throw atf::system_error("main", "setpgid failed", errno);
-    }
-
     int exitcode = EXIT_FAILURE;
 
     pid_t pid = ::fork();
     if (pid == 0) {
+        if (::setpgid(::getpid(), 0) == -1)
+            throw atf::system_error("main", "setpgid failed", errno);
+
         char** argv = new char*[m_argc + 1];
         for (int i = 0; i < m_argc; i++)
             argv[i] = ::strdup(m_argv[i]);
@@ -123,15 +158,41 @@ atf_exec::main(void)
         ::execvp(m_argv[0], argv);
         return EXIT_FAILURE;
     } else {
+        atf::signals::signal_programmer sp(SIGALRM, sigalarm::handler);
+
+        if (m_timeout_secs > 0) {
+            struct itimerval itv;
+
+            timerclear(&itv.it_interval);
+            timerclear(&itv.it_value);
+            itv.it_value.tv_sec = m_timeout_secs;
+            if (setitimer(ITIMER_REAL, &itv, NULL) == -1)
+                throw atf::system_error("main", "setitimer failed", errno);
+        }
+
         int status;
-        if (::waitpid(pid, &status, 0) != pid)
-            throw atf::system_error("main", "waitpid failed", errno);
-        if (WIFEXITED(status))
-            exitcode = WEXITSTATUS(status);
-        else if (WIFSIGNALED(status))
-            ::kill(0, WTERMSIG(status));
-        else
-            UNREACHABLE;
+        if (::waitpid(pid, &status, 0) != pid) {
+            if (!(errno == EINTR && sigalarm::happened))
+                throw atf::system_error("main", "waitpid failed", errno);
+        }
+
+        if (sigalarm::happened) {
+            INV(m_timeout_secs > 0);
+
+            ::killpg(pid, SIGTERM);
+
+            std::ofstream os(m_timeout_file.c_str());
+            os.close();
+
+            INV(exitcode == EXIT_FAILURE);
+        } else {
+            if (WIFEXITED(status))
+                exitcode = WEXITSTATUS(status);
+            else if (WIFSIGNALED(status))
+                ::kill(0, WTERMSIG(status));
+            else
+                UNREACHABLE;
+        }
     }
 
     return exitcode;

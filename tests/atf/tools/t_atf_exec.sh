@@ -56,59 +56,60 @@ EOF
     atf_check "${atf_exec} -- ./helper.sh arg1 arg2" 0 expout null
 }
 
-pgid_of()
+atf_test_case timeout_syntax
+timeout_syntax_head()
 {
-    ps -o pgid -p ${1} | tail -n 1
+    atf_set "descr" "Checks syntax validation for -t"
+}
+timeout_syntax_body()
+{
+    atf_check "${atf_exec} -t '' true" 1 null stderr
+    atf_check "grep 'Invalid.*secs:file' stderr" 0 ignore null
+
+    atf_check "${atf_exec} -t ':cookie' true" 1 null stderr
+    atf_check "grep 'Invalid.*secs.*empty' stderr" 0 ignore null
+
+    atf_check "${atf_exec} -t '123:' true" 1 null stderr
+    atf_check "grep 'Invalid.*file.*empty' stderr" 0 ignore null
+
+    atf_check "${atf_exec} -t 'foo:bar' true" 1 null stderr
+    atf_check "grep 'convert.*string' stderr" 0 ignore null
 }
 
-atf_test_case process_group
-process_group_head()
+try_timeout()
 {
-    atf_set "descr" "Checks that giving -g creates a new process group"
+    to=${1}; delay=${2}
+    rm -f cookie
+    if [ ${to} -lt ${delay} -a ${to} -gt 0 ]; then
+        atf_check "${atf_exec} -t '${to}:cookie' sleep ${delay}" 1 null null
+        test -f cookie || \
+            atf_fail "Didn't find the timeout cookie but it should be there"
+    else
+        atf_check "${atf_exec} -t '${to}:cookie' sleep ${delay}" 0 null null
+        test -f cookie && \
+            atf_fail "Found the timeout cookie but it shouldn't be there"
+    fi
 }
-process_group_body()
+
+atf_test_case timeout
+timeout_head()
 {
-    cat >helper.sh <<EOF
-#! $(atf-config -t atf_shell)
+    atf_set "descr" "Checks that commands are killed if their timeout" \
+                    "expires"
+}
+timeout_body()
+{
+    try_timeout 1 5
+    try_timeout 5 1
 
-touch ready
-while [ ! -f done ]; do sleep 1; done
-EOF
-    chmod +x helper.sh
-
-    this_pgid=$(pgid_of ${$})
-
-    echo "Checking that the lack of -g does not change the process group"
-    rm -f ready done
-    ${atf_exec} ./helper.sh &
-    while [ ! -f ready ]; do sleep 1; done
-    child_pgid=$(pgid_of ${!})
-    touch done
-    wait ${!}
-
-    echo "My PGID is ${this_pgid}"
-    echo "atf-exec's PGID is ${child_pgid}"
-    [ ${this_pgid} -eq ${child_pgid} ] || \
-        atf_fail "Process group was changed"
-
-    echo "Checking that giving -g changes the process group"
-    rm -f ready done
-    ${atf_exec} -g ./helper.sh &
-    while [ ! -f ready ]; do sleep 1; done
-    child_pgid=$(pgid_of ${!})
-    touch done
-    wait ${!}
-
-    echo "My PGID is ${this_pgid}"
-    echo "atf-exec's PGID is ${child_pgid}"
-    [ ${this_pgid} -ne ${child_pgid} ] || \
-        atf_fail "Process group was not changed"
+    try_timeout 0 1
 }
 
 atf_init_test_cases()
 {
     atf_add_test_case passthrough
-    atf_add_test_case process_group
+    atf_add_test_case timeout_syntax
+    atf_add_test_case timeout
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
