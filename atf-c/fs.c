@@ -616,6 +616,12 @@ atf_fs_stat_get_inode(const atf_fs_stat_t *st)
     return st->m_sb.st_ino;
 }
 
+off_t
+atf_fs_stat_get_size(const atf_fs_stat_t *st)
+{
+    return st->m_sb.st_size;
+}
+
 int
 atf_fs_stat_get_type(const atf_fs_stat_t *st)
 {
@@ -826,3 +832,40 @@ atf_fs_mkdtemp(atf_fs_path_t *p)
 
     return err;
 }
+
+atf_error_t
+atf_fs_mkstemp(atf_fs_path_t *p, int *fd)
+{
+    atf_error_t err;
+    char *tmpl;
+
+    tmpl = p->m_data.m_data;
+    PRE(strstr(tmpl, "XXXXXX") != NULL);
+
+    *fd = mkstemp(tmpl);
+    if ((*fd) == -1)
+        err = atf_libc_error(errno, "Cannot create temporary file "
+                              "with template '%s'", tmpl);
+
+    else
+        err = atf_no_error();
+
+    return err;
+}
+
+atf_error_t
+atf_fs_unlink(atf_fs_path_t *p)
+{
+    atf_error_t err;
+    const char *path;
+
+    path = atf_fs_path_cstring(p);
+    
+    if (unlink(path) != 0)
+        err = atf_libc_error(errno, "Cannot unlink file: '%s'", path);
+    else
+        err = atf_no_error();
+
+    return err;
+}
+

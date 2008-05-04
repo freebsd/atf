@@ -245,6 +245,11 @@ public:
     ino_t get_inode(void) const;
 
     //!
+    //! \brief Returns the file's size.
+    //!
+    off_t get_size(void) const;
+
+    //!
     //! \brief Returns the file's type.
     //!
     int get_type(void) const;

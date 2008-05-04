@@ -94,7 +94,9 @@ EXTRA_DIST += admin/revision-dist.h
 # -------------------------------------------------------------------------
 
 lib_LTLIBRARIES = libatf-c.la
-libatf_c_la_SOURCES = atf-c/config.c \
+libatf_c_la_SOURCES = atf-c/check.c \
+                      atf-c/check.h \
+                      atf-c/config.c \
                       atf-c/config.h \
                       atf-c/dynstr.c \
                       atf-c/dynstr.h \
@@ -142,7 +144,8 @@ kill-defs-h:
 	rm -f $(distdir)/atf-c/defs.h
 
 include_HEADERS = atf-c.h
-atf_c_HEADERS = atf-c/config.h \
+atf_c_HEADERS = atf-c/check.h \
+                atf-c/config.h \
                 atf-c/defs.h \
                 atf-c/dynstr.h \
                 atf-c/env.h \
@@ -177,6 +180,7 @@ libatf_c___la_SOURCES = atf-c++/application.cpp \
                         atf-c++/application.hpp \
                         atf-c++/atffile.cpp \
                         atf-c++/atffile.hpp \
+                        atf-c++/check.hpp \
                         atf-c++/config.cpp \
                         atf-c++/config.hpp \
                         atf-c++/env.cpp \
@@ -210,6 +214,7 @@ libatf_c___la_SOURCES = atf-c++/application.cpp \
 include_HEADERS += atf-c++.hpp
 atf_c___HEADERS = atf-c++/application.hpp \
                   atf-c++/atffile.hpp \
+                  atf-c++/check.hpp \
                   atf-c++/config.hpp \
                   atf-c++/env.hpp \
                   atf-c++/exceptions.hpp \
@@ -1079,6 +1084,12 @@ tools/atf-host-compile: $(srcdir)/tools/atf-host-compile.sh
 CLEANFILES += tools/atf-host-compile
 CLEANFILES += tools/atf-host-compile.tmp
 EXTRA_DIST += tools/atf-host-compile.sh
+
+bin_PROGRAMS += tools/atf-check
+tools_atf_check_SOURCES = tools/atf-check.cpp
+tools_atf_check_LDADD = -latf-c++
+tools_atf_check_LDFLAGS = -L.
+#dist_man_MANS += tools/atf-check.1
 
 libexec_PROGRAMS = tools/atf-cleanup
 tools_atf_cleanup_SOURCES = tools/atf-cleanup.cpp

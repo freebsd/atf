@@ -254,6 +254,11 @@ atf_check()
     esac
 }
 
+atf_check_new()
+{
+    atf-check "$@" || atf_fail "atf-check failed on command: atf-check $@"
+}
+
 #
 # atf_check_equal expr1 expr2
 #
