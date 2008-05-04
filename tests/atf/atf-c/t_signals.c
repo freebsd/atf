@@ -12,13 +12,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this
- *    software must display the following acknowledgement:
- *        This product includes software developed by the NetBSD
- *        Foundation, Inc. and its contributors.
- * 4. Neither the name of The NetBSD Foundation nor the names of its
- *    contributors may be used to endorse or promote products derived
- *    from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND
  * CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -53,6 +46,7 @@
 
 #define CE(stm) ATF_CHECK(!atf_is_error(stm))
 
+static
 void
 null_handler(int signo)
 {
@@ -60,6 +54,7 @@ null_handler(int signo)
 
 static bool test1_happened = false;
 
+static
 void
 test1_handler(int signo)
 {
@@ -68,6 +63,7 @@ test1_handler(int signo)
 
 static bool test2_happened = false;
 
+static
 void
 test2_handler(int signo)
 {

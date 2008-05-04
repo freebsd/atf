@@ -3,23 +3,44 @@
 ---------------------------------------------------------------------------
 
 
+Version 0.6
+===========
+
+Release date: STILL UNDER DEVELOPMENT; NOT RELEASED YET
+Status:       Experimental
+
+* Make atf-exec be able to kill its child process after a certain period of
+  time; this is controlled through the new -t option.
+
+* Change atf-sh to use atf-exec's -t option to control the test case's
+  timeouts, instead of doing it internally.  Same behavior as before, but
+  noticeably faster.
+
+* atf-exec's -g option and atf-killpg are gone due to the previous change.
+
+
 Version 0.5
 ===========
 
-Release date: NOT RELEASED YET; STILL UNDER DEVELOPMENT
+Release date: May 1st, 2008
 Status:       Experimental
+
+* Clauses 3 and 4 of the BSD license used by the project were dropped.
+  All the code is now under a 2-clause BSD license compatible with the
+  GNU General Public License (GPL).
 
 * Added a C-only binding so that binary test programs do not need to be
   tied to C++ at all.  This binding is now known as the atf-c library.
 
-* Renamed the C++ binding to atf-c++.
+* Renamed the C++ binding to atf-c++ for consistency with the new atf-c.
 
-* Renamed the POSIX shell binding to atf-sh.
+* Renamed the POSIX shell binding to atf-sh for consistency with the new
+  atf-c and atf-c++.
 
 * Added a -w flag to test programs through which it is possible to specify
-  the work directory to be used.  This was possible before by defining the
-  workdir configuration variable (-v workdir=...), but was conceptually
-  wrong.
+  the work directory to be used.  This was possible in prior releases by
+  defining the workdir configuration variable (-v workdir=...), but was a
+  conceptually incorrect mechanism.
 
 * Test programs now preserve the execution order of test cases when they
   are given in the command line.  Even those mentioned more than once are

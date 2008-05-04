@@ -12,13 +12,6 @@
 # 2. Redistributions in binary form must reproduce the above copyright
 #    notice, this list of conditions and the following disclaimer in the
 #    documentation and/or other materials provided with the distribution.
-# 3. All advertising materials mentioning features or use of this
-#    software must display the following acknowledgement:
-#        This product includes software developed by the NetBSD
-#        Foundation, Inc. and its contributors.
-# 4. Neither the name of The NetBSD Foundation nor the names of its
-#    contributors may be used to endorse or promote products derived
-#    from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND
 # CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -69,6 +62,7 @@ check-style:
 
 EXTRA_DIST += admin/check-install.sh \
               admin/check-style-common.awk \
+              admin/check-style-c.awk \
               admin/check-style-cpp.awk \
               admin/check-style-man.awk \
               admin/check-style-shell.awk \
@@ -1001,14 +995,6 @@ tests/atf/tools/t_atf_exec: $(srcdir)/tests/atf/tools/t_atf_exec.sh \
 	test -d tests/atf/tools || mkdir -p tests/atf/tools
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_exec.sh
 
-atf_tools_SCRIPTS += tests/atf/tools/t_atf_killpg
-CLEANFILES += tests/atf/tools/t_atf_killpg
-EXTRA_DIST += tests/atf/tools/t_atf_killpg.sh
-tests/atf/tools/t_atf_killpg: $(srcdir)/tests/atf/tools/t_atf_killpg.sh \
-                              $(ATF_COMPILE_DEPS)
-	test -d tests/atf/tools || mkdir -p tests/atf/tools
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_killpg.sh
-
 atf_tools_SCRIPTS += tests/atf/tools/t_atf_report
 CLEANFILES += tests/atf/tools/t_atf_report
 EXTRA_DIST += tests/atf/tools/t_atf_report.sh
@@ -1117,12 +1103,6 @@ tools_atf_format_SOURCES = tools/atf-format.cpp
 tools_atf_format_LDADD = -latf-c++
 tools_atf_format_LDFLAGS = -L.
 dist_man_MANS += tools/atf-format.1
-
-libexec_PROGRAMS += tools/atf-killpg
-tools_atf_killpg_SOURCES = tools/atf-killpg.cpp
-tools_atf_killpg_LDADD = -latf-c++
-tools_atf_killpg_LDFLAGS = -L.
-dist_man_MANS += tools/atf-killpg.1
 
 bin_PROGRAMS += tools/atf-report
 tools_atf_report_SOURCES = tools/atf-report.cpp
