@@ -1,0 +1,327 @@
+.\"
+.\" Automated Testing Framework (atf)
+.\"
+.\" Copyright (c) 2008 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND
+.\" CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+.\" INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+.\" GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+.\" IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+.\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+.\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.Dd May 5, 2008
+.Dt ATF-C-ERROR 3
+.Os
+.Sh NAME
+.Nm atf_error_data ,
+.Nm atf_error_format ,
+.Nm atf_error_free ,
+.Nm atf_error_is ,
+.Nm atf_error_new ,
+.Nm atf_error_t ,
+.Nm atf_is_error ,
+.Nm atf_libc_error ,
+.Nm atf_no_error ,
+.Nm atf_no_memory_error
+.Nd base representation for error codes and error propagation
+.Sh SYNOPSIS
+.In atf-c/error.h
+.\"
+.Ft atf_error_t
+.Fn atf_error_new "const char *" "void *" "size_t" \
+                  "void (*)(const atf_error_t, char *, size_t)"
+.Ft void
+.Fn atf_error_free "atf_error_t"
+.\"
+.Ft atf_error_t
+.Fn atf_no_error
+.Ft bool
+.Fn atf_is_error "atf_error_t"
+.\"
+.Ft bool
+.Fn atf_error_is "const atf_error_t" "const char *"
+.Ft const void *
+.Fn atf_error_data "const atf_error_t"
+.Ft void
+.Fn atf_error_format "const atf_error_t" "char *" "size_t"
+.\"
+.Ft atf_error_t
+.Fn atf_libc_error "int" "const char *" "..."
+.Ft int
+.Fn atf_libc_error_code "const atf_error_t"
+.\"
+.Ft atf_error_t
+.Fn atf_no_memory_error "void"
+.\"
+.Sh DESCRIPTION
+.\"
+The
+.Nm error
+module from
+.Xr atf-c 3
+provides the
+.Nm atf_error_t
+base type and the
+.Nm libc
+and
+.Nm no_memory
+standard error types.
+.\"
+.Ss The atf_error_t type: overview
+.\"
+The
+.Nm atf_error_t
+type provides a lightweight representation for free-form errors and a
+mechanism to easily propagate them through function call returns.
+The design of this type tries to overcome the lack of exceptions in the
+C programming language.
+.Pp
+The
+.Nm atf_error_t
+type is meant to be used as a base error type from which specialized error
+types are derived.
+The semantics and contents of each error object are defined by a type, which
+is identified by a literal string.
+The user can query the type of an error against a known string using the
+.Ft atf_error_is
+function.
+Only once the caller knows the type of an error, it can access its specific
+data (if any) using the
+.Ft atf_error_data
+function.
+.Pp
+Internally,
+.Nm atf_error_t
+is just a pointer so returning it from a function is not any more costly
+than returning an integer to signal an error as libc does.
+In the case of errors, though, the error object includes dynamically
+allocated memory and free-form text, so handling it is more costly than
+handling an integer.
+However, given that error conditions are the exception and not the norm,
+it is reasonable to pay this extra cost only when errors arise.
+.Pp
+For consistency reasons, functions that may terminate due to an error
+condition
+.Em must
+return
+.Nm atf_error_t
+as their return type and not any of the specialized types; the real return
+value of the function, if any, has to be supplied as an output parameter.
+Similarly, any temporary variables used to hold error codes must also be
+of the
+.Nm atf_error_t
+type.
+For example, consider the following function that opens a file and returns
+a file descriptor, but uses the semantics of
+.Nm atf_error_t
+to return an error code:
+.Bd -literal -offset indent
+atf_error_t
+safe_open(int *fd, const char *path)
+{
+    atf_error_t err;
+    int tmp;
+
+    tmp = open(path, O_RDONLY);
+    if (tmp == -1) {
+        err = atf_libc_error(errno, "open(%s) failed", path);
+        goto out;
+    }
+
+    *fd = tmp;
+    err = atf_no_error();
+out:
+    return err;
+}
+.Ed
+.Pp
+Later on, code using this function can simply propagate the error as follows;
+note that the caller needs not know that the error is of type
+.Sq libc :
+.Bd -literal -offset indent
+atf_error_t
+open_close(const char *path)
+{
+    atf_error_t err;
+    int fd;
+
+    err = safe_open(&fd, path);
+    if (atf_is_error(err))
+        goto out;
+
+    close(fd);
+
+out:
+    return err;
+}
+.Ed
+.Pp
+At last, when the error arrives to the place where it can be handled, the
+code can query its type and opt to propagate unexpected errors further up
+the call chain:
+.Bd -literal -offset indent
+atf_error_t
+sample_handling(const char *path)
+{
+    atf_error_t err;
+
+    err = open_close(path);
+    if (atf_is_error(err) && atf_error_is(err, "libc")) {
+        int errcode = atf_libc_error_code(err);
+        ... handle the libc-specific error here ...
+        atf_error_free(err);
+        exit(EXIT_FAILURE);
+    }
+
+    /* Propagate any other error condition */
+    return err;
+}
+.Ed
+.\"
+.Ss The atf_error_t type: methods
+.\"
+.Bl -ohang
+.It Ft atf_error_t Fn atf_error_new \
+    "const char *type" "void *data" "size_t datalen" \
+    "void (*format)(const atf_error_t type, char *buf, size_t buflen)"
+Constructs a new error object of type
+.Fa type
+and with the type-specific data
+.Fa data ,
+which is a memory region of
+.Fa datalen
+bytes.
+The
+.Fa format
+hook points to a function that, given an error of type
+.Fa type ,
+places a formatted text string into a buffer
+.Fa buf
+of length
+.Fa buflen
+that describes the error in a human-readable form.
+The constructed error object is returned.
+.Pp
+If there was not enough memory to construct the error object, an error
+object of type
+.Sq no_memory
+is returned.
+.Pp
+This function is to be used by constructors of specialized error types
+such as
+.Fn atf_libc_error .
+.Pp
+Precondition:
+.Fa data
+!=
+.Dv NULL
+if and only if
+.Fa datalen
+!= 0
+.It Ft void Fn atf_error_free "atf_error_t err"
+Releases an error object.
+Has to be called whenever the user has dealt with an error object and
+does not need to propagate such object any further.
+.Pp
+Precondition:
+.Nm atf_is_error Ns ( Ar err )
+.It Ft bool Fn atf_error_is "const atf_error_t err" "const char *type"
+Checks whether the error
+.Fa err
+is of type
+.Fa type .
+.It Ft const void * Fn atf_error_data "const atf_error_t err"
+Returns the error-specific data for the
+.Fa err
+error object.
+The return value must be cast to the error-specific data structure used
+to represent it.
+Note that this structure may be an implementation detail and thus hidden
+from the caller, in which case getter methods must be used to access this
+information.
+.It Ft void Fn atf_error_format "const atf_error_t err" "char *buf" \
+                                "size_t buflen"
+Generates an human-readable string describing the error
+.Fa err
+and stores it in the buffer
+.Fa buf
+whose size is
+.Fa buflen
+bytes.
+.El
+.Ss Free functions
+.Bl -ohang
+.It Ft atf_error_t Fn atf_no_error
+Returns a null error object, i.e. the code that specifies that no error
+happened.
+.It Ft bool Fn atf_is_error "atf_error_t err"
+Checks whether
+.Fa
+is not the null error.
+.El
+.\"
+.Ss The libc standard error type
+.\"
+.Bl -ohang
+.It Ft atf_error_t Fn atf_libc_error "int errno" "const char *fmt" "..."
+Constructs a new error object of type
+.Sq libc ,
+used to represent the error conditions raised by calls to libc or any other
+library that uses the
+.Va errno
+variable to signal errors.
+The
+.Fa errno
+argument indicates the error code returned by the call to libc that
+generated this error; a copy of the code is stored into the error object
+so that it can be safely queried at a later time.
+The
+.Fa fmt
+argument alongside with the subsequent list of variable arguments hold a
+formatted string describing the cause of the error.
+.It Ft int Fn atf_libc_error_code "const atf_error_t err"
+Returns the libc error code that corresponds to
+.Fa err .
+.Pp
+Precondition:
+.Nm atf_is_error Ns ( Fa err )
+.Pp
+Precondition:
+.Nm atf_error_is Ns ( Fa err ,
+"libc")
+.El
+.\"
+.Ss The no_memory standard error type
+.\"
+.Bl -ohang
+.Ft atf_error_t
+.Fn atf_no_memory_error "void"
+Constructs a new error object of type
+.Sq no_memory ,
+used to represent out-of-memory error conditions.
+To prevent double faults allocating memory, this function returns a
+reference-counted static error object; therefore, it is always safe to
+return it whenever a memory allocation fails.
+.El
+.\"
+.Sh SEE ALSO
+.\"
+.Xr atf-c 3 ,
+.Xr atf 7
