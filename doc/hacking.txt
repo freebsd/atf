@@ -78,5 +78,43 @@ users who may have branched the code, so please be kind and follow the
 rules.
 
 
+Commit guidelines
+=================
+
+* The format of commit messages is: a single-line summary of the purpose
+  of the change, followed by a blank line and followed by a free-form,
+  detailed description that may span multiple paragraphs.  Always follow
+  this format, even if writing the description seems redundant in some
+  cases.
+
+  Rationale: some tools (such as monotone-viz) only show the first line of
+  the message in revision summaries.
+
+* Commits in monotone are cheap and fast, so abuse them.  Commit often and
+  with a fine granularity.  If you find yourself writing a commit message
+  as a list of items, then you are most likely doing it the wrong way.
+  Stop the commit (without writing the log message) and split your work
+  in pieces.
+  
+  For example, suppose you are adding a new feature to a front-end tool
+  and along the process you need to add a minor function to an existing
+  module.  The first commit would include the changes required to add this
+  minor function and its unit tests, all in one single change set.
+  The second commit would add your new feature.
+
+  Rationale: small commits are easier to review and to cherry-pick.
+
+* Branch if needed.  If you are reworking a big part of the code or want
+  to add a major feature without disturbing the development of mainline,
+  create a branch for it.  The branch name should follow the pattern used
+  for the mainline name; i.e. org.NetBSD.atf.src.<yourname>.  Be aware
+  that branch names are global and public in Monotone, so choose the name
+  wisely.  Better to be verbose than cryptic.
+
+  Rationale: do not disturb mainline with work that may not be completed
+  on time for the next release, or with work that may leave mainline broken
+  for a long period of time.
+
+
 ---------------------------------------------------------------------------
                               End of document

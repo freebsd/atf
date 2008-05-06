@@ -16,6 +16,9 @@ on how things develop.
 Plans for 0.6
 =============
 
+* Properly document the libraries: i.e. one page per module, detailed
+  information of each function and type, etc.  At the very least atf-c.
+
 * Add a binary atf-check tool that replaces atf-sh's atf_check function.
   I suspect this will speed things up considerably, and will also expose
   this extremely useful functionality to C/C++ test programs.
