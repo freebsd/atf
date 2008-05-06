@@ -65,7 +65,7 @@ char *atf_dynstr_fini_disown(atf_dynstr_t *);
 
 /* Getters */
 const char *atf_dynstr_cstring(const atf_dynstr_t *);
-size_t atf_dynstr_length(atf_dynstr_t *);
+size_t atf_dynstr_length(const atf_dynstr_t *);
 size_t atf_dynstr_rfind_ch(const atf_dynstr_t *, char);
 
 /* Modifiers */
