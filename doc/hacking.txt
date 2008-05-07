@@ -115,6 +115,21 @@ Commit guidelines
   on time for the next release, or with work that may leave mainline broken
   for a long period of time.
 
+* Apply fixes in a "daggy manner".  Whenever you need to apply a fix to
+  the code, attempt to locate the revision that originally introduced then.
+  Whenever you have recognized this revision, roll back your working copy
+  to it, apply the fix, make sure it really fixes the bug and commit the
+  change against that revision.  After the commit, merge the two branch
+  heads.
+
+  See DaggyFixes in the Monotone wiki for more details:
+
+    http://www.venge.net/mtn-wiki/DaggyFixes
+
+  Rationale: Fixes are kept close to the real code they are fixing in the
+  revision ancestry graph.  Cherry-picking the original code alongside any
+  bug fix against it becomes easier.
+
 
 ---------------------------------------------------------------------------
                               End of document
