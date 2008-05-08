@@ -42,5 +42,12 @@ Other documents
 * ROADMAP: List of changes planned for future releases.
 
 
+Contributing
+============
+
+If you are planning to contribute code to the project, be absolutely sure
+to read doc/hacking.txt first.
+
+
 ---------------------------------------------------------------------------
                               End of document
