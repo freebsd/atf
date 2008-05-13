@@ -839,7 +839,7 @@ atf_fs_mkstemp(atf_fs_path_t *p, int *fd)
     atf_error_t err;
     char *tmpl;
 
-    tmpl = p->m_data.m_data;
+    tmpl = p->m_data.m_data; /* XXX: Ugly */
     PRE(strstr(tmpl, "XXXXXX") != NULL);
 
     *fd = mkstemp(tmpl);
@@ -868,4 +868,3 @@ atf_fs_unlink(atf_fs_path_t *p)
 
     return err;
 }
-

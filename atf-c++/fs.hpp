@@ -85,6 +85,11 @@ public:
     path(const path&);
 
     //!
+    //! \brief Copy constructor.
+    //!
+    path(const atf_fs_path_t *);
+
+    //!
     //! \brief Destructor for the path class.
     //!
     ~path(void);

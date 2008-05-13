@@ -115,6 +115,13 @@ impl::path::path(const path& p)
         throw_atf_error(err);
 }
 
+impl::path::path(const atf_fs_path_t *p)
+{
+    atf_error_t err = atf_fs_path_copy(&m_path, p);
+    if (atf_is_error(err))
+        throw_atf_error(err);
+}
+
 impl::path::~path(void)
 {
     atf_fs_path_fini(&m_path);

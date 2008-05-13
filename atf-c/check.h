@@ -30,40 +30,30 @@
 #if !defined(ATF_C_CHECK_H)
 #define ATF_C_CHECK_H
 
-
 #include <atf-c/error.h>
 #include <atf-c/fs.h>
 #include <atf-c/object.h>
 
-
 /* ---------------------------------------------------------------------
- * The "atf_cmd_result" type.
+ * The "atf_check_result" type.
  * --------------------------------------------------------------------- */
 
-struct atf_cmd_result {
+struct atf_check_result {
     atf_object_t m_object;
 
     atf_fs_path_t m_stdout;
     atf_fs_path_t m_stderr;
     int m_status;
 };
-typedef struct atf_cmd_result atf_cmd_result_t;
+typedef struct atf_check_result atf_check_result_t;
 
 /* Construtors and destructors */
-atf_error_t atf_cmd_run(atf_cmd_result_t *, const char *);
-void atf_cmd_result_fini(atf_cmd_result_t *);
+atf_error_t atf_check_exec(atf_check_result_t *, const char *);
+void atf_check_result_fini(atf_check_result_t *);
 
 /* Getters */
-const atf_fs_path_t *atf_cmd_result_stdout(const atf_cmd_result_t *);
-const atf_fs_path_t *atf_cmd_result_stderr(const atf_cmd_result_t *);
-int atf_cmd_result_status(const atf_cmd_result_t *);
-
-
-/* ---------------------------------------------------------------------
- * Free functions.
- * --------------------------------------------------------------------- */
-
-bool atf_equal_file_file(atf_error_t *, const char *, const char *);
-bool atf_equal_file_string(atf_error_t *, const char *, const char *);
+const atf_fs_path_t *atf_check_result_stdout(const atf_check_result_t *);
+const atf_fs_path_t *atf_check_result_stderr(const atf_check_result_t *);
+int atf_check_result_status(const atf_check_result_t *);
 
 #endif /* ATF_C_CHECK_H */

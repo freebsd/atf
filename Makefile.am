@@ -183,6 +183,7 @@ libatf_c___la_SOURCES = atf-c++/application.cpp \
                         atf-c++/application.hpp \
                         atf-c++/atffile.cpp \
                         atf-c++/atffile.hpp \
+                        atf-c++/check.cpp \
                         atf-c++/check.hpp \
                         atf-c++/config.cpp \
                         atf-c++/config.hpp \
@@ -970,7 +971,16 @@ tests_atf_tools_h_pass_SOURCES = tests/atf/tools/h_pass.cpp
 tests_atf_tools_h_pass_LDADD = -latf-c++
 tests_atf_tools_h_pass_LDFLAGS = -L.
 
-atf_tools_SCRIPTS = tests/atf/tools/t_atf_cleanup
+atf_tools_SCRIPTS = tests/atf/tools/t_atf_check
+CLEANFILES += tests/atf/tools/t_atf_check
+EXTRA_DIST += tests/atf/tools/t_atf_check.sh
+tests/atf/tools/t_atf_check: \
+			$(srcdir)/tests/atf/tools/t_atf_check.sh \
+                        $(ATF_COMPILE_DEPS)
+	test -d tests/atf/tools || mkdir -p tests/atf/tools
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_check.sh
+
+atf_tools_SCRIPTS += tests/atf/tools/t_atf_cleanup
 CLEANFILES += tests/atf/tools/t_atf_cleanup
 EXTRA_DIST += tests/atf/tools/t_atf_cleanup.sh
 tests/atf/tools/t_atf_cleanup: \
@@ -1028,6 +1038,7 @@ check_LIBRARIES = tests/build/libuseless.a
 tests_build_libuseless_a_SOURCES = \
     tests/build/t_include_atf_c_h.cpp \
     tests/build/t_include_atf_c++_hpp.cpp \
+    tests/build/atf-c/t_include_check_h.c \
     tests/build/atf-c/t_include_config_h.c \
     tests/build/atf-c/t_include_dynstr_h.c \
     tests/build/atf-c/t_include_env_h.c \
@@ -1049,6 +1060,7 @@ tests_build_libuseless_a_SOURCES = \
     tests/build/atf-c/t_use_macros_h.c \
     tests/build/atf-c++/t_include_application_hpp.cpp \
     tests/build/atf-c++/t_include_atffile_hpp.cpp \
+    tests/build/atf-c++/t_include_check_hpp.cpp \
     tests/build/atf-c++/t_include_config_hpp.cpp \
     tests/build/atf-c++/t_include_env_hpp.cpp \
     tests/build/atf-c++/t_include_exceptions_hpp.cpp \
@@ -1092,7 +1104,7 @@ bin_PROGRAMS += tools/atf-check
 tools_atf_check_SOURCES = tools/atf-check.cpp
 tools_atf_check_LDADD = -latf-c++
 tools_atf_check_LDFLAGS = -L.
-#dist_man_MANS += tools/atf-check.1
+dist_man_MANS += tools/atf-check.1
 
 libexec_PROGRAMS = tools/atf-cleanup
 tools_atf_cleanup_SOURCES = tools/atf-cleanup.cpp

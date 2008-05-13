@@ -30,10 +30,14 @@
 #include <sys/types.h>
 
 #include <errno.h>
+#include <fcntl.h>
 #include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "atf-c/dynstr.h"
+#include "atf-c/fs.h"
 #include "atf-c/io.h"
 #include "atf-c/sanity.h"
 
@@ -95,5 +99,114 @@ atf_io_write_fmt(int fd, const char *fmt, ...)
     err = atf_io_write_ap(fd, fmt, ap);
     va_end(ap);
 
+    return err;
+}
+
+atf_error_t
+atf_io_cmp_file_file(int *result, const atf_fs_path_t *p1, const atf_fs_path_t *p2)
+{
+    int fd1, fd2;
+    char buf1[512], buf2[512];
+    const char *path1, *path2;
+    atf_error_t err;
+
+    err = atf_no_error();
+    *result = 1;
+    path1 = atf_fs_path_cstring(p1);
+    path2 = atf_fs_path_cstring(p2);
+
+    fd1 = open(path1, O_RDONLY);
+    if (fd1 == -1) {
+        err = atf_libc_error(errno, "Cannot open file: %s", path1);
+        goto out_fd1;
+    }
+
+    fd2 = open(path2, O_RDONLY);
+    if (fd2 == -1) {
+        err = atf_libc_error(errno, "Cannot open file: %s", path2);
+        goto out_fd2;
+    }
+
+    while (1) {
+        ssize_t r1, r2;
+
+        r1 = read(fd1, buf1, sizeof(buf1));
+        if (r1 < 0) {
+            err = atf_libc_error(errno, "Cannot read file: %s", path1);
+            break;
+        }
+
+        r2 = read(fd2, buf2, sizeof(buf2));
+        if (r2 < 0) {
+            err = atf_libc_error(errno, "Cannot read file: %s", path2);
+            break;
+        }
+
+        if ((r1 == 0) && (r2 == 0)) {
+            *result = 0;
+            break;
+        }
+
+        if ((r1 != r2) || (memcmp(buf1, buf2, r1) != 0)) {
+            break;
+        }
+    }
+
+
+    close(fd2);
+
+out_fd2:
+    close(fd1);
+
+out_fd1:
+    return err;
+}
+
+atf_error_t
+atf_io_cmp_file_str(int *result, const atf_fs_path_t *p, const char *str)
+{
+    int fd;
+    size_t len;
+    ssize_t cnt;
+    char *buf;
+    atf_error_t err;
+    const char *path;
+
+    err = atf_no_error();
+    path = atf_fs_path_cstring(p);
+
+    fd = open(path, O_RDONLY);
+    if (fd == -1) {
+        err = atf_libc_error(errno, "Cannot open file: %s", path);
+        goto out_fd;
+    }
+
+    len = strlen(str);
+    buf = malloc(sizeof(char) * (len + 2));
+    if (buf == NULL) {
+        err = atf_no_memory_error();
+        goto out_malloc;
+    }
+    buf[len+1] = 0;
+
+    cnt = read(fd, buf, len + 2);
+    if (cnt < 0) {
+        err = atf_libc_error(errno, "Cannot read file: %s", path);
+        goto out_read;
+    }
+    
+    if ((strncmp(str, buf, len) == 0) && (buf[len] == '\n') && (buf[len+1] == 0))
+        *result = 0;
+    else
+        *result = 1;
+
+
+out_read:
+    free(buf);
+
+out_malloc:
+    close(fd);
+
+out_fd:
     return err;
 }

@@ -27,14 +27,11 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sys/wait.h>
 
 #include <errno.h>
-#include <fcntl.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
-#include <sys/wait.h>
 
 #include <atf-c/check.h>
 #include <atf-c/config.h>
@@ -42,13 +39,12 @@
 #include <atf-c/fs.h>
 #include <atf-c/sanity.h>
 
-
 /* ---------------------------------------------------------------------
- * The "atf_cmd_result" type.
+ * The "atf_check_result" type.
  * --------------------------------------------------------------------- */
 
 atf_error_t
-atf_cmd_run(atf_cmd_result_t *r, const char *command)
+atf_check_exec(atf_check_result_t *r, const char *command)
 {
     int fd_out, fd_err;
     int status;
@@ -87,7 +83,7 @@ atf_cmd_run(atf_cmd_result_t *r, const char *command)
         dup2(fd_out, STDOUT_FILENO);
         dup2(fd_err, STDERR_FILENO);
         if (execl("/bin/sh", "/bin/sh", "-c", command, NULL) == -1)
-            exit(254);
+            exit(255);
     };
    
     close(fd_out);
@@ -129,7 +125,7 @@ out_1:
 }
 
 void
-atf_cmd_result_fini(atf_cmd_result_t *r) {
+atf_check_result_fini(atf_check_result_t *r) {
     atf_fs_unlink(&r->m_stdout);
     atf_fs_path_fini(&r->m_stdout);
 
@@ -140,129 +136,19 @@ atf_cmd_result_fini(atf_cmd_result_t *r) {
 }
 
 const atf_fs_path_t *
-atf_cmd_result_stdout(const atf_cmd_result_t *r)
+atf_check_result_stdout(const atf_check_result_t *r)
 {
     return &r->m_stdout;
 }
 
 const atf_fs_path_t *
-atf_cmd_result_stderr(const atf_cmd_result_t *r)
+atf_check_result_stderr(const atf_check_result_t *r)
 {
     return &r->m_stderr;
 }
 
 int
-atf_cmd_result_status(const atf_cmd_result_t *r)
+atf_check_result_status(const atf_check_result_t *r)
 {
     return r->m_status;
-}
-
-
-/* ---------------------------------------------------------------------
- * Free functions.
- * --------------------------------------------------------------------- */
-
-bool
-atf_equal_file_file(atf_error_t *err, const char *path1, const char *path2)
-{
-    bool ret;
-    int fd1, fd2;
-    char buf1[512], buf2[512];
-
-    ret = false;
-    *err = atf_no_error();
-
-    fd1 = open(path1, O_RDONLY);
-    if (fd1 == -1) {
-        *err = atf_libc_error(errno, "Cannot open file: %s", path1);
-        goto out_fd1;
-    }
-
-    fd2 = open(path2, O_RDONLY);
-    if (fd2 == -1) {
-        *err = atf_libc_error(errno, "Cannot open file: %s", path2);
-        goto out_fd2;
-    }
-
-    while (1) {
-        ssize_t r1, r2;
-
-        r1 = read(fd1, buf1, sizeof(buf1));
-        if (r1 < 0) {
-            *err = atf_libc_error(errno, "Cannot read file: %s", path1);
-            break;
-        }
-
-        r2 = read(fd2, buf2, sizeof(buf2));
-        if (r2 < 0) {
-            *err = atf_libc_error(errno, "Cannot read file: %s", path2);
-            break;
-        }
-
-        if ((r1 == 0) && (r2 == 0)) {
-            ret = true;
-            break;
-        }
-
-        if ((r1 != r2) || (memcmp(buf1, buf2, r1) != 0)) {
-            ret = false;
-            break;
-        }
-    }
-
-
-    close(fd2);
-
-out_fd2:
-    close(fd1);
-
-out_fd1:
-    return ret;
-}
-
-
-bool
-atf_equal_file_string(atf_error_t *err, const char *path, const char *str)
-{
-    bool ret;
-    int fd;
-    size_t len;
-    ssize_t cnt;
-    char *buf;
-
-    ret = false;
-    *err = atf_no_error();
-
-    fd = open(path, O_RDONLY);
-    if (fd == -1) {
-        *err = atf_libc_error(errno, "Cannot open file: %s", path);
-        goto out_fd;
-    }
-
-    len = strlen(str);
-    buf = malloc(sizeof(char) * (len + 2));
-    if (buf == NULL) {
-        *err = atf_no_memory_error();
-        goto out_malloc;
-    }
-    buf[len+1] = 0;
-
-    cnt = read(fd, buf, len + 2);
-    if (cnt < 0) {
-        *err = atf_libc_error(errno, "Cannot read file: %s", path);
-        goto out_read;
-    }
-    
-    ret = ((strncmp(str, buf, len) == 0) &&
-           (buf[len] == '\n') &&
-           (buf[len+1] == 0));
-
-out_read:
-    free(buf);
-
-out_malloc:
-    close(fd);
-
-out_fd:
-    return ret;
 }

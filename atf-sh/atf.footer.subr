@@ -254,9 +254,15 @@ atf_check()
     esac
 }
 
+#
+# atf_check_new [options] <command>
+#
+#   Executes atf-check with given arguments and automatically calls
+#   atf_fail in case of failure.
+#
 atf_check_new()
 {
-    atf-check "$@" || atf_fail "atf-check failed on command: atf-check $@"
+    atf-check "$@" || atf_fail "atf-check failed"
 }
 
 #

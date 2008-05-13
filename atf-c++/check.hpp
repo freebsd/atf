@@ -30,8 +30,63 @@
 #if !defined(_ATF_CXX_CHECK_HPP_)
 #define _ATF_CXX_CHECK_HPP_
 
+#include <string>
+
+#include "atf-c++/fs.hpp"
+
 extern "C" {
-#include <atf-c/check.h>
+    #include "atf-c/check.h"
 }
+
+namespace atf {
+namespace check {
+
+// ------------------------------------------------------------------------
+// The "check_result" class.
+// ------------------------------------------------------------------------
+
+//!
+//! \brief A class that contains results of executed command.
+//!
+//! The check_result class holds information about results
+//! of executing arbitrary command and manages files containing
+//! its output.
+//!
+class check_result {
+    //!
+    //! \brief Internal representation of a result.
+    //!
+    atf_check_result_t m_result;
+
+public:
+    //!
+    //! \brief Executes given command.
+    //!
+    check_result(const std::string &);
+
+    
+    //!
+    //! \brief Destroys object and removes all managed files.
+    //!
+    ~check_result();
+
+    //!
+    //! \brief Returns command's exit status.
+    //!
+    int status() const;
+
+    //!
+    //! \brief Returns the path to file contaning command's stdout.
+    //!
+    const atf::fs::path stdout_path() const;
+
+    //!
+    //! \brief Returns the path to file contaning command's stderr.
+    //!
+    const atf::fs::path stderr_path() const;
+};
+
+} // namespace check
+} // namespace atf
 
 #endif // !defined(_ATF_CXX_CHECK_HPP_)

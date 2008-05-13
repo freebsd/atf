@@ -29,6 +29,7 @@
 
 extern "C" {
 #include <unistd.h>
+#include "atf-c/io.h"
 }
 
 #include <cerrno>
@@ -347,4 +348,28 @@ impl::getline(unbuffered_istream& uis, std::string& str)
             str += ch;
     }
     return uis;
+}
+
+int
+impl::cmp_file_file(const fs::path &p1, const fs::path &p2)
+{
+    int r;
+
+    atf_error_t err = atf_io_cmp_file_file(&r, p1.c_path(), p2.c_path());
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return r;
+}
+
+int
+impl::cmp_file_str(const fs::path &p1, const std::string &s)
+{
+    int r;
+
+    atf_error_t err = atf_io_cmp_file_str(&r, p1.c_path(), s.c_str());
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return r;
 }
