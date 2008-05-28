@@ -58,27 +58,27 @@ atf_check_exec(atf_check_result_t *r, const char *command)
     err = atf_fs_path_init_fmt(&r->m_stdout, "%s/%s",
                                workdir, "stdout.XXXXXX");
     if (atf_is_error(err))
-        goto out_1;
+        goto out_mstdout;
 
     err = atf_fs_path_init_fmt(&r->m_stderr, "%s/%s",
                                workdir, "stderr.XXXXXX");
     if (atf_is_error(err))
-        goto out_2;
+        goto out_mstderr;
 
 
     err = atf_fs_mkstemp(&r->m_stdout, &fd_out);
     if (atf_is_error(err))
-        goto out_2;
+        goto out_fdout;
 
     err = atf_fs_mkstemp(&r->m_stderr, &fd_err);
     if (atf_is_error(err))
-        goto out_3;
+        goto out_fderr;
 
 
     pid = fork();
     if (pid < 0) {
         err = atf_libc_error(errno, "Failed to fork");
-        goto out_4;
+        goto out_fork;
     } else if (pid == 0) {
         dup2(fd_out, STDOUT_FILENO);
         dup2(fd_err, STDERR_FILENO);
@@ -92,31 +92,34 @@ atf_check_exec(atf_check_result_t *r, const char *command)
     if (waitpid(pid, &status, 0) == -1) {
         err = atf_libc_error(errno, "Error waiting for "
                              "child process: %d", pid);
-        goto out_4;
+        goto out_waitpid;
     }
 
     if (!WIFEXITED(status)) {
         err = atf_libc_error(errno, "Error while executing "
                              "command: '%s'", command);
-        goto out_4;
+        goto out_wifexited;
     }
 
     r->m_status = WEXITSTATUS(status);
 
     return err;
 
-out_4:
+out_wifexited:
+out_waitpid:
+out_fork:
     close(fd_err);
     atf_fs_unlink(&r->m_stderr);
 
-out_3:
+out_fderr:
     close(fd_out);
     atf_fs_unlink(&r->m_stdout);
 
-out_2:
+out_fdout:
+out_mstderr:
     atf_fs_path_fini(&r->m_stderr);
 
-out_1:
+out_mstdout:
     atf_fs_path_fini(&r->m_stdout);
 
     atf_object_fini(&r->m_object);
@@ -125,7 +128,8 @@ out_1:
 }
 
 void
-atf_check_result_fini(atf_check_result_t *r) {
+atf_check_result_fini(atf_check_result_t *r)
+{
     atf_fs_unlink(&r->m_stdout);
     atf_fs_path_fini(&r->m_stdout);
 

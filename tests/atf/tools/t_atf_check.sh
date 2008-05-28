@@ -1,16 +1,15 @@
 h_pass()
 {
-    echo "Checking command [atf-check $@]"
-    atf-check "$@" >tmp || ( cat tmp ; atf_fail "atf-check failed"; )
+    echo "Checking command [atf-check $*]"
+    atf-check "$@" >tmp || { cat tmp ; atf_fail "atf-check failed"; }
 }
 
 h_fail()
 {
-    echo "Checking command [atf-check $@]"
+    echo "Checking command [atf-check $*]"
     atf-check "$@" 2>tmp \
-        && ( cat tmp ; atf_fail "atf-check succeeded but should fail"; )
+        && { cat tmp ; atf_fail "atf-check succeeded but should fail"; }
 }
-
 
 atf_test_case status
 status_head()

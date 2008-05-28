@@ -64,7 +64,6 @@ public:
     //!
     check_result(const std::string &);
 
-    
     //!
     //! \brief Destroys object and removes all managed files.
     //!

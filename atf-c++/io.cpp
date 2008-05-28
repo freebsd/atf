@@ -29,10 +29,13 @@
 
 extern "C" {
 #include <unistd.h>
-#include "atf-c/io.h"
 }
 
 #include <cerrno>
+
+extern "C" {
+#include "atf-c/io.h"
+}
 
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/io.hpp"

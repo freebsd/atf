@@ -2,6 +2,7 @@ Content-Type: application/X-atf-atffile; version="1"
 
 prop: test-suite = atf
 
+tp: t_atf_check
 tp: t_atf_config
 tp: t_atf_compile
 tp: t_atf_cleanup
