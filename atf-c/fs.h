@@ -104,6 +104,7 @@ void atf_fs_stat_fini(atf_fs_stat_t *);
 /* Getters. */
 dev_t atf_fs_stat_get_device(const atf_fs_stat_t *);
 ino_t atf_fs_stat_get_inode(const atf_fs_stat_t *);
+off_t atf_fs_stat_get_size(const atf_fs_stat_t *);
 int atf_fs_stat_get_type(const atf_fs_stat_t *);
 bool atf_fs_stat_is_owner_readable(const atf_fs_stat_t *);
 bool atf_fs_stat_is_owner_writable(const atf_fs_stat_t *);
@@ -129,5 +130,7 @@ atf_error_t atf_fs_eaccess(const atf_fs_path_t *, int);
 atf_error_t atf_fs_exists(const atf_fs_path_t *, bool *);
 atf_error_t atf_fs_getcwd(atf_fs_path_t *);
 atf_error_t atf_fs_mkdtemp(atf_fs_path_t *);
+atf_error_t atf_fs_mkstemp(atf_fs_path_t *, int *);
+atf_error_t atf_fs_unlink(atf_fs_path_t *);
 
 #endif /* !defined(ATF_C_FS_H) */

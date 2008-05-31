@@ -27,26 +27,33 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_IO_H)
-#define ATF_C_IO_H
-
-#include <stdarg.h>
+#if !defined(ATF_C_CHECK_H)
+#define ATF_C_CHECK_H
 
 #include <atf-c/error.h>
+#include <atf-c/fs.h>
+#include <atf-c/object.h>
 
-struct atf_dynstr;
-struct atf_fs_path;
+/* ---------------------------------------------------------------------
+ * The "atf_check_result" type.
+ * --------------------------------------------------------------------- */
 
-/* TODO: It would be nice to have an 'atf_io_file_t' type and avoid using
- * raw file descriptors. */
+struct atf_check_result {
+    atf_object_t m_object;
 
-atf_error_t atf_io_readline(int, struct atf_dynstr *);
-atf_error_t atf_io_write_ap(int, const char *, va_list);
-atf_error_t atf_io_write_fmt(int, const char *, ...);
+    atf_fs_path_t m_stdout;
+    atf_fs_path_t m_stderr;
+    int m_status;
+};
+typedef struct atf_check_result atf_check_result_t;
 
-atf_error_t atf_io_cmp_file_file(int *, const struct atf_fs_path *,
-                                 const struct atf_fs_path *);
-atf_error_t atf_io_cmp_file_str(int *, const struct atf_fs_path *,
-                                const char *);
+/* Construtors and destructors */
+atf_error_t atf_check_exec(atf_check_result_t *, const char *);
+void atf_check_result_fini(atf_check_result_t *);
 
-#endif /* !defined(ATF_C_IO_H) */
+/* Getters */
+const atf_fs_path_t *atf_check_result_stdout(const atf_check_result_t *);
+const atf_fs_path_t *atf_check_result_stderr(const atf_check_result_t *);
+int atf_check_result_status(const atf_check_result_t *);
+
+#endif /* ATF_C_CHECK_H */

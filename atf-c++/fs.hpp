@@ -85,6 +85,11 @@ public:
     path(const path&);
 
     //!
+    //! \brief Copy constructor.
+    //!
+    path(const atf_fs_path_t *);
+
+    //!
     //! \brief Destructor for the path class.
     //!
     ~path(void);
@@ -243,6 +248,11 @@ public:
     //! \brief Returns the file's inode.
     //!
     ino_t get_inode(void) const;
+
+    //!
+    //! \brief Returns the file's size.
+    //!
+    off_t get_size(void) const;
 
     //!
     //! \brief Returns the file's type.

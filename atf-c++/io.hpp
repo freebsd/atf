@@ -34,6 +34,7 @@
 #include <ostream>
 #include <streambuf>
 
+#include <atf-c++/fs.hpp>
 #include <atf-c++/utils.hpp>
 
 namespace atf {
@@ -630,6 +631,9 @@ public:
 //! This is inefficient but is the only way to safely use poll(2)...
 //!
 unbuffered_istream& getline(unbuffered_istream&, std::string&);
+
+int cmp_file_file(const fs::path &, const fs::path &);
+int cmp_file_str(const fs::path &, const std::string &);
 
 } // namespace io
 } // namespace atf

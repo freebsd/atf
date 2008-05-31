@@ -255,6 +255,17 @@ atf_check()
 }
 
 #
+# atf_check_new [options] <command>
+#
+#   Executes atf-check with given arguments and automatically calls
+#   atf_fail in case of failure.
+#
+atf_check_new()
+{
+    atf-check "$@" || atf_fail "atf-check failed"
+}
+
+#
 # atf_check_equal expr1 expr2
 #
 #   Checks that expr1's value matches expr2's and, if not, raises an
