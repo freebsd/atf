@@ -115,10 +115,19 @@
             atf_tc_fail("Line %d: %s not met", __LINE__, #x); \
     } while (0)
 
-#define ATF_CHECK_EQUAL(x, y) \
+#define ATF_CHECK_MSG(x, fmt, ...) \
     do { \
-        if ((x) != (y)) \
-            atf_tc_fail("Line %d: %s != %s", __LINE__, #x, #y); \
+        if (!(x)) \
+            atf_tc_fail("Line %d: " fmt, __LINE__, ##__VA_ARGS__); \
     } while (0)
+
+#define ATF_CHECK_EQUAL(x, y) \
+    ATF_CHECK_MSG((x) == (y), "%s != %s", #x, #y)
+
+#define ATF_CHECK_EQUAL_MSG(x, y, fmt, ...) \
+    ATF_CHECK_MSG((x) == (y), "%s != %s: " fmt, #x, #y, ##__VA_ARGS__)
+
+#define ATF_CHECK_STR_EQUAL(x, y) \
+    ATF_CHECK_MSG(strcmp(x, y) == 0, "\"%s\" != \"%s\"", x, y)
 
 #endif /* !defined(ATF_C_MACROS_H) */
