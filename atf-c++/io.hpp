@@ -632,8 +632,7 @@ public:
 //!
 unbuffered_istream& getline(unbuffered_istream&, std::string&);
 
-int cmp_file_file(const fs::path &, const fs::path &);
-int cmp_file_str(const fs::path &, const std::string &);
+int cmp(const fs::path &, const fs::path &);
 
 } // namespace io
 } // namespace atf

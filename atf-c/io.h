@@ -44,9 +44,7 @@ atf_error_t atf_io_readline(int, struct atf_dynstr *);
 atf_error_t atf_io_write_ap(int, const char *, va_list);
 atf_error_t atf_io_write_fmt(int, const char *, ...);
 
-atf_error_t atf_io_cmp_file_file(int *, const struct atf_fs_path *,
-                                 const struct atf_fs_path *);
-atf_error_t atf_io_cmp_file_str(int *, const struct atf_fs_path *,
-                                const char *);
+atf_error_t atf_io_cmp(int *, const struct atf_fs_path *,
+                       const struct atf_fs_path *);
 
 #endif /* !defined(ATF_C_IO_H) */

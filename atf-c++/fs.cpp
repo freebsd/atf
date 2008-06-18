@@ -461,6 +461,50 @@ impl::temp_dir::get_path(void)
 }
 
 // ------------------------------------------------------------------------
+// The "temp_file" class.
+// ------------------------------------------------------------------------
+
+impl::temp_file::temp_file(const path& p)
+{
+    atf::utils::auto_array< char > buf(new char[p.str().length() + 1]);
+    std::strcpy(buf.get(), p.c_str());
+    m_fd = ::mkstemp(buf.get());
+    if (m_fd == -1)
+        throw system_error(IMPL_NAME "::temp_file::temp_file(" +
+                           p.str() + ")", "mkstemp(3) failed",
+                           errno);
+    m_path = new path(buf.get());
+}
+
+impl::temp_file::~temp_file(void)
+{
+    ::close(m_fd);
+    cleanup(*m_path);
+    delete m_path;
+}
+
+void
+impl::temp_file::write(const std::string &s)
+{
+    const char *cstr;
+    size_t len;
+
+    cstr = s.c_str();
+    len = strlen(cstr);
+
+    if (::write(m_fd, cstr, len) != len)
+        throw system_error(IMPL_NAME "::temp_file::write(" +
+                           s + ")", "write(2) failed", errno);
+}
+
+const impl::path&
+impl::temp_file::get_path(void)
+    const
+{
+    return *m_path;
+}
+
+// ------------------------------------------------------------------------
 // Free functions.
 // ------------------------------------------------------------------------
 

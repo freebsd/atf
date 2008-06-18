@@ -70,8 +70,7 @@ class atf_check : public atf::application::app {
     static const char* m_description;
 
     bool file_empty(const atf::fs::path &) const;
-    void diff_file_file(const atf::fs::path &, const atf::fs::path &) const;
-    void diff_file_str(const atf::fs::path &, const std::string &) const;
+    void print_diff(const atf::fs::path &, const atf::fs::path &) const;
     void print_file(const atf::fs::path &) const;
 
     bool run_status_check(const atf::check::check_result &) const;
@@ -111,35 +110,11 @@ atf_check::file_empty(const atf::fs::path &p)
 }
 
 void
-atf_check::diff_file_file(const atf::fs::path &p1, const atf::fs::path &p2)
+atf_check::print_diff(const atf::fs::path &p1, const atf::fs::path &p2)
     const
 {
     std::string cmd("diff " + p1.str() + " " + p2.str() + " >&2");
     ::system(cmd.c_str());
-}
-
-void
-atf_check::diff_file_str(const atf::fs::path &path, const std::string &str)
-    const
-{
-    char buf[] = "inline.XXXXXX";
-
-    int fd = ::mkstemp(buf);
-    if (fd == -1)
-        throw atf::system_error("atf_check::diff_file_str", 
-                "mktemp(3) failed", errno);
-
-    if (::write(fd, str.c_str(), str.length()) == -1)
-        throw atf::system_error("atf_check::diff_file_str", 
-                "write(2) failed", errno);
-
-    if (::close(fd) == -1)
-        throw atf::system_error("atf_check::diff_file_str", 
-                "close(2) failed", errno);
-
-    diff_file_file(path, atf::fs::path(buf));
-
-    ::unlink(buf);
 }
 
 void
@@ -211,24 +186,28 @@ atf_check::run_output_check(const atf::check::check_result &r,
         if (!file_empty(path)) {
             std::cerr << "Fail: command's " << stdxxx
                       << " was not empty" << std::endl;
-            diff_file_file(atf::fs::path("/dev/null"), path);
+            print_diff(atf::fs::path("/dev/null"), path);
 
             return false;
         }
     } else if (check == oc_file) {
-        if (atf::io::cmp_file_file(path, atf::fs::path(arg)) != 0) {
+        if (atf::io::cmp(path, atf::fs::path(arg)) != 0) {
             std::cerr << "Fail: command's " << stdxxx
                       << " and file '" << arg
                       << "' differ" << std::endl;
-            diff_file_file(path, atf::fs::path(arg));
+            print_diff(path, atf::fs::path(arg));
             
             return false;
         }
     } else if (check == oc_inline) {
-        if (atf::io::cmp_file_str(path, arg) != 0) {
+        atf::fs::path path2("inline.XXXXXX");
+        atf::fs::temp_file temp(path2);
+        temp.write(arg);
+ 
+        if (atf::io::cmp(path, temp.get_path()) != 0) {
             std::cerr << "Fail: command's " << stdxxx << " and '"
                       << arg << "' differ" << std::endl;
-            diff_file_str(path, arg);
+            print_diff(path, temp.get_path());
 
             return false;
         }

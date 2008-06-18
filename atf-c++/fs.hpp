@@ -385,6 +385,61 @@ public:
 };
 
 // ------------------------------------------------------------------------
+// The "temp_file" class.
+// ------------------------------------------------------------------------
+
+//!
+//! \brief A RAII model for temporary files.
+//!
+//! The temp_file class provides a RAII model for temporary files.
+//! During construction, a safe temporary file is created and during
+//! destruction it is carefully removed by making use of the cleanup
+//! function.
+//!
+class temp_file {
+    //!
+    //! \brief The path to this temporary file.
+    //!
+    path *m_path;
+
+    //!
+    //! \brief File descriptor of this temporary file.
+    //!
+    int m_fd;
+
+public:
+    //!
+    //! \brief Creates a new temporary file.
+    //!
+    //! Creates a new temporary file based on the provided name
+    //! template.  The template must end with six X characters preceded
+    //! by a dot.  These characters are replaced with a unique name on
+    //! the file system as described in mkdtemp(3).
+    //!
+    temp_file(const path&);
+
+    //!
+    //! \brief Destroys the temporary file.
+    //!
+    //! Destroys this temporary file object as well as its file
+    //! system representation.
+    //!
+    ~temp_file(void);
+
+    //!
+    //! \brief Writes the argument to this temporary file
+    //!
+    //! Writes content of provided std::string object to this
+    //! temporary file.
+    void write(const std::string &);
+
+    //!
+    //! \brief Returns the path to this temporary file.
+    //!
+    const path& get_path(void) const;
+};
+
+// ------------------------------------------------------------------------
 // Free functions.
 // ------------------------------------------------------------------------
 

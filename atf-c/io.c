@@ -103,7 +103,7 @@ atf_io_write_fmt(int fd, const char *fmt, ...)
 }
 
 atf_error_t
-atf_io_cmp_file_file(int *result, const atf_fs_path_t *p1, const atf_fs_path_t *p2)
+atf_io_cmp(int *result, const atf_fs_path_t *p1, const atf_fs_path_t *p2)
 {
     int fd1, fd2;
     char buf1[512], buf2[512];
@@ -158,53 +158,5 @@ out_fd2:
     close(fd1);
 
 out_fd1:
-    return err;
-}
-
-atf_error_t
-atf_io_cmp_file_str(int *result, const atf_fs_path_t *p, const char *str)
-{
-    int fd;
-    size_t len;
-    ssize_t cnt;
-    char *buf;
-    atf_error_t err;
-    const char *path;
-
-    err = atf_no_error();
-    path = atf_fs_path_cstring(p);
-
-    fd = open(path, O_RDONLY);
-    if (fd == -1) {
-        err = atf_libc_error(errno, "Cannot open file: %s", path);
-        goto out_fd;
-    }
-
-    len = strlen(str);
-    buf = malloc(sizeof(char) * (len + 2));
-    if (buf == NULL) {
-        err = atf_no_memory_error();
-        goto out_malloc;
-    }
-    buf[len+1] = 0;
-
-    cnt = read(fd, buf, len + 2);
-    if (cnt < 0) {
-        err = atf_libc_error(errno, "Cannot read file: %s", path);
-        goto out_read;
-    }
-    
-    if ((strncmp(str, buf, len) == 0) && (buf[len] == '\n') && (buf[len+1] == 0))
-        *result = 0;
-    else
-        *result = 1;
-
-out_read:
-    free(buf);
-
-out_malloc:
-    close(fd);
-
-out_fd:
     return err;
 }
