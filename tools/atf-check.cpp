@@ -72,6 +72,7 @@ class atf_check : public atf::application::app {
     bool file_empty(const atf::fs::path &) const;
     void print_diff(const atf::fs::path &, const atf::fs::path &) const;
     void print_file(const atf::fs::path &) const;
+    std::string decode(const std::string &) const;
 
     bool run_status_check(const atf::check::check_result &) const;
     bool run_output_check(const atf::check::check_result &, const std::string &) const;
@@ -126,6 +127,49 @@ atf_check::print_file(const atf::fs::path &p)
     std::istream_iterator< char > begin(f), end;
     std::ostream_iterator< char > out(std::cerr);
     std::copy(begin, end, out);
+}
+
+std::string
+atf_check::decode(const std::string &s)
+    const
+{
+    char c;
+    int i, count;
+    std::string res;
+
+    res.reserve(s.length());
+
+    i = 0;
+    while (i < s.length()) {
+        c = s[i++];
+        if (c == '\\') {
+            switch (s[i++]) {
+            case 'a': c = '\a'; break;
+            case 'b': c = '\b'; break;
+            case 'c': break;
+            case 'e': c = 033; break;
+            case 'f': c = '\f'; break;
+            case 'n': c = '\n'; break;
+            case 'r': c = '\r'; break;
+            case 't': c = '\t'; break;
+            case 'v': c = '\v'; break;
+            case '\\': break;
+            case '0':
+                c = 0;
+                count = 3;
+                while (--count >= 0 && (unsigned)(s[i] - '0') < 8)
+                    c = (c << 3) + (s[i++] - '0');
+                break;
+            default:
+                --i;
+                break;
+            }
+        }
+
+        res.push_back(c);
+    }
+
+    return res;
 }
 
 bool
@@ -200,9 +244,10 @@ atf_check::run_output_check(const atf::check::check_result &r,
             return false;
         }
     } else if (check == oc_inline) {
+        std::string decoded = decode(arg);
         atf::fs::path path2("inline.XXXXXX");
         atf::fs::temp_file temp(path2);
-        temp.write(arg);
+        temp.write(decoded);
  
         if (atf::io::cmp(path, temp.get_path()) != 0) {
             std::cerr << "Fail: command's " << stdxxx << " and '"

@@ -47,8 +47,14 @@ output_body()
     h_pass -e file:tmp1 "cat tmp1 >&2"
     h_pass -o file:tmp1 "cat tmp1"
 
-    h_pass -o inline:foobar "echo foobar"
-    h_pass -e inline:foobar "echo foobar >&2"
+    h_pass -o inline:"foobar\n" "echo foobar"
+    h_pass -e inline:"foobar\n" "echo foobar >&2"
+    h_pass -o inline:"foobar" "printf 'foobar'"
+    h_pass -o inline:"\t\n\t\n" "printf '\t\n\t\n'"
+    h_pass -o inline:"\a\b\e\f\n\r\t\v" "printf '\a\b\e\f\n\r\t\v'"
+    h_pass -o inline:"\011\022\033\012" "printf '\011\022\033\012'"
+    h_fail -o inline:"foobar" "echo foobar"
+    h_fail -o inline:"foobar\n" "echo -n foobar"
 
     h_pass -o empty -e ignore "echo foo >&2"
     h_pass -o ignore -e ignore  "echo foo >&2"
@@ -56,10 +62,10 @@ output_body()
     h_pass -o ignore -e ignore "echo foo"
 
     h_pass -o save:tmp3 "echo foo"
-    h_pass -e inline:foo "cat tmp3 >&2"
+    h_pass -e inline:"foo\n" "cat tmp3 >&2"
     rm tmp3 || atf_fail "rm failed"
     h_pass -e save:tmp3 "echo foo >&2"
-    h_pass -o inline:foo "cat tmp3"
+    h_pass -o inline:"foo\n" "cat tmp3"
 }
 
 
