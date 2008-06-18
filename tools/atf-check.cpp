@@ -45,17 +45,17 @@
 
 class atf_check : public atf::application::app {
     enum output_check_t {
-        OC_IGNORE,
-        OC_INLINE,
-        OC_FILE,
-        OC_EMPTY,
-        OC_SAVE
+        oc_ignore,
+        oc_inline,
+        oc_file,
+        oc_empty,
+        oc_save
     };
 
     enum status_check_t {
-        SC_EQUAL,
-        SC_NOT_EQUAL,
-        SC_IGNORE
+        sc_equal,
+        sc_not_equal,
+        sc_ignore
     };
 
     output_check_t m_stdout_check;
@@ -84,21 +84,19 @@ class atf_check : public atf::application::app {
     void process_option_o(const std::string &);
     void process_option_e(const std::string &);
 
-
 public:
     atf_check(void);
     int main(void);
 };
-
 
 const char* atf_check::m_description =
     "atf-check executes given command and analyzes its results.";
 
 atf_check::atf_check(void) :
     app(m_description, "atf-check(1)", "atf(7)"),
-    m_stdout_check(OC_EMPTY),
-    m_stderr_check(OC_EMPTY),
-    m_status_check(SC_EQUAL),
+    m_stdout_check(oc_empty),
+    m_stderr_check(oc_empty),
+    m_status_check(sc_equal),
     m_status_arg(0)
 {
 }
@@ -111,7 +109,6 @@ atf_check::file_empty(const atf::fs::path &p)
 
     return (f.get_size() == 0);
 }
-
 
 void
 atf_check::diff_file_file(const atf::fs::path &p1, const atf::fs::path &p2)
@@ -163,16 +160,13 @@ atf_check::run_status_check(const atf::check::check_result &r)
     int status = r.status();
     bool retval = true;
 
-    if (m_status_check == SC_EQUAL) {
-
+    if (m_status_check == sc_equal) {
         if (m_status_arg != status) {
             std::cerr << "Fail: expected exit status " << m_status_arg
                       << ", but got " << status << std::endl;
             retval = false;
         }
-
-    } else if (m_status_check == SC_NOT_EQUAL) {
-
+    } else if (m_status_check == sc_not_equal) {
         if (m_status_arg == status) {
             std::cerr << "Fail: expected exit status other than "
                       << m_status_arg << std::endl;
@@ -200,26 +194,20 @@ atf_check::run_output_check(const atf::check::check_result &r,
 {
     atf::fs::path path("/");
     std::string arg;
-    output_check_t check;
+    output_check_t check = m_stdout_check;
 
     if (stdxxx == "stdout") {
-
         path = r.stdout_path();
         arg = m_stdout_arg.c_str();
         check = m_stdout_check;
-
     } else if (stdxxx == "stderr") {
-
         path = r.stderr_path();
         arg = m_stderr_arg.c_str();
         check = m_stderr_check;
-
     } else
         UNREACHABLE;
 
-
-    if (check == OC_EMPTY) {
-
+    if (check == oc_empty) {
         if (!file_empty(path)) {
             std::cerr << "Fail: command's " << stdxxx
                       << " was not empty" << std::endl;
@@ -227,9 +215,7 @@ atf_check::run_output_check(const atf::check::check_result &r,
 
             return false;
         }
-
-    } else if (check == OC_FILE) {
-
+    } else if (check == oc_file) {
         if (atf::io::cmp_file_file(path, atf::fs::path(arg)) != 0) {
             std::cerr << "Fail: command's " << stdxxx
                       << " and file '" << arg
@@ -238,9 +224,7 @@ atf_check::run_output_check(const atf::check::check_result &r,
             
             return false;
         }
-
-    } else if (check == OC_INLINE) {
-
+    } else if (check == oc_inline) {
         if (atf::io::cmp_file_str(path, arg) != 0) {
             std::cerr << "Fail: command's " << stdxxx << " and '"
                       << arg << "' differ" << std::endl;
@@ -248,9 +232,7 @@ atf_check::run_output_check(const atf::check::check_result &r,
 
             return false;
         }
-
-    } else if (check == OC_SAVE) {
-
+    } else if (check == oc_save) {
         std::ifstream ifs(path.c_str(), std::fstream::binary);
         ifs >> std::noskipws;
         std::istream_iterator< char > begin(ifs), end;
@@ -264,7 +246,6 @@ atf_check::run_output_check(const atf::check::check_result &r,
     
     return true;
 }
-
 
 std::string
 atf_check::specific_args(void)
@@ -295,9 +276,8 @@ atf_check::process_option_s(const std::string& arg)
 {
     using atf::application::usage_error;
 
-
     if (arg == "ignore") {
-        m_status_check = SC_IGNORE;
+        m_status_check = sc_ignore;
         return;
     }
 
@@ -305,15 +285,13 @@ atf_check::process_option_s(const std::string& arg)
     std::string action = arg.substr(0, pos);
 
     if (action == "eq")
-        m_status_check = SC_EQUAL;
+        m_status_check = sc_equal;
     else if (action == "ne")
-        m_status_check = SC_NOT_EQUAL;
+        m_status_check = sc_not_equal;
     else
         throw usage_error("Invalid value for -s option");
 
-
     std::string value = arg.substr(pos + 1);
-
 
     try {
         m_status_arg = atf::text::to_type< unsigned int >(value);
@@ -337,15 +315,15 @@ atf_check::process_option_o(const std::string& arg)
     std::string action = arg.substr(0, pos);
 
     if (action == "empty")
-        m_stdout_check = OC_EMPTY;
+        m_stdout_check = oc_empty;
     else if (action == "ignore")
-        m_stdout_check = OC_IGNORE;
+        m_stdout_check = oc_ignore;
     else if (action == "save")
-        m_stdout_check = OC_SAVE;
+        m_stdout_check = oc_save;
     else if (action == "inline")
-        m_stdout_check = OC_INLINE;
+        m_stdout_check = oc_inline;
     else if (action == "file")
-        m_stdout_check = OC_FILE;
+        m_stdout_check = oc_file;
     else
         throw usage_error("Invalid value for -o option");
 
@@ -361,15 +339,15 @@ atf_check::process_option_e(const std::string& arg)
     std::string action = arg.substr(0, pos);
 
     if (action == "empty")
-        m_stderr_check = OC_EMPTY;
+        m_stderr_check = oc_empty;
     else if (action == "ignore")
-        m_stderr_check = OC_IGNORE;
+        m_stderr_check = oc_ignore;
     else if (action == "save")
-        m_stderr_check = OC_SAVE;
+        m_stderr_check = oc_save;
     else if (action == "inline")
-        m_stderr_check = OC_INLINE;
+        m_stderr_check = oc_inline;
     else if (action == "file")
-        m_stderr_check = OC_FILE;
+        m_stderr_check = oc_file;
     else
         throw usage_error("Invalid value for -e option");
 

@@ -127,7 +127,7 @@ atf_io_cmp_file_file(int *result, const atf_fs_path_t *p1, const atf_fs_path_t *
         goto out_fd2;
     }
 
-    while (1) {
+    for (;;) {
         ssize_t r1, r2;
 
         r1 = read(fd1, buf1, sizeof(buf1));
@@ -151,7 +151,6 @@ atf_io_cmp_file_file(int *result, const atf_fs_path_t *p1, const atf_fs_path_t *
             break;
         }
     }
-
 
     close(fd2);
 
@@ -199,7 +198,6 @@ atf_io_cmp_file_str(int *result, const atf_fs_path_t *p, const char *str)
         *result = 0;
     else
         *result = 1;
-
 
 out_read:
     free(buf);
