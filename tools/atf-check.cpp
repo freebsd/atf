@@ -114,7 +114,7 @@ void
 atf_check::print_diff(const atf::fs::path &p1, const atf::fs::path &p2)
     const
 {
-    std::string cmd("diff " + p1.str() + " " + p2.str() + " >&2");
+    std::string cmd("diff -u \"" + p1.str() + "\" \"" + p2.str() + "\" >&2");
     ::system(cmd.c_str());
 }
 
@@ -181,24 +181,26 @@ atf_check::run_status_check(const atf::check::check_result &r)
 
     if (m_status_check == sc_equal) {
         if (m_status_arg != status) {
-            std::cerr << "Fail: expected exit status " << m_status_arg
-                      << ", but got " << status << std::endl;
+            std::cout << "Fail: incorrect exit status: " 
+                      << status << ", expected: "
+                      << m_status_arg << std::endl;
             retval = false;
         }
     } else if (m_status_check == sc_not_equal) {
         if (m_status_arg == status) {
-            std::cerr << "Fail: expected exit status other than "
-                      << m_status_arg << std::endl;
+            std::cout << "Fail: incorrect exit status: "
+                      << status << ", expected: "
+                      << "anything other" << std::endl;
             retval = false;
         }
     }
 
     if (retval == false) {
-        std::cerr << "Command's stdout:" << std::endl;
+        std::cerr << "stdout:" << std::endl;
         print_file(r.stdout_path());
         std::cerr << std::endl;
 
-        std::cerr << "Command's stderr:" << std::endl;
+        std::cerr << "stderr:" << std::endl;
         print_file(r.stderr_path());
         std::cerr << std::endl;
     }
@@ -228,17 +230,14 @@ atf_check::run_output_check(const atf::check::check_result &r,
 
     if (check == oc_empty) {
         if (!file_empty(path)) {
-            std::cerr << "Fail: command's " << stdxxx
-                      << " was not empty" << std::endl;
+            std::cout << "Fail: incorrect " << stdxxx << std::endl;
             print_diff(atf::fs::path("/dev/null"), path);
 
             return false;
         }
     } else if (check == oc_file) {
         if (atf::io::cmp(path, atf::fs::path(arg)) != 0) {
-            std::cerr << "Fail: command's " << stdxxx
-                      << " and file '" << arg
-                      << "' differ" << std::endl;
+            std::cout << "Fail: incorrect " << stdxxx << std::endl;
             print_diff(path, atf::fs::path(arg));
             
             return false;
@@ -250,8 +249,7 @@ atf_check::run_output_check(const atf::check::check_result &r,
         temp.write(decoded);
  
         if (atf::io::cmp(path, temp.get_path()) != 0) {
-            std::cerr << "Fail: command's " << stdxxx << " and '"
-                      << arg << "' differ" << std::endl;
+            std::cout << "Fail: incorrect " << stdxxx << std::endl;
             print_diff(path, temp.get_path());
 
             return false;
@@ -407,7 +405,7 @@ atf_check::main(void)
 
     int status = EXIT_FAILURE;
     
-    std::cout << "Checking command [" << m_argv[0] << "]" << std::endl;
+    std::cerr << "Checking command [" << m_argv[0] << "]" << std::endl;
 
     atf::check::check_result r(m_argv[0]);
 

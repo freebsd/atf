@@ -262,7 +262,17 @@ atf_check()
 #
 atf_check_new()
 {
-    atf-check "$@" || atf_fail "atf-check failed"
+    _output=$(mktemp ${Work_Dir}/atf.XXXXXX)
+    atf-check "$@" &>"${_output}"
+    _ret=$?
+    _errmsg=$(grep -m1 "^Fail:" "${_output}" | cut -c 7-)
+
+    cat "${_output}"
+    rm "${_output}"
+
+    if [ ${_ret} -ne 0 ]; then
+        atf_fail "${_errmsg}"
+    fi
 }
 
 #
