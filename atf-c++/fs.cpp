@@ -444,13 +444,13 @@ impl::temp_dir::temp_dir(const path& p)
         throw system_error(IMPL_NAME "::temp_dir::temp_dir(" +
                            p.str() + ")", "mkdtemp(3) failed",
                            errno);
-    m_path = new path(buf.get());
+
+    m_path.reset(new path(buf.get()));
 }
 
 impl::temp_dir::~temp_dir(void)
 {
     cleanup(*m_path);
-    delete m_path;
 }
 
 const impl::path&
@@ -473,14 +473,13 @@ impl::temp_file::temp_file(const path& p)
         throw system_error(IMPL_NAME "::temp_file::temp_file(" +
                            p.str() + ")", "mkstemp(3) failed",
                            errno);
-    m_path = new path(buf.get());
+    m_path.reset(new path(buf.get()));
 }
 
 impl::temp_file::~temp_file(void)
 {
     ::close(m_fd);
     cleanup(*m_path);
-    delete m_path;
 }
 
 void

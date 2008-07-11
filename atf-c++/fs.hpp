@@ -35,6 +35,7 @@ extern "C" {
 }
 
 #include <map>
+#include <memory>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -357,7 +358,7 @@ class temp_dir {
     //!
     //! \brief The path to this temporary directory.
     //!
-    path *m_path;
+    std::auto_ptr< path > m_path;
 
 public:
     //!
@@ -400,7 +401,7 @@ class temp_file {
     //!
     //! \brief The path to this temporary file.
     //!
-    path *m_path;
+    std::auto_ptr< path > m_path;
 
     //!
     //! \brief File descriptor of this temporary file.
