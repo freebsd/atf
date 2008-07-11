@@ -85,7 +85,7 @@ atf_check_exec(atf_check_result_t *r, const char *command)
         if (execl("/bin/sh", "/bin/sh", "-c", command, NULL) == -1)
             exit(255);
     };
-   
+
     close(fd_out);
     close(fd_err);
 

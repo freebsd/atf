@@ -75,7 +75,8 @@ class atf_check : public atf::application::app {
     std::string decode(const std::string &) const;
 
     bool run_status_check(const atf::check::check_result &) const;
-    bool run_output_check(const atf::check::check_result &, const std::string &) const;
+    bool run_output_check(const atf::check::check_result &,
+                          const std::string &) const;
 
     std::string specific_args(void) const;
     options_set specific_options(void) const;
@@ -133,7 +134,6 @@ std::string
 atf_check::decode(const std::string &s)
     const
 {
-    char c;
     int i, count;
     std::string res;
 
@@ -141,7 +141,8 @@ atf_check::decode(const std::string &s)
 
     i = 0;
     while (i < s.length()) {
-        c = s[i++];
+        char c = s[i++];
+
         if (c == '\\') {
             switch (s[i++]) {
             case 'a': c = '\a'; break;
@@ -181,7 +182,7 @@ atf_check::run_status_check(const atf::check::check_result &r)
 
     if (m_status_check == sc_equal) {
         if (m_status_arg != status) {
-            std::cout << "Fail: incorrect exit status: " 
+            std::cout << "Fail: incorrect exit status: "
                       << status << ", expected: "
                       << m_status_arg << std::endl;
             retval = false;
@@ -239,7 +240,7 @@ atf_check::run_output_check(const atf::check::check_result &r,
         if (atf::io::cmp(path, atf::fs::path(arg)) != 0) {
             std::cout << "Fail: incorrect " << stdxxx << std::endl;
             print_diff(atf::fs::path(arg), path);
-            
+
             return false;
         }
     } else if (check == oc_inline) {
@@ -247,7 +248,7 @@ atf_check::run_output_check(const atf::check::check_result &r,
         atf::fs::path path2("inline.XXXXXX");
         atf::fs::temp_file temp(path2);
         temp.write(decoded);
- 
+
         if (atf::io::cmp(path, temp.get_path()) != 0) {
             std::cout << "Fail: incorrect " << stdxxx << std::endl;
             print_diff(temp.get_path(), path);
@@ -265,7 +266,7 @@ atf_check::run_output_check(const atf::check::check_result &r,
 
         std::copy(begin, end, obegin);
     }
-    
+
     return true;
 }
 
@@ -404,7 +405,7 @@ atf_check::main(void)
         throw atf::application::usage_error("No command specified");
 
     int status = EXIT_FAILURE;
-    
+
     std::cerr << "Checking command [" << m_argv[0] << "]" << std::endl;
 
     atf::check::check_result r(m_argv[0]);

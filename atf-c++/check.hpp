@@ -35,7 +35,7 @@
 #include "atf-c++/fs.hpp"
 
 extern "C" {
-    #include "atf-c/check.h"
+#include "atf-c/check.h"
 }
 
 namespace atf {

@@ -37,7 +37,7 @@ output_head()
 output_body()
 {
     dd if=/dev/urandom of=tmp1 bs=1k count=1024
-    echo "foo bar" >tmp2    
+    echo "foo bar" >tmp2
 
     h_pass -o file:tmp2 "echo foo bar"
     h_pass -e file:tmp2 "echo foo bar >&2"
@@ -68,9 +68,10 @@ output_body()
     h_pass -o inline:"foo\n" "cat tmp3"
 }
 
-
 atf_init_test_cases()
 {
     atf_add_test_case output
     atf_add_test_case status
 }
+
+# vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

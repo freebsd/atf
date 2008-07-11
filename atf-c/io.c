@@ -105,13 +105,12 @@ atf_io_write_fmt(int fd, const char *fmt, ...)
 atf_error_t
 atf_io_cmp(int *result, const atf_fs_path_t *p1, const atf_fs_path_t *p2)
 {
-    int fd1, fd2;
-    char buf1[512], buf2[512];
+    int fd1, fd2, res;
     const char *path1, *path2;
     atf_error_t err;
 
     err = atf_no_error();
-    *result = 1;
+    res = 1;
     path1 = atf_fs_path_cstring(p1);
     path2 = atf_fs_path_cstring(p2);
 
@@ -129,6 +128,7 @@ atf_io_cmp(int *result, const atf_fs_path_t *p1, const atf_fs_path_t *p2)
 
     for (;;) {
         ssize_t r1, r2;
+        char buf1[512], buf2[512];
 
         r1 = read(fd1, buf1, sizeof(buf1));
         if (r1 < 0) {
@@ -143,7 +143,7 @@ atf_io_cmp(int *result, const atf_fs_path_t *p1, const atf_fs_path_t *p2)
         }
 
         if ((r1 == 0) && (r2 == 0)) {
-            *result = 0;
+            res = 0;
             break;
         }
 
@@ -158,5 +158,9 @@ out_fd2:
     close(fd1);
 
 out_fd1:
+
+    if (err == atf_no_error())
+        *result = res;
+
     return err;
 }

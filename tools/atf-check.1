@@ -48,7 +48,8 @@ exit code, stdout and stderr.
 In the first synopsis form,
 .Nm
 will execute the provided command and apply checks specified
-by arguments. By default it will act as if it was run with
+by arguments.
+By default it will act as if it was run with
 .Fl s
 .Ar eq:0
 .Fl o
@@ -65,9 +66,10 @@ The following options are available:
 .It Fl h
 Shows a short summary of all available options and their purpose.
 .It Fl s Ar qual:value
-Analyzes exit code. Must be one of:
+Analyzes exit code.
+Must be one of:
 .Bl -tag -width eq:<value> -compact
-.It Ar ignore 
+.It Ar ignore
 ignores exit status
 .It Ar eq:<value>
 checks that exit status is equal to value
@@ -75,7 +77,8 @@ checks that exit status is equal to value
 checks that exit status is other than value
 .El
 .It Fl o Ar action:arg
-Analyzes standard output. Must be one of:
+Analyzes standard output.
+Must be one of:
 .Bl -tag -width inline:<value> -compact
 .It Ar empty
 checks that stdout is empty
