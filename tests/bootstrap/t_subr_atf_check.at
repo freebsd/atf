@@ -52,8 +52,6 @@ AT_CHECK([TEST_HELPER(tp_atf_check_sh) stdout_null_sth],
                       [1], [ignore], [ignore])
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) stdout_stdout_written],
                       [0], [ignore], [ignore])
-AT_CHECK([TEST_HELPER(tp_atf_check_sh) stdout_stdout_noclobber],
-                      [0], [ignore], [ignore])
 
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) stderr_experr_pass],
                       [0], [ignore], [ignore])
@@ -68,8 +66,6 @@ AT_CHECK([TEST_HELPER(tp_atf_check_sh) stderr_null_empty],
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) stderr_null_sth],
                       [1], [ignore], [ignore])
 AT_CHECK([TEST_HELPER(tp_atf_check_sh) stderr_stderr_written],
-                      [0], [ignore], [ignore])
-AT_CHECK([TEST_HELPER(tp_atf_check_sh) stderr_stderr_noclobber],
                       [0], [ignore], [ignore])
 
 AT_CLEANUP()

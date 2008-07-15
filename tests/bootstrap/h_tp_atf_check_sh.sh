@@ -34,7 +34,7 @@ exitcode_0_0_head()
 }
 exitcode_0_0_body()
 {
-    atf_check 'true' 0 null null
+    atf_check -s eq:0 -o empty -e empty 'true'
 }
 
 atf_test_case exitcode_0_1
@@ -44,7 +44,7 @@ exitcode_0_1_head()
 }
 exitcode_0_1_body()
 {
-    atf_check 'true' 1 null null
+    atf_check -s eq:1 -o empty -e empty 'true'
 }
 
 atf_test_case exitcode_1_0
@@ -54,7 +54,7 @@ exitcode_1_0_head()
 }
 exitcode_1_0_body()
 {
-    atf_check 'false' 0 null null
+    atf_check -s eq:0 -o empty -e empty 'false'
 }
 
 atf_test_case exitcode_1_1
@@ -64,7 +64,7 @@ exitcode_1_1_head()
 }
 exitcode_1_1_body()
 {
-    atf_check 'false' 1 null null
+    atf_check -s eq:1 -o empty -e empty 'false'
 }
 
 atf_test_case stdout_expout_pass
@@ -75,7 +75,7 @@ stdout_expout_pass_head()
 stdout_expout_pass_body()
 {
     echo foo >expout
-    atf_check 'echo foo' 0 expout null
+    atf_check -s eq:0 -o file:expout -e empty 'echo foo'
 }
 
 atf_test_case stdout_expout_fail
@@ -86,7 +86,7 @@ stdout_expout_fail_head()
 stdout_expout_fail_body()
 {
     echo foo >expout
-    atf_check 'echo bar' 0 expout null
+    atf_check -s eq:0 -o file:expout -e empty 'echo bar'
 }
 
 atf_test_case stdout_ignore_empty
@@ -97,7 +97,7 @@ stdout_ignore_empty_head()
 }
 stdout_ignore_empty_body()
 {
-    atf_check 'true' 0 ignore null
+    atf_check -s eq:0 -o ignore -e empty 'true'
 }
 
 atf_test_case stdout_ignore_sth
@@ -108,7 +108,7 @@ stdout_ignore_sth_head()
 }
 stdout_ignore_sth_body()
 {
-    atf_check 'echo foo' 0 ignore null
+    atf_check -s eq:0 -o ignore -e empty 'echo foo'
 }
 
 atf_test_case stdout_null_empty
@@ -119,7 +119,7 @@ stdout_null_empty_head()
 }
 stdout_null_empty_body()
 {
-    atf_check 'true' 0 null null
+    atf_check -s eq:0 -o empty -e empty 'true'
 }
 
 atf_test_case stdout_null_sth
@@ -130,7 +130,7 @@ stdout_null_sth_head()
 }
 stdout_null_sth_body()
 {
-    atf_check 'echo foo' 0 null null
+    atf_check -s eq:0 -o empty -e empty 'echo foo'
 }
 
 atf_test_case stdout_stdout_written
@@ -141,34 +141,9 @@ stdout_stdout_written_head()
 }
 stdout_stdout_written_body()
 {
-    atf_check 'echo foo' 0 stdout null
+    atf_check -s eq:0 -o save:stdout -e empty 'echo foo'
     echo foo >aux
     cmp -s stdout aux || atf_fail "Test failed"
-}
-
-atf_test_case stdout_stdout_noclobber
-stdout_stdout_noclobber_head()
-{
-    atf_set "descr" "Runs a program multiple times with different stdout" \
-                    "modes and ensures that they do not overwrite an old" \
-                    "stdout file"
-}
-stdout_stdout_noclobber_body()
-{
-    echo bar >stdout
-
-    echo foo >expout
-    atf_check 'echo foo' 0 expout null
-    atf_check 'echo foo' 0 ignore null
-    atf_check 'true' 0 null null
-
-    echo bar >aux
-    cmp -s stdout aux || atf_fail "Test failed"
-
-    echo "foo bar" >stdout
-    atf_check "cut -d ' ' -f 1 <stdout" 0 stdout null
-    echo foo >expout
-    atf_check "cat stdout" 0 expout null
 }
 
 atf_test_case stderr_experr_pass
@@ -179,7 +154,7 @@ stderr_experr_pass_head()
 stderr_experr_pass_body()
 {
     echo foo >experr
-    atf_check 'echo foo 1>&2' 0 null experr
+    atf_check -s eq:0 -o empty -e file:experr 'echo foo 1>&2'
 }
 
 atf_test_case stderr_experr_fail
@@ -190,7 +165,7 @@ stderr_experr_fail_head()
 stderr_experr_fail_body()
 {
     echo foo >experr
-    atf_check 'echo bar 1>&2' 0 null experr
+    atf_check -s eq:0 -o empty -e file:stderr 'echo bar 1>&2'
 }
 
 atf_test_case stderr_ignore_empty
@@ -201,7 +176,7 @@ stderr_ignore_empty_head()
 }
 stderr_ignore_empty_body()
 {
-    atf_check 'true 1>&2' 0 null ignore
+    atf_check -s eq:0 -o empty -e ignore 'true 1>&2'
 }
 
 atf_test_case stderr_ignore_sth
@@ -212,7 +187,7 @@ stderr_ignore_sth_head()
 }
 stderr_ignore_sth_body()
 {
-    atf_check 'echo foo 1>&2' 0 null ignore
+    atf_check -s eq:0 -o empty -e ignore 'echo foo 1>&2'
 }
 
 atf_test_case stderr_null_empty
@@ -223,7 +198,7 @@ stderr_null_empty_head()
 }
 stderr_null_empty_body()
 {
-    atf_check 'true 1>&2' 0 null null
+    atf_check -s eq:0 -o empty -e empty 'true 1>&2'
 }
 
 atf_test_case stderr_null_sth
@@ -234,7 +209,7 @@ stderr_null_sth_head()
 }
 stderr_null_sth_body()
 {
-    atf_check 'echo foo 1>&2' 0 null null
+    atf_check -s eq:0 -o empty -e empty 'echo foo 1>&2'
 }
 
 atf_test_case stderr_stderr_written
@@ -245,34 +220,9 @@ stderr_stderr_written_head()
 }
 stderr_stderr_written_body()
 {
-    atf_check 'echo foo 1>&2' 0 null stderr
+    atf_check -s eq:0 -o empty -e save:stderr 'echo foo 1>&2'
     echo foo >aux
     cmp -s stderr aux || atf_fail "Test failed"
-}
-
-atf_test_case stderr_stderr_noclobber
-stderr_stderr_noclobber_head()
-{
-    atf_set "descr" "Runs a program multiple times with different stderr" \
-                    "modes and ensures that they do not overwrite an old" \
-                    "stderr file"
-}
-stderr_stderr_noclobber_body()
-{
-    echo bar >stderr
-
-    echo foo >experr
-    atf_check 'echo foo 1>&2' 0 null experr
-    atf_check 'echo foo 1>&2' 0 null ignore
-    atf_check 'true 1>&2' 0 null null
-
-    echo bar >aux
-    cmp -s stderr aux || atf_fail "Test failed"
-
-    echo "foo bar" >stderr
-    atf_check "cut -d ' ' -f 1 <stderr 1>&2" 0 null stderr
-    echo foo >experr
-    atf_check "cat stderr 1>&2" 0 null experr
 }
 
 atf_init_test_cases()
@@ -289,7 +239,6 @@ atf_init_test_cases()
     atf_add_test_case stdout_null_empty
     atf_add_test_case stdout_null_sth
     atf_add_test_case stdout_stdout_written
-    atf_add_test_case stdout_stdout_noclobber
 
     atf_add_test_case stderr_experr_pass
     atf_add_test_case stderr_experr_fail
@@ -298,7 +247,6 @@ atf_init_test_cases()
     atf_add_test_case stderr_null_empty
     atf_add_test_case stderr_null_sth
     atf_add_test_case stderr_stderr_written
-    atf_add_test_case stderr_stderr_noclobber
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
