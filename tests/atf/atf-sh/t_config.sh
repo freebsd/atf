@@ -36,15 +36,18 @@ has_body()
 {
     h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir) -r3 3>/dev/null"
 
-    atf_check "TEST_VARIABLE=foo ${h} config_has" 0 stdout null
-    atf_check "grep 'foo not found' stdout" 0 ignore null
+    atf_check -s eq:0 -o save:stdout -e empty \
+              "TEST_VARIABLE=foo ${h} config_has"
+    atf_check -s eq:0 -o ignore -e empty "grep 'foo not found' stdout"
 
-    atf_check "TEST_VARIABLE=foo ${h} -v foo=bar config_has" 0 stdout null
-    atf_check "grep 'foo found' stdout" 0 ignore null
+    atf_check -s eq:0 -o save:stdout -e empty \
+              "TEST_VARIABLE=foo ${h} -v foo=bar config_has"
+    atf_check -s eq:0 -o ignore -e empty "grep 'foo found' stdout"
 
     echo "Checking for deprecated variables"
-    atf_check "TEST_VARIABLE=workdir ${h} config_has" 0 stdout null
-    atf_check "grep 'workdir not found' stdout" 0 ignore null
+    atf_check -s eq:0 -o save:stdout -e empty \
+              "TEST_VARIABLE=workdir ${h} config_has"
+    atf_check -s eq:0 -o ignore -e empty "grep 'workdir not found' stdout"
 }
 
 atf_test_case get
@@ -67,11 +70,13 @@ get_body()
     [ "${v}" = "the default value" ] || \
         atf_fail "Default value does not work"
 
-    atf_check "TEST_VARIABLE=foo ${h} -v foo=bar config_get" 0 stdout null
-    atf_check "grep 'foo = bar' stdout" 0 ignore null
+    atf_check -s eq:0 -o save:stdout -e empty \
+              "TEST_VARIABLE=foo ${h} -v foo=bar config_get"
+    atf_check -s eq:0 -o ignore -e empty "grep 'foo = bar' stdout"
 
-    atf_check "TEST_VARIABLE=foo ${h} -v foo=baz config_get" 0 stdout null
-    atf_check "grep 'foo = baz' stdout" 0 ignore null
+    atf_check -s eq:0 -o save:stdout -e empty \
+              "TEST_VARIABLE=foo ${h} -v foo=baz config_get"
+    atf_check -s eq:0 -o ignore -e empty "grep 'foo = baz' stdout"
 }
 
 atf_init_test_cases()

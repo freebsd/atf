@@ -39,12 +39,12 @@ ident_head()
 ident_body()
 {
     for h in $(get_helpers); do
-        atf_check "${h} -s $(atf_get_srcdir) -r3 ident_1 3>resout" \
-                  0 ignore ignore
-        atf_check "grep passed resout" 0 ignore null
-        atf_check "${h} -s $(atf_get_srcdir) -r3 ident_2 3>resout" \
-                  0 ignore ignore
-        atf_check "grep passed resout" 0 ignore null
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 ident_1 3>resout"
+        atf_check -s eq:0 -o ignore -e empty "grep passed resout"
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 ident_2 3>resout"
+        atf_check -s eq:0 -o ignore -e empty "grep passed resout"
     done
 }
 
@@ -62,39 +62,47 @@ require_arch_body()
     for h in $(get_helpers); do
         echo "Check for the real architecture"
         arch=$(atf-config -t atf_arch)
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v arch='${arch}' \
-                   require_arch 3>resout" 0 ignore ignore
-        atf_check 'grep "passed" resout' 0 ignore null
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v arch='foo ${arch}' \
-                   require_arch 3>resout" 0 ignore ignore
-        atf_check 'grep "passed" resout' 0 ignore null
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v arch='${arch} foo' \
-                   require_arch 3>resout" 0 ignore ignore
-        atf_check 'grep "passed" resout' 0 ignore null
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v arch='${arch}' \
+                   require_arch 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v arch='foo ${arch}' \
+                   require_arch 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v arch='${arch} foo' \
+                   require_arch 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
 
         echo "Some fictitious checks"
-        atf_check "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r3 \
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r3 \
                    -v arch='foo' \
-                   require_arch 3>resout" 0 ignore ignore
-        atf_check 'grep "passed" resout' 0 ignore null
-        atf_check "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r3 \
+                   require_arch 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r3 \
                    -v arch='foo bar' \
-                   require_arch 3>resout" 0 ignore ignore
-        atf_check 'grep "passed" resout' 0 ignore null
-        atf_check "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r3 \
+                   require_arch 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r3 \
                    -v arch='bar foo' \
-                   require_arch 3>resout" 0 ignore ignore
-        atf_check 'grep "passed" resout' 0 ignore null
+                   require_arch 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
 
         echo "Now some failures"
-        atf_check "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r3 \
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r3 \
                    -v arch='bar' \
-                   require_arch 3>resout" 0 ignore ignore
-        atf_check 'grep "skipped" resout' 0 ignore null
-        atf_check "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r3 \
+                   require_arch 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "skipped" resout'
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r3 \
                    -v arch='bar baz' \
-                   require_arch 3>resout" 0 ignore ignore
-        atf_check 'grep "skipped" resout' 0 ignore null
+                   require_arch 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "skipped" resout'
     done
 }
 
@@ -110,21 +118,23 @@ require_config_head()
 require_config_body()
 {
     for h in $(get_helpers); do
-        atf_check "${h} -s $(atf_get_srcdir) -r3 require_config 3>resout" \
-                  0 ignore ignore
-        atf_check 'grep "skipped" resout' 0 ignore null
-        atf_check 'grep "var1 not defined" resout' 0 ignore null
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 require_config 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "skipped" resout'
+        atf_check -s eq:0 -o ignore -e empty 'grep "var1 not defined" resout'
 
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v var1=foo \
-                   require_config 3>resout" 0 ignore ignore
-        atf_check 'grep "skipped" resout' 0 ignore null
-        atf_check 'grep "var2 not defined" resout' 0 ignore null
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v var1=foo \
+                   require_config 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "skipped" resout'
+        atf_check -s eq:0 -o ignore -e empty 'grep "var2 not defined" resout'
 
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v var1=foo -v var2=bar \
-                   require_config 3>resout" 0 stdout ignore
-        atf_check 'grep "passed" resout' 0 ignore null
-        atf_check 'grep "var1: foo" stdout' 0 ignore null
-        atf_check 'grep "var2: bar" stdout' 0 ignore null
+        atf_check -s eq:0 -o save:stdout -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v var1=foo -v var2=bar \
+                   require_config 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
+        atf_check -s eq:0 -o ignore -e empty 'grep "var1: foo" stdout'
+        atf_check -s eq:0 -o ignore -e empty 'grep "var2: bar" stdout'
     done
 }
 
@@ -142,39 +152,47 @@ require_machine_body()
     for h in $(get_helpers); do
         echo "Check for the real machine type"
         machine=$(atf-config -t atf_machine)
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v machine='${machine}' \
-                   require_machine 3>resout" 0 ignore ignore
-        atf_check 'grep "passed" resout' 0 ignore null
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v machine='foo ${machine}' \
-                   require_machine 3>resout" 0 ignore ignore
-        atf_check 'grep "passed" resout' 0 ignore null
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v machine='${machine} foo' \
-                   require_machine 3>resout" 0 ignore ignore
-        atf_check 'grep "passed" resout' 0 ignore null
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v machine='${machine}' \
+                   require_machine 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v machine='foo ${machine}' \
+                   require_machine 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v machine='${machine} foo' \
+                   require_machine 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
 
         echo "Some fictitious checks"
-        atf_check "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r3 \
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r3 \
                    -v machine='foo' \
-                   require_machine 3>resout" 0 ignore ignore
-        atf_check 'grep "passed" resout' 0 ignore null
-        atf_check "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r3 \
+                   require_machine 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r3 \
                    -v machine='foo bar' \
-                   require_machine 3>resout" 0 ignore ignore
-        atf_check 'grep "passed" resout' 0 ignore null
-        atf_check "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r3 \
+                   require_machine 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r3 \
                    -v machine='bar foo' \
-                   require_machine 3>resout" 0 ignore ignore
-        atf_check 'grep "passed" resout' 0 ignore null
+                   require_machine 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
 
         echo "Now some failures"
-        atf_check "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r3 \
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r3 \
                    -v machine='bar' \
-                   require_machine 3>resout" 0 ignore ignore
-        atf_check 'grep "skipped" resout' 0 ignore null
-        atf_check "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r3 \
+                   require_machine 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "skipped" resout'
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r3 \
                    -v machine='bar baz' \
-                   require_machine 3>resout" 0 ignore ignore
-        atf_check 'grep "skipped" resout' 0 ignore null
+                   require_machine 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "skipped" resout'
     done
 }
 
@@ -186,26 +204,31 @@ common_tests() {
     where=${1}
     for h in $(get_helpers); do
         # Check absolute paths.
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v 'progs=/bin/cp' \
-                   require_progs_${where} 3>resout" 0 ignore ignore
-        atf_check 'grep "passed" resout' 0 ignore null
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v \
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v 'progs=/bin/cp' \
+                   require_progs_${where} 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v \
                    'progs=/bin/__non-existent__' \
-                   require_progs_${where} 3>resout" 0 ignore ignore
-        atf_check 'grep "skipped" resout' 0 ignore null
+                   require_progs_${where} 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "skipped" resout'
 
         # Relative paths are not allowed.
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v 'progs=bin/cp' \
-                   require_progs_${where} 3>resout" 1 ignore stderr
-        atf_check 'grep "failed" resout' 0 ignore null
+        atf_check -s eq:1 -o ignore -e save:stderr \
+                  "${h} -s $(atf_get_srcdir) -r3 -v 'progs=bin/cp' \
+                   require_progs_${where} 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "failed" resout'
 
         # Check plain file names, searching them in the PATH.
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v 'progs=cp' \
-                   require_progs_${where} 3>resout" 0 ignore ignore
-        atf_check 'grep "passed" resout' 0 ignore null
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v 'progs=__non-existent__' \
-                   require_progs_${where} 3>resout" 0 ignore ignore
-        atf_check 'grep "skipped" resout' 0 ignore null
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v 'progs=cp' \
+                   require_progs_${where} 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v 'progs=__non-existent__' \
+                   require_progs_${where} 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "skipped" resout'
     done
 }
 
@@ -232,36 +255,41 @@ require_progs_header_body()
     for h in $(get_helpers); do
         # Check a couple of absolute path names.  The second must make
         # the check fail.
-        atf_check "${h} -s $(atf_get_srcdir) -r3 \
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 \
                    -v 'progs=/bin/cp /bin/__non-existent__' \
-                   require_progs_head 3>resout" 0 ignore ignore
-        atf_check 'grep "skipped" resout' 0 ignore null
-        atf_check 'grep "non-existent" resout' 0 ignore null
+                   require_progs_head 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "skipped" resout'
+        atf_check -s eq:0 -o ignore -e empty 'grep "non-existent" resout'
 
         # Check a couple of absolute path names.  Both have to be found.
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v 'progs=/bin/cp /bin/ls' \
-                   require_progs_head 3>resout" 0 ignore ignore
-        atf_check 'grep "passed" resout' 0 ignore null
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v 'progs=/bin/cp /bin/ls' \
+                   require_progs_head 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
 
         # Check an absolute path name and a relative one.  The second must
         # make the check fail.
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v 'progs=/bin/cp bin/cp' \
-                   require_progs_head 3>resout" 1 ignore stderr
-        atf_check 'grep "failed" resout' 0 ignore null
+        atf_check -s eq:1 -o ignore -e save:stderr \
+                  "${h} -s $(atf_get_srcdir) -r3 -v 'progs=/bin/cp bin/cp' \
+                   require_progs_head 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "failed" resout'
 
         # Check an absolute path name and a plain one.  Both have to be
         # found.
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v 'progs=/bin/cp ls' \
-                   require_progs_head 3>resout" 0 ignore ignore
-        atf_check 'grep "passed" resout' 0 ignore null
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v 'progs=/bin/cp ls' \
+                   require_progs_head 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
 
         # Check an absolute path name and a plain one.  The second must
         # make the check fail.
-        atf_check "${h} -s $(atf_get_srcdir) -r3 \
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 \
                    -v 'progs=/bin/cp __non-existent__' require_progs_head \
-                   3>resout" 0 ignore ignore
-        atf_check 'grep "skipped" resout' 0 ignore null
-        atf_check 'grep "non-existent" resout' 0 ignore null
+                   3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "skipped" resout'
+        atf_check -s eq:0 -o ignore -e empty 'grep "non-existent" resout'
     done
 }
 
@@ -282,12 +310,13 @@ require_user_root_head()
 require_user_root_body()
 {
     for h in $(get_helpers); do
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v user=root require_user \
-            3>resout" 0 ignore ignore
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v user=root require_user \
+                   3>resout"
         if [ $(id -u) -eq 0 ]; then
-            atf_check 'grep "passed" resout' 0 ignore null
+            atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
         else
-            atf_check 'grep "skipped" resout' 0 ignore null
+            atf_check -s eq:0 -o ignore -e empty 'grep "skipped" resout'
         fi
     done
 }
@@ -300,12 +329,13 @@ require_user_unprivileged_head()
 require_user_unprivileged_body()
 {
     for h in $(get_helpers); do
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v user=unprivileged \
-            require_user 3>resout" 0 ignore ignore
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v user=unprivileged \
+                   require_user 3>resout"
         if [ $(id -u) -eq 0 ]; then
-            atf_check 'grep "skipped" resout' 0 ignore null
+            atf_check -s eq:0 -o ignore -e empty 'grep "skipped" resout'
         else
-            atf_check 'grep "passed" resout' 0 ignore null
+            atf_check -s eq:0 -o ignore -e empty 'grep "passed" resout'
         fi
     done
 }
@@ -325,8 +355,9 @@ require_user_multiple_body()
         else
             users="-v user=root -v user2=root -v user3=unprivileged"
         fi
-        atf_check "${h} -s $(atf_get_srcdir) -r3 ${users} require_user \
-            require_user2 require_user3 3>resout" 0 ignore ignore
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 ${users} require_user \
+                   require_user2 require_user3 3>resout"
         grep "skipped" resout >skips
         [ $(count_lines skips) -lt 2 ] && \
             atf_fail "Test program aborted prematurely"
@@ -344,9 +375,10 @@ require_user_bad_head()
 require_user_bad_body()
 {
     for h in $(get_helpers); do
-        atf_check "${h} -s $(atf_get_srcdir) -r3 -v user=foo require_user \
-            3>resout" 1 ignore ignore
-        atf_check 'grep "failed.*Invalid" resout' 0 ignore null
+        atf_check -s eq:1 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -r3 -v user=foo require_user \
+                   3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "failed.*Invalid" resout'
     done
 }
 
@@ -362,26 +394,32 @@ timeout_head()
 timeout_body()
 {
     for h in $(get_helpers); do
-        atf_check "${h} -s $(atf_get_srcdir) \
-            -v timeout=0 -v sleep=1 \
-            -r3 timeout 3>resout" 0 ignore ignore
-        atf_check 'grep "timeout, passed" resout' 0 ignore null
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) \
+                   -v timeout=0 -v sleep=1 \
+                   -r3 timeout 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "timeout, passed" resout'
 
-        atf_check "${h} -s $(atf_get_srcdir) \
-            -v timeout=10 -v sleep=1 \
-            -r3 timeout 3>resout" 0 ignore ignore
-        atf_check 'grep "timeout, passed" resout' 0 ignore null
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) \
+                   -v timeout=10 -v sleep=1 \
+                   -r3 timeout 3>resout"
+        atf_check -s eq:0 -o ignore -e empty 'grep "timeout, passed" resout'
 
-        atf_check "${h} -s $(atf_get_srcdir) \
-            -v timeout=1 -v sleep=10 \
-            -r3 timeout 3>resout" 1 ignore ignore
-        atf_check 'grep "timeout, failed,.*timed out" resout' 0 ignore null
+        atf_check -s eq:1 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) \
+                   -v timeout=1 -v sleep=10 \
+                   -r3 timeout 3>resout"
+        atf_check -s eq:0 -o ignore -e empty \
+                  'grep "timeout, failed,.*timed out" resout'
 
-        atf_check "${h} -s $(atf_get_srcdir) \
-            -v timeout=1 -v sleep=10 -v timeout2=10 -v sleep2=1 \
-            -r3 timeout timeout2 3>resout" 1 ignore ignore
-        atf_check 'grep "timeout, failed,.*timed out" resout' 0 ignore null
-        atf_check 'grep "timeout2, passed" resout' 0 ignore null
+        atf_check -s eq:1 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) \
+                   -v timeout=1 -v sleep=10 -v timeout2=10 -v sleep2=1 \
+                   -r3 timeout timeout2 3>resout"
+        atf_check -s eq:0 -o ignore -e empty \
+                  'grep "timeout, failed,.*timed out" resout'
+        atf_check -s eq:0 -o ignore -e empty 'grep "timeout2, passed" resout'
     done
 }
 

@@ -43,10 +43,10 @@ includes_body()
     cat >tp_test.sh <<EOF
 # This is a sample test program.
 EOF
-    atf_check 'atf-compile -o tp_test tp_test.sh' 0 null null
-    atf_check 'grep ^\..*/atf.init.subr tp_test' 1 null null
-    atf_check 'grep ^\..*/atf.header.subr tp_test' 0 ignore null
-    atf_check 'grep ^\..*/atf.footer.subr tp_test' 0 ignore null
+    atf_check -s eq:0 -o empty -e empty 'atf-compile -o tp_test tp_test.sh'
+    atf_check -s eq:1 -o empty -e empty 'grep ^\..*/atf.init.subr tp_test'
+    atf_check -s eq:0 -o ignore -e empty 'grep ^\..*/atf.header.subr tp_test'
+    atf_check -s eq:0 -o ignore -e empty 'grep ^\..*/atf.footer.subr tp_test'
 }
 
 atf_test_case oflag
@@ -57,19 +57,20 @@ oflag_head()
 }
 oflag_body()
 {
-    atf_check 'touch tp_foo.sh' 0 null null
-    atf_check 'atf-compile tp_foo.sh' 1 null stderr
-    atf_check 'grep "No output file specified" stderr' 0 ignore null
+    atf_check -s eq:0 -o empty -e empty 'touch tp_foo.sh'
+    atf_check -s eq:1 -o empty -e save:stderr 'atf-compile tp_foo.sh'
+    atf_check -s eq:0 -o ignore -e empty \
+              'grep "No output file specified" stderr'
 
-    atf_check 'test -f tp_foo' 1 null null
-    atf_check 'atf-compile -o tp_foo tp_foo.sh' 0 null null
-    atf_check 'test -f tp_foo' 0 null null
+    atf_check -s eq:1 -o empty -e empty 'test -f tp_foo'
+    atf_check -s eq:0 -o empty -e empty 'atf-compile -o tp_foo tp_foo.sh'
+    atf_check -s eq:0 -o empty -e empty 'test -f tp_foo'
 
-    atf_check 'test -f tp_foo2' 1 null null
-    atf_check 'atf-compile -o tp_foo2 tp_foo.sh' 0 null null
-    atf_check 'test -f tp_foo2' 0 null null
+    atf_check -s eq:1 -o empty -e empty 'test -f tp_foo2'
+    atf_check -s eq:0 -o empty -e empty 'atf-compile -o tp_foo2 tp_foo.sh'
+    atf_check -s eq:0 -o empty -e empty 'test -f tp_foo2'
 
-    atf_check 'cmp tp_foo tp_foo2' 0 ignore null
+    atf_check -s eq:0 -o ignore -e empty 'cmp tp_foo tp_foo2'
 }
 
 check_perms()
@@ -91,25 +92,25 @@ perms_head()
 }
 perms_body()
 {
-    atf_check 'touch tp_foo.sh' 0 null null
+    atf_check -s eq:0 -o empty -e empty 'touch tp_foo.sh'
 
     umask 0000
-    atf_check 'atf-compile -o tp_foo tp_foo.sh' 0 null null
+    atf_check -s eq:0 -o empty -e empty 'atf-compile -o tp_foo tp_foo.sh'
     check_perms tp_foo 0777
     rm -f tp_foo
 
     umask 0002
-    atf_check 'atf-compile -o tp_foo tp_foo.sh' 0 null null
+    atf_check -s eq:0 -o empty -e empty 'atf-compile -o tp_foo tp_foo.sh'
     check_perms tp_foo 0775
     rm -f tp_foo
 
     umask 0222
-    atf_check 'atf-compile -o tp_foo tp_foo.sh' 0 null null
+    atf_check -s eq:0 -o empty -e empty 'atf-compile -o tp_foo tp_foo.sh'
     check_perms tp_foo 0555
     rm -f tp_foo
 
     umask 0777
-    atf_check 'atf-compile -o tp_foo tp_foo.sh' 0 null null
+    atf_check -s eq:0 -o empty -e empty 'atf-compile -o tp_foo tp_foo.sh'
     check_perms tp_foo 0000
     rm -f tp_foo
 }

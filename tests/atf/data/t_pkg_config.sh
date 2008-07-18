@@ -43,11 +43,12 @@ require_pc()
 
 check_version()
 {
-    atf_check "atf-version | head -n 1 | cut -d ' ' -f 4" 0 stdout null
+    atf_check -s eq:0 -o save:stdout -e empty \
+              "atf-version | head -n 1 | cut -d ' ' -f 4"
     ver1=$(cat stdout)
     echo "Version reported by atf-version: ${ver1}"
 
-    atf_check "pkg-config --modversion ${1}" 0 stdout null
+    atf_check -s eq:0 -o save:stdout -e empty "pkg-config --modversion ${1}"
     ver2=$(cat stdout)
     echo "Version reported by pkg-config: ${ver2}"
 
@@ -78,7 +79,7 @@ c_build_body()
 {
     require_pc "atf-c"
 
-    atf_check "pkg-config --variable=cc atf-c" 0 stdout null
+    atf_check -s eq:0 -o save:stdout -e empty "pkg-config --variable=cc atf-c"
     cc=$(cat stdout)
     echo "Compiler is: ${cxx}"
     atf_require_prog ${cxx}
@@ -103,20 +104,20 @@ ATF_TP_ADD_TCS(tp) {
 }
 EOF
 
-    atf_check "pkg-config --cflags atf-c" 0 stdout null
+    atf_check -s eq:0 -o save:stdout -e empty "pkg-config --cflags atf-c"
     cflags=$(cat stdout)
     echo "CFLAGS are: ${cflags}"
 
-    atf_check "pkg-config --libs-only-L --libs-only-other atf-c" \
-        0 stdout null
+    atf_check -s eq:0 -o save:stdout -e empty \
+        "pkg-config --libs-only-L --libs-only-other atf-c"
     ldflags=$(cat stdout)
-    atf_check "pkg-config --libs-only-l atf-c" 0 stdout null
+    atf_check -s eq:0 -o save:stdout -e empty "pkg-config --libs-only-l atf-c"
     libs=$(cat stdout)
     echo "LDFLAGS are: ${ldflags}"
     echo "LIBS are: ${libs}"
 
-    atf_check "${cc} ${cflags} -o tp.o -c tp.c" 0 null null
-    atf_check "${cc} ${ldflags} -o tp tp.o ${libs}" 0 null null
+    atf_check -s eq:0 -o empty -e empty "${cc} ${cflags} -o tp.o -c tp.c"
+    atf_check -s eq:0 -o empty -e empty "${cc} ${ldflags} -o tp tp.o ${libs}"
 
     libpath=
     for f in ${ldflags}; do
@@ -134,10 +135,10 @@ EOF
         esac
     done
 
-    atf_check "test -x tp" 0 null null
-    atf_check "LD_LIBRARY_PATH=${libpath} ./tp" 0 stdout null
-    atf_check "grep 'application/X-atf-tcs' stdout" 0 ignore null
-    atf_check "grep 'Running' stdout" 0 ignore null
+    atf_check -s eq:0 -o empty -e empty "test -x tp"
+    atf_check -s eq:0 -o save:stdout -e empty "LD_LIBRARY_PATH=${libpath} ./tp"
+    atf_check -s eq:0 -o ignore -e empty "grep 'application/X-atf-tcs' stdout"
+    atf_check -s eq:0 -o ignore -e empty "grep 'Running' stdout"
 }
 
 atf_test_case cxx_version
@@ -164,7 +165,8 @@ cxx_build_body()
 {
     require_pc "atf-c++"
 
-    atf_check "pkg-config --variable=cxx atf-c++" 0 stdout null
+    atf_check -s eq:0 -o save:stdout -e empty \
+              "pkg-config --variable=cxx atf-c++"
     cxx=$(cat stdout)
     echo "Compiler is: ${cxx}"
     atf_require_prog ${cxx}
@@ -187,20 +189,21 @@ ATF_INIT_TEST_CASES(tcs) {
 }
 EOF
 
-    atf_check "pkg-config --cflags atf-c++" 0 stdout null
+    atf_check -s eq:0 -o save:stdout -e empty "pkg-config --cflags atf-c++"
     cxxflags=$(cat stdout)
     echo "CXXFLAGS are: ${cxxflags}"
 
-    atf_check "pkg-config --libs-only-L --libs-only-other atf-c++" \
-        0 stdout null
+    atf_check -s eq:0 -o save:stdout -e empty \
+        "pkg-config --libs-only-L --libs-only-other atf-c++"
     ldflags=$(cat stdout)
-    atf_check "pkg-config --libs-only-l atf-c++" 0 stdout null
+    atf_check -s eq:0 -o save:stdout -e empty \
+              "pkg-config --libs-only-l atf-c++"
     libs=$(cat stdout)
     echo "LDFLAGS are: ${ldflags}"
     echo "LIBS are: ${libs}"
 
-    atf_check "${cxx} ${cxxflags} -o tp.o -c tp.cpp" 0 null null
-    atf_check "${cxx} ${ldflags} -o tp tp.o ${libs}" 0 null null
+    atf_check -s eq:0 -o empty -e empty "${cxx} ${cxxflags} -o tp.o -c tp.cpp"
+    atf_check -s eq:0 -o empty -e empty "${cxx} ${ldflags} -o tp tp.o ${libs}"
 
     libpath=
     for f in ${ldflags}; do
@@ -218,10 +221,10 @@ EOF
         esac
     done
 
-    atf_check "test -x tp" 0 null null
-    atf_check "LD_LIBRARY_PATH=${libpath} ./tp" 0 stdout null
-    atf_check "grep 'application/X-atf-tcs' stdout" 0 ignore null
-    atf_check "grep 'Running' stdout" 0 ignore null
+    atf_check -s eq:0 -o empty -e empty "test -x tp"
+    atf_check -s eq:0 -o save:stdout -e empty "LD_LIBRARY_PATH=${libpath} ./tp"
+    atf_check -s eq:0 -o ignore -e empty "grep 'application/X-atf-tcs' stdout"
+    atf_check -s eq:0 -o ignore -e empty "grep 'Running' stdout"
 }
 
 atf_init_test_cases()

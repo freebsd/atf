@@ -36,16 +36,18 @@ srcdir_head()
 srcdir_body()
 {
     mkdir work
-    atf_check "cp $(atf_get_srcdir)/h_misc work" 0 null null
+    atf_check -s eq:0 -o empty -e empty "cp $(atf_get_srcdir)/h_misc work"
     cat >work/subrs <<EOF
 helper_subr() {
     echo "This is a helper subroutine"
 }
 EOF
 
-    atf_check "./work/h_misc -s $(pwd)/work tp_srcdir" 0 stdout null
-    atf_check "grep 'Calling helper' stdout" 0 ignore null
-    atf_check "grep 'This is a helper subroutine' stdout" 0 ignore null
+    atf_check -s eq:0 -o save:stdout -e empty \
+              "./work/h_misc -s $(pwd)/work tp_srcdir"
+    atf_check -s eq:0 -o ignore -e empty "grep 'Calling helper' stdout"
+    atf_check -s eq:0 -o ignore -e empty \
+              "grep 'This is a helper subroutine' stdout"
 }
 
 atf_init_test_cases()

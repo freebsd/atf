@@ -38,7 +38,7 @@ atf_check_info_ok_head()
 }
 atf_check_info_ok_body()
 {
-    atf_check 'true' 0 null null
+    atf_check -s eq:0 -o empty -e empty 'true'
 }
 
 atf_test_case atf_check_info_fail
@@ -48,7 +48,7 @@ atf_check_info_fail_head()
 }
 atf_check_info_fail_body()
 {
-    atf_check 'false' 1 null null
+    atf_check -s eq:1 -o empty -e empty 'false'
 }
 
 atf_test_case atf_check_expout_mismatch
@@ -61,7 +61,7 @@ atf_check_expout_mismatch_body()
     cat >expout <<SECONDEOF
 foo
 SECONDEOF
-    atf_check 'echo bar' 0 expout null
+    atf_check -s eq:0 -o file:expout -e empty 'echo bar'
 }
 
 atf_test_case atf_check_experr_mismatch
@@ -74,7 +74,7 @@ atf_check_experr_mismatch_body()
     cat >experr <<SECONDEOF
 foo
 SECONDEOF
-    atf_check 'echo bar 1>&2' 0 null experr
+    atf_check -s eq:0 -o empty -e file:experr 'echo bar 1>&2'
 }
 
 atf_test_case atf_check_null_stdout
@@ -84,7 +84,7 @@ atf_check_null_stdout_head()
 }
 atf_check_null_stdout_body()
 {
-    atf_check 'echo "These are the contents"' 0 null null
+    atf_check -s eq:0 -o empty -e empty 'echo "These are the contents"'
 }
 
 atf_test_case atf_check_null_stderr
@@ -94,24 +94,7 @@ atf_check_null_stderr_head()
 }
 atf_check_null_stderr_body()
 {
-    atf_check 'echo "These are the contents" 1>&2' 0 null null
-}
-
-atf_test_case atf_check_change_cwd
-atf_check_change_cwd_head()
-{
-    atf_set "descr" "Helper test case for the t_atf_check test program"
-}
-atf_check_change_cwd_body()
-{
-    mkdir foo
-    chmod 555 foo
-    cd foo
-    atf_check 'echo Hello' 0 stdout null
-    cd -
-    test -f stdout || atf_fail "Used incorrect work directory"
-    echo Hello >bar
-    cmp -s stdout bar || atf_fail "Used incorrect work directory"
+    atf_check -s eq:0 -o empty -e empty 'echo "These are the contents" 1>&2'
 }
 
 atf_test_case atf_check_equal_ok
@@ -268,7 +251,6 @@ atf_init_test_cases()
     atf_add_test_case atf_check_experr_mismatch
     atf_add_test_case atf_check_null_stdout
     atf_add_test_case atf_check_null_stderr
-    atf_add_test_case atf_check_change_cwd
     atf_add_test_case atf_check_equal_ok
     atf_add_test_case atf_check_equal_fail
     atf_add_test_case atf_check_equal_eval_ok

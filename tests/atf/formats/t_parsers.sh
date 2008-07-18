@@ -83,7 +83,8 @@ run_tests()
             touch errin
         fi
 
-        atf_check "${sd}/h_parser ${type} ${1} outin errin" 0 expout experr
+        atf_check -s eq:0 -o file:expout -e file:experr \
+                  "${sd}/h_parser ${type} ${1} outin errin"
 
         shift
     done

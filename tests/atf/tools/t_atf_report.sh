@@ -95,10 +95,10 @@ default_body()
     run_helpers
 
     # Check that the default output uses the ticker format.
-    atf_check 'atf-report <tps.out' 0 stdout null
-    atf_check 'grep "test cases" stdout' 0 ignore null
-    atf_check 'grep "Failed test cases" stdout' 0 ignore null
-    atf_check 'grep "Summary for" stdout' 0 ignore null
+    atf_check -s eq:0 -o save:stdout -e empty 'atf-report <tps.out'
+    atf_check -s eq:0 -o ignore -e empty 'grep "test cases" stdout'
+    atf_check -s eq:0 -o ignore -e empty 'grep "Failed test cases" stdout'
+    atf_check -s eq:0 -o ignore -e empty 'grep "Summary for" stdout'
 }
 
 atf_test_case oflag
@@ -112,47 +112,47 @@ oflag_body()
     run_helpers
 
     # Get the default output.
-    atf_check 'atf-report <tps.out' 0 stdout null
+    atf_check -s eq:0 -o save:stdout -e empty 'atf-report <tps.out'
     mv stdout defout
 
     # Check that changing the stdout output works.
-    atf_check 'atf-report -o csv:- <tps.out' 0 stdout null
-    atf_check 'cmp -s defout stdout' 1 null null
+    atf_check -s eq:0 -o save:stdout -e empty 'atf-report -o csv:- <tps.out'
+    atf_check -s eq:1 -o empty -e empty 'cmp -s defout stdout'
     cp stdout expcsv
 
     # Check that sending the output to a file does not write to stdout.
-    atf_check 'atf-report -o csv:fmt.out <tps.out' 0 null null
-    atf_check 'cmp -s expcsv fmt.out' 0 null null
+    atf_check -s eq:0 -o empty -e empty 'atf-report -o csv:fmt.out <tps.out'
+    atf_check -s eq:0 -o empty -e empty 'cmp -s expcsv fmt.out'
     rm -f fmt.out
 
     # Check that defining two outputs using the same format works.
-    atf_check 'atf-report -o csv:fmt.out -o csv:fmt2.out <tps.out' \
-              0 null null
-    atf_check 'cmp -s expcsv fmt.out' 0 null null
-    atf_check 'cmp -s fmt.out fmt2.out' 0 null null
+    atf_check -s eq:0 -o empty -e empty \
+              'atf-report -o csv:fmt.out -o csv:fmt2.out <tps.out'
+    atf_check -s eq:0 -o empty -e empty 'cmp -s expcsv fmt.out'
+    atf_check -s eq:0 -o empty -e empty 'cmp -s fmt.out fmt2.out'
     rm -f fmt.out fmt2.out
 
     # Check that defining two outputs using different formats works.
-    atf_check 'atf-report -o csv:fmt.out -o ticker:fmt2.out <tps.out' \
-              0 null null
-    atf_check 'cmp -s expcsv fmt.out' 0 null null
-    atf_check 'cmp -s fmt.out fmt2.out' 1 null null
-    atf_check 'grep "test cases" fmt2.out' 0 ignore null
-    atf_check 'grep "Failed test cases" fmt2.out' 0 ignore null
-    atf_check 'grep "Summary for" fmt2.out' 0 ignore null
+    atf_check -s eq:0 -o empty -e empty \
+              'atf-report -o csv:fmt.out -o ticker:fmt2.out <tps.out'
+    atf_check -s eq:0 -o empty -e empty 'cmp -s expcsv fmt.out'
+    atf_check -s eq:1 -o empty -e empty 'cmp -s fmt.out fmt2.out'
+    atf_check -s eq:0 -o ignore -e empty 'grep "test cases" fmt2.out'
+    atf_check -s eq:0 -o ignore -e empty 'grep "Failed test cases" fmt2.out'
+    atf_check -s eq:0 -o ignore -e empty 'grep "Summary for" fmt2.out'
     rm -f fmt.out fmt2.out
 
     # Check that defining two outputs over the same file does not work.
-    atf_check 'atf-report -o csv:fmt.out -o ticker:fmt.out <tps.out' \
-              1 null stderr
-    atf_check 'grep "more than once" stderr' 0 ignore null
+    atf_check -s eq:1 -o empty -e save:stderr \
+              'atf-report -o csv:fmt.out -o ticker:fmt.out <tps.out'
+    atf_check -s eq:0 -o ignore -e empty 'grep "more than once" stderr'
     rm -f fmt.out
 
     # Check that defining two outputs over stdout (but using different
     # paths) does not work.
-    atf_check 'atf-report -o csv:- -o ticker:/dev/stdout <tps.out' \
-              1 null stderr
-    atf_check 'grep "more than once" stderr' 0 ignore null
+    atf_check -s eq:1 -o empty -e save:stderr \
+              'atf-report -o csv:- -o ticker:/dev/stdout <tps.out'
+    atf_check -s eq:0 -o ignore -e empty 'grep "more than once" stderr'
     rm -f fmt.out
 }
 
@@ -180,7 +180,7 @@ tp, tp5, bogus, There were errors parsing the output of the test program: Line 1
 EOF
 # NO_CHECK_STYLE_END
 
-    atf_check 'atf-report -o csv:- <tps.out' 0 expout null
+    atf_check -s eq:0 -o file:expout -e empty 'atf-report -o csv:- <tps.out'
 }
 
 atf_test_case output_ticker
@@ -222,7 +222,7 @@ Summary for 5 test programs:
     0 skipped test cases.
 EOF
 
-    atf_check 'atf-report -o ticker:- <tps.out' 0 expout null
+    atf_check -s eq:0 -o file:expout -e empty 'atf-report -o ticker:- <tps.out'
 }
 # NO_CHECK_STYLE_END
 
@@ -271,7 +271,7 @@ output_xml_body()
 EOF
 # NO_CHECK_STYLE_END
 
-    atf_check 'atf-report -o xml:- <tps.out' 0 expout null
+    atf_check -s eq:0 -o file:expout -e empty 'atf-report -o xml:- <tps.out'
 }
 
 atf_test_case output_xml_space
@@ -323,7 +323,7 @@ EOF
 
     TESTCASE=atf_report_diff; export TESTCASE
     run_helpers
-    atf_check 'atf-report -o xml:- <tps.out' 0 expout null
+    atf_check -s eq:0 -o file:expout -e empty 'atf-report -o xml:- <tps.out'
 }
 
 atf_init_test_cases()

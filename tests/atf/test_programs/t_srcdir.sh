@@ -46,10 +46,10 @@ default_body()
     for hp in $(get_helpers); do
         h=${hp##*/}
         cp ${hp} tmp
-        atf_check "cd tmp && ./${h} srcdir_exists" 0 ignore ignore
-        atf_check "${hp} srcdir_exists" 1 null stderr
-        atf_check 'grep "Cannot.*find.*source.*directory" stderr' \
-                  0 ignore null
+        atf_check -s eq:0 -o ignore -e ignore "cd tmp && ./${h} srcdir_exists"
+        atf_check -s eq:1 -o empty -e save:stderr "${hp} srcdir_exists"
+        atf_check -s eq:0 -o ignore -e empty \
+                  'grep "Cannot.*find.*source.*directory" stderr'
     done
 }
 
@@ -66,12 +66,14 @@ sflag_body()
     for hp in $(get_helpers); do
         h=${hp##*/}
         cp ${hp} tmp
-        atf_check "cd tmp && ./${h} -s $(pwd)/tmp \
-                   srcdir_exists" 0 ignore ignore
-        atf_check "${hp} srcdir_exists" 1 null stderr
-        atf_check 'grep "Cannot.*find.*source.*directory" stderr' \
-                  0 ignore null
-        atf_check "${hp} -s $(pwd)/tmp srcdir_exists" 0 ignore ignore
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "cd tmp && ./${h} -s $(pwd)/tmp \
+                   srcdir_exists"
+        atf_check -s eq:1 -o empty -e save:stderr "${hp} srcdir_exists"
+        atf_check -s eq:0 -o ignore -e empty \
+                  'grep "Cannot.*find.*source.*directory" stderr'
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${hp} -s $(pwd)/tmp srcdir_exists"
     done
 }
 
@@ -93,12 +95,13 @@ relative_body()
             echo "Helper is: ${h}"
             echo "Using source directory: ${p}"
 
-            atf_check "./tmp/${h} -s ${p} \
-                       srcdir_exists" 0 ignore ignore
-            atf_check "${hp} srcdir_exists" 1 null stderr
-            atf_check 'grep "Cannot.*find.*source.*directory" stderr' \
-                      0 ignore null
-            atf_check "${hp} -s ${p} srcdir_exists" 0 ignore ignore
+            atf_check -s eq:0 -o ignore -e ignore \
+                      "./tmp/${h} -s ${p} \
+                       srcdir_exists"
+            atf_check -s eq:1 -o empty -e save:stderr "${hp} srcdir_exists"
+            atf_check -s eq:0 -o ignore -e empty \
+                      'grep "Cannot.*find.*source.*directory" stderr'
+            atf_check -s eq:0 -o ignore -e ignore "${hp} -s ${p} srcdir_exists"
         done
     done
 }

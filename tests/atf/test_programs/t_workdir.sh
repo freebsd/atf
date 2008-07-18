@@ -38,9 +38,10 @@ default_body()
     tmpdir=$(cd $(atf-config -t atf_workdir) && pwd -P)
 
     for h in $(get_helpers); do
-        atf_check "${h} -s $(atf_get_srcdir) \
-                  -v pathfile=$(pwd)/path workdir_path" 0 ignore ignore
-        atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore ignore
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) \
+                   -v pathfile=$(pwd)/path workdir_path"
+        atf_check -s eq:0 -o ignore -e ignore "grep '^${tmpdir}/atf.' <path"
     done
 }
 
@@ -57,9 +58,10 @@ tmpdir_body()
     mkdir ${tmpdir}
 
     for h in $(get_helpers); do
-        atf_check "ATF_WORKDIR=${tmpdir} ${h} -s $(atf_get_srcdir) \
-                   -v pathfile=$(pwd)/path workdir_path" 0 ignore ignore
-        atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore ignore
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "ATF_WORKDIR=${tmpdir} ${h} -s $(atf_get_srcdir) \
+                   -v pathfile=$(pwd)/path workdir_path"
+        atf_check -s eq:0 -o ignore -e ignore "grep '^${tmpdir}/atf.' <path"
     done
 }
 
@@ -75,10 +77,11 @@ conf_body()
     mkdir ${tmpdir}
 
     for h in $(get_helpers); do
-        atf_check "${h} -s $(atf_get_srcdir) \
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) \
                    -v pathfile=$(pwd)/path -w ${tmpdir} \
-                   workdir_path" 0 ignore ignore
-        atf_check "grep '^${tmpdir}/atf.' <path" 0 ignore null
+                   workdir_path"
+        atf_check -s eq:0 -o ignore -e empty "grep '^${tmpdir}/atf.' <path"
     done
 }
 
@@ -97,10 +100,11 @@ cleanup_body()
     for h in $(get_helpers); do
         # First try to clean a work directory that, supposedly, does not
         # have any subdirectories.
-        atf_check "${h} -s $(atf_get_srcdir) \
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) \
                    -v pathfile=$(pwd)/path -w ${tmpdir} \
-                   workdir_path" 0 ignore ignore
-        atf_check "test -d $(cat path)" 1 null null
+                   workdir_path"
+        atf_check -s eq:1 -o empty -e empty "test -d $(cat path)"
         set -- ${tmpdir}/atf.*
         [ -f "${1}" ] && \
             atf_fail "Test program did not properly remove all temporary" \
@@ -108,9 +112,10 @@ cleanup_body()
 
         # Now do the same but with a work directory that has subdirectories.
         # The program will have to recurse into them to clean them all.
-        atf_check "${h} -s $(atf_get_srcdir) -v pathfile=$(pwd)/path \
-                   -w ${tmpdir} workdir_cleanup" 0 ignore ignore
-        atf_check "test -d $(cat path)" 1 null null
+        atf_check -s eq:0 -o ignore -e ignore \
+                  "${h} -s $(atf_get_srcdir) -v pathfile=$(pwd)/path \
+                   -w ${tmpdir} workdir_cleanup"
+        atf_check -s eq:1 -o empty -e empty "test -d $(cat path)"
     done
 }
 
@@ -125,10 +130,12 @@ missing_body()
     tmpdir=$(pwd -P)/workdir
 
     for h in $(get_helpers); do
-        atf_check "${h} -s $(atf_get_srcdir) \
+        atf_check -s eq:1 -o empty -e save:stderr \
+                  "${h} -s $(atf_get_srcdir) \
                    -v pathfile=$(pwd)/path -w ${tmpdir} \
-                   workdir_path" 1 null stderr
-        atf_check "grep 'Cannot find.*${tmpdir}' stderr" 0 ignore null
+                   workdir_path"
+        atf_check -s eq:0 -o ignore -e empty \
+                  "grep 'Cannot find.*${tmpdir}' stderr"
     done
 }
 

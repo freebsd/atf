@@ -182,14 +182,14 @@ atf_check::run_status_check(const atf::check::check_result &r)
 
     if (m_status_check == sc_equal) {
         if (m_status_arg != status) {
-            std::cout << "Fail: incorrect exit status: "
+            std::cerr << "Fail: incorrect exit status: "
                       << status << ", expected: "
                       << m_status_arg << std::endl;
             retval = false;
         }
     } else if (m_status_check == sc_not_equal) {
         if (m_status_arg == status) {
-            std::cout << "Fail: incorrect exit status: "
+            std::cerr << "Fail: incorrect exit status: "
                       << status << ", expected: "
                       << "anything other" << std::endl;
             retval = false;
@@ -231,14 +231,14 @@ atf_check::run_output_check(const atf::check::check_result &r,
 
     if (check == oc_empty) {
         if (!file_empty(path)) {
-            std::cout << "Fail: incorrect " << stdxxx << std::endl;
+            std::cerr << "Fail: incorrect " << stdxxx << std::endl;
             print_diff(atf::fs::path("/dev/null"), path);
 
             return false;
         }
     } else if (check == oc_file) {
         if (atf::io::cmp(path, atf::fs::path(arg)) != 0) {
-            std::cout << "Fail: incorrect " << stdxxx << std::endl;
+            std::cerr << "Fail: incorrect " << stdxxx << std::endl;
             print_diff(atf::fs::path(arg), path);
 
             return false;
@@ -250,7 +250,7 @@ atf_check::run_output_check(const atf::check::check_result &r,
         temp.write(decoded);
 
         if (atf::io::cmp(path, temp.get_path()) != 0) {
-            std::cout << "Fail: incorrect " << stdxxx << std::endl;
+            std::cerr << "Fail: incorrect " << stdxxx << std::endl;
             print_diff(temp.get_path(), path);
 
             return false;

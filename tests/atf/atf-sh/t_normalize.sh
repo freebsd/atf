@@ -36,9 +36,9 @@ main_head()
 main_body()
 {
     h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
-    atf_check "${h} normalize" 0 stdout ignore
-    atf_check 'grep "a.b: test value 1" stdout' 0 ignore null
-    atf_check 'grep "c-d: test value 2" stdout' 0 ignore null
+    atf_check -s eq:0 -o save:stdout -e ignore "${h} normalize"
+    atf_check -s eq:0 -o ignore -e empty 'grep "a.b: test value 1" stdout'
+    atf_check -s eq:0 -o ignore -e empty 'grep "c-d: test value 2" stdout'
 }
 
 atf_init_test_cases()

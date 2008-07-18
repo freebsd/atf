@@ -69,12 +69,12 @@ Content-Type: application/X-atf-config; version="1"
 3rd = "sw common"
 4th = "sw common"
 EOF
-    atf_check "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper" \
-              0 stdout ignore
-    atf_check "grep '1st: sw common' stdout" 0 ignore ignore
-    atf_check "grep '2nd: sw common' stdout" 0 ignore ignore
-    atf_check "grep '3rd: sw common' stdout" 0 ignore ignore
-    atf_check "grep '4th: sw common' stdout" 0 ignore ignore
+    atf_check -s eq:0 -o save:stdout -e ignore \
+        "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper"
+    atf_check -s eq:0 -o ignore -e ignore "grep '1st: sw common' stdout"
+    atf_check -s eq:0 -o ignore -e ignore "grep '2nd: sw common' stdout"
+    atf_check -s eq:0 -o ignore -e ignore "grep '3rd: sw common' stdout"
+    atf_check -s eq:0 -o ignore -e ignore "grep '4th: sw common' stdout"
 
     echo "Second: read system-wide <test-suite>.conf."
     cat >etc/atf.conf <<EOF
@@ -82,12 +82,12 @@ Content-Type: application/X-atf-config; version="1"
 
 1st = "sw atf"
 EOF
-    atf_check "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper" \
-              0 stdout ignore
-    atf_check "grep '1st: sw atf' stdout" 0 ignore ignore
-    atf_check "grep '2nd: sw common' stdout" 0 ignore ignore
-    atf_check "grep '3rd: sw common' stdout" 0 ignore ignore
-    atf_check "grep '4th: sw common' stdout" 0 ignore ignore
+    atf_check -s eq:0 -o save:stdout -e ignore \
+        "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper"
+    atf_check -s eq:0 -o ignore -e ignore "grep '1st: sw atf' stdout"
+    atf_check -s eq:0 -o ignore -e ignore "grep '2nd: sw common' stdout"
+    atf_check -s eq:0 -o ignore -e ignore "grep '3rd: sw common' stdout"
+    atf_check -s eq:0 -o ignore -e ignore "grep '4th: sw common' stdout"
 
     echo "Third: read user-specific common.conf."
     cat >.atf/common.conf <<EOF
@@ -95,12 +95,12 @@ Content-Type: application/X-atf-config; version="1"
 
 2nd = "us common"
 EOF
-    atf_check "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper" \
-              0 stdout ignore
-    atf_check "grep '1st: sw atf' stdout" 0 ignore ignore
-    atf_check "grep '2nd: us common' stdout" 0 ignore ignore
-    atf_check "grep '3rd: sw common' stdout" 0 ignore ignore
-    atf_check "grep '4th: sw common' stdout" 0 ignore ignore
+    atf_check -s eq:0 -o save:stdout -e ignore \
+        "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper"
+    atf_check -s eq:0 -o ignore -e ignore "grep '1st: sw atf' stdout"
+    atf_check -s eq:0 -o ignore -e ignore "grep '2nd: us common' stdout"
+    atf_check -s eq:0 -o ignore -e ignore "grep '3rd: sw common' stdout"
+    atf_check -s eq:0 -o ignore -e ignore "grep '4th: sw common' stdout"
 
     echo "Fourth: read user-specific <test-suite>.conf."
     cat >.atf/atf.conf <<EOF
@@ -108,12 +108,12 @@ Content-Type: application/X-atf-config; version="1"
 
 3rd = "us atf"
 EOF
-    atf_check "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper" \
-              0 stdout ignore
-    atf_check "grep '1st: sw atf' stdout" 0 ignore ignore
-    atf_check "grep '2nd: us common' stdout" 0 ignore ignore
-    atf_check "grep '3rd: us atf' stdout" 0 ignore ignore
-    atf_check "grep '4th: sw common' stdout" 0 ignore ignore
+    atf_check -s eq:0 -o save:stdout -e ignore \
+        "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper"
+    atf_check -s eq:0 -o ignore -e ignore "grep '1st: sw atf' stdout"
+    atf_check -s eq:0 -o ignore -e ignore "grep '2nd: us common' stdout"
+    atf_check -s eq:0 -o ignore -e ignore "grep '3rd: us atf' stdout"
+    atf_check -s eq:0 -o ignore -e ignore "grep '4th: sw common' stdout"
 }
 
 atf_test_case vflag
@@ -127,12 +127,13 @@ vflag_body()
     create_helper atf_run_testvar
 
     echo "Checking that 'testvar' is not defined."
-    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 1 ignore ignore
+    atf_check -s eq:1 -o ignore -e ignore \
+        "ATF_CONFDIR=$(pwd)/etc atf-run helper"
 
     echo "Checking that defining 'testvar' trough '-v' works."
-    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run -v testvar='a value' helper" \
-              0 stdout ignore
-    atf_check "grep 'testvar: a value' stdout" 0 ignore ignore
+    atf_check -s eq:0 -o save:stdout -e ignore \
+        "ATF_CONFDIR=$(pwd)/etc atf-run -v testvar='a value' helper"
+    atf_check -s eq:0 -o ignore -e ignore "grep 'testvar: a value' stdout"
 
     echo "Checking that defining 'testvar' trough the configuration" \
          "file works."
@@ -142,14 +143,16 @@ Content-Type: application/X-atf-config; version="1"
 
 testvar = "value in conf file"
 EOF
-    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
-    atf_check "grep 'testvar: value in conf file' stdout" 0 ignore ignore
+    atf_check -s eq:0 -o save:stdout -e ignore \
+              "ATF_CONFDIR=$(pwd)/etc atf-run helper"
+    atf_check -s eq:0 -o ignore -e ignore \
+              "grep 'testvar: value in conf file' stdout"
 
     echo "Checking that defining 'testvar' trough -v overrides the" \
          "configuration file."
-    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run -v testvar='a value' helper" \
-              0 stdout ignore
-    atf_check "grep 'testvar: a value' stdout" 0 ignore ignore
+    atf_check -s eq:0 -o save:stdout -e ignore \
+        "ATF_CONFDIR=$(pwd)/etc atf-run -v testvar='a value' helper"
+    atf_check -s eq:0 -o ignore -e ignore "grep 'testvar: a value' stdout"
 }
 
 atf_test_case atffile
@@ -163,12 +166,15 @@ atffile_body()
     create_helper atf_run_testvar
 
     echo "Checking that 'testvar' is not defined."
-    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 1 ignore ignore
+    atf_check -s eq:1 -o ignore -e ignore \
+              "ATF_CONFDIR=$(pwd)/etc atf-run helper"
 
     echo "Checking that defining 'testvar' trough the Atffile works."
     echo 'conf: testvar = "a value"' >>Atffile
-    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
-    atf_check "grep 'testvar: a value' stdout" 0 ignore ignore
+    atf_check -s eq:0 -o save:stdout -e ignore \
+              "ATF_CONFDIR=$(pwd)/etc atf-run helper"
+    atf_check -s eq:0 -o ignore -e ignore \
+              "grep 'testvar: a value' stdout"
 
     echo "Checking that defining 'testvar' trough the configuration" \
          "file overrides the one in the Atffile."
@@ -178,15 +184,17 @@ Content-Type: application/X-atf-config; version="1"
 
 testvar = "value in conf file"
 EOF
-    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run helper" 0 stdout ignore
-    atf_check "grep 'testvar: value in conf file' stdout" 0 ignore ignore
+    atf_check -s eq:0 -o save:stdout -e ignore \
+              "ATF_CONFDIR=$(pwd)/etc atf-run helper"
+    atf_check -s eq:0 -o ignore -e ignore \
+              "grep 'testvar: value in conf file' stdout"
     rm -rf etc
 
     echo "Checking that defining 'testvar' trough -v overrides the" \
          "one in the Atffile."
-    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run -v testvar='new value' helper" \
-              0 stdout ignore
-    atf_check "grep 'testvar: new value' stdout" 0 ignore ignore
+    atf_check -s eq:0 -o save:stdout -e ignore \
+        "ATF_CONFDIR=$(pwd)/etc atf-run -v testvar='new value' helper"
+    atf_check -s eq:0 -o ignore -e ignore "grep 'testvar: new value' stdout"
 }
 
 atf_test_case atffile_recursive
@@ -205,12 +213,12 @@ atffile_recursive_body()
     echo "Checking that 'testvar' is not inherited."
     create_atffile dir
     echo 'conf: testvar = "a value"' >> Atffile
-    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run" 1 ignore ignore
+    atf_check -s eq:1 -o ignore -e ignore "ATF_CONFDIR=$(pwd)/etc atf-run"
 
     echo "Checking that defining 'testvar' in the correct Atffile works."
     echo 'conf: testvar = "a value"' >>dir/Atffile
-    atf_check "ATF_CONFDIR=$(pwd)/etc atf-run" 0 stdout ignore
-    atf_check "grep 'testvar: a value' stdout" 0 ignore ignore
+    atf_check -s eq:0 -o save:stdout -e ignore "ATF_CONFDIR=$(pwd)/etc atf-run"
+    atf_check -s eq:0 -o ignore -e ignore "grep 'testvar: a value' stdout"
 }
 
 atf_test_case fds
@@ -222,11 +230,11 @@ fds_body()
 {
     create_helper atf_run_fds
 
-    atf_check "atf-run" 0 stdout null
-    atf_check "grep '^tc-so:msg1 to stdout$' stdout" 0 ignore null
-    atf_check "grep '^tc-so:msg2 to stdout$' stdout" 0 ignore null
-    atf_check "grep '^tc-se:msg1 to stderr$' stdout" 0 ignore null
-    atf_check "grep '^tc-se:msg2 to stderr$' stdout" 0 ignore null
+    atf_check -s eq:0 -o save:stdout -e empty "atf-run"
+    atf_check -s eq:0 -o ignore -e empty "grep '^tc-so:msg1 to stdout$' stdout"
+    atf_check -s eq:0 -o ignore -e empty "grep '^tc-so:msg2 to stdout$' stdout"
+    atf_check -s eq:0 -o ignore -e empty "grep '^tc-se:msg1 to stderr$' stdout"
+    atf_check -s eq:0 -o ignore -e empty "grep '^tc-se:msg2 to stderr$' stdout"
 }
 
 atf_test_case broken_tp_hdr
@@ -250,8 +258,9 @@ EOF
 
     create_atffile helper
 
-    atf_check "atf-run" 1 stdout null
-    atf_check "grep '^tp-end: helper, .*Line 1.*Line 2' stdout" 0 ignore null
+    atf_check -s eq:1 -o save:stdout -e empty "atf-run"
+    atf_check -s eq:0 -o ignore -e empty \
+              "grep '^tp-end: helper, .*Line 1.*Line 2' stdout"
 }
 
 atf_test_case zero_tcs
@@ -273,9 +282,9 @@ EOF
 
     create_atffile helper
 
-    atf_check "atf-run" 1 stdout null
-    atf_check "grep '^tp-end: helper, ' stdout" 0 stdout null
-    atf_check "grep '0 test cases' stdout" 0 ignore null
+    atf_check -s eq:1 -o save:stdout -e empty "atf-run"
+    atf_check -s eq:0 -o save:stdout -e empty "grep '^tp-end: helper, ' stdout"
+    atf_check -s eq:0 -o ignore -e empty "grep '0 test cases' stdout"
 }
 
 atf_test_case exit_codes
@@ -299,9 +308,10 @@ EOF
 
     create_atffile helper
 
-    atf_check "atf-run" 1 stdout null
-    atf_check "grep '^tp-end: helper, ' stdout" 0 stdout null
-    atf_check "grep 'success.*test cases failed' stdout" 0 ignore null
+    atf_check -s eq:1 -o save:stdout -e empty "atf-run"
+    atf_check -s eq:0 -o save:stdout -e empty "grep '^tp-end: helper, ' stdout"
+    atf_check -s eq:0 -o ignore -e empty \
+              "grep 'success.*test cases failed' stdout"
 }
 
 atf_test_case signaled
@@ -325,9 +335,9 @@ EOF
 
     create_atffile helper
 
-    atf_check "atf-run" 1 stdout null
-    atf_check "grep '^tp-end: helper, ' stdout" 0 stdout null
-    atf_check "grep 'received signal 9' stdout" 0 ignore null
+    atf_check -s eq:1 -o save:stdout -e empty "atf-run"
+    atf_check -s eq:0 -o save:stdout -e empty "grep '^tp-end: helper, ' stdout"
+    atf_check -s eq:0 -o ignore -e empty "grep 'received signal 9' stdout"
 }
 
 atf_test_case no_reason
@@ -353,9 +363,11 @@ EOF
 
         create_atffile helper
 
-        atf_check "atf-run" 1 stdout null
-        atf_check "grep '^tp-end: helper, ' stdout" 0 stdout null
-        atf_check "grep 'Unexpected.*NEWLINE' stdout" 0 ignore null
+        atf_check -s eq:1 -o save:stdout -e empty "atf-run"
+        atf_check -s eq:0 -o save:stdout -e empty \
+                  "grep '^tp-end: helper, ' stdout"
+        atf_check -s eq:0 -o ignore -e empty \
+                  "grep 'Unexpected.*NEWLINE' stdout"
     done
 }
 
@@ -374,9 +386,9 @@ hooks_body()
     mkdir .atf
 
     echo "Checking default hooks"
-    atf_check "ATF_CONFDIR=$(pwd)/atf atf-run" 0 stdout null
-    atf_check "grep '^info: time.start, ' stdout" 0 ignore null
-    atf_check "grep '^info: time.end, ' stdout" 0 ignore null
+    atf_check -s eq:0 -o save:stdout -e empty "ATF_CONFDIR=$(pwd)/atf atf-run"
+    atf_check -s eq:0 -o ignore -e empty "grep '^info: time.start, ' stdout"
+    atf_check -s eq:0 -o ignore -e empty "grep '^info: time.end, ' stdout"
 
     echo "Checking the system-wide info_start hook"
     cat >atf/atf-run.hooks <<EOF
@@ -385,10 +397,10 @@ info_start_hook()
     atf_tps_writer_info "test" "sw value"
 }
 EOF
-    atf_check "ATF_CONFDIR=$(pwd)/atf atf-run" 0 stdout null
-    atf_check "grep '^info: test, sw value' stdout" 0 ignore null
-    atf_check "grep '^info: time.start, ' stdout" 1 null null
-    atf_check "grep '^info: time.end, ' stdout" 0 ignore null
+    atf_check -s eq:0 -o save:stdout -e empty "ATF_CONFDIR=$(pwd)/atf atf-run"
+    atf_check -s eq:0 -o ignore -e empty "grep '^info: test, sw value' stdout"
+    atf_check -s eq:1 -o empty -e empty "grep '^info: time.start, ' stdout"
+    atf_check -s eq:0 -o ignore -e empty "grep '^info: time.end, ' stdout"
 
     echo "Checking the user-specific info_start hook"
     cat >.atf/atf-run.hooks <<EOF
@@ -397,10 +409,11 @@ info_start_hook()
     atf_tps_writer_info "test" "user value"
 }
 EOF
-    atf_check "ATF_CONFDIR=$(pwd)/atf atf-run" 0 stdout null
-    atf_check "grep '^info: test, user value' stdout" 0 ignore null
-    atf_check "grep '^info: time.start, ' stdout" 1 null null
-    atf_check "grep '^info: time.end, ' stdout" 0 ignore null
+    atf_check -s eq:0 -o save:stdout -e empty "ATF_CONFDIR=$(pwd)/atf atf-run"
+    atf_check -s eq:0 -o ignore -e empty \
+              "grep '^info: test, user value' stdout"
+    atf_check -s eq:1 -o empty -e empty "grep '^info: time.start, ' stdout"
+    atf_check -s eq:0 -o ignore -e empty "grep '^info: time.end, ' stdout"
 
     rm atf/atf-run.hooks
     rm .atf/atf-run.hooks
@@ -412,10 +425,10 @@ info_end_hook()
     atf_tps_writer_info "test" "sw value"
 }
 EOF
-    atf_check "ATF_CONFDIR=$(pwd)/atf atf-run" 0 stdout null
-    atf_check "grep '^info: time.start, ' stdout" 0 ignore null
-    atf_check "grep '^info: time.end, ' stdout" 1 null null
-    atf_check "grep '^info: test, sw value' stdout" 0 ignore null
+    atf_check -s eq:0 -o save:stdout -e empty "ATF_CONFDIR=$(pwd)/atf atf-run"
+    atf_check -s eq:0 -o ignore -e empty "grep '^info: time.start, ' stdout"
+    atf_check -s eq:1 -o empty -e empty "grep '^info: time.end, ' stdout"
+    atf_check -s eq:0 -o ignore -e empty "grep '^info: test, sw value' stdout"
 
     echo "Checking the user-specific info_end hook"
     cat >.atf/atf-run.hooks <<EOF
@@ -424,10 +437,11 @@ info_end_hook()
     atf_tps_writer_info "test" "user value"
 }
 EOF
-    atf_check "ATF_CONFDIR=$(pwd)/atf atf-run" 0 stdout null
-    atf_check "grep '^info: time.start, ' stdout" 0 ignore null
-    atf_check "grep '^info: time.end, ' stdout" 1 null null
-    atf_check "grep '^info: test, user value' stdout" 0 ignore null
+    atf_check -s eq:0 -o save:stdout -e empty "ATF_CONFDIR=$(pwd)/atf atf-run"
+    atf_check -s eq:0 -o ignore -e empty "grep '^info: time.start, ' stdout"
+    atf_check -s eq:1 -o empty -e empty "grep '^info: time.end, ' stdout"
+    atf_check -s eq:0 -o ignore -e empty \
+              "grep '^info: test, user value' stdout"
 }
 
 atf_init_test_cases()
