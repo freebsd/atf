@@ -27,6 +27,11 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+extern "C" {
+#include <sys/types.h>
+#include <sys/wait.h>
+}
+
 #include <cerrno>
 #include <cstdlib>
 #include <fstream>
@@ -116,7 +121,9 @@ atf_check::print_diff(const atf::fs::path &p1, const atf::fs::path &p2)
     const
 {
     std::string cmd("diff -u \"" + p1.str() + "\" \"" + p2.str() + "\" >&2");
-    ::system(cmd.c_str());
+    int exitcode = std::system(cmd.c_str());
+    if (!WIFEXITED(exitcode) || WEXITSTATUS(exitcode) != EXIT_SUCCESS)
+        std::cerr << "Failed to run diff(3)" << std::endl;
 }
 
 void
