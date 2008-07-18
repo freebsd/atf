@@ -18,6 +18,12 @@ Status:       Experimental
 
 * atf-exec's -g option and atf-killpg are gone due to the previous change.
 
+* Added the atf-check(1) tool, a program that executes a given command and
+  checks its exit code against a known value and allows the management of
+  stdout and stderr in multiple ways.  This replaces the previous atf_check
+  function in the atf-sh library and exposes this functionality to both
+  atf-c and atf-c++.
+
 
 Version 0.5
 ===========

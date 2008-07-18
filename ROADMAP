@@ -19,10 +19,6 @@ Plans for 0.6
 * Properly document the libraries: i.e. one page per module, detailed
   information of each function and type, etc.  At the very least atf-c.
 
-* Add a binary atf-check tool that replaces atf-sh's atf_check function.
-  I suspect this will speed things up considerably, and will also expose
-  this extremely useful functionality to C/C++ test programs.
-
 * Add support for ATF_REQUIRE, making ATF_CHECK non-fatal.  See Boost.Test
   for details on this idea.  Most useful for unit tests.
 
@@ -77,9 +73,6 @@ Plans for pre-1.0
 * Improve error reporting: aside from clarifying error messages, this also
   implies adding more error cases to give them more semantic meaning at the
   source code level..
-
-* Add an atf_check-like function to the C++ binding to allow easy testing
-  of executables.
 
 * Make the shell library work with 'set -e'?
 
