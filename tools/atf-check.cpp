@@ -43,6 +43,7 @@ extern "C" {
 #include "atf-c++/application.hpp"
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/check.hpp"
+#include "atf-c++/config.hpp"
 #include "atf-c++/fs.hpp"
 #include "atf-c++/io.hpp"
 #include "atf-c++/sanity.hpp"
@@ -62,6 +63,8 @@ class atf_check : public atf::application::app {
         sc_not_equal,
         sc_ignore
     };
+
+    bool m_xflag;
 
     output_check_t m_stdout_check;
     std::string m_stdout_arg;
@@ -100,6 +103,7 @@ const char* atf_check::m_description =
 
 atf_check::atf_check(void) :
     app(m_description, "atf-check(1)", "atf(7)"),
+    m_xflag(false),
     m_stdout_check(oc_empty),
     m_stderr_check(oc_empty),
     m_status_check(sc_equal),
@@ -292,11 +296,13 @@ atf_check::specific_options(void)
     options_set opts;
 
     opts.insert(option('s', "qual:value", "Handle status. Qualifier "
-                           "must be one of: ignore eq:<num> ne:<num>"));
+               "must be one of: ignore eq:<num> ne:<num>"));
     opts.insert(option('o', "action:arg", "Handle stdout. Action must be "
                "one of: empty ignore file:<path> inline:<val> save:<path>"));
     opts.insert(option('e', "action:arg", "Handle stderr. Action must be "
                "one of: empty ignore file:<path> inline:<val> save:<path>"));
+    opts.insert(option('x', "", "Execute command directly by execv(3), no as "
+               "a shell command"));
 
     return opts;
 }
@@ -400,6 +406,10 @@ atf_check::process_option(int ch, const char* arg)
         process_option_e(arg);
         break;
 
+    case 'x':
+        m_xflag = true;
+        break;
+
     default:
         UNREACHABLE;
     }
@@ -411,11 +421,35 @@ atf_check::main(void)
     if (m_argc < 1)
         throw atf::application::usage_error("No command specified");
 
+    char *const *argv;
+    char *sh_argv[4];
     int status = EXIT_FAILURE;
 
-    std::cerr << "Checking command [" << m_argv[0] << "]" << std::endl;
+    if (m_xflag)
+        argv = m_argv;
+    else {
+        sh_argv[0] = strdup(atf::config::get("atf_shell").c_str());
+        sh_argv[1] = strdup("-c");
+        sh_argv[2] = strdup(m_argv[0]);
+        sh_argv[3] = NULL;
+        if (sh_argv[0] == NULL || sh_argv[1] == NULL || sh_argv[2] == NULL)
+            throw atf::system_error("main", "strdup(3) failed", errno);
 
-    atf::check::check_result r(m_argv[0]);
+        argv = sh_argv;
+    }
+
+    std::cout << "Executing command [ ";
+    for (int i = 0; argv[i] != NULL; ++i)
+        std::cout << argv[i] << " ";
+    std::cout << "]" << std::endl;
+
+    atf::check::check_result r(argv);
+
+    if (!m_xflag) {
+        free(sh_argv[0]);
+        free(sh_argv[1]);
+        free(sh_argv[2]);
+    }
 
     if ((run_status_check(r) == false) ||
         (run_output_check(r, "stderr") == false) ||

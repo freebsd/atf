@@ -62,7 +62,7 @@ public:
     //!
     //! \brief Executes given command.
     //!
-    check_result(const std::string &);
+    check_result(char * const *);
 
     //!
     //! \brief Destroys object and removes all managed files.

@@ -33,9 +33,9 @@
 namespace impl = atf::check;
 #define IMPL_NAME "atf::check"
 
-impl::check_result::check_result(const std::string &command)
+impl::check_result::check_result(char* const* argv)
 {
-    atf_error_t err = atf_check_exec(&m_result, command.c_str());
+    atf_error_t err = atf_check_exec(&m_result, argv);
 
     if (atf_is_error(err))
         throw_atf_error(err);

@@ -44,7 +44,7 @@
  * --------------------------------------------------------------------- */
 
 atf_error_t
-atf_check_exec(atf_check_result_t *r, const char *command)
+atf_check_exec(atf_check_result_t *r, char *const *argv)
 {
     int fd_out, fd_err;
     int status;
@@ -82,7 +82,7 @@ atf_check_exec(atf_check_result_t *r, const char *command)
     } else if (pid == 0) {
         dup2(fd_out, STDOUT_FILENO);
         dup2(fd_err, STDERR_FILENO);
-        if (execl("/bin/sh", "/bin/sh", "-c", command, NULL) == -1)
+        if (execv(argv[0], argv) == -1)
             exit(255);
     };
 
@@ -97,7 +97,7 @@ atf_check_exec(atf_check_result_t *r, const char *command)
 
     if (!WIFEXITED(status)) {
         err = atf_libc_error(errno, "Error while executing "
-                             "command: '%s'", command);
+                             "command: '%s'", argv[0]);
         goto out_wifexited;
     }
 

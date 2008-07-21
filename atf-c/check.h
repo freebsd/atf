@@ -48,7 +48,7 @@ struct atf_check_result {
 typedef struct atf_check_result atf_check_result_t;
 
 /* Construtors and destructors */
-atf_error_t atf_check_exec(atf_check_result_t *, const char *);
+atf_error_t atf_check_exec(atf_check_result_t *, char * const *);
 void atf_check_result_fini(atf_check_result_t *);
 
 /* Getters */
