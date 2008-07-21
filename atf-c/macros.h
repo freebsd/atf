@@ -125,12 +125,12 @@
     ATF_CHECK_MSG((x) == (y), "%s != %s", #x, #y)
 
 #define ATF_CHECK_EQUAL_MSG(x, y, fmt, ...) \
-    ATF_CHECK_MSG((x) == (y), "%s != %s: " fmt, #x, #y, ##__VA_ARGS__)
+    ATF_CHECK_MSG((x) == (y), fmt, ##__VA_ARGS__)
 
 #define ATF_CHECK_STR_EQUAL(x, y) \
-    ATF_CHECK_MSG(strcmp(x, y) == 0, "\"%s\" != \"%s\"", #x, #y)
+    ATF_CHECK_MSG(strcmp(x, y) == 0, "%s != %s", #x, #y)
 
 #define ATF_CHECK_STR_EQUAL_MSG(x, y, fmt, ...) \
-    ATF_CHECK_MSG(strcmp(x, y) == 0, "\"%s\" != \"%s\"", #x, #y, ##__VA_ARGS__)
+    ATF_CHECK_MSG(strcmp(x, y) == 0, fmt, ##__VA_ARGS__)
 
 #endif /* !defined(ATF_C_MACROS_H) */
