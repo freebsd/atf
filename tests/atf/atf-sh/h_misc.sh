@@ -38,7 +38,7 @@ atf_check_info_ok_head()
 }
 atf_check_info_ok_body()
 {
-    atf_check -s eq:0 -o empty -e empty 'true'
+    atf_check -s eq:0 -o empty -e empty true
 }
 
 atf_test_case atf_check_info_fail
@@ -48,7 +48,7 @@ atf_check_info_fail_head()
 }
 atf_check_info_fail_body()
 {
-    atf_check -s eq:1 -o empty -e empty 'false'
+    atf_check -s eq:1 -o empty -e empty false
 }
 
 atf_test_case atf_check_expout_mismatch
@@ -61,7 +61,7 @@ atf_check_expout_mismatch_body()
     cat >expout <<SECONDEOF
 foo
 SECONDEOF
-    atf_check -s eq:0 -o file:expout -e empty 'echo bar'
+    atf_check -s eq:0 -o file:expout -e empty echo bar
 }
 
 atf_test_case atf_check_experr_mismatch
@@ -74,7 +74,7 @@ atf_check_experr_mismatch_body()
     cat >experr <<SECONDEOF
 foo
 SECONDEOF
-    atf_check -s eq:0 -o empty -e file:experr 'echo bar 1>&2'
+    atf_check -s eq:0 -o empty -e file:experr -x 'echo bar 1>&2'
 }
 
 atf_test_case atf_check_null_stdout
@@ -84,7 +84,7 @@ atf_check_null_stdout_head()
 }
 atf_check_null_stdout_body()
 {
-    atf_check -s eq:0 -o empty -e empty 'echo "These are the contents"'
+    atf_check -s eq:0 -o empty -e empty echo "These are the contents"
 }
 
 atf_test_case atf_check_null_stderr
@@ -94,7 +94,7 @@ atf_check_null_stderr_head()
 }
 atf_check_null_stderr_body()
 {
-    atf_check -s eq:0 -o empty -e empty 'echo "These are the contents" 1>&2'
+    atf_check -s eq:0 -o empty -e empty -x 'echo "These are the contents" 1>&2'
 }
 
 atf_test_case atf_check_equal_ok

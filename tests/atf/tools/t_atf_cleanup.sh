@@ -36,9 +36,9 @@ file_head()
 }
 file_body()
 {
-    atf_check -s eq:0 -o empty -e empty 'touch foo'
-    atf_check -s eq:0 -o empty -e empty "${cleanup} foo"
-    atf_check -s eq:1 -o empty -e empty 'test -e foo'
+    atf_check -s eq:0 -o empty -e empty touch foo
+    atf_check -s eq:0 -o empty -e empty "${cleanup}" foo
+    atf_check -s eq:1 -o empty -e empty test -e foo
 }
 
 atf_test_case dir_empty
@@ -48,9 +48,9 @@ dir_empty_head()
 }
 dir_empty_body()
 {
-    atf_check -s eq:0 -o empty -e empty 'mkdir foo'
-    atf_check -s eq:0 -o empty -e empty "${cleanup} foo"
-    atf_check -s eq:1 -o empty -e empty 'test -e foo'
+    atf_check -s eq:0 -o empty -e empty mkdir foo
+    atf_check -s eq:0 -o empty -e empty "${cleanup}" foo
+    atf_check -s eq:1 -o empty -e empty test -e foo
 }
 
 atf_test_case dir_full
@@ -60,31 +60,12 @@ dir_full_head()
 }
 dir_full_body()
 {
-    atf_check -s eq:0 -o empty -e empty 'mkdir foo'
-    atf_check -s eq:0 -o empty -e empty 'mkdir foo/bar'
-    atf_check -s eq:0 -o empty -e empty 'touch foo/bar/baz'
-    atf_check -s eq:0 -o empty -e empty 'touch foo/baz'
-    atf_check -s eq:0 -o empty -e empty "${cleanup} foo"
-    atf_check -s eq:1 -o empty -e empty 'test -e foo'
-}
-
-mount_tmpfs_portable()
-{
-    platform=$(uname)
-    case ${platform} in
-    Linux|NetBSD)
-        mount -t tmpfs tmpfs ${1}
-        ;;
-    FreeBSD)
-        mdmfs -s 16m md ${1}
-        ;;
-    SunOS)
-        mount -F tmpfs tmpfs $(pwd)/${1}
-        ;;
-    *)
-        atf_fail "Internal error in test program"
-        ;;
-    esac
+    atf_check -s eq:0 -o empty -e empty mkdir foo
+    atf_check -s eq:0 -o empty -e empty mkdir foo/bar
+    atf_check -s eq:0 -o empty -e empty touch foo/bar/baz
+    atf_check -s eq:0 -o empty -e empty touch foo/baz
+    atf_check -s eq:0 -o empty -e empty "${cleanup}" foo
+    atf_check -s eq:1 -o empty -e empty test -e foo
 }
 
 atf_test_case mount
@@ -99,16 +80,17 @@ mount_body()
     platform=$(uname)
     case ${platform} in
     Linux|FreeBSD|NetBSD|SunOS)
+        mount_cmd="$(atf_get_srcdir)/h_mount_tmpfs.sh"
         mkdir foo
         mkdir foo/bar
         mkdir foo/bar/mnt
-        atf_check -s eq:0 -o empty -e empty 'mount_tmpfs_portable foo/bar/mnt'
+        atf_check -s eq:0 -o empty -e empty -x "${mount_cmd} foo/bar/mnt"
         mkdir foo/baz
-        atf_check -s eq:0 -o empty -e empty 'mount_tmpfs_portable foo/baz'
+        atf_check -s eq:0 -o empty -e empty -x "${mount_cmd} foo/baz"
         mkdir foo/baz/foo
         mkdir foo/baz/foo/bar
-        atf_check -s eq:0 -o empty -e empty \
-                  'mount_tmpfs_portable foo/baz/foo/bar'
+        atf_check -s eq:0 -o empty -e empty -x \
+                  "${mount_cmd} foo/baz/foo/bar"
         ;;
     *)
         # XXX Possibly specify in meta-data too.
@@ -116,10 +98,10 @@ mount_body()
         ;;
     esac
 
-    atf_check -s eq:0 -o empty -e empty "${cleanup} foo"
+    atf_check -s eq:0 -o empty -e empty "${cleanup}" foo
     mount | grep $(pwd)/foo && \
         atf_fail "Some file systems remain mounted"
-    atf_check -s eq:1 -o empty -e empty "test -d foo"
+    atf_check -s eq:1 -o empty -e empty test -d foo
 }
 
 atf_test_case symlink
@@ -135,11 +117,12 @@ symlink_body()
     platform=$(uname)
     case ${platform} in
     Linux|FreeBSD|NetBSD|SunOS)
-        atf_check -s eq:0 -o empty -e empty 'mkdir foo'
-        atf_check -s eq:0 -o empty -e empty 'mkdir foo/bar'
-        atf_check -s eq:0 -o empty -e empty 'mount_tmpfs_portable foo/bar'
-        atf_check -s eq:0 -o empty -e empty 'touch a'
-        atf_check -s eq:0 -o empty -e empty 'ln -s $(pwd)/a foo/bar'
+        mount_cmd="$(atf_get_srcdir)/h_mount_tmpfs.sh"
+        atf_check -s eq:0 -o empty -e empty mkdir foo
+        atf_check -s eq:0 -o empty -e empty mkdir foo/bar
+        atf_check -s eq:0 -o empty -e empty -x "${mount_cmd} foo/bar"
+        atf_check -s eq:0 -o empty -e empty touch a
+        atf_check -s eq:0 -o empty -e empty ln -s "$(pwd)/a" foo/bar
         ;;
     *)
         # XXX Possibly specify in meta-data too.
@@ -147,10 +130,10 @@ symlink_body()
         ;;
     esac
 
-    atf_check -s eq:0 -o empty -e empty "${cleanup} foo"
+    atf_check -s eq:0 -o empty -e empty ${cleanup} foo
     mount | grep $(pwd)/foo && \
         atf_fail "Some file systems remain mounted"
-    atf_check -s eq:1 -o empty -e empty "test -d foo"
+    atf_check -s eq:1 -o empty -e empty test -d foo
 }
 
 atf_init_test_cases()

@@ -39,10 +39,10 @@ mangle_fds_head()
 mangle_fds_body()
 {
     for h in $(get_helpers); do
-        atf_check -s eq:0 -o ignore -e ignore \
+        atf_check -s eq:0 -o ignore -e ignore -x \
                   "${h} -s $(atf_get_srcdir) -r3 -v resfd=3 \
                    fork_mangle_fds 3>resout"
-        atf_check -s eq:0 -o ignore -e empty "grep 'passed' resout"
+        atf_check -s eq:0 -o ignore -e empty grep 'passed' resout
     done
 }
 
@@ -67,7 +67,7 @@ stop_body()
         echo "Wrote done file"
         kill -CONT ${pid}
         wait ${ppid}
-        atf_check -s eq:0 -o ignore -e empty "grep 'fork_stop, passed' resout"
+        atf_check -s eq:0 -o ignore -e empty grep 'fork_stop, passed' resout
         rm -f pid done
     done
 }
@@ -81,14 +81,14 @@ umask_head()
 umask_body()
 {
     echo 0022 >expout
-    atf_check -s eq:0 -o file:expout -e empty 'umask'
+    atf_check -s eq:0 -o file:expout -e empty -x "umask"
 
     for h in $(get_helpers); do
         umask 0000
-        atf_check -s eq:0 -o save:stdout -e ignore \
+        atf_check -s eq:0 -o save:stdout -e ignore -x \
                   "${h} -s $(atf_get_srcdir) -r3 fork_umask 3>resout"
-        atf_check -s eq:0 -o ignore -e empty "grep 'umask: 0022' stdout"
-        atf_check -s eq:0 -o ignore -e empty "grep 'passed' resout"
+        atf_check -s eq:0 -o ignore -e empty grep 'umask: 0022' stdout
+        atf_check -s eq:0 -o ignore -e empty grep 'passed' resout
         umask 0022
     done
 }

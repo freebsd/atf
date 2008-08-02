@@ -45,16 +45,16 @@ def_undef_body()
     done
 
     for h in $(get_helpers); do
-        atf_check -s eq:0 -o save:stdout -e ignore \
+        atf_check -s eq:0 -o save:stdout -e ignore -x \
                   "${mangleenv} ${h} -s $(atf_get_srcdir) -r3 \
                    env_list 3>resout"
 
         for v in ${undef_vars}; do
-            atf_check -s eq:1 -o empty -e empty "grep '^${v}=' stdout"
+            atf_check -s eq:1 -o empty -e empty grep "^${v}=" stdout
         done
 
         for v in ${def_vars}; do
-            atf_check -s eq:0 -o ignore -e empty "grep '^${v}=' stdout"
+            atf_check -s eq:0 -o ignore -e empty grep "^${v}=" stdout
         done
     done
 }
@@ -67,8 +67,8 @@ home_head()
 home_body()
 {
     for h in ${h_c} ${h_cpp} ${h_sh}; do
-        atf_check "HOME=foo ${h} -s $(atf_get_srcdir) env_home" \
-                  0 ignore ignore
+        atf_check -s eq:0 -o ignore -e ignore -x \
+                  "HOME=foo ${h} -s $(atf_get_srcdir) env_home"
     done
 }
 

@@ -39,11 +39,11 @@ list_all_head()
 }
 list_all_body()
 {
-    atf_check -s eq:0 -o save:stdout -e empty "atf-config"
+    atf_check -s eq:0 -o save:stdout -e empty atf-config
     atf_check -s eq:0 -o empty -e empty \
-              "test $(wc -l stdout | awk '{ print $1 }') = ${all_vars_no}"
+              test "$(wc -l stdout | awk '{ print $1 }')" = "${all_vars_no}"
     for v in ${all_vars}; do
-        atf_check -s eq:0 -o ignore -e empty "grep ${v} stdout"
+        atf_check -s eq:0 -o ignore -e empty grep "${v}" stdout
     done
 }
 
@@ -55,10 +55,10 @@ query_one_head()
 query_one_body()
 {
     for v in ${all_vars}; do
-        atf_check -s eq:0 -o save:stdout -e empty "atf-config ${v}"
+        atf_check -s eq:0 -o save:stdout -e empty atf-config "${v}"
         atf_check -s eq:0 -o empty -e empty \
-                  "test $(wc -l stdout | awk '{ print $1 }') = 1"
-        atf_check -s eq:0 -o ignore -e empty "grep ${v} stdout"
+                  test "$(wc -l stdout | awk '{ print $1 }')" = 1
+        atf_check -s eq:0 -o ignore -e empty grep "${v}" stdout
     done
 }
 
@@ -71,13 +71,13 @@ query_one_terse_head()
 query_one_terse_body()
 {
     for v in ${all_vars}; do
-        atf_check -s eq:0 -o save:stdout -e empty "atf-config ${v}"
+        atf_check -s eq:0 -o save:stdout -e empty atf-config "${v}"
         atf_check -s eq:0 -o empty -e empty \
-                  "test $(wc -l stdout | awk '{ print $1 }') = 1"
-        atf_check -s eq:0 -o ignore -e empty "grep ${v} stdout"
-        atf_check -s eq:0 -o save:stdout -e empty "awk '{ print \$3 }' stdout"
-        atf_check -s eq:0 -o empty -e empty "mv stdout expout"
-        atf_check -s eq:0 -o file:expout -e empty "atf-config -t ${v}"
+                  test "$(wc -l stdout | awk '{ print $1 }')" = 1
+        atf_check -s eq:0 -o ignore -e empty grep "${v}" stdout
+        atf_check -s eq:0 -o save:stdout -e empty awk '{ print $3 }' stdout
+        atf_check -s eq:0 -o empty -e empty mv stdout expout
+        atf_check -s eq:0 -o file:expout -e empty atf-config -t "${v}"
     done
 }
 
@@ -89,11 +89,11 @@ query_multiple_head()
 query_multiple_body()
 {
     atf_check -s eq:0 -o save:stdout -e empty \
-              "atf-config atf_libexecdir atf_shell"
+              atf-config atf_libexecdir atf_shell
     atf_check -s eq:0 -o empty -e empty \
-                  "test $(wc -l stdout | awk '{ print $1 }') = 2"
-    atf_check -s eq:0 -o ignore -e empty "grep atf_libexecdir stdout"
-    atf_check -s eq:0 -o ignore -e empty "grep atf_shell stdout"
+              test "$(wc -l stdout | awk '{ print $1 }')" = 2
+    atf_check -s eq:0 -o ignore -e empty grep atf_libexecdir stdout
+    atf_check -s eq:0 -o ignore -e empty grep atf_shell stdout
 }
 
 atf_test_case query_unknown
@@ -104,9 +104,9 @@ query_unknown_head()
 }
 query_unknown_body()
 {
-    atf_check -s eq:1 -o empty -e save:stderr 'atf-config non_existent'
+    atf_check -s eq:1 -o empty -e save:stderr atf-config non_existent
     atf_check -s eq:0 -o ignore -e empty \
-              'grep "Unknown variable.*non_existent" stderr'
+              grep "Unknown variable.*non_existent" stderr
 }
 
 atf_test_case query_mixture
@@ -119,13 +119,13 @@ query_mixture_body()
 {
     for v in ${all_vars}; do
         atf_check -s eq:1 -o empty -e save:stderr \
-                  "atf-config ${v} non_existent"
+                  atf-config "${v}" non_existent
         atf_check -s eq:0 -o ignore -e empty \
-                  "grep 'Unknown variable.*non_existent' stderr"
+                  grep 'Unknown variable.*non_existent' stderr
         atf_check -s eq:1 -o empty -e save:stderr \
-                  "atf-config non_existent ${v}"
+                  atf-config non_existent "${v}"
         atf_check -s eq:0 -o ignore -e empty \
-                  "grep 'Unknown variable.*non_existent' stderr"
+                  grep 'Unknown variable.*non_existent' stderr
     done
 }
 
@@ -139,22 +139,22 @@ override_env_body()
 {
     for v in ${all_vars}; do
         V=$(echo ${v} | tr '[a-z]' '[A-Z]')
-        atf_check -s eq:0 -o save:stdout -e empty "${V}=testval atf-config"
-        atf_check -s eq:0 -o empty -e empty "mv stdout all"
+        atf_check -s eq:0 -o save:stdout -e empty -x "${V}=testval atf-config"
+        atf_check -s eq:0 -o empty -e empty mv stdout all
 
-        atf_check -s eq:0 -o save:stdout -e empty "grep '${v}' all"
-        atf_check -s eq:0 -o empty -e empty "mv stdout affected"
-        atf_check -s eq:0 -o save:stdout -e empty "grep -v '${v}' all"
-        atf_check -s eq:0 -o empty -e empty "mv stdout unaffected"
+        atf_check -s eq:0 -o save:stdout -e empty grep "${v}" all
+        atf_check -s eq:0 -o empty -e empty mv stdout affected
+        atf_check -s eq:0 -o save:stdout -e empty grep -v "${v}" all
+        atf_check -s eq:0 -o empty -e empty mv stdout unaffected
 
         atf_check -s eq:0 -o empty -e empty \
-                  "test $(wc -l affected | awk '{ print $1 }') = 1"
+                  test "$(wc -l affected | awk '{ print $1 }')" = 1
         atf_check -s eq:0 -o empty -e empty \
-                  "test $(wc -l unaffected | awk '{ print $1 }') = \
-                   $((${all_vars_no} -1))"
+                  test "$(wc -l unaffected | awk '{ print $1 }')" = \
+                   "$((${all_vars_no} -1))"
 
-        atf_check -s eq:0 -o ignore -e empty "grep '${v} : testval' affected"
-        atf_check -s eq:1 -o empty -e empty "grep 'testval' unaffected"
+        atf_check -s eq:0 -o ignore -e empty grep "${v} : testval" affected
+        atf_check -s eq:1 -o empty -e empty grep 'testval' unaffected
     done
 }
 
@@ -167,9 +167,9 @@ arch_head()
 }
 arch_body()
 {
-    atf_check -s eq:0 -o save:stdout -e empty "atf-config -t atf_arch"
+    atf_check -s eq:0 -o save:stdout -e empty atf-config -t atf_arch
     arch=$(cat stdout)
-    atf_check -s eq:0 -o save:stdout -e empty "atf-config -t atf_machine"
+    atf_check -s eq:0 -o save:stdout -e empty atf-config -t atf_machine
     machine=$(cat stdout)
     echo "Machine type ${machine}, architecture ${arch}"
 

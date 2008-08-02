@@ -44,18 +44,18 @@ EOF
     chmod +x helper.sh
 
     echo '' >expout
-    atf_check -s eq:0 -o file:expout -e empty "${atf_exec} ./helper.sh"
-    atf_check -s eq:0 -o file:expout -e empty "${atf_exec} -- ./helper.sh"
+    atf_check -s eq:0 -o file:expout -e empty ${atf_exec} ./helper.sh
+    atf_check -s eq:0 -o file:expout -e empty ${atf_exec} -- ./helper.sh
 
     echo 'arg1' >expout
-    atf_check -s eq:0 -o file:expout -e empty "${atf_exec} ./helper.sh arg1"
-    atf_check -s eq:0 -o file:expout -e empty "${atf_exec} -- ./helper.sh arg1"
+    atf_check -s eq:0 -o file:expout -e empty ${atf_exec} ./helper.sh arg1
+    atf_check -s eq:0 -o file:expout -e empty ${atf_exec} -- ./helper.sh arg1
 
     echo 'arg1 arg2' >expout
     atf_check -s eq:0 -o file:expout -e empty \
-              "${atf_exec} ./helper.sh arg1 arg2"
+              ${atf_exec} ./helper.sh arg1 arg2
     atf_check -s eq:0 -o file:expout -e empty \
-              "${atf_exec} -- ./helper.sh arg1 arg2"
+              ${atf_exec} -- ./helper.sh arg1 arg2
 }
 
 atf_test_case timeout_syntax
@@ -65,17 +65,17 @@ timeout_syntax_head()
 }
 timeout_syntax_body()
 {
-    atf_check -s eq:1 -o empty -e save:stderr "${atf_exec} -t '' true"
-    atf_check -s eq:0 -o ignore -e empty "grep 'Invalid.*secs:file' stderr"
+    atf_check -s eq:1 -o empty -e save:stderr ${atf_exec} -t '' true
+    atf_check -s eq:0 -o ignore -e empty grep 'Invalid.*secs:file' stderr
 
-    atf_check -s eq:1 -o empty -e save:stderr "${atf_exec} -t ':cookie' true"
-    atf_check -s eq:0 -o ignore -e empty "grep 'Invalid.*secs.*empty' stderr"
+    atf_check -s eq:1 -o empty -e save:stderr ${atf_exec} -t ':cookie' true
+    atf_check -s eq:0 -o ignore -e empty grep 'Invalid.*secs.*empty' stderr
 
-    atf_check -s eq:1 -o empty -e save:stderr "${atf_exec} -t '123:' true"
-    atf_check -s eq:0 -o ignore -e empty "grep 'Invalid.*file.*empty' stderr"
+    atf_check -s eq:1 -o empty -e save:stderr ${atf_exec} -t '123:' true
+    atf_check -s eq:0 -o ignore -e empty grep 'Invalid.*file.*empty' stderr
 
-    atf_check -s eq:1 -o empty -e save:stderr "${atf_exec} -t 'foo:bar' true"
-    atf_check -s eq:0 -o ignore -e empty "grep 'convert.*string' stderr"
+    atf_check -s eq:1 -o empty -e save:stderr ${atf_exec} -t 'foo:bar' true
+    atf_check -s eq:0 -o ignore -e empty grep 'convert.*string' stderr
 }
 
 try_timeout()
@@ -84,12 +84,12 @@ try_timeout()
     rm -f cookie
     if [ ${to} -lt ${delay} -a ${to} -gt 0 ]; then
         atf_check -s eq:1 -o empty -e empty \
-                  "${atf_exec} -t '${to}:cookie' sleep ${delay}"
+                  ${atf_exec} -t "${to}:cookie" sleep ${delay}
         test -f cookie || \
             atf_fail "Didn't find the timeout cookie but it should be there"
     else
         atf_check -s eq:0 -o empty -e empty \
-                  "${atf_exec} -t '${to}:cookie' sleep ${delay}"
+                  ${atf_exec} -t "${to}:cookie" sleep ${delay}
         test -f cookie && \
             atf_fail "Found the timeout cookie but it shouldn't be there"
     fi

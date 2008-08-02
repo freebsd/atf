@@ -34,7 +34,7 @@ exitcode_0_0_head()
 }
 exitcode_0_0_body()
 {
-    atf_check -s eq:0 -o empty -e empty 'true'
+    atf_check -s eq:0 -o empty -e empty true
 }
 
 atf_test_case exitcode_0_1
@@ -44,7 +44,7 @@ exitcode_0_1_head()
 }
 exitcode_0_1_body()
 {
-    atf_check -s eq:1 -o empty -e empty 'true'
+    atf_check -s eq:1 -o empty -e empty true
 }
 
 atf_test_case exitcode_1_0
@@ -54,7 +54,7 @@ exitcode_1_0_head()
 }
 exitcode_1_0_body()
 {
-    atf_check -s eq:0 -o empty -e empty 'false'
+    atf_check -s eq:0 -o empty -e empty false
 }
 
 atf_test_case exitcode_1_1
@@ -64,7 +64,7 @@ exitcode_1_1_head()
 }
 exitcode_1_1_body()
 {
-    atf_check -s eq:1 -o empty -e empty 'false'
+    atf_check -s eq:1 -o empty -e empty false
 }
 
 atf_test_case stdout_expout_pass
@@ -75,7 +75,7 @@ stdout_expout_pass_head()
 stdout_expout_pass_body()
 {
     echo foo >expout
-    atf_check -s eq:0 -o file:expout -e empty 'echo foo'
+    atf_check -s eq:0 -o file:expout -e empty echo foo
 }
 
 atf_test_case stdout_expout_fail
@@ -86,7 +86,7 @@ stdout_expout_fail_head()
 stdout_expout_fail_body()
 {
     echo foo >expout
-    atf_check -s eq:0 -o file:expout -e empty 'echo bar'
+    atf_check -s eq:0 -o file:expout -e empty echo bar
 }
 
 atf_test_case stdout_ignore_empty
@@ -97,7 +97,7 @@ stdout_ignore_empty_head()
 }
 stdout_ignore_empty_body()
 {
-    atf_check -s eq:0 -o ignore -e empty 'true'
+    atf_check -s eq:0 -o ignore -e empty true
 }
 
 atf_test_case stdout_ignore_sth
@@ -108,7 +108,7 @@ stdout_ignore_sth_head()
 }
 stdout_ignore_sth_body()
 {
-    atf_check -s eq:0 -o ignore -e empty 'echo foo'
+    atf_check -s eq:0 -o ignore -e empty echo foo
 }
 
 atf_test_case stdout_null_empty
@@ -119,7 +119,7 @@ stdout_null_empty_head()
 }
 stdout_null_empty_body()
 {
-    atf_check -s eq:0 -o empty -e empty 'true'
+    atf_check -s eq:0 -o empty -e empty true
 }
 
 atf_test_case stdout_null_sth
@@ -130,7 +130,7 @@ stdout_null_sth_head()
 }
 stdout_null_sth_body()
 {
-    atf_check -s eq:0 -o empty -e empty 'echo foo'
+    atf_check -s eq:0 -o empty -e empty echo foo
 }
 
 atf_test_case stdout_stdout_written
@@ -141,7 +141,7 @@ stdout_stdout_written_head()
 }
 stdout_stdout_written_body()
 {
-    atf_check -s eq:0 -o save:stdout -e empty 'echo foo'
+    atf_check -s eq:0 -o save:stdout -e empty echo foo
     echo foo >aux
     cmp -s stdout aux || atf_fail "Test failed"
 }
@@ -154,7 +154,7 @@ stderr_experr_pass_head()
 stderr_experr_pass_body()
 {
     echo foo >experr
-    atf_check -s eq:0 -o empty -e file:experr 'echo foo 1>&2'
+    atf_check -s eq:0 -o empty -e file:experr -x 'echo foo 1>&2'
 }
 
 atf_test_case stderr_experr_fail
@@ -165,7 +165,7 @@ stderr_experr_fail_head()
 stderr_experr_fail_body()
 {
     echo foo >experr
-    atf_check -s eq:0 -o empty -e file:stderr 'echo bar 1>&2'
+    atf_check -s eq:0 -o empty -e file:stderr -x 'echo bar 1>&2'
 }
 
 atf_test_case stderr_ignore_empty
@@ -176,7 +176,7 @@ stderr_ignore_empty_head()
 }
 stderr_ignore_empty_body()
 {
-    atf_check -s eq:0 -o empty -e ignore 'true 1>&2'
+    atf_check -s eq:0 -o empty -e ignore -x 'true 1>&2'
 }
 
 atf_test_case stderr_ignore_sth
@@ -187,7 +187,7 @@ stderr_ignore_sth_head()
 }
 stderr_ignore_sth_body()
 {
-    atf_check -s eq:0 -o empty -e ignore 'echo foo 1>&2'
+    atf_check -s eq:0 -o empty -e ignore -x 'echo foo 1>&2'
 }
 
 atf_test_case stderr_null_empty
@@ -198,7 +198,7 @@ stderr_null_empty_head()
 }
 stderr_null_empty_body()
 {
-    atf_check -s eq:0 -o empty -e empty 'true 1>&2'
+    atf_check -s eq:0 -o empty -e empty -x 'true 1>&2'
 }
 
 atf_test_case stderr_null_sth
@@ -209,7 +209,7 @@ stderr_null_sth_head()
 }
 stderr_null_sth_body()
 {
-    atf_check -s eq:0 -o empty -e empty 'echo foo 1>&2'
+    atf_check -s eq:0 -o empty -e empty -x 'echo foo 1>&2'
 }
 
 atf_test_case stderr_stderr_written
@@ -220,7 +220,7 @@ stderr_stderr_written_head()
 }
 stderr_stderr_written_body()
 {
-    atf_check -s eq:0 -o empty -e save:stderr 'echo foo 1>&2'
+    atf_check -s eq:0 -o empty -e save:stderr -x 'echo foo 1>&2'
     echo foo >aux
     cmp -s stderr aux || atf_fail "Test failed"
 }
