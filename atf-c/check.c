@@ -82,7 +82,7 @@ atf_check_exec(atf_check_result_t *r, char *const *argv)
     } else if (pid == 0) {
         dup2(fd_out, STDOUT_FILENO);
         dup2(fd_err, STDERR_FILENO);
-        if (execv(argv[0], argv) == -1)
+        if (execvp(argv[0], argv) == -1)
             exit(255);
     };
 
