@@ -126,8 +126,12 @@ atf_check::print_diff(const atf::fs::path &p1, const atf::fs::path &p2)
 {
     std::string cmd("diff -u \"" + p1.str() + "\" \"" + p2.str() + "\" >&2");
     int exitcode = std::system(cmd.c_str());
-    if (!WIFEXITED(exitcode) || WEXITSTATUS(exitcode) != EXIT_SUCCESS)
+
+    if (!WIFEXITED(exitcode))
         std::cerr << "Failed to run diff(3)" << std::endl;
+
+    if (WEXITSTATUS(exitcode) != 1)
+        std::cerr << "Error while running diff(3)" << std::endl;
 }
 
 void
