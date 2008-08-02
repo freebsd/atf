@@ -301,8 +301,7 @@ atf_check::specific_options(void)
                "one of: empty ignore file:<path> inline:<val> save:<path>"));
     opts.insert(option('e', "action:arg", "Handle stderr. Action must be "
                "one of: empty ignore file:<path> inline:<val> save:<path>"));
-    opts.insert(option('x', "", "Execute command directly by execv(3), no as "
-               "a shell command"));
+    opts.insert(option('x', "", "Execute command as a shell command"));
 
     return opts;
 }
@@ -425,7 +424,7 @@ atf_check::main(void)
     char *sh_argv[4];
     int status = EXIT_FAILURE;
 
-    if (m_xflag)
+    if (!m_xflag)
         argv = m_argv;
     else {
         sh_argv[0] = strdup(atf::config::get("atf_shell").c_str());
@@ -445,7 +444,7 @@ atf_check::main(void)
 
     atf::check::check_result r(argv);
 
-    if (!m_xflag) {
+    if (m_xflag) {
         free(sh_argv[0]);
         free(sh_argv[1]);
         free(sh_argv[2]);
