@@ -62,17 +62,17 @@ ATF_TC_BODY(error_new, tc)
     int data;
 
     err = atf_error_new("test_error", NULL, 0, NULL);
-    ATF_CHECK(atf_error_is(err, "test_error"));
-    ATF_CHECK(!atf_error_is(err, "unknown_error"));
-    ATF_CHECK(atf_error_data(err) == NULL);
+    ATF_REQUIRE(atf_error_is(err, "test_error"));
+    ATF_REQUIRE(!atf_error_is(err, "unknown_error"));
+    ATF_REQUIRE(atf_error_data(err) == NULL);
     atf_error_free(err);
 
     data = 5;
     err = atf_error_new("test_data_error", &data, sizeof(data), NULL);
-    ATF_CHECK(atf_error_is(err, "test_data_error"));
-    ATF_CHECK(!atf_error_is(err, "unknown_error"));
-    ATF_CHECK(atf_error_data(err) != NULL);
-    ATF_CHECK_EQUAL(*((const int *)atf_error_data(err)), 5);
+    ATF_REQUIRE(atf_error_is(err, "test_data_error"));
+    ATF_REQUIRE(!atf_error_is(err, "unknown_error"));
+    ATF_REQUIRE(atf_error_data(err) != NULL);
+    ATF_REQUIRE_EQ(*((const int *)atf_error_data(err)), 5);
     atf_error_free(err);
 }
 
@@ -92,8 +92,8 @@ ATF_TC_BODY(error_new_wo_memory, tc)
     invalid = (void *)1;
 
     err = atf_error_new("test_error", invalid, SIZE_MAX, NULL);
-    ATF_CHECK(atf_error_is(err, "no_memory"));
-    ATF_CHECK(atf_error_data(err) == NULL);
+    ATF_REQUIRE(atf_error_is(err, "no_memory"));
+    ATF_REQUIRE(atf_error_data(err) == NULL);
     atf_error_free(err);
 }
 
@@ -108,7 +108,7 @@ ATF_TC_BODY(no_error, tc)
     atf_error_t err;
 
     err = atf_no_error();
-    ATF_CHECK(!atf_is_error(err));
+    ATF_REQUIRE(!atf_is_error(err));
 }
 
 ATF_TC(is_error);
@@ -122,10 +122,10 @@ ATF_TC_BODY(is_error, tc)
     atf_error_t err;
 
     err = atf_no_error();
-    ATF_CHECK(!atf_is_error(err));
+    ATF_REQUIRE(!atf_is_error(err));
 
     err = atf_error_new("test_error", NULL, 0, NULL);
-    ATF_CHECK(atf_is_error(err));
+    ATF_REQUIRE(atf_is_error(err));
     atf_error_free(err);
 }
 
@@ -144,14 +144,14 @@ ATF_TC_BODY(format, tc)
     err = atf_error_new("test_error", NULL, 0, NULL);
     atf_error_format(err, buf, sizeof(buf));
     printf("Error string is: %s\n", buf);
-    ATF_CHECK(strcmp(buf, "Error 'test_error'") == 0);
+    ATF_REQUIRE(strcmp(buf, "Error 'test_error'") == 0);
     atf_error_free(err);
 
     printf("Testing custom formatting function\n");
     err = atf_error_new("test_error", NULL, 0, test_format);
     atf_error_format(err, buf, sizeof(buf));
     printf("Error string is: %s\n", buf);
-    ATF_CHECK(strcmp(buf, "Test formatting function") == 0);
+    ATF_REQUIRE(strcmp(buf, "Test formatting function") == 0);
     atf_error_free(err);
 }
 
@@ -169,13 +169,13 @@ ATF_TC_BODY(libc_new, tc)
     atf_error_t err;
 
     err = atf_libc_error(ENOMEM, "Test message 1");
-    ATF_CHECK(atf_error_is(err, "libc"));
-    ATF_CHECK_EQUAL(atf_libc_error_code(err), ENOMEM);
+    ATF_REQUIRE(atf_error_is(err, "libc"));
+    ATF_REQUIRE_EQ(atf_libc_error_code(err), ENOMEM);
     atf_error_free(err);
 
     err = atf_libc_error(EPERM, "%s message %d", "Test", 2);
-    ATF_CHECK(atf_error_is(err, "libc"));
-    ATF_CHECK_EQUAL(atf_libc_error_code(err), EPERM);
+    ATF_REQUIRE(atf_error_is(err, "libc"));
+    ATF_REQUIRE_EQ(atf_libc_error_code(err), EPERM);
     atf_error_free(err);
 }
 
@@ -191,20 +191,20 @@ ATF_TC_BODY(libc_format, tc)
 
     err = atf_libc_error(ENOMEM, "Test message 1");
     atf_error_format(err, buf, sizeof(buf));
-    ATF_CHECK(strstr(buf, strerror(ENOMEM)) != NULL);
-    ATF_CHECK(strstr(buf, "Test message 1") != NULL);
+    ATF_REQUIRE(strstr(buf, strerror(ENOMEM)) != NULL);
+    ATF_REQUIRE(strstr(buf, "Test message 1") != NULL);
     atf_error_free(err);
 
     err = atf_libc_error(EPERM, "Test message 2");
     atf_error_format(err, buf, sizeof(buf));
-    ATF_CHECK(strstr(buf, strerror(EPERM)) != NULL);
-    ATF_CHECK(strstr(buf, "Test message 2") != NULL);
+    ATF_REQUIRE(strstr(buf, strerror(EPERM)) != NULL);
+    ATF_REQUIRE(strstr(buf, "Test message 2") != NULL);
     atf_error_free(err);
 
     err = atf_libc_error(EPERM, "%s message %d", "Test", 3);
     atf_error_format(err, buf, sizeof(buf));
-    ATF_CHECK(strstr(buf, strerror(EPERM)) != NULL);
-    ATF_CHECK(strstr(buf, "Test message 3") != NULL);
+    ATF_REQUIRE(strstr(buf, strerror(EPERM)) != NULL);
+    ATF_REQUIRE(strstr(buf, "Test message 3") != NULL);
     atf_error_free(err);
 }
 
@@ -223,8 +223,8 @@ ATF_TC_BODY(no_memory_new, tc)
     atf_error_t err;
 
     err = atf_no_memory_error();
-    ATF_CHECK(atf_error_is(err, "no_memory"));
-    ATF_CHECK(atf_error_data(err) == NULL);
+    ATF_REQUIRE(atf_error_is(err, "no_memory"));
+    ATF_REQUIRE(atf_error_data(err) == NULL);
     atf_error_free(err);
 }
 
@@ -241,7 +241,7 @@ ATF_TC_BODY(no_memory_format, tc)
 
     err = atf_no_memory_error();
     atf_error_format(err, buf, sizeof(buf));
-    ATF_CHECK(strcmp(buf, "Not enough memory") == 0);
+    ATF_REQUIRE(strcmp(buf, "Not enough memory") == 0);
     atf_error_free(err);
 }
 

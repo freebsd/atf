@@ -34,7 +34,7 @@
 
 #include "atf-c/map.h"
 
-#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 /* ---------------------------------------------------------------------
  * Tests for the "atf_map" type.
@@ -54,7 +54,7 @@ ATF_TC_BODY(map_init, tc)
     atf_map_t map;
 
     CE(atf_map_init(&map));
-    ATF_CHECK_EQUAL(atf_map_size(&map), 0);
+    ATF_REQUIRE_EQ(atf_map_size(&map), 0);
     atf_map_fini(&map);
 }
 
@@ -79,15 +79,15 @@ ATF_TC_BODY(find_c, tc)
     CE(atf_map_insert(&map, "K2", val2, false));
 
     iter = atf_map_find_c(&map, "K0");
-    ATF_CHECK(atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
+    ATF_REQUIRE(atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
 
     iter = atf_map_find_c(&map, "K1");
-    ATF_CHECK(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
-    ATF_CHECK(strcmp(atf_map_citer_data(iter), "V1") == 0);
+    ATF_REQUIRE(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
+    ATF_REQUIRE(strcmp(atf_map_citer_data(iter), "V1") == 0);
 
     iter = atf_map_find_c(&map, "K2");
-    ATF_CHECK(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
-    ATF_CHECK(strcmp(atf_map_citer_data(iter), "V2") == 0);
+    ATF_REQUIRE(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
+    ATF_REQUIRE(strcmp(atf_map_citer_data(iter), "V2") == 0);
 
     atf_map_fini(&map);
 }
@@ -112,25 +112,25 @@ ATF_TC_BODY(map_insert, tc)
     CE(atf_map_init(&map));
 
     printf("Inserting some values\n");
-    ATF_CHECK_EQUAL(atf_map_size(&map), 0);
+    ATF_REQUIRE_EQ(atf_map_size(&map), 0);
     CE(atf_map_insert(&map, "K1", buf, false));
-    ATF_CHECK_EQUAL(atf_map_size(&map), 1);
+    ATF_REQUIRE_EQ(atf_map_size(&map), 1);
     CE(atf_map_insert(&map, "K2", buf, false));
-    ATF_CHECK_EQUAL(atf_map_size(&map), 2);
+    ATF_REQUIRE_EQ(atf_map_size(&map), 2);
     CE(atf_map_insert(&map, "K3", buf, false));
-    ATF_CHECK_EQUAL(atf_map_size(&map), 3);
+    ATF_REQUIRE_EQ(atf_map_size(&map), 3);
 
     printf("Replacing a value\n");
     iter = atf_map_find_c(&map, "K3");
-    ATF_CHECK(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
+    ATF_REQUIRE(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
     ptr = atf_map_citer_data(iter);
-    ATF_CHECK_EQUAL(ptr, buf);
+    ATF_REQUIRE_EQ(ptr, buf);
     CE(atf_map_insert(&map, "K3", buf2, false));
-    ATF_CHECK_EQUAL(atf_map_size(&map), 3);
+    ATF_REQUIRE_EQ(atf_map_size(&map), 3);
     iter = atf_map_find_c(&map, "K3");
-    ATF_CHECK(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
+    ATF_REQUIRE(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
     ptr = atf_map_citer_data(iter);
-    ATF_CHECK_EQUAL(ptr, buf2);
+    ATF_REQUIRE_EQ(ptr, buf2);
 
     atf_map_fini(&map);
 }
@@ -155,15 +155,15 @@ ATF_TC_BODY(stable_keys, tc)
 
     CE(atf_map_insert(&map, key, strdup("test-value"), true));
     iter = atf_map_find_c(&map, "K1");
-    ATF_CHECK(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
+    ATF_REQUIRE(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
     iter = atf_map_find_c(&map, "K2");
-    ATF_CHECK(atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
+    ATF_REQUIRE(atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
 
     strcpy(key, "K2");
     iter = atf_map_find_c(&map, "K1");
-    ATF_CHECK(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
+    ATF_REQUIRE(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
     iter = atf_map_find_c(&map, "K2");
-    ATF_CHECK(atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
+    ATF_REQUIRE(atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
 
     atf_map_fini(&map);
 }

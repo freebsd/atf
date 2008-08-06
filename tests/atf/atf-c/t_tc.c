@@ -38,7 +38,7 @@
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
-#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 /* ---------------------------------------------------------------------
  * Auxiliary test cases.
@@ -72,14 +72,14 @@ ATF_TC_BODY(init, tcin)
 
     CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
                    ATF_TC_BODY_NAME(empty), NULL, NULL));
-    ATF_CHECK(strcmp(atf_tc_get_ident(&tc), "test1") == 0);
-    ATF_CHECK(!atf_tc_has_md_var(&tc, "test-var"));
+    ATF_REQUIRE(strcmp(atf_tc_get_ident(&tc), "test1") == 0);
+    ATF_REQUIRE(!atf_tc_has_md_var(&tc, "test-var"));
     atf_tc_fini(&tc);
 
     CE(atf_tc_init(&tc, "test2", ATF_TC_HEAD_NAME(test_var),
                    ATF_TC_BODY_NAME(empty), NULL, NULL));
-    ATF_CHECK(strcmp(atf_tc_get_ident(&tc), "test2") == 0);
-    ATF_CHECK(atf_tc_has_md_var(&tc, "test-var"));
+    ATF_REQUIRE(strcmp(atf_tc_get_ident(&tc), "test2") == 0);
+    ATF_REQUIRE(atf_tc_has_md_var(&tc, "test-var"));
     atf_tc_fini(&tc);
 }
 
@@ -105,13 +105,13 @@ ATF_TC_BODY(init_pack, tcin)
     };
 
     CE(atf_tc_init_pack(&tc, &tcp1, NULL));
-    ATF_CHECK(strcmp(atf_tc_get_ident(&tc), "test1") == 0);
-    ATF_CHECK(!atf_tc_has_md_var(&tc, "test-var"));
+    ATF_REQUIRE(strcmp(atf_tc_get_ident(&tc), "test1") == 0);
+    ATF_REQUIRE(!atf_tc_has_md_var(&tc, "test-var"));
     atf_tc_fini(&tc);
 
     CE(atf_tc_init_pack(&tc, &tcp2, NULL));
-    ATF_CHECK(strcmp(atf_tc_get_ident(&tc), "test2") == 0);
-    ATF_CHECK(atf_tc_has_md_var(&tc, "test-var"));
+    ATF_REQUIRE(strcmp(atf_tc_get_ident(&tc), "test2") == 0);
+    ATF_REQUIRE(atf_tc_has_md_var(&tc, "test-var"));
     atf_tc_fini(&tc);
 }
 
@@ -127,10 +127,10 @@ ATF_TC_BODY(vars, tcin)
 
     CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
                    ATF_TC_BODY_NAME(empty), NULL, NULL));
-    ATF_CHECK(!atf_tc_has_md_var(&tc, "test-var"));
+    ATF_REQUIRE(!atf_tc_has_md_var(&tc, "test-var"));
     CE(atf_tc_set_md_var(&tc, "test-var", "Test value"));
-    ATF_CHECK(atf_tc_has_md_var(&tc, "test-var"));
-    ATF_CHECK(strcmp(atf_tc_get_md_var(&tc, "test-var"), "Test value") == 0);
+    ATF_REQUIRE(atf_tc_has_md_var(&tc, "test-var"));
+    ATF_REQUIRE(strcmp(atf_tc_get_md_var(&tc, "test-var"), "Test value") == 0);
     atf_tc_fini(&tc);
 }
 
@@ -151,18 +151,18 @@ ATF_TC_BODY(config, tcin)
 
     CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
                    ATF_TC_BODY_NAME(empty), NULL, NULL));
-    ATF_CHECK(!atf_tc_has_config_var(&tc, "test-var"));
-    ATF_CHECK(!atf_tc_has_md_var(&tc, "test-var"));
+    ATF_REQUIRE(!atf_tc_has_config_var(&tc, "test-var"));
+    ATF_REQUIRE(!atf_tc_has_md_var(&tc, "test-var"));
     atf_tc_fini(&tc);
 
     CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
                    ATF_TC_BODY_NAME(empty), NULL, &config));
-    ATF_CHECK(atf_tc_has_config_var(&tc, "test-var"));
-    ATF_CHECK(strcmp(atf_tc_get_config_var(&tc, "test-var"),
+    ATF_REQUIRE(atf_tc_has_config_var(&tc, "test-var"));
+    ATF_REQUIRE(strcmp(atf_tc_get_config_var(&tc, "test-var"),
                      "test-value") == 0);
-    ATF_CHECK(!atf_tc_has_md_var(&tc, "test-var"));
-    ATF_CHECK(!atf_tc_has_config_var(&tc, "test-var2"));
-    ATF_CHECK(strcmp(atf_tc_get_config_var_wd(&tc, "test-var2", "def-value"),
+    ATF_REQUIRE(!atf_tc_has_md_var(&tc, "test-var"));
+    ATF_REQUIRE(!atf_tc_has_config_var(&tc, "test-var2"));
+    ATF_REQUIRE(strcmp(atf_tc_get_config_var_wd(&tc, "test-var2", "def-value"),
                      "def-value") == 0);
     atf_tc_fini(&tc);
 

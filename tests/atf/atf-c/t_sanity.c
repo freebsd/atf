@@ -50,7 +50,7 @@
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
-#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 enum type { inv, pre, post, unreachable };
 
@@ -76,11 +76,11 @@ do_test(enum type t, bool cond)
     int fds[2];
     pid_t pid;
 
-    ATF_CHECK(pipe(fds) != -1);
+    ATF_REQUIRE(pipe(fds) != -1);
 
-    ATF_CHECK((pid = fork()) != -1);
+    ATF_REQUIRE((pid = fork()) != -1);
     if (pid == 0) {
-        ATF_CHECK(dup2(fds[1], STDERR_FILENO) != -1);
+        ATF_REQUIRE(dup2(fds[1], STDERR_FILENO) != -1);
         close(fds[0]);
         close(fds[1]);
 
@@ -120,39 +120,39 @@ do_test(enum type t, bool cond)
                     i++;
             }
         } while (i < 3 && !atf_is_error(err));
-        ATF_CHECK(i == 3);
+        ATF_REQUIRE(i == 3);
         i--;
 
         if (!cond) {
             switch (t) {
             case inv:
-                ATF_CHECK(grep(&lines[0], "Invariant"));
+                ATF_REQUIRE(grep(&lines[0], "Invariant"));
                 break;
 
             case pre:
-                ATF_CHECK(grep(&lines[0], "Precondition"));
+                ATF_REQUIRE(grep(&lines[0], "Precondition"));
                 break;
 
             case post:
-                ATF_CHECK(grep(&lines[0], "Postcondition"));
+                ATF_REQUIRE(grep(&lines[0], "Postcondition"));
                 break;
 
             case unreachable:
-                ATF_CHECK(grep(&lines[0], "Invariant"));
+                ATF_REQUIRE(grep(&lines[0], "Invariant"));
                 break;
             }
 
-            ATF_CHECK(grep(&lines[0], __FILE__));
-            ATF_CHECK(grep(&lines[2], PACKAGE_BUGREPORT));
+            ATF_REQUIRE(grep(&lines[0], __FILE__));
+            ATF_REQUIRE(grep(&lines[2], PACKAGE_BUGREPORT));
         }
 
-        ATF_CHECK(waitpid(pid, &ecode, 0) != -1);
+        ATF_REQUIRE(waitpid(pid, &ecode, 0) != -1);
         if (!cond) {
-            ATF_CHECK(WIFSIGNALED(ecode));
-            ATF_CHECK(WTERMSIG(ecode) == SIGABRT);
+            ATF_REQUIRE(WIFSIGNALED(ecode));
+            ATF_REQUIRE(WTERMSIG(ecode) == SIGABRT);
         } else {
-            ATF_CHECK(WIFEXITED(ecode));
-            ATF_CHECK(WEXITSTATUS(ecode) == EXIT_SUCCESS);
+            ATF_REQUIRE(WIFEXITED(ecode));
+            ATF_REQUIRE(WEXITSTATUS(ecode) == EXIT_SUCCESS);
         }
     }
 }

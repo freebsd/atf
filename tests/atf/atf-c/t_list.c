@@ -33,7 +33,7 @@
 
 #include "atf-c/list.h"
 
-#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 /* ---------------------------------------------------------------------
  * Tests for the "atf_list" type.
@@ -53,7 +53,7 @@ ATF_TC_BODY(list_init, tc)
     atf_list_t list;
 
     CE(atf_list_init(&list));
-    ATF_CHECK_EQUAL(atf_list_size(&list), 0);
+    ATF_REQUIRE_EQ(atf_list_size(&list), 0);
     atf_list_fini(&list);
 }
 
@@ -74,7 +74,7 @@ ATF_TC_BODY(list_append, tc)
 
     CE(atf_list_init(&list));
     for (i = 0; i < 1024; i++) {
-        ATF_CHECK_EQUAL(atf_list_size(&list), i);
+        ATF_REQUIRE_EQ(atf_list_size(&list), i);
         CE(atf_list_append(&list, buf));
     }
     atf_list_fini(&list);
@@ -103,7 +103,7 @@ ATF_TC_BODY(list_for_each, tc)
         count++;
         printf("Item count is now %zd\n", count);
     }
-    ATF_CHECK_EQUAL(count, 0);
+    ATF_REQUIRE_EQ(count, 0);
     atf_list_fini(&list);
 
     for (size = 0; size <= 10; size++) {
@@ -118,7 +118,7 @@ ATF_TC_BODY(list_for_each, tc)
             printf("Retrieved item: %d\n", *(int *)atf_list_iter_data(iter));
             count++;
         }
-        ATF_CHECK_EQUAL(count, size);
+        ATF_REQUIRE_EQ(count, size);
         atf_list_fini(&list);
     }
 }
@@ -142,7 +142,7 @@ ATF_TC_BODY(list_for_each_c, tc)
         count++;
         printf("Item count is now %zd\n", count);
     }
-    ATF_CHECK_EQUAL(count, 0);
+    ATF_REQUIRE_EQ(count, 0);
     atf_list_fini(&list);
 
     for (size = 0; size <= 10; size++) {
@@ -158,7 +158,7 @@ ATF_TC_BODY(list_for_each_c, tc)
                    *(const int *)atf_list_citer_data(iter));
             count++;
         }
-        ATF_CHECK_EQUAL(count, size);
+        ATF_REQUIRE_EQ(count, size);
         atf_list_fini(&list);
     }
 }

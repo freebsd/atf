@@ -30,6 +30,9 @@
 #if !defined(ATF_C_MACROS_H)
 #define ATF_C_MACROS_H
 
+#include <libgen.h>
+#include <stdio.h>
+
 #include <atf-c/tc.h>
 #include <atf-c/tp.h>
 
@@ -109,28 +112,66 @@
             return atfu_err; \
     } while (0)
 
+#define ATF_FAIL(fmt, ...) \
+    do { \
+        fprintf(stderr, "Fatal error in %s(%d): " fmt "\n", \
+                basename(__FILE__), __LINE__, ##__VA_ARGS__); \
+        atf_tc_fail("Fatal error"); \
+    } while(0)
+
+#define ATF_ERROR(fmt, ...) \
+    do { \
+        fprintf(stderr, "Error in %s(%d): " fmt "\n", \
+                basename(__FILE__), __LINE__, ##__VA_ARGS__); \
+        atf_tc_error(); \
+    } while(0)
+
+#define ATF_REQUIRE(x) \
+    do { \
+        if (!(x)) \
+            ATF_FAIL("%s not met", #x); \
+    } while(0)
+
 #define ATF_CHECK(x) \
     do { \
         if (!(x)) \
-            atf_tc_fail("Line %d: %s not met", __LINE__, #x); \
-    } while (0)
+            ATF_ERROR("%s not met", #x); \
+    } while(0)
+
+#define ATF_REQUIRE_MSG(x, fmt, ...) \
+    do { \
+        if (!(x)) \
+            ATF_FAIL(fmt, ##__VA_ARGS__); \
+    } while(0)
 
 #define ATF_CHECK_MSG(x, fmt, ...) \
     do { \
         if (!(x)) \
-            atf_tc_fail("Line %d: " fmt, __LINE__, ##__VA_ARGS__); \
-    } while (0)
+            ATF_ERROR(fmt, ##__VA_ARGS__); \
+    } while(0)
 
-#define ATF_CHECK_EQUAL(x, y) \
+#define ATF_REQUIRE_EQ(x, y) \
+    ATF_REQUIRE_MSG((x) == (y), "%s != %s", #x, #y)
+
+#define ATF_CHECK_EQ(x, y) \
     ATF_CHECK_MSG((x) == (y), "%s != %s", #x, #y)
 
-#define ATF_CHECK_EQUAL_MSG(x, y, fmt, ...) \
-    ATF_CHECK_MSG((x) == (y), fmt, ##__VA_ARGS__)
+#define ATF_REQUIRE_EQ_MSG(x, y, fmt, ...) \
+    ATF_REQUIRE_MSG((x) == (y), "%s != %s: " fmt, #x, #y, ##__VA_ARGS__)
 
-#define ATF_CHECK_STR_EQUAL(x, y) \
+#define ATF_CHECK_EQ_MSG(x, y, fmt, ...) \
+    ATF_CHECK_MSG((x) == (y), "%s != %s: " fmt, #x, #y, ##__VA_ARGS__)
+
+#define ATF_REQUIRE_STREQ(x, y) \
+    ATF_REQUIRE_MSG(strcmp(x, y) == 0, "%s != %s", #x, #y)
+
+#define ATF_CHECK_STREQ(x, y) \
     ATF_CHECK_MSG(strcmp(x, y) == 0, "%s != %s", #x, #y)
 
-#define ATF_CHECK_STR_EQUAL_MSG(x, y, fmt, ...) \
-    ATF_CHECK_MSG(strcmp(x, y) == 0, fmt, ##__VA_ARGS__)
+#define ATF_REQUIRE_STREQ_MSG(x, y, fmt, ...) \
+    ATF_REQUIRE_MSG(strcmp(x, y) == 0, "%s != %s: " fmt, #x, #y, ##__VA_ARGS__)
+
+#define ATF_CHECK_STREQ_MSG(x, y, fmt, ...) \
+    ATF_CHECK_MSG(strcmp(x, y) == 0, "%s != %s: " fmt, #x, #y, ##__VA_ARGS__)
 
 #endif /* !defined(ATF_C_MACROS_H) */

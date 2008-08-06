@@ -373,10 +373,10 @@ run_tests(const char *tc)
             printf("Expected output: >>>%s<<<\n", t->result);
 
             err = atf_dynstr_init(&str);
-            ATF_CHECK(!atf_is_error(err));
+            ATF_REQUIRE(!atf_is_error(err));
             atf_ui_format_fmt(&str, t->tag, t->repeat, t->col, t->fmt);
             printf("Output         : >>>%s<<<\n", atf_dynstr_cstring(&str));
-            ATF_CHECK(atf_equal_dynstr_cstring(&str, t->result));
+            ATF_REQUIRE(atf_equal_dynstr_cstring(&str, t->result));
             atf_dynstr_fini(&str);
         }
     }
@@ -458,9 +458,9 @@ ATF_TC_BODY(format, tc)
     atf_error_t err;
 
     err = atf_dynstr_init(&str);
-    ATF_CHECK(!atf_is_error(err));
+    ATF_REQUIRE(!atf_is_error(err));
     atf_ui_format_fmt(&str, "", false, 0, "Test %s %d", "string", 1);
-    ATF_CHECK(atf_equal_dynstr_cstring(&str, "Test string 1"));
+    ATF_REQUIRE(atf_equal_dynstr_cstring(&str, "Test string 1"));
     atf_dynstr_fini(&str);
 }
 

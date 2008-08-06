@@ -39,7 +39,7 @@
 #include "atf-c/dynstr.h"
 #include "atf-c/io.h"
 
-#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 /* ---------------------------------------------------------------------
  * Test cases for the free functions.
@@ -60,7 +60,7 @@ ATF_TC_BODY(readline, tc)
         FILE *f;
 
         f = fopen("test", "w");
-        ATF_CHECK(f != NULL);
+        ATF_REQUIRE(f != NULL);
 
         fprintf(f, "%s\n", l1);
         fprintf(f, "%s\n", l2);
@@ -74,24 +74,24 @@ ATF_TC_BODY(readline, tc)
         atf_dynstr_t dest;
 
         fd = open("test", O_RDONLY);
-        ATF_CHECK(fd != -1);
+        ATF_REQUIRE(fd != -1);
 
         CE(atf_dynstr_init(&dest));
         CE(atf_io_readline(fd, &dest));
         printf("1st line: >%s<\n", atf_dynstr_cstring(&dest));
-        ATF_CHECK(atf_equal_dynstr_cstring(&dest, l1));
+        ATF_REQUIRE(atf_equal_dynstr_cstring(&dest, l1));
         atf_dynstr_fini(&dest);
 
         CE(atf_dynstr_init(&dest));
         CE(atf_io_readline(fd, &dest));
         printf("2nd line: >%s<\n", atf_dynstr_cstring(&dest));
-        ATF_CHECK(atf_equal_dynstr_cstring(&dest, l2));
+        ATF_REQUIRE(atf_equal_dynstr_cstring(&dest, l2));
         atf_dynstr_fini(&dest);
 
         CE(atf_dynstr_init(&dest));
         CE(atf_io_readline(fd, &dest));
         printf("3rd line: >%s<\n", atf_dynstr_cstring(&dest));
-        ATF_CHECK(atf_equal_dynstr_cstring(&dest, l3));
+        ATF_REQUIRE(atf_equal_dynstr_cstring(&dest, l3));
         atf_dynstr_fini(&dest);
 
         /* XXX Cannot detect eof condition. */
@@ -111,7 +111,7 @@ ATF_TC_BODY(write_fmt, tc)
         int fd;
 
         fd = open("test", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-        ATF_CHECK(fd != -1);
+        ATF_REQUIRE(fd != -1);
 
         CE(atf_io_write_fmt(fd, "Plain string\n"));
         CE(atf_io_write_fmt(fd, "Formatted %s %d\n", "string", 5));
@@ -125,12 +125,12 @@ ATF_TC_BODY(write_fmt, tc)
         ssize_t cnt;
 
         fd = open("test", O_RDONLY);
-        ATF_CHECK(fd != -1);
+        ATF_REQUIRE(fd != -1);
 
         cnt = read(fd, buf, sizeof(buf));
-        ATF_CHECK(cnt != -1);
+        ATF_REQUIRE(cnt != -1);
         buf[cnt] = '\0';
-        ATF_CHECK(strcmp(buf, "Plain string\nFormatted string 5\n") == 0);
+        ATF_REQUIRE(strcmp(buf, "Plain string\nFormatted string 5\n") == 0);
 
         close(fd);
     }
@@ -151,10 +151,10 @@ ATF_TC_BODY(write_fmt_fail, tc)
     close(fd);
 
     err = atf_io_write_fmt(fd, "Plain string\n");
-    ATF_CHECK(atf_error_is(err, "libc"));
-    ATF_CHECK_EQUAL(atf_libc_error_code(err), EBADF);
+    ATF_REQUIRE(atf_error_is(err, "libc"));
+    ATF_REQUIRE_EQ(atf_libc_error_code(err), EBADF);
     atf_error_format(err, buf, sizeof(buf));
-    ATF_CHECK(strstr(buf, "Plain string") != NULL);
+    ATF_REQUIRE(strstr(buf, "Plain string") != NULL);
 }
 
 /* ---------------------------------------------------------------------

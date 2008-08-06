@@ -35,7 +35,7 @@
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
-#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 static
 bool
@@ -59,19 +59,19 @@ ATF_TC_HEAD(is_glob, tc)
 }
 ATF_TC_BODY(is_glob, tc)
 {
-    ATF_CHECK(!atf_expand_is_glob(""));
-    ATF_CHECK(!atf_expand_is_glob("a"));
-    ATF_CHECK(!atf_expand_is_glob("foo"));
+    ATF_REQUIRE(!atf_expand_is_glob(""));
+    ATF_REQUIRE(!atf_expand_is_glob("a"));
+    ATF_REQUIRE(!atf_expand_is_glob("foo"));
 
-    ATF_CHECK( atf_expand_is_glob("*"));
-    ATF_CHECK( atf_expand_is_glob("a*"));
-    ATF_CHECK( atf_expand_is_glob("*a"));
-    ATF_CHECK( atf_expand_is_glob("a*b"));
+    ATF_REQUIRE( atf_expand_is_glob("*"));
+    ATF_REQUIRE( atf_expand_is_glob("a*"));
+    ATF_REQUIRE( atf_expand_is_glob("*a"));
+    ATF_REQUIRE( atf_expand_is_glob("a*b"));
 
-    ATF_CHECK( atf_expand_is_glob("?"));
-    ATF_CHECK( atf_expand_is_glob("a?"));
-    ATF_CHECK( atf_expand_is_glob("?a"));
-    ATF_CHECK( atf_expand_is_glob("a?b"));
+    ATF_REQUIRE( atf_expand_is_glob("?"));
+    ATF_REQUIRE( atf_expand_is_glob("a?"));
+    ATF_REQUIRE( atf_expand_is_glob("?a"));
+    ATF_REQUIRE( atf_expand_is_glob("a?b"));
 }
 
 ATF_TC(matches_glob_plain);
@@ -82,13 +82,13 @@ ATF_TC_HEAD(matches_glob_plain, tc)
 }
 ATF_TC_BODY(matches_glob_plain, tc)
 {
-    ATF_CHECK( matches_glob("", ""));
-    ATF_CHECK(!matches_glob("a", ""));
-    ATF_CHECK(!matches_glob("", "a"));
+    ATF_REQUIRE( matches_glob("", ""));
+    ATF_REQUIRE(!matches_glob("a", ""));
+    ATF_REQUIRE(!matches_glob("", "a"));
 
-    ATF_CHECK( matches_glob("ab", "ab"));
-    ATF_CHECK(!matches_glob("abc", "ab"));
-    ATF_CHECK(!matches_glob("ab", "abc"));
+    ATF_REQUIRE( matches_glob("ab", "ab"));
+    ATF_REQUIRE(!matches_glob("abc", "ab"));
+    ATF_REQUIRE(!matches_glob("ab", "abc"));
 }
 
 ATF_TC(matches_glob_star);
@@ -99,34 +99,34 @@ ATF_TC_HEAD(matches_glob_star, tc)
 }
 ATF_TC_BODY(matches_glob_star, tc)
 {
-    ATF_CHECK( matches_glob("*", ""));
-    ATF_CHECK( matches_glob("*", "a"));
-    ATF_CHECK( matches_glob("*", "ab"));
+    ATF_REQUIRE( matches_glob("*", ""));
+    ATF_REQUIRE( matches_glob("*", "a"));
+    ATF_REQUIRE( matches_glob("*", "ab"));
 
-    ATF_CHECK(!matches_glob("a*", ""));
-    ATF_CHECK( matches_glob("a*", "a"));
-    ATF_CHECK( matches_glob("a*", "aa"));
-    ATF_CHECK( matches_glob("a*", "ab"));
-    ATF_CHECK( matches_glob("a*", "abc"));
-    ATF_CHECK(!matches_glob("a*", "ba"));
+    ATF_REQUIRE(!matches_glob("a*", ""));
+    ATF_REQUIRE( matches_glob("a*", "a"));
+    ATF_REQUIRE( matches_glob("a*", "aa"));
+    ATF_REQUIRE( matches_glob("a*", "ab"));
+    ATF_REQUIRE( matches_glob("a*", "abc"));
+    ATF_REQUIRE(!matches_glob("a*", "ba"));
 
-    ATF_CHECK( matches_glob("*a", "a"));
-    ATF_CHECK( matches_glob("*a", "ba"));
-    ATF_CHECK(!matches_glob("*a", "bc"));
-    ATF_CHECK(!matches_glob("*a", "bac"));
+    ATF_REQUIRE( matches_glob("*a", "a"));
+    ATF_REQUIRE( matches_glob("*a", "ba"));
+    ATF_REQUIRE(!matches_glob("*a", "bc"));
+    ATF_REQUIRE(!matches_glob("*a", "bac"));
 
-    ATF_CHECK( matches_glob("*ab", "ab"));
-    ATF_CHECK( matches_glob("*ab", "aab"));
-    ATF_CHECK( matches_glob("*ab", "aaab"));
-    ATF_CHECK( matches_glob("*ab", "bab"));
-    ATF_CHECK(!matches_glob("*ab", "bcb"));
-    ATF_CHECK(!matches_glob("*ab", "bacb"));
+    ATF_REQUIRE( matches_glob("*ab", "ab"));
+    ATF_REQUIRE( matches_glob("*ab", "aab"));
+    ATF_REQUIRE( matches_glob("*ab", "aaab"));
+    ATF_REQUIRE( matches_glob("*ab", "bab"));
+    ATF_REQUIRE(!matches_glob("*ab", "bcb"));
+    ATF_REQUIRE(!matches_glob("*ab", "bacb"));
 
-    ATF_CHECK( matches_glob("a*b", "ab"));
-    ATF_CHECK( matches_glob("a*b", "acb"));
-    ATF_CHECK( matches_glob("a*b", "acdeb"));
-    ATF_CHECK(!matches_glob("a*b", "acdebz"));
-    ATF_CHECK(!matches_glob("a*b", "zacdeb"));
+    ATF_REQUIRE( matches_glob("a*b", "ab"));
+    ATF_REQUIRE( matches_glob("a*b", "acb"));
+    ATF_REQUIRE( matches_glob("a*b", "acdeb"));
+    ATF_REQUIRE(!matches_glob("a*b", "acdebz"));
+    ATF_REQUIRE(!matches_glob("a*b", "zacdeb"));
 }
 
 ATF_TC(matches_glob_question);
@@ -137,22 +137,22 @@ ATF_TC_HEAD(matches_glob_question, tc)
 }
 ATF_TC_BODY(matches_glob_question, tc)
 {
-    ATF_CHECK(!matches_glob("?", ""));
-    ATF_CHECK( matches_glob("?", "a"));
-    ATF_CHECK(!matches_glob("?", "ab"));
+    ATF_REQUIRE(!matches_glob("?", ""));
+    ATF_REQUIRE( matches_glob("?", "a"));
+    ATF_REQUIRE(!matches_glob("?", "ab"));
 
-    ATF_CHECK( matches_glob("?", "b"));
-    ATF_CHECK( matches_glob("?", "c"));
+    ATF_REQUIRE( matches_glob("?", "b"));
+    ATF_REQUIRE( matches_glob("?", "c"));
 
-    ATF_CHECK( matches_glob("a?", "ab"));
-    ATF_CHECK( matches_glob("a?", "ac"));
-    ATF_CHECK(!matches_glob("a?", "ca"));
+    ATF_REQUIRE( matches_glob("a?", "ab"));
+    ATF_REQUIRE( matches_glob("a?", "ac"));
+    ATF_REQUIRE(!matches_glob("a?", "ca"));
 
-    ATF_CHECK( matches_glob("???", "abc"));
-    ATF_CHECK( matches_glob("???", "def"));
-    ATF_CHECK(!matches_glob("???", "a"));
-    ATF_CHECK(!matches_glob("???", "ab"));
-    ATF_CHECK(!matches_glob("???", "abcd"));
+    ATF_REQUIRE( matches_glob("???", "abc"));
+    ATF_REQUIRE( matches_glob("???", "def"));
+    ATF_REQUIRE(!matches_glob("???", "a"));
+    ATF_REQUIRE(!matches_glob("???", "ab"));
+    ATF_REQUIRE(!matches_glob("???", "abcd"));
 }
 
 /* ---------------------------------------------------------------------

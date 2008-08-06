@@ -48,7 +48,7 @@
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
-#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 static
 void
@@ -62,7 +62,7 @@ write_cwd(const atf_tc_t *tc, const char *confvar)
 
     f = fopen(p, "w");
     if (f == NULL)
-        atf_tc_fail("Could not open %s for writing", p);
+        ATF_FAIL("Could not open %s for writing", p);
 
     CE(atf_fs_getcwd(&cwd));
     fprintf(f, "%s\n", atf_fs_path_cstring(&cwd));
@@ -76,7 +76,7 @@ void
 safe_mkdir(const char* path)
 {
     if (mkdir(path, 0755) == -1)
-        atf_tc_fail("mkdir(2) of %s failed", path);
+        ATF_FAIL("mkdir(2) of %s failed", path);
 }
 
 static
@@ -84,7 +84,7 @@ void
 safe_remove(const char* path)
 {
     if (unlink(path) == -1)
-        atf_tc_fail("unlink(2) of %s failed", path);
+        ATF_FAIL("unlink(2) of %s failed", path);
 }
 
 static
@@ -94,7 +94,7 @@ touch(const char *path)
     int fd;
     fd = open(path, O_WRONLY | O_TRUNC | O_CREAT, 0644);
     if (fd == -1)
-        atf_tc_fail("Could not create file %s", path);
+        ATF_FAIL("Could not create file %s", path);
     close(fd);
 }
 
@@ -131,7 +131,7 @@ ATF_TC_HEAD(cleanup_fail, tc)
 ATF_TC_BODY(cleanup_fail, tc)
 {
     touch(atf_tc_get_config_var(tc, "tmpfile"));
-    atf_tc_fail("On purpose");
+    ATF_FAIL("On purpose");
 }
 ATF_TC_CLEANUP(cleanup_fail, tc)
 {
@@ -176,7 +176,7 @@ ATF_TC_BODY(cleanup_curdir, tc)
 
     f = fopen("oldvalue", "w");
     if (f == NULL)
-        atf_tc_fail("Failed to create oldvalue file");
+        ATF_FAIL("Failed to create oldvalue file");
     fprintf(f, "1234");
     fclose(f);
 }
@@ -246,7 +246,7 @@ ATF_TC_HEAD(config_unset, tc)
 }
 ATF_TC_BODY(config_unset, tc)
 {
-    ATF_CHECK(!atf_tc_has_config_var(tc, "test"));
+    ATF_REQUIRE(!atf_tc_has_config_var(tc, "test"));
 }
 
 ATF_TC(config_empty);
@@ -257,8 +257,8 @@ ATF_TC_HEAD(config_empty, tc)
 }
 ATF_TC_BODY(config_empty, tc)
 {
-    ATF_CHECK(atf_tc_has_config_var(tc, "test"));
-    ATF_CHECK(strlen(atf_tc_get_config_var(tc, "test")) == 0);
+    ATF_REQUIRE(atf_tc_has_config_var(tc, "test"));
+    ATF_REQUIRE(strlen(atf_tc_get_config_var(tc, "test")) == 0);
 }
 
 ATF_TC(config_value);
@@ -269,8 +269,8 @@ ATF_TC_HEAD(config_value, tc)
 }
 ATF_TC_BODY(config_value, tc)
 {
-    ATF_CHECK(atf_tc_has_config_var(tc, "test"));
-    ATF_CHECK(strcmp(atf_tc_get_config_var(tc, "test"), "foo") == 0);
+    ATF_REQUIRE(atf_tc_has_config_var(tc, "test"));
+    ATF_REQUIRE(strcmp(atf_tc_get_config_var(tc, "test"), "foo") == 0);
 }
 
 ATF_TC(config_multi_value);
@@ -281,8 +281,8 @@ ATF_TC_HEAD(config_multi_value, tc)
 }
 ATF_TC_BODY(config_multi_value, tc)
 {
-    ATF_CHECK(atf_tc_has_config_var(tc, "test"));
-    ATF_CHECK(strcmp(atf_tc_get_config_var(tc, "test"), "foo bar") == 0);
+    ATF_REQUIRE(atf_tc_has_config_var(tc, "test"));
+    ATF_REQUIRE(strcmp(atf_tc_get_config_var(tc, "test"), "foo bar") == 0);
 }
 
 /* ---------------------------------------------------------------------
@@ -300,7 +300,7 @@ ATF_TC_BODY(env_home, tc)
     atf_fs_path_t cwd, home;
     atf_fs_stat_t stcwd, sthome;
 
-    ATF_CHECK(atf_env_has("HOME"));
+    ATF_REQUIRE(atf_env_has("HOME"));
 
     CE(atf_fs_getcwd(&cwd));
     CE(atf_fs_path_init_fmt(&home, "%s", atf_env_get("HOME")));
@@ -308,9 +308,9 @@ ATF_TC_BODY(env_home, tc)
     CE(atf_fs_stat_init(&stcwd, &cwd));
     CE(atf_fs_stat_init(&sthome, &home));
 
-    ATF_CHECK_EQUAL(atf_fs_stat_get_device(&stcwd),
+    ATF_REQUIRE_EQ(atf_fs_stat_get_device(&stcwd),
                     atf_fs_stat_get_device(&sthome));
-    ATF_CHECK_EQUAL(atf_fs_stat_get_inode(&stcwd),
+    ATF_REQUIRE_EQ(atf_fs_stat_get_inode(&stcwd),
                     atf_fs_stat_get_inode(&sthome));
 }
 
@@ -323,8 +323,8 @@ ATF_TC_HEAD(env_list, tc)
 ATF_TC_BODY(env_list, tc)
 {
     int exitcode = system("env");
-    ATF_CHECK(WIFEXITED(exitcode));
-    ATF_CHECK(WEXITSTATUS(exitcode) == EXIT_SUCCESS);
+    ATF_REQUIRE(WIFEXITED(exitcode));
+    ATF_REQUIRE(WEXITSTATUS(exitcode) == EXIT_SUCCESS);
 }
 
 /* ---------------------------------------------------------------------
@@ -344,17 +344,17 @@ ATF_TC_BODY(fork_mangle_fds, tc)
     CE(atf_text_to_long(atf_tc_get_config_var(tc, "resfd"), &resfd));
 
     if (close(STDIN_FILENO) == -1)
-        atf_tc_fail("Failed to close stdin");
+        ATF_FAIL("Failed to close stdin");
     if (close(STDOUT_FILENO) == -1)
-        atf_tc_fail("Failed to close stdout");
+        ATF_FAIL("Failed to close stdout");
     if (close(STDERR_FILENO) == -1)
-        atf_tc_fail("Failed to close stderr");
+        ATF_FAIL("Failed to close stderr");
     if (close(resfd) == -1)
-        atf_tc_fail("Failed to close results descriptor");
+        ATF_FAIL("Failed to close results descriptor");
 
 #if defined(F_CLOSEM)
     if (fcntl(0, F_CLOSEM) == -1)
-        atf_tc_fail("Failed to close everything");
+        ATF_FAIL("Failed to close everything");
 #endif
 }
 
@@ -374,7 +374,7 @@ ATF_TC_BODY(fork_stop, tc)
 
     f = fopen(pfstr, "w");
     if (f == NULL)
-        atf_tc_fail("Failed to create pidfile %s", pfstr);
+        ATF_FAIL("Failed to create pidfile %s", pfstr);
     fprintf(f, "%d", getpid());
     fclose(f);
     printf("Wrote pid file\n");
@@ -408,7 +408,7 @@ ATF_TC_HEAD(ident_1, tc)
 }
 ATF_TC_BODY(ident_1, tc)
 {
-    ATF_CHECK(strcmp(atf_tc_get_md_var(tc, "ident"), "ident_1") == 0);
+    ATF_REQUIRE(strcmp(atf_tc_get_md_var(tc, "ident"), "ident_1") == 0);
 }
 
 ATF_TC(ident_2);
@@ -419,7 +419,7 @@ ATF_TC_HEAD(ident_2, tc)
 }
 ATF_TC_BODY(ident_2, tc)
 {
-    ATF_CHECK(strcmp(atf_tc_get_md_var(tc, "ident"), "ident_2") == 0);
+    ATF_REQUIRE(strcmp(atf_tc_get_md_var(tc, "ident"), "ident_2") == 0);
 }
 
 ATF_TC(require_arch);
@@ -569,7 +569,7 @@ ATF_TC_BODY(srcdir_exists, tc)
                             atf_tc_get_config_var(tc, "srcdir")));
     CE(atf_fs_exists(&p, &b));
     if (!b)
-        atf_tc_fail("Cannot find datafile");
+        ATF_FAIL("Cannot find datafile");
     atf_fs_path_fini(&p);
 }
 
@@ -585,7 +585,7 @@ ATF_TC_HEAD(status_newlines_fail, tc)
 }
 ATF_TC_BODY(status_newlines_fail, tc)
 {
-    atf_tc_fail("First line\nSecond line");
+    ATF_FAIL("First line\nSecond line");
 }
 
 ATF_TC(status_newlines_skip);
