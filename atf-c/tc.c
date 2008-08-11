@@ -89,6 +89,7 @@ static void fatal_libc_error(const char *, int)
             ATF_DEFS_ATTRIBUTE_NORETURN;
 static atf_error_t prepare_child(const atf_tc_t *, const atf_fs_path_t *);
 static void write_tcr(const atf_tc_t *, const atf_tcr_t *);
+static const char *leafname(const char *);
 
 /* ---------------------------------------------------------------------
  * The "atf_tc" type.
