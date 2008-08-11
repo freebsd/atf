@@ -260,7 +260,8 @@ atf_check::run_output_check(const atf::check::check_result &r,
         }
     } else if (check == oc_inline) {
         std::string decoded = decode(arg);
-        atf::fs::path path2("inline.XXXXXX");
+        atf::fs::path path2 = atf::fs::path(atf::config::get("atf_workdir")) \
+                              / "inline.XXXXXX";
         atf::fs::temp_file temp(path2);
         temp.write(decoded);
 
