@@ -106,6 +106,8 @@ atf_error_t atf_tc_run(const atf_tc_t *, struct atf_tcr *,
                        const struct atf_fs_path *);
 
 /* To be run from test case bodies only. */
+void atf_tc_print_err(bool fatal, const char *file,
+                      int line, const char *fmt, ...);
 void atf_tc_fail(const char *, ...) ATF_DEFS_ATTRIBUTE_NORETURN;
 void atf_tc_error(void);
 void atf_tc_pass(void) ATF_DEFS_ATTRIBUTE_NORETURN;
