@@ -99,7 +99,7 @@ Reformats a text string to not overflow terminal boundaries.
 .Pp
 Programming interfaces:
 .Bl -tag -width atfXtestXprogramXXXXX
-.It Xr atf-c 3
+.It Xr atf-c-api 3
 C programming interface for test programs.
 .It Xr atf-c++-api 3
 C++ programming interface for test programs.
@@ -139,7 +139,7 @@ Everything recommeded to users.
 .It
 .Xr atf-test-case 4
 .It
-.Xr atf-c 3
+.Xr atf-c-api 3
 .It
 .Xr atf-c++-api 3
 .It
