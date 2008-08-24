@@ -165,7 +165,9 @@ atf_c_HEADERS = atf-c/config.h \
 atf_cdir = $(includedir)/atf-c
 
 dist_man_MANS = atf-c/atf-c.3 \
-                atf-c/atf-c-object.3
+                atf-c/atf-c-error.3 \
+                atf-c/atf-c-object.3 \
+                atf-c/atf-c-sanity.3
 
 # -------------------------------------------------------------------------
 # `atf-c++' directory.

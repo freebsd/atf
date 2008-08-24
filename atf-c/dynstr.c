@@ -296,7 +296,7 @@ atf_dynstr_cstring(const atf_dynstr_t *ad)
 }
 
 size_t
-atf_dynstr_length(atf_dynstr_t *ad)
+atf_dynstr_length(const atf_dynstr_t *ad)
 {
     return ad->m_length;
 }
