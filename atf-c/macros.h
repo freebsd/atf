@@ -30,9 +30,6 @@
 #if !defined(ATF_C_MACROS_H)
 #define ATF_C_MACROS_H
 
-#include <libgen.h>
-#include <stdio.h>
-
 #include <atf-c/tc.h>
 #include <atf-c/tp.h>
 
@@ -114,15 +111,13 @@
 
 #define ATF_FAIL(fmt, ...) \
     do { \
-        fprintf(stderr, "Fatal error in %s(%d): " fmt "\n", \
-                basename(__FILE__), __LINE__, ##__VA_ARGS__); \
+        atf_tc_print_err(true, __FILE__, __LINE__, fmt, ##__VA_ARGS__); \
         atf_tc_fail("Fatal error"); \
     } while(0)
 
 #define ATF_ERROR(fmt, ...) \
     do { \
-        fprintf(stderr, "Error in %s(%d): " fmt "\n", \
-                basename(__FILE__), __LINE__, ##__VA_ARGS__); \
+        atf_tc_print_err(false, __FILE__, __LINE__, fmt, ##__VA_ARGS__); \
         atf_tc_error(); \
     } while(0)
 
