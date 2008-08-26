@@ -659,7 +659,8 @@ body_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
     if (current_tc_fail_count == 0)
         atf_tc_pass();
     else
-        atf_tc_fail("%d checks failed", current_tc_fail_count);
+        atf_tc_fail("%d checks failed; see output for more details",
+                    current_tc_fail_count);
 
     UNREACHABLE;
     abort();
