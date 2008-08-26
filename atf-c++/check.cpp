@@ -41,29 +41,29 @@ impl::check_result::check_result(void)
 {
 }
 
-impl::check_result::~check_result()
+impl::check_result::~check_result(void)
 {
     atf_check_result_fini(&m_result);
 }
 
 int
-impl::check_result::status()
+impl::check_result::status(void)
     const
 {
     return atf_check_result_status(&m_result);
 }
 
 const atf::fs::path
-impl::check_result::stdout_path()
+impl::check_result::stdout_path(void)
     const
 {
     return atf_check_result_stdout(&m_result);
 }
 
 const atf::fs::path
-impl::check_result::stderr_path()
+impl::check_result::stderr_path(void)
         const
-    {
+{
     return atf_check_result_stderr(&m_result);
 }
 

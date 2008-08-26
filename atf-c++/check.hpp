@@ -32,11 +32,11 @@
 
 #include <string>
 
-#include "atf-c++/fs.hpp"
-
 extern "C" {
 #include "atf-c/check.h"
 }
+
+#include "atf-c++/fs.hpp"
 
 namespace atf {
 namespace check {
@@ -70,22 +70,22 @@ public:
     //!
     //! \brief Destroys object and removes all managed files.
     //!
-    ~check_result();
+    ~check_result(void);
 
     //!
     //! \brief Returns command's exit status.
     //!
-    int status() const;
+    int status(void) const;
 
     //!
     //! \brief Returns the path to file contaning command's stdout.
     //!
-    const atf::fs::path stdout_path() const;
+    const atf::fs::path stdout_path(void) const;
 
     //!
     //! \brief Returns the path to file contaning command's stderr.
     //!
-    const atf::fs::path stderr_path() const;
+    const atf::fs::path stderr_path(void) const;
 };
 
 // ------------------------------------------------------------------------
