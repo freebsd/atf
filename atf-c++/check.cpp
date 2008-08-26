@@ -33,12 +33,12 @@
 namespace impl = atf::check;
 #define IMPL_NAME "atf::check"
 
-impl::check_result::check_result(char* const* argv)
-{
-    atf_error_t err = atf_check_exec(&m_result, argv);
+// ------------------------------------------------------------------------
+// The "check_result" class.
+// ------------------------------------------------------------------------
 
-    if (atf_is_error(err))
-        throw_atf_error(err);
+impl::check_result::check_result(void)
+{
 }
 
 impl::check_result::~check_result()
@@ -65,4 +65,20 @@ impl::check_result::stderr_path()
         const
     {
     return atf_check_result_stderr(&m_result);
+}
+
+// ------------------------------------------------------------------------
+// Free functions.
+// ------------------------------------------------------------------------
+
+impl::check_result
+impl::exec(char * const *argv)
+{
+    impl::check_result res;
+
+    atf_error_t err = atf_check_exec(argv, &res.m_result);
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return res;
 }

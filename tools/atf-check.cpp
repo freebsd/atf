@@ -447,7 +447,7 @@ atf_check::main(void)
         std::cout << argv[i] << " ";
     std::cout << "]" << std::endl;
 
-    atf::check::check_result r(argv);
+    atf::check::check_result r = atf::check::exec(argv);
 
     if (m_xflag) {
         free(sh_argv[0]);

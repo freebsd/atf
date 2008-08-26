@@ -58,12 +58,15 @@ class check_result {
     //!
     atf_check_result_t m_result;
 
-public:
     //!
-    //! \brief Executes given command.
+    //! \brief Constructs an uninitialized results object, which must be
+    //! filled in by exec immediately afterwards.
     //!
-    check_result(char * const *);
+    check_result(void);
 
+    friend check_result exec(char * const *);
+
+public:
     //!
     //! \brief Destroys object and removes all managed files.
     //!
@@ -84,6 +87,12 @@ public:
     //!
     const atf::fs::path stderr_path() const;
 };
+
+// ------------------------------------------------------------------------
+// Free functions.
+// ------------------------------------------------------------------------
+
+check_result exec(char * const *);
 
 } // namespace check
 } // namespace atf

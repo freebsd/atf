@@ -43,8 +43,42 @@
  * The "atf_check_result" type.
  * --------------------------------------------------------------------- */
 
+void
+atf_check_result_fini(atf_check_result_t *r)
+{
+    atf_fs_unlink(&r->m_stdout);
+    atf_fs_path_fini(&r->m_stdout);
+
+    atf_fs_unlink(&r->m_stderr);
+    atf_fs_path_fini(&r->m_stderr);
+
+    atf_object_fini(&r->m_object);
+}
+
+const atf_fs_path_t *
+atf_check_result_stdout(const atf_check_result_t *r)
+{
+    return &r->m_stdout;
+}
+
+const atf_fs_path_t *
+atf_check_result_stderr(const atf_check_result_t *r)
+{
+    return &r->m_stderr;
+}
+
+int
+atf_check_result_status(const atf_check_result_t *r)
+{
+    return r->m_status;
+}
+
+/* ---------------------------------------------------------------------
+ * Free functions.
+ * --------------------------------------------------------------------- */
+
 atf_error_t
-atf_check_exec(atf_check_result_t *r, char *const *argv)
+atf_check_exec(char *const *argv, atf_check_result_t *r)
 {
     int fd_out, fd_err;
     int status;
@@ -125,34 +159,4 @@ out_mstdout:
     atf_object_fini(&r->m_object);
 
     return err;
-}
-
-void
-atf_check_result_fini(atf_check_result_t *r)
-{
-    atf_fs_unlink(&r->m_stdout);
-    atf_fs_path_fini(&r->m_stdout);
-
-    atf_fs_unlink(&r->m_stderr);
-    atf_fs_path_fini(&r->m_stderr);
-
-    atf_object_fini(&r->m_object);
-}
-
-const atf_fs_path_t *
-atf_check_result_stdout(const atf_check_result_t *r)
-{
-    return &r->m_stdout;
-}
-
-const atf_fs_path_t *
-atf_check_result_stderr(const atf_check_result_t *r)
-{
-    return &r->m_stderr;
-}
-
-int
-atf_check_result_status(const atf_check_result_t *r)
-{
-    return r->m_status;
 }
