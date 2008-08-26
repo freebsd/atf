@@ -567,7 +567,7 @@ out:
 
 static const atf_tc_t *current_tc = NULL;
 static const atf_fs_path_t *current_workdir = NULL;
-static bool current_tc_failed = false;
+static size_t current_tc_fail_count = 0;
 
 static
 atf_error_t
@@ -578,7 +578,7 @@ prepare_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
 
     current_tc = tc;
     current_workdir = workdir;
-    current_tc_failed = false;
+    current_tc_fail_count = 0;
 
     ret = setpgid(getpid(), 0);
     INV(ret != -1);
@@ -656,10 +656,10 @@ body_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
         goto print_err;
     tc->m_body(tc);
 
-    if (current_tc_failed == false)
+    if (current_tc_fail_count == 0)
         atf_tc_pass();
     else
-        atf_tc_fail("Non-fatal error(s)");
+        atf_tc_fail("%d checks failed", current_tc_fail_count);
 
     UNREACHABLE;
     abort();
@@ -1050,7 +1050,7 @@ atf_tc_fail(const char *fmt, ...)
 void
 atf_tc_error(void)
 {
-    current_tc_failed = true;
+    current_tc_fail_count++;
 }
 
 void
