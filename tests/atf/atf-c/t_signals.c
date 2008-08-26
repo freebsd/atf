@@ -89,11 +89,11 @@ ATF_TC_BODY(last_signo, tc)
     sa.sa_flags = 0;
 
     if (sigaction(atf_signals_last_signo, &sa, NULL) == -1)
-        ATF_FAIL("Failed to program last signal (number %d)",
+        atf_tc_fail("Failed to program last signal (number %d)",
                     atf_signals_last_signo);
 
     if (sigaction(atf_signals_last_signo + 1, &sa, NULL) != -1)
-        ATF_FAIL("Successfully programmed a signal after last (number %d)",
+        atf_tc_fail("Successfully programmed a signal after last (number %d)",
                     atf_signals_last_signo + 1);
 }
 

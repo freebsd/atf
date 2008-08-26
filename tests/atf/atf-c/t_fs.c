@@ -56,7 +56,7 @@ create_dir(const char *p, int mode)
 
     fd = mkdir(p, mode);
     if (fd == -1)
-        ATF_FAIL("Could not create helper directory %s", p);
+        atf_tc_fail("Could not create helper directory %s", p);
 }
 
 static
@@ -67,7 +67,7 @@ create_file(const char *p, int mode)
 
     fd = open(p, O_CREAT | O_WRONLY | O_TRUNC, mode);
     if (fd == -1)
-        ATF_FAIL("Could not create helper file %s", p);
+        atf_tc_fail("Could not create helper file %s", p);
 }
 
 static

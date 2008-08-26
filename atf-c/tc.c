@@ -89,7 +89,6 @@ static void fatal_libc_error(const char *, int)
             ATF_DEFS_ATTRIBUTE_NORETURN;
 static atf_error_t prepare_child(const atf_tc_t *, const atf_fs_path_t *);
 static void write_tcr(const atf_tc_t *, const atf_tcr_t *);
-static const char *leafname(const char *);
 
 /* ---------------------------------------------------------------------
  * The "atf_tc" type.
@@ -975,57 +974,6 @@ write_tcr(const atf_tc_t *tc, const atf_tcr_t *tcr)
     close(fd);
 }
 
-static
-const char *
-leafname(const char *file)
-{
-    static char buf[PATH_MAX];
-    atf_error_t err;
-    atf_fs_path_t path;
-    atf_dynstr_t leaf;
-    const char *ret = NULL;
-
-    err = atf_fs_path_init_fmt(&path, "%s", file);
-    if (atf_is_error(err))
-        goto out_path;
-
-    err = atf_fs_path_leaf_name(&path, &leaf);
-    if (atf_is_error(err))
-        goto out_leaf;
-
-    strlcpy(buf, atf_fs_path_cstring(&path), sizeof(buf));
-    ret = buf;
-
-out_leaf:
-    atf_dynstr_fini(&leaf);
-out_path:
-    atf_fs_path_fini(&path);
-
-    return ret;
-}
-
-void
-atf_tc_print_err(bool fatal, const char *file,
-                 int line, const char *fmt, ...)
-{
-    va_list ap;
-    const char *leaf;
-
-    leaf = leafname(file);
-    if (leaf == NULL)
-        leaf = file;
-
-    fprintf(stderr, "%s in %s(%d): ",
-            fatal ? "Fatal error" : "Error",
-            leaf, line);
-
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-
-    fprintf(stderr, "\n");
-}
-
 void
 atf_tc_fail(const char *fmt, ...)
 {
@@ -1049,8 +997,15 @@ atf_tc_fail(const char *fmt, ...)
 }
 
 void
-atf_tc_error(void)
+atf_tc_fail_nonfatal(const char *fmt, ...)
 {
+    va_list ap;
+
+    va_start(ap, fmt);
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
+    fprintf(stderr, "\n");
+
     current_tc_fail_count++;
 }
 
