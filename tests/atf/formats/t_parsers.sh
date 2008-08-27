@@ -84,7 +84,7 @@ run_tests()
         fi
 
         atf_check -s eq:0 -o file:expout -e file:experr \
-                  "${sd}/h_parser ${type} ${1} outin errin"
+                  ${sd}/h_parser "${type}" "${1}" outin errin
 
         shift
     done

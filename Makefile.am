@@ -167,10 +167,7 @@ atf_c_HEADERS = atf-c/check.h \
                 atf-c/user.h
 atf_cdir = $(includedir)/atf-c
 
-dist_man_MANS = atf-c/atf-c.3 \
-                atf-c/atf-c-error.3 \
-                atf-c/atf-c-object.3 \
-                atf-c/atf-c-sanity.3
+dist_man_MANS = atf-c/atf-c-api.3
 
 # -------------------------------------------------------------------------
 # `atf-c++' directory.
@@ -971,7 +968,9 @@ tests_atf_tools_h_pass_SOURCES = tests/atf/tools/h_pass.cpp
 tests_atf_tools_h_pass_LDADD = -latf-c++
 tests_atf_tools_h_pass_LDFLAGS = -L.
 
-atf_tools_SCRIPTS = tests/atf/tools/t_atf_check
+atf_tools_SCRIPTS = tests/atf/tools/h_mount_tmpfs.sh
+
+atf_tools_SCRIPTS += tests/atf/tools/t_atf_check
 CLEANFILES += tests/atf/tools/t_atf_check
 EXTRA_DIST += tests/atf/tools/t_atf_check.sh
 tests/atf/tools/t_atf_check: \

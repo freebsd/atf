@@ -53,7 +53,7 @@ tc-end: status_newlines_fail, failed, BOGUS REASON (THE ORIGINAL HAD NEWLINES): 
 EOF
         # NO_CHECK_STYLE_END
         atf_check -s eq:1 -o file:expout -e empty \
-                  "${h} -s $(atf_get_srcdir) status_newlines_fail"
+                  "${h}" -s "$(atf_get_srcdir)" status_newlines_fail
 
         # NO_CHECK_STYLE_BEGIN
         cat >expout <<EOF
@@ -65,7 +65,7 @@ tc-end: status_newlines_skip, skipped, BOGUS REASON (THE ORIGINAL HAD NEWLINES):
 EOF
         # NO_CHECK_STYLE_END
         atf_check -s eq:0 -o file:expout -e empty \
-                  "${h} -s $(atf_get_srcdir) status_newlines_skip"
+                  "${h}" -s "$(atf_get_srcdir)" status_newlines_skip
     done
 }
 

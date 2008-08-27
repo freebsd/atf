@@ -43,7 +43,7 @@
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
-#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 static
 void
@@ -53,7 +53,7 @@ create_ctl_file(const atf_tc_t *tc, const char *name)
 
     CE(atf_fs_path_init_fmt(&p, "%s/%s",
                             atf_tc_get_config_var(tc, "ctldir"), name));
-    ATF_CHECK(open(atf_fs_path_cstring(&p),
+    ATF_REQUIRE(open(atf_fs_path_cstring(&p),
                    O_CREAT | O_WRONLY | O_TRUNC, 0644) != -1);
     atf_fs_path_fini(&p);
 }
@@ -101,26 +101,26 @@ run_here(const atf_tc_t *tc, atf_tcr_t *tcr)
  * Helper test cases.
  * --------------------------------------------------------------------- */
 
-ATF_TC_HEAD(h_check, tc)
+ATF_TC_HEAD(h_require, tc)
 {
     atf_tc_set_md_var(tc, "descr", "Helper test case");
 }
-ATF_TC_BODY(h_check, tc)
+ATF_TC_BODY(h_require, tc)
 {
     bool condition;
 
     CE(atf_text_to_bool(atf_tc_get_config_var(tc, "condition"), &condition));
 
     create_ctl_file(tc, "before");
-    ATF_CHECK(condition);
+    ATF_REQUIRE(condition);
     create_ctl_file(tc, "after");
 }
 
-ATF_TC_HEAD(h_check_equal, tc)
+ATF_TC_HEAD(h_require_equal, tc)
 {
     atf_tc_set_md_var(tc, "descr", "Helper test case");
 }
-ATF_TC_BODY(h_check_equal, tc)
+ATF_TC_BODY(h_require_equal, tc)
 {
     long v1, v2;
 
@@ -128,7 +128,7 @@ ATF_TC_BODY(h_check_equal, tc)
     CE(atf_text_to_long(atf_tc_get_config_var(tc, "v2"), &v2));
 
     create_ctl_file(tc, "before");
-    ATF_CHECK_EQUAL(v1, v2);
+    ATF_REQUIRE_EQ(v1, v2);
     create_ctl_file(tc, "after");
 }
 
@@ -136,12 +136,12 @@ ATF_TC_BODY(h_check_equal, tc)
  * Test cases for the macros.
  * --------------------------------------------------------------------- */
 
-ATF_TC(check);
-ATF_TC_HEAD(check, tc)
+ATF_TC(require);
+ATF_TC_HEAD(require, tc)
 {
-    atf_tc_set_md_var(tc, "descr", "Tests the ATF_CHECK macro");
+    atf_tc_set_md_var(tc, "descr", "Tests the ATF_REQUIRE macro");
 }
-ATF_TC_BODY(check, tc)
+ATF_TC_BODY(require, tc)
 {
     struct test {
         const char *cond;
@@ -162,40 +162,35 @@ ATF_TC_BODY(check, tc)
 
         printf("Checking with a %s value\n", t->cond);
 
-        CE(atf_tc_init(&tcaux, "h_check", ATF_TC_HEAD_NAME(h_check),
-                       ATF_TC_BODY_NAME(h_check), NULL, &config));
+        CE(atf_tc_init(&tcaux, "h_require", ATF_TC_HEAD_NAME(h_require),
+                       ATF_TC_BODY_NAME(h_require), NULL, &config));
         run_here(&tcaux, &tcr);
         atf_tc_fini(&tcaux);
 
-        ATF_CHECK(exists("before"));
+        ATF_REQUIRE(exists("before"));
         if (t->ok) {
-            ATF_CHECK(atf_tcr_get_state(&tcr) == atf_tcr_passed_state);
-            ATF_CHECK(exists("after"));
+            ATF_REQUIRE(atf_tcr_get_state(&tcr) == atf_tcr_passed_state);
+            ATF_REQUIRE(exists("after"));
         } else {
-            const char *r;
-
-            ATF_CHECK(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
-            ATF_CHECK(!exists("after"));
-
-            r = atf_dynstr_cstring(atf_tcr_get_reason(&tcr));
-            ATF_CHECK(strstr(r, "condition not met") != NULL);
+            ATF_REQUIRE(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
+            ATF_REQUIRE(!exists("after"));
         }
 
         atf_tcr_fini(&tcr);
         atf_map_fini(&config);
 
-        ATF_CHECK(unlink("before") != -1);
+        ATF_REQUIRE(unlink("before") != -1);
         if (t->ok)
-            ATF_CHECK(unlink("after") != -1);
+            ATF_REQUIRE(unlink("after") != -1);
     }
 }
 
-ATF_TC(check_equal);
-ATF_TC_HEAD(check_equal, tc)
+ATF_TC(require_equal);
+ATF_TC_HEAD(require_equal, tc)
 {
-    atf_tc_set_md_var(tc, "descr", "Tests the ATF_CHECK_EQUAL macro");
+    atf_tc_set_md_var(tc, "descr", "Tests the ATF_REQUIRE_EQ macro");
 }
-ATF_TC_BODY(check_equal, tc)
+ATF_TC_BODY(require_equal, tc)
 {
     struct test {
         const char *v1;
@@ -221,31 +216,26 @@ ATF_TC_BODY(check_equal, tc)
         printf("Checking with %s, %s and expecting %s\n", t->v1, t->v2,
                t->ok ? "true" : "false");
 
-        CE(atf_tc_init(&tcaux, "h_check", ATF_TC_HEAD_NAME(h_check_equal),
-                       ATF_TC_BODY_NAME(h_check_equal), NULL, &config));
+        CE(atf_tc_init(&tcaux, "h_require", ATF_TC_HEAD_NAME(h_require_equal),
+                       ATF_TC_BODY_NAME(h_require_equal), NULL, &config));
         run_here(&tcaux, &tcr);
         atf_tc_fini(&tcaux);
 
-        ATF_CHECK(exists("before"));
+        ATF_REQUIRE(exists("before"));
         if (t->ok) {
-            ATF_CHECK(atf_tcr_get_state(&tcr) == atf_tcr_passed_state);
-            ATF_CHECK(exists("after"));
+            ATF_REQUIRE(atf_tcr_get_state(&tcr) == atf_tcr_passed_state);
+            ATF_REQUIRE(exists("after"));
         } else {
-            const char *r;
-
-            ATF_CHECK(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
-            ATF_CHECK(!exists("after"));
-
-            r = atf_dynstr_cstring(atf_tcr_get_reason(&tcr));
-            ATF_CHECK(strstr(r, "v1 != v2") != NULL);
+            ATF_REQUIRE(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
+            ATF_REQUIRE(!exists("after"));
         }
 
         atf_tcr_fini(&tcr);
         atf_map_fini(&config);
 
-        ATF_CHECK(unlink("before") != -1);
+        ATF_REQUIRE(unlink("before") != -1);
         if (t->ok)
-            ATF_CHECK(unlink("after") != -1);
+            ATF_REQUIRE(unlink("after") != -1);
     }
 }
 
@@ -255,8 +245,8 @@ ATF_TC_BODY(check_equal, tc)
 
 ATF_TP_ADD_TCS(tp)
 {
-    ATF_TP_ADD_TC(tp, check);
-    ATF_TP_ADD_TC(tp, check_equal);
+    ATF_TP_ADD_TC(tp, require);
+    ATF_TP_ADD_TC(tp, require_equal);
 
     return atf_no_error();
 }

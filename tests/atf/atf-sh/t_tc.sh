@@ -36,10 +36,10 @@ default_status_head()
 default_status_body()
 {
     h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
-    atf_check -s eq:0 -o ignore -e ignore "${h} -r3 tc_pass_true 3>resout"
-    atf_check -s eq:0 -o ignore -e ignore "${h} -r3 tc_pass_false 3>resout"
-    atf_check -s eq:1 -o ignore -e save:stderr "${h} -r3 tc_fail 3>resout"
-    atf_check -s eq:0 -o ignore -e empty 'grep "An error" stderr'
+    atf_check -s eq:0 -o ignore -e ignore ${h} -r3 tc_pass_true
+    atf_check -s eq:0 -o ignore -e ignore ${h} -r3 tc_pass_false
+    atf_check -s eq:1 -o ignore -e save:stderr ${h} -r3 tc_fail
+    atf_check -s eq:0 -o ignore -e empty grep "An error" stderr
 }
 
 atf_init_test_cases()

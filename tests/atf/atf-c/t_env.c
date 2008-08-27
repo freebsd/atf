@@ -39,7 +39,7 @@
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
-#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 /* ---------------------------------------------------------------------
  * Test cases for the free functions.
@@ -52,8 +52,8 @@ ATF_TC_HEAD(has, tc)
 }
 ATF_TC_BODY(has, tc)
 {
-    ATF_CHECK(atf_env_has("PATH"));
-    ATF_CHECK(!atf_env_has("_UNDEFINED_VARIABLE_"));
+    ATF_REQUIRE(atf_env_has("PATH"));
+    ATF_REQUIRE(!atf_env_has("_UNDEFINED_VARIABLE_"));
 }
 
 ATF_TC(get);
@@ -65,11 +65,11 @@ ATF_TC_BODY(get, tc)
 {
     const char *val;
 
-    ATF_CHECK(atf_env_has("PATH"));
+    ATF_REQUIRE(atf_env_has("PATH"));
 
     val = atf_env_get("PATH");
-    ATF_CHECK(strlen(val) > 0);
-    ATF_CHECK(strchr(val, ':') != NULL);
+    ATF_REQUIRE(strlen(val) > 0);
+    ATF_REQUIRE(strchr(val, ':') != NULL);
 }
 
 ATF_TC(set);
@@ -81,16 +81,16 @@ ATF_TC_BODY(set, tc)
 {
     char *oldval;
 
-    ATF_CHECK(atf_env_has("PATH"));
+    ATF_REQUIRE(atf_env_has("PATH"));
     CE(atf_text_format(&oldval, "%s", atf_env_get("PATH")));
     CE(atf_env_set("PATH", "foo-bar"));
-    ATF_CHECK(strcmp(atf_env_get("PATH"), oldval) != 0);
-    ATF_CHECK(strcmp(atf_env_get("PATH"), "foo-bar") == 0);
+    ATF_REQUIRE(strcmp(atf_env_get("PATH"), oldval) != 0);
+    ATF_REQUIRE(strcmp(atf_env_get("PATH"), "foo-bar") == 0);
     free(oldval);
 
-    ATF_CHECK(!atf_env_has("_UNDEFINED_VARIABLE_"));
+    ATF_REQUIRE(!atf_env_has("_UNDEFINED_VARIABLE_"));
     CE(atf_env_set("_UNDEFINED_VARIABLE_", "foo2-bar2"));
-    ATF_CHECK(strcmp(atf_env_get("_UNDEFINED_VARIABLE_"),
+    ATF_REQUIRE(strcmp(atf_env_get("_UNDEFINED_VARIABLE_"),
                      "foo2-bar2") == 0);
 }
 
@@ -101,9 +101,9 @@ ATF_TC_HEAD(unset, tc)
 }
 ATF_TC_BODY(unset, tc)
 {
-    ATF_CHECK(atf_env_has("PATH"));
+    ATF_REQUIRE(atf_env_has("PATH"));
     CE(atf_env_unset("PATH"));
-    ATF_CHECK(!atf_env_has("PATH"));
+    ATF_REQUIRE(!atf_env_has("PATH"));
 }
 
 /* ---------------------------------------------------------------------

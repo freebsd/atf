@@ -46,7 +46,7 @@
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
-#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 static
 void
@@ -131,7 +131,7 @@ ATF_TC_BODY(path_normalize, tc)
 
         CE(atf_fs_path_init_fmt(&p, "%s", t->in));
         printf("Output         : >%s<\n", atf_fs_path_cstring(&p));
-        ATF_CHECK(strcmp(atf_fs_path_cstring(&p), t->out) == 0);
+        ATF_REQUIRE(strcmp(atf_fs_path_cstring(&p), t->out) == 0);
         atf_fs_path_fini(&p);
 
         printf("\n");
@@ -150,11 +150,11 @@ ATF_TC_BODY(path_copy, tc)
     CE(atf_fs_path_init_fmt(&str, "foo"));
     CE(atf_fs_path_copy(&str2, &str));
 
-    ATF_CHECK(atf_equal_fs_path_fs_path(&str, &str2));
+    ATF_REQUIRE(atf_equal_fs_path_fs_path(&str, &str2));
 
     CE(atf_fs_path_append_fmt(&str2, "bar"));
 
-    ATF_CHECK(!atf_equal_fs_path_fs_path(&str, &str2));
+    ATF_REQUIRE(!atf_equal_fs_path_fs_path(&str, &str2));
 
     atf_fs_path_fini(&str2);
     atf_fs_path_fini(&str);
@@ -191,9 +191,9 @@ ATF_TC_BODY(path_is_absolute, tc)
         printf("Result         : %s\n",
                atf_fs_path_is_absolute(&p) ? "true" : "false");
         if (t->abs)
-            ATF_CHECK(atf_fs_path_is_absolute(&p));
+            ATF_REQUIRE(atf_fs_path_is_absolute(&p));
         else
-            ATF_CHECK(!atf_fs_path_is_absolute(&p));
+            ATF_REQUIRE(!atf_fs_path_is_absolute(&p));
         atf_fs_path_fini(&p);
 
         printf("\n");
@@ -231,9 +231,9 @@ ATF_TC_BODY(path_is_root, tc)
         printf("Result         : %s\n",
                atf_fs_path_is_root(&p) ? "true" : "false");
         if (t->root)
-            ATF_CHECK(atf_fs_path_is_root(&p));
+            ATF_REQUIRE(atf_fs_path_is_root(&p));
         else
-            ATF_CHECK(!atf_fs_path_is_root(&p));
+            ATF_REQUIRE(!atf_fs_path_is_root(&p));
         atf_fs_path_fini(&p);
 
         printf("\n");
@@ -270,7 +270,7 @@ ATF_TC_BODY(path_branch_path, tc)
         CE(atf_fs_path_init_fmt(&p, "%s", t->in));
         CE(atf_fs_path_branch_path(&p, &bp));
         printf("Output         : %s\n", atf_fs_path_cstring(&bp));
-        ATF_CHECK(strcmp(atf_fs_path_cstring(&bp), t->branch) == 0);
+        ATF_REQUIRE(strcmp(atf_fs_path_cstring(&bp), t->branch) == 0);
         atf_fs_path_fini(&p);
 
         printf("\n");
@@ -308,7 +308,7 @@ ATF_TC_BODY(path_leaf_name, tc)
         CE(atf_fs_path_init_fmt(&p, "%s", t->in));
         CE(atf_fs_path_leaf_name(&p, &ln));
         printf("Output         : %s\n", atf_dynstr_cstring(&ln));
-        ATF_CHECK(atf_equal_dynstr_cstring(&ln, t->leaf));
+        ATF_REQUIRE(atf_equal_dynstr_cstring(&ln, t->leaf));
         atf_fs_path_fini(&p);
 
         printf("\n");
@@ -349,7 +349,7 @@ ATF_TC_BODY(path_append, tc)
         CE(atf_fs_path_append_fmt(&p, "%s", t->ap));
 
         printf("Output         : >%s<\n", atf_fs_path_cstring(&p));
-        ATF_CHECK(strcmp(atf_fs_path_cstring(&p), t->out) == 0);
+        ATF_REQUIRE(strcmp(atf_fs_path_cstring(&p), t->out) == 0);
 
         atf_fs_path_fini(&p);
 
@@ -368,7 +368,7 @@ ATF_TC_BODY(path_to_absolute, tc)
     const char *names[] = { ".", "dir", NULL };
     const char **n;
 
-    ATF_CHECK(mkdir("dir", 0755) != -1);
+    ATF_REQUIRE(mkdir("dir", 0755) != -1);
 
     for (n = names; *n != NULL; n++) {
         atf_fs_path_t p, p2;
@@ -381,12 +381,12 @@ ATF_TC_BODY(path_to_absolute, tc)
         CE(atf_fs_path_to_absolute(&p, &p2));
         printf("Absolute path: %s\n", atf_fs_path_cstring(&p2));
 
-        ATF_CHECK(atf_fs_path_is_absolute(&p2));
+        ATF_REQUIRE(atf_fs_path_is_absolute(&p2));
         CE(atf_fs_stat_init(&st2, &p2));
 
-        ATF_CHECK_EQUAL(atf_fs_stat_get_device(&st1),
+        ATF_REQUIRE_EQ(atf_fs_stat_get_device(&st1),
                         atf_fs_stat_get_device(&st2));
-        ATF_CHECK_EQUAL(atf_fs_stat_get_inode(&st1),
+        ATF_REQUIRE_EQ(atf_fs_stat_get_inode(&st1),
                         atf_fs_stat_get_inode(&st2));
 
         atf_fs_stat_fini(&st2);
@@ -410,11 +410,11 @@ ATF_TC_BODY(path_equal, tc)
     CE(atf_fs_path_init_fmt(&p1, "foo"));
 
     CE(atf_fs_path_init_fmt(&p2, "foo"));
-    ATF_CHECK(atf_equal_fs_path_fs_path(&p1, &p2));
+    ATF_REQUIRE(atf_equal_fs_path_fs_path(&p1, &p2));
     atf_fs_path_fini(&p2);
 
     CE(atf_fs_path_init_fmt(&p2, "bar"));
-    ATF_CHECK(!atf_equal_fs_path_fs_path(&p1, &p2));
+    ATF_REQUIRE(!atf_equal_fs_path_fs_path(&p1, &p2));
     atf_fs_path_fini(&p2);
 
     atf_fs_path_fini(&p1);
@@ -440,13 +440,13 @@ ATF_TC_BODY(stat_type, tc)
 
     CE(atf_fs_path_init_fmt(&p, "dir"));
     CE(atf_fs_stat_init(&st, &p));
-    ATF_CHECK_EQUAL(atf_fs_stat_get_type(&st), atf_fs_stat_dir_type);
+    ATF_REQUIRE_EQ(atf_fs_stat_get_type(&st), atf_fs_stat_dir_type);
     atf_fs_stat_fini(&st);
     atf_fs_path_fini(&p);
 
     CE(atf_fs_path_init_fmt(&p, "reg"));
     CE(atf_fs_stat_init(&st, &p));
-    ATF_CHECK_EQUAL(atf_fs_stat_get_type(&st), atf_fs_stat_reg_type);
+    ATF_REQUIRE_EQ(atf_fs_stat_get_type(&st), atf_fs_stat_reg_type);
     atf_fs_stat_fini(&st);
     atf_fs_path_fini(&p);
 }
@@ -468,15 +468,15 @@ ATF_TC_BODY(stat_perms, tc)
 #define perms(ur, uw, ux, gr, gw, gx, othr, othw, othx) \
     { \
         CE(atf_fs_stat_init(&st, &p)); \
-        ATF_CHECK(atf_fs_stat_is_owner_readable(&st) == ur); \
-        ATF_CHECK(atf_fs_stat_is_owner_writable(&st) == uw); \
-        ATF_CHECK(atf_fs_stat_is_owner_executable(&st) == ux); \
-        ATF_CHECK(atf_fs_stat_is_group_readable(&st) == gr); \
-        ATF_CHECK(atf_fs_stat_is_group_writable(&st) == gw); \
-        ATF_CHECK(atf_fs_stat_is_group_executable(&st) == gx); \
-        ATF_CHECK(atf_fs_stat_is_other_readable(&st) == othr); \
-        ATF_CHECK(atf_fs_stat_is_other_writable(&st) == othw); \
-        ATF_CHECK(atf_fs_stat_is_other_executable(&st) == othx); \
+        ATF_REQUIRE(atf_fs_stat_is_owner_readable(&st) == ur); \
+        ATF_REQUIRE(atf_fs_stat_is_owner_writable(&st) == uw); \
+        ATF_REQUIRE(atf_fs_stat_is_owner_executable(&st) == ux); \
+        ATF_REQUIRE(atf_fs_stat_is_group_readable(&st) == gr); \
+        ATF_REQUIRE(atf_fs_stat_is_group_writable(&st) == gw); \
+        ATF_REQUIRE(atf_fs_stat_is_group_executable(&st) == gx); \
+        ATF_REQUIRE(atf_fs_stat_is_other_readable(&st) == othr); \
+        ATF_REQUIRE(atf_fs_stat_is_other_writable(&st) == othw); \
+        ATF_REQUIRE(atf_fs_stat_is_other_executable(&st) == othx); \
         atf_fs_stat_fini(&st); \
     }
 
@@ -545,7 +545,7 @@ ATF_TC_BODY(cleanup, tc)
 
     CE(atf_fs_path_init_fmt(&root, "root"));
     CE(atf_fs_cleanup(&root));
-    ATF_CHECK(not_exists(&root));
+    ATF_REQUIRE(not_exists(&root));
     atf_fs_path_fini(&root);
 
     /* TODO: Cleanup with mount points, just as in tools/t_atf_cleanup. */
@@ -570,26 +570,26 @@ ATF_TC_BODY(exists, tc)
 
     printf("Checking existence of a directory\n");
     CE(atf_fs_exists(&pdir, &b));
-    ATF_CHECK(b);
+    ATF_REQUIRE(b);
 
     printf("Checking existence of a file\n");
     CE(atf_fs_exists(&pfile, &b));
-    ATF_CHECK(b);
+    ATF_REQUIRE(b);
 
     if (!atf_user_is_root()) {
         printf("Checking existence of a file inside a directory without "
                "permissions\n");
-        ATF_CHECK(chmod(atf_fs_path_cstring(&pdir), 0000) != -1);
+        ATF_REQUIRE(chmod(atf_fs_path_cstring(&pdir), 0000) != -1);
         err = atf_fs_exists(&pfile, &b);
-        ATF_CHECK(atf_is_error(err));
-        ATF_CHECK(atf_error_is(err, "libc"));
-        ATF_CHECK(chmod(atf_fs_path_cstring(&pdir), 0755) != -1);
+        ATF_REQUIRE(atf_is_error(err));
+        ATF_REQUIRE(atf_error_is(err, "libc"));
+        ATF_REQUIRE(chmod(atf_fs_path_cstring(&pdir), 0755) != -1);
     }
 
     printf("Checking existence of a non-existent file\n");
-    ATF_CHECK(unlink(atf_fs_path_cstring(&pfile)) != -1);
+    ATF_REQUIRE(unlink(atf_fs_path_cstring(&pfile)) != -1);
     CE(atf_fs_exists(&pfile, &b));
-    ATF_CHECK(!b);
+    ATF_REQUIRE(!b);
 }
 
 ATF_TC(eaccess);
@@ -653,14 +653,14 @@ ATF_TC_BODY(eaccess, tc)
     printf("Non-existent file checks\n");
     for (m = &modes[0]; *m != 0; m++) {
         err = atf_fs_eaccess(&p, *m);
-        ATF_CHECK(atf_is_error(err));
-        ATF_CHECK(atf_error_is(err, "libc"));
-        ATF_CHECK_EQUAL(atf_libc_error_code(err), ENOENT);
+        ATF_REQUIRE(atf_is_error(err));
+        ATF_REQUIRE(atf_error_is(err, "libc"));
+        ATF_REQUIRE_EQ(atf_libc_error_code(err), ENOENT);
         atf_error_free(err);
     }
 
     create_file(atf_fs_path_cstring(&p), 0000);
-    ATF_CHECK(chown(atf_fs_path_cstring(&p), geteuid(), getegid()) != -1);
+    ATF_REQUIRE(chown(atf_fs_path_cstring(&p), geteuid(), getegid()) != -1);
 
     for (t = &tests[0]; t->amode != 0; t++) {
         const int experr = atf_user_is_root() ? t->rerror : t->uerror;
@@ -669,11 +669,11 @@ ATF_TC_BODY(eaccess, tc)
         printf("File mode     : %04o\n", t->fmode);
         printf("Access mode   : 0x%02x\n", t->amode);
 
-        ATF_CHECK(chmod(atf_fs_path_cstring(&p), t->fmode) != -1);
+        ATF_REQUIRE(chmod(atf_fs_path_cstring(&p), t->fmode) != -1);
 
         /* First, existence check. */
         err = atf_fs_eaccess(&p, atf_fs_access_f);
-        ATF_CHECK(!atf_is_error(err));
+        ATF_REQUIRE(!atf_is_error(err));
 
         /* Now do the specific test case. */
         printf("Expected error: %d\n", experr);
@@ -686,11 +686,11 @@ ATF_TC_BODY(eaccess, tc)
         } else
                 printf("Error         : None\n");
         if (experr == 0) {
-            ATF_CHECK(!atf_is_error(err));
+            ATF_REQUIRE(!atf_is_error(err));
         } else {
-            ATF_CHECK(atf_is_error(err));
-            ATF_CHECK(atf_error_is(err, "libc"));
-            ATF_CHECK_EQUAL(atf_libc_error_code(err), experr);
+            ATF_REQUIRE(atf_is_error(err));
+            ATF_REQUIRE(atf_error_is(err, "libc"));
+            ATF_REQUIRE_EQ(atf_libc_error_code(err), experr);
             atf_error_free(err);
         }
     }
@@ -710,12 +710,12 @@ ATF_TC_BODY(getcwd, tc)
     create_dir ("root", 0755);
 
     CE(atf_fs_getcwd(&cwd1));
-    ATF_CHECK(chdir("root") != -1);
+    ATF_REQUIRE(chdir("root") != -1);
     CE(atf_fs_getcwd(&cwd2));
 
     CE(atf_fs_path_append_fmt(&cwd1, "root"));
 
-    ATF_CHECK(atf_equal_fs_path_fs_path(&cwd1, &cwd2));
+    ATF_REQUIRE(atf_equal_fs_path_fs_path(&cwd1, &cwd2));
 
     atf_fs_path_fini(&cwd2);
     atf_fs_path_fini(&cwd1);
@@ -735,31 +735,31 @@ ATF_TC_BODY(mkdtemp, tc)
     CE(atf_fs_path_init_fmt(&p2, "testdir.XXXXXX"));
     CE(atf_fs_mkdtemp(&p1));
     CE(atf_fs_mkdtemp(&p2));
-    ATF_CHECK(!atf_equal_fs_path_fs_path(&p1, &p2));
-    ATF_CHECK(exists(&p1));
-    ATF_CHECK(exists(&p2));
+    ATF_REQUIRE(!atf_equal_fs_path_fs_path(&p1, &p2));
+    ATF_REQUIRE(exists(&p1));
+    ATF_REQUIRE(exists(&p2));
 
     CE(atf_fs_stat_init(&s1, &p1));
-    ATF_CHECK( atf_fs_stat_is_owner_readable(&s1));
-    ATF_CHECK( atf_fs_stat_is_owner_writable(&s1));
-    ATF_CHECK( atf_fs_stat_is_owner_executable(&s1));
-    ATF_CHECK(!atf_fs_stat_is_group_readable(&s1));
-    ATF_CHECK(!atf_fs_stat_is_group_writable(&s1));
-    ATF_CHECK(!atf_fs_stat_is_group_executable(&s1));
-    ATF_CHECK(!atf_fs_stat_is_other_readable(&s1));
-    ATF_CHECK(!atf_fs_stat_is_other_writable(&s1));
-    ATF_CHECK(!atf_fs_stat_is_other_executable(&s1));
+    ATF_REQUIRE( atf_fs_stat_is_owner_readable(&s1));
+    ATF_REQUIRE( atf_fs_stat_is_owner_writable(&s1));
+    ATF_REQUIRE( atf_fs_stat_is_owner_executable(&s1));
+    ATF_REQUIRE(!atf_fs_stat_is_group_readable(&s1));
+    ATF_REQUIRE(!atf_fs_stat_is_group_writable(&s1));
+    ATF_REQUIRE(!atf_fs_stat_is_group_executable(&s1));
+    ATF_REQUIRE(!atf_fs_stat_is_other_readable(&s1));
+    ATF_REQUIRE(!atf_fs_stat_is_other_writable(&s1));
+    ATF_REQUIRE(!atf_fs_stat_is_other_executable(&s1));
 
     CE(atf_fs_stat_init(&s2, &p2));
-    ATF_CHECK( atf_fs_stat_is_owner_readable(&s2));
-    ATF_CHECK( atf_fs_stat_is_owner_writable(&s2));
-    ATF_CHECK( atf_fs_stat_is_owner_executable(&s2));
-    ATF_CHECK(!atf_fs_stat_is_group_readable(&s2));
-    ATF_CHECK(!atf_fs_stat_is_group_writable(&s2));
-    ATF_CHECK(!atf_fs_stat_is_group_executable(&s2));
-    ATF_CHECK(!atf_fs_stat_is_other_readable(&s2));
-    ATF_CHECK(!atf_fs_stat_is_other_writable(&s2));
-    ATF_CHECK(!atf_fs_stat_is_other_executable(&s2));
+    ATF_REQUIRE( atf_fs_stat_is_owner_readable(&s2));
+    ATF_REQUIRE( atf_fs_stat_is_owner_writable(&s2));
+    ATF_REQUIRE( atf_fs_stat_is_owner_executable(&s2));
+    ATF_REQUIRE(!atf_fs_stat_is_group_readable(&s2));
+    ATF_REQUIRE(!atf_fs_stat_is_group_writable(&s2));
+    ATF_REQUIRE(!atf_fs_stat_is_group_executable(&s2));
+    ATF_REQUIRE(!atf_fs_stat_is_other_readable(&s2));
+    ATF_REQUIRE(!atf_fs_stat_is_other_writable(&s2));
+    ATF_REQUIRE(!atf_fs_stat_is_other_executable(&s2));
 
     atf_fs_stat_fini(&s2);
     atf_fs_stat_fini(&s1);

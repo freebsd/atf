@@ -26,7 +26,7 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd May 4, 2008
+.Dd July 15, 2008
 .Dt ATF 7
 .Os
 .Sh NAME
@@ -56,7 +56,7 @@ advertised.
 .Pp
 .Ss License
 .Nm
-is distributed under the terms of the TNF License, a 4-clause BSD license.
+is distributed under the terms of the TNF License, a 2-clause BSD license.
 For more details please see:
 .Bd -literal -offset indent
 .Pa __DOCDIR__/COPYING
@@ -99,7 +99,7 @@ Reformats a text string to not overflow terminal boundaries.
 .Pp
 Programming interfaces:
 .Bl -tag -width atfXtestXprogramXXXXX
-.It Xr atf-c 3
+.It Xr atf-c-api 3
 C programming interface for test programs.
 .It Xr atf-c++-api 3
 C++ programming interface for test programs.
@@ -139,7 +139,7 @@ Everything recommeded to users.
 .It
 .Xr atf-test-case 4
 .It
-.Xr atf-c 3
+.Xr atf-c-api 3
 .It
 .Xr atf-c++-api 3
 .It

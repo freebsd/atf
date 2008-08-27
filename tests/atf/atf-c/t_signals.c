@@ -44,7 +44,7 @@
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
-#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 static
 void
@@ -115,9 +115,9 @@ ATF_TC_BODY(signal_holder_init, tc)
     CE(atf_signal_programmer_init(&sp, SIGUSR1, test1_handler));
 
     CE(atf_signal_holder_init(&sh, SIGUSR1));
-    ATF_CHECK(!test1_happened);
-    ATF_CHECK(kill(getpid(), SIGUSR1) != -1);
-    ATF_CHECK(!test1_happened);
+    ATF_REQUIRE(!test1_happened);
+    ATF_REQUIRE(kill(getpid(), SIGUSR1) != -1);
+    ATF_REQUIRE(!test1_happened);
     atf_signal_holder_fini(&sh);
 
     atf_signal_programmer_fini(&sp);
@@ -141,17 +141,17 @@ ATF_TC_BODY(signal_holder_fini, tc)
     test1_happened = false;
     CE(atf_signal_holder_init(&sh, SIGUSR1));
     atf_signal_holder_fini(&sh);
-    ATF_CHECK(!test1_happened);
+    ATF_REQUIRE(!test1_happened);
     printf("Checking that the original handler is restored\n");
     kill(getpid(), SIGUSR1);
-    ATF_CHECK(test1_happened);
+    ATF_REQUIRE(test1_happened);
 
     printf("Checking that the signal is delivered if it happened\n");
     test1_happened = false;
     CE(atf_signal_holder_init(&sh, SIGUSR1));
-    ATF_CHECK(kill(getpid(), SIGUSR1) != -1);
+    ATF_REQUIRE(kill(getpid(), SIGUSR1) != -1);
     atf_signal_holder_fini(&sh);
-    ATF_CHECK(test1_happened);
+    ATF_REQUIRE(test1_happened);
 
     atf_signal_programmer_fini(&sp);
 }
@@ -171,15 +171,15 @@ ATF_TC_BODY(signal_holder_process, tc)
 
     printf("Checking that the signal is delivered if it happened\n");
     CE(atf_signal_holder_init(&sh, SIGUSR1));
-    ATF_CHECK(kill(getpid(), SIGUSR1) != -1);
-    ATF_CHECK(!test1_happened);
+    ATF_REQUIRE(kill(getpid(), SIGUSR1) != -1);
+    ATF_REQUIRE(!test1_happened);
     atf_signal_holder_process(&sh);
-    ATF_CHECK(test1_happened);
+    ATF_REQUIRE(test1_happened);
     test1_happened = false;
     printf("Checking that the signal is not re-delivered during "
            "destruction\n");
     atf_signal_holder_fini(&sh);
-    ATF_CHECK(!test1_happened);
+    ATF_REQUIRE(!test1_happened);
 
     atf_signal_programmer_fini(&sp);
 }
@@ -199,14 +199,14 @@ ATF_TC_BODY(signal_programmer_init, tc)
     atf_signal_programmer_t sp;
 
     CE(atf_signal_programmer_init(&sp, SIGUSR1, test1_handler));
-    ATF_CHECK(!test1_happened);
-    ATF_CHECK(kill(getpid(), SIGUSR1) != -1);
-    ATF_CHECK(test1_happened);
+    ATF_REQUIRE(!test1_happened);
+    ATF_REQUIRE(kill(getpid(), SIGUSR1) != -1);
+    ATF_REQUIRE(test1_happened);
 
     CE(atf_signal_programmer_init(&sp, SIGUSR2, test2_handler));
-    ATF_CHECK(!test2_happened);
-    ATF_CHECK(kill(getpid(), SIGUSR2) != -1);
-    ATF_CHECK(test2_happened);
+    ATF_REQUIRE(!test2_happened);
+    ATF_REQUIRE(kill(getpid(), SIGUSR2) != -1);
+    ATF_REQUIRE(test2_happened);
 }
 
 ATF_TC(signal_programmer_fini);
@@ -224,15 +224,15 @@ ATF_TC_BODY(signal_programmer_fini, tc)
 
     test1_happened = test2_happened = false;
     kill(getpid(), SIGUSR1);
-    ATF_CHECK(!test1_happened);
-    ATF_CHECK(test2_happened);
+    ATF_REQUIRE(!test1_happened);
+    ATF_REQUIRE(test2_happened);
 
     atf_signal_programmer_fini(&sp2);
 
     test1_happened = test2_happened = false;
     kill(getpid(), SIGUSR1);
-    ATF_CHECK(test1_happened);
-    ATF_CHECK(!test2_happened);
+    ATF_REQUIRE(test1_happened);
+    ATF_REQUIRE(!test2_happened);
 
     atf_signal_programmer_fini(&sp1);
 }
@@ -249,7 +249,7 @@ ATF_TC_HEAD(signal_reset, tc)
 ATF_TC_BODY(signal_reset, tc)
 {
     pid_t pid = fork();
-    ATF_CHECK(pid != -1);
+    ATF_REQUIRE(pid != -1);
     if (pid == 0) {
         struct sigaction sa;
 
@@ -257,10 +257,10 @@ ATF_TC_BODY(signal_reset, tc)
         sigemptyset(&sa.sa_mask);
         sa.sa_flags = 0;
 
-        ATF_CHECK(sigaction(SIGTERM, &sa, NULL) != -1);
-        ATF_CHECK(!test1_happened);
+        ATF_REQUIRE(sigaction(SIGTERM, &sa, NULL) != -1);
+        ATF_REQUIRE(!test1_happened);
         kill(getpid(), SIGTERM);
-        ATF_CHECK(test1_happened);
+        ATF_REQUIRE(test1_happened);
 
         test1_happened = false;
         atf_signal_reset(SIGTERM);
@@ -271,9 +271,9 @@ ATF_TC_BODY(signal_reset, tc)
     } else {
         int ecode;
 
-        ATF_CHECK(waitpid(pid, &ecode, 0) != -1);
-        ATF_CHECK(WIFEXITED(ecode) || WIFSIGNALED(ecode));
-        ATF_CHECK(!WIFSIGNALED(ecode) || WTERMSIG(ecode) == SIGTERM);
+        ATF_REQUIRE(waitpid(pid, &ecode, 0) != -1);
+        ATF_REQUIRE(WIFEXITED(ecode) || WIFSIGNALED(ecode));
+        ATF_REQUIRE(!WIFSIGNALED(ecode) || WTERMSIG(ecode) == SIGTERM);
     }
 }
 

@@ -35,7 +35,7 @@
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
-#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 /* ---------------------------------------------------------------------
  * Test cases for the "atf_tcr_t" type.
@@ -89,15 +89,15 @@ ATF_TC_BODY(get_state, tc)
     atf_tcr_t tcr;
 
     CE(atf_tcr_init(&tcr, atf_tcr_passed_state));
-    ATF_CHECK_EQUAL(atf_tcr_get_state(&tcr), atf_tcr_passed_state);
+    ATF_REQUIRE_EQ(atf_tcr_get_state(&tcr), atf_tcr_passed_state);
     atf_tcr_fini(&tcr);
 
     CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_failed_state, "The reason"));
-    ATF_CHECK_EQUAL(atf_tcr_get_state(&tcr), atf_tcr_failed_state);
+    ATF_REQUIRE_EQ(atf_tcr_get_state(&tcr), atf_tcr_failed_state);
     atf_tcr_fini(&tcr);
 
     CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_skipped_state, "The reason"));
-    ATF_CHECK_EQUAL(atf_tcr_get_state(&tcr), atf_tcr_skipped_state);
+    ATF_REQUIRE_EQ(atf_tcr_get_state(&tcr), atf_tcr_skipped_state);
     atf_tcr_fini(&tcr);
 }
 
@@ -113,24 +113,24 @@ ATF_TC_BODY(get_reason, tc)
 
     CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_failed_state, "Failed"));
     reason = atf_tcr_get_reason(&tcr);
-    ATF_CHECK(atf_equal_dynstr_cstring(reason, "Failed"));
+    ATF_REQUIRE(atf_equal_dynstr_cstring(reason, "Failed"));
     atf_tcr_fini(&tcr);
 
     CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_failed_state, "Failed with "
                                "%s %d", "string", 5));
     reason = atf_tcr_get_reason(&tcr);
-    ATF_CHECK(atf_equal_dynstr_cstring(reason, "Failed with string 5"));
+    ATF_REQUIRE(atf_equal_dynstr_cstring(reason, "Failed with string 5"));
     atf_tcr_fini(&tcr);
 
     CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_skipped_state, "Skipped"));
     reason = atf_tcr_get_reason(&tcr);
-    ATF_CHECK(atf_equal_dynstr_cstring(reason, "Skipped"));
+    ATF_REQUIRE(atf_equal_dynstr_cstring(reason, "Skipped"));
     atf_tcr_fini(&tcr);
 
     CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_skipped_state, "Skipped with "
                                "%s %d", "string", 5));
     reason = atf_tcr_get_reason(&tcr);
-    ATF_CHECK(atf_equal_dynstr_cstring(reason, "Skipped with string 5"));
+    ATF_REQUIRE(atf_equal_dynstr_cstring(reason, "Skipped with string 5"));
     atf_tcr_fini(&tcr);
 }
 

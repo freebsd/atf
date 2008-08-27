@@ -127,8 +127,12 @@ atf_check::print_diff(const atf::fs::path &p1, const atf::fs::path &p2)
 {
     std::string cmd("diff -u \"" + p1.str() + "\" \"" + p2.str() + "\" >&2");
     int exitcode = std::system(cmd.c_str());
-    if (!WIFEXITED(exitcode) || WEXITSTATUS(exitcode) != EXIT_SUCCESS)
+
+    if (!WIFEXITED(exitcode))
         std::cerr << "Failed to run diff(3)" << std::endl;
+
+    if (WEXITSTATUS(exitcode) != 1)
+        std::cerr << "Error while running diff(3)" << std::endl;
 }
 
 void
@@ -257,7 +261,8 @@ atf_check::run_output_check(const atf::check::check_result &r,
         }
     } else if (check == oc_inline) {
         std::string decoded = decode(arg);
-        atf::fs::path path2("inline.XXXXXX");
+        atf::fs::path path2 = atf::fs::path(atf::config::get("atf_workdir")) \
+                              / "inline.XXXXXX";
         atf::fs::temp_file temp(path2);
         temp.write(decoded);
 
@@ -302,8 +307,7 @@ atf_check::specific_options(void)
                "one of: empty ignore file:<path> inline:<val> save:<path>"));
     opts.insert(option('e', "action:arg", "Handle stderr. Action must be "
                "one of: empty ignore file:<path> inline:<val> save:<path>"));
-    opts.insert(option('x', "", "Execute command directly by execv(3), no as "
-               "a shell command"));
+    opts.insert(option('x', "", "Execute command as a shell command"));
 
     return opts;
 }
@@ -426,7 +430,7 @@ atf_check::main(void)
     char *sh_argv[4];
     int status = EXIT_FAILURE;
 
-    if (m_xflag)
+    if (!m_xflag)
         argv = m_argv;
     else {
         sh_argv[0] = ::strdup(atf::config::get("atf_shell").c_str());
@@ -444,9 +448,9 @@ atf_check::main(void)
         std::cout << argv[i] << " ";
     std::cout << "]" << std::endl;
 
-    atf::check::check_result r(argv);
+    atf::check::check_result r = atf::check::exec(argv);
 
-    if (!m_xflag) {
+    if (m_xflag) {
         free(sh_argv[0]);
         free(sh_argv[1]);
         free(sh_argv[2]);

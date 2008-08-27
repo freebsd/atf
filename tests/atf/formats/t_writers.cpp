@@ -60,7 +60,7 @@ check_equal(const std::string& str, const std::string& exp)
         print_indented(str);
         std::cout << "EXPECTED:" << std::endl;
         print_indented(exp);
-        ATF_FAIL("Constructed string differs from the expected one");
+        atf_tc_fail("Constructed string differs from the expected one");
     }
 }
 

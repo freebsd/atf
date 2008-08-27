@@ -39,14 +39,14 @@ info_ok_body()
 {
     h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
 
-    atf_check -s eq:0 -o save:stdout -e save:stderr \
+    atf_check -s eq:0 -o save:stdout -e save:stderr -x \
               "${h} -r3 atf_check_info_ok 3>resout"
-    grep 'Checking command.*true' stderr >/dev/null || \
+    grep 'Executing command.*true' stdout >/dev/null || \
         atf_fail "atf_check does not print an informative message"
 
-    atf_check -s eq:0 -o save:stdout -e save:stderr \
+    atf_check -s eq:0 -o save:stdout -e save:stderr -x \
               "${h} -r3 atf_check_info_fail 3>resout"
-    grep 'Checking command.*false' stderr >/dev/null || \
+    grep 'Executing command.*false' stdout >/dev/null || \
         atf_fail "atf_check does not print an informative message"
 }
 
@@ -61,9 +61,9 @@ expout_mismatch_body()
 {
     h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
 
-    atf_check -s eq:1 -o save:stdout -e save:stderr \
+    atf_check -s eq:1 -o save:stdout -e save:stderr -x \
               "${h} -r3 atf_check_expout_mismatch 3>resout"
-    grep 'Checking command.*echo bar' stderr >/dev/null || \
+    grep 'Executing command.*echo bar' stdout >/dev/null || \
         atf_fail "atf_check does not print an informative message"
     grep 'incorrect stdout' stderr >/dev/null || \
         atf_fail "atf_check does not print the stdout header"
@@ -86,9 +86,9 @@ experr_mismatch_body()
 {
     h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
 
-    atf_check -s eq:1 -o save:stdout -e save:stderr \
+    atf_check -s eq:1 -o save:stdout -e save:stderr -x \
               "${h} -r3 atf_check_experr_mismatch 3>resout"
-    grep 'Checking command.*echo bar' stderr >/dev/null || \
+    grep 'Executing command.*echo bar' stdout >/dev/null || \
         atf_fail "atf_check does not print an informative message"
     grep 'incorrect stdout' stderr >/dev/null && \
         atf_fail "atf_check prints the stdout header"
@@ -110,9 +110,9 @@ null_stdout_body()
 {
     h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
 
-    atf_check -s eq:1 -o save:stdout -e save:stderr \
+    atf_check -s eq:1 -o save:stdout -e save:stderr -x \
               "${h} -r3 atf_check_null_stdout 3>resout"
-    grep 'Checking command.*echo.*These.*contents' stderr >/dev/null || \
+    grep 'Executing command.*echo.*These.*contents' stdout >/dev/null || \
         atf_fail "atf_check does not print an informative message"
     grep 'incorrect stdout' stderr >/dev/null || \
         atf_fail "atf_check does not print the stdout header"
@@ -132,9 +132,9 @@ null_stderr_body()
 {
     h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
 
-    atf_check -s eq:1 -o save:stdout -e save:stderr \
+    atf_check -s eq:1 -o save:stdout -e save:stderr -x \
               "${h} -r3 atf_check_null_stderr 3>resout"
-    grep 'Checking command.*echo.*These.*contents' stderr >/dev/null || \
+    grep 'Executing command.*echo.*These.*contents' stdout >/dev/null || \
         atf_fail "atf_check does not print an informative message"
     grep 'incorrect stdout' stderr >/dev/null && \
         atf_fail "atf_check prints the stdout header"
@@ -153,20 +153,21 @@ equal_body()
 {
     h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
 
-    atf_check -s eq:0 -o ignore -e ignore \
+    atf_check -s eq:0 -o ignore -e ignore -x \
               "${h} -r3 atf_check_equal_ok 3>resout"
 
-    atf_check -s eq:1 -o ignore -e ignore \
+    atf_check -s eq:1 -o ignore -e ignore -x \
               "${h} -r3 atf_check_equal_fail 3>resout"
-    atf_check -s eq:0 -o ignore -e empty 'grep "a != b (a != b)" resout'
+    atf_check -s eq:0 -o ignore -e empty \
+              grep 'a != b (a != b)' resout
 
-    atf_check -s eq:0 -o ignore -e ignore \
+    atf_check -s eq:0 -o ignore -e ignore -x \
               "${h} -r3 atf_check_equal_eval_ok 3>resout"
 
-    atf_check -s eq:1 -o ignore -e ignore \
+    atf_check -s eq:1 -o ignore -e ignore -x \
               "${h} -r3 atf_check_equal_eval_fail 3>resout"
     atf_check -s eq:0 -o ignore -e empty \
-              'grep "\${x} != \${y} (a != b)" resout'
+              grep '\${x} != \${y} (a != b)' resout
 }
 
 atf_init_test_cases()

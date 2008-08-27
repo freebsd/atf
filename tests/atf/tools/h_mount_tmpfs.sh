@@ -1,3 +1,5 @@
+#! /bin/sh
+
 #
 # Automated Testing Framework (atf)
 #
@@ -27,40 +29,24 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-atf_test_case vflag
-vflag_head()
+mount_tmpfs_portable()
 {
-    atf_set "descr" "Tests that the -v flag works correctly to set" \
-                    "configuration variables"
+    platform=$(uname)
+    case ${platform} in
+    Linux|NetBSD)
+        mount -t tmpfs tmpfs ${1}
+        ;;
+    FreeBSD)
+        mdmfs -s 16m md ${1}
+        ;;
+    SunOS)
+        mount -F tmpfs tmpfs $(pwd)/${1}
+        ;;
+    *)
+        echo "Platform not supported"
+        exit 1
+        ;;
+    esac
 }
-vflag_body()
-{
-    for h in $(get_helpers); do
-        atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 \
-                   config_unset 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep 'passed' resout
-
-        atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v 'test=' \
-                   config_empty 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep 'passed' resout
-
-        atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v 'test=foo' \
-                   config_value 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep 'passed' resout
-
-        atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v 'test=foo bar' \
-                   config_multi_value 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep 'passed' resout
-    done
-}
-
-atf_init_test_cases()
-{
-    atf_add_test_case vflag
-}
-
+#
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

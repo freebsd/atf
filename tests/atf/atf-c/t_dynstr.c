@@ -36,7 +36,7 @@
 
 #include "atf-c/dynstr.h"
 
-#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 /* ---------------------------------------------------------------------
  * Tests for the "atf_dynstr" type.
@@ -56,8 +56,8 @@ ATF_TC_BODY(init, tc)
     atf_dynstr_t str;
 
     CE(atf_dynstr_init(&str));
-    ATF_CHECK_EQUAL(atf_dynstr_length(&str), 0);
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "") == 0);
+    ATF_REQUIRE_EQ(atf_dynstr_length(&str), 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "") == 0);
     atf_dynstr_fini(&str);
 }
 
@@ -83,20 +83,20 @@ ATF_TC_BODY(init_ap, tc)
     atf_dynstr_t str;
 
     init_fmt(&str, "String 1");
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 1") == 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "String 1") == 0);
     atf_dynstr_fini(&str);
 
     init_fmt(&str, "String %d", 2);
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 2") == 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "String 2") == 0);
     atf_dynstr_fini(&str);
 
     init_fmt(&str, "%s %d", "String", 3);
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 3") == 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "String 3") == 0);
     atf_dynstr_fini(&str);
 
     init_fmt(&str, "%s%s%s%s%s%s%s", "This ", "should ", "be ", "a ",
              "large ", "string ", "aaaabbbbccccdddd");
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str),
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str),
                      "This should be a large string "
                      "aaaabbbbccccdddd") == 0);
     atf_dynstr_fini(&str);
@@ -113,21 +113,21 @@ ATF_TC_BODY(init_fmt, tc)
     atf_dynstr_t str;
 
     CE(atf_dynstr_init_fmt(&str, "String 1"));
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 1") == 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "String 1") == 0);
     atf_dynstr_fini(&str);
 
     CE(atf_dynstr_init_fmt(&str, "String %d", 2));
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 2") == 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "String 2") == 0);
     atf_dynstr_fini(&str);
 
     CE(atf_dynstr_init_fmt(&str, "%s %d", "String", 3));
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 3") == 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "String 3") == 0);
     atf_dynstr_fini(&str);
 
     CE(atf_dynstr_init_fmt(&str, "%s%s%s%s%s%s%s", "This ", "should ",
                            "be ", "a ", "large ", "string ",
                            "aaaabbbbccccdddd"));
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str),
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str),
                      "This should be a large string "
                      "aaaabbbbccccdddd") == 0);
     atf_dynstr_fini(&str);
@@ -145,19 +145,19 @@ ATF_TC_BODY(init_raw, tc)
     atf_dynstr_t str;
 
     CE(atf_dynstr_init_raw(&str, src, 0));
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "") == 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "") == 0);
     atf_dynstr_fini(&str);
 
     CE(atf_dynstr_init_raw(&str, src, 8));
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 1") == 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "String 1") == 0);
     atf_dynstr_fini(&str);
 
     CE(atf_dynstr_init_raw(&str, src + 10, 8));
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String 2") == 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "String 2") == 0);
     atf_dynstr_fini(&str);
 
     CE(atf_dynstr_init_raw(&str, "String\0Lost", 11));
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "String") == 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "String") == 0);
     atf_dynstr_fini(&str);
 }
 
@@ -182,7 +182,7 @@ ATF_TC_BODY(init_rep, tc)
 
         if (strcmp(atf_dynstr_cstring(&str), buf) != 0) {
             fprintf(stderr, "Failed at iteration %zd\n", i);
-            atf_tc_fail("Failed to construct dynstr by repeating %d "
+            atf_tc_fail("Failed to construct dynstr by repeating %zd "
                         "times the '%c' character", i, 'a');
         }
 
@@ -196,12 +196,12 @@ ATF_TC_BODY(init_rep, tc)
         atf_error_t err;
 
         err = atf_dynstr_init_rep(&str, SIZE_MAX, 'a');
-        ATF_CHECK(atf_is_error(err));
-        ATF_CHECK(atf_error_is(err, "no_memory"));
+        ATF_REQUIRE(atf_is_error(err));
+        ATF_REQUIRE(atf_error_is(err, "no_memory"));
 
         err = atf_dynstr_init_rep(&str, SIZE_MAX - 1, 'a');
-        ATF_CHECK(atf_is_error(err));
-        ATF_CHECK(atf_error_is(err, "no_memory"));
+        ATF_REQUIRE(atf_is_error(err));
+        ATF_REQUIRE(atf_error_is(err, "no_memory"));
     }
 }
 
@@ -219,27 +219,27 @@ ATF_TC_BODY(init_substr, tc)
     CE(atf_dynstr_init_fmt(&src, "Str 1, Str 2"));
 
     CE(atf_dynstr_init_substr(&str, &src, 0, 0));
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "") == 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "") == 0);
     atf_dynstr_fini(&str);
 
     CE(atf_dynstr_init_substr(&str, &src, 0, atf_dynstr_npos));
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "Str 1, Str 2") == 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "Str 1, Str 2") == 0);
     atf_dynstr_fini(&str);
 
     CE(atf_dynstr_init_substr(&str, &src, 0, 100));
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "Str 1, Str 2") == 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "Str 1, Str 2") == 0);
     atf_dynstr_fini(&str);
 
     CE(atf_dynstr_init_substr(&str, &src, 0, 5));
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "Str 1") == 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "Str 1") == 0);
     atf_dynstr_fini(&str);
 
     CE(atf_dynstr_init_substr(&str, &src, 100, atf_dynstr_npos));
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "") == 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "") == 0);
     atf_dynstr_fini(&str);
 
     CE(atf_dynstr_init_substr(&str, &src, 7, atf_dynstr_npos));
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "Str 2") == 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "Str 2") == 0);
     atf_dynstr_fini(&str);
 }
 
@@ -255,11 +255,11 @@ ATF_TC_BODY(copy, tc)
     CE(atf_dynstr_init_fmt(&str, "Test string"));
     CE(atf_dynstr_copy(&str2, &str));
 
-    ATF_CHECK(atf_equal_dynstr_dynstr(&str, &str2));
+    ATF_REQUIRE(atf_equal_dynstr_dynstr(&str, &str2));
 
     CE(atf_dynstr_append_fmt(&str2, " non-shared text"));
 
-    ATF_CHECK(!atf_equal_dynstr_dynstr(&str, &str2));
+    ATF_REQUIRE(!atf_equal_dynstr_dynstr(&str, &str2));
 
     atf_dynstr_fini(&str2);
     atf_dynstr_fini(&str);
@@ -281,7 +281,7 @@ ATF_TC_BODY(fini_disown, tc)
     cstr = atf_dynstr_cstring(&str);
     cstr2 = atf_dynstr_fini_disown(&str);
 
-    ATF_CHECK_EQUAL(cstr, cstr2);
+    ATF_REQUIRE_EQ(cstr, cstr2);
     free(cstr2);
 }
 
@@ -302,14 +302,14 @@ ATF_TC_BODY(cstring, tc)
 
     CE(atf_dynstr_init_fmt(&str, "Test string 1"));
     cstr = atf_dynstr_cstring(&str);
-    ATF_CHECK(cstr != NULL);
-    ATF_CHECK(strcmp(cstr, "Test string 1") == 0);
+    ATF_REQUIRE(cstr != NULL);
+    ATF_REQUIRE(strcmp(cstr, "Test string 1") == 0);
     atf_dynstr_fini(&str);
 
     CE(atf_dynstr_init_fmt(&str, "Test string 2"));
     cstr = atf_dynstr_cstring(&str);
-    ATF_CHECK(cstr != NULL);
-    ATF_CHECK(strcmp(cstr, "Test string 2") == 0);
+    ATF_REQUIRE(cstr != NULL);
+    ATF_REQUIRE(strcmp(cstr, "Test string 2") == 0);
     atf_dynstr_fini(&str);
 }
 
@@ -325,7 +325,7 @@ ATF_TC_BODY(length, tc)
     for (i = 0; i < 8192; i++) {
         atf_dynstr_t str;
         CE(atf_dynstr_init_rep(&str, i, 'a'));
-        ATF_CHECK_EQUAL(atf_dynstr_length(&str), i);
+        ATF_REQUIRE_EQ(atf_dynstr_length(&str), i);
         atf_dynstr_fini(&str);
     }
 }
@@ -342,15 +342,15 @@ ATF_TC_BODY(rfind_ch, tc)
 
     CE(atf_dynstr_init_fmt(&str, "Foo1/Bar2/,.Baz"));
 
-    ATF_CHECK_EQUAL(atf_dynstr_rfind_ch(&str, '\0'), atf_dynstr_npos);
+    ATF_REQUIRE_EQ(atf_dynstr_rfind_ch(&str, '\0'), atf_dynstr_npos);
 
-    ATF_CHECK_EQUAL(atf_dynstr_rfind_ch(&str, '0'), atf_dynstr_npos);
-    ATF_CHECK_EQUAL(atf_dynstr_rfind_ch(&str, 'b'), atf_dynstr_npos);
+    ATF_REQUIRE_EQ(atf_dynstr_rfind_ch(&str, '0'), atf_dynstr_npos);
+    ATF_REQUIRE_EQ(atf_dynstr_rfind_ch(&str, 'b'), atf_dynstr_npos);
 
-    ATF_CHECK_EQUAL(atf_dynstr_rfind_ch(&str, 'F'), 0);
-    ATF_CHECK_EQUAL(atf_dynstr_rfind_ch(&str, '/'), 9);
-    ATF_CHECK_EQUAL(atf_dynstr_rfind_ch(&str, 'a'), 13);
-    ATF_CHECK_EQUAL(atf_dynstr_rfind_ch(&str, 'z'), 14);
+    ATF_REQUIRE_EQ(atf_dynstr_rfind_ch(&str, 'F'), 0);
+    ATF_REQUIRE_EQ(atf_dynstr_rfind_ch(&str, '/'), 9);
+    ATF_REQUIRE_EQ(atf_dynstr_rfind_ch(&str, 'a'), 13);
+    ATF_REQUIRE_EQ(atf_dynstr_rfind_ch(&str, 'z'), 14);
 
     atf_dynstr_fini(&str);
 }
@@ -374,7 +374,7 @@ check_append(atf_error_t (*append)(atf_dynstr_t *, const char *, ...))
     for (i = 0; i < maxlen; i++) {
         if (strcmp(atf_dynstr_cstring(&str), buf) != 0) {
             fprintf(stderr, "Failed at iteration %zd\n", i);
-            atf_tc_fail("Failed to append character at iteration %d", i);
+            atf_tc_fail("Failed to append character at iteration %zd", i);
         }
 
         CE(append(&str, "a"));
@@ -388,7 +388,7 @@ check_append(atf_error_t (*append)(atf_dynstr_t *, const char *, ...))
     for (i = 0; i < maxlen; i++) {
         if (strcmp(atf_dynstr_cstring(&str), buf) != 0) {
             fprintf(stderr, "Failed at iteration %zd\n", i);
-            atf_tc_fail("Failed to append character at iteration %d", i);
+            atf_tc_fail("Failed to append character at iteration %zd", i);
         }
 
         CE(append(&str, "%s", "a"));
@@ -445,17 +445,17 @@ ATF_TC_BODY(clear, tc)
     printf("Clear an empty string\n");
     CE(atf_dynstr_init(&str));
     atf_dynstr_clear(&str);
-    ATF_CHECK_EQUAL(atf_dynstr_length(&str), 0);
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "") == 0);
+    ATF_REQUIRE_EQ(atf_dynstr_length(&str), 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "") == 0);
     atf_dynstr_fini(&str);
 
     printf("Clear a non-empty string\n");
     CE(atf_dynstr_init_fmt(&str, "Not empty"));
-    ATF_CHECK_EQUAL(atf_dynstr_length(&str), strlen("Not empty"));
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "Not empty") == 0);
+    ATF_REQUIRE_EQ(atf_dynstr_length(&str), strlen("Not empty"));
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "Not empty") == 0);
     atf_dynstr_clear(&str);
-    ATF_CHECK_EQUAL(atf_dynstr_length(&str), 0);
-    ATF_CHECK(strcmp(atf_dynstr_cstring(&str), "") == 0);
+    ATF_REQUIRE_EQ(atf_dynstr_length(&str), 0);
+    ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "") == 0);
     atf_dynstr_fini(&str);
 }
 
@@ -474,7 +474,7 @@ check_prepend(atf_error_t (*prepend)(atf_dynstr_t *, const char *, ...))
     for (i = 0; i < maxlen; i++) {
         if (strcmp(atf_dynstr_cstring(&str), buf) != 0) {
             fprintf(stderr, "Failed at iteration %zd\n", i);
-            atf_tc_fail("Failed to prepend character at iteration %d", i);
+            atf_tc_fail("Failed to prepend character at iteration %zd", i);
         }
 
         memmove(buf + 1, buf, i + 1);
@@ -494,7 +494,7 @@ check_prepend(atf_error_t (*prepend)(atf_dynstr_t *, const char *, ...))
     for (i = 0; i < maxlen; i++) {
         if (strcmp(atf_dynstr_cstring(&str), buf) != 0) {
             fprintf(stderr, "Failed at iteration %zd\n", i);
-            atf_tc_fail("Failed to prepend character at iteration %d", i);
+            atf_tc_fail("Failed to prepend character at iteration %zd", i);
         }
 
         memmove(buf + 1, buf, i + 1);
@@ -560,15 +560,15 @@ ATF_TC_BODY(equal_cstring, tc)
     atf_dynstr_t str;
 
     CE(atf_dynstr_init(&str));
-    ATF_CHECK( atf_equal_dynstr_cstring(&str, ""));
-    ATF_CHECK(!atf_equal_dynstr_cstring(&str, "Test"));
+    ATF_REQUIRE( atf_equal_dynstr_cstring(&str, ""));
+    ATF_REQUIRE(!atf_equal_dynstr_cstring(&str, "Test"));
     atf_dynstr_fini(&str);
 
     CE(atf_dynstr_init_fmt(&str, "Test"));
-    ATF_CHECK( atf_equal_dynstr_cstring(&str, "Test"));
-    ATF_CHECK(!atf_equal_dynstr_cstring(&str, ""));
-    ATF_CHECK(!atf_equal_dynstr_cstring(&str, "Tes"));
-    ATF_CHECK(!atf_equal_dynstr_cstring(&str, "Test "));
+    ATF_REQUIRE( atf_equal_dynstr_cstring(&str, "Test"));
+    ATF_REQUIRE(!atf_equal_dynstr_cstring(&str, ""));
+    ATF_REQUIRE(!atf_equal_dynstr_cstring(&str, "Tes"));
+    ATF_REQUIRE(!atf_equal_dynstr_cstring(&str, "Test "));
     atf_dynstr_fini(&str);
 }
 
@@ -584,8 +584,8 @@ ATF_TC_BODY(equal_dynstr, tc)
 
     CE(atf_dynstr_init(&str));
     CE(atf_dynstr_init_fmt(&str2, "Test"));
-    ATF_CHECK( atf_equal_dynstr_dynstr(&str, &str));
-    ATF_CHECK(!atf_equal_dynstr_dynstr(&str, &str2));
+    ATF_REQUIRE( atf_equal_dynstr_dynstr(&str, &str));
+    ATF_REQUIRE(!atf_equal_dynstr_dynstr(&str, &str2));
     atf_dynstr_fini(&str2);
     atf_dynstr_fini(&str);
 }

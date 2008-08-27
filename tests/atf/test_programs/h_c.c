@@ -48,7 +48,7 @@
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
-#define CE(stm) ATF_CHECK(!atf_is_error(stm))
+#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 static
 void
@@ -246,7 +246,7 @@ ATF_TC_HEAD(config_unset, tc)
 }
 ATF_TC_BODY(config_unset, tc)
 {
-    ATF_CHECK(!atf_tc_has_config_var(tc, "test"));
+    ATF_REQUIRE(!atf_tc_has_config_var(tc, "test"));
 }
 
 ATF_TC(config_empty);
@@ -257,8 +257,8 @@ ATF_TC_HEAD(config_empty, tc)
 }
 ATF_TC_BODY(config_empty, tc)
 {
-    ATF_CHECK(atf_tc_has_config_var(tc, "test"));
-    ATF_CHECK(strlen(atf_tc_get_config_var(tc, "test")) == 0);
+    ATF_REQUIRE(atf_tc_has_config_var(tc, "test"));
+    ATF_REQUIRE(strlen(atf_tc_get_config_var(tc, "test")) == 0);
 }
 
 ATF_TC(config_value);
@@ -269,8 +269,8 @@ ATF_TC_HEAD(config_value, tc)
 }
 ATF_TC_BODY(config_value, tc)
 {
-    ATF_CHECK(atf_tc_has_config_var(tc, "test"));
-    ATF_CHECK(strcmp(atf_tc_get_config_var(tc, "test"), "foo") == 0);
+    ATF_REQUIRE(atf_tc_has_config_var(tc, "test"));
+    ATF_REQUIRE(strcmp(atf_tc_get_config_var(tc, "test"), "foo") == 0);
 }
 
 ATF_TC(config_multi_value);
@@ -281,8 +281,8 @@ ATF_TC_HEAD(config_multi_value, tc)
 }
 ATF_TC_BODY(config_multi_value, tc)
 {
-    ATF_CHECK(atf_tc_has_config_var(tc, "test"));
-    ATF_CHECK(strcmp(atf_tc_get_config_var(tc, "test"), "foo bar") == 0);
+    ATF_REQUIRE(atf_tc_has_config_var(tc, "test"));
+    ATF_REQUIRE(strcmp(atf_tc_get_config_var(tc, "test"), "foo bar") == 0);
 }
 
 /* ---------------------------------------------------------------------
@@ -300,7 +300,7 @@ ATF_TC_BODY(env_home, tc)
     atf_fs_path_t cwd, home;
     atf_fs_stat_t stcwd, sthome;
 
-    ATF_CHECK(atf_env_has("HOME"));
+    ATF_REQUIRE(atf_env_has("HOME"));
 
     CE(atf_fs_getcwd(&cwd));
     CE(atf_fs_path_init_fmt(&home, "%s", atf_env_get("HOME")));
@@ -308,9 +308,9 @@ ATF_TC_BODY(env_home, tc)
     CE(atf_fs_stat_init(&stcwd, &cwd));
     CE(atf_fs_stat_init(&sthome, &home));
 
-    ATF_CHECK_EQUAL(atf_fs_stat_get_device(&stcwd),
+    ATF_REQUIRE_EQ(atf_fs_stat_get_device(&stcwd),
                     atf_fs_stat_get_device(&sthome));
-    ATF_CHECK_EQUAL(atf_fs_stat_get_inode(&stcwd),
+    ATF_REQUIRE_EQ(atf_fs_stat_get_inode(&stcwd),
                     atf_fs_stat_get_inode(&sthome));
 }
 
@@ -323,8 +323,8 @@ ATF_TC_HEAD(env_list, tc)
 ATF_TC_BODY(env_list, tc)
 {
     int exitcode = system("env");
-    ATF_CHECK(WIFEXITED(exitcode));
-    ATF_CHECK(WEXITSTATUS(exitcode) == EXIT_SUCCESS);
+    ATF_REQUIRE(WIFEXITED(exitcode));
+    ATF_REQUIRE(WEXITSTATUS(exitcode) == EXIT_SUCCESS);
 }
 
 /* ---------------------------------------------------------------------
@@ -408,7 +408,7 @@ ATF_TC_HEAD(ident_1, tc)
 }
 ATF_TC_BODY(ident_1, tc)
 {
-    ATF_CHECK(strcmp(atf_tc_get_md_var(tc, "ident"), "ident_1") == 0);
+    ATF_REQUIRE(strcmp(atf_tc_get_md_var(tc, "ident"), "ident_1") == 0);
 }
 
 ATF_TC(ident_2);
@@ -419,7 +419,7 @@ ATF_TC_HEAD(ident_2, tc)
 }
 ATF_TC_BODY(ident_2, tc)
 {
-    ATF_CHECK(strcmp(atf_tc_get_md_var(tc, "ident"), "ident_2") == 0);
+    ATF_REQUIRE(strcmp(atf_tc_get_md_var(tc, "ident"), "ident_2") == 0);
 }
 
 ATF_TC(require_arch);

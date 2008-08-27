@@ -29,31 +29,31 @@
 
 #include <atf-c/macros.h>
 
-void atf_check_inside_if(void);
-void atf_check_equal_inside_if(void);
+void atf_require_inside_if(void);
+void atf_require_equal_inside_if(void);
 
 void
-atf_check_inside_if(void)
+atf_require_inside_if(void)
 {
-    /* Make sure that ATF_CHECK can be used inside an if statement that
+    /* Make sure that ATF_REQUIRE can be used inside an if statement that
      * does not have braces.  Earlier versions of it generated an error
      * if there was an else clause because they confused the compiler
      * by defining an unprotected nested if. */
     if (true)
-        ATF_CHECK(true);
+        ATF_REQUIRE(true);
     else
-        ATF_CHECK(true);
+        ATF_REQUIRE(true);
 }
 
 void
-atf_check_equal_inside_if(void)
+atf_require_equal_inside_if(void)
 {
-    /* Make sure that ATF_CHECK_EQUAL can be used inside an if statement
+    /* Make sure that ATF_REQUIRE_EQUAL can be used inside an if statement
      * that does not have braces.  Earlier versions of it generated an
      * error if there was an else clause because they confused the
      * compiler by defining an unprotected nested if. */
     if (true)
-        ATF_CHECK_EQUAL(true, true);
+        ATF_REQUIRE_EQ(true, true);
     else
-        ATF_CHECK_EQUAL(true, true);
+        ATF_REQUIRE_EQ(true, true);
 }

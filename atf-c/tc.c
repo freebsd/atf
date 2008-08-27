@@ -34,6 +34,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -565,6 +566,7 @@ out:
 
 static const atf_tc_t *current_tc = NULL;
 static const atf_fs_path_t *current_workdir = NULL;
+static size_t current_tc_fail_count = 0;
 
 static
 atf_error_t
@@ -575,6 +577,7 @@ prepare_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
 
     current_tc = tc;
     current_workdir = workdir;
+    current_tc_fail_count = 0;
 
     ret = setpgid(getpid(), 0);
     INV(ret != -1);
@@ -651,7 +654,12 @@ body_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
     if (atf_is_error(err))
         goto print_err;
     tc->m_body(tc);
-    atf_tc_pass();
+
+    if (current_tc_fail_count == 0)
+        atf_tc_pass();
+    else
+        atf_tc_fail("%d checks failed; see output for more details",
+                    current_tc_fail_count);
 
     UNREACHABLE;
     abort();
@@ -986,6 +994,19 @@ atf_tc_fail(const char *fmt, ...)
     atf_tcr_fini(&tcr);
 
     exit(EXIT_SUCCESS);
+}
+
+void
+atf_tc_fail_nonfatal(const char *fmt, ...)
+{
+    va_list ap;
+
+    va_start(ap, fmt);
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
+    fprintf(stderr, "\n");
+
+    current_tc_fail_count++;
 }
 
 void

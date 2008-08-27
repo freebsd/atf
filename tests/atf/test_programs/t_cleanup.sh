@@ -31,22 +31,22 @@ run_tests()
 {
     h=${1} what=${2} status=${3} code=${4}
 
-    atf_check -s eq:${code} -o ignore -e ignore \
+    atf_check -s eq:${code} -o ignore -e ignore -x \
               "${h} -s $(atf_get_srcdir) -r3 -v 'cleanup=no' \
                -v 'tmpfile=$(pwd)/tmpfile' \
                cleanup_${what} 3>resout"
     atf_check -s eq:0 -o ignore -e empty \
-              "grep 'cleanup_${what}, ${status}' resout"
-    atf_check -s eq:0 -o empty -e empty "test -f tmpfile"
-    atf_check -s eq:0 -o empty -e empty "rm tmpfile"
+              grep "cleanup_${what}, ${status}" resout
+    atf_check -s eq:0 -o empty -e empty test -f tmpfile
+    atf_check -s eq:0 -o empty -e empty rm tmpfile
 
-    atf_check -s eq:${code} -o ignore -e ignore \
+    atf_check -s eq:${code} -o ignore -e ignore -x \
               "${h} -s $(atf_get_srcdir) -r3 -v 'cleanup=yes' \
                -v 'tmpfile=$(pwd)/tmpfile' \
                cleanup_${what} 3>resout"
     atf_check -s eq:0 -o ignore -e empty \
-              "grep 'cleanup_${what}, ${status}' resout"
-    atf_check -s eq:1 -o empty -e empty "test -f tmpfile"
+              grep "cleanup_${what}, ${status}" resout
+    atf_check -s eq:1 -o empty -e empty test -f tmpfile
 }
 
 atf_test_case hook
@@ -73,9 +73,9 @@ curdir_head()
 curdir_body()
 {
     for h in $(get_helpers); do
-        atf_check -s eq:0 -o save:stdout -e ignore \
+        atf_check -s eq:0 -o save:stdout -e ignore -x \
                   "${h} -s $(atf_get_srcdir) -r3 cleanup_curdir 3>resout"
-        atf_check -s eq:0 -o ignore -e empty 'grep "Old value: 1234" stdout'
+        atf_check -s eq:0 -o ignore -e empty grep "Old value: 1234" stdout
     done
 }
 
@@ -98,9 +98,9 @@ on_signal_body()
         ${h} -s $(atf_get_srcdir) -r3 -v "tmpfile=$(pwd)/tmpfile" \
             cleanup_sigterm 3>resout
         atf_check -s eq:0 -o ignore -e empty \
-                  "grep 'cleanup_sigterm, failed' resout"
-        atf_check -s eq:1 -o empty -e empty "test -f tmpfile"
-        atf_check -s eq:1 -o empty -e empty "test -f tmpfile.no"
+                  grep 'cleanup_sigterm, failed' resout
+        atf_check -s eq:1 -o empty -e empty test -f tmpfile
+        atf_check -s eq:1 -o empty -e empty test -f tmpfile.no
     done
 }
 
@@ -116,7 +116,7 @@ fork_body()
         ${h} -s $(atf_get_srcdir) -r3 -v "tmpfile=$(pwd)/tmpfile" \
             cleanup_fork 3>resout
         atf_check -s eq:0 -o ignore -e empty \
-                  "grep 'cleanup_fork, passed' resout"
+                  grep 'cleanup_fork, passed' resout
     done
 }
 

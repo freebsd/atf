@@ -16,12 +16,6 @@ on how things develop.
 Plans for 0.6
 =============
 
-* Properly document the libraries: i.e. one page per module, detailed
-  information of each function and type, etc.  At the very least atf-c.
-
-* Add support for ATF_REQUIRE, making ATF_CHECK non-fatal.  See Boost.Test
-  for details on this idea.  Most useful for unit tests.
-
 * Add a module to atf-c to manage dynamic memory.  Should provide a "mem
   chunk" object that can only be managed through functions (i.e. not
   directly) so that access to buffers can be safely controlled.  Dealing
@@ -37,6 +31,9 @@ Plans for 0.6
 
 Plans for 0.7
 =============
+
+* Properly document the libraries: i.e. one page per module, detailed
+  information of each function and type, etc.  At the very least atf-c.
 
 * Add a tool to collect multiple outputs of atf-run (from different
   machines) and generate a single (XML-only?) log with everything.
