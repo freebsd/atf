@@ -40,8 +40,117 @@
 #include <atf-c/sanity.h>
 
 /* ---------------------------------------------------------------------
+ * Auxiliary functions.
+ * --------------------------------------------------------------------- */
+
+static
+atf_error_t
+create_files(atf_check_result_t *r, int *fdout, int *fderr)
+{
+    atf_error_t err;
+
+    err = atf_fs_mkstemp(&r->m_stdout, fdout);
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_fs_mkstemp(&r->m_stderr, fderr);
+    if (atf_is_error(err))
+        goto err_fdout;
+
+    INV(!atf_is_error(err));
+    goto out;
+
+err_fdout:
+    close(*fdout);
+    atf_fs_unlink(&r->m_stdout);
+out:
+    return err;
+}
+
+static
+void
+cleanup_files(const atf_check_result_t *r, int fdout, int fderr)
+{
+    int ret;
+
+    ret = close(fdout);
+    INV(ret == 0);
+    ret = close(fderr);
+    INV(ret == 0);
+
+    atf_fs_unlink(&r->m_stdout);
+    atf_fs_unlink(&r->m_stderr);
+}
+
+static
+atf_error_t
+fork_and_wait(char *const *argv, int fdout, int fderr, int *exitcode)
+{
+    atf_error_t err;
+    int status;
+    pid_t pid;
+
+    err = atf_no_error();
+
+    pid = fork();
+    if (pid == -1) {
+        err = atf_libc_error(errno, "Failed to fork");
+    } else if (pid == 0) {
+        // XXX No error handling at all?
+        dup2(fdout, STDOUT_FILENO);
+        dup2(fderr, STDERR_FILENO);
+        execvp(argv[0], argv);
+        exit(127);
+        UNREACHABLE;
+    } else {
+        if (waitpid(pid, &status, 0) == -1) {
+            err = atf_libc_error(errno, "Error waiting for "
+                                 "child process: %d", pid);
+        } else {
+            if (!WIFEXITED(status))
+                err = atf_libc_error(errno, "Error while executing "
+                                     "command: '%s'", argv[0]);
+            else
+                *exitcode = WEXITSTATUS(status);
+        }
+    }
+
+    return err;
+}
+
+/* ---------------------------------------------------------------------
  * The "atf_check_result" type.
  * --------------------------------------------------------------------- */
+
+static
+atf_error_t
+atf_check_result_init(atf_check_result_t *r)
+{
+    atf_error_t err;
+    const char *workdir;
+
+    atf_object_init(&r->m_object);
+
+    workdir = atf_config_get("atf_workdir");
+
+    err = atf_fs_path_init_fmt(&r->m_stdout, "%s/%s",
+                               workdir, "stdout.XXXXXX");
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_fs_path_init_fmt(&r->m_stderr, "%s/%s",
+                               workdir, "stderr.XXXXXX");
+    if (atf_is_error(err))
+        goto err_stdout;
+
+    INV(!atf_is_error(err));
+    goto out;
+
+err_stdout:
+    atf_fs_path_fini(&r->m_stdout);
+out:
+    return err;
+}
 
 void
 atf_check_result_fini(atf_check_result_t *r)
@@ -80,83 +189,28 @@ atf_check_result_status(const atf_check_result_t *r)
 atf_error_t
 atf_check_exec(char *const *argv, atf_check_result_t *r)
 {
-    int fd_out, fd_err;
-    int status;
-    pid_t pid;
     atf_error_t err;
-    const char *workdir;
+    int fdout, fderr;
 
-    atf_object_init(&r->m_object);
-
-    workdir = atf_config_get("atf_workdir");
-    err = atf_fs_path_init_fmt(&r->m_stdout, "%s/%s",
-                               workdir, "stdout.XXXXXX");
+    err = atf_check_result_init(r);
     if (atf_is_error(err))
-        goto out_mstdout;
+        goto out;
 
-    err = atf_fs_path_init_fmt(&r->m_stderr, "%s/%s",
-                               workdir, "stderr.XXXXXX");
+    err = create_files(r, &fdout, &fderr);
     if (atf_is_error(err))
-        goto out_mstderr;
+        goto err_r;
 
-
-    err = atf_fs_mkstemp(&r->m_stdout, &fd_out);
+    err = fork_and_wait(argv, fdout, fderr, &r->m_status);
     if (atf_is_error(err))
-        goto out_fdout;
+        goto err_files;
 
-    err = atf_fs_mkstemp(&r->m_stderr, &fd_err);
-    if (atf_is_error(err))
-        goto out_fderr;
+    INV(!atf_is_error(err));
+    goto out;
 
-
-    pid = fork();
-    if (pid < 0) {
-        err = atf_libc_error(errno, "Failed to fork");
-        goto out_fork;
-    } else if (pid == 0) {
-        dup2(fd_out, STDOUT_FILENO);
-        dup2(fd_err, STDERR_FILENO);
-        if (execvp(argv[0], argv) == -1)
-            exit(255);
-    };
-
-    close(fd_out);
-    close(fd_err);
-
-    if (waitpid(pid, &status, 0) == -1) {
-        err = atf_libc_error(errno, "Error waiting for "
-                             "child process: %d", pid);
-        goto out_waitpid;
-    }
-
-    if (!WIFEXITED(status)) {
-        err = atf_libc_error(errno, "Error while executing "
-                             "command: '%s'", argv[0]);
-        goto out_wifexited;
-    }
-
-    r->m_status = WEXITSTATUS(status);
-
-    return err;
-
-out_wifexited:
-out_waitpid:
-out_fork:
-    close(fd_err);
-    atf_fs_unlink(&r->m_stderr);
-
-out_fderr:
-    close(fd_out);
-    atf_fs_unlink(&r->m_stdout);
-
-out_fdout:
-out_mstderr:
-    atf_fs_path_fini(&r->m_stderr);
-
-out_mstdout:
-    atf_fs_path_fini(&r->m_stdout);
-
-    atf_object_fini(&r->m_object);
-
+err_files:
+    cleanup_files(r, fdout, fderr);
+err_r:
+    atf_check_result_fini(r);
+out:
     return err;
 }
