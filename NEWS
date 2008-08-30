@@ -24,6 +24,11 @@ Status:       Experimental
   function in the atf-sh library and exposes this functionality to both
   atf-c and atf-c++.
 
+* Added ATF_REQUIRE macros that check for fatal test conditions and changed
+  the ATF_CHECK macros to perform non-fatal checks.  I.e. by using
+  ATF_CHECK, the test case can now continue its execution and the failures
+  will not be reported until the end of the whole run.
+
 
 Version 0.5
 ===========

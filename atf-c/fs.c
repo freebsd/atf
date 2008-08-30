@@ -854,7 +854,7 @@ atf_fs_mkstemp(atf_fs_path_t *p, int *fd)
 }
 
 atf_error_t
-atf_fs_unlink(atf_fs_path_t *p)
+atf_fs_unlink(const atf_fs_path_t *p)
 {
     atf_error_t err;
     const char *path;

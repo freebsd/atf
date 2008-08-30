@@ -131,6 +131,6 @@ atf_error_t atf_fs_exists(const atf_fs_path_t *, bool *);
 atf_error_t atf_fs_getcwd(atf_fs_path_t *);
 atf_error_t atf_fs_mkdtemp(atf_fs_path_t *);
 atf_error_t atf_fs_mkstemp(atf_fs_path_t *, int *);
-atf_error_t atf_fs_unlink(atf_fs_path_t *);
+atf_error_t atf_fs_unlink(const atf_fs_path_t *);
 
 #endif /* !defined(ATF_C_FS_H) */

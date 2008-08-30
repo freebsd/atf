@@ -62,7 +62,7 @@ write_cwd(const atf_tc_t *tc, const char *confvar)
 
     f = fopen(p, "w");
     if (f == NULL)
-        ATF_FAIL("Could not open %s for writing", p);
+        atf_tc_fail("Could not open %s for writing", p);
 
     CE(atf_fs_getcwd(&cwd));
     fprintf(f, "%s\n", atf_fs_path_cstring(&cwd));
@@ -76,7 +76,7 @@ void
 safe_mkdir(const char* path)
 {
     if (mkdir(path, 0755) == -1)
-        ATF_FAIL("mkdir(2) of %s failed", path);
+        atf_tc_fail("mkdir(2) of %s failed", path);
 }
 
 static
@@ -84,7 +84,7 @@ void
 safe_remove(const char* path)
 {
     if (unlink(path) == -1)
-        ATF_FAIL("unlink(2) of %s failed", path);
+        atf_tc_fail("unlink(2) of %s failed", path);
 }
 
 static
@@ -94,7 +94,7 @@ touch(const char *path)
     int fd;
     fd = open(path, O_WRONLY | O_TRUNC | O_CREAT, 0644);
     if (fd == -1)
-        ATF_FAIL("Could not create file %s", path);
+        atf_tc_fail("Could not create file %s", path);
     close(fd);
 }
 
@@ -131,7 +131,7 @@ ATF_TC_HEAD(cleanup_fail, tc)
 ATF_TC_BODY(cleanup_fail, tc)
 {
     touch(atf_tc_get_config_var(tc, "tmpfile"));
-    ATF_FAIL("On purpose");
+    atf_tc_fail("On purpose");
 }
 ATF_TC_CLEANUP(cleanup_fail, tc)
 {
@@ -176,7 +176,7 @@ ATF_TC_BODY(cleanup_curdir, tc)
 
     f = fopen("oldvalue", "w");
     if (f == NULL)
-        ATF_FAIL("Failed to create oldvalue file");
+        atf_tc_fail("Failed to create oldvalue file");
     fprintf(f, "1234");
     fclose(f);
 }
@@ -344,17 +344,17 @@ ATF_TC_BODY(fork_mangle_fds, tc)
     CE(atf_text_to_long(atf_tc_get_config_var(tc, "resfd"), &resfd));
 
     if (close(STDIN_FILENO) == -1)
-        ATF_FAIL("Failed to close stdin");
+        atf_tc_fail("Failed to close stdin");
     if (close(STDOUT_FILENO) == -1)
-        ATF_FAIL("Failed to close stdout");
+        atf_tc_fail("Failed to close stdout");
     if (close(STDERR_FILENO) == -1)
-        ATF_FAIL("Failed to close stderr");
+        atf_tc_fail("Failed to close stderr");
     if (close(resfd) == -1)
-        ATF_FAIL("Failed to close results descriptor");
+        atf_tc_fail("Failed to close results descriptor");
 
 #if defined(F_CLOSEM)
     if (fcntl(0, F_CLOSEM) == -1)
-        ATF_FAIL("Failed to close everything");
+        atf_tc_fail("Failed to close everything");
 #endif
 }
 
@@ -374,7 +374,7 @@ ATF_TC_BODY(fork_stop, tc)
 
     f = fopen(pfstr, "w");
     if (f == NULL)
-        ATF_FAIL("Failed to create pidfile %s", pfstr);
+        atf_tc_fail("Failed to create pidfile %s", pfstr);
     fprintf(f, "%d", getpid());
     fclose(f);
     printf("Wrote pid file\n");
@@ -569,7 +569,7 @@ ATF_TC_BODY(srcdir_exists, tc)
                             atf_tc_get_config_var(tc, "srcdir")));
     CE(atf_fs_exists(&p, &b));
     if (!b)
-        ATF_FAIL("Cannot find datafile");
+        atf_tc_fail("Cannot find datafile");
     atf_fs_path_fini(&p);
 }
 
@@ -585,7 +585,7 @@ ATF_TC_HEAD(status_newlines_fail, tc)
 }
 ATF_TC_BODY(status_newlines_fail, tc)
 {
-    ATF_FAIL("First line\nSecond line");
+    atf_tc_fail("First line\nSecond line");
 }
 
 ATF_TC(status_newlines_skip);

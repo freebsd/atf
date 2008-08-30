@@ -182,7 +182,7 @@ ATF_TC_BODY(init_rep, tc)
 
         if (strcmp(atf_dynstr_cstring(&str), buf) != 0) {
             fprintf(stderr, "Failed at iteration %zd\n", i);
-            ATF_FAIL("Failed to construct dynstr by repeating %zd "
+            atf_tc_fail("Failed to construct dynstr by repeating %zd "
                         "times the '%c' character", i, 'a');
         }
 
@@ -374,7 +374,7 @@ check_append(atf_error_t (*append)(atf_dynstr_t *, const char *, ...))
     for (i = 0; i < maxlen; i++) {
         if (strcmp(atf_dynstr_cstring(&str), buf) != 0) {
             fprintf(stderr, "Failed at iteration %zd\n", i);
-            ATF_FAIL("Failed to append character at iteration %zd", i);
+            atf_tc_fail("Failed to append character at iteration %zd", i);
         }
 
         CE(append(&str, "a"));
@@ -388,7 +388,7 @@ check_append(atf_error_t (*append)(atf_dynstr_t *, const char *, ...))
     for (i = 0; i < maxlen; i++) {
         if (strcmp(atf_dynstr_cstring(&str), buf) != 0) {
             fprintf(stderr, "Failed at iteration %zd\n", i);
-            ATF_FAIL("Failed to append character at iteration %zd", i);
+            atf_tc_fail("Failed to append character at iteration %zd", i);
         }
 
         CE(append(&str, "%s", "a"));
@@ -474,7 +474,7 @@ check_prepend(atf_error_t (*prepend)(atf_dynstr_t *, const char *, ...))
     for (i = 0; i < maxlen; i++) {
         if (strcmp(atf_dynstr_cstring(&str), buf) != 0) {
             fprintf(stderr, "Failed at iteration %zd\n", i);
-            ATF_FAIL("Failed to prepend character at iteration %zd", i);
+            atf_tc_fail("Failed to prepend character at iteration %zd", i);
         }
 
         memmove(buf + 1, buf, i + 1);
@@ -494,7 +494,7 @@ check_prepend(atf_error_t (*prepend)(atf_dynstr_t *, const char *, ...))
     for (i = 0; i < maxlen; i++) {
         if (strcmp(atf_dynstr_cstring(&str), buf) != 0) {
             fprintf(stderr, "Failed at iteration %zd\n", i);
-            ATF_FAIL("Failed to prepend character at iteration %zd", i);
+            atf_tc_fail("Failed to prepend character at iteration %zd", i);
         }
 
         memmove(buf + 1, buf, i + 1);

@@ -34,6 +34,7 @@ extern "C" {
 
 #include <cerrno>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -432,9 +433,9 @@ atf_check::main(void)
     if (!m_xflag)
         argv = m_argv;
     else {
-        sh_argv[0] = strdup(atf::config::get("atf_shell").c_str());
-        sh_argv[1] = strdup("-c");
-        sh_argv[2] = strdup(m_argv[0]);
+        sh_argv[0] = ::strdup(atf::config::get("atf_shell").c_str());
+        sh_argv[1] = ::strdup("-c");
+        sh_argv[2] = ::strdup(m_argv[0]);
         sh_argv[3] = NULL;
         if (sh_argv[0] == NULL || sh_argv[1] == NULL || sh_argv[2] == NULL)
             throw atf::system_error("main", "strdup(3) failed", errno);
@@ -447,7 +448,7 @@ atf_check::main(void)
         std::cout << argv[i] << " ";
     std::cout << "]" << std::endl;
 
-    atf::check::check_result r(argv);
+    atf::check::check_result r = atf::check::exec(argv);
 
     if (m_xflag) {
         free(sh_argv[0]);

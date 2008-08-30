@@ -48,12 +48,17 @@ struct atf_check_result {
 typedef struct atf_check_result atf_check_result_t;
 
 /* Construtors and destructors */
-atf_error_t atf_check_exec(atf_check_result_t *, char * const *);
 void atf_check_result_fini(atf_check_result_t *);
 
 /* Getters */
 const atf_fs_path_t *atf_check_result_stdout(const atf_check_result_t *);
 const atf_fs_path_t *atf_check_result_stderr(const atf_check_result_t *);
 int atf_check_result_status(const atf_check_result_t *);
+
+/* ---------------------------------------------------------------------
+ * Free functions.
+ * --------------------------------------------------------------------- */
+
+atf_error_t atf_check_exec(char * const *, atf_check_result_t *);
 
 #endif /* ATF_C_CHECK_H */

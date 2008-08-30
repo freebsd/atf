@@ -69,7 +69,7 @@ ATF_TC_BODY(is_member_of_group, tc)
 
         ngids = getgroups(NGROUPS_MAX, gids);
         if (ngids == -1)
-            ATF_FAIL("Call to getgroups failed");
+            atf_tc_fail("Call to getgroups failed");
         maxgid = 0;
         for (i = 0; i < ngids; i++) {
             if (maxgid < gids[i])

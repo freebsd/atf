@@ -32,11 +32,11 @@
 
 #include <string>
 
-#include "atf-c++/fs.hpp"
-
 extern "C" {
 #include "atf-c/check.h"
 }
+
+#include "atf-c++/fs.hpp"
 
 namespace atf {
 namespace check {
@@ -58,32 +58,41 @@ class check_result {
     //!
     atf_check_result_t m_result;
 
-public:
     //!
-    //! \brief Executes given command.
+    //! \brief Constructs an uninitialized results object, which must be
+    //! filled in by exec immediately afterwards.
     //!
-    check_result(char * const *);
+    check_result(void);
 
+    friend check_result exec(char * const *);
+
+public:
     //!
     //! \brief Destroys object and removes all managed files.
     //!
-    ~check_result();
+    ~check_result(void);
 
     //!
     //! \brief Returns command's exit status.
     //!
-    int status() const;
+    int status(void) const;
 
     //!
     //! \brief Returns the path to file contaning command's stdout.
     //!
-    const atf::fs::path stdout_path() const;
+    const atf::fs::path stdout_path(void) const;
 
     //!
     //! \brief Returns the path to file contaning command's stderr.
     //!
-    const atf::fs::path stderr_path() const;
+    const atf::fs::path stderr_path(void) const;
 };
+
+// ------------------------------------------------------------------------
+// Free functions.
+// ------------------------------------------------------------------------
+
+check_result exec(char * const *);
 
 } // namespace check
 } // namespace atf
