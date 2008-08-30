@@ -29,6 +29,31 @@
 
 cleanup="$(atf-config -t atf_libexecdir)/atf-cleanup"
 
+create_mount_helper()
+{
+    echo "#! $(atf-config -t atf_shell)" >${1}
+
+    platform=$(uname)
+    case ${platform} in
+    Linux|NetBSD)
+        echo 'mount -t tmpfs tmpfs ${1}' >>${1}
+        ;;
+    FreeBSD)
+        echo 'mdmfs -s 16m md ${1}' >>${1}
+        ;;
+    SunOS)
+        echo 'mount -F tmpfs tmpfs $(pwd)/${1}' >>${1}
+        ;;
+    *)
+        echo "create_mount_helper called for an unsupported platform."
+        echo "This should not have happened."
+        exit 1
+        ;;
+    esac
+
+    chmod +x ${1}
+}
+
 atf_test_case file
 file_head()
 {
@@ -77,20 +102,21 @@ mount_head()
 }
 mount_body()
 {
+    create_mount_helper h_mount.sh
+
     platform=$(uname)
     case ${platform} in
     Linux|FreeBSD|NetBSD|SunOS)
-        mount_cmd="$(atf_get_srcdir)/h_mount_tmpfs.sh"
         mkdir foo
         mkdir foo/bar
         mkdir foo/bar/mnt
-        atf_check -s eq:0 -o empty -e empty -x "${mount_cmd} foo/bar/mnt"
+        atf_check -s eq:0 -o empty -e empty -x "./h_mount.sh foo/bar/mnt"
         mkdir foo/baz
-        atf_check -s eq:0 -o empty -e empty -x "${mount_cmd} foo/baz"
+        atf_check -s eq:0 -o empty -e empty -x "./h_mount.sh foo/baz"
         mkdir foo/baz/foo
         mkdir foo/baz/foo/bar
         atf_check -s eq:0 -o empty -e empty -x \
-                  "${mount_cmd} foo/baz/foo/bar"
+                  "./h_mount.sh foo/baz/foo/bar"
         ;;
     *)
         # XXX Possibly specify in meta-data too.
@@ -114,13 +140,14 @@ symlink_head()
 }
 symlink_body()
 {
+    create_mount_helper h_mount.sh
+
     platform=$(uname)
     case ${platform} in
     Linux|FreeBSD|NetBSD|SunOS)
-        mount_cmd="$(atf_get_srcdir)/h_mount_tmpfs.sh"
         atf_check -s eq:0 -o empty -e empty mkdir foo
         atf_check -s eq:0 -o empty -e empty mkdir foo/bar
-        atf_check -s eq:0 -o empty -e empty -x "${mount_cmd} foo/bar"
+        atf_check -s eq:0 -o empty -e empty -x "./h_mount.sh foo/bar"
         atf_check -s eq:0 -o empty -e empty touch a
         atf_check -s eq:0 -o empty -e empty ln -s "$(pwd)/a" foo/bar
         ;;
