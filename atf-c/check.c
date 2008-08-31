@@ -96,7 +96,7 @@ fork_and_wait(char *const *argv, int fdout, int fderr, int *exitcode)
     if (pid == -1) {
         err = atf_libc_error(errno, "Failed to fork");
     } else if (pid == 0) {
-        // XXX No error handling at all?
+        /* XXX No error handling at all? */
         dup2(fdout, STDOUT_FILENO);
         dup2(fderr, STDERR_FILENO);
         execvp(argv[0], argv);
