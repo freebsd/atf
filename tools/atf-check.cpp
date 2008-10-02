@@ -193,22 +193,28 @@ bool
 atf_check::run_status_check(const atf::check::check_result &r)
     const
 {
-    int status = r.status();
     bool retval = true;
 
-    if (m_status_check == sc_equal) {
-        if (m_status_arg != status) {
-            std::cerr << "Fail: incorrect exit status: "
-                      << status << ", expected: "
-                      << m_status_arg << std::endl;
-            retval = false;
-        }
-    } else if (m_status_check == sc_not_equal) {
-        if (m_status_arg == status) {
-            std::cerr << "Fail: incorrect exit status: "
-                      << status << ", expected: "
-                      << "anything other" << std::endl;
-            retval = false;
+    if (!r.exited()) {
+        std::cerr << "Fail: program did not exit cleanly" << std::endl;
+        retval = false;
+    } else {
+        const int& status = r.exitcode();
+
+        if (m_status_check == sc_equal) {
+            if (m_status_arg != status) {
+                std::cerr << "Fail: incorrect exit status: "
+                          << status << ", expected: "
+                          << m_status_arg << std::endl;
+                retval = false;
+            }
+        } else if (m_status_check == sc_not_equal) {
+            if (m_status_arg == status) {
+                std::cerr << "Fail: incorrect exit status: "
+                          << status << ", expected: "
+                          << "anything other" << std::endl;
+                retval = false;
+            }
         }
     }
 

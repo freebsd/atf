@@ -59,10 +59,10 @@ class check_result {
     atf_check_result_t m_result;
 
     //!
-    //! \brief Constructs an uninitialized results object, which must be
-    //! filled in by exec immediately afterwards.
+    //! \brief Constructs a results object and grabs ownership of the
+    //! parameter passed in.
     //!
-    check_result(void);
+    check_result(const atf_check_result_t *result);
 
     friend check_result exec(char * const *);
 
@@ -73,9 +73,14 @@ public:
     ~check_result(void);
 
     //!
+    //! \brief Returns whether the command exited correctly or not.
+    //!
+    bool exited(void) const;
+
+    //!
     //! \brief Returns command's exit status.
     //!
-    int status(void) const;
+    int exitcode(void) const;
 
     //!
     //! \brief Returns the path to file contaning command's stdout.

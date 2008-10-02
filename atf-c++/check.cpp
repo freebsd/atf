@@ -27,8 +27,11 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cstring>
+
 #include "atf-c++/check.hpp"
 #include "atf-c++/exceptions.hpp"
+#include "atf-c++/sanity.hpp"
 
 namespace impl = atf::check;
 #define IMPL_NAME "atf::check"
@@ -37,8 +40,9 @@ namespace impl = atf::check;
 // The "check_result" class.
 // ------------------------------------------------------------------------
 
-impl::check_result::check_result(void)
+impl::check_result::check_result(const atf_check_result_t *result)
 {
+    std::memcpy(&m_result, result, sizeof(m_result));
 }
 
 impl::check_result::~check_result(void)
@@ -46,11 +50,19 @@ impl::check_result::~check_result(void)
     atf_check_result_fini(&m_result);
 }
 
-int
-impl::check_result::status(void)
+bool
+impl::check_result::exited(void)
     const
 {
-    return atf_check_result_status(&m_result);
+    return atf_check_result_exited(&m_result);
+}
+
+int
+impl::check_result::exitcode(void)
+    const
+{
+    PRE(exited());
+    return atf_check_result_exitcode(&m_result);
 }
 
 const atf::fs::path
@@ -74,11 +86,11 @@ impl::check_result::stderr_path(void)
 impl::check_result
 impl::exec(char * const *argv)
 {
-    impl::check_result res;
+    atf_check_result_t result;
 
-    atf_error_t err = atf_check_exec(argv, &res.m_result);
+    atf_error_t err = atf_check_exec(argv, &result);
     if (atf_is_error(err))
         throw_atf_error(err);
 
-    return res;
+    return impl::check_result(&result);
 }

@@ -30,7 +30,9 @@
 #include <sys/wait.h>
 
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include <atf-c/check.h>
@@ -84,7 +86,7 @@ cleanup_files(const atf_check_result_t *r, int fdout, int fderr)
 
 static
 atf_error_t
-fork_and_wait(char *const *argv, int fdout, int fderr, int *exitcode)
+fork_and_wait(char *const *argv, int fdout, int fderr, int *estatus)
 {
     atf_error_t err;
     int status;
@@ -96,10 +98,12 @@ fork_and_wait(char *const *argv, int fdout, int fderr, int *exitcode)
     if (pid == -1) {
         err = atf_libc_error(errno, "Failed to fork");
     } else if (pid == 0) {
+        atf_disable_exit_checks();
         /* XXX No error handling at all? */
         dup2(fdout, STDOUT_FILENO);
         dup2(fderr, STDERR_FILENO);
         execvp(argv[0], argv);
+        fprintf(stderr, "execvp(%s) failed: %s", argv[0], strerror(errno));
         exit(127);
         UNREACHABLE;
     } else {
@@ -107,11 +111,7 @@ fork_and_wait(char *const *argv, int fdout, int fderr, int *exitcode)
             err = atf_libc_error(errno, "Error waiting for "
                                  "child process: %d", pid);
         } else {
-            if (!WIFEXITED(status))
-                err = atf_libc_error(errno, "Error while executing "
-                                     "command: '%s'", argv[0]);
-            else
-                *exitcode = WEXITSTATUS(status);
+            *estatus = status;
         }
     }
 
@@ -176,10 +176,18 @@ atf_check_result_stderr(const atf_check_result_t *r)
     return &r->m_stderr;
 }
 
-int
-atf_check_result_status(const atf_check_result_t *r)
+bool
+atf_check_result_exited(const atf_check_result_t *r)
 {
-    return r->m_status;
+    int estatus = r->m_estatus;
+    return WIFEXITED(estatus);
+}
+
+int
+atf_check_result_exitcode(const atf_check_result_t *r)
+{
+    int estatus = r->m_estatus;
+    return WEXITSTATUS(estatus);
 }
 
 /* ---------------------------------------------------------------------
@@ -200,7 +208,7 @@ atf_check_exec(char *const *argv, atf_check_result_t *r)
     if (atf_is_error(err))
         goto err_r;
 
-    err = fork_and_wait(argv, fdout, fderr, &r->m_status);
+    err = fork_and_wait(argv, fdout, fderr, &r->m_estatus);
     if (atf_is_error(err))
         goto err_files;
 

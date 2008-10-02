@@ -43,7 +43,7 @@ struct atf_check_result {
 
     atf_fs_path_t m_stdout;
     atf_fs_path_t m_stderr;
-    int m_status;
+    int m_estatus;
 };
 typedef struct atf_check_result atf_check_result_t;
 
@@ -53,7 +53,8 @@ void atf_check_result_fini(atf_check_result_t *);
 /* Getters */
 const atf_fs_path_t *atf_check_result_stdout(const atf_check_result_t *);
 const atf_fs_path_t *atf_check_result_stderr(const atf_check_result_t *);
-int atf_check_result_status(const atf_check_result_t *);
+bool atf_check_result_exited(const atf_check_result_t *);
+int atf_check_result_exitcode(const atf_check_result_t *);
 
 /* ---------------------------------------------------------------------
  * Free functions.
