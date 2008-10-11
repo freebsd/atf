@@ -16,6 +16,9 @@ on how things develop.
 Plans for 0.6
 =============
 
+* Write extensive tests for the new features: macros, the check module
+  for C and C++, and the atf-check tool.
+
 * Add a module to atf-c to manage dynamic memory.  Should provide a "mem
   chunk" object that can only be managed through functions (i.e. not
   directly) so that access to buffers can be safely controlled.  Dealing
