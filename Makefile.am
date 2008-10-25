@@ -422,7 +422,15 @@ atf_atf_c_DATA = tests/atf/atf-c/Atffile
 atf_atf_cdir = $(pkgtestsdir)/atf-c
 EXTRA_DIST += $(atf_atf_c_DATA)
 
-atf_atf_c_PROGRAMS = tests/atf/atf-c/t_config
+atf_atf_c_PROGRAMS = tests/atf/atf-c/h_check
+tests_atf_atf_c_h_check_SOURCES = tests/atf/atf-c/h_check.c
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_check
+tests_atf_atf_c_t_check_SOURCES = tests/atf/atf-c/t_check.c
+tests_atf_atf_c_t_check_LDADD = -latf-c
+tests_atf_atf_c_t_check_LDFLAGS = -L.
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_config
 tests_atf_atf_c_t_config_SOURCES = tests/atf/atf-c/t_config.c
 tests_atf_atf_c_t_config_LDADD = -latf-c
 tests_atf_atf_c_t_config_LDFLAGS = -L.

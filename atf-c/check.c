@@ -41,6 +41,9 @@
 #include <atf-c/fs.h>
 #include <atf-c/sanity.h>
 
+/* Only needed for testing, so not in the public header. */
+atf_error_t atf_check_result_init(atf_check_result_t *);
+
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
@@ -122,7 +125,6 @@ fork_and_wait(char *const *argv, int fdout, int fderr, int *estatus)
  * The "atf_check_result" type.
  * --------------------------------------------------------------------- */
 
-static
 atf_error_t
 atf_check_result_init(atf_check_result_t *r)
 {
