@@ -28,6 +28,7 @@
 //
 
 #include <cctype>
+#include <cstring>
 
 extern "C" {
 #include "atf-c/text.h"
@@ -38,6 +39,14 @@ extern "C" {
 
 namespace impl = atf::text;
 #define IMPL_NAME "atf::text"
+
+char*
+impl::duplicate(const char* str)
+{
+    char* copy = new char[std::strlen(str) + 1];
+    std::strcpy(copy, str);
+    return copy;
+}
 
 std::string
 impl::to_lower(const std::string& str)

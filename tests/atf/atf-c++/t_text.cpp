@@ -27,11 +27,32 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cstring>
 #include <set>
 #include <vector>
 
 #include "atf-c++/macros.hpp"
 #include "atf-c++/text.hpp"
+
+ATF_TEST_CASE(duplicate);
+ATF_TEST_CASE_HEAD(duplicate)
+{
+    set_md_var("descr", "Tests the duplicate function");
+}
+ATF_TEST_CASE_BODY(duplicate)
+{
+    using atf::text::duplicate;
+
+    const char* orig = "foo";
+
+    char* copy = duplicate(orig);
+    ATF_CHECK_EQUAL(std::strlen(copy), 3);
+    ATF_CHECK(std::strcmp(copy, "foo") == 0);
+
+    std::strcpy(copy, "bar");
+    ATF_CHECK(std::strcmp(copy, "bar") == 0);
+    ATF_CHECK(std::strcmp(orig, "foo") == 0);
+}
 
 ATF_TEST_CASE(join);
 ATF_TEST_CASE_HEAD(join)
@@ -296,6 +317,7 @@ ATF_TEST_CASE_BODY(to_type)
 
 ATF_INIT_TEST_CASES(tcs)
 {
+    ATF_ADD_TEST_CASE(tcs, duplicate);
     ATF_ADD_TEST_CASE(tcs, join);
     ATF_ADD_TEST_CASE(tcs, split);
     ATF_ADD_TEST_CASE(tcs, split_delims);
