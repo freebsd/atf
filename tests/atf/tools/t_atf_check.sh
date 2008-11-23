@@ -29,84 +29,227 @@
 
 h_pass()
 {
-    echo "Checking command [atf-check $*]"
-    atf-check "$@" >tmp || { cat tmp ; atf_fail "atf-check failed"; }
+    cmd="$1"; shift
+
+    echo "Running [atf-check $*] against [${cmd}]"
+
+    cat >script.sh <<EOF
+#! $(atf-config -t atf_shell)
+${cmd}
+EOF
+    chmod +x script.sh
+
+    if ! atf-check "${@}" ./script.sh >tmp; then
+        cat tmp
+        atf_fail "atf-check failed"
+    fi
 }
 
 h_fail()
 {
-    echo "Checking command [atf-check $*]"
-    atf-check "$@" 2>tmp \
-        && { cat tmp ; atf_fail "atf-check succeeded but should fail"; }
+    cmd="$1"; shift
+
+    echo "Running [atf-check $*] against [${cmd}]"
+
+    cat >script.sh <<EOF
+#! $(atf-config -t atf_shell)
+${cmd}
+EOF
+    chmod +x script.sh
+
+    if atf-check "${@}" ./script.sh 2>tmp; then
+        cat tmp
+        atf_fail "atf-check succeeded but should fail"
+    fi
 }
 
-atf_test_case status
-status_head()
+atf_test_case sflag
+sflag_head()
 {
-    atf_set "descr" "Checks -s option"
+    atf_set "descr" "Tests for the -s option"
 }
-status_body()
+sflag_body()
 {
-    h_pass -s eq:0 true
-    h_pass -s ne:0 false
-    h_pass -s eq:255 -x "exit 255"
-    h_pass -s ne:255 -x "exit 0"
+    h_pass "true" -s eq:0
+    h_pass "false" -s ne:0
+    h_pass "exit 255" -s eq:255
+    h_pass "exit 0" -s ne:255
 
-    h_fail -s eq:256 -x "exit 256"
-    h_fail -s eq:-1 -x "exit -1"
-    h_fail -s ne:256 true
-    h_fail -s ne:-1 true
+    h_fail "exit 256" -s eq:256
+    h_fail "exit -1" -s eq:-1
+    h_fail "true" -s ne:256
+    h_fail "true" -s ne:-1
 }
 
-atf_test_case output
-output_head()
+atf_test_case xflag
+xflag_head()
 {
-    atf_set "descr" "Checks -s/-e options"
+    atf_set "descr" "Tests for the -x option"
 }
-output_body()
+xflag_body()
 {
-    dd if=/dev/urandom of=tmp1 bs=1k count=1024
-    echo "foo bar" >tmp2
+    atf-check "echo foo 2>*1" && atf_fail "Shell command succeeded without -x"
 
-    h_pass -o file:tmp2 echo foo bar
-    h_pass -e file:tmp2 -x "echo foo bar >&2"
-    h_fail -o file:tmp2 echo foo ba
-    h_fail -o file:tmp2 echo foo barr
-    h_fail -o file:tmp2 echo -n foo bar
-    h_pass -e file:tmp1 -x "cat tmp1 >&2"
-    h_pass -o file:tmp1 cat tmp1
+    atf-check -e inline:"foo\n" -x "echo foo 1>&2" || \
+        atf_fail "Cannot run command with -x"
+}
 
-    h_pass -o inline:"foobar\n" echo foobar
-    h_pass -e inline:"foobar\n" -x "echo foobar >&2"
-    h_pass -o inline:"foobar" printf 'foobar'
-    h_pass -o inline:"\t\n\t\n" printf '\t\n\t\n'
-    h_pass -o inline:"\a\b\e\f\n\r\t\v" printf '\a\b\e\f\n\r\t\v'
-    h_pass -o inline:"\011\022\033\012" printf '\011\022\033\012'
-    h_fail -o inline:"foobar" echo foobar
-    h_fail -o inline:"foobar\n" echo -n foobar
+atf_test_case oflag_empty
+oflag_empty_head()
+{
+    atf_set "descr" "Tests for the -o option using the 'empty' argument"
+}
+oflag_empty_body()
+{
+    h_pass "true" -o empty
+    h_fail "echo foo" -o empty
+}
 
-    h_pass -o empty -e ignore -x "echo foo >&2"
-    h_pass -o ignore -e ignore -x "echo foo >&2"
-    h_pass -o ignore -e empty echo foo
-    h_pass -o ignore -e ignore echo foo
+atf_test_case oflag_ignore
+oflag_ignore_head()
+{
+    atf_set "descr" "Tests for the -o option using the 'ignore' argument"
+}
+oflag_ignore_body()
+{
+    h_pass "true" -o ignore
+    h_pass "echo foo" -o ignore
+}
 
-    h_pass -o save:tmp3 echo foo
-    h_pass -e inline:"foo\n" -x "cat tmp3 >&2"
-    rm tmp3 || atf_fail rm failed
-    h_pass -e save:tmp3 -x "echo foo >&2"
-    h_pass -o inline:"foo\n" cat tmp3
+atf_test_case oflag_file
+oflag_file_head()
+{
+    atf_set "descr" "Tests for the -o option using the 'file:' argument"
+}
+oflag_file_body()
+{
+    touch empty
+    h_pass "true" -o file:empty
+
+    echo foo >text
+    h_pass "echo foo" -o file:text
+    h_fail "echo bar" -o file:text
+
+    dd if=/dev/urandom of=bin bs=1k count=10
+    h_pass "cat bin" -o file:bin
+}
+
+atf_test_case oflag_inline
+oflag_inline_head()
+{
+    atf_set "descr" "Tests for the -o option using the 'inline:' argument"
+}
+oflag_inline_body()
+{
+    h_pass "true" -o inline:
+    h_pass "echo foo bar" -o inline:"foo bar\n"
+    h_pass "printf 'foo bar'" -o inline:"foo bar"
+    h_pass "printf '\t\n\t\n'" -o inline:"\t\n\t\n"
+    h_pass "printf '\a\b\e\f\n\r\t\v'" -o inline:"\a\b\e\f\n\r\t\v"
+    h_pass "printf '\011\022\033\012'" -o inline:"\011\022\033\012"
+
+    h_fail "echo foo bar" -o inline:"foo bar"
+    h_fail "echo -n foo bar" -o inline:"foo bar\n"
+}
+
+atf_test_case oflag_save
+oflag_save_head()
+{
+    atf_set "descr" "Tests for the -o option using the 'save:' argument"
+}
+oflag_save_body()
+{
+    h_pass "echo foo" -o save:out
+    echo foo >exp
+    cmp -s out exp || atf_fail "Saved output does not match expected results"
+}
+
+atf_test_case eflag_empty
+eflag_empty_head()
+{
+    atf_set "descr" "Tests for the -e option using the 'empty' argument"
+}
+eflag_empty_body()
+{
+    h_pass "true 1>&2" -e empty
+    h_fail "echo foo 1>&2" -e empty
+}
+
+atf_test_case eflag_ignore
+eflag_ignore_head()
+{
+    atf_set "descr" "Tests for the -e option using the 'ignore' argument"
+}
+eflag_ignore_body()
+{
+    h_pass "true 1>&2" -e ignore
+    h_pass "echo foo 1>&2" -e ignore
+}
+
+atf_test_case eflag_file
+eflag_file_head()
+{
+    atf_set "descr" "Tests for the -e option using the 'file:' argument"
+}
+eflag_file_body()
+{
+    touch empty
+    h_pass "true 1>&2" -e file:empty
+
+    echo foo >text
+    h_pass "echo foo 1>&2" -e file:text
+    h_fail "echo bar 1>&2" -e file:text
+
+    dd if=/dev/urandom of=bin bs=1k count=10
+    h_pass "cat bin 1>&2" -e file:bin
+}
+
+atf_test_case eflag_inline
+eflag_inline_head()
+{
+    atf_set "descr" "Tests for the -e option using the 'inline:' argument"
+}
+eflag_inline_body()
+{
+    h_pass "true 1>&2" -e inline:
+    h_pass "echo foo bar 1>&2" -e inline:"foo bar\n"
+    h_pass "printf 'foo bar' 1>&2" -e inline:"foo bar"
+    h_pass "printf '\t\n\t\n' 1>&2" -e inline:"\t\n\t\n"
+    h_pass "printf '\a\b\e\f\n\r\t\v' 1>&2" -e inline:"\a\b\e\f\n\r\t\v"
+    h_pass "printf '\011\022\033\012' 1>&2" -e inline:"\011\022\033\012"
+
+    h_fail "echo foo bar 1>&2" -e inline:"foo bar"
+    h_fail "echo -n foo bar 1>&2" -e inline:"foo bar\n"
+}
+
+atf_test_case eflag_save
+eflag_save_head()
+{
+    atf_set "descr" "Tests for the -e option using the 'save:' argument"
+}
+eflag_save_body()
+{
+    h_pass "echo foo 1>&2" -e save:out
+    echo foo >exp
+    cmp -s out exp || atf_fail "Saved output does not match expected results"
 }
 
 atf_init_test_cases()
 {
-    atf_add_test_case output
-    atf_add_test_case status
-}
+    atf_add_test_case sflag
+    atf_add_test_case xflag
 
-atf_init_test_cases()
-{
-    atf_add_test_case output
-    atf_add_test_case status
+    atf_add_test_case oflag_empty
+    atf_add_test_case oflag_ignore
+    atf_add_test_case oflag_file
+    atf_add_test_case oflag_inline
+    atf_add_test_case oflag_save
+
+    atf_add_test_case eflag_empty
+    atf_add_test_case eflag_ignore
+    atf_add_test_case eflag_file
+    atf_add_test_case eflag_inline
+    atf_add_test_case eflag_save
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
