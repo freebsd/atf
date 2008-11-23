@@ -64,6 +64,7 @@ class check_result {
     //!
     check_result(const atf_check_result_t *result);
 
+    friend check_result test_constructor(void);
     friend check_result exec(char * const *);
 
 public:
@@ -98,6 +99,9 @@ public:
 // ------------------------------------------------------------------------
 
 check_result exec(char * const *);
+
+// Useful for testing only.
+check_result test_constructor(void);
 
 } // namespace check
 } // namespace atf
