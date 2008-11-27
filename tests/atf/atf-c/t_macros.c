@@ -28,6 +28,8 @@
  */
 
 #include <fcntl.h>
+#include <regex.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -97,44 +99,75 @@ run_here(const atf_tc_t *tc, atf_tcr_t *tcr)
     atf_fs_path_fini(&cwd);
 }
 
+static
+bool
+match_reason_aux(const atf_tcr_t *tcr, const char *regex)
+{
+    const atf_dynstr_t *reason = atf_tcr_get_reason(tcr);
+    int res;
+    regex_t preg;
+
+    printf("Looking for '%s' in '%s'\n", regex, atf_dynstr_cstring(reason));
+    ATF_REQUIRE(regcomp(&preg, regex, REG_EXTENDED) == 0);
+
+    res = regexec(&preg, atf_dynstr_cstring(reason), 0, NULL, 0);
+    ATF_REQUIRE(res == 0 || res == REG_NOMATCH);
+
+    return res == 0;
+}
+
+static
+bool
+match_reason(const atf_tcr_t *tcr, const char *regex, ...)
+{
+    va_list ap;
+    atf_dynstr_t formatted;
+
+    va_start(ap, regex);
+    CE(atf_dynstr_init_ap(&formatted, regex, ap));
+    va_end(ap);
+
+    return match_reason_aux(tcr, atf_dynstr_cstring(&formatted));
+}
+
 /* ---------------------------------------------------------------------
  * Helper test cases.
  * --------------------------------------------------------------------- */
 
-ATF_TC_HEAD(h_require, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Helper test case");
-}
-ATF_TC_BODY(h_require, tc)
-{
-    bool condition;
+#define H_REQUIRE_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_require_ ## id)
+#define H_REQUIRE_BODY_NAME(id) ATF_TC_BODY_NAME(h_require_ ## id)
+#define H_REQUIRE(id, condition) \
+    ATF_TC_HEAD(h_require_ ## id, tc) \
+    { \
+        atf_tc_set_md_var(tc, "descr", "Helper test case"); \
+    } \
+    ATF_TC_BODY(h_require_ ## id, tc) \
+    { \
+        create_ctl_file(tc, "before"); \
+        ATF_REQUIRE(condition); \
+        create_ctl_file(tc, "after"); \
+    }
 
-    CE(atf_text_to_bool(atf_tc_get_config_var(tc, "condition"), &condition));
-
-    create_ctl_file(tc, "before");
-    ATF_REQUIRE(condition);
-    create_ctl_file(tc, "after");
-}
-
-ATF_TC_HEAD(h_require_equal, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Helper test case");
-}
-ATF_TC_BODY(h_require_equal, tc)
-{
-    long v1, v2;
-
-    CE(atf_text_to_long(atf_tc_get_config_var(tc, "v1"), &v1));
-    CE(atf_text_to_long(atf_tc_get_config_var(tc, "v2"), &v2));
-
-    create_ctl_file(tc, "before");
-    ATF_REQUIRE_EQ(v1, v2);
-    create_ctl_file(tc, "after");
-}
+#define H_REQUIRE_EQ_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_require_eq_ ## id)
+#define H_REQUIRE_EQ_BODY_NAME(id) ATF_TC_BODY_NAME(h_require_eq_ ## id)
+#define H_REQUIRE_EQ(id, v1, v2) \
+    ATF_TC_HEAD(h_require_eq_ ## id, tc) \
+    { \
+        atf_tc_set_md_var(tc, "descr", "Helper test case"); \
+    } \
+    ATF_TC_BODY(h_require_eq_ ## id, tc) \
+    { \
+        create_ctl_file(tc, "before"); \
+        ATF_REQUIRE_EQ(v1, v2); \
+        create_ctl_file(tc, "after"); \
+    }
 
 /* ---------------------------------------------------------------------
  * Test cases for the macros.
  * --------------------------------------------------------------------- */
+
+H_REQUIRE(false, 0);
+H_REQUIRE(true, 1);
 
 ATF_TC(require);
 ATF_TC_HEAD(require, tc)
@@ -144,12 +177,14 @@ ATF_TC_HEAD(require, tc)
 ATF_TC_BODY(require, tc)
 {
     struct test {
+        void (*head)(atf_tc_t *);
+        void (*body)(const atf_tc_t *);
         const char *cond;
         bool ok;
     } *t, tests[] = {
-        { "false", false },
-        { "true", true },
-        { NULL, false }
+        { H_REQUIRE_HEAD_NAME(false), H_REQUIRE_BODY_NAME(false), "0", false },
+        { H_REQUIRE_HEAD_NAME(true), H_REQUIRE_BODY_NAME(true), "1", true },
+        { NULL, NULL, NULL, false }
     };
 
     for (t = &tests[0]; t->cond != NULL; t++) {
@@ -158,12 +193,10 @@ ATF_TC_BODY(require, tc)
         atf_tcr_t tcr;
 
         init_config(&config);
-        CE(atf_map_insert(&config, "condition", strdup(t->cond), true));
 
         printf("Checking with a %s value\n", t->cond);
 
-        CE(atf_tc_init(&tcaux, "h_require", ATF_TC_HEAD_NAME(h_require),
-                       ATF_TC_BODY_NAME(h_require), NULL, &config));
+        CE(atf_tc_init(&tcaux, "h_require", t->head, t->body, NULL, &config));
         run_here(&tcaux, &tcr);
         atf_tc_fini(&tcaux);
 
@@ -174,6 +207,7 @@ ATF_TC_BODY(require, tc)
         } else {
             ATF_REQUIRE(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
             ATF_REQUIRE(!exists("after"));
+            ATF_REQUIRE(match_reason(&tcr, "^Line [0-9]+: %s not met$", t->cond));
         }
 
         atf_tcr_fini(&tcr);
@@ -185,23 +219,34 @@ ATF_TC_BODY(require, tc)
     }
 }
 
-ATF_TC(require_equal);
-ATF_TC_HEAD(require_equal, tc)
+H_REQUIRE_EQ(1_1, 1, 1);
+H_REQUIRE_EQ(1_2, 1, 2);
+H_REQUIRE_EQ(2_1, 2, 1);
+H_REQUIRE_EQ(2_2, 2, 2);
+
+ATF_TC(require_eq);
+ATF_TC_HEAD(require_eq, tc)
 {
     atf_tc_set_md_var(tc, "descr", "Tests the ATF_REQUIRE_EQ macro");
 }
-ATF_TC_BODY(require_equal, tc)
+ATF_TC_BODY(require_eq, tc)
 {
     struct test {
+        void (*head)(atf_tc_t *);
+        void (*body)(const atf_tc_t *);
         const char *v1;
         const char *v2;
         bool ok;
     } *t, tests[] = {
-        { "1", "1", true },
-        { "1", "2", false },
-        { "2", "1", false },
-        { "2", "2", true },
-        { NULL, NULL, false }
+        { H_REQUIRE_EQ_HEAD_NAME(1_1), H_REQUIRE_EQ_BODY_NAME(1_1),
+          "1", "1", true },
+        { H_REQUIRE_EQ_HEAD_NAME(1_2), H_REQUIRE_EQ_BODY_NAME(1_2),
+          "1", "2", false },
+        { H_REQUIRE_EQ_HEAD_NAME(2_1), H_REQUIRE_EQ_BODY_NAME(2_1),
+          "2", "1", false },
+        { H_REQUIRE_EQ_HEAD_NAME(2_2), H_REQUIRE_EQ_BODY_NAME(2_2),
+          "2", "2", true },
+        { NULL, NULL, NULL, NULL, false }
     };
 
     for (t = &tests[0]; t->v1 != NULL; t++) {
@@ -216,8 +261,7 @@ ATF_TC_BODY(require_equal, tc)
         printf("Checking with %s, %s and expecting %s\n", t->v1, t->v2,
                t->ok ? "true" : "false");
 
-        CE(atf_tc_init(&tcaux, "h_require", ATF_TC_HEAD_NAME(h_require_equal),
-                       ATF_TC_BODY_NAME(h_require_equal), NULL, &config));
+        CE(atf_tc_init(&tcaux, "h_require", t->head, t->body, NULL, &config));
         run_here(&tcaux, &tcr);
         atf_tc_fini(&tcaux);
 
@@ -228,6 +272,8 @@ ATF_TC_BODY(require_equal, tc)
         } else {
             ATF_REQUIRE(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
             ATF_REQUIRE(!exists("after"));
+            ATF_REQUIRE(match_reason(&tcr, "^Line [0-9]+: %s != %s$",
+                                     t->v1, t->v2));
         }
 
         atf_tcr_fini(&tcr);
@@ -246,7 +292,7 @@ ATF_TC_BODY(require_equal, tc)
 ATF_TP_ADD_TCS(tp)
 {
     ATF_TP_ADD_TC(tp, require);
-    ATF_TP_ADD_TC(tp, require_equal);
+    ATF_TP_ADD_TC(tp, require_eq);
 
     return atf_no_error();
 }
