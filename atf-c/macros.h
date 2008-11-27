@@ -109,18 +109,6 @@
             return atfu_err; \
     } while (0)
 
-#define ATF_REQUIRE(x) \
-    do { \
-        if (!(x)) \
-            atf_tc_fail("Line %d: %s not met", __LINE__, #x); \
-    } while(0)
-
-#define ATF_CHECK(x) \
-    do { \
-        if (!(x)) \
-            atf_tc_fail_nonfatal("Line %d: %s not met", __LINE__, #x); \
-    } while(0)
-
 #define ATF_REQUIRE_MSG(x, fmt, ...) \
     do { \
         if (!(x)) \
@@ -132,6 +120,12 @@
         if (!(x)) \
             atf_tc_fail_nonfatal("Line %d: " fmt, __LINE__, ##__VA_ARGS__); \
     } while(0)
+
+#define ATF_REQUIRE(x) \
+    ATF_REQUIRE_MSG(x, #x " not met")
+
+#define ATF_CHECK(x) \
+    ATF_CHECK_MSG(x, #x " not met")
 
 #define ATF_REQUIRE_EQ(x, y) \
     ATF_REQUIRE_MSG((x) == (y), "%s != %s", #x, #y)
