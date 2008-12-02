@@ -69,4 +69,11 @@ atf_tcr_state_t atf_tcr_get_state(const atf_tcr_t *);
 const atf_dynstr_t *atf_tcr_get_reason(const atf_tcr_t *);
 bool atf_tcr_has_reason(const atf_tcr_t *);
 
+/* Operators. */
+bool atf_equal_tcr_tcr(const atf_tcr_t *, const atf_tcr_t *);
+
+/* Serialization. */
+atf_error_t atf_tcr_serialize(const atf_tcr_t *, const int);
+atf_error_t atf_tcr_deserialize(atf_tcr_t *, const int);
+
 #endif /* ATF_C_TCR_H */

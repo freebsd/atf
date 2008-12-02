@@ -27,6 +27,9 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <fcntl.h>
+#include <unistd.h>
+
 #include <atf-c.h>
 
 #include "atf-c/tcr.h"
@@ -36,6 +39,30 @@
  * --------------------------------------------------------------------- */
 
 #define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
+
+static
+void
+serialize(const atf_tcr_t *tcr, const char *filename)
+{
+    int fd;
+
+    fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    ATF_REQUIRE(fd != -1);
+    CE(atf_tcr_serialize(tcr, fd));
+    close(fd);
+}
+
+static
+void
+deserialize(atf_tcr_t *tcr, const char *filename)
+{
+    int fd;
+
+    fd = open(filename, O_RDONLY);
+    ATF_REQUIRE(fd != -1);
+    CE(atf_tcr_deserialize(tcr, fd));
+    close(fd);
+}
 
 /* ---------------------------------------------------------------------
  * Test cases for the "atf_tcr_t" type.
@@ -134,6 +161,85 @@ ATF_TC_BODY(get_reason, tc)
     atf_tcr_fini(&tcr);
 }
 
+ATF_TC(equal);
+ATF_TC_HEAD(equal, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_equal_tcr_tcr function");
+}
+ATF_TC_BODY(equal, tc)
+{
+    atf_tcr_t passed1, passed2;
+    atf_tcr_t failed1, failed2, failed3;
+    atf_tcr_t skipped1, skipped2, skipped3;
+
+    CE(atf_tcr_init(&passed1, atf_tcr_passed_state));
+    CE(atf_tcr_init(&passed2, atf_tcr_passed_state));
+    CE(atf_tcr_init_reason_fmt(&failed1, atf_tcr_failed_state, "F1"));
+    CE(atf_tcr_init_reason_fmt(&failed2, atf_tcr_failed_state, "F1"));
+    CE(atf_tcr_init_reason_fmt(&failed3, atf_tcr_failed_state, "F2"));
+    CE(atf_tcr_init_reason_fmt(&skipped1, atf_tcr_skipped_state, "F1"));
+    CE(atf_tcr_init_reason_fmt(&skipped2, atf_tcr_skipped_state, "F1"));
+    CE(atf_tcr_init_reason_fmt(&skipped3, atf_tcr_skipped_state, "F2"));
+
+    ATF_CHECK(atf_equal_tcr_tcr(&passed1, &passed1));
+    ATF_CHECK(atf_equal_tcr_tcr(&passed1, &passed2));
+    ATF_CHECK(!atf_equal_tcr_tcr(&passed1, &failed1));
+    ATF_CHECK(!atf_equal_tcr_tcr(&passed1, &skipped1));
+
+    ATF_CHECK(atf_equal_tcr_tcr(&failed1, &failed1));
+    ATF_CHECK(atf_equal_tcr_tcr(&failed1, &failed2));
+    ATF_CHECK(!atf_equal_tcr_tcr(&failed1, &failed3));
+    ATF_CHECK(!atf_equal_tcr_tcr(&failed1, &passed1));
+    ATF_CHECK(!atf_equal_tcr_tcr(&failed1, &skipped1));
+
+    ATF_CHECK(atf_equal_tcr_tcr(&skipped1, &skipped1));
+    ATF_CHECK(atf_equal_tcr_tcr(&skipped1, &skipped2));
+    ATF_CHECK(!atf_equal_tcr_tcr(&skipped1, &skipped3));
+    ATF_CHECK(!atf_equal_tcr_tcr(&skipped1, &passed1));
+    ATF_CHECK(!atf_equal_tcr_tcr(&skipped1, &failed1));
+
+    atf_tcr_fini(&skipped3);
+    atf_tcr_fini(&skipped2);
+    atf_tcr_fini(&skipped1);
+    atf_tcr_fini(&failed3);
+    atf_tcr_fini(&failed2);
+    atf_tcr_fini(&failed1);
+    atf_tcr_fini(&passed2);
+    atf_tcr_fini(&passed1);
+}
+
+ATF_TC(serialization);
+ATF_TC_HEAD(serialization, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_tcr_serialize and "
+                      "atf_tcr_deserialize functions");
+}
+ATF_TC_BODY(serialization, tc)
+{
+    atf_tcr_t tcr, tcr2;
+
+    CE(atf_tcr_init(&tcr, atf_tcr_passed_state));
+    serialize(&tcr, "passed");
+    deserialize(&tcr2, "passed");
+    ATF_CHECK(atf_equal_tcr_tcr(&tcr, &tcr2));
+    atf_tcr_fini(&tcr2);
+    atf_tcr_fini(&tcr);
+
+    CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_failed_state, "Failed"));
+    serialize(&tcr, "failed");
+    deserialize(&tcr2, "failed");
+    ATF_CHECK(atf_equal_tcr_tcr(&tcr, &tcr2));
+    atf_tcr_fini(&tcr2);
+    atf_tcr_fini(&tcr);
+
+    CE(atf_tcr_init_reason_fmt(&tcr, atf_tcr_skipped_state, "Skipped"));
+    serialize(&tcr, "skipped");
+    deserialize(&tcr2, "skipped");
+    ATF_CHECK(atf_equal_tcr_tcr(&tcr, &tcr2));
+    atf_tcr_fini(&tcr2);
+    atf_tcr_fini(&tcr);
+}
+
 /* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
@@ -145,6 +251,8 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, init_reason);
     ATF_TP_ADD_TC(tp, get_state);
     ATF_TP_ADD_TC(tp, get_reason);
+    ATF_TP_ADD_TC(tp, equal);
+    ATF_TP_ADD_TC(tp, serialization);
 
     return atf_no_error();
 }

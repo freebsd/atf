@@ -29,6 +29,7 @@
 
 #include <stdbool.h>
 
+#include "atf-c/io.h"
 #include "atf-c/sanity.h"
 #include "atf-c/tcr.h"
 
@@ -178,7 +179,8 @@ atf_tcr_fini(atf_tcr_t *tcr)
 }
 
 /*
- * Getters. */
+ * Getters.
+ */
 
 atf_tcr_state_t
 atf_tcr_get_state(const atf_tcr_t *tcr)
@@ -197,4 +199,113 @@ bool
 atf_tcr_has_reason(const atf_tcr_t *tcr)
 {
     return state_allows_reason(tcr->m_state);
+}
+
+/*
+ * Operators.
+ */
+
+bool
+atf_equal_tcr_tcr(const atf_tcr_t *tcr1, const atf_tcr_t *tcr2)
+{
+    const bool ar1 = state_allows_reason(tcr1->m_state);
+    const bool ar2 = state_allows_reason(tcr2->m_state);
+
+    bool equal;
+
+    if (ar1 && ar2) {
+        equal = tcr1->m_state == tcr2->m_state &&
+                atf_equal_dynstr_dynstr(&tcr1->m_reason, &tcr2->m_reason);
+    } else if (ar1 && !ar2) {
+        equal = false;
+    } else if (!ar1 && ar2) {
+        equal = false;
+    } else {
+        INV(!ar1 && !ar2);
+        equal = tcr1->m_state == tcr2->m_state;
+    }
+
+    return equal;
+}
+
+/*
+ * Serialization.
+ */
+
+atf_error_t
+atf_tcr_serialize(const atf_tcr_t *tcr, const int fd)
+{
+    atf_error_t err;
+    const atf_tcr_state_t s = atf_tcr_get_state(tcr);
+    const char *str;
+
+    if (s == atf_tcr_passed_state)
+        str = "passed";
+    else if (s == atf_tcr_failed_state)
+        str = "failed";
+    else if (s == atf_tcr_skipped_state)
+        str = "skipped";
+    else {
+        UNREACHABLE;
+        str = NULL;
+    }
+
+    err = atf_io_write_fmt(fd, "%s\n", str);
+    if (atf_is_error(err))
+        goto out;
+
+    if (atf_tcr_has_reason(tcr)) {
+        const atf_dynstr_t *r = atf_tcr_get_reason(tcr);
+        err = atf_io_write_fmt(fd, "%s\n", atf_dynstr_cstring(r));
+        if (atf_is_error(err))
+            goto out;
+    }
+
+    INV(!atf_is_error(err));
+
+out:
+    return err;
+}
+
+atf_error_t
+atf_tcr_deserialize(atf_tcr_t *tcr, const int fd)
+{
+    atf_error_t err;
+    atf_dynstr_t state, reason;
+
+    err = atf_dynstr_init(&state);
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_dynstr_init(&reason);
+    if (atf_is_error(err))
+        goto out_state;
+
+    err = atf_io_readline(fd, &state);
+    if (atf_is_error(err))
+        goto out_reason;
+
+    if (atf_equal_dynstr_cstring(&state, "passed"))
+        err = atf_tcr_init(tcr, atf_tcr_passed_state);
+    else {
+        err = atf_io_readline(fd, &reason);
+        if (atf_is_error(err))
+            goto out_reason;
+
+        if (atf_equal_dynstr_cstring(&state, "failed"))
+            err = atf_tcr_init_reason_fmt(tcr, atf_tcr_failed_state, "%s",
+                                          atf_dynstr_cstring(&reason));
+        else if (atf_equal_dynstr_cstring(&state, "skipped"))
+            err = atf_tcr_init_reason_fmt(tcr, atf_tcr_skipped_state, "%s",
+                                          atf_dynstr_cstring(&reason));
+        else
+            UNREACHABLE;
+    }
+
+out_reason:
+    atf_dynstr_fini(&reason);
+out_state:
+    atf_dynstr_fini(&state);
+out:
+    return err;
 }

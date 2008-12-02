@@ -45,7 +45,6 @@
 #include "atf-c/config.h"
 #include "atf-c/env.h"
 #include "atf-c/fs.h"
-#include "atf-c/io.h"
 #include "atf-c/sanity.h"
 #include "atf-c/signals.h"
 #include "atf-c/tc.h"
@@ -66,7 +65,6 @@ static atf_error_t fork_body(const atf_tc_t *, const atf_fs_path_t *,
                              atf_tcr_t *);
 static atf_error_t fork_cleanup(const atf_tc_t *, const atf_fs_path_t *);
 static atf_error_t get_tc_result(const atf_fs_path_t *, atf_tcr_t *);
-static atf_error_t parse_tc_result(int, atf_tcr_t *);
 static atf_error_t program_timeout(pid_t, const atf_tc_t *,
                                    struct timeout_data *);
 static void unprogram_timeout(struct timeout_data *);
@@ -88,7 +86,7 @@ static void fatal_atf_error(const char *, atf_error_t)
 static void fatal_libc_error(const char *, int)
             ATF_DEFS_ATTRIBUTE_NORETURN;
 static atf_error_t prepare_child(const atf_tc_t *, const atf_fs_path_t *);
-static void write_tcr(const atf_tc_t *, const atf_tcr_t *);
+static void write_tcr(const atf_tcr_t *);
 
 /* ---------------------------------------------------------------------
  * The "atf_tc" type.
@@ -507,55 +505,11 @@ get_tc_result(const atf_fs_path_t *workdir, atf_tcr_t *tcr)
         goto out_tcrfile;
     }
 
-    err = parse_tc_result(fd, tcr);
+    err = atf_tcr_deserialize(tcr, fd);
 
     close(fd);
 out_tcrfile:
     atf_fs_path_fini(&tcrfile);
-out:
-    return err;
-}
-
-static
-atf_error_t
-parse_tc_result(int fd, atf_tcr_t *tcr)
-{
-    atf_error_t err;
-    atf_dynstr_t state, reason;
-
-    err = atf_dynstr_init(&state);
-    if (atf_is_error(err))
-        goto out;
-
-    err = atf_dynstr_init(&reason);
-    if (atf_is_error(err))
-        goto out_state;
-
-    err = atf_io_readline(fd, &state);
-    if (atf_is_error(err))
-        goto out_reason;
-
-    if (atf_equal_dynstr_cstring(&state, "passed"))
-        err = atf_tcr_init(tcr, atf_tcr_passed_state);
-    else {
-        err = atf_io_readline(fd, &reason);
-        if (atf_is_error(err))
-            goto out_reason;
-
-        if (atf_equal_dynstr_cstring(&state, "failed"))
-            err = atf_tcr_init_reason_fmt(tcr, atf_tcr_failed_state, "%s",
-                                          atf_dynstr_cstring(&reason));
-        else if (atf_equal_dynstr_cstring(&state, "skipped"))
-            err = atf_tcr_init_reason_fmt(tcr, atf_tcr_skipped_state, "%s",
-                                          atf_dynstr_cstring(&reason));
-        else
-            UNREACHABLE;
-    }
-
-out_reason:
-    atf_dynstr_fini(&reason);
-out_state:
-    atf_dynstr_fini(&state);
 out:
     return err;
 }
@@ -923,7 +877,7 @@ fatal_libc_error(const char *prefix, int err)
 
 static
 void
-write_tcr(const atf_tc_t *tc, const atf_tcr_t *tcr)
+write_tcr(const atf_tcr_t *tcr)
 {
     atf_error_t err;
     int fd;
@@ -942,34 +896,9 @@ write_tcr(const atf_tc_t *tc, const atf_tcr_t *tcr)
     if (fd == -1)
         fatal_libc_error("Cannot write test case results", errno);
 
-    {
-        const atf_tcr_state_t s = atf_tcr_get_state(tcr);
-        const char *str;
-
-        if (s == atf_tcr_passed_state)
-            str = "passed";
-        else if (s == atf_tcr_failed_state)
-            str = "failed";
-        else if (s == atf_tcr_skipped_state)
-            str = "skipped";
-        else {
-            UNREACHABLE;
-            str = NULL;
-        }
-
-        err = atf_io_write_fmt(fd, "%s\n", str);
-        if (atf_is_error(err))
-            fatal_atf_error("Cannot write test case results", err);
-    }
-
-    {
-        if (atf_tcr_has_reason(tcr)) {
-            const atf_dynstr_t *r = atf_tcr_get_reason(tcr);
-            err = atf_io_write_fmt(fd, "%s\n", atf_dynstr_cstring(r));
-            if (atf_is_error(err))
-                fatal_atf_error("Cannot write test case results", err);
-        }
-    }
+    err = atf_tcr_serialize(tcr, fd);
+    if (atf_is_error(err))
+        fatal_atf_error("Cannot write test case results", err);
 
     close(fd);
 }
@@ -989,7 +918,7 @@ atf_tc_fail(const char *fmt, ...)
     if (atf_is_error(err))
         abort();
 
-    write_tcr(current_tc, &tcr);
+    write_tcr(&tcr);
 
     atf_tcr_fini(&tcr);
 
@@ -1021,7 +950,7 @@ atf_tc_pass(void)
     if (atf_is_error(err))
         abort();
 
-    write_tcr(current_tc, &tcr);
+    write_tcr(&tcr);
 
     atf_tcr_fini(&tcr);
 
@@ -1053,7 +982,7 @@ atf_tc_skip(const char *fmt, ...)
     if (atf_is_error(err))
         abort();
 
-    write_tcr(current_tc, &tcr);
+    write_tcr(&tcr);
 
     atf_tcr_fini(&tcr);
 
