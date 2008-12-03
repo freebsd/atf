@@ -88,10 +88,14 @@ xflag_head()
 }
 xflag_body()
 {
-    atf-check "echo foo 2>*1" && atf_fail "Shell command succeeded without -x"
+    atf-check -s ne:0 -o ignore -e ignore "echo foo 2>&1" || \
+        atf_fail "Shell command succeeded without -x"
 
     atf-check -e inline:"foo\n" -x "echo foo 1>&2" || \
         atf_fail "Cannot run command with -x"
+
+    atf-check -o inline:"foo\n" -x echo foo || \
+        atf_fail "Using -x does not respect all provided arguments"
 }
 
 atf_test_case oflag_empty

@@ -49,6 +49,66 @@ extern "C" {
 #include "atf-c++/io.hpp"
 #include "atf-c++/sanity.hpp"
 #include "atf-c++/text.hpp"
+#include "atf-c++/utils.hpp"
+
+// ------------------------------------------------------------------------
+// Auxiliary functions.
+// ------------------------------------------------------------------------
+
+static
+std::string
+flatten_argv(char* const* argv)
+{
+    std::string cmdline;
+int cnt = 0;
+    char* const* arg = &argv[0];
+    while (*arg != NULL) {
+        if (arg != &argv[0])
+            cmdline += ' ';
+
+        cmdline += *arg;
+
+        arg++;
+        if (cnt++ > 10) break;
+    }
+
+    return cmdline;
+}
+
+static
+atf::check::check_result
+execute(char* const* argv)
+{
+    std::cout << "Executing command [ ";
+    for (int i = 0; argv[i] != NULL; ++i)
+        std::cout << argv[i] << " ";
+    std::cout << "]" << std::endl;
+
+    return atf::check::exec(argv);
+}
+
+static
+atf::check::check_result
+execute_with_shell(char* const* argv)
+{
+    atf::utils::auto_array< char > arg0
+        (atf::text::duplicate(atf::config::get("atf_shell").c_str()));
+    atf::utils::auto_array< char > arg1
+        (atf::text::duplicate("-c"));
+    atf::utils::auto_array< char > arg2
+        (atf::text::duplicate(flatten_argv(argv).c_str()));
+
+    char *sh_argv[4];
+    sh_argv[0] = arg0.get();
+    sh_argv[1] = arg1.get();
+    sh_argv[2] = arg2.get();
+    sh_argv[3] = NULL;
+    return execute(sh_argv);
+}
+
+// ------------------------------------------------------------------------
+// The "atf_check" application.
+// ------------------------------------------------------------------------
 
 class atf_check : public atf::application::app {
     enum output_check_t {
@@ -432,35 +492,10 @@ atf_check::main(void)
     if (m_argc < 1)
         throw atf::application::usage_error("No command specified");
 
-    char *const *argv;
-    char *sh_argv[4];
     int status = EXIT_FAILURE;
 
-    if (!m_xflag)
-        argv = m_argv;
-    else {
-        sh_argv[0] = ::strdup(atf::config::get("atf_shell").c_str());
-        sh_argv[1] = ::strdup("-c");
-        sh_argv[2] = ::strdup(m_argv[0]);
-        sh_argv[3] = NULL;
-        if (sh_argv[0] == NULL || sh_argv[1] == NULL || sh_argv[2] == NULL)
-            throw atf::system_error("main", "strdup(3) failed", errno);
-
-        argv = sh_argv;
-    }
-
-    std::cout << "Executing command [ ";
-    for (int i = 0; argv[i] != NULL; ++i)
-        std::cout << argv[i] << " ";
-    std::cout << "]" << std::endl;
-
-    atf::check::check_result r = atf::check::exec(argv);
-
-    if (m_xflag) {
-        free(sh_argv[0]);
-        free(sh_argv[1]);
-        free(sh_argv[2]);
-    }
+    atf::check::check_result r =
+        m_xflag ? execute_with_shell(m_argv) : execute(m_argv);
 
     if ((run_status_check(r) == false) ||
         (run_output_check(r, "stderr") == false) ||
