@@ -740,6 +740,7 @@ ATF_TC_BODY(mkdtemp, tc)
     ATF_REQUIRE(exists(&p2));
 
     CE(atf_fs_stat_init(&s1, &p1));
+    ATF_REQUIRE_EQ(atf_fs_stat_get_type(&s1), atf_fs_stat_dir_type);
     ATF_REQUIRE( atf_fs_stat_is_owner_readable(&s1));
     ATF_REQUIRE( atf_fs_stat_is_owner_writable(&s1));
     ATF_REQUIRE( atf_fs_stat_is_owner_executable(&s1));
@@ -751,6 +752,7 @@ ATF_TC_BODY(mkdtemp, tc)
     ATF_REQUIRE(!atf_fs_stat_is_other_executable(&s1));
 
     CE(atf_fs_stat_init(&s2, &p2));
+    ATF_REQUIRE_EQ(atf_fs_stat_get_type(&s2), atf_fs_stat_dir_type);
     ATF_REQUIRE( atf_fs_stat_is_owner_readable(&s2));
     ATF_REQUIRE( atf_fs_stat_is_owner_writable(&s2));
     ATF_REQUIRE( atf_fs_stat_is_owner_executable(&s2));
@@ -765,6 +767,90 @@ ATF_TC_BODY(mkdtemp, tc)
     atf_fs_stat_fini(&s1);
     atf_fs_path_fini(&p2);
     atf_fs_path_fini(&p1);
+}
+
+ATF_TC(mkstemp_ok);
+ATF_TC_HEAD(mkstemp_ok, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_mkstemp function, "
+                      "successful execution");
+}
+ATF_TC_BODY(mkstemp_ok, tc)
+{
+    int fd1, fd2;
+    atf_fs_path_t p1, p2;
+    atf_fs_stat_t s1, s2;
+
+    CE(atf_fs_path_init_fmt(&p1, "testfile.XXXXXX"));
+    CE(atf_fs_path_init_fmt(&p2, "testfile.XXXXXX"));
+    fd1 = fd2 = -1;
+    CE(atf_fs_mkstemp(&p1, &fd1));
+    CE(atf_fs_mkstemp(&p2, &fd2));
+    ATF_REQUIRE(!atf_equal_fs_path_fs_path(&p1, &p2));
+    ATF_REQUIRE(exists(&p1));
+    ATF_REQUIRE(exists(&p2));
+
+    ATF_CHECK(fd1 != -1);
+    ATF_CHECK(fd2 != -1);
+    ATF_CHECK(write(fd1, "foo", 3) == 3);
+    ATF_CHECK(write(fd2, "bar", 3) == 3);
+    close(fd1);
+    close(fd2);
+
+    CE(atf_fs_stat_init(&s1, &p1));
+    ATF_CHECK_EQ(atf_fs_stat_get_type(&s1), atf_fs_stat_reg_type);
+    ATF_CHECK( atf_fs_stat_is_owner_readable(&s1));
+    ATF_CHECK( atf_fs_stat_is_owner_writable(&s1));
+    ATF_CHECK(!atf_fs_stat_is_owner_executable(&s1));
+    ATF_CHECK(!atf_fs_stat_is_group_readable(&s1));
+    ATF_CHECK(!atf_fs_stat_is_group_writable(&s1));
+    ATF_CHECK(!atf_fs_stat_is_group_executable(&s1));
+    ATF_CHECK(!atf_fs_stat_is_other_readable(&s1));
+    ATF_CHECK(!atf_fs_stat_is_other_writable(&s1));
+    ATF_CHECK(!atf_fs_stat_is_other_executable(&s1));
+
+    CE(atf_fs_stat_init(&s2, &p2));
+    ATF_CHECK_EQ(atf_fs_stat_get_type(&s2), atf_fs_stat_reg_type);
+    ATF_CHECK( atf_fs_stat_is_owner_readable(&s2));
+    ATF_CHECK( atf_fs_stat_is_owner_writable(&s2));
+    ATF_CHECK(!atf_fs_stat_is_owner_executable(&s2));
+    ATF_CHECK(!atf_fs_stat_is_group_readable(&s2));
+    ATF_CHECK(!atf_fs_stat_is_group_writable(&s2));
+    ATF_CHECK(!atf_fs_stat_is_group_executable(&s2));
+    ATF_CHECK(!atf_fs_stat_is_other_readable(&s2));
+    ATF_CHECK(!atf_fs_stat_is_other_writable(&s2));
+    ATF_CHECK(!atf_fs_stat_is_other_executable(&s2));
+
+    atf_fs_stat_fini(&s2);
+    atf_fs_stat_fini(&s1);
+    atf_fs_path_fini(&p2);
+    atf_fs_path_fini(&p1);
+}
+
+ATF_TC(mkstemp_err);
+ATF_TC_HEAD(mkstemp_err, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_mkstemp function, "
+                      "error conditions");
+}
+ATF_TC_BODY(mkstemp_err, tc)
+{
+    int fd;
+    atf_error_t err;
+    atf_fs_path_t p;
+
+    ATF_REQUIRE(mkdir("dir", 0555) != -1);
+
+    CE(atf_fs_path_init_fmt(&p, "dir/testfile.XXXXXX"));
+    fd = 1234;
+
+    err = atf_fs_mkstemp(&p, &fd);
+    ATF_REQUIRE(atf_is_error(err));
+    ATF_REQUIRE(atf_error_is(err, "libc"));
+    ATF_CHECK_EQ(atf_libc_error_code(err), EACCES);
+
+    ATF_CHECK(!exists(&p));
+    ATF_CHECK_EQ(fd, 1234);
 }
 
 /* ---------------------------------------------------------------------
@@ -794,6 +880,8 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, exists);
     ATF_TP_ADD_TC(tp, getcwd);
     ATF_TP_ADD_TC(tp, mkdtemp);
+    ATF_TP_ADD_TC(tp, mkstemp_ok);
+    ATF_TP_ADD_TC(tp, mkstemp_err);
 
     return atf_no_error();
 }

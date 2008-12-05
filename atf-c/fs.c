@@ -834,21 +834,24 @@ atf_fs_mkdtemp(atf_fs_path_t *p)
 }
 
 atf_error_t
-atf_fs_mkstemp(atf_fs_path_t *p, int *fd)
+atf_fs_mkstemp(atf_fs_path_t *p, int *fdout)
 {
     atf_error_t err;
     char *tmpl;
+    int fd;
 
     tmpl = p->m_data.m_data; /* XXX: Ugly */
     PRE(strstr(tmpl, "XXXXXX") != NULL);
 
-    *fd = mkstemp(tmpl);
-    if ((*fd) == -1)
+    fd = mkstemp(tmpl);
+    if (fd == -1)
         err = atf_libc_error(errno, "Cannot create temporary file "
-                              "with template '%s'", tmpl);
+                             "with template '%s'", tmpl);
 
-    else
+    else {
+        *fdout = fd;
         err = atf_no_error();
+    }
 
     return err;
 }
