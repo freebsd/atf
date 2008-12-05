@@ -230,6 +230,61 @@ out:
 
 static
 atf_error_t
+copy_contents(const atf_fs_path_t *p, char **buf)
+{
+    atf_error_t err;
+    char *str;
+
+    str = (char *)malloc(atf_dynstr_length(&p->m_data) + 1);
+    if (str == NULL)
+        err = atf_no_memory_error();
+    else {
+        strcpy(str, atf_dynstr_cstring(&p->m_data));
+        *buf = str;
+        err = atf_no_error();
+    }
+
+    return err;
+}
+
+static
+atf_error_t
+do_mkdtemp(char *tmpl)
+{
+    atf_error_t err;
+
+    PRE(strstr(tmpl, "XXXXXX") != NULL);
+
+    if (mkdtemp(tmpl) == NULL)
+        err = atf_libc_error(errno, "Cannot create temporary directory "
+                             "with template '%s'", tmpl);
+    else
+        err = atf_no_error();
+
+    return err;
+}
+
+static
+atf_error_t
+do_mkstemp(char *tmpl, int *fdout)
+{
+    atf_error_t err;
+
+    PRE(strstr(tmpl, "XXXXXX") != NULL);
+
+    *fdout = mkstemp(tmpl);
+    if (*fdout == -1)
+        err = atf_libc_error(errno, "Cannot create temporary file "
+                             "with template '%s'", tmpl);
+
+    else
+        err = atf_no_error();
+
+    return err;
+}
+
+static
+atf_error_t
 do_unmount(const atf_fs_path_t *p)
 {
     atf_error_t err;
@@ -335,6 +390,20 @@ normalize_ap(atf_dynstr_t *d, const char *p, va_list ap)
 
 out:
     return err;
+}
+
+static
+void
+replace_contents(atf_fs_path_t *p, const char *buf)
+{
+    atf_error_t err;
+
+    PRE(atf_dynstr_length(&p->m_data) == strlen(buf));
+
+    atf_dynstr_clear(&p->m_data);
+    err = atf_dynstr_append_fmt(&p->m_data, "%s", buf);
+
+    INV(!atf_is_error(err));
 }
 
 /* ---------------------------------------------------------------------
@@ -819,17 +888,22 @@ atf_error_t
 atf_fs_mkdtemp(atf_fs_path_t *p)
 {
     atf_error_t err;
-    char *tmpl;
+    char *buf;
 
-    tmpl = p->m_data.m_data; /* XXX: Ugly */
-    PRE(strstr(tmpl, "XXXXXX") != NULL);
+    err = copy_contents(p, &buf);
+    if (atf_is_error(err))
+        goto out;
 
-    if (mkdtemp(tmpl) == NULL)
-        err = atf_libc_error(errno, "Cannot create temporary directory "
-                             "with template '%s'", tmpl);
-    else
-        err = atf_no_error();
+    err = do_mkdtemp(buf);
+    if (atf_is_error(err))
+        goto out_buf;
 
+    replace_contents(p, buf);
+
+    INV(!atf_is_error(err));
+out_buf:
+    free(buf);
+out:
     return err;
 }
 
@@ -837,22 +911,24 @@ atf_error_t
 atf_fs_mkstemp(atf_fs_path_t *p, int *fdout)
 {
     atf_error_t err;
-    char *tmpl;
+    char *buf;
     int fd;
 
-    tmpl = p->m_data.m_data; /* XXX: Ugly */
-    PRE(strstr(tmpl, "XXXXXX") != NULL);
+    err = copy_contents(p, &buf);
+    if (atf_is_error(err))
+        goto out;
 
-    fd = mkstemp(tmpl);
-    if (fd == -1)
-        err = atf_libc_error(errno, "Cannot create temporary file "
-                             "with template '%s'", tmpl);
+    err = do_mkstemp(buf, &fd);
+    if (atf_is_error(err))
+        goto out_buf;
 
-    else {
-        *fdout = fd;
-        err = atf_no_error();
-    }
+    replace_contents(p, buf);
+    *fdout = fd;
 
+    INV(!atf_is_error(err));
+out_buf:
+    free(buf);
+out:
     return err;
 }
 

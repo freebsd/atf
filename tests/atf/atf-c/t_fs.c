@@ -721,12 +721,13 @@ ATF_TC_BODY(getcwd, tc)
     atf_fs_path_fini(&cwd1);
 }
 
-ATF_TC(mkdtemp);
-ATF_TC_HEAD(mkdtemp, tc)
+ATF_TC(mkdtemp_ok);
+ATF_TC_HEAD(mkdtemp_ok, tc)
 {
-    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_mkdtemp function");
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_mkdtemp function, "
+                      "successful execution");
 }
-ATF_TC_BODY(mkdtemp, tc)
+ATF_TC_BODY(mkdtemp_ok, tc)
 {
     atf_fs_path_t p1, p2;
     atf_fs_stat_t s1, s2;
@@ -767,6 +768,30 @@ ATF_TC_BODY(mkdtemp, tc)
     atf_fs_stat_fini(&s1);
     atf_fs_path_fini(&p2);
     atf_fs_path_fini(&p1);
+}
+
+ATF_TC(mkdtemp_err);
+ATF_TC_HEAD(mkdtemp_err, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_mkdtemp function, "
+                      "error conditions");
+}
+ATF_TC_BODY(mkdtemp_err, tc)
+{
+    atf_error_t err;
+    atf_fs_path_t p;
+
+    ATF_REQUIRE(mkdir("dir", 0555) != -1);
+
+    CE(atf_fs_path_init_fmt(&p, "dir/testdir.XXXXXX"));
+
+    err = atf_fs_mkdtemp(&p);
+    ATF_REQUIRE(atf_is_error(err));
+    ATF_REQUIRE(atf_error_is(err, "libc"));
+    ATF_CHECK_EQ(atf_libc_error_code(err), EACCES);
+
+    ATF_CHECK(!exists(&p));
+    ATF_CHECK(strcmp(atf_fs_path_cstring(&p), "dir/testdir.XXXXXX") == 0);
 }
 
 ATF_TC(mkstemp_ok);
@@ -850,6 +875,7 @@ ATF_TC_BODY(mkstemp_err, tc)
     ATF_CHECK_EQ(atf_libc_error_code(err), EACCES);
 
     ATF_CHECK(!exists(&p));
+    ATF_CHECK(strcmp(atf_fs_path_cstring(&p), "dir/testfile.XXXXXX") == 0);
     ATF_CHECK_EQ(fd, 1234);
 }
 
@@ -879,7 +905,8 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, eaccess);
     ATF_TP_ADD_TC(tp, exists);
     ATF_TP_ADD_TC(tp, getcwd);
-    ATF_TP_ADD_TC(tp, mkdtemp);
+    ATF_TP_ADD_TC(tp, mkdtemp_ok);
+    ATF_TP_ADD_TC(tp, mkdtemp_err);
     ATF_TP_ADD_TC(tp, mkstemp_ok);
     ATF_TP_ADD_TC(tp, mkstemp_err);
 
