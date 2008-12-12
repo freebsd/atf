@@ -35,12 +35,12 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <atf-c/check.h>
-#include <atf-c/config.h>
-#include <atf-c/dynstr.h>
-#include <atf-c/error.h>
-#include <atf-c/fs.h>
-#include <atf-c/sanity.h>
+#include "atf-c/check.h"
+#include "atf-c/config.h"
+#include "atf-c/dynstr.h"
+#include "atf-c/error.h"
+#include "atf-c/fs.h"
+#include "atf-c/sanity.h"
 
 /* Only needed for testing, so not in the public header. */
 atf_error_t atf_check_result_init(atf_check_result_t *);
