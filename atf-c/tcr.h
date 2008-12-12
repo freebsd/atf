@@ -34,7 +34,7 @@
 #include <stdbool.h>
 
 #include <atf-c/dynstr.h>
-#include <atf-c/error.h>
+#include <atf-c/error_fwd.h>
 #include <atf-c/object.h>
 
 /* ---------------------------------------------------------------------

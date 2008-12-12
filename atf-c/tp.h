@@ -30,7 +30,7 @@
 #if !defined(ATF_C_TP_H)
 #define ATF_C_TP_H
 
-#include <atf-c/error.h>
+#include <atf-c/error_fwd.h>
 #include <atf-c/list.h>
 #include <atf-c/object.h>
 

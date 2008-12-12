@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "atf-c/error.h"
 #include "atf-c/map.h"
 #include "atf-c/sanity.h"
 

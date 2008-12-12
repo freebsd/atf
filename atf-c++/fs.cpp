@@ -46,6 +46,10 @@ extern "C" {
 #include <cstdlib>
 #include <cstring>
 
+extern "C" {
+#include "atf-c/error.h"
+}
+
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/env.hpp"
 #include "atf-c++/fs.hpp"

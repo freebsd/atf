@@ -104,6 +104,7 @@ libatf_c_la_SOURCES = atf-c/check.c \
                       atf-c/env.h \
                       atf-c/error.c \
                       atf-c/error.h \
+                      atf-c/error_fwd.h \
                       atf-c/expand.c \
                       atf-c/expand.h \
                       atf-c/fs.c \
@@ -150,6 +151,7 @@ atf_c_HEADERS = atf-c/check.h \
                 atf-c/dynstr.h \
                 atf-c/env.h \
                 atf-c/error.h \
+                atf-c/error_fwd.h \
                 atf-c/expand.h \
                 atf-c/fs.h \
                 atf-c/io.h \
@@ -1053,6 +1055,7 @@ tests_build_libuseless_a_SOURCES = \
     tests/build/atf-c/t_include_dynstr_h.c \
     tests/build/atf-c/t_include_env_h.c \
     tests/build/atf-c/t_include_error_h.c \
+    tests/build/atf-c/t_include_error_fwd_h.c \
     tests/build/atf-c/t_include_expand_h.c \
     tests/build/atf-c/t_include_fs_h.c \
     tests/build/atf-c/t_include_io_h.c \

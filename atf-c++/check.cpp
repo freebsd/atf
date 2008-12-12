@@ -29,6 +29,10 @@
 
 #include <cstring>
 
+extern "C" {
+#include "atf-c/error.h"
+}
+
 #include "atf-c++/check.hpp"
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/sanity.hpp"

@@ -50,6 +50,7 @@ extern "C" {
 #include <vector>
 
 extern "C" {
+#include "atf-c/error.h"
 #include "atf-c/object.h"
 }
 

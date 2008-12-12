@@ -31,6 +31,7 @@
 
 extern "C" {
 #include "atf-c/dynstr.h"
+#include "atf-c/error.h"
 #include "atf-c/ui.h"
 }
 

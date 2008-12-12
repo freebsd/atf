@@ -30,6 +30,7 @@
 #if !defined(ATF_C_ERROR_H)
 #define ATF_C_ERROR_H
 
+#include <atf-c/error_fwd.h>
 #include <atf-c/object.h>
 
 /* ---------------------------------------------------------------------
@@ -45,7 +46,6 @@ struct atf_error {
 
     void (*m_format)(struct atf_error *, char *, size_t);
 };
-typedef struct atf_error *atf_error_t;
 
 atf_error_t atf_error_new(const char *, void *, size_t,
                           void (*)(const atf_error_t, char *, size_t));

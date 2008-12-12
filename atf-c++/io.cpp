@@ -34,6 +34,7 @@ extern "C" {
 #include <cerrno>
 
 extern "C" {
+#include "atf-c/error.h"
 #include "atf-c/io.h"
 }
 

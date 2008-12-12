@@ -30,7 +30,7 @@
 #if !defined(ATF_C_CHECK_H)
 #define ATF_C_CHECK_H
 
-#include <atf-c/error.h>
+#include <atf-c/error_fwd.h>
 #include <atf-c/fs.h>
 #include <atf-c/object.h>
 

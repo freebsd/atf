@@ -46,6 +46,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "atf-c/error.h"
 #include "atf-c/fs.h"
 #include "atf-c/sanity.h"
 #include "atf-c/text.h"

@@ -33,6 +33,7 @@
 #include <stdlib.h>
 
 #include "atf-c/dynstr.h"
+#include "atf-c/error.h"
 #include "atf-c/text.h"
 
 atf_error_t

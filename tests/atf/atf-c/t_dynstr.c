@@ -35,6 +35,7 @@
 #include <atf-c.h>
 
 #include "atf-c/dynstr.h"
+#include "atf-c/error.h"
 
 #define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 

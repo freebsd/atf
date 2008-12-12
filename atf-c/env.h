@@ -32,7 +32,7 @@
 
 #include <stdbool.h>
 
-#include <atf-c/error.h>
+#include <atf-c/error_fwd.h>
 
 const char *atf_env_get(const char *);
 bool atf_env_has(const char *);

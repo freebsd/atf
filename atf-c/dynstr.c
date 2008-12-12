@@ -34,6 +34,7 @@
 #include <string.h>
 
 #include "atf-c/dynstr.h"
+#include "atf-c/error.h"
 #include "atf-c/sanity.h"
 #include "atf-c/text.h"
 

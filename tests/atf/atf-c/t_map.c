@@ -32,6 +32,7 @@
 
 #include <atf-c.h>
 
+#include "atf-c/error.h"
 #include "atf-c/map.h"
 
 #define CE(stm) ATF_REQUIRE(!atf_is_error(stm))

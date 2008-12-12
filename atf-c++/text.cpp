@@ -31,6 +31,7 @@
 #include <cstring>
 
 extern "C" {
+#include "atf-c/error.h"
 #include "atf-c/text.h"
 }
 

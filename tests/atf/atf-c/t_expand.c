@@ -29,6 +29,7 @@
 
 #include <atf-c.h>
 
+#include "atf-c/error.h"
 #include "atf-c/expand.h"
 
 /* ---------------------------------------------------------------------

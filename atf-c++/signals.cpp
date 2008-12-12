@@ -27,6 +27,10 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+extern "C" {
+#include "atf-c/error.h"
+}
+
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/signals.hpp"
 

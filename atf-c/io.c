@@ -37,6 +37,7 @@
 #include <unistd.h>
 
 #include "atf-c/dynstr.h"
+#include "atf-c/error.h"
 #include "atf-c/fs.h"
 #include "atf-c/io.h"
 #include "atf-c/sanity.h"

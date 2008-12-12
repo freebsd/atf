@@ -29,6 +29,7 @@
 
 #include <stdlib.h>
 
+#include "atf-c/error.h"
 #include "atf-c/list.h"
 #include "atf-c/sanity.h"
 

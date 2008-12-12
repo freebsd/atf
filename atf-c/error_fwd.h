@@ -27,59 +27,14 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_SIGNALS_H)
-#define ATF_C_SIGNALS_H
-
-#include <signal.h>
-#include <stdbool.h>
-
-#include <atf-c/error_fwd.h>
-#include <atf-c/object.h>
-
-extern const int atf_signals_last_signo;
-typedef void (*atf_signal_handler_t)(int);
+#if !defined(ATF_C_ERROR_FWD_H)
+#define ATF_C_ERROR_FWD_H
 
 /* ---------------------------------------------------------------------
- * The "atf_signal_programmer" type.
+ * The "atf_error" type.
  * --------------------------------------------------------------------- */
 
-struct atf_signal_programmer {
-    atf_object_t m_object;
+struct atf_error;
+typedef struct atf_error *atf_error_t;
 
-    int m_signo;
-    atf_signal_handler_t m_handler;
-    struct sigaction m_oldsa;
-};
-typedef struct atf_signal_programmer atf_signal_programmer_t;
-
-/* Constructors/destructors. */
-atf_error_t atf_signal_programmer_init(atf_signal_programmer_t *, int,
-                                       atf_signal_handler_t);
-void atf_signal_programmer_fini(atf_signal_programmer_t *);
-
-/* ---------------------------------------------------------------------
- * The "atf_signal_holder" type.
- * --------------------------------------------------------------------- */
-
-struct atf_signal_holder {
-    atf_object_t m_object;
-
-    int m_signo;
-    atf_signal_programmer_t m_sp;
-};
-typedef struct atf_signal_holder atf_signal_holder_t;
-
-/* Constructors/destructors. */
-atf_error_t atf_signal_holder_init(atf_signal_holder_t *, int);
-void atf_signal_holder_fini(atf_signal_holder_t *);
-
-/* Modifiers. */
-void atf_signal_holder_process(atf_signal_holder_t *);
-
-/* ---------------------------------------------------------------------
- * Free functions.
- * --------------------------------------------------------------------- */
-
-void atf_signal_reset(int);
-
-#endif /* ATF_C_SIGNALS_H */
+#endif /* ATF_C_ERROR_FWD_H */

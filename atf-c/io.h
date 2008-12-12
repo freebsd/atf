@@ -32,7 +32,7 @@
 
 #include <stdarg.h>
 
-#include <atf-c/error.h>
+#include <atf-c/error_fwd.h>
 
 struct atf_dynstr;
 struct atf_fs_path;
