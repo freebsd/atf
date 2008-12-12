@@ -31,6 +31,7 @@
 #define ATF_C_TEXT_H
 
 #include <stdarg.h>
+#include <stdbool.h>
 
 #include <atf-c/error_fwd.h>
 
