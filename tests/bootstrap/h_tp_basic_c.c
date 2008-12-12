@@ -29,6 +29,8 @@
 
 #include <atf-c.h>
 
+#include "atf-c/error.h"
+
 ATF_TC(pass);
 ATF_TC_HEAD(pass, tc)
 {
