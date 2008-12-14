@@ -33,7 +33,6 @@
 
 #include "atf-c/config.h"
 #include "atf-c/env.h"
-#include "atf-c/error.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
