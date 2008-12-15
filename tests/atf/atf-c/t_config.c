@@ -55,13 +55,13 @@ ATF_TC_BODY(get, tc)
 {
     /* Unset all known environment variables and make sure the built-in
      * values do not match the bogus value we will use for testing. */
-    CE(atf_env_unset("ATF_ARCH"));
-    CE(atf_env_unset("ATF_CONFDIR"));
-    CE(atf_env_unset("ATF_LIBEXECDIR"));
-    CE(atf_env_unset("ATF_MACHINE"));
-    CE(atf_env_unset("ATF_PKGDATADIR"));
-    CE(atf_env_unset("ATF_SHELL"));
-    CE(atf_env_unset("ATF_WORKDIR"));
+    RE(atf_env_unset("ATF_ARCH"));
+    RE(atf_env_unset("ATF_CONFDIR"));
+    RE(atf_env_unset("ATF_LIBEXECDIR"));
+    RE(atf_env_unset("ATF_MACHINE"));
+    RE(atf_env_unset("ATF_PKGDATADIR"));
+    RE(atf_env_unset("ATF_SHELL"));
+    RE(atf_env_unset("ATF_WORKDIR"));
     __atf_config_reinit();
     ATF_REQUIRE(strcmp(atf_config_get("atf_arch"), "env-value") != 0);
     ATF_REQUIRE(strcmp(atf_config_get("atf_confdir"), "env-value") != 0);
@@ -90,11 +90,11 @@ ATF_TC_BODY(get, tc)
 
     /* Check if the ATF_ARCH variable is recognized. */
     atf_env_set     ("ATF_ARCH", "env-value");
-    CE(atf_env_unset("ATF_LIBEXECDIR"));
-    CE(atf_env_unset("ATF_MACHINE"));
-    CE(atf_env_unset("ATF_PKGDATADIR"));
-    CE(atf_env_unset("ATF_SHELL"));
-    CE(atf_env_unset("ATF_WORKDIR"));
+    RE(atf_env_unset("ATF_LIBEXECDIR"));
+    RE(atf_env_unset("ATF_MACHINE"));
+    RE(atf_env_unset("ATF_PKGDATADIR"));
+    RE(atf_env_unset("ATF_SHELL"));
+    RE(atf_env_unset("ATF_WORKDIR"));
     __atf_config_reinit();
     ATF_REQUIRE(strcmp(atf_config_get("atf_arch"), "env-value") == 0);
     ATF_REQUIRE(strcmp(atf_config_get("atf_confdir"), "env-value") != 0);
@@ -105,13 +105,13 @@ ATF_TC_BODY(get, tc)
     ATF_REQUIRE(strcmp(("atf_workdir"), "env-value") != 0);
 
     /* Check if the ATF_CONFDIR variable is recognized. */
-    CE(atf_env_unset("ATF_ARCH"));
+    RE(atf_env_unset("ATF_ARCH"));
     atf_env_set     ("ATF_CONFDIR", "env-value");
-    CE(atf_env_unset("ATF_LIBEXECDIR"));
-    CE(atf_env_unset("ATF_MACHINE"));
-    CE(atf_env_unset("ATF_PKGDATADIR"));
-    CE(atf_env_unset("ATF_SHELL"));
-    CE(atf_env_unset("ATF_WORKDIR"));
+    RE(atf_env_unset("ATF_LIBEXECDIR"));
+    RE(atf_env_unset("ATF_MACHINE"));
+    RE(atf_env_unset("ATF_PKGDATADIR"));
+    RE(atf_env_unset("ATF_SHELL"));
+    RE(atf_env_unset("ATF_WORKDIR"));
     __atf_config_reinit();
     ATF_REQUIRE(strcmp(("atf_arch"), "env-value") != 0);
     ATF_REQUIRE(strcmp(atf_config_get("atf_confdir"), "env-value") == 0);
@@ -122,13 +122,13 @@ ATF_TC_BODY(get, tc)
     ATF_REQUIRE(strcmp(("atf_workdir"), "env-value") != 0);
 
     /* Check if the ATF_LIBEXECDIR variable is recognized. */
-    CE(atf_env_unset("ATF_ARCH"));
-    CE(atf_env_unset("ATF_CONFDIR"));
+    RE(atf_env_unset("ATF_ARCH"));
+    RE(atf_env_unset("ATF_CONFDIR"));
     atf_env_set     ("ATF_LIBEXECDIR", "env-value");
-    CE(atf_env_unset("ATF_MACHINE"));
-    CE(atf_env_unset("ATF_PKGDATADIR"));
-    CE(atf_env_unset("ATF_SHELL"));
-    CE(atf_env_unset("ATF_WORKDIR"));
+    RE(atf_env_unset("ATF_MACHINE"));
+    RE(atf_env_unset("ATF_PKGDATADIR"));
+    RE(atf_env_unset("ATF_SHELL"));
+    RE(atf_env_unset("ATF_WORKDIR"));
     __atf_config_reinit();
     ATF_REQUIRE(strcmp(("atf_arch"), "env-value") != 0);
     ATF_REQUIRE(strcmp(("atf_confdir"), "env-value") != 0);
@@ -139,13 +139,13 @@ ATF_TC_BODY(get, tc)
     ATF_REQUIRE(strcmp(("atf_workdir"), "env-value") != 0);
 
     /* Check if the ATF_MACHINE variable is recognized. */
-    CE(atf_env_unset("ATF_ARCH"));
-    CE(atf_env_unset("ATF_CONFDIR"));
-    CE(atf_env_unset("ATF_LIBEXECDIR"));
+    RE(atf_env_unset("ATF_ARCH"));
+    RE(atf_env_unset("ATF_CONFDIR"));
+    RE(atf_env_unset("ATF_LIBEXECDIR"));
     atf_env_set     ("ATF_MACHINE", "env-value");
-    CE(atf_env_unset("ATF_PKGDATADIR"));
-    CE(atf_env_unset("ATF_SHELL"));
-    CE(atf_env_unset("ATF_WORKDIR"));
+    RE(atf_env_unset("ATF_PKGDATADIR"));
+    RE(atf_env_unset("ATF_SHELL"));
+    RE(atf_env_unset("ATF_WORKDIR"));
     __atf_config_reinit();
     ATF_REQUIRE(strcmp(("atf_arch"), "env-value") != 0);
     ATF_REQUIRE(strcmp(("atf_confdir"), "env-value") != 0);
@@ -156,13 +156,13 @@ ATF_TC_BODY(get, tc)
     ATF_REQUIRE(strcmp(("atf_workdir"), "env-value") != 0);
 
     /* Check if the ATF_PKGDATADIR variable is recognized. */
-    CE(atf_env_unset("ATF_ARCH"));
-    CE(atf_env_unset("ATF_CONFDIR"));
-    CE(atf_env_unset("ATF_LIBEXECDIR"));
-    CE(atf_env_unset("ATF_MACHINE"));
+    RE(atf_env_unset("ATF_ARCH"));
+    RE(atf_env_unset("ATF_CONFDIR"));
+    RE(atf_env_unset("ATF_LIBEXECDIR"));
+    RE(atf_env_unset("ATF_MACHINE"));
     atf_env_set     ("ATF_PKGDATADIR", "env-value");
-    CE(atf_env_unset("ATF_SHELL"));
-    CE(atf_env_unset("ATF_WORKDIR"));
+    RE(atf_env_unset("ATF_SHELL"));
+    RE(atf_env_unset("ATF_WORKDIR"));
     __atf_config_reinit();
     ATF_REQUIRE(strcmp(("atf_arch"), "env-value") != 0);
     ATF_REQUIRE(strcmp(("atf_confdir"), "env-value") != 0);
@@ -173,13 +173,13 @@ ATF_TC_BODY(get, tc)
     ATF_REQUIRE(strcmp(("atf_workdir"), "env-value") != 0);
 
     /* Check if the ATF_SHELL variable is recognized. */
-    CE(atf_env_unset("ATF_ARCH"));
-    CE(atf_env_unset("ATF_CONFDIR"));
-    CE(atf_env_unset("ATF_LIBEXECDIR"));
-    CE(atf_env_unset("ATF_MACHINE"));
-    CE(atf_env_unset("ATF_PKGDATADIR"));
+    RE(atf_env_unset("ATF_ARCH"));
+    RE(atf_env_unset("ATF_CONFDIR"));
+    RE(atf_env_unset("ATF_LIBEXECDIR"));
+    RE(atf_env_unset("ATF_MACHINE"));
+    RE(atf_env_unset("ATF_PKGDATADIR"));
     atf_env_set     ("ATF_SHELL", "env-value");
-    CE(atf_env_unset("ATF_WORKDIR"));
+    RE(atf_env_unset("ATF_WORKDIR"));
     __atf_config_reinit();
     ATF_REQUIRE(strcmp(("atf_arch"), "env-value") != 0);
     ATF_REQUIRE(strcmp(("atf_confdir"), "env-value") != 0);
@@ -190,12 +190,12 @@ ATF_TC_BODY(get, tc)
     ATF_REQUIRE(strcmp(("atf_workdir"), "env-value") != 0);
 
     /* Check if the ATF_WORKDIR variable is recognized. */
-    CE(atf_env_unset("ATF_ARCH"));
-    CE(atf_env_unset("ATF_CONFDIR"));
-    CE(atf_env_unset("ATF_LIBEXECDIR"));
-    CE(atf_env_unset("ATF_MACHINE"));
-    CE(atf_env_unset("ATF_PKGDATADIR"));
-    CE(atf_env_unset("ATF_SHELL"));
+    RE(atf_env_unset("ATF_ARCH"));
+    RE(atf_env_unset("ATF_CONFDIR"));
+    RE(atf_env_unset("ATF_LIBEXECDIR"));
+    RE(atf_env_unset("ATF_MACHINE"));
+    RE(atf_env_unset("ATF_PKGDATADIR"));
+    RE(atf_env_unset("ATF_SHELL"));
     atf_env_set     ("ATF_WORKDIR", "env-value");
     __atf_config_reinit();
     ATF_REQUIRE(strcmp(("atf_arch"), "env-value") != 0);

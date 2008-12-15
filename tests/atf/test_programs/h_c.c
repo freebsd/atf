@@ -65,7 +65,7 @@ write_cwd(const atf_tc_t *tc, const char *confvar)
     if (f == NULL)
         atf_tc_fail("Could not open %s for writing", p);
 
-    CE(atf_fs_getcwd(&cwd));
+    RE(atf_fs_getcwd(&cwd));
     fprintf(f, "%s\n", atf_fs_path_cstring(&cwd));
     atf_fs_path_fini(&cwd);
 
@@ -117,7 +117,7 @@ ATF_TC_CLEANUP(cleanup_pass, tc)
 {
     bool cleanup;
 
-    CE(atf_text_to_bool(atf_tc_get_config_var(tc, "cleanup"), &cleanup));
+    RE(atf_text_to_bool(atf_tc_get_config_var(tc, "cleanup"), &cleanup));
 
     if (cleanup)
         safe_remove(atf_tc_get_config_var(tc, "tmpfile"));
@@ -138,7 +138,7 @@ ATF_TC_CLEANUP(cleanup_fail, tc)
 {
     bool cleanup;
 
-    CE(atf_text_to_bool(atf_tc_get_config_var(tc, "cleanup"), &cleanup));
+    RE(atf_text_to_bool(atf_tc_get_config_var(tc, "cleanup"), &cleanup));
 
     if (cleanup)
         safe_remove(atf_tc_get_config_var(tc, "tmpfile"));
@@ -159,7 +159,7 @@ ATF_TC_CLEANUP(cleanup_skip, tc)
 {
     bool cleanup;
 
-    CE(atf_text_to_bool(atf_tc_get_config_var(tc, "cleanup"), &cleanup));
+    RE(atf_text_to_bool(atf_tc_get_config_var(tc, "cleanup"), &cleanup));
 
     if (cleanup)
         safe_remove(atf_tc_get_config_var(tc, "tmpfile"));
@@ -209,7 +209,7 @@ ATF_TC_BODY(cleanup_sigterm, tc)
     touch(atf_tc_get_config_var(tc, "tmpfile"));
     kill(getpid(), SIGTERM);
 
-    CE(atf_text_format(&nofile, "%s.no",
+    RE(atf_text_format(&nofile, "%s.no",
                        atf_tc_get_config_var(tc, "tmpfile")));
     touch(nofile);
     free(nofile);
@@ -303,11 +303,11 @@ ATF_TC_BODY(env_home, tc)
 
     ATF_REQUIRE(atf_env_has("HOME"));
 
-    CE(atf_fs_getcwd(&cwd));
-    CE(atf_fs_path_init_fmt(&home, "%s", atf_env_get("HOME")));
+    RE(atf_fs_getcwd(&cwd));
+    RE(atf_fs_path_init_fmt(&home, "%s", atf_env_get("HOME")));
 
-    CE(atf_fs_stat_init(&stcwd, &cwd));
-    CE(atf_fs_stat_init(&sthome, &home));
+    RE(atf_fs_stat_init(&stcwd, &cwd));
+    RE(atf_fs_stat_init(&sthome, &home));
 
     ATF_REQUIRE_EQ(atf_fs_stat_get_device(&stcwd),
                     atf_fs_stat_get_device(&sthome));
@@ -342,7 +342,7 @@ ATF_TC_BODY(fork_mangle_fds, tc)
 {
     long resfd;
 
-    CE(atf_text_to_long(atf_tc_get_config_var(tc, "resfd"), &resfd));
+    RE(atf_text_to_long(atf_tc_get_config_var(tc, "resfd"), &resfd));
 
     if (close(STDIN_FILENO) == -1)
         atf_tc_fail("Failed to close stdin");
@@ -531,7 +531,7 @@ ATF_TC_BODY(timeout, tc)
 {
     long s;
 
-    CE(atf_text_to_long(atf_tc_get_config_var(tc, "sleep"), &s));
+    RE(atf_text_to_long(atf_tc_get_config_var(tc, "sleep"), &s));
     sleep(s);
 }
 
@@ -547,7 +547,7 @@ ATF_TC_BODY(timeout2, tc)
 {
     long s;
 
-    CE(atf_text_to_long(atf_tc_get_config_var(tc, "sleep2"), &s));
+    RE(atf_text_to_long(atf_tc_get_config_var(tc, "sleep2"), &s));
     sleep(s);
 }
 
@@ -566,9 +566,9 @@ ATF_TC_BODY(srcdir_exists, tc)
     atf_fs_path_t p;
     bool b;
 
-    CE(atf_fs_path_init_fmt(&p, "%s/datafile",
+    RE(atf_fs_path_init_fmt(&p, "%s/datafile",
                             atf_tc_get_config_var(tc, "srcdir")));
-    CE(atf_fs_exists(&p, &b));
+    RE(atf_fs_exists(&p, &b));
     if (!b)
         atf_tc_fail("Cannot find datafile");
     atf_fs_path_fini(&p);

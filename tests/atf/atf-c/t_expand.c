@@ -43,7 +43,7 @@ matches_glob(const char *glob, const char *candidate)
 {
     bool result;
 
-    CE(atf_expand_matches_glob(glob, candidate, &result));
+    RE(atf_expand_matches_glob(glob, candidate, &result));
 
     return result;
 }

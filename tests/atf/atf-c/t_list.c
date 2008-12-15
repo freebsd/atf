@@ -52,7 +52,7 @@ ATF_TC_BODY(list_init, tc)
 {
     atf_list_t list;
 
-    CE(atf_list_init(&list));
+    RE(atf_list_init(&list));
     ATF_REQUIRE_EQ(atf_list_size(&list), 0);
     atf_list_fini(&list);
 }
@@ -72,10 +72,10 @@ ATF_TC_BODY(list_append, tc)
     size_t i;
     char buf[] = "Test string";
 
-    CE(atf_list_init(&list));
+    RE(atf_list_init(&list));
     for (i = 0; i < 1024; i++) {
         ATF_REQUIRE_EQ(atf_list_size(&list), i);
-        CE(atf_list_append(&list, buf));
+        RE(atf_list_append(&list, buf));
     }
     atf_list_fini(&list);
 }
@@ -97,7 +97,7 @@ ATF_TC_BODY(list_for_each, tc)
     int i, nums[10], size;
 
     printf("Iterating over empty list\n");
-    CE(atf_list_init(&list));
+    RE(atf_list_init(&list));
     count = 0;
     atf_list_for_each(iter, &list) {
         count++;
@@ -108,10 +108,10 @@ ATF_TC_BODY(list_for_each, tc)
 
     for (size = 0; size <= 10; size++) {
         printf("Iterating over list of %d elements\n", size);
-        CE(atf_list_init(&list));
+        RE(atf_list_init(&list));
         for (i = 0; i < size; i++) {
             nums[i] = i + 1;
-            CE(atf_list_append(&list, &nums[i]));
+            RE(atf_list_append(&list, &nums[i]));
         }
         count = 0;
         atf_list_for_each(iter, &list) {
@@ -136,7 +136,7 @@ ATF_TC_BODY(list_for_each_c, tc)
     int i, nums[10], size;
 
     printf("Iterating over empty list\n");
-    CE(atf_list_init(&list));
+    RE(atf_list_init(&list));
     count = 0;
     atf_list_for_each_c(iter, &list) {
         count++;
@@ -147,10 +147,10 @@ ATF_TC_BODY(list_for_each_c, tc)
 
     for (size = 0; size <= 10; size++) {
         printf("Iterating over list of %d elements\n", size);
-        CE(atf_list_init(&list));
+        RE(atf_list_init(&list));
         for (i = 0; i < size; i++) {
             nums[i] = i + 1;
-            CE(atf_list_append(&list, &nums[i]));
+            RE(atf_list_append(&list, &nums[i]));
         }
         count = 0;
         atf_list_for_each_c(iter, &list) {

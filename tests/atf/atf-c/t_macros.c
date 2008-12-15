@@ -58,7 +58,7 @@ create_ctl_file(const atf_tc_t *tc, const char *name)
 {
     atf_fs_path_t p;
 
-    CE(atf_fs_path_init_fmt(&p, "%s/%s",
+    RE(atf_fs_path_init_fmt(&p, "%s/%s",
                             atf_tc_get_config_var(tc, "ctldir"), name));
     ATF_REQUIRE(open(atf_fs_path_cstring(&p),
                    O_CREAT | O_WRONLY | O_TRUNC, 0644) != -1);
@@ -72,8 +72,8 @@ exists(const char *p)
     bool b;
     atf_fs_path_t pp;
 
-    CE(atf_fs_path_init_fmt(&pp, "%s", p));
-    CE(atf_fs_exists(&pp, &b));
+    RE(atf_fs_path_init_fmt(&pp, "%s", p));
+    RE(atf_fs_exists(&pp, &b));
     atf_fs_path_fini(&pp);
 
     return b;
@@ -85,10 +85,10 @@ init_config(atf_map_t *config)
 {
     atf_fs_path_t cwd;
 
-    CE(atf_map_init(config));
+    RE(atf_map_init(config));
 
-    CE(atf_fs_getcwd(&cwd));
-    CE(atf_map_insert(config, "ctldir",
+    RE(atf_fs_getcwd(&cwd));
+    RE(atf_map_insert(config, "ctldir",
                       strdup(atf_fs_path_cstring(&cwd)), true));
     atf_fs_path_fini(&cwd);
 }
@@ -99,8 +99,8 @@ run_here(const atf_tc_t *tc, atf_tcr_t *tcr)
 {
     atf_fs_path_t cwd;
 
-    CE(atf_fs_getcwd(&cwd));
-    CE(atf_tc_run(tc, tcr, &cwd));
+    RE(atf_fs_getcwd(&cwd));
+    RE(atf_tc_run(tc, tcr, &cwd));
     atf_fs_path_fini(&cwd);
 }
 
@@ -111,7 +111,7 @@ load_tcr(atf_tcr_t *tcr)
     int tcrfile;
 
     ATF_REQUIRE((tcrfile = open("tcr", O_RDONLY)) != -1);
-    CE(atf_tcr_deserialize(tcr, tcrfile));
+    RE(atf_tcr_deserialize(tcr, tcrfile));
     close(tcrfile);
 
     ATF_REQUIRE(unlink("tcr") != -1);
@@ -124,7 +124,7 @@ write_tcr(const atf_tcr_t *tcr)
     int tcrfile;
 
     ATF_REQUIRE((tcrfile = open("tcr", O_WRONLY | O_CREAT, 0644)) != -1);
-    CE(atf_tcr_serialize(tcr, tcrfile));
+    RE(atf_tcr_serialize(tcr, tcrfile));
     close(tcrfile);
 }
 
@@ -213,7 +213,7 @@ match_reason(const atf_tcr_t *tcr, const char *regex, ...)
     atf_dynstr_t formatted;
 
     va_start(ap, regex);
-    CE(atf_dynstr_init_ap(&formatted, regex, ap));
+    RE(atf_dynstr_init_ap(&formatted, regex, ap));
     va_end(ap);
 
     return match_reason_aux(atf_tcr_get_reason(tcr),
@@ -230,7 +230,7 @@ match_reason_in_file(const char *file, const char *regex, ...)
     atf_dynstr_t formatted;
 
     va_start(ap, regex);
-    CE(atf_dynstr_init_ap(&formatted, regex, ap));
+    RE(atf_dynstr_init_ap(&formatted, regex, ap));
     va_end(ap);
 
     done = false;
@@ -240,7 +240,7 @@ match_reason_in_file(const char *file, const char *regex, ...)
         atf_error_t err;
         atf_dynstr_t line;
 
-        CE(atf_dynstr_init(&line));
+        RE(atf_dynstr_init(&line));
 
         err = atf_io_readline(fd, &line);
         if (!atf_is_error(err))
@@ -382,7 +382,7 @@ ATF_TC_BODY(check, tc)
 
         printf("Checking with a %d value\n", t->value);
 
-        CE(atf_tc_init(&tcaux, "h_check", t->head, t->body, NULL, &config));
+        RE(atf_tc_init(&tcaux, "h_check", t->head, t->body, NULL, &config));
         run_as_child(&tcaux, &tcr);
         atf_tc_fini(&tcaux);
 
@@ -434,7 +434,7 @@ do_check_eq_tests(const struct check_eq_test *tests)
         printf("Checking with %s, %s and expecting %s\n", t->v1, t->v2,
                t->ok ? "true" : "false");
 
-        CE(atf_tc_init(&tcaux, "h_check", t->head, t->body, NULL, &config));
+        RE(atf_tc_init(&tcaux, "h_check", t->head, t->body, NULL, &config));
         run_as_child(&tcaux, &tcr);
         atf_tc_fini(&tcaux);
 
@@ -583,7 +583,7 @@ ATF_TC_BODY(require, tc)
 
         printf("Checking with a %d value\n", t->value);
 
-        CE(atf_tc_init(&tcaux, "h_require", t->head, t->body, NULL, &config));
+        RE(atf_tc_init(&tcaux, "h_require", t->head, t->body, NULL, &config));
         run_here(&tcaux, &tcr);
         atf_tc_fini(&tcaux);
 
@@ -635,7 +635,7 @@ do_require_eq_tests(const struct require_eq_test *tests)
         printf("Checking with %s, %s and expecting %s\n", t->v1, t->v2,
                t->ok ? "true" : "false");
 
-        CE(atf_tc_init(&tcaux, "h_require", t->head, t->body, NULL, &config));
+        RE(atf_tc_init(&tcaux, "h_require", t->head, t->body, NULL, &config));
         run_here(&tcaux, &tcr);
         atf_tc_fini(&tcaux);
 

@@ -78,14 +78,14 @@ ATF_TC_BODY(set, tc)
     char *oldval;
 
     ATF_REQUIRE(atf_env_has("PATH"));
-    CE(atf_text_format(&oldval, "%s", atf_env_get("PATH")));
-    CE(atf_env_set("PATH", "foo-bar"));
+    RE(atf_text_format(&oldval, "%s", atf_env_get("PATH")));
+    RE(atf_env_set("PATH", "foo-bar"));
     ATF_REQUIRE(strcmp(atf_env_get("PATH"), oldval) != 0);
     ATF_REQUIRE(strcmp(atf_env_get("PATH"), "foo-bar") == 0);
     free(oldval);
 
     ATF_REQUIRE(!atf_env_has("_UNDEFINED_VARIABLE_"));
-    CE(atf_env_set("_UNDEFINED_VARIABLE_", "foo2-bar2"));
+    RE(atf_env_set("_UNDEFINED_VARIABLE_", "foo2-bar2"));
     ATF_REQUIRE(strcmp(atf_env_get("_UNDEFINED_VARIABLE_"),
                      "foo2-bar2") == 0);
 }
@@ -98,7 +98,7 @@ ATF_TC_HEAD(unset, tc)
 ATF_TC_BODY(unset, tc)
 {
     ATF_REQUIRE(atf_env_has("PATH"));
-    CE(atf_env_unset("PATH"));
+    RE(atf_env_unset("PATH"));
     ATF_REQUIRE(!atf_env_has("PATH"));
 }
 

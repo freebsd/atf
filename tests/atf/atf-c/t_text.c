@@ -75,29 +75,29 @@ ATF_TC_BODY(for_each_word, tc)
 
     cnt = 0;
     strcpy(acum, "");
-    CE(atf_text_for_each_word("1 2 3", " ", word_count, &cnt));
-    CE(atf_text_for_each_word("1 2 3", " ", word_acum, acum));
+    RE(atf_text_for_each_word("1 2 3", " ", word_count, &cnt));
+    RE(atf_text_for_each_word("1 2 3", " ", word_acum, acum));
     ATF_REQUIRE(cnt == 3);
     ATF_REQUIRE(strcmp(acum, "123") == 0);
 
     cnt = 0;
     strcpy(acum, "");
-    CE(atf_text_for_each_word("1 2 3", ".", word_count, &cnt));
-    CE(atf_text_for_each_word("1 2 3", ".", word_acum, acum));
+    RE(atf_text_for_each_word("1 2 3", ".", word_count, &cnt));
+    RE(atf_text_for_each_word("1 2 3", ".", word_acum, acum));
     ATF_REQUIRE(cnt == 1);
     ATF_REQUIRE(strcmp(acum, "1 2 3") == 0);
 
     cnt = 0;
     strcpy(acum, "");
-    CE(atf_text_for_each_word("1 2 3 4 5", " ", word_count, &cnt));
-    CE(atf_text_for_each_word("1 2 3 4 5", " ", word_acum, acum));
+    RE(atf_text_for_each_word("1 2 3 4 5", " ", word_count, &cnt));
+    RE(atf_text_for_each_word("1 2 3 4 5", " ", word_acum, acum));
     ATF_REQUIRE(cnt == 5);
     ATF_REQUIRE(strcmp(acum, "12345") == 0);
 
     cnt = 0;
     strcpy(acum, "");
-    CE(atf_text_for_each_word("1 2.3.4 5", " .", word_count, &cnt));
-    CE(atf_text_for_each_word("1 2.3.4 5", " .", word_acum, acum));
+    RE(atf_text_for_each_word("1 2.3.4 5", " .", word_count, &cnt));
+    RE(atf_text_for_each_word("1 2.3.4 5", " .", word_acum, acum));
     ATF_REQUIRE(cnt == 5);
     ATF_REQUIRE(strcmp(acum, "12345") == 0);
 }
@@ -157,15 +157,15 @@ ATF_TC_BODY(to_bool, tc)
 {
     bool b;
 
-    CE(atf_text_to_bool("true", &b)); ATF_REQUIRE(b);
-    CE(atf_text_to_bool("TRUE", &b)); ATF_REQUIRE(b);
-    CE(atf_text_to_bool("yes", &b)); ATF_REQUIRE(b);
-    CE(atf_text_to_bool("YES", &b)); ATF_REQUIRE(b);
+    RE(atf_text_to_bool("true", &b)); ATF_REQUIRE(b);
+    RE(atf_text_to_bool("TRUE", &b)); ATF_REQUIRE(b);
+    RE(atf_text_to_bool("yes", &b)); ATF_REQUIRE(b);
+    RE(atf_text_to_bool("YES", &b)); ATF_REQUIRE(b);
 
-    CE(atf_text_to_bool("false", &b)); ATF_REQUIRE(!b);
-    CE(atf_text_to_bool("FALSE", &b)); ATF_REQUIRE(!b);
-    CE(atf_text_to_bool("no", &b)); ATF_REQUIRE(!b);
-    CE(atf_text_to_bool("NO", &b)); ATF_REQUIRE(!b);
+    RE(atf_text_to_bool("false", &b)); ATF_REQUIRE(!b);
+    RE(atf_text_to_bool("FALSE", &b)); ATF_REQUIRE(!b);
+    RE(atf_text_to_bool("no", &b)); ATF_REQUIRE(!b);
+    RE(atf_text_to_bool("NO", &b)); ATF_REQUIRE(!b);
 
     b = false;
     ATF_REQUIRE(atf_is_error(atf_text_to_bool("", &b)));
@@ -212,10 +212,10 @@ ATF_TC_BODY(to_long, tc)
 {
     long l;
 
-    CE(atf_text_to_long("0", &l)); ATF_REQUIRE_EQ(l, 0);
-    CE(atf_text_to_long("-5", &l)); ATF_REQUIRE_EQ(l, -5);
-    CE(atf_text_to_long("5", &l)); ATF_REQUIRE_EQ(l, 5);
-    CE(atf_text_to_long("123456789", &l)); ATF_REQUIRE_EQ(l, 123456789);
+    RE(atf_text_to_long("0", &l)); ATF_REQUIRE_EQ(l, 0);
+    RE(atf_text_to_long("-5", &l)); ATF_REQUIRE_EQ(l, -5);
+    RE(atf_text_to_long("5", &l)); ATF_REQUIRE_EQ(l, 5);
+    RE(atf_text_to_long("123456789", &l)); ATF_REQUIRE_EQ(l, 123456789);
 
     l = 1212;
     ATF_REQUIRE(atf_is_error(atf_text_to_long("", &l)));
