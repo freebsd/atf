@@ -64,6 +64,12 @@ Plans for pre-1.0
 
 * Fix all occurrences of XXX, TODO and FIXME.
 
+* Split the distfile into multiple components.  We should have a component
+  for each language binding and a component providing the ATF tools, at the
+  very least.  If we had this, external programs using ATF wouldn't need to
+  depend on the tools and/or the C++ binding, because they could just require
+  the user to build the atf-c binding.
+
 * Think of a way to properly add tests for (almost?) all error paths.
   Most of them are probably broken already.
 
