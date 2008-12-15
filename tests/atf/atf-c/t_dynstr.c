@@ -36,7 +36,7 @@
 
 #include "atf-c/dynstr.h"
 
-#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
+#include "h_macros.h"
 
 /* ---------------------------------------------------------------------
  * Tests for the "atf_dynstr" type.

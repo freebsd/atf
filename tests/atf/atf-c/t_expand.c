@@ -31,11 +31,11 @@
 
 #include "atf-c/expand.h"
 
+#include "h_macros.h"
+
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
-
-#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 static
 bool

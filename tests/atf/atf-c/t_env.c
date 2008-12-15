@@ -35,11 +35,7 @@
 #include "atf-c/env.h"
 #include "atf-c/text.h"
 
-/* ---------------------------------------------------------------------
- * Auxiliary functions.
- * --------------------------------------------------------------------- */
-
-#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
+#include "h_macros.h"
 
 /* ---------------------------------------------------------------------
  * Test cases for the free functions.

@@ -46,11 +46,11 @@
 #include "atf-c/io.h"
 #include "atf-c/sanity.h"
 
+#include "h_macros.h"
+
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
-
-#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 enum type { inv, pre, post, unreachable };
 

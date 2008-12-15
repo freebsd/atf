@@ -40,7 +40,7 @@
 #include "atf-c/fs.h"
 #include "atf-c/io.h"
 
-#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
+#include "h_macros.h"
 
 atf_error_t atf_check_result_init(atf_check_result_t *);
 

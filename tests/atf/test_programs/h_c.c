@@ -45,11 +45,11 @@
 #include "atf-c/fs.h"
 #include "atf-c/text.h"
 
+#include "../atf-c/h_macros.h"
+
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
-
-#define CE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
 static
 void
