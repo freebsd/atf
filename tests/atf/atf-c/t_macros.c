@@ -159,7 +159,7 @@ run_as_child_parent(const atf_tc_t *tc, atf_tcr_t *tcr, const int errpipe[2],
                                 0644)) != -1);
 
     while ((cnt = read(errpipe[0], buf, sizeof(buf))) > 0)
-        write(errfile, buf, cnt);
+        ATF_REQUIRE(write(errfile, buf, cnt) == cnt);
     ATF_REQUIRE(cnt == 0);
 
     close(errpipe[0]);
