@@ -40,6 +40,7 @@
 #include "atf-c/dynstr.h"
 #include "atf-c/error.h"
 #include "atf-c/fs.h"
+#include "atf-c/process.h"
 #include "atf-c/sanity.h"
 
 /* Only needed for testing, so not in the public header. */
@@ -96,12 +97,11 @@ fork_and_wait(char *const *argv, int fdout, int fderr, int *estatus)
     int status;
     pid_t pid;
 
-    err = atf_no_error();
+    err = atf_process_fork(&pid);
+    if (atf_is_error(err))
+        goto out;
 
-    pid = fork();
-    if (pid == -1) {
-        err = atf_libc_error(errno, "Failed to fork");
-    } else if (pid == 0) {
+    if (pid == 0) {
         atf_disable_exit_checks();
         /* XXX No error handling at all? */
         dup2(fdout, STDOUT_FILENO);
@@ -119,6 +119,7 @@ fork_and_wait(char *const *argv, int fdout, int fderr, int *estatus)
         }
     }
 
+out:
     return err;
 }
 

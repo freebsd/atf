@@ -46,6 +46,7 @@
 #include "atf-c/env.h"
 #include "atf-c/error.h"
 #include "atf-c/fs.h"
+#include "atf-c/process.h"
 #include "atf-c/sanity.h"
 #include "atf-c/signals.h"
 #include "atf-c/tc.h"
@@ -443,11 +444,11 @@ fork_body(const atf_tc_t *tc, const atf_fs_path_t *workdir, atf_tcr_t *tcr)
     atf_error_t err;
     pid_t pid;
 
-    pid = fork();
-    if (pid == -1) {
-        err = atf_libc_error(errno, "Cannot fork to run test case body "
-                             "of %s", tc->m_ident);
-    } else if (pid == 0) {
+    err = atf_process_fork(&pid);
+    if (atf_is_error(err))
+        goto out;
+
+    if (pid == 0) {
         body_child(tc, workdir);
         UNREACHABLE;
         abort();
@@ -455,6 +456,7 @@ fork_body(const atf_tc_t *tc, const atf_fs_path_t *workdir, atf_tcr_t *tcr)
         err = body_parent(tc, workdir, pid, tcr);
     }
 
+out:
     return err;
 }
 
@@ -468,11 +470,11 @@ fork_cleanup(const atf_tc_t *tc, const atf_fs_path_t *workdir)
     if (tc->m_cleanup == NULL)
         err = atf_no_error();
     else {
-        pid = fork();
-        if (pid == -1) {
-            err = atf_libc_error(errno, "Cannot fork to run test case "
-                                 "cleanup of %s", tc->m_ident);
-        } else if (pid == 0) {
+        err = atf_process_fork(&pid);
+        if (atf_is_error(err))
+            goto out;
+
+        if (pid == 0) {
             cleanup_child(tc, workdir);
             UNREACHABLE;
             abort();
@@ -481,6 +483,7 @@ fork_cleanup(const atf_tc_t *tc, const atf_fs_path_t *workdir)
         }
     }
 
+out:
     return err;
 }
 

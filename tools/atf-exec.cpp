@@ -43,6 +43,7 @@ extern "C" {
 
 #include "atf-c++/application.hpp"
 #include "atf-c++/exceptions.hpp"
+#include "atf-c++/process.hpp"
 #include "atf-c++/sanity.hpp"
 #include "atf-c++/signals.hpp"
 #include "atf-c++/text.hpp"
@@ -143,7 +144,7 @@ atf_exec::main(void)
 
     int exitcode = EXIT_FAILURE;
 
-    pid_t pid = ::fork();
+    pid_t pid = atf::process::fork();
     if (pid == 0) {
         if (::setpgid(::getpid(), 0) == -1)
             throw atf::system_error("main", "setpgid failed", errno);

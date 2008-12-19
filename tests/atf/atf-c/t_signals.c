@@ -38,6 +38,7 @@
 
 #include <atf-c.h>
 
+#include "atf-c/process.h"
 #include "atf-c/signals.h"
 
 #include "h_macros.h"
@@ -248,8 +249,8 @@ ATF_TC_HEAD(signal_reset, tc)
 }
 ATF_TC_BODY(signal_reset, tc)
 {
-    pid_t pid = fork();
-    ATF_REQUIRE(pid != -1);
+    pid_t pid;
+    RE(atf_process_fork(&pid));
     if (pid == 0) {
         struct sigaction sa;
 

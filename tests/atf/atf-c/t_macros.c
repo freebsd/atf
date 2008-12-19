@@ -43,6 +43,7 @@
 
 #include "atf-c/fs.h"
 #include "atf-c/io.h"
+#include "atf-c/process.h"
 #include "atf-c/tcr.h"
 #include "atf-c/text.h"
 
@@ -181,7 +182,7 @@ run_as_child(const atf_tc_t *tc, atf_tcr_t *tcr)
 
     ATF_REQUIRE(pipe(errpipe) == 0);
 
-    ATF_REQUIRE((pid = fork()) != -1);
+    RE(atf_process_fork(&pid));
     if (pid == 0) {
         run_as_child_child(tc, errpipe);
         /* NOTREACHED */

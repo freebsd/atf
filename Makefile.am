@@ -118,6 +118,8 @@ libatf_c_la_SOURCES = atf-c/check.c \
                       atf-c/map.h \
                       atf-c/object.c \
                       atf-c/object.h \
+                      atf-c/process.c \
+                      atf-c/process.h \
                       atf-c/sanity.c \
                       atf-c/sanity.h \
                       atf-c/signals.c \
@@ -159,6 +161,7 @@ atf_c_HEADERS = atf-c/check.h \
                 atf-c/macros.h \
                 atf-c/map.h \
                 atf-c/object.h \
+                atf-c/process.h \
                 atf-c/sanity.h \
                 atf-c/signals.h \
                 atf-c/tc.h \
@@ -201,6 +204,8 @@ libatf_c___la_SOURCES = atf-c++/application.cpp \
                         atf-c++/macros.hpp \
                         atf-c++/parser.cpp \
                         atf-c++/parser.hpp \
+                        atf-c++/process.cpp \
+                        atf-c++/process.hpp \
                         atf-c++/sanity.hpp \
                         atf-c++/signals.cpp \
                         atf-c++/signals.hpp \
@@ -227,6 +232,7 @@ atf_c___HEADERS = atf-c++/application.hpp \
                   atf-c++/io.hpp \
                   atf-c++/macros.hpp \
                   atf-c++/parser.hpp \
+                  atf-c++/process.hpp \
                   atf-c++/sanity.hpp \
                   atf-c++/tests.hpp \
                   atf-c++/text.hpp \
@@ -482,6 +488,11 @@ tests_atf_atf_c_t_map_SOURCES = tests/atf/atf-c/t_map.c
 tests_atf_atf_c_t_map_LDADD = -latf-c
 tests_atf_atf_c_t_map_LDFLAGS = -L.
 
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_process
+tests_atf_atf_c_t_process_SOURCES = tests/atf/atf-c/t_process.c
+tests_atf_atf_c_t_process_LDADD = -latf-c
+tests_atf_atf_c_t_process_LDFLAGS = -L.
+
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_signals
 tests_atf_atf_c_t_signals_SOURCES = tests/atf/atf-c/t_signals.c
 tests_atf_atf_c_t_signals_LDADD = -latf-c
@@ -560,6 +571,11 @@ atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_parser
 tests_atf_atf_c___t_parser_SOURCES = tests/atf/atf-c++/t_parser.cpp
 tests_atf_atf_c___t_parser_LDADD = -latf-c++
 tests_atf_atf_c___t_parser_LDFLAGS = -L.
+
+atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_process
+tests_atf_atf_c___t_process_SOURCES = tests/atf/atf-c++/t_process.cpp
+tests_atf_atf_c___t_process_LDADD = -latf-c++
+tests_atf_atf_c___t_process_LDFLAGS = -L.
 
 atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_signals
 tests_atf_atf_c___t_signals_SOURCES = tests/atf/atf-c++/t_signals.cpp
@@ -1063,6 +1079,7 @@ tests_build_libuseless_a_SOURCES = \
     tests/build/atf-c/t_include_macros_h.c \
     tests/build/atf-c/t_include_map_h.c \
     tests/build/atf-c/t_include_object_h.c \
+    tests/build/atf-c/t_include_process_h.c \
     tests/build/atf-c/t_include_sanity_h.c \
     tests/build/atf-c/t_include_signals_h.c \
     tests/build/atf-c/t_include_tc_h.c \
@@ -1083,6 +1100,7 @@ tests_build_libuseless_a_SOURCES = \
     tests/build/atf-c++/t_include_io_hpp.cpp \
     tests/build/atf-c++/t_include_macros_hpp.cpp \
     tests/build/atf-c++/t_include_parser_hpp.cpp \
+    tests/build/atf-c++/t_include_process_hpp.cpp \
     tests/build/atf-c++/t_include_sanity_hpp.cpp \
     tests/build/atf-c++/t_include_signals_hpp.cpp \
     tests/build/atf-c++/t_include_tests_hpp.cpp \
