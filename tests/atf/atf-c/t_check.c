@@ -68,7 +68,7 @@ do_exec(const atf_tc_t *tc, const char *helper_name, atf_check_result_t *r)
     argv[1] = strdup(helper_name);
     argv[2] = NULL;
     printf("Executing %s %s\n", argv[0], argv[1]);
-    CE(atf_check_exec(argv, r));
+    RE(atf_check_exec(argv, r));
     free(argv[1]);
 }
 
@@ -87,7 +87,7 @@ do_exec_with_arg(const atf_tc_t *tc, const char *helper_name, const char *arg,
     argv[2] = strdup(arg);
     argv[3] = NULL;
     printf("Executing %s %s %s\n", argv[0], argv[1], argv[2]);
-    CE(atf_check_exec(argv, r));
+    RE(atf_check_exec(argv, r));
     free(argv[2]);
     free(argv[1]);
 }
@@ -99,7 +99,7 @@ check_line(int fd, const char *exp)
     atf_dynstr_t line;
 
     atf_dynstr_init(&line);
-    CE(atf_io_readline(fd, &line));
+    RE(atf_io_readline(fd, &line));
     ATF_CHECK(atf_equal_dynstr_cstring(&line, exp));
     atf_dynstr_fini(&line);
 }
@@ -120,8 +120,8 @@ ATF_TC_BODY(result_templates, tc)
     const atf_fs_path_t *out1, *out2;
     const atf_fs_path_t *err1, *err2;
 
-    CE(atf_check_result_init(&result1));
-    CE(atf_check_result_init(&result2));
+    RE(atf_check_result_init(&result1));
+    RE(atf_check_result_init(&result2));
 
     out1 = atf_check_result_stdout(&result1);
     out2 = atf_check_result_stdout(&result2);
@@ -159,14 +159,14 @@ ATF_TC_BODY(exec_cleanup, tc)
     bool exists;
 
     do_exec(tc, "exit-success", &result);
-    CE(atf_fs_path_copy(&out, atf_check_result_stdout(&result)));
-    CE(atf_fs_path_copy(&err, atf_check_result_stderr(&result)));
+    RE(atf_fs_path_copy(&out, atf_check_result_stdout(&result)));
+    RE(atf_fs_path_copy(&err, atf_check_result_stderr(&result)));
 
-    CE(atf_fs_exists(&out, &exists)); ATF_CHECK(exists);
-    CE(atf_fs_exists(&err, &exists)); ATF_CHECK(exists);
+    RE(atf_fs_exists(&out, &exists)); ATF_CHECK(exists);
+    RE(atf_fs_exists(&err, &exists)); ATF_CHECK(exists);
     atf_check_result_fini(&result);
-    CE(atf_fs_exists(&out, &exists)); ATF_CHECK(!exists);
-    CE(atf_fs_exists(&err, &exists)); ATF_CHECK(!exists);
+    RE(atf_fs_exists(&out, &exists)); ATF_CHECK(!exists);
+    RE(atf_fs_exists(&err, &exists)); ATF_CHECK(!exists);
 }
 
 ATF_TC(exec_exitstatus);
@@ -274,7 +274,7 @@ ATF_TC_BODY(exec_unknown, tc)
     argv[1] = NULL;
 
     atf_check_result_t result;
-    CE(atf_check_exec(argv, &result));
+    RE(atf_check_exec(argv, &result));
     ATF_CHECK(atf_check_result_exited(&result));
     ATF_CHECK(atf_check_result_exitcode(&result) == 127);
     atf_check_result_fini(&result);

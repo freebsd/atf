@@ -38,6 +38,7 @@
 
 #include <atf-c.h>
 
+#include "atf-c/process.h"
 #include "atf-c/signals.h"
 
 #include "h_macros.h"
@@ -112,9 +113,9 @@ ATF_TC_BODY(signal_holder_init, tc)
     atf_signal_programmer_t sp;
     atf_signal_holder_t sh;
 
-    CE(atf_signal_programmer_init(&sp, SIGUSR1, test1_handler));
+    RE(atf_signal_programmer_init(&sp, SIGUSR1, test1_handler));
 
-    CE(atf_signal_holder_init(&sh, SIGUSR1));
+    RE(atf_signal_holder_init(&sh, SIGUSR1));
     ATF_REQUIRE(!test1_happened);
     ATF_REQUIRE(kill(getpid(), SIGUSR1) != -1);
     ATF_REQUIRE(!test1_happened);
@@ -134,12 +135,12 @@ ATF_TC_BODY(signal_holder_fini, tc)
     atf_signal_programmer_t sp;
     atf_signal_holder_t sh;
 
-    CE(atf_signal_programmer_init(&sp, SIGUSR1, test1_handler));
+    RE(atf_signal_programmer_init(&sp, SIGUSR1, test1_handler));
 
     printf("Checking that the signal is not delivered if it did not "
            "happen\n");
     test1_happened = false;
-    CE(atf_signal_holder_init(&sh, SIGUSR1));
+    RE(atf_signal_holder_init(&sh, SIGUSR1));
     atf_signal_holder_fini(&sh);
     ATF_REQUIRE(!test1_happened);
     printf("Checking that the original handler is restored\n");
@@ -148,7 +149,7 @@ ATF_TC_BODY(signal_holder_fini, tc)
 
     printf("Checking that the signal is delivered if it happened\n");
     test1_happened = false;
-    CE(atf_signal_holder_init(&sh, SIGUSR1));
+    RE(atf_signal_holder_init(&sh, SIGUSR1));
     ATF_REQUIRE(kill(getpid(), SIGUSR1) != -1);
     atf_signal_holder_fini(&sh);
     ATF_REQUIRE(test1_happened);
@@ -167,10 +168,10 @@ ATF_TC_BODY(signal_holder_process, tc)
     atf_signal_programmer_t sp;
     atf_signal_holder_t sh;
 
-    CE(atf_signal_programmer_init(&sp, SIGUSR1, test1_handler));
+    RE(atf_signal_programmer_init(&sp, SIGUSR1, test1_handler));
 
     printf("Checking that the signal is delivered if it happened\n");
-    CE(atf_signal_holder_init(&sh, SIGUSR1));
+    RE(atf_signal_holder_init(&sh, SIGUSR1));
     ATF_REQUIRE(kill(getpid(), SIGUSR1) != -1);
     ATF_REQUIRE(!test1_happened);
     atf_signal_holder_process(&sh);
@@ -198,12 +199,12 @@ ATF_TC_BODY(signal_programmer_init, tc)
 {
     atf_signal_programmer_t sp;
 
-    CE(atf_signal_programmer_init(&sp, SIGUSR1, test1_handler));
+    RE(atf_signal_programmer_init(&sp, SIGUSR1, test1_handler));
     ATF_REQUIRE(!test1_happened);
     ATF_REQUIRE(kill(getpid(), SIGUSR1) != -1);
     ATF_REQUIRE(test1_happened);
 
-    CE(atf_signal_programmer_init(&sp, SIGUSR2, test2_handler));
+    RE(atf_signal_programmer_init(&sp, SIGUSR2, test2_handler));
     ATF_REQUIRE(!test2_happened);
     ATF_REQUIRE(kill(getpid(), SIGUSR2) != -1);
     ATF_REQUIRE(test2_happened);
@@ -219,8 +220,8 @@ ATF_TC_BODY(signal_programmer_fini, tc)
 {
     atf_signal_programmer_t sp1, sp2;
 
-    CE(atf_signal_programmer_init(&sp1, SIGUSR1, test1_handler));
-    CE(atf_signal_programmer_init(&sp2, SIGUSR1, test2_handler));
+    RE(atf_signal_programmer_init(&sp1, SIGUSR1, test1_handler));
+    RE(atf_signal_programmer_init(&sp2, SIGUSR1, test2_handler));
 
     test1_happened = test2_happened = false;
     kill(getpid(), SIGUSR1);
@@ -248,8 +249,8 @@ ATF_TC_HEAD(signal_reset, tc)
 }
 ATF_TC_BODY(signal_reset, tc)
 {
-    pid_t pid = fork();
-    ATF_REQUIRE(pid != -1);
+    pid_t pid;
+    RE(atf_process_fork(&pid));
     if (pid == 0) {
         struct sigaction sa;
 

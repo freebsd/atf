@@ -27,91 +27,92 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sys/types.h>
+#include <sys/wait.h>
+
+#include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <unistd.h>
 
-#include <atf-c.h>
-
-#include "atf-c/env.h"
-#include "atf-c/text.h"
-
-#include "h_macros.h"
+#include "atf-c/error.h"
+#include "atf-c/process.h"
+#include "atf-c/sanity.h"
 
 /* ---------------------------------------------------------------------
- * Test cases for the free functions.
+ * The "child" error type.
  * --------------------------------------------------------------------- */
 
-ATF_TC(has);
-ATF_TC_HEAD(has, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Tests the atf_env_has function");
-}
-ATF_TC_BODY(has, tc)
-{
-    ATF_REQUIRE(atf_env_has("PATH"));
-    ATF_REQUIRE(!atf_env_has("_UNDEFINED_VARIABLE_"));
-}
+struct child_error_data {
+    char m_cmd[4096];
+    int m_state;
+};
+typedef struct child_error_data child_error_data_t;
 
-ATF_TC(get);
-ATF_TC_HEAD(get, tc)
+static
+void
+child_format(const atf_error_t err, char *buf, size_t buflen)
 {
-    atf_tc_set_md_var(tc, "descr", "Tests the atf_env_get function");
-}
-ATF_TC_BODY(get, tc)
-{
-    const char *val;
+    const child_error_data_t *data;
 
-    ATF_REQUIRE(atf_env_has("PATH"));
+    PRE(atf_error_is(err, "child"));
 
-    val = atf_env_get("PATH");
-    ATF_REQUIRE(strlen(val) > 0);
-    ATF_REQUIRE(strchr(val, ':') != NULL);
+    data = atf_error_data(err);
+    snprintf(buf, buflen, "Unknown error while executing \"%s\"; "
+             "exit state was %d", data->m_cmd, data->m_state);
 }
 
-ATF_TC(set);
-ATF_TC_HEAD(set, tc)
+static
+atf_error_t
+child_error(const char *cmd, int state)
 {
-    atf_tc_set_md_var(tc, "descr", "Tests the atf_env_set function");
-}
-ATF_TC_BODY(set, tc)
-{
-    char *oldval;
+    atf_error_t err;
+    child_error_data_t data;
 
-    ATF_REQUIRE(atf_env_has("PATH"));
-    RE(atf_text_format(&oldval, "%s", atf_env_get("PATH")));
-    RE(atf_env_set("PATH", "foo-bar"));
-    ATF_REQUIRE(strcmp(atf_env_get("PATH"), oldval) != 0);
-    ATF_REQUIRE(strcmp(atf_env_get("PATH"), "foo-bar") == 0);
-    free(oldval);
+    snprintf(data.m_cmd, sizeof(data.m_cmd), "%s", cmd);
+    data.m_state = state;
 
-    ATF_REQUIRE(!atf_env_has("_UNDEFINED_VARIABLE_"));
-    RE(atf_env_set("_UNDEFINED_VARIABLE_", "foo2-bar2"));
-    ATF_REQUIRE(strcmp(atf_env_get("_UNDEFINED_VARIABLE_"),
-                     "foo2-bar2") == 0);
-}
+    err = atf_error_new("child", &data, sizeof(data), child_format);
 
-ATF_TC(unset);
-ATF_TC_HEAD(unset, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Tests the atf_env_unset function");
-}
-ATF_TC_BODY(unset, tc)
-{
-    ATF_REQUIRE(atf_env_has("PATH"));
-    RE(atf_env_unset("PATH"));
-    ATF_REQUIRE(!atf_env_has("PATH"));
+    return err;
 }
 
 /* ---------------------------------------------------------------------
- * Main.
+ * Free functions.
  * --------------------------------------------------------------------- */
 
-ATF_TP_ADD_TCS(tp)
+atf_error_t
+atf_process_fork(int *outpid)
 {
-    ATF_TP_ADD_TC(tp, has);
-    ATF_TP_ADD_TC(tp, get);
-    ATF_TP_ADD_TC(tp, set);
-    ATF_TP_ADD_TC(tp, unset);
+    atf_error_t err;
+    pid_t pid;
 
-    return atf_no_error();
+    pid = fork();
+    if (pid == -1) {
+        err = atf_libc_error(errno, "Failed to fork");
+        goto out;
+    }
+
+    *outpid = pid;
+    err = atf_no_error();
+
+out:
+    return err;
+}
+
+atf_error_t
+atf_process_system(const char *cmdline)
+{
+    atf_error_t err;
+    int state;
+
+    state = system(cmdline);
+    if (state == -1)
+        err = atf_libc_error(errno, "Failed to run \"%s\"", cmdline);
+    else if (!WIFEXITED(state) || WEXITSTATUS(state) != EXIT_SUCCESS)
+        err = child_error(cmdline, state);
+    else
+        err = atf_no_error();
+
+    return err;
 }

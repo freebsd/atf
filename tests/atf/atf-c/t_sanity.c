@@ -44,6 +44,7 @@
 
 #include "atf-c/dynstr.h"
 #include "atf-c/io.h"
+#include "atf-c/process.h"
 #include "atf-c/sanity.h"
 
 #include "h_macros.h"
@@ -78,7 +79,7 @@ do_test(enum type t, bool cond)
 
     ATF_REQUIRE(pipe(fds) != -1);
 
-    ATF_REQUIRE((pid = fork()) != -1);
+    RE(atf_process_fork(&pid));
     if (pid == 0) {
         ATF_REQUIRE(dup2(fds[1], STDERR_FILENO) != -1);
         close(fds[0]);

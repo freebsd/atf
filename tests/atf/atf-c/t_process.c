@@ -27,10 +27,45 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if defined(TESTS_ATF_ATF_C_MACROS_H)
-#   error "Cannot include h_macros.h more than once."
-#else
-#   define TESTS_ATF_ATF_C_MACROS_H
-#endif
+#include <atf-c.h>
 
-#define RE(stm) ATF_REQUIRE(!atf_is_error(stm))
+#include "atf-c/process.h"
+
+#include "h_macros.h"
+
+/* ---------------------------------------------------------------------
+ * Test cases for the free functions.
+ * --------------------------------------------------------------------- */
+
+ATF_TC(fork);
+ATF_TC_HEAD(fork, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_process_fork function");
+}
+ATF_TC_BODY(fork, tc)
+{
+    atf_tc_skip("Unimplemented test case; process API not yet decided");
+}
+
+ATF_TC(system);
+ATF_TC_HEAD(system, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_process_system function");
+}
+ATF_TC_BODY(system, tc)
+{
+    atf_tc_skip("Unimplemented test case; process API not yet decided");
+}
+
+/* ---------------------------------------------------------------------
+ * Main.
+ * --------------------------------------------------------------------- */
+
+ATF_TP_ADD_TCS(tp)
+{
+    /* Add the tests for the free functions. */
+    ATF_TP_ADD_TC(tp, fork);
+    ATF_TP_ADD_TC(tp, system);
+
+    return atf_no_error();
+}

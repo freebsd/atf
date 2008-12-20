@@ -48,52 +48,10 @@
 
 #include "atf-c/error.h"
 #include "atf-c/fs.h"
+#include "atf-c/process.h"
 #include "atf-c/sanity.h"
 #include "atf-c/text.h"
 #include "atf-c/user.h"
-
-/* ---------------------------------------------------------------------
- * The "child" error type.
- * --------------------------------------------------------------------- */
-
-/* XXX The need for this conditional here is extremely ugly.  This
- * exception should belong to another module with more process-related
- * utilities. */
-#if !defined(HAVE_UNMOUNT)
-struct child_error_data {
-    char m_cmd[4096];
-    int m_state;
-};
-typedef struct child_error_data child_error_data_t;
-
-static
-void
-child_format(const atf_error_t err, char *buf, size_t buflen)
-{
-    const child_error_data_t *data;
-
-    PRE(atf_error_is(err, "child"));
-
-    data = atf_error_data(err);
-    snprintf(buf, buflen, "Unknown error while executing \"%s\"; "
-             "exit state was %d", data->m_cmd, data->m_state);
-}
-
-static
-atf_error_t
-child_error(const char *cmd, int state)
-{
-    atf_error_t err;
-    child_error_data_t data;
-
-    snprintf(data.m_cmd, sizeof(data.m_cmd), "%s", cmd);
-    data.m_state = state;
-
-    err = atf_error_new("child", &data, sizeof(data), child_format);
-
-    return err;
-}
-#endif /* !defined(HAVE_UNMOUNT) */
 
 /* ---------------------------------------------------------------------
  * The "unknown_file_type" error type.
@@ -320,11 +278,7 @@ do_unmount(const atf_fs_path_t *p)
 
         err = atf_text_format(&cmd, "umount '%s'", pastr);
         if (!atf_is_error(err)) {
-            int state = system(cmd);
-            if (state == -1)
-                err = atf_libc_error(errno, "Failed to run \"%s\"", cmd);
-            else if (!WIFEXITED(state) || WEXITSTATUS(state) != EXIT_SUCCESS)
-                err = child_error(cmd, state);
+            err = atf_process_system(cmd);
             free(cmd);
         }
     }

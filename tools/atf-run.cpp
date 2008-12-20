@@ -54,6 +54,7 @@ extern "C" {
 #include "atf-c++/fs.hpp"
 #include "atf-c++/io.hpp"
 #include "atf-c++/parser.hpp"
+#include "atf-c++/process.hpp"
 #include "atf-c++/sanity.hpp"
 #include "atf-c++/tests.hpp"
 #include "atf-c++/text.hpp"
@@ -506,11 +507,8 @@ atf_run::run_test_program(const atf::fs::path& tp,
     int errcode;
 
     atf::io::pipe outpipe, errpipe, respipe;
-    pid_t pid = ::fork();
-    if (pid == -1) {
-        throw atf::system_error("run_test_program",
-                                "fork(2) failed", errno);
-    } else if (pid == 0) {
+    pid_t pid = atf::process::fork();
+    if (pid == 0) {
         run_test_program_child(tp, outpipe, errpipe, respipe);
         UNREACHABLE;
         errcode = EXIT_FAILURE;

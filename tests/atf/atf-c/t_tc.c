@@ -66,13 +66,13 @@ ATF_TC_BODY(init, tcin)
 {
     atf_tc_t tc;
 
-    CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
+    RE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
                    ATF_TC_BODY_NAME(empty), NULL, NULL));
     ATF_REQUIRE(strcmp(atf_tc_get_ident(&tc), "test1") == 0);
     ATF_REQUIRE(!atf_tc_has_md_var(&tc, "test-var"));
     atf_tc_fini(&tc);
 
-    CE(atf_tc_init(&tc, "test2", ATF_TC_HEAD_NAME(test_var),
+    RE(atf_tc_init(&tc, "test2", ATF_TC_HEAD_NAME(test_var),
                    ATF_TC_BODY_NAME(empty), NULL, NULL));
     ATF_REQUIRE(strcmp(atf_tc_get_ident(&tc), "test2") == 0);
     ATF_REQUIRE(atf_tc_has_md_var(&tc, "test-var"));
@@ -100,12 +100,12 @@ ATF_TC_BODY(init_pack, tcin)
         .m_cleanup = NULL,
     };
 
-    CE(atf_tc_init_pack(&tc, &tcp1, NULL));
+    RE(atf_tc_init_pack(&tc, &tcp1, NULL));
     ATF_REQUIRE(strcmp(atf_tc_get_ident(&tc), "test1") == 0);
     ATF_REQUIRE(!atf_tc_has_md_var(&tc, "test-var"));
     atf_tc_fini(&tc);
 
-    CE(atf_tc_init_pack(&tc, &tcp2, NULL));
+    RE(atf_tc_init_pack(&tc, &tcp2, NULL));
     ATF_REQUIRE(strcmp(atf_tc_get_ident(&tc), "test2") == 0);
     ATF_REQUIRE(atf_tc_has_md_var(&tc, "test-var"));
     atf_tc_fini(&tc);
@@ -121,10 +121,10 @@ ATF_TC_BODY(vars, tcin)
 {
     atf_tc_t tc;
 
-    CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
+    RE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
                    ATF_TC_BODY_NAME(empty), NULL, NULL));
     ATF_REQUIRE(!atf_tc_has_md_var(&tc, "test-var"));
-    CE(atf_tc_set_md_var(&tc, "test-var", "Test value"));
+    RE(atf_tc_set_md_var(&tc, "test-var", "Test value"));
     ATF_REQUIRE(atf_tc_has_md_var(&tc, "test-var"));
     ATF_REQUIRE(strcmp(atf_tc_get_md_var(&tc, "test-var"), "Test value") == 0);
     atf_tc_fini(&tc);
@@ -142,16 +142,16 @@ ATF_TC_BODY(config, tcin)
     atf_tc_t tc;
     atf_map_t config;
 
-    CE(atf_map_init(&config));
-    CE(atf_map_insert(&config, "test-var", strdup("test-value"), true));
+    RE(atf_map_init(&config));
+    RE(atf_map_insert(&config, "test-var", strdup("test-value"), true));
 
-    CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
+    RE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
                    ATF_TC_BODY_NAME(empty), NULL, NULL));
     ATF_REQUIRE(!atf_tc_has_config_var(&tc, "test-var"));
     ATF_REQUIRE(!atf_tc_has_md_var(&tc, "test-var"));
     atf_tc_fini(&tc);
 
-    CE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
+    RE(atf_tc_init(&tc, "test1", ATF_TC_HEAD_NAME(empty),
                    ATF_TC_BODY_NAME(empty), NULL, &config));
     ATF_REQUIRE(atf_tc_has_config_var(&tc, "test-var"));
     ATF_REQUIRE(strcmp(atf_tc_get_config_var(&tc, "test-var"),

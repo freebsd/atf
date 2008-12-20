@@ -76,20 +76,20 @@ ATF_TC_BODY(readline, tc)
         fd = open("test", O_RDONLY);
         ATF_REQUIRE(fd != -1);
 
-        CE(atf_dynstr_init(&dest));
-        CE(atf_io_readline(fd, &dest));
+        RE(atf_dynstr_init(&dest));
+        RE(atf_io_readline(fd, &dest));
         printf("1st line: >%s<\n", atf_dynstr_cstring(&dest));
         ATF_REQUIRE(atf_equal_dynstr_cstring(&dest, l1));
         atf_dynstr_fini(&dest);
 
-        CE(atf_dynstr_init(&dest));
-        CE(atf_io_readline(fd, &dest));
+        RE(atf_dynstr_init(&dest));
+        RE(atf_io_readline(fd, &dest));
         printf("2nd line: >%s<\n", atf_dynstr_cstring(&dest));
         ATF_REQUIRE(atf_equal_dynstr_cstring(&dest, l2));
         atf_dynstr_fini(&dest);
 
-        CE(atf_dynstr_init(&dest));
-        CE(atf_io_readline(fd, &dest));
+        RE(atf_dynstr_init(&dest));
+        RE(atf_io_readline(fd, &dest));
         printf("3rd line: >%s<\n", atf_dynstr_cstring(&dest));
         ATF_REQUIRE(atf_equal_dynstr_cstring(&dest, l3));
         atf_dynstr_fini(&dest);
@@ -113,8 +113,8 @@ ATF_TC_BODY(write_fmt, tc)
         fd = open("test", O_WRONLY | O_CREAT | O_TRUNC, 0644);
         ATF_REQUIRE(fd != -1);
 
-        CE(atf_io_write_fmt(fd, "Plain string\n"));
-        CE(atf_io_write_fmt(fd, "Formatted %s %d\n", "string", 5));
+        RE(atf_io_write_fmt(fd, "Plain string\n"));
+        RE(atf_io_write_fmt(fd, "Formatted %s %d\n", "string", 5));
 
         close(fd);
     }

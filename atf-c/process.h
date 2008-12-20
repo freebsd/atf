@@ -27,10 +27,16 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if defined(TESTS_ATF_ATF_C_MACROS_H)
-#   error "Cannot include h_macros.h more than once."
-#else
-#   define TESTS_ATF_ATF_C_MACROS_H
-#endif
+#if !defined(ATF_C_PROCESS_H)
+#define ATF_C_PROCESS_H
 
-#define RE(stm) ATF_REQUIRE(!atf_is_error(stm))
+#include <atf-c/error_fwd.h>
+
+/* ---------------------------------------------------------------------
+ * Free functions.
+ * --------------------------------------------------------------------- */
+
+atf_error_t atf_process_fork(int *);
+atf_error_t atf_process_system(const char *);
+
+#endif /* !defined(ATF_C_PROCESS_H) */
