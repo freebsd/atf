@@ -424,6 +424,8 @@ atf_atf_c_DATA = tests/atf/atf-c/Atffile
 atf_atf_cdir = $(pkgtestsdir)/atf-c
 EXTRA_DIST += $(atf_atf_c_DATA)
 
+EXTRA_DIST += tests/atf/atf-c/h_macros.h
+
 atf_atf_c_PROGRAMS = tests/atf/atf-c/h_check
 tests_atf_atf_c_h_check_SOURCES = tests/atf/atf-c/h_check.c
 
