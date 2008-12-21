@@ -13,22 +13,6 @@ of salt: the focus of a specific release may change completely depending
 on how things develop.
 
 
-Plans for 0.6
-=============
-
-* Add a module to atf-c to manage dynamic memory.  Should provide a "mem
-  chunk" object that can only be managed through functions (i.e. not
-  directly) so that access to buffers can be safely controlled.  Dealing
-  with strdup and similar functions, for example, might be complex.
-
-  See these old revisions for a start, but these did not work correctly
-  because the use of (void **) casts brought aliasing problems:
-
-  78eeacf3b9284493e5e96b7866fc1d163a13bc02
-  8e200683a2b70eadca728c2e0347d4790777b3fc
-  872393ed0177cbcc30ffacede228eb3986c42ab7
-
-
 Plans for 0.7
 =============
 
@@ -57,6 +41,22 @@ Plans for 0.7
   not raise false positives when working on some unrelated feature.  The
   latter are used to detect changes that fixed expected failures.  See
   Monotone's test suite for an example.
+
+
+Plans for 0.8
+=============
+
+* Add a module to atf-c to manage dynamic memory.  Should provide a "mem
+  chunk" object that can only be managed through functions (i.e. not
+  directly) so that access to buffers can be safely controlled.  Dealing
+  with strdup and similar functions, for example, might be complex.
+
+  See these old revisions for a start, but these did not work correctly
+  because the use of (void **) casts brought aliasing problems:
+
+  78eeacf3b9284493e5e96b7866fc1d163a13bc02
+  8e200683a2b70eadca728c2e0347d4790777b3fc
+  872393ed0177cbcc30ffacede228eb3986c42ab7
 
 
 Plans for pre-1.0
