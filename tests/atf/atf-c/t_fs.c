@@ -775,6 +775,7 @@ ATF_TC_HEAD(mkdtemp_err, tc)
 {
     atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_mkdtemp function, "
                       "error conditions");
+    atf_tc_set_md_var(tc, "require.user", "unprivileged");
 }
 ATF_TC_BODY(mkdtemp_err, tc)
 {
@@ -857,6 +858,7 @@ ATF_TC_HEAD(mkstemp_err, tc)
 {
     atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_mkstemp function, "
                       "error conditions");
+    atf_tc_set_md_var(tc, "require.user", "unprivileged");
 }
 ATF_TC_BODY(mkstemp_err, tc)
 {
