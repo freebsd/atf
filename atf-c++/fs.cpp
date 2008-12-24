@@ -487,7 +487,7 @@ impl::temp_file::~temp_file(void)
 }
 
 void
-impl::temp_file::write(const std::string &s)
+impl::temp_file::write(const std::string& s)
 {
     const char *cstr;
     size_t len;

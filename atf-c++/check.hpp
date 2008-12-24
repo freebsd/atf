@@ -62,10 +62,10 @@ class check_result {
     //! \brief Constructs a results object and grabs ownership of the
     //! parameter passed in.
     //!
-    check_result(const atf_check_result_t *result);
+    check_result(const atf_check_result_t* result);
 
     friend check_result test_constructor(void);
-    friend check_result exec(char * const *);
+    friend check_result exec(char* const*);
 
 public:
     //!
@@ -98,7 +98,7 @@ public:
 // Free functions.
 // ------------------------------------------------------------------------
 
-check_result exec(char * const *);
+check_result exec(char* const*);
 
 // Useful for testing only.
 check_result test_constructor(void);

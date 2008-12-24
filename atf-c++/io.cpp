@@ -355,7 +355,7 @@ impl::getline(unbuffered_istream& uis, std::string& str)
 }
 
 int
-impl::cmp(const fs::path &p1, const fs::path &p2)
+impl::cmp(const fs::path& p1, const fs::path& p2)
 {
     int r;
 

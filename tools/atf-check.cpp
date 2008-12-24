@@ -98,7 +98,7 @@ execute_with_shell(char* const* argv)
     atf::utils::auto_array< char > arg2
         (atf::text::duplicate(flatten_argv(argv).c_str()));
 
-    char *sh_argv[4];
+    char* sh_argv[4];
     sh_argv[0] = arg0.get();
     sh_argv[1] = arg1.get();
     sh_argv[2] = arg2.get();
@@ -138,21 +138,21 @@ class atf_check : public atf::application::app {
 
     static const char* m_description;
 
-    bool file_empty(const atf::fs::path &) const;
-    void print_diff(const atf::fs::path &, const atf::fs::path &) const;
-    void print_file(const atf::fs::path &) const;
-    std::string decode(const std::string &) const;
+    bool file_empty(const atf::fs::path&) const;
+    void print_diff(const atf::fs::path&, const atf::fs::path&) const;
+    void print_file(const atf::fs::path&) const;
+    std::string decode(const std::string&) const;
 
-    bool run_status_check(const atf::check::check_result &) const;
-    bool run_output_check(const atf::check::check_result &,
-                          const std::string &) const;
+    bool run_status_check(const atf::check::check_result&) const;
+    bool run_output_check(const atf::check::check_result&,
+                          const std::string&) const;
 
     std::string specific_args(void) const;
     options_set specific_options(void) const;
-    void process_option(int, const char *);
-    void process_option_s(const std::string &);
-    void process_option_o(const std::string &);
-    void process_option_e(const std::string &);
+    void process_option(int, const char*);
+    void process_option_s(const std::string&);
+    void process_option_o(const std::string&);
+    void process_option_e(const std::string&);
 
 public:
     atf_check(void);
@@ -173,7 +173,7 @@ atf_check::atf_check(void) :
 }
 
 bool
-atf_check::file_empty(const atf::fs::path &p)
+atf_check::file_empty(const atf::fs::path& p)
     const
 {
     atf::fs::file_info f(p);
@@ -182,7 +182,7 @@ atf_check::file_empty(const atf::fs::path &p)
 }
 
 void
-atf_check::print_diff(const atf::fs::path &p1, const atf::fs::path &p2)
+atf_check::print_diff(const atf::fs::path& p1, const atf::fs::path& p2)
     const
 {
     std::string cmd("diff -u \"" + p1.str() + "\" \"" + p2.str() + "\" >&2");
@@ -196,7 +196,7 @@ atf_check::print_diff(const atf::fs::path &p1, const atf::fs::path &p2)
 }
 
 void
-atf_check::print_file(const atf::fs::path &p)
+atf_check::print_file(const atf::fs::path& p)
     const
 {
     std::ifstream f(p.c_str());
@@ -207,7 +207,7 @@ atf_check::print_file(const atf::fs::path &p)
 }
 
 std::string
-atf_check::decode(const std::string &s)
+atf_check::decode(const std::string& s)
     const
 {
     int i, count;
@@ -250,7 +250,7 @@ atf_check::decode(const std::string &s)
 }
 
 bool
-atf_check::run_status_check(const atf::check::check_result &r)
+atf_check::run_status_check(const atf::check::check_result& r)
     const
 {
     bool retval = true;
@@ -292,8 +292,8 @@ atf_check::run_status_check(const atf::check::check_result &r)
 }
 
 bool
-atf_check::run_output_check(const atf::check::check_result &r,
-                            const std::string &stdxxx)
+atf_check::run_output_check(const atf::check::check_result& r,
+                            const std::string& stdxxx)
     const
 {
     atf::fs::path path("/");
@@ -368,11 +368,11 @@ atf_check::specific_options(void)
     options_set opts;
 
     opts.insert(option('s', "qual:value", "Handle status. Qualifier "
-               "must be one of: ignore eq:<num> ne:<num>"));
+                "must be one of: ignore eq:<num> ne:<num>"));
     opts.insert(option('o', "action:arg", "Handle stdout. Action must be "
-               "one of: empty ignore file:<path> inline:<val> save:<path>"));
+                "one of: empty ignore file:<path> inline:<val> save:<path>"));
     opts.insert(option('e', "action:arg", "Handle stderr. Action must be "
-               "one of: empty ignore file:<path> inline:<val> save:<path>"));
+                "one of: empty ignore file:<path> inline:<val> save:<path>"));
     opts.insert(option('x', "", "Execute command as a shell command"));
 
     return opts;

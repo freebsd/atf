@@ -44,7 +44,7 @@ namespace impl = atf::check;
 // The "check_result" class.
 // ------------------------------------------------------------------------
 
-impl::check_result::check_result(const atf_check_result_t *result)
+impl::check_result::check_result(const atf_check_result_t* result)
 {
     std::memcpy(&m_result, result, sizeof(m_result));
 }
@@ -88,7 +88,7 @@ impl::check_result::stderr_path(void)
 // ------------------------------------------------------------------------
 
 impl::check_result
-impl::exec(char * const *argv)
+impl::exec(char* const* argv)
 {
     atf_check_result_t result;
 

@@ -432,7 +432,7 @@ public:
     //!
     //! Writes content of provided std::string object to this
     //! temporary file.
-    void write(const std::string &);
+    void write(const std::string&);
 
     //!
     //! \brief Returns the path to this temporary file.

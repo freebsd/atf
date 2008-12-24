@@ -77,6 +77,15 @@ without notice to fulfill them.  This will possibly cause merge problems to
 users who may have branched the code, so please be kind and follow the
 rules.
 
+Some rules for C++ code:
+
+* When declaring pointers and references, stick the * and & symbols to the
+  types, not the variable names.  Henceforth, do "char* foo" instead of
+  "char *foo".
+
+When in doubt, try to find existing code that is similar to what you are
+writing and follow its style.
+
 
 Commit guidelines
 =================
