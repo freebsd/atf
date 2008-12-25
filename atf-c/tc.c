@@ -83,6 +83,9 @@ static atf_error_t check_prog_in_dir(const char *, void *);
 static atf_error_t check_requirements(const atf_tc_t *);
 static void cleanup_child(const atf_tc_t *, const atf_fs_path_t *)
             ATF_DEFS_ATTRIBUTE_NORETURN;
+static void fail_internal(const char *, int, const char *, const char *,
+                          const char *, va_list,
+                          void (*)(const char *, ...));
 static void fatal_atf_error(const char *, atf_error_t)
             ATF_DEFS_ATTRIBUTE_NORETURN;
 static void fatal_libc_error(const char *, int)
@@ -940,6 +943,65 @@ atf_tc_fail_nonfatal(const char *fmt, ...)
     fprintf(stderr, "\n");
 
     current_tc_fail_count++;
+}
+
+void
+atf_tc_fail_check(const char *file, int line, const char *fmt, ...)
+{
+    va_list ap;
+
+    va_start(ap, fmt);
+    fail_internal(file, line, "Check failed", "*** ", fmt, ap,
+                  atf_tc_fail_nonfatal);
+    va_end(ap);
+}
+
+void
+atf_tc_fail_requirement(const char *file, int line, const char *fmt, ...)
+{
+    va_list ap;
+
+    va_start(ap, fmt);
+    fail_internal(file, line, "Requirement failed", "", fmt, ap,
+                  atf_tc_fail);
+    va_end(ap);
+
+    UNREACHABLE;
+    abort();
+}
+
+static
+void
+fail_internal(const char *file, int line, const char *reason,
+              const char *prefix, const char *fmt, va_list ap,
+              void (*failfunc)(const char *, ...))
+{
+    va_list ap2;
+    atf_error_t err;
+    atf_dynstr_t msg;
+
+    err = atf_dynstr_init_fmt(&msg, "%s%s:%d: %s: ", prefix, file, line,
+                              reason);
+    if (atf_is_error(err))
+        goto backup;
+
+    va_copy(ap2, ap);
+    err = atf_dynstr_append_ap(&msg, fmt, ap2);
+    va_end(ap2);
+    if (atf_is_error(err)) {
+        atf_dynstr_fini(&msg);
+        goto backup;
+    }
+
+    va_copy(ap2, ap);
+    failfunc("%s", atf_dynstr_cstring(&msg));
+    atf_dynstr_fini(&msg);
+    return;
+
+backup:
+    va_copy(ap2, ap);
+    failfunc(fmt, ap2);
+    va_end(ap2);
 }
 
 void

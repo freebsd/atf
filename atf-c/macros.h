@@ -112,13 +112,13 @@
 #define ATF_REQUIRE_MSG(x, fmt, ...) \
     do { \
         if (!(x)) \
-            atf_tc_fail("Line %d: " fmt, __LINE__, ##__VA_ARGS__); \
+            atf_tc_fail_requirement(__FILE__, __LINE__, fmt, ##__VA_ARGS__); \
     } while(0)
 
 #define ATF_CHECK_MSG(x, fmt, ...) \
     do { \
         if (!(x)) \
-            atf_tc_fail_nonfatal("Line %d: " fmt, __LINE__, ##__VA_ARGS__); \
+            atf_tc_fail_check(__FILE__, __LINE__, fmt, ##__VA_ARGS__); \
     } while(0)
 
 #define ATF_REQUIRE(x) \

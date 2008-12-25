@@ -112,4 +112,9 @@ void atf_tc_pass(void) ATF_DEFS_ATTRIBUTE_NORETURN;
 void atf_tc_require_prog(const char *);
 void atf_tc_skip(const char *, ...) ATF_DEFS_ATTRIBUTE_NORETURN;
 
+/* To be run from test case bodies only; internal to macros.h. */
+void atf_tc_fail_check(const char *, int, const char *, ...);
+void atf_tc_fail_requirement(const char *, int, const char *, ...)
+     ATF_DEFS_ATTRIBUTE_NORETURN;
+
 #endif /* ATF_C_TC_H */

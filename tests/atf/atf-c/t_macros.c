@@ -394,8 +394,8 @@ ATF_TC_BODY(check, tc)
             ATF_REQUIRE(atf_tcr_get_state(&tcr) == atf_tcr_passed_state);
         } else {
             ATF_REQUIRE(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
-            ATF_REQUIRE(match_reason_in_file("error", "^Line [0-9]+: %s$",
-                                             t->msg));
+            ATF_REQUIRE(match_reason_in_file("error", "t_macros.c:[0-9]+: "
+                                             "Check failed: %s$", t->msg));
         }
 
         atf_tcr_fini(&tcr);
@@ -446,8 +446,8 @@ do_check_eq_tests(const struct check_eq_test *tests)
             ATF_CHECK(atf_tcr_get_state(&tcr) == atf_tcr_passed_state);
         } else {
             ATF_CHECK(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
-            ATF_CHECK(match_reason_in_file("error", "^Line [0-9]+: %s$",
-                                           t->msg));
+            ATF_CHECK(match_reason_in_file("error", "t_macros.c:[0-9]+: "
+                                           "Check failed: %s$", t->msg));
         }
 
         atf_tcr_fini(&tcr);
@@ -595,7 +595,8 @@ ATF_TC_BODY(require, tc)
         } else {
             ATF_REQUIRE(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
             ATF_REQUIRE(!exists("after"));
-            ATF_REQUIRE(match_reason(&tcr, "^Line [0-9]+: %s$", t->msg));
+            ATF_REQUIRE(match_reason(&tcr, "t_macros.c:[0-9]+: Requirement "
+                                     "failed: %s$", t->msg));
         }
 
         atf_tcr_fini(&tcr);
@@ -647,7 +648,8 @@ do_require_eq_tests(const struct require_eq_test *tests)
         } else {
             ATF_REQUIRE(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
             ATF_REQUIRE(!exists("after"));
-            ATF_REQUIRE(match_reason(&tcr, "^Line [0-9]+: %s$", t->msg));
+            ATF_REQUIRE(match_reason(&tcr, "t_macros.c:[0-9]+: Requirement "
+                                     "failed: %s$", t->msg));
         }
 
         atf_tcr_fini(&tcr);
