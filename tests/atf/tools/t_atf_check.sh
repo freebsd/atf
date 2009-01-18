@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2008 The NetBSD Foundation, Inc.
+# Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -149,7 +149,16 @@ oflag_inline_body()
     h_pass "echo foo bar" -o inline:"foo bar\n"
     h_pass "printf 'foo bar'" -o inline:"foo bar"
     h_pass "printf '\t\n\t\n'" -o inline:"\t\n\t\n"
-    h_pass "printf '\a\b\e\f\n\r\t\v'" -o inline:"\a\b\e\f\n\r\t\v"
+    # XXX Ugly hack to workaround the lack of \e in FreeBSD.  Look for a
+    # nicer solution...
+    case $(uname) in
+    FreeBSD)
+        h_pass "printf '\a\b\f\n\r\t\v'" -o inline:"\a\b\f\n\r\t\v"
+        ;;
+    *)
+        h_pass "printf '\a\b\e\f\n\r\t\v'" -o inline:"\a\b\e\f\n\r\t\v"
+        ;;
+    esac
     h_pass "printf '\011\022\033\012'" -o inline:"\011\022\033\012"
 
     h_fail "echo foo bar" -o inline:"foo bar"
@@ -219,7 +228,16 @@ eflag_inline_body()
     h_pass "echo foo bar 1>&2" -e inline:"foo bar\n"
     h_pass "printf 'foo bar' 1>&2" -e inline:"foo bar"
     h_pass "printf '\t\n\t\n' 1>&2" -e inline:"\t\n\t\n"
-    h_pass "printf '\a\b\e\f\n\r\t\v' 1>&2" -e inline:"\a\b\e\f\n\r\t\v"
+    # XXX Ugly hack to workaround the lack of \e in FreeBSD.  Look for a
+    # nicer solution...
+    case $(uname) in
+    FreeBSD)
+        h_pass "printf '\a\b\f\n\r\t\v' 1>&2" -e inline:"\a\b\f\n\r\t\v"
+        ;;
+    *)
+        h_pass "printf '\a\b\e\f\n\r\t\v' 1>&2" -e inline:"\a\b\e\f\n\r\t\v"
+        ;;
+    esac
     h_pass "printf '\011\022\033\012' 1>&2" -e inline:"\011\022\033\012"
 
     h_fail "echo foo bar 1>&2" -e inline:"foo bar"
