@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -547,7 +547,7 @@ impl::have_prog_in_path(const std::string& prog)
     // there something is broken in the user's environment.
     if (!atf::env::has("PATH"))
         throw std::runtime_error("PATH not defined in the environment");
-    std::vector< std::string > dirs = \
+    std::vector< std::string > dirs =
         atf::text::split(atf::env::get("PATH"), ":");
 
     bool found = false;
