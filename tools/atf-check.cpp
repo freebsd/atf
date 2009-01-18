@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ std::string
 flatten_argv(char* const* argv)
 {
     std::string cmdline;
-int cnt = 0;
+
     char* const* arg = &argv[0];
     while (*arg != NULL) {
         if (arg != &argv[0])
@@ -69,7 +69,6 @@ int cnt = 0;
         cmdline += *arg;
 
         arg++;
-        if (cnt++ > 10) break;
     }
 
     return cmdline;
