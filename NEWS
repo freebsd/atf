@@ -6,7 +6,7 @@
 Version 0.6
 ===========
 
-Release date: STILL UNDER DEVELOPMENT; NOT RELEASED YET
+Release date: January 18th, 2009
 Status:       Experimental
 
 * Make atf-exec be able to kill its child process after a certain period of
@@ -24,10 +24,17 @@ Status:       Experimental
   function in the atf-sh library and exposes this functionality to both
   atf-c and atf-c++.
 
-* Added ATF_REQUIRE macros that check for fatal test conditions and changed
-  the ATF_CHECK macros to perform non-fatal checks.  I.e. by using
-  ATF_CHECK, the test case can now continue its execution and the failures
-  will not be reported until the end of the whole run.
+* Added the ATF_REQUIRE family of macros to the C interface.  These help
+  in checking for fatal test conditions.  The old ATF_CHECK macros now
+  perform non-fatal checks only.  I.e. by using ATF_CHECK, the test case
+  can now continue its execution and the failures will not be reported
+  until the end of the whole run.
+
+* Extended the amount of ATF_CHECK_* C macros with new ones to provide more
+  features to the developer.  These also have their corresponding
+  counterparts in the ATF_REQUIRE_* family.  The new macros (listing the
+  suffixes only) are: _EQ (replaces _EQUAL), _EQ_MSG, _STREQ and
+  _STREQ_MSG.
 
 
 Version 0.5
