@@ -60,7 +60,7 @@ std::string
 flatten_argv(char* const* argv)
 {
     std::string cmdline;
-int cnt = 0;
+
     char* const* arg = &argv[0];
     while (*arg != NULL) {
         if (arg != &argv[0])
@@ -69,7 +69,6 @@ int cnt = 0;
         cmdline += *arg;
 
         arg++;
-        if (cnt++ > 10) break;
     }
 
     return cmdline;
