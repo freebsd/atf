@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,7 +82,7 @@ child_error(const char *cmd, int state)
  * --------------------------------------------------------------------- */
 
 atf_error_t
-atf_process_fork(int *outpid)
+atf_process_fork(pid_t *outpid)
 {
     atf_error_t err;
     pid_t pid;

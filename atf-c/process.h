@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,13 +30,15 @@
 #if !defined(ATF_C_PROCESS_H)
 #define ATF_C_PROCESS_H
 
+#include <sys/types.h>
+
 #include <atf-c/error_fwd.h>
 
 /* ---------------------------------------------------------------------
  * Free functions.
  * --------------------------------------------------------------------- */
 
-atf_error_t atf_process_fork(int *);
+atf_error_t atf_process_fork(pid_t *);
 atf_error_t atf_process_system(const char *);
 
 #endif /* !defined(ATF_C_PROCESS_H) */
