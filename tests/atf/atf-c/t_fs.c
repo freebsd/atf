@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -666,7 +666,7 @@ ATF_TC_BODY(eaccess, tc)
         const int experr = atf_user_is_root() ? t->rerror : t->uerror;
 
         printf("\n");
-        printf("File mode     : %04o\n", t->fmode);
+        printf("File mode     : %04o\n", (unsigned int)t->fmode);
         printf("Access mode   : 0x%02x\n", t->amode);
 
         ATF_REQUIRE(chmod(atf_fs_path_cstring(&p), t->fmode) != -1);

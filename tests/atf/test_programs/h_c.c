@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -376,7 +376,7 @@ ATF_TC_BODY(fork_stop, tc)
     f = fopen(pfstr, "w");
     if (f == NULL)
         atf_tc_fail("Failed to create pidfile %s", pfstr);
-    fprintf(f, "%d", getpid());
+    fprintf(f, "%d", (int)getpid());
     fclose(f);
     printf("Wrote pid file\n");
 
@@ -394,7 +394,7 @@ ATF_TC_HEAD(fork_umask, tc)
 }
 ATF_TC_BODY(fork_umask, tc)
 {
-    printf("umask: %04o\n", umask(0));
+    printf("umask: %04o\n", (unsigned int)umask(0));
 }
 
 /* ---------------------------------------------------------------------
