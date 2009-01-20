@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -317,19 +317,7 @@ void
 impl::tc::require_prog(const std::string& prog)
     const
 {
-    PRE(!prog.empty());
-
-    fs::path p(prog);
-
-    if (p.is_absolute()) {
-        if (!fs::is_executable(p))
-            skip("The required program " + prog + " could not be found");
-    } else {
-        INV(p.branch_path() == fs::path("."));
-        if (!fs::have_prog_in_path(prog))
-            skip("The required program " + prog + " could not be found in "
-                 "the PATH");
-    }
+    atf_tc_require_prog(prog.c_str());
 }
 
 void
