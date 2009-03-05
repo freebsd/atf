@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,13 +36,13 @@ EXTRA_DIST = $(doc_DATA)
 
 dist-hook: $(srcdir)/admin/revision-dist.h check-install check-style
 
-AM_CPPFLAGS = -DATF_ARCH=\"$(atf_arch)\" \
-              -DATF_CONFDIR=\"$(atf_confdir)\" \
-              -DATF_LIBEXECDIR=\"$(libexecdir)\" \
-              -DATF_MACHINE=\"$(atf_machine)\" \
-              -DATF_PKGDATADIR=\"$(pkgdatadir)\" \
-              -DATF_SHELL=\"$(ATF_SHELL)\" \
-              -DATF_WORKDIR=\"$(ATF_WORKDIR)\"
+AM_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
+              "-DATF_CONFDIR=\"$(atf_confdir)\"" \
+              "-DATF_LIBEXECDIR=\"$(libexecdir)\"" \
+              "-DATF_MACHINE=\"$(atf_machine)\"" \
+              "-DATF_PKGDATADIR=\"$(pkgdatadir)\"" \
+              "-DATF_SHELL=\"$(ATF_SHELL)\"" \
+              "-DATF_WORKDIR=\"$(ATF_WORKDIR)\""
 
 ATF_COMPILE_DEPS = $(srcdir)/atf-sh/atf.init.subr
 ATF_COMPILE_DEPS += tools/atf-host-compile
