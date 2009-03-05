@@ -132,6 +132,14 @@ The following flags are specific to ATF's 'configure' script:
   --sysconfdir argument) under which ATF will search for its configuration
   files.
 
+* Variable: ATF_SHELL
+  Possible values: empty, absolute path to a POSIX shell interpreter.
+
+  Specifies the POSIX shell interpreter that ATF will use at run time to
+  execute its scripts and the test programs written using the atf-sh
+  library.  If empty, the configure script will try to find a suitable
+  interpreter for you.
+
 * Variable: ATF_WORKDIR
   Possible values: empty, an absolute path.
   Default: /tmp or /var/tmp, depending on availability.
