@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -260,6 +260,45 @@ atf_list_citer_t
 atf_list_end_c(const atf_list_t *l)
 {
     return entry_to_citer(l, l->m_end);
+}
+
+void *
+atf_list_index(atf_list_t *list, const size_t idx)
+{
+    atf_list_iter_t iter;
+
+    PRE(idx < atf_list_size(list));
+
+    iter = atf_list_begin(list);
+    {
+        size_t pos = 0;
+        while (pos < idx &&
+               !atf_equal_list_iter_list_iter((iter), atf_list_end(list))) {
+            iter = atf_list_iter_next(iter);
+            pos++;
+        }
+    }
+    return atf_list_iter_data(iter);
+}
+
+const void *
+atf_list_index_c(const atf_list_t *list, const size_t idx)
+{
+    atf_list_citer_t iter;
+
+    PRE(idx < atf_list_size(list));
+
+    iter = atf_list_begin_c(list);
+    {
+        size_t pos = 0;
+        while (pos < idx &&
+               !atf_equal_list_citer_list_citer((iter),
+                                                atf_list_end_c(list))) {
+            iter = atf_list_citer_next(iter);
+            pos++;
+        }
+    }
+    return atf_list_citer_data(iter);
 }
 
 size_t

@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,58 @@ ATF_TC_BODY(list_init, tc)
 
     RE(atf_list_init(&list));
     ATF_REQUIRE_EQ(atf_list_size(&list), 0);
+    atf_list_fini(&list);
+}
+
+/*
+ * Getters.
+ */
+
+ATF_TC(list_index);
+ATF_TC_HEAD(list_index, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_list_index function");
+}
+ATF_TC_BODY(list_index, tc)
+{
+    atf_list_t list;
+    int i1 = 1;
+    int i2 = 5;
+    int i3 = 9;
+
+    RE(atf_list_init(&list));
+    RE(atf_list_append(&list, &i1));
+    RE(atf_list_append(&list, &i2));
+    RE(atf_list_append(&list, &i3));
+
+    ATF_CHECK_EQ(*(int *)atf_list_index(&list, 0), 1);
+    ATF_CHECK_EQ(*(int *)atf_list_index(&list, 1), 5);
+    ATF_CHECK_EQ(*(int *)atf_list_index(&list, 2), 9);
+
+    atf_list_fini(&list);
+}
+
+ATF_TC(list_index_c);
+ATF_TC_HEAD(list_index_c, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_list_index_c function");
+}
+ATF_TC_BODY(list_index_c, tc)
+{
+    atf_list_t list;
+    int i1 = 1;
+    int i2 = 5;
+    int i3 = 9;
+
+    RE(atf_list_init(&list));
+    RE(atf_list_append(&list, &i1));
+    RE(atf_list_append(&list, &i2));
+    RE(atf_list_append(&list, &i3));
+
+    ATF_CHECK_EQ(*(const int *)atf_list_index_c(&list, 0), 1);
+    ATF_CHECK_EQ(*(const int *)atf_list_index_c(&list, 1), 5);
+    ATF_CHECK_EQ(*(const int *)atf_list_index_c(&list, 2), 9);
+
     atf_list_fini(&list);
 }
 
@@ -171,6 +223,10 @@ ATF_TP_ADD_TCS(tp)
 {
     /* Constructors and destructors. */
     ATF_TP_ADD_TC(tp, list_init);
+
+    /* Getters. */
+    ATF_TP_ADD_TC(tp, list_index);
+    ATF_TP_ADD_TC(tp, list_index_c);
 
     /* Modifiers. */
     ATF_TP_ADD_TC(tp, list_append);
