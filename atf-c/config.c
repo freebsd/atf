@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,12 @@
 
 static bool initialized = false;
 static const char *atf_arch = NULL;
+static const char *atf_build_cc = NULL;
+static const char *atf_build_cflags = NULL;
+static const char *atf_build_cpp = NULL;
+static const char *atf_build_cppflags = NULL;
+static const char *atf_build_cxx = NULL;
+static const char *atf_build_cxxflags = NULL;
 static const char *atf_confdir = NULL;
 static const char *atf_libexecdir = NULL;
 static const char *atf_machine = NULL;
@@ -74,13 +80,21 @@ initialize(void)
 {
     PRE(!initialized);
 
-    initialize_var(&atf_arch,       "ATF_ARCH",       ATF_ARCH);
-    initialize_var(&atf_confdir,    "ATF_CONFDIR",    ATF_CONFDIR);
-    initialize_var(&atf_libexecdir, "ATF_LIBEXECDIR", ATF_LIBEXECDIR);
-    initialize_var(&atf_machine,    "ATF_MACHINE",    ATF_MACHINE);
-    initialize_var(&atf_pkgdatadir, "ATF_PKGDATADIR", ATF_PKGDATADIR);
-    initialize_var(&atf_shell,      "ATF_SHELL",      ATF_SHELL);
-    initialize_var(&atf_workdir,    "ATF_WORKDIR",    ATF_WORKDIR);
+#define INITIALIZE_VAR(lc, uc) initialize_var(&lc, #uc, uc)
+    INITIALIZE_VAR(atf_arch,           ATF_ARCH);
+    INITIALIZE_VAR(atf_build_cc,       ATF_BUILD_CC);
+    INITIALIZE_VAR(atf_build_cflags,   ATF_BUILD_CFLAGS);
+    INITIALIZE_VAR(atf_build_cpp,      ATF_BUILD_CPP);
+    INITIALIZE_VAR(atf_build_cppflags, ATF_BUILD_CPPFLAGS);
+    INITIALIZE_VAR(atf_build_cxx,      ATF_BUILD_CXX);
+    INITIALIZE_VAR(atf_build_cxxflags, ATF_BUILD_CXXFLAGS);
+    INITIALIZE_VAR(atf_confdir,        ATF_CONFDIR);
+    INITIALIZE_VAR(atf_libexecdir,     ATF_LIBEXECDIR);
+    INITIALIZE_VAR(atf_machine,        ATF_MACHINE);
+    INITIALIZE_VAR(atf_pkgdatadir,     ATF_PKGDATADIR);
+    INITIALIZE_VAR(atf_shell,          ATF_SHELL);
+    INITIALIZE_VAR(atf_workdir,        ATF_WORKDIR);
+#undef INITIALIZE_VAR
 
     initialized = true;
 }
@@ -101,6 +115,18 @@ atf_config_get(const char *var)
 
     if (strcmp(var, "atf_arch") == 0)
         value = atf_arch;
+    else if (strcmp(var, "atf_build_cc") == 0)
+        value = atf_build_cc;
+    else if (strcmp(var, "atf_build_cflags") == 0)
+        value = atf_build_cflags;
+    else if (strcmp(var, "atf_build_cpp") == 0)
+        value = atf_build_cpp;
+    else if (strcmp(var, "atf_build_cppflags") == 0)
+        value = atf_build_cppflags;
+    else if (strcmp(var, "atf_build_cxx") == 0)
+        value = atf_build_cxx;
+    else if (strcmp(var, "atf_build_cxxflags") == 0)
+        value = atf_build_cxxflags;
     else if (strcmp(var, "atf_confdir") == 0)
         value = atf_confdir;
     else if (strcmp(var, "atf_libexecdir") == 0)
@@ -126,6 +152,12 @@ __atf_config_reinit(void)
 {
     initialized = false;
     atf_arch = NULL;
+    atf_build_cc = NULL;
+    atf_build_cflags = NULL;
+    atf_build_cpp = NULL;
+    atf_build_cppflags = NULL;
+    atf_build_cxx = NULL;
+    atf_build_cxxflags = NULL;
     atf_confdir = NULL;
     atf_libexecdir = NULL;
     atf_machine = NULL;

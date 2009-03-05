@@ -124,6 +124,49 @@ The most common, standard flags given to 'configure' are:
 
 The following flags are specific to ATF's 'configure' script:
 
+* Variable: ATF_BUILD_CC
+  Possible values: empty, a absolute or relative path to a C compiler.
+  Default: the value of CC as detected by the configure script.
+
+  Specifies the C compiler that ATF will use at run time whenever the
+  build-time-specific checks are used.
+
+* Variable: ATF_BUILD_CFLAGS
+  Possible values: empty, a list of valid C compiler flags.
+  Default: the value of CFLAGS as detected by the configure script.
+
+  Specifies the C compiler flags that ATF will use at run time whenever the
+  build-time-specific checks are used.
+
+* Variable: ATF_BUILD_CPP
+  Possible values: empty, a absolute or relative path to a C/C++
+                   preprocessor.
+  Default: the value of CPP as detected by the configure script.
+
+  Specifies the C/C++ preprocessor that ATF will use at run time whenever the
+  build-time-specific checks are used.
+
+* Variable: ATF_BUILD_CPPFLAGS
+  Possible values: empty, a list of valid C/C++ preprocessor flags.
+  Default: the value of CPPFLAGS as detected by the configure script.
+
+  Specifies the C/C++ preprocessor flags that ATF will use at run time
+  whenever the build-time-specific checks are used.
+
+* Variable: ATF_BUILD_CXX
+  Possible values: empty, a absolute or relative path to a C++ compiler.
+  Default: the value of CXX as detected by the configure script.
+
+  Specifies the C++ compiler that ATF will use at run time whenever the
+  build-time-specific checks are used.
+
+* Variable: ATF_BUILD_CXXFLAGS
+  Possible values: empty, a list of valid C++ compiler flags.
+  Default: the value of CXXFLAGS as detected by the configure script.
+
+  Specifies the C++ compiler flags that ATF will use at run time whenever
+  the build-time-specific checks are used.
+
 * Variable: ATF_CONFSUBDIR
   Possible values: empty, a relative path.
   Default: atf.

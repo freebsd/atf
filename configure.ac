@@ -82,6 +82,19 @@ ATF_MODULE_FS
 ATF_MODULE_SANITY
 ATF_MODULE_SIGNALS
 
+ATF_RUNTIME_TOOL([ATF_BUILD_CC],
+                 [C compiler to use at runtime], [${CC}])
+ATF_RUNTIME_TOOL([ATF_BUILD_CFLAGS],
+                 [C compiler flags to use at runtime], [${CFLAGS}])
+ATF_RUNTIME_TOOL([ATF_BUILD_CPP],
+                 [C/C++ preprocessor to use at runtime], [${CPP}])
+ATF_RUNTIME_TOOL([ATF_BUILD_CPPFLAGS],
+                 [C/C++ preprocessor flags to use at runtime], [${CPPFLAGS}])
+ATF_RUNTIME_TOOL([ATF_BUILD_CXX],
+                 [C++ compiler to use at runtime], [${CXX}])
+ATF_RUNTIME_TOOL([ATF_BUILD_CXXFLAGS],
+                 [C++ compiler flags to use at runtime], [${CXXFLAGS}])
+
 dnl -----------------------------------------------------------------------
 dnl Architecture and machine checks.
 dnl -----------------------------------------------------------------------

@@ -40,14 +40,20 @@ static struct varnames {
     const char *lc;
     const char *uc;
 } all_vars[] = {
-    { "atf_arch",       "ATF_ARCH" },
-    { "atf_confdir",    "ATF_CONFDIR" },
-    { "atf_libexecdir", "ATF_LIBEXECDIR" },
-    { "atf_machine",    "ATF_MACHINE" },
-    { "atf_pkgdatadir", "ATF_PKGDATADIR" },
-    { "atf_shell",      "ATF_SHELL" },
-    { "atf_workdir",    "ATF_WORKDIR" },
-    { NULL, NULL }
+    { "atf_arch",           "ATF_ARCH" },
+    { "atf_build_cc",       "ATF_BUILD_CC" },
+    { "atf_build_cflags",   "ATF_BUILD_CFLAGS" },
+    { "atf_build_cpp",      "ATF_BUILD_CPP" },
+    { "atf_build_cppflags", "ATF_BUILD_CPPFLAGS" },
+    { "atf_build_cxx",      "ATF_BUILD_CXX" },
+    { "atf_build_cxxflags", "ATF_BUILD_CXXFLAGS" },
+    { "atf_confdir",        "ATF_CONFDIR" },
+    { "atf_libexecdir",     "ATF_LIBEXECDIR" },
+    { "atf_machine",        "ATF_MACHINE" },
+    { "atf_pkgdatadir",     "ATF_PKGDATADIR" },
+    { "atf_shell",          "ATF_SHELL" },
+    { "atf_workdir",        "ATF_WORKDIR" },
+    { NULL,                 NULL }
 };
 
 /* ---------------------------------------------------------------------
@@ -135,11 +141,14 @@ ATF_TEST_CASE_BODY(get)
         ATF_CHECK(atf::config::get(v->lc) != test_value);
 
     // Make sure empty values in the environment are not considered.
-    for (const struct varnames* v = all_vars; v->lc != NULL; v++)
-        set_env_var(v->uc, "");
-    atf::config::__reinit();
-    for (const struct varnames* v = all_vars; v->lc != NULL; v++)
-        ATF_CHECK(!atf::config::get(v->lc).empty());
+    for (const struct varnames* v = all_vars; v->lc != NULL; v++) {
+        unset_all();
+        if (!atf::config::get(v->lc).empty()) {
+            set_env_var(v->uc, "");
+            atf::config::__reinit();
+            ATF_CHECK(!atf::config::get(v->lc).empty());
+        }
+    }
 
     // Check if the ATF_ARCH variable is recognized.
     for (const struct varnames* v = all_vars; v->lc != NULL; v++) {
