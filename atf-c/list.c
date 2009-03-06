@@ -41,6 +41,7 @@ struct list_entry {
     struct list_entry *m_prev;
     struct list_entry *m_next;
     void *m_object;
+    bool m_managed;
 };
 
 static
@@ -65,7 +66,7 @@ entry_to_iter(atf_list_t *l, struct list_entry *le)
 
 static
 struct list_entry *
-new_entry(void *object)
+new_entry(void *object, bool managed)
 {
     struct list_entry *le;
 
@@ -73,19 +74,21 @@ new_entry(void *object)
     if (le != NULL) {
         le->m_prev = le->m_next = NULL;
         le->m_object = object;
-    }
+        le->m_managed = managed;
+    } else
+        free(object);
 
     return le;
 }
 
 static
 struct list_entry *
-new_entry_and_link(void *object, struct list_entry *prev,
+new_entry_and_link(void *object, bool managed, struct list_entry *prev,
                    struct list_entry *next)
 {
     struct list_entry *le;
 
-    le = new_entry(object);
+    le = new_entry(object, managed);
     if (le != NULL) {
         le->m_prev = prev;
         le->m_next = next;
@@ -184,12 +187,12 @@ atf_list_init(atf_list_t *l)
 {
     struct list_entry *lebeg, *leend;
 
-    lebeg = new_entry(NULL);
+    lebeg = new_entry(NULL, false);
     if (lebeg == NULL) {
         return atf_no_memory_error();
     }
 
-    leend = new_entry(NULL);
+    leend = new_entry(NULL, false);
     if (leend == NULL) {
         free(lebeg);
         return atf_no_memory_error();
@@ -222,6 +225,8 @@ atf_list_fini(atf_list_t *l)
         struct list_entry *lenext;
 
         lenext = le->m_next;
+        if (le->m_managed)
+            free(le->m_object);
         free(le);
         le = lenext;
 
@@ -312,14 +317,14 @@ atf_list_size(const atf_list_t *l)
  */
 
 atf_error_t
-atf_list_append(atf_list_t *l, void *data)
+atf_list_append(atf_list_t *l, void *data, bool managed)
 {
     struct list_entry *le, *next, *prev;
     atf_error_t err;
 
     next = (struct list_entry *)l->m_end;
     prev = next->m_prev;
-    le = new_entry_and_link(data, prev, next);
+    le = new_entry_and_link(data, managed, prev, next);
     if (le == NULL)
         err = atf_no_memory_error();
     else {

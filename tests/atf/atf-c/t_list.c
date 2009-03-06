@@ -74,9 +74,9 @@ ATF_TC_BODY(list_index, tc)
     int i3 = 9;
 
     RE(atf_list_init(&list));
-    RE(atf_list_append(&list, &i1));
-    RE(atf_list_append(&list, &i2));
-    RE(atf_list_append(&list, &i3));
+    RE(atf_list_append(&list, &i1, false));
+    RE(atf_list_append(&list, &i2, false));
+    RE(atf_list_append(&list, &i3, false));
 
     ATF_CHECK_EQ(*(int *)atf_list_index(&list, 0), 1);
     ATF_CHECK_EQ(*(int *)atf_list_index(&list, 1), 5);
@@ -98,9 +98,9 @@ ATF_TC_BODY(list_index_c, tc)
     int i3 = 9;
 
     RE(atf_list_init(&list));
-    RE(atf_list_append(&list, &i1));
-    RE(atf_list_append(&list, &i2));
-    RE(atf_list_append(&list, &i3));
+    RE(atf_list_append(&list, &i1, false));
+    RE(atf_list_append(&list, &i2, false));
+    RE(atf_list_append(&list, &i3, false));
 
     ATF_CHECK_EQ(*(const int *)atf_list_index_c(&list, 0), 1);
     ATF_CHECK_EQ(*(const int *)atf_list_index_c(&list, 1), 5);
@@ -127,7 +127,7 @@ ATF_TC_BODY(list_append, tc)
     RE(atf_list_init(&list));
     for (i = 0; i < 1024; i++) {
         ATF_REQUIRE_EQ(atf_list_size(&list), i);
-        RE(atf_list_append(&list, buf));
+        RE(atf_list_append(&list, buf, false));
     }
     atf_list_fini(&list);
 }
@@ -163,7 +163,7 @@ ATF_TC_BODY(list_for_each, tc)
         RE(atf_list_init(&list));
         for (i = 0; i < size; i++) {
             nums[i] = i + 1;
-            RE(atf_list_append(&list, &nums[i]));
+            RE(atf_list_append(&list, &nums[i], false));
         }
         count = 0;
         atf_list_for_each(iter, &list) {
@@ -202,7 +202,7 @@ ATF_TC_BODY(list_for_each_c, tc)
         RE(atf_list_init(&list));
         for (i = 0; i < size; i++) {
             nums[i] = i + 1;
-            RE(atf_list_append(&list, &nums[i]));
+            RE(atf_list_append(&list, &nums[i], false));
         }
         count = 0;
         atf_list_for_each_c(iter, &list) {
