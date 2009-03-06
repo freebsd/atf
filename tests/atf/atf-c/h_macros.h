@@ -33,4 +33,5 @@
 #   define TESTS_ATF_ATF_C_MACROS_H
 #endif
 
+#define CE(stm) ATF_CHECK(!atf_is_error(stm))
 #define RE(stm) ATF_REQUIRE(!atf_is_error(stm))

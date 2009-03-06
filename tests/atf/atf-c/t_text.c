@@ -27,18 +27,56 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <atf-c.h>
 
+#include "atf-c/sanity.h"
 #include "atf-c/text.h"
 
 #include "h_macros.h"
 
 /* ---------------------------------------------------------------------
- * Test cases for the free functions.
+ * Auxiliary functions.
  * --------------------------------------------------------------------- */
+
+static
+size_t
+array_size(const char *words[])
+{
+    size_t count;
+    const char **word;
+
+    count = 0;
+    for (word = words; *word != NULL; word++)
+        count++;
+
+    return count;
+}
+
+static
+void
+check_split(const char *str, const char *delim, const char *words[])
+{
+    atf_list_t list;
+    const char **word;
+    size_t i;
+
+    printf("Splitting '%s' with delimiter '%s'\n", str, delim);
+    CE(atf_text_split(str, delim, &list));
+
+    printf("Expecting %zd words\n", array_size(words));
+    ATF_CHECK_EQ(atf_list_size(&list), array_size(words));
+
+    for (word = words, i = 0; *word != NULL; word++, i++) {
+        printf("Word at position %zd should be '%s'\n", i, words[i]);
+        ATF_CHECK_STREQ((const char *)atf_list_index_c(&list, i), words[i]);
+    }
+
+    atf_list_fini(&list);
+}
 
 static
 atf_error_t
@@ -61,6 +99,10 @@ word_count(const char *word, void *data)
 
     return atf_no_error();
 }
+
+/* ---------------------------------------------------------------------
+ * Test cases for the free functions.
+ * --------------------------------------------------------------------- */
 
 ATF_TC(for_each_word);
 ATF_TC_HEAD(for_each_word, tc)
@@ -146,6 +188,104 @@ ATF_TC_BODY(format_ap, tc)
     format_ap(&str, "%s %s %d", "Test", "string", 1);
     ATF_REQUIRE(strcmp(str, "Test string 1") == 0);
     free(str);
+}
+
+ATF_TC(split);
+ATF_TC_HEAD(split, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Checks the split function");
+}
+ATF_TC_BODY(split, tc)
+{
+    {
+        const char *words[] = { NULL };
+        check_split("", " ", words);
+    }
+
+    {
+        const char *words[] = { NULL };
+        check_split(" ", " ", words);
+    }
+
+    {
+        const char *words[] = { NULL };
+        check_split("    ", " ", words);
+    }
+
+    {
+        const char *words[] = { "a", "b", NULL };
+        check_split("a b", " ", words);
+    }
+
+    {
+        const char *words[] = { "a", "b", "c", "d", NULL };
+        check_split("a b c d", " ", words);
+    }
+
+    {
+        const char *words[] = { "foo", "bar", NULL };
+        check_split("foo bar", " ", words);
+    }
+
+    {
+        const char *words[] = { "foo", "bar", "baz", "foobar", NULL };
+        check_split("foo bar baz foobar", " ", words);
+    }
+
+    {
+        const char *words[] = { "foo", "bar", NULL };
+        check_split(" foo bar", " ", words);
+    }
+
+    {
+        const char *words[] = { "foo", "bar", NULL };
+        check_split("foo  bar", " ", words);
+    }
+
+    {
+        const char *words[] = { "foo", "bar", NULL };
+        check_split("foo bar ", " ", words);
+    }
+
+    {
+        const char *words[] = { "foo", "bar", NULL };
+        check_split("  foo  bar  ", " ", words);
+    }
+}
+
+ATF_TC(split_delims);
+ATF_TC_HEAD(split_delims, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Checks the split function using "
+                      "different delimiters");
+}
+ATF_TC_BODY(split_delims, tc)
+{
+
+    {
+        const char *words[] = { NULL };
+        check_split("", "/", words);
+    }
+
+    {
+        const char *words[] = { " ", NULL };
+        check_split(" ", "/", words);
+    }
+
+    {
+        const char *words[] = { "    ", NULL };
+        check_split("    ", "/", words);
+    }
+
+    {
+        const char *words[] = { "a", "b", NULL };
+        check_split("a/b", "/", words);
+    }
+
+    {
+        const char *words[] = { "a", "bcd", "ef", NULL };
+        check_split("aLONGDELIMbcdLONGDELIMef", "LONGDELIM", words);
+    }
 }
 
 ATF_TC(to_bool);
@@ -235,6 +375,8 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, for_each_word);
     ATF_TP_ADD_TC(tp, format);
     ATF_TP_ADD_TC(tp, format_ap);
+    ATF_TP_ADD_TC(tp, split);
+    ATF_TP_ADD_TC(tp, split_delims);
     ATF_TP_ADD_TC(tp, to_bool);
     ATF_TP_ADD_TC(tp, to_long);
 
