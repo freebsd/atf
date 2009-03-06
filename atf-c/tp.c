@@ -141,7 +141,7 @@ atf_tp_add_tc(atf_tp_t *tp, atf_tc_t *tc)
 
     PRE(find_tc(tp, tc->m_ident) == NULL);
 
-    err = atf_list_append(&tp->m_tcs, tc);
+    err = atf_list_append(&tp->m_tcs, tc, false);
 
     POST(find_tc(tp, tc->m_ident) != NULL);
 
