@@ -27,6 +27,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cstring>
 #include <iostream>
 
 #include "atf-c++/config.hpp"
@@ -115,7 +116,7 @@ compare_one(const char* var, const char* expvalue)
               << std::endl;
 
     for (const struct varnames* v = all_vars; v->lc != NULL; v++) {
-        if (strcmp(v->lc, var) == 0)
+        if (std::strcmp(v->lc, var) == 0)
             ATF_CHECK_EQUAL(atf::config::get(v->lc), test_value);
         else
             ATF_CHECK(atf::config::get(v->lc) != test_value);
