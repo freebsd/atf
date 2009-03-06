@@ -132,6 +132,75 @@ ATF_TC_BODY(list_append, tc)
     atf_list_fini(&list);
 }
 
+ATF_TC(list_append_list);
+ATF_TC_HEAD(list_append_list, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_list_append_list "
+                      "function");
+}
+ATF_TC_BODY(list_append_list, tc)
+{
+    {
+        atf_list_t l1, l2;
+
+        RE(atf_list_init(&l1));
+        RE(atf_list_init(&l2));
+
+        atf_list_append_list(&l1, &l2);
+        ATF_CHECK_EQ(atf_list_size(&l1), 0);
+
+        atf_list_fini(&l1);
+    }
+
+    {
+        atf_list_t l1, l2;
+        int item = 5;
+
+        RE(atf_list_init(&l1));
+        RE(atf_list_append(&l1, &item, false));
+        RE(atf_list_init(&l2));
+
+        atf_list_append_list(&l1, &l2);
+        ATF_CHECK_EQ(atf_list_size(&l1), 1);
+        ATF_CHECK_EQ(*(int *)atf_list_index(&l1, 0), item);
+
+        atf_list_fini(&l1);
+    }
+
+    {
+        atf_list_t l1, l2;
+        int item = 5;
+
+        RE(atf_list_init(&l1));
+        RE(atf_list_init(&l2));
+        RE(atf_list_append(&l2, &item, false));
+
+        atf_list_append_list(&l1, &l2);
+        ATF_CHECK_EQ(atf_list_size(&l1), 1);
+        ATF_CHECK_EQ(*(int *)atf_list_index(&l1, 0), item);
+
+        atf_list_fini(&l1);
+    }
+
+    {
+        atf_list_t l1, l2;
+        int item1 = 5;
+        int item2 = 9;
+
+        RE(atf_list_init(&l1));
+        RE(atf_list_append(&l1, &item1, false));
+        RE(atf_list_init(&l2));
+        RE(atf_list_append(&l2, &item2, false));
+
+        atf_list_append_list(&l1, &l2);
+        ATF_CHECK_EQ(atf_list_size(&l1), 2);
+        ATF_CHECK_EQ(*(int *)atf_list_index(&l1, 0), item1);
+        ATF_CHECK_EQ(*(int *)atf_list_index(&l1, 1), item2);
+
+        atf_list_fini(&l1);
+    }
+}
+
 /*
  * Macros.
  */
@@ -230,6 +299,7 @@ ATF_TP_ADD_TCS(tp)
 
     /* Modifiers. */
     ATF_TP_ADD_TC(tp, list_append);
+    ATF_TP_ADD_TC(tp, list_append_list);
 
     /* Macros. */
     ATF_TP_ADD_TC(tp, list_for_each);

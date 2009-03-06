@@ -82,6 +82,16 @@ new_entry(void *object, bool managed)
 }
 
 static
+void
+delete_entry(struct list_entry *le)
+{
+    if (le->m_managed)
+        free(le->m_object);
+
+    free(le);
+}
+
+static
 struct list_entry *
 new_entry_and_link(void *object, bool managed, struct list_entry *prev,
                    struct list_entry *next)
@@ -225,9 +235,7 @@ atf_list_fini(atf_list_t *l)
         struct list_entry *lenext;
 
         lenext = le->m_next;
-        if (le->m_managed)
-            free(le->m_object);
-        free(le);
+        delete_entry(le);
         le = lenext;
 
         freed++;
@@ -333,4 +341,26 @@ atf_list_append(atf_list_t *l, void *data, bool managed)
     }
 
     return err;
+}
+
+void
+atf_list_append_list(atf_list_t *l, atf_list_t *src)
+{
+    struct list_entry *e1, *e2, *ghost1, *ghost2;
+
+    ghost1 = (struct list_entry *)l->m_end;
+    ghost2 = (struct list_entry *)src->m_begin;
+
+    e1 = ghost1->m_prev;
+    e2 = ghost2->m_next;
+
+    delete_entry(ghost1);
+    delete_entry(ghost2);
+
+    e1->m_next = e2;
+    e2->m_prev = e1;
+
+    l->m_size += src->m_size;
+
+    atf_object_fini(&src->m_object);
 }

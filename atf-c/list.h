@@ -100,6 +100,7 @@ size_t atf_list_size(const atf_list_t *);
 
 /* Modifiers. */
 atf_error_t atf_list_append(atf_list_t *, void *, bool);
+void atf_list_append_list(atf_list_t *, atf_list_t *);
 
 /* Macros. */
 #define atf_list_for_each(iter, list) \
