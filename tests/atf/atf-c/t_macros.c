@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -505,6 +505,11 @@ H_CHECK_STREQ_MSG(1_1, "1", "1", "1 does not match 1");
 H_CHECK_STREQ_MSG(1_2, "1", "2", "1 does not match 2");
 H_CHECK_STREQ_MSG(2_1, "2", "1", "2 does not match 1");
 H_CHECK_STREQ_MSG(2_2, "2", "2", "2 does not match 2");
+#define CHECK_STREQ_VAR1 "5"
+#define CHECK_STREQ_VAR2 "9"
+const const char *check_streq_var1 = CHECK_STREQ_VAR1;
+const const char *check_streq_var2 = CHECK_STREQ_VAR2;
+H_CHECK_STREQ(vars, check_streq_var1, check_streq_var2);
 
 ATF_TC(check_streq);
 ATF_TC_HEAD(check_streq, tc)
@@ -516,25 +521,29 @@ ATF_TC_BODY(check_streq, tc)
 {
     struct check_eq_test tests[] = {
         { H_CHECK_STREQ_HEAD_NAME(1_1), H_CHECK_STREQ_BODY_NAME(1_1),
-          "1", "1", "\"1\" != \"1\"", true },
+          "1", "1", "\"1\" != \"1\" \\(1 != 1\\)", true },
         { H_CHECK_STREQ_HEAD_NAME(1_2), H_CHECK_STREQ_BODY_NAME(1_2),
-          "1", "2", "\"1\" != \"2\"", false },
+          "1", "2", "\"1\" != \"2\" \\(1 != 2\\)", false },
         { H_CHECK_STREQ_HEAD_NAME(2_1), H_CHECK_STREQ_BODY_NAME(2_1),
-          "2", "1", "\"2\" != \"1\"", false },
+          "2", "1", "\"2\" != \"1\" \\(2 != 1\\)", false },
         { H_CHECK_STREQ_HEAD_NAME(2_2), H_CHECK_STREQ_BODY_NAME(2_2),
-          "2", "2", "\"2\" != \"2\"", true },
+          "2", "2", "\"2\" != \"2\" \\(2 != 2\\)", true },
         { H_CHECK_STREQ_MSG_HEAD_NAME(1_1),
           H_CHECK_STREQ_MSG_BODY_NAME(1_1),
-          "1", "1", "\"1\" != \"1\": 1 does not match 1", true },
+          "1", "1", "\"1\" != \"1\" \\(1 != 1\\): 1 does not match 1", true },
         { H_CHECK_STREQ_MSG_HEAD_NAME(1_2),
           H_CHECK_STREQ_MSG_BODY_NAME(1_2),
-          "1", "2", "\"1\" != \"2\": 1 does not match 2", false },
+          "1", "2", "\"1\" != \"2\" \\(1 != 2\\): 1 does not match 2", false },
         { H_CHECK_STREQ_MSG_HEAD_NAME(2_1),
           H_CHECK_STREQ_MSG_BODY_NAME(2_1),
-          "2", "1", "\"2\" != \"1\": 2 does not match 1", false },
+          "2", "1", "\"2\" != \"1\" \\(2 != 1\\): 2 does not match 1", false },
         { H_CHECK_STREQ_MSG_HEAD_NAME(2_2),
           H_CHECK_STREQ_MSG_BODY_NAME(2_2),
-          "2", "2", "\"2\" != \"2\": 2 does not match 2", true },
+          "2", "2", "\"2\" != \"2\" \\(2 != 2\\): 2 does not match 2", true },
+        { H_CHECK_STREQ_HEAD_NAME(vars), H_CHECK_STREQ_BODY_NAME(vars),
+          check_streq_var1, check_streq_var2,
+          "check_streq_var1 != check_streq_var2 \\("
+          CHECK_STREQ_VAR1 " != " CHECK_STREQ_VAR2 "\\)", false },
         { NULL, NULL, 0, 0, "", false }
     };
     do_check_eq_tests(tests);
