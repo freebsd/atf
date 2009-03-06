@@ -762,6 +762,86 @@ ATF_TC_BODY(require_streq, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Miscellaneous test cases covering several macros.
+ * --------------------------------------------------------------------- */
+
+static
+bool
+aux_bool(const char *fmt)
+{
+    return false;
+}
+
+static
+const char *
+aux_str(const char *fmt)
+{
+    return "foo";
+}
+
+H_CHECK(msg, aux_bool("%d"));
+H_REQUIRE(msg, aux_bool("%d"));
+H_CHECK_STREQ(msg, aux_str("%d"), "");
+H_REQUIRE_STREQ(msg, aux_str("%d"), "");
+
+ATF_TC(msg_embedded_fmt);
+ATF_TC_HEAD(msg_embedded_fmt, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests that format strings passed "
+                      "as part of the automatically-generated messages "
+                      "do not get expanded");
+}
+ATF_TC_BODY(msg_embedded_fmt, tc)
+{
+    struct test {
+        void (*head)(atf_tc_t *);
+        void (*body)(const atf_tc_t *);
+        bool fatal;
+        const char *msg;
+    } *t, tests[] = {
+       {  H_CHECK_HEAD_NAME(msg), H_CHECK_BODY_NAME(msg), false,
+          "aux_bool(\"%d\")" },
+       {  H_REQUIRE_HEAD_NAME(msg), H_REQUIRE_BODY_NAME(msg), true,
+          "aux_bool(\"%d\")" },
+       {  H_CHECK_STREQ_HEAD_NAME(msg), H_CHECK_STREQ_BODY_NAME(msg), false,
+          "aux_str(\"%d\") != \"\" (foo != )" },
+       {  H_REQUIRE_STREQ_HEAD_NAME(msg), H_REQUIRE_STREQ_BODY_NAME(msg), true,
+          "aux_str(\"%d\") != \"\" (foo != )" },
+       { NULL, NULL, false, NULL }
+    };
+
+    for (t = &tests[0]; t->head != NULL; t++) {
+        atf_map_t config;
+        atf_tc_t tcaux;
+        atf_tcr_t tcr;
+
+        init_config(&config);
+
+        printf("Checking with an expected '%s' message\n", t->msg);
+
+        RE(atf_tc_init(&tcaux, "h_check", t->head, t->body, NULL, &config));
+        run_as_child(&tcaux, &tcr);
+        atf_tc_fini(&tcaux);
+
+        ATF_CHECK(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
+        if (t->fatal) {
+            bool matched =
+                match_reason(&tcr, "t_macros.c:[0-9]+: "
+                             "Requirement failed: %s$", t->msg);
+            ATF_CHECK_MSG(matched, "couldn't find error string in result");
+        } else {
+            bool matched =
+                match_reason_in_file("error", "t_macros.c:[0-9]+: "
+                                     "Check failed: %s$", t->msg);
+            ATF_CHECK_MSG(matched, "couldn't find error string in output");
+        }
+
+        atf_tcr_fini(&tcr);
+        atf_map_fini(&config);
+    }
+}
+
+/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -774,6 +854,8 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, require);
     ATF_TP_ADD_TC(tp, require_eq);
     ATF_TP_ADD_TC(tp, require_streq);
+
+    ATF_TP_ADD_TC(tp, msg_embedded_fmt);
 
     return atf_no_error();
 }
