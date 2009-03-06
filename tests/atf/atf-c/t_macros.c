@@ -717,6 +717,11 @@ H_REQUIRE_STREQ_MSG(1_1, "1", "1", "1 does not match 1");
 H_REQUIRE_STREQ_MSG(1_2, "1", "2", "1 does not match 2");
 H_REQUIRE_STREQ_MSG(2_1, "2", "1", "2 does not match 1");
 H_REQUIRE_STREQ_MSG(2_2, "2", "2", "2 does not match 2");
+#define REQUIRE_STREQ_VAR1 "5"
+#define REQUIRE_STREQ_VAR2 "9"
+const const char *require_streq_var1 = REQUIRE_STREQ_VAR1;
+const const char *require_streq_var2 = REQUIRE_STREQ_VAR2;
+H_REQUIRE_STREQ(vars, require_streq_var1, require_streq_var2);
 
 ATF_TC(require_streq);
 ATF_TC_HEAD(require_streq, tc)
@@ -728,25 +733,29 @@ ATF_TC_BODY(require_streq, tc)
 {
     struct require_eq_test tests[] = {
         { H_REQUIRE_STREQ_HEAD_NAME(1_1), H_REQUIRE_STREQ_BODY_NAME(1_1),
-          "1", "1", "\"1\" != \"1\"", true },
+          "1", "1", "\"1\" != \"1\" \\(1 != 1\\)", true },
         { H_REQUIRE_STREQ_HEAD_NAME(1_2), H_REQUIRE_STREQ_BODY_NAME(1_2),
-          "1", "2", "\"1\" != \"2\"", false },
+          "1", "2", "\"1\" != \"2\" \\(1 != 2\\)", false },
         { H_REQUIRE_STREQ_HEAD_NAME(2_1), H_REQUIRE_STREQ_BODY_NAME(2_1),
-          "2", "1", "\"2\" != \"1\"", false },
+          "2", "1", "\"2\" != \"1\" \\(2 != 1\\)", false },
         { H_REQUIRE_STREQ_HEAD_NAME(2_2), H_REQUIRE_STREQ_BODY_NAME(2_2),
-          "2", "2", "\"2\" != \"2\"", true },
+          "2", "2", "\"2\" != \"2\" \\(2 != 2\\)", true },
         { H_REQUIRE_STREQ_MSG_HEAD_NAME(1_1),
           H_REQUIRE_STREQ_MSG_BODY_NAME(1_1),
-          "1", "1", "\"1\" != \"1\": 1 does not match 1", true },
+          "1", "1", "\"1\" != \"1\" \\(1 != 1\\): 1 does not match 1", true },
         { H_REQUIRE_STREQ_MSG_HEAD_NAME(1_2),
           H_REQUIRE_STREQ_MSG_BODY_NAME(1_2),
-          "1", "2", "\"1\" != \"2\": 1 does not match 2", false },
+          "1", "2", "\"1\" != \"2\" \\(1 != 2\\): 1 does not match 2", false },
         { H_REQUIRE_STREQ_MSG_HEAD_NAME(2_1),
           H_REQUIRE_STREQ_MSG_BODY_NAME(2_1),
-          "2", "1", "\"2\" != \"1\": 2 does not match 1", false },
+          "2", "1", "\"2\" != \"1\" \\(2 != 1\\): 2 does not match 1", false },
         { H_REQUIRE_STREQ_MSG_HEAD_NAME(2_2),
           H_REQUIRE_STREQ_MSG_BODY_NAME(2_2),
-          "2", "2", "\"2\" != \"2\": 2 does not match 2", true },
+          "2", "2", "\"2\" != \"2\" \\(2 != 2\\): 2 does not match 2", true },
+        { H_REQUIRE_STREQ_HEAD_NAME(vars), H_REQUIRE_STREQ_BODY_NAME(vars),
+          require_streq_var1, require_streq_var2,
+          "require_streq_var1 != require_streq_var2 \\("
+          REQUIRE_STREQ_VAR1 " != " REQUIRE_STREQ_VAR2 "\\)", false },
         { NULL, NULL, 0, 0, "", false }
     };
     do_require_eq_tests(tests);
