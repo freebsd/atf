@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -90,8 +90,17 @@ cleanup_files(const atf_check_result_t *r, int fdout, int fderr)
 }
 
 static
+int
+const_execvp(const char *file, const char *const *argv)
+{
+#define UNCONST(a) ((void *)(unsigned long)(const void *)(a))
+    return execvp(file, __UNCONST(argv));
+#undef UNCONST
+}
+
+static
 atf_error_t
-fork_and_wait(char *const *argv, int fdout, int fderr, int *estatus)
+fork_and_wait(const char *const *argv, int fdout, int fderr, int *estatus)
 {
     atf_error_t err;
     int status;
@@ -106,7 +115,7 @@ fork_and_wait(char *const *argv, int fdout, int fderr, int *estatus)
         /* XXX No error handling at all? */
         dup2(fdout, STDOUT_FILENO);
         dup2(fderr, STDERR_FILENO);
-        execvp(argv[0], argv);
+        const_execvp(argv[0], argv);
         fprintf(stderr, "execvp(%s) failed: %s", argv[0], strerror(errno));
         exit(127);
         UNREACHABLE;
@@ -199,7 +208,7 @@ atf_check_result_exitcode(const atf_check_result_t *r)
  * --------------------------------------------------------------------- */
 
 atf_error_t
-atf_check_exec(char *const *argv, atf_check_result_t *r)
+atf_check_exec(const char *const *argv, atf_check_result_t *r)
 {
     atf_error_t err;
     int fdout, fderr;

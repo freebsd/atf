@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,6 +60,6 @@ int atf_check_result_exitcode(const atf_check_result_t *);
  * Free functions.
  * --------------------------------------------------------------------- */
 
-atf_error_t atf_check_exec(char * const *, atf_check_result_t *);
+atf_error_t atf_check_exec(const char * const *, atf_check_result_t *);
 
 #endif /* ATF_C_CHECK_H */

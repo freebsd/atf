@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,16 +60,15 @@ void
 do_exec(const atf_tc_t *tc, const char *helper_name, atf_check_result_t *r)
 {
     char buf[1024];
-    char *argv[3];
+    const char *argv[3];
 
     get_helpers_path(tc, buf, sizeof(buf));
 
     argv[0] = buf;
-    argv[1] = strdup(helper_name);
+    argv[1] = helper_name;
     argv[2] = NULL;
     printf("Executing %s %s\n", argv[0], argv[1]);
     RE(atf_check_exec(argv, r));
-    free(argv[1]);
 }
 
 static
@@ -78,18 +77,16 @@ do_exec_with_arg(const atf_tc_t *tc, const char *helper_name, const char *arg,
                  atf_check_result_t *r)
 {
     char buf[1024];
-    char *argv[4];
+    const char *argv[4];
 
     get_helpers_path(tc, buf, sizeof(buf));
 
     argv[0] = buf;
-    argv[1] = strdup(helper_name);
-    argv[2] = strdup(arg);
+    argv[1] = helper_name;
+    argv[2] = arg;
     argv[3] = NULL;
     printf("Executing %s %s %s\n", argv[0], argv[1], argv[2]);
     RE(atf_check_exec(argv, r));
-    free(argv[2]);
-    free(argv[1]);
 }
 
 static
@@ -269,7 +266,7 @@ ATF_TC_BODY(exec_unknown, tc)
     snprintf(buf, sizeof(buf), "%s/non-existent",
              atf_config_get("atf_workdir"));
 
-    char *argv[2];
+    const char *argv[2];
     argv[0] = buf;
     argv[1] = NULL;
 
