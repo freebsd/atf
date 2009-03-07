@@ -12,8 +12,21 @@ are planned for specific future releases, but take this with a big grain
 of salt: the focus of a specific release may change completely depending
 on how things develop.
 
-
 Plans for 0.7
+=============
+
+* Add tests for build-time features such as checks for self-contained
+  header files or the lack of symbols in a library (by linking an empty
+  test program to it).
+
+* Add expected failures and unexpected passes as test case results?  The
+  former are used to indicate known failures at specific points and thus
+  not raise false positives when working on some unrelated feature.  The
+  latter are used to detect changes that fixed expected failures.  See
+  Monotone's test suite for an example.
+
+
+Plans for 0.8
 =============
 
 * Properly document the libraries: i.e. one page per module, detailed
@@ -36,14 +49,8 @@ Plans for 0.7
   user-space about the available test cases (a list) and allows user-space
   to launch the execution of test cases.
 
-* Add expected failures and unexpected passes as test case results?  The
-  former are used to indicate known failures at specific points and thus
-  not raise false positives when working on some unrelated feature.  The
-  latter are used to detect changes that fixed expected failures.  See
-  Monotone's test suite for an example.
 
-
-Plans for 0.8
+Plans for 0.9
 =============
 
 * Add a module to atf-c to manage dynamic memory.  Should provide a "mem
