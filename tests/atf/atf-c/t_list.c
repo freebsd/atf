@@ -199,6 +199,24 @@ ATF_TC_BODY(list_append_list, tc)
 
         atf_list_fini(&l1);
     }
+
+    {
+        atf_list_t l1, l2;
+        atf_list_citer_t end1, end2;
+
+        RE(atf_list_init(&l1));
+        RE(atf_list_init(&l2));
+
+        end1 = atf_list_end_c(&l1);
+        end2 = atf_list_end_c(&l2);
+        // XXX Shouldn't query m_entry here.
+        ATF_CHECK(end1.m_entry != end2.m_entry);
+
+        atf_list_append_list(&l1, &l2);
+        ATF_CHECK(atf_list_end_c(&l1).m_entry == end2.m_entry);
+
+        atf_list_fini(&l1);
+    }
 }
 
 /*

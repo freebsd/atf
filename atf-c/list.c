@@ -360,6 +360,7 @@ atf_list_append_list(atf_list_t *l, atf_list_t *src)
     e1->m_next = e2;
     e2->m_prev = e1;
 
+    l->m_end = src->m_end;
     l->m_size += src->m_size;
 
     atf_object_fini(&src->m_object);
