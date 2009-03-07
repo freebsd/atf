@@ -26,7 +26,7 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd May 5, 2009
+.Dd March 10, 2009
 .Dt ATF-CONFIG 1
 .Os
 .Sh NAME
@@ -122,6 +122,9 @@ This environment variable has the exact same name as the one shown by
 .Nm
 except that the name is all composed of uppercase letters.
 .Pp
+In general, empty values in the environment will be ignored unless
+otherwise noted below.
+.Pp
 The recognized environment variables are:
 .Bl -tag -width ATFXBUILDXCPPFLAGSXX
 .It Ev ATF_ARCH
@@ -133,18 +136,21 @@ Overrides the built-in value of
 .It Ev ATF_BUILD_CFLAGS
 Overrides the built-in value of
 .Va atf_build_cflags .
+Empty values are allowed.
 .It Ev ATF_BUILD_CPP
 Overrides the built-in value of
 .Va atf_build_cpp .
 .It Ev ATF_BUILD_CPPFLAGS
 Overrides the built-in value of
 .Va atf_build_cppflags .
+Empty values are allowed.
 .It Ev ATF_BUILD_CXX
 Overrides the built-in value of
 .Va atf_build_cxx .
 .It Ev ATF_BUILD_CXXFLAGS
 Overrides the built-in value of
 .Va atf_build_cxxflags .
+Empty values are allowed.
 .It Ev ATF_CONFDIR
 Overrides the built-in value of
 .Va atf_confdir .
