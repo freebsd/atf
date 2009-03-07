@@ -100,7 +100,9 @@ EXTRA_DIST += admin/revision-dist.h
 # -------------------------------------------------------------------------
 
 lib_LTLIBRARIES = libatf-c.la
-libatf_c_la_SOURCES = atf-c/check.c \
+libatf_c_la_SOURCES = atf-c/build.c \
+                      atf-c/build.h \
+                      atf-c/check.c \
                       atf-c/check.h \
                       atf-c/config.c \
                       atf-c/config.h \
@@ -153,7 +155,8 @@ kill-defs-h:
 	rm -f $(distdir)/atf-c/defs.h
 
 include_HEADERS = atf-c.h
-atf_c_HEADERS = atf-c/check.h \
+atf_c_HEADERS = atf-c/build.h \
+                atf-c/check.h \
                 atf-c/config.h \
                 atf-c/defs.h \
                 atf-c/dynstr.h \
@@ -435,6 +438,10 @@ EXTRA_DIST += tests/atf/atf-c/h_macros.h
 
 atf_atf_c_PROGRAMS = tests/atf/atf-c/h_check
 tests_atf_atf_c_h_check_SOURCES = tests/atf/atf-c/h_check.c
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_build
+tests_atf_atf_c_t_build_SOURCES = tests/atf/atf-c/t_build.c
+tests_atf_atf_c_t_build_LDADD = libatf-c.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_check
 tests_atf_atf_c_t_check_SOURCES = tests/atf/atf-c/t_check.c
