@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ class check_result {
     check_result(const atf_check_result_t* result);
 
     friend check_result test_constructor(void);
-    friend check_result exec(char* const*);
+    friend check_result exec(const char* const*);
 
 public:
     //!
@@ -98,7 +98,7 @@ public:
 // Free functions.
 // ------------------------------------------------------------------------
 
-check_result exec(char* const*);
+check_result exec(const char* const*);
 
 // Useful for testing only.
 check_result test_constructor(void);

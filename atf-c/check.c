@@ -35,11 +35,13 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "atf-c/build.h"
 #include "atf-c/check.h"
 #include "atf-c/config.h"
 #include "atf-c/dynstr.h"
 #include "atf-c/error.h"
 #include "atf-c/fs.h"
+#include "atf-c/list.h"
 #include "atf-c/process.h"
 #include "atf-c/sanity.h"
 
@@ -132,6 +134,33 @@ out:
     return err;
 }
 
+static
+atf_error_t
+list_to_array(const atf_list_t *l, const char ***ap)
+{
+    atf_error_t err;
+    const char **a;
+
+    a = (const char **)malloc(atf_list_size(l) * sizeof(const char *));
+    if (a == NULL)
+        err = atf_no_memory_error();
+    else {
+        const char **aiter;
+        atf_list_citer_t liter;
+
+        aiter = a;
+        atf_list_for_each_c(liter, l) {
+            *aiter = (const char *)atf_list_citer_data(liter);
+            aiter++;
+        }
+
+        err = atf_no_error();
+        *ap = a;
+    }
+
+    return err;
+}
+
 /* ---------------------------------------------------------------------
  * The "atf_check_result" type.
  * --------------------------------------------------------------------- */
@@ -208,7 +237,7 @@ atf_check_result_exitcode(const atf_check_result_t *r)
  * --------------------------------------------------------------------- */
 
 atf_error_t
-atf_check_exec(const char *const *argv, atf_check_result_t *r)
+atf_check_exec_array(const char *const *argv, atf_check_result_t *r)
 {
     atf_error_t err;
     int fdout, fderr;
@@ -232,6 +261,24 @@ err_files:
     cleanup_files(r, fdout, fderr);
 err_r:
     atf_check_result_fini(r);
+out:
+    return err;
+}
+
+atf_error_t
+atf_check_exec_list(const atf_list_t *argv, atf_check_result_t *r)
+{
+    atf_error_t err;
+    const char **argv2;
+
+    argv2 = NULL; /* Silence GCC warning. */
+    err = list_to_array(argv, &argv2);
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_check_exec_array(argv2, r);
+
+    free(argv2);
 out:
     return err;
 }

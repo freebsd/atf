@@ -32,6 +32,7 @@
 
 #include <atf-c/error_fwd.h>
 #include <atf-c/fs.h>
+#include <atf-c/list.h>
 #include <atf-c/object.h>
 
 /* ---------------------------------------------------------------------
@@ -60,6 +61,7 @@ int atf_check_result_exitcode(const atf_check_result_t *);
  * Free functions.
  * --------------------------------------------------------------------- */
 
-atf_error_t atf_check_exec(const char * const *, atf_check_result_t *);
+atf_error_t atf_check_exec_array(const char *const *, atf_check_result_t *);
+atf_error_t atf_check_exec_list(const atf_list_t *, atf_check_result_t *);
 
 #endif /* ATF_C_CHECK_H */

@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -88,11 +88,11 @@ impl::check_result::stderr_path(void)
 // ------------------------------------------------------------------------
 
 impl::check_result
-impl::exec(char* const* argv)
+impl::exec(const char* const* argv)
 {
     atf_check_result_t result;
 
-    atf_error_t err = atf_check_exec(argv, &result);
+    atf_error_t err = atf_check_exec_array(argv, &result);
     if (atf_is_error(err))
         throw_atf_error(err);
 

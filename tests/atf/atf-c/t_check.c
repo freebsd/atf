@@ -68,7 +68,7 @@ do_exec(const atf_tc_t *tc, const char *helper_name, atf_check_result_t *r)
     argv[1] = helper_name;
     argv[2] = NULL;
     printf("Executing %s %s\n", argv[0], argv[1]);
-    RE(atf_check_exec(argv, r));
+    RE(atf_check_exec_array(argv, r));
 }
 
 static
@@ -86,7 +86,7 @@ do_exec_with_arg(const atf_tc_t *tc, const char *helper_name, const char *arg,
     argv[2] = arg;
     argv[3] = NULL;
     printf("Executing %s %s %s\n", argv[0], argv[1], argv[2]);
-    RE(atf_check_exec(argv, r));
+    RE(atf_check_exec_array(argv, r));
 }
 
 static
@@ -97,7 +97,9 @@ check_line(int fd, const char *exp)
 
     atf_dynstr_init(&line);
     RE(atf_io_readline(fd, &line));
-    ATF_CHECK(atf_equal_dynstr_cstring(&line, exp));
+    ATF_CHECK_MSG(atf_equal_dynstr_cstring(&line, exp),
+                  "read: '%s', expected: '%s'",
+                  atf_dynstr_cstring(&line), exp);
     atf_dynstr_fini(&line);
 }
 
@@ -146,8 +148,8 @@ ATF_TC_BODY(result_templates, tc)
 ATF_TC(exec_cleanup);
 ATF_TC_HEAD(exec_cleanup, tc)
 {
-    atf_tc_set_md_var(tc, "descr", "Checks that atf_check_exec properly "
-                      "cleans up the temporary files it creates");
+    atf_tc_set_md_var(tc, "descr", "Checks that atf_check_exec_array "
+                      "properly cleans up the temporary files it creates");
 }
 ATF_TC_BODY(exec_cleanup, tc)
 {
@@ -169,8 +171,9 @@ ATF_TC_BODY(exec_cleanup, tc)
 ATF_TC(exec_exitstatus);
 ATF_TC_HEAD(exec_exitstatus, tc)
 {
-    atf_tc_set_md_var(tc, "descr", "Checks that atf_check_exec properly "
-                      "captures the exit status of the executed command");
+    atf_tc_set_md_var(tc, "descr", "Checks that atf_check_exec_array "
+                      "properly captures the exit status of the executed "
+                      "command");
 }
 ATF_TC_BODY(exec_exitstatus, tc)
 {
@@ -198,12 +201,49 @@ ATF_TC_BODY(exec_exitstatus, tc)
     }
 }
 
+ATF_TC(exec_list);
+ATF_TC_HEAD(exec_list, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Checks that atf_check_exec_list "
+                      "works properly; assumes that this method is "
+                      "backed by atf_check_exec_array, so the tests "
+                      "are not exhaustive");
+}
+ATF_TC_BODY(exec_list, tc)
+{
+    atf_list_t argv;
+    atf_check_result_t result;
+    char buf[1024];
+
+    RE(atf_list_init(&argv));
+
+    get_helpers_path(tc, buf, sizeof(buf));
+    atf_list_append(&argv, buf, false);
+    atf_list_append(&argv, strdup("echo"), false);
+    atf_list_append(&argv, strdup("test-message"), false);
+    RE(atf_check_exec_list(&argv, &result));
+    atf_list_fini(&argv);
+
+    ATF_CHECK(atf_check_result_exited(&result));
+    ATF_CHECK(atf_check_result_exitcode(&result) == EXIT_SUCCESS);
+
+    {
+        const atf_fs_path_t *path = atf_check_result_stdout(&result);
+        int fd = open(atf_fs_path_cstring(path), O_RDONLY);
+        ATF_CHECK(fd != -1);
+        check_line(fd, "test-message");
+        close(fd);
+    }
+
+    atf_check_result_fini(&result);
+}
+
 ATF_TC(exec_stdout_stderr);
 ATF_TC_HEAD(exec_stdout_stderr, tc)
 {
-    atf_tc_set_md_var(tc, "descr", "Checks that atf_check_exec properly "
-                      "captures the stdout and stderr streams of the "
-                      "child process");
+    atf_tc_set_md_var(tc, "descr", "Checks that atf_check_exec_array "
+                      "properly captures the stdout and stderr streams "
+                      "of the child process");
 }
 ATF_TC_BODY(exec_stdout_stderr, tc)
 {
@@ -271,7 +311,7 @@ ATF_TC_BODY(exec_unknown, tc)
     argv[1] = NULL;
 
     atf_check_result_t result;
-    RE(atf_check_exec(argv, &result));
+    RE(atf_check_exec_array(argv, &result));
     ATF_CHECK(atf_check_result_exited(&result));
     ATF_CHECK(atf_check_result_exitcode(&result) == 127);
     atf_check_result_fini(&result);
@@ -286,6 +326,7 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, result_templates);
     ATF_TP_ADD_TC(tp, exec_cleanup);
     ATF_TP_ADD_TC(tp, exec_exitstatus);
+    ATF_TP_ADD_TC(tp, exec_list);
     ATF_TP_ADD_TC(tp, exec_stdout_stderr);
     ATF_TP_ADD_TC(tp, exec_unknown);
 

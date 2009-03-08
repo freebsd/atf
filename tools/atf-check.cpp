@@ -76,7 +76,7 @@ flatten_argv(char* const* argv)
 
 static
 atf::check::check_result
-execute(char* const* argv)
+execute(const char* const* argv)
 {
     std::cout << "Executing command [ ";
     for (int i = 0; argv[i] != NULL; ++i)
@@ -90,17 +90,12 @@ static
 atf::check::check_result
 execute_with_shell(char* const* argv)
 {
-    atf::utils::auto_array< char > arg0
-        (atf::text::duplicate(atf::config::get("atf_shell").c_str()));
-    atf::utils::auto_array< char > arg1
-        (atf::text::duplicate("-c"));
-    atf::utils::auto_array< char > arg2
-        (atf::text::duplicate(flatten_argv(argv).c_str()));
+    const std::string cmd = flatten_argv(argv);
 
-    char* sh_argv[4];
-    sh_argv[0] = arg0.get();
-    sh_argv[1] = arg1.get();
-    sh_argv[2] = arg2.get();
+    const char* sh_argv[4];
+    sh_argv[0] = atf::config::get("atf_shell").c_str();
+    sh_argv[1] = "-c";
+    sh_argv[2] = cmd.c_str();
     sh_argv[3] = NULL;
     return execute(sh_argv);
 }
