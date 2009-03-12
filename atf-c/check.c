@@ -94,7 +94,7 @@ int
 const_execvp(const char *file, const char *const *argv)
 {
 #define UNCONST(a) ((void *)(unsigned long)(const void *)(a))
-    return execvp(file, __UNCONST(argv));
+    return execvp(file, UNCONST(argv));
 #undef UNCONST
 }
 
