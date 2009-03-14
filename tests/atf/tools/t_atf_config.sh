@@ -35,12 +35,14 @@ all_vars="atf_arch \
           atf_build_cxx \
           atf_build_cxxflags \
           atf_confdir \
+          atf_includedir \
+          atf_libdir \
           atf_libexecdir \
           atf_machine \
           atf_pkgdatadir \
           atf_shell \
           atf_workdir"
-all_vars_no=13
+all_vars_no=15
 
 atf_test_case list_all
 list_all_head()

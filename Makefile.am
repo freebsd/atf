@@ -44,6 +44,8 @@ AM_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
               "-DATF_BUILD_CXX=\"$(ATF_BUILD_CXX)\"" \
               "-DATF_BUILD_CXXFLAGS=\"$(ATF_BUILD_CXXFLAGS)\"" \
               "-DATF_CONFDIR=\"$(atf_confdir)\"" \
+              "-DATF_INCLUDEDIR=\"$(includedir)\"" \
+              "-DATF_LIBDIR=\"$(libdir)\"" \
               "-DATF_LIBEXECDIR=\"$(libexecdir)\"" \
               "-DATF_MACHINE=\"$(atf_machine)\"" \
               "-DATF_PKGDATADIR=\"$(pkgdatadir)\"" \
