@@ -1035,6 +1035,7 @@ check_LIBRARIES = tests/build/libuseless.a
 tests_build_libuseless_a_SOURCES = \
     tests/build/t_include_atf_c_h.cpp \
     tests/build/t_include_atf_c++_hpp.cpp \
+    tests/build/atf-c/t_include_build_h.c \
     tests/build/atf-c/t_include_check_h.c \
     tests/build/atf-c/t_include_config_h.c \
     tests/build/atf-c/t_include_dynstr_h.c \
