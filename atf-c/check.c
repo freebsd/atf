@@ -46,7 +46,7 @@
 #include "atf-c/sanity.h"
 
 /* Only needed for testing, so not in the public header. */
-atf_error_t atf_check_result_init(atf_check_result_t *);
+atf_error_t atf_check_result_init(atf_check_result_t *, const char *const *);
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -136,6 +136,34 @@ out:
 
 static
 atf_error_t
+array_to_list(const char *const *a, atf_list_t *l)
+{
+    atf_error_t err;
+
+    err = atf_list_init(l);
+    if (atf_is_error(err))
+        goto out;
+
+    while (*a != NULL) {
+        char *item = strdup(*a);
+        if (item == NULL) {
+            err = atf_no_memory_error();
+            goto out;
+        }
+
+        err = atf_list_append(l, item, true);
+        if (atf_is_error(err))
+            goto out;
+
+        a++;
+    }
+
+out:
+    return err;
+}
+
+static
+atf_error_t
 list_to_array(const atf_list_t *l, const char ***ap)
 {
     atf_error_t err;
@@ -166,7 +194,7 @@ list_to_array(const atf_list_t *l, const char ***ap)
  * --------------------------------------------------------------------- */
 
 atf_error_t
-atf_check_result_init(atf_check_result_t *r)
+atf_check_result_init(atf_check_result_t *r, const char *const *argv)
 {
     atf_error_t err;
     const char *workdir;
@@ -175,10 +203,14 @@ atf_check_result_init(atf_check_result_t *r)
 
     workdir = atf_config_get("atf_workdir");
 
+    err = array_to_list(argv, &r->m_argv);
+    if (atf_is_error(err))
+        goto out;
+
     err = atf_fs_path_init_fmt(&r->m_stdout, "%s/%s",
                                workdir, "stdout.XXXXXX");
     if (atf_is_error(err))
-        goto out;
+        goto err_argv;
 
     err = atf_fs_path_init_fmt(&r->m_stderr, "%s/%s",
                                workdir, "stderr.XXXXXX");
@@ -190,6 +222,8 @@ atf_check_result_init(atf_check_result_t *r)
 
 err_stdout:
     atf_fs_path_fini(&r->m_stdout);
+err_argv:
+    atf_list_fini(&r->m_argv);
 out:
     return err;
 }
@@ -203,7 +237,15 @@ atf_check_result_fini(atf_check_result_t *r)
     atf_fs_unlink(&r->m_stderr);
     atf_fs_path_fini(&r->m_stderr);
 
+    atf_list_fini(&r->m_argv);
+
     atf_object_fini(&r->m_object);
+}
+
+const atf_list_t *
+atf_check_result_argv(const atf_check_result_t *r)
+{
+    return &r->m_argv;
 }
 
 const atf_fs_path_t *
@@ -242,7 +284,7 @@ atf_check_exec_array(const char *const *argv, atf_check_result_t *r)
     atf_error_t err;
     int fdout, fderr;
 
-    err = atf_check_result_init(r);
+    err = atf_check_result_init(r, argv);
     if (atf_is_error(err))
         goto out;
 

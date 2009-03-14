@@ -36,6 +36,8 @@ extern "C" {
 #include "atf-c/check.h"
 }
 
+#include <vector>
+
 #include "atf-c++/fs.hpp"
 
 namespace atf {
@@ -59,12 +61,17 @@ class check_result {
     atf_check_result_t m_result;
 
     //!
+    //! \brief Copy of m_result.m_argv but in a C++ collection.
+    //!
+    std::vector< std::string > m_argv;
+
+    //!
     //! \brief Constructs a results object and grabs ownership of the
     //! parameter passed in.
     //!
     check_result(const atf_check_result_t* result);
 
-    friend check_result test_constructor(void);
+    friend check_result test_constructor(const char* const*);
     friend check_result exec(const char* const*);
 
 public:
@@ -72,6 +79,12 @@ public:
     //! \brief Destroys object and removes all managed files.
     //!
     ~check_result(void);
+
+    //!
+    //! \brief Returns the argument list used by the command that caused
+    //! this result.
+    //!
+    const std::vector< std::string >& argv(void) const;
 
     //!
     //! \brief Returns whether the command exited correctly or not.

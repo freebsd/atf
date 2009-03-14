@@ -42,7 +42,7 @@
 
 #include "h_macros.h"
 
-atf_error_t atf_check_result_init(atf_check_result_t *);
+atf_error_t atf_check_result_init(atf_check_result_t *, const char *const *);
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -107,6 +107,32 @@ check_line(int fd, const char *exp)
  * Test cases for the "atf_check_result" type.
  * --------------------------------------------------------------------- */
 
+ATF_TC(result_argv);
+ATF_TC_HEAD(result_argv, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests that atf_check_result contains "
+                      "a valid copy of argv");
+}
+ATF_TC_BODY(result_argv, tc)
+{
+    atf_check_result_t result;
+
+    const char *const expargv[] = {
+        "progname",
+        "arg1",
+        "arg2",
+        NULL
+    };
+
+    RE(atf_check_result_init(&result, expargv));
+
+    const atf_list_t *argv = atf_check_result_argv(&result);
+    ATF_REQUIRE_EQ(atf_list_size(argv), 3);
+    ATF_CHECK_STREQ((const char *)atf_list_index_c(argv, 0), "progname");
+    ATF_CHECK_STREQ((const char *)atf_list_index_c(argv, 1), "arg1");
+    ATF_CHECK_STREQ((const char *)atf_list_index_c(argv, 2), "arg2");
+}
+
 ATF_TC(result_templates);
 ATF_TC_HEAD(result_templates, tc)
 {
@@ -118,9 +144,10 @@ ATF_TC_BODY(result_templates, tc)
     atf_check_result_t result1, result2;
     const atf_fs_path_t *out1, *out2;
     const atf_fs_path_t *err1, *err2;
+    const char *const argv[] = { "fake", NULL };
 
-    RE(atf_check_result_init(&result1));
-    RE(atf_check_result_init(&result2));
+    RE(atf_check_result_init(&result1, argv));
+    RE(atf_check_result_init(&result2, argv));
 
     out1 = atf_check_result_stdout(&result1);
     out2 = atf_check_result_stdout(&result2);
@@ -144,6 +171,28 @@ ATF_TC_BODY(result_templates, tc)
 /* ---------------------------------------------------------------------
  * Test cases for the free functions.
  * --------------------------------------------------------------------- */
+
+ATF_TC(exec_argv);
+ATF_TC_HEAD(exec_argv, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Checks that atf_check_exec_array "
+                      "preserves the provided argv");
+}
+ATF_TC_BODY(exec_argv, tc)
+{
+    atf_check_result_t result;
+    char buf[1024];
+
+    get_helpers_path(tc, buf, sizeof(buf));
+    do_exec(tc, "exit-success", &result);
+
+    const atf_list_t *argv = atf_check_result_argv(&result);
+    ATF_REQUIRE_EQ(atf_list_size(argv), 2);
+    ATF_CHECK_STREQ((const char *)atf_list_index_c(argv, 0), buf);
+    ATF_CHECK_STREQ((const char *)atf_list_index_c(argv, 1), "exit-success");
+
+    atf_check_result_fini(&result);
+}
 
 ATF_TC(exec_cleanup);
 ATF_TC_HEAD(exec_cleanup, tc)
@@ -323,7 +372,12 @@ ATF_TC_BODY(exec_unknown, tc)
 
 ATF_TP_ADD_TCS(tp)
 {
+    /* Add the test cases for the "atf_check_result" type. */
+    ATF_TP_ADD_TC(tp, result_argv);
     ATF_TP_ADD_TC(tp, result_templates);
+
+    /* Add the test cases for the free functions. */
+    ATF_TP_ADD_TC(tp, exec_argv);
     ATF_TP_ADD_TC(tp, exec_cleanup);
     ATF_TP_ADD_TC(tp, exec_exitstatus);
     ATF_TP_ADD_TC(tp, exec_list);
