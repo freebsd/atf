@@ -30,21 +30,24 @@
 #include <sys/wait.h>
 
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+#include "atf-c/build.h"
 #include "atf-c/check.h"
 #include "atf-c/config.h"
 #include "atf-c/dynstr.h"
 #include "atf-c/error.h"
 #include "atf-c/fs.h"
+#include "atf-c/list.h"
 #include "atf-c/process.h"
 #include "atf-c/sanity.h"
 
 /* Only needed for testing, so not in the public header. */
-atf_error_t atf_check_result_init(atf_check_result_t *);
+atf_error_t atf_check_result_init(atf_check_result_t *, const char *const *);
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -132,12 +135,79 @@ out:
     return err;
 }
 
+static
+atf_error_t
+array_to_list(const char *const *a, atf_list_t *l)
+{
+    atf_error_t err;
+
+    err = atf_list_init(l);
+    if (atf_is_error(err))
+        goto out;
+
+    while (*a != NULL) {
+        char *item = strdup(*a);
+        if (item == NULL) {
+            err = atf_no_memory_error();
+            goto out;
+        }
+
+        err = atf_list_append(l, item, true);
+        if (atf_is_error(err))
+            goto out;
+
+        a++;
+    }
+
+out:
+    return err;
+}
+
+static
+atf_error_t
+list_to_array(const atf_list_t *l, const char ***ap)
+{
+    atf_error_t err;
+    const char **a;
+
+    a = (const char **)malloc(atf_list_size(l) * sizeof(const char *));
+    if (a == NULL)
+        err = atf_no_memory_error();
+    else {
+        const char **aiter;
+        atf_list_citer_t liter;
+
+        aiter = a;
+        atf_list_for_each_c(liter, l) {
+            *aiter = (const char *)atf_list_citer_data(liter);
+            aiter++;
+        }
+
+        err = atf_no_error();
+        *ap = a;
+    }
+
+    return err;
+}
+
+static
+void
+print_list(const atf_list_t *l, const char *pfx)
+{
+    atf_list_citer_t iter;
+
+    printf("%s", pfx);
+    atf_list_for_each_c(iter, l)
+        printf(" %s", (const char *)atf_list_citer_data(iter));
+    printf("\n");
+}
+
 /* ---------------------------------------------------------------------
  * The "atf_check_result" type.
  * --------------------------------------------------------------------- */
 
 atf_error_t
-atf_check_result_init(atf_check_result_t *r)
+atf_check_result_init(atf_check_result_t *r, const char *const *argv)
 {
     atf_error_t err;
     const char *workdir;
@@ -146,10 +216,14 @@ atf_check_result_init(atf_check_result_t *r)
 
     workdir = atf_config_get("atf_workdir");
 
+    err = array_to_list(argv, &r->m_argv);
+    if (atf_is_error(err))
+        goto out;
+
     err = atf_fs_path_init_fmt(&r->m_stdout, "%s/%s",
                                workdir, "stdout.XXXXXX");
     if (atf_is_error(err))
-        goto out;
+        goto err_argv;
 
     err = atf_fs_path_init_fmt(&r->m_stderr, "%s/%s",
                                workdir, "stderr.XXXXXX");
@@ -161,6 +235,8 @@ atf_check_result_init(atf_check_result_t *r)
 
 err_stdout:
     atf_fs_path_fini(&r->m_stdout);
+err_argv:
+    atf_list_fini(&r->m_argv);
 out:
     return err;
 }
@@ -174,7 +250,15 @@ atf_check_result_fini(atf_check_result_t *r)
     atf_fs_unlink(&r->m_stderr);
     atf_fs_path_fini(&r->m_stderr);
 
+    atf_list_fini(&r->m_argv);
+
     atf_object_fini(&r->m_object);
+}
+
+const atf_list_t *
+atf_check_result_argv(const atf_check_result_t *r)
+{
+    return &r->m_argv;
 }
 
 const atf_fs_path_t *
@@ -207,13 +291,62 @@ atf_check_result_exitcode(const atf_check_result_t *r)
  * Free functions.
  * --------------------------------------------------------------------- */
 
+/* XXX: This function shouldn't be in this module.  It messes with stdout
+ * and stderr, and it provides a very high-end interface.  This belongs,
+ * probably, somewhere related to test cases (such as in the tc module). */
 atf_error_t
-atf_check_exec(const char *const *argv, atf_check_result_t *r)
+atf_check_build_c_o(const char *sfile,
+                    const char *ofile,
+                    const char *const optargs[],
+                    bool *success)
+{
+    atf_error_t err;
+    atf_list_t argv;
+    const char **argva;
+    int status;
+
+    err = atf_build_c_o(sfile, ofile, optargs, &argv);
+    if (atf_is_error(err))
+        goto out;
+
+    print_list(&argv, ">");
+
+    err = list_to_array(&argv, &argva);
+    if (atf_is_error(err))
+        goto out_argv;
+
+    err = fork_and_wait(argva, STDOUT_FILENO, STDERR_FILENO, &status);
+    if (atf_is_error(err))
+        goto out_argva;
+
+    *success = WIFEXITED(status) && WEXITSTATUS(status) == EXIT_SUCCESS;
+
+    if (!WIFEXITED(status))
+        fprintf(stderr, "%s abnormally exited with status %d\n",
+                argva[0], status);
+    else if (WIFEXITED(status) && WEXITSTATUS(status) != EXIT_SUCCESS)
+        fprintf(stderr, "%s failed with exit code %d\n",
+                argva[0], WEXITSTATUS(status));
+    else
+        INV(*success);
+
+    err = atf_no_error();
+
+out_argva:
+    free(argva);
+out_argv:
+    atf_list_fini(&argv);
+out:
+    return err;
+}
+
+atf_error_t
+atf_check_exec_array(const char *const *argv, atf_check_result_t *r)
 {
     atf_error_t err;
     int fdout, fderr;
 
-    err = atf_check_result_init(r);
+    err = atf_check_result_init(r, argv);
     if (atf_is_error(err))
         goto out;
 
@@ -232,6 +365,24 @@ err_files:
     cleanup_files(r, fdout, fderr);
 err_r:
     atf_check_result_fini(r);
+out:
+    return err;
+}
+
+atf_error_t
+atf_check_exec_list(const atf_list_t *argv, atf_check_result_t *r)
+{
+    atf_error_t err;
+    const char **argv2;
+
+    argv2 = NULL; /* Silence GCC warning. */
+    err = list_to_array(argv, &argv2);
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_check_exec_array(argv2, r);
+
+    free(argv2);
 out:
     return err;
 }

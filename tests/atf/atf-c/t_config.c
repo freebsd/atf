@@ -35,7 +35,7 @@
 #include "atf-c/config.h"
 #include "atf-c/env.h"
 
-#include "h_macros.h"
+#include "h_lib.h"
 
 static const char *test_value = "env-value";
 
@@ -52,6 +52,8 @@ static struct varnames {
     { "atf_build_cxx",      "ATF_BUILD_CXX",      false },
     { "atf_build_cxxflags", "ATF_BUILD_CXXFLAGS", true  },
     { "atf_confdir",        "ATF_CONFDIR",        false },
+    { "atf_includedir",     "ATF_INCLUDEDIR",     false },
+    { "atf_libdir",         "ATF_LIBDIR",         false },
     { "atf_libexecdir",     "ATF_LIBEXECDIR",     false },
     { "atf_machine",        "ATF_MACHINE",        false },
     { "atf_pkgdatadir",     "ATF_PKGDATADIR",     false },
@@ -134,12 +136,21 @@ ATF_TC_BODY(get, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Tests cases for the header file.
+ * --------------------------------------------------------------------- */
+
+HEADER_TC(include, "atf-c/config.h", "d_include_config_h.c");
+
+/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
 ATF_TP_ADD_TCS(tp)
 {
     ATF_TP_ADD_TC(tp, get);
+
+    /* Add the test cases for the header file. */
+    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

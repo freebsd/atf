@@ -50,6 +50,8 @@ static struct varnames {
     { "atf_build_cxx",      "ATF_BUILD_CXX",      false },
     { "atf_build_cxxflags", "ATF_BUILD_CXXFLAGS", true  },
     { "atf_confdir",        "ATF_CONFDIR",        false },
+    { "atf_includedir",     "ATF_INCLUDEDIR",     false },
+    { "atf_libdir",         "ATF_LIBDIR",         false },
     { "atf_libexecdir",     "ATF_LIBEXECDIR",     false },
     { "atf_machine",        "ATF_MACHINE",        false },
     { "atf_pkgdatadir",     "ATF_PKGDATADIR",     false },

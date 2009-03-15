@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,11 +27,24 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if defined(TESTS_ATF_ATF_C_MACROS_H)
-#   error "Cannot include h_macros.h more than once."
-#else
-#   define TESTS_ATF_ATF_C_MACROS_H
-#endif
+#include <atf-c.h>
 
-#define CE(stm) ATF_CHECK(!atf_is_error(stm))
-#define RE(stm) ATF_REQUIRE(!atf_is_error(stm))
+#include "h_lib.h"
+
+/* ---------------------------------------------------------------------
+ * Tests cases for the header file.
+ * --------------------------------------------------------------------- */
+
+HEADER_TC(include, "atf-c.h", "d_include_atf_c_h.c");
+
+/* ---------------------------------------------------------------------
+ * Main.
+ * --------------------------------------------------------------------- */
+
+ATF_TP_ADD_TCS(tp)
+{
+    /* Add the test cases for the header file. */
+    ATF_TP_ADD_TC(tp, include);
+
+    return atf_no_error();
+}

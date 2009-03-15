@@ -33,7 +33,7 @@
 
 #include "atf-c/list.h"
 
-#include "h_macros.h"
+#include "h_lib.h"
 
 /* ---------------------------------------------------------------------
  * Tests for the "atf_list" type.
@@ -303,6 +303,12 @@ ATF_TC_BODY(list_for_each_c, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Tests cases for the header file.
+ * --------------------------------------------------------------------- */
+
+HEADER_TC(include, "atf-c/list.h", "d_include_list_h.c");
+
+/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -322,6 +328,9 @@ ATF_TP_ADD_TCS(tp)
     /* Macros. */
     ATF_TP_ADD_TC(tp, list_for_each);
     ATF_TP_ADD_TC(tp, list_for_each_c);
+
+    /* Add the test cases for the header file. */
+    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

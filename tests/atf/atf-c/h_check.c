@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+static
+int
+h_echo(const char *msg)
+{
+    printf("%s\n", msg);
+    return EXIT_SUCCESS;
+}
 
 static
 int
@@ -88,7 +96,10 @@ main(int argc, const char *const argv[])
 
     check_args(argc, argv, 2);
 
-    if (strcmp(argv[1], "exit-failure") == 0)
+    if (strcmp(argv[1], "echo") == 0) {
+        check_args(argc, argv, 3);
+        exitcode = h_echo(argv[2]);
+    } else if (strcmp(argv[1], "exit-failure") == 0)
         exitcode = h_exit_failure();
     else if (strcmp(argv[1], "exit-signal") == 0)
         exitcode = h_exit_signal();

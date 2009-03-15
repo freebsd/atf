@@ -52,6 +52,8 @@ static struct var {
     { "atf_build_cxx",      ATF_BUILD_CXX,      NULL, false, },
     { "atf_build_cxxflags", ATF_BUILD_CXXFLAGS, NULL, true,  },
     { "atf_confdir",        ATF_CONFDIR,        NULL, false, },
+    { "atf_includedir",     ATF_INCLUDEDIR,     NULL, false, },
+    { "atf_libdir",         ATF_LIBDIR,         NULL, false, },
     { "atf_libexecdir",     ATF_LIBEXECDIR,     NULL, false, },
     { "atf_machine",        ATF_MACHINE,        NULL, false, },
     { "atf_pkgdatadir",     ATF_PKGDATADIR,     NULL, false, },
