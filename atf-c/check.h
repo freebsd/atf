@@ -63,6 +63,9 @@ int atf_check_result_exitcode(const atf_check_result_t *);
  * Free functions.
  * --------------------------------------------------------------------- */
 
+atf_error_t atf_check_build_c_o(const char *, const char *,
+                                const char *const [],
+                                bool *);
 atf_error_t atf_check_exec_array(const char *const *, atf_check_result_t *);
 atf_error_t atf_check_exec_list(const atf_list_t *, atf_check_result_t *);
 

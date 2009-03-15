@@ -33,7 +33,7 @@
 
 #include "atf-c/list.h"
 
-#include "h_macros.h"
+#include "h_lib.h"
 
 /* ---------------------------------------------------------------------
  * Tests for the "atf_list" type.

@@ -31,7 +31,6 @@
 #include <sys/wait.h>
 
 #include <fcntl.h>
-#include <regex.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -47,7 +46,7 @@
 #include "atf-c/tcr.h"
 #include "atf-c/text.h"
 
-#include "h_macros.h"
+#include "h_lib.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -124,23 +123,7 @@ run_capture(const atf_tc_t *tc, const char *errname, atf_tcr_t *tcr)
 
 static
 bool
-match_reason_aux(const atf_dynstr_t *reason, const char *regex)
-{
-    int res;
-    regex_t preg;
-
-    printf("Looking for '%s' in '%s'\n", regex, atf_dynstr_cstring(reason));
-    ATF_REQUIRE(regcomp(&preg, regex, REG_EXTENDED) == 0);
-
-    res = regexec(&preg, atf_dynstr_cstring(reason), 0, NULL, 0);
-    ATF_REQUIRE(res == 0 || res == REG_NOMATCH);
-
-    return res == 0;
-}
-
-static
-bool
-match_reason(const atf_tcr_t *tcr, const char *regex, ...)
+grep_reason(const atf_tcr_t *tcr, const char *regex, ...)
 {
     va_list ap;
     atf_dynstr_t formatted;
@@ -149,42 +132,8 @@ match_reason(const atf_tcr_t *tcr, const char *regex, ...)
     RE(atf_dynstr_init_ap(&formatted, regex, ap));
     va_end(ap);
 
-    return match_reason_aux(atf_tcr_get_reason(tcr),
-                            atf_dynstr_cstring(&formatted));
-}
-
-static
-bool
-match_reason_in_file(const char *file, const char *regex, ...)
-{
-    bool done, found;
-    int fd;
-    va_list ap;
-    atf_dynstr_t formatted;
-
-    va_start(ap, regex);
-    RE(atf_dynstr_init_ap(&formatted, regex, ap));
-    va_end(ap);
-
-    done = false;
-    found = false;
-    ATF_REQUIRE((fd = open(file, O_RDONLY)) != -1);
-    do {
-        atf_error_t err;
-        atf_dynstr_t line;
-
-        RE(atf_dynstr_init(&line));
-
-        err = atf_io_readline(fd, &line);
-        if (!atf_is_error(err))
-            found = match_reason_aux(&line, atf_dynstr_cstring(&formatted));
-        done = atf_is_error(err) || atf_dynstr_length(&line) == 0;
-
-        atf_dynstr_fini(&line);
-    } while (!found && !done);
-    close(fd);
-
-    return found;
+    return grep_string(atf_tcr_get_reason(tcr),
+                       atf_dynstr_cstring(&formatted));
 }
 
 /* ---------------------------------------------------------------------
@@ -326,8 +275,8 @@ ATF_TC_BODY(check, tc)
             ATF_REQUIRE(atf_tcr_get_state(&tcr) == atf_tcr_passed_state);
         } else {
             ATF_REQUIRE(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
-            ATF_REQUIRE(match_reason_in_file("error", "t_macros.c:[0-9]+: "
-                                             "Check failed: %s$", t->msg));
+            ATF_REQUIRE(grep_file("error", "t_macros.c:[0-9]+: "
+                                  "Check failed: %s$", t->msg));
         }
 
         atf_tcr_fini(&tcr);
@@ -378,8 +327,8 @@ do_check_eq_tests(const struct check_eq_test *tests)
             ATF_CHECK(atf_tcr_get_state(&tcr) == atf_tcr_passed_state);
         } else {
             ATF_CHECK(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
-            ATF_CHECK(match_reason_in_file("error", "t_macros.c:[0-9]+: "
-                                           "Check failed: %s$", t->msg));
+            ATF_CHECK(grep_file("error", "t_macros.c:[0-9]+: "
+                                "Check failed: %s$", t->msg));
         }
 
         atf_tcr_fini(&tcr);
@@ -536,8 +485,8 @@ ATF_TC_BODY(require, tc)
         } else {
             ATF_REQUIRE(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
             ATF_REQUIRE(!exists("after"));
-            ATF_REQUIRE(match_reason(&tcr, "t_macros.c:[0-9]+: Requirement "
-                                     "failed: %s$", t->msg));
+            ATF_REQUIRE(grep_reason(&tcr, "t_macros.c:[0-9]+: Requirement "
+                                    "failed: %s$", t->msg));
         }
 
         atf_tcr_fini(&tcr);
@@ -589,8 +538,8 @@ do_require_eq_tests(const struct require_eq_test *tests)
         } else {
             ATF_REQUIRE(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
             ATF_REQUIRE(!exists("after"));
-            ATF_REQUIRE(match_reason(&tcr, "t_macros.c:[0-9]+: Requirement "
-                                     "failed: %s$", t->msg));
+            ATF_REQUIRE(grep_reason(&tcr, "t_macros.c:[0-9]+: Requirement "
+                                    "failed: %s$", t->msg));
         }
 
         atf_tcr_fini(&tcr);
@@ -758,13 +707,13 @@ ATF_TC_BODY(msg_embedded_fmt, tc)
         ATF_CHECK(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
         if (t->fatal) {
             bool matched =
-                match_reason(&tcr, "t_macros.c:[0-9]+: "
-                             "Requirement failed: %s$", t->msg);
+                grep_reason(&tcr, "t_macros.c:[0-9]+: "
+                            "Requirement failed: %s$", t->msg);
             ATF_CHECK_MSG(matched, "couldn't find error string in result");
         } else {
             bool matched =
-                match_reason_in_file("error", "t_macros.c:[0-9]+: "
-                                     "Check failed: %s$", t->msg);
+                grep_file("error", "t_macros.c:[0-9]+: "
+                          "Check failed: %s$", t->msg);
             ATF_CHECK_MSG(matched, "couldn't find error string in output");
         }
 

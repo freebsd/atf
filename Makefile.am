@@ -436,90 +436,92 @@ atf_atf_c_DATA = tests/atf/atf-c/Atffile
 atf_atf_cdir = $(pkgtestsdir)/atf-c
 EXTRA_DIST += $(atf_atf_c_DATA)
 
-EXTRA_DIST += tests/atf/atf-c/h_macros.h
+noinst_LTLIBRARIES = tests/atf/atf-c/libh.la
+tests_atf_atf_c_libh_la_SOURCES = tests/atf/atf-c/h_lib.c \
+                                  tests/atf/atf-c/h_lib.h
 
 atf_atf_c_PROGRAMS = tests/atf/atf-c/h_check
 tests_atf_atf_c_h_check_SOURCES = tests/atf/atf-c/h_check.c
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_build
 tests_atf_atf_c_t_build_SOURCES = tests/atf/atf-c/t_build.c
-tests_atf_atf_c_t_build_LDADD = libatf-c.la
+tests_atf_atf_c_t_build_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_check
 tests_atf_atf_c_t_check_SOURCES = tests/atf/atf-c/t_check.c
-tests_atf_atf_c_t_check_LDADD = libatf-c.la
+tests_atf_atf_c_t_check_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_config
 tests_atf_atf_c_t_config_SOURCES = tests/atf/atf-c/t_config.c
-tests_atf_atf_c_t_config_LDADD = libatf-c.la
+tests_atf_atf_c_t_config_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_dynstr
 tests_atf_atf_c_t_dynstr_SOURCES = tests/atf/atf-c/t_dynstr.c
-tests_atf_atf_c_t_dynstr_LDADD = libatf-c.la
+tests_atf_atf_c_t_dynstr_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_env
 tests_atf_atf_c_t_env_SOURCES = tests/atf/atf-c/t_env.c
-tests_atf_atf_c_t_env_LDADD = libatf-c.la
+tests_atf_atf_c_t_env_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_error
 tests_atf_atf_c_t_error_SOURCES = tests/atf/atf-c/t_error.c
-tests_atf_atf_c_t_error_LDADD = libatf-c.la
+tests_atf_atf_c_t_error_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_expand
 tests_atf_atf_c_t_expand_SOURCES = tests/atf/atf-c/t_expand.c
-tests_atf_atf_c_t_expand_LDADD = libatf-c.la
+tests_atf_atf_c_t_expand_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_fs
 tests_atf_atf_c_t_fs_SOURCES = tests/atf/atf-c/t_fs.c
-tests_atf_atf_c_t_fs_LDADD = libatf-c.la
+tests_atf_atf_c_t_fs_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_io
 tests_atf_atf_c_t_io_SOURCES = tests/atf/atf-c/t_io.c
-tests_atf_atf_c_t_io_LDADD = libatf-c.la
+tests_atf_atf_c_t_io_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_list
 tests_atf_atf_c_t_list_SOURCES = tests/atf/atf-c/t_list.c
-tests_atf_atf_c_t_list_LDADD = libatf-c.la
+tests_atf_atf_c_t_list_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_macros
 tests_atf_atf_c_t_macros_SOURCES = tests/atf/atf-c/t_macros.c
-tests_atf_atf_c_t_macros_LDADD = libatf-c.la
+tests_atf_atf_c_t_macros_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_map
 tests_atf_atf_c_t_map_SOURCES = tests/atf/atf-c/t_map.c
-tests_atf_atf_c_t_map_LDADD = libatf-c.la
+tests_atf_atf_c_t_map_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_process
 tests_atf_atf_c_t_process_SOURCES = tests/atf/atf-c/t_process.c
-tests_atf_atf_c_t_process_LDADD = libatf-c.la
+tests_atf_atf_c_t_process_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_signals
 tests_atf_atf_c_t_signals_SOURCES = tests/atf/atf-c/t_signals.c
-tests_atf_atf_c_t_signals_LDADD = libatf-c.la
+tests_atf_atf_c_t_signals_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_tc
 tests_atf_atf_c_t_tc_SOURCES = tests/atf/atf-c/t_tc.c
-tests_atf_atf_c_t_tc_LDADD = libatf-c.la
+tests_atf_atf_c_t_tc_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_tcr
 tests_atf_atf_c_t_tcr_SOURCES = tests/atf/atf-c/t_tcr.c
-tests_atf_atf_c_t_tcr_LDADD = libatf-c.la
+tests_atf_atf_c_t_tcr_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_sanity
 tests_atf_atf_c_t_sanity_SOURCES = tests/atf/atf-c/t_sanity.c
-tests_atf_atf_c_t_sanity_LDADD = libatf-c.la
+tests_atf_atf_c_t_sanity_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_text
 tests_atf_atf_c_t_text_SOURCES = tests/atf/atf-c/t_text.c
-tests_atf_atf_c_t_text_LDADD = libatf-c.la
+tests_atf_atf_c_t_text_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_ui
 tests_atf_atf_c_t_ui_SOURCES = tests/atf/atf-c/t_ui.c
-tests_atf_atf_c_t_ui_LDADD = libatf-c.la
+tests_atf_atf_c_t_ui_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_user
 tests_atf_atf_c_t_user_SOURCES = tests/atf/atf-c/t_user.c
-tests_atf_atf_c_t_user_LDADD = libatf-c.la
+tests_atf_atf_c_t_user_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c___DATA = tests/atf/atf-c++/Atffile
 atf_atf_c__dir = $(pkgtestsdir)/atf-c++
@@ -944,7 +946,7 @@ tests/atf/test_programs/t_workdir: \
 
 atf_test_programs_PROGRAMS = tests/atf/test_programs/h_c
 tests_atf_test_programs_h_c_SOURCES = tests/atf/test_programs/h_c.c
-tests_atf_test_programs_h_c_LDADD = libatf-c.la
+tests_atf_test_programs_h_c_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_test_programs_PROGRAMS += tests/atf/test_programs/h_cpp
 tests_atf_test_programs_h_cpp_SOURCES = tests/atf/test_programs/h_cpp.cpp

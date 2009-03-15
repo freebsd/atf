@@ -31,7 +31,7 @@
 
 #include "atf-c/expand.h"
 
-#include "h_macros.h"
+#include "h_lib.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

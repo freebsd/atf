@@ -30,6 +30,7 @@
 #include <sys/wait.h>
 
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -189,6 +190,18 @@ list_to_array(const atf_list_t *l, const char ***ap)
     return err;
 }
 
+static
+void
+print_list(const atf_list_t *l, const char *pfx)
+{
+    atf_list_citer_t iter;
+
+    printf("%s", pfx);
+    atf_list_for_each_c(iter, l)
+        printf(" %s", (const char *)atf_list_citer_data(iter));
+    printf("\n");
+}
+
 /* ---------------------------------------------------------------------
  * The "atf_check_result" type.
  * --------------------------------------------------------------------- */
@@ -277,6 +290,55 @@ atf_check_result_exitcode(const atf_check_result_t *r)
 /* ---------------------------------------------------------------------
  * Free functions.
  * --------------------------------------------------------------------- */
+
+/* XXX: This function shouldn't be in this module.  It messes with stdout
+ * and stderr, and it provides a very high-end interface.  This belongs,
+ * probably, somewhere related to test cases (such as in the tc module). */
+atf_error_t
+atf_check_build_c_o(const char *sfile,
+                    const char *ofile,
+                    const char *const optargs[],
+                    bool *success)
+{
+    atf_error_t err;
+    atf_list_t argv;
+    const char **argva;
+    int status;
+
+    err = atf_build_c_o(sfile, ofile, optargs, &argv);
+    if (atf_is_error(err))
+        goto out;
+
+    print_list(&argv, ">");
+
+    err = list_to_array(&argv, &argva);
+    if (atf_is_error(err))
+        goto out_argv;
+
+    err = fork_and_wait(argva, STDOUT_FILENO, STDERR_FILENO, &status);
+    if (atf_is_error(err))
+        goto out_argva;
+
+    *success = WIFEXITED(status) && WEXITSTATUS(status) == EXIT_SUCCESS;
+
+    if (!WIFEXITED(status))
+        fprintf(stderr, "%s abnormally exited with status %d\n",
+                argva[0], status);
+    else if (WIFEXITED(status) && WEXITSTATUS(status) != EXIT_SUCCESS)
+        fprintf(stderr, "%s failed with exit code %d\n",
+                argva[0], WEXITSTATUS(status));
+    else
+        INV(*success);
+
+    err = atf_no_error();
+
+out_argva:
+    free(argva);
+out_argv:
+    atf_list_fini(&argv);
+out:
+    return err;
+}
 
 atf_error_t
 atf_check_exec_array(const char *const *argv, atf_check_result_t *r)

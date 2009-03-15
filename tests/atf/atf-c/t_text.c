@@ -36,7 +36,7 @@
 #include "atf-c/sanity.h"
 #include "atf-c/text.h"
 
-#include "h_macros.h"
+#include "h_lib.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

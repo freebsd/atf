@@ -34,7 +34,7 @@
 
 #include "atf-c/tcr.h"
 
-#include "h_macros.h"
+#include "h_lib.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary test cases.

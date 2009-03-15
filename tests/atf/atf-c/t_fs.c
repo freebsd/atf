@@ -42,7 +42,7 @@
 #include "atf-c/fs.h"
 #include "atf-c/user.h"
 
-#include "h_macros.h"
+#include "h_lib.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

@@ -41,7 +41,7 @@
 #include "atf-c/process.h"
 #include "atf-c/signals.h"
 
-#include "h_macros.h"
+#include "h_lib.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

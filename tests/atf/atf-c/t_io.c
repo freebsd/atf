@@ -39,7 +39,7 @@
 #include "atf-c/dynstr.h"
 #include "atf-c/io.h"
 
-#include "h_macros.h"
+#include "h_lib.h"
 
 /* ---------------------------------------------------------------------
  * Test cases for the free functions.

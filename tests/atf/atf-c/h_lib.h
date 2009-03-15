@@ -27,11 +27,20 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if defined(TESTS_ATF_ATF_C_MACROS_H)
-#   error "Cannot include h_macros.h more than once."
+#if defined(TESTS_ATF_ATF_C_H_LIB_H)
+#   error "Cannot include h_lib.h more than once."
 #else
-#   define TESTS_ATF_ATF_C_MACROS_H
+#   define TESTS_ATF_ATF_C_H_LIB_H
 #endif
+
+#include <stdbool.h>
+
+#include "atf-c/error_fwd.h"
+
+struct atf_dynstr;
 
 #define CE(stm) ATF_CHECK(!atf_is_error(stm))
 #define RE(stm) ATF_REQUIRE(!atf_is_error(stm))
+
+bool grep_string(const struct atf_dynstr *, const char *);
+bool grep_file(const char *, const char *, ...);

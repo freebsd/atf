@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,45 +27,62 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <atf-c.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <regex.h>
+#include <unistd.h>
 
-#include "atf-c/process.h"
+#include "atf-c/dynstr.h"
+#include "atf-c/error.h"
+#include "atf-c/io.h"
+#include "atf-c/macros.h"
 
 #include "h_lib.h"
 
-/* ---------------------------------------------------------------------
- * Test cases for the free functions.
- * --------------------------------------------------------------------- */
+bool
+grep_string(const atf_dynstr_t *str, const char *regex)
+{
+    int res;
+    regex_t preg;
 
-ATF_TC(fork);
-ATF_TC_HEAD(fork, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Tests the atf_process_fork function");
-}
-ATF_TC_BODY(fork, tc)
-{
-    atf_tc_skip("Unimplemented test case; process API not yet decided");
-}
+    printf("Looking for '%s' in '%s'\n", regex, atf_dynstr_cstring(str));
+    ATF_REQUIRE(regcomp(&preg, regex, REG_EXTENDED) == 0);
 
-ATF_TC(system);
-ATF_TC_HEAD(system, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Tests the atf_process_system function");
-}
-ATF_TC_BODY(system, tc)
-{
-    atf_tc_skip("Unimplemented test case; process API not yet decided");
+    res = regexec(&preg, atf_dynstr_cstring(str), 0, NULL, 0);
+    ATF_REQUIRE(res == 0 || res == REG_NOMATCH);
+
+    return res == 0;
 }
 
-/* ---------------------------------------------------------------------
- * Main.
- * --------------------------------------------------------------------- */
-
-ATF_TP_ADD_TCS(tp)
+bool
+grep_file(const char *file, const char *regex, ...)
 {
-    /* Add the tests for the free functions. */
-    ATF_TP_ADD_TC(tp, fork);
-    ATF_TP_ADD_TC(tp, system);
+    bool done, found;
+    int fd;
+    va_list ap;
+    atf_dynstr_t formatted;
 
-    return atf_no_error();
+    va_start(ap, regex);
+    RE(atf_dynstr_init_ap(&formatted, regex, ap));
+    va_end(ap);
+
+    done = false;
+    found = false;
+    ATF_REQUIRE((fd = open(file, O_RDONLY)) != -1);
+    do {
+        atf_error_t err;
+        atf_dynstr_t line;
+
+        RE(atf_dynstr_init(&line));
+
+        err = atf_io_readline(fd, &line);
+        if (!atf_is_error(err))
+            found = grep_string(&line, atf_dynstr_cstring(&formatted));
+        done = atf_is_error(err) || atf_dynstr_length(&line) == 0;
+
+        atf_dynstr_fini(&line);
+    } while (!found && !done);
+    close(fd);
+
+    return found;
 }

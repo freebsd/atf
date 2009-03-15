@@ -47,7 +47,7 @@
 #include "atf-c/process.h"
 #include "atf-c/sanity.h"
 
-#include "h_macros.h"
+#include "h_lib.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
