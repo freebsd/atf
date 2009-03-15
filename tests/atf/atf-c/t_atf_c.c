@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,38 +27,24 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if defined(TESTS_ATF_ATF_C_H_LIB_H)
-#   error "Cannot include h_lib.h more than once."
-#else
-#   define TESTS_ATF_ATF_C_H_LIB_H
-#endif
+#include <atf-c.h>
 
-#include <stdbool.h>
+#include "h_lib.h"
 
-#include "atf-c/error_fwd.h"
+/* ---------------------------------------------------------------------
+ * Tests cases for the header file.
+ * --------------------------------------------------------------------- */
 
-struct atf_dynstr;
+HEADER_TC(include, "atf-c.h", "d_include_atf_c_h.c");
 
-#define CE(stm) ATF_CHECK(!atf_is_error(stm))
-#define RE(stm) ATF_REQUIRE(!atf_is_error(stm))
+/* ---------------------------------------------------------------------
+ * Main.
+ * --------------------------------------------------------------------- */
 
-#define HEADER_TC(name, hdrname, sfile) \
-    BUILD_TC(name, sfile, \
-             "Tests that the " hdrname " file can be included on " \
-             "its own, without any prerequisites", \
-             "Build of " sfile " failed; " hdrname " is not self-contained");
+ATF_TP_ADD_TCS(tp)
+{
+    /* Add the test cases for the header file. */
+    ATF_TP_ADD_TC(tp, include);
 
-#define BUILD_TC(name, sfile, descr, failmsg) \
-    ATF_TC(name); \
-    ATF_TC_HEAD(name, tc) \
-    { \
-        atf_tc_set_md_var(tc, "descr", descr); \
-    } \
-    ATF_TC_BODY(name, tc) \
-    { \
-        build_check_c_o(tc, sfile, failmsg); \
-    }
-
-void build_check_c_o(const atf_tc_t *, const char *, const char *);
-bool grep_string(const struct atf_dynstr *, const char *);
-bool grep_file(const char *, const char *, ...);
+    return atf_no_error();
+}

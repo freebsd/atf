@@ -432,7 +432,32 @@ CLEANFILES += installcheck.log
 pkgtests_DATA = tests/atf/Atffile
 EXTRA_DIST += $(pkgtests_DATA)
 
-atf_atf_c_DATA = tests/atf/atf-c/Atffile
+atf_atf_c_DATA = tests/atf/atf-c/Atffile \
+                 tests/atf/atf-c/d_include_atf_c_h.c \
+                 tests/atf/atf-c/d_include_build_h.c \
+                 tests/atf/atf-c/d_include_check_h.c \
+                 tests/atf/atf-c/d_include_config_h.c \
+                 tests/atf/atf-c/d_include_dynstr_h.c \
+                 tests/atf/atf-c/d_include_env_h.c \
+                 tests/atf/atf-c/d_include_error_fwd_h.c \
+                 tests/atf/atf-c/d_include_error_h.c \
+                 tests/atf/atf-c/d_include_expand_h.c \
+                 tests/atf/atf-c/d_include_fs_h.c \
+                 tests/atf/atf-c/d_include_io_h.c \
+                 tests/atf/atf-c/d_include_list_h.c \
+                 tests/atf/atf-c/d_include_macros_h.c \
+                 tests/atf/atf-c/d_include_map_h.c \
+                 tests/atf/atf-c/d_include_object_h.c \
+                 tests/atf/atf-c/d_include_process_h.c \
+                 tests/atf/atf-c/d_include_sanity_h.c \
+                 tests/atf/atf-c/d_include_signals_h.c \
+                 tests/atf/atf-c/d_include_tc_h.c \
+                 tests/atf/atf-c/d_include_tcr_h.c \
+                 tests/atf/atf-c/d_include_text_h.c \
+                 tests/atf/atf-c/d_include_tp_h.c \
+                 tests/atf/atf-c/d_include_ui_h.c \
+                 tests/atf/atf-c/d_include_user_h.c \
+                 tests/atf/atf-c/d_use_macros_h.c
 atf_atf_cdir = $(pkgtestsdir)/atf-c
 EXTRA_DIST += $(atf_atf_c_DATA)
 
@@ -442,6 +467,10 @@ tests_atf_atf_c_libh_la_SOURCES = tests/atf/atf-c/h_lib.c \
 
 atf_atf_c_PROGRAMS = tests/atf/atf-c/h_check
 tests_atf_atf_c_h_check_SOURCES = tests/atf/atf-c/h_check.c
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_atf_c
+tests_atf_atf_c_t_atf_c_SOURCES = tests/atf/atf-c/t_atf_c.c
+tests_atf_atf_c_t_atf_c_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_build
 tests_atf_atf_c_t_build_SOURCES = tests/atf/atf-c/t_build.c
@@ -1037,31 +1066,7 @@ tests/atf/tools/t_atf_run: $(srcdir)/tests/atf/tools/t_atf_run.sh \
 check_LIBRARIES = tests/build/libuseless.a
 
 tests_build_libuseless_a_SOURCES = \
-    tests/build/t_include_atf_c_h.cpp \
     tests/build/t_include_atf_c++_hpp.cpp \
-    tests/build/atf-c/t_include_build_h.c \
-    tests/build/atf-c/t_include_check_h.c \
-    tests/build/atf-c/t_include_config_h.c \
-    tests/build/atf-c/t_include_dynstr_h.c \
-    tests/build/atf-c/t_include_env_h.c \
-    tests/build/atf-c/t_include_error_h.c \
-    tests/build/atf-c/t_include_error_fwd_h.c \
-    tests/build/atf-c/t_include_expand_h.c \
-    tests/build/atf-c/t_include_fs_h.c \
-    tests/build/atf-c/t_include_io_h.c \
-    tests/build/atf-c/t_include_list_h.c \
-    tests/build/atf-c/t_include_macros_h.c \
-    tests/build/atf-c/t_include_map_h.c \
-    tests/build/atf-c/t_include_object_h.c \
-    tests/build/atf-c/t_include_process_h.c \
-    tests/build/atf-c/t_include_sanity_h.c \
-    tests/build/atf-c/t_include_signals_h.c \
-    tests/build/atf-c/t_include_tc_h.c \
-    tests/build/atf-c/t_include_tcr_h.c \
-    tests/build/atf-c/t_include_text_h.c \
-    tests/build/atf-c/t_include_tp_h.c \
-    tests/build/atf-c/t_include_ui_h.c \
-    tests/build/atf-c/t_use_macros_h.c \
     tests/build/atf-c++/t_include_application_hpp.cpp \
     tests/build/atf-c++/t_include_atffile_hpp.cpp \
     tests/build/atf-c++/t_include_check_hpp.cpp \

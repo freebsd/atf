@@ -29,15 +29,43 @@
 
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <regex.h>
 #include <unistd.h>
 
+#include "atf-c/build.h"
+#include "atf-c/check.h"
+#include "atf-c/config.h"
 #include "atf-c/dynstr.h"
 #include "atf-c/error.h"
 #include "atf-c/io.h"
 #include "atf-c/macros.h"
 
 #include "h_lib.h"
+
+void
+build_check_c_o(const atf_tc_t *tc, const char *sfile, const char *failmsg)
+{
+    bool success;
+    atf_fs_path_t path;
+    atf_dynstr_t iflag;
+    const char *optargs[2];
+
+    RE(atf_dynstr_init_fmt(&iflag, "-I%s", atf_config_get("atf_includedir")));
+
+    optargs[0] = atf_dynstr_cstring(&iflag);
+    optargs[1] = NULL;
+
+    RE(atf_fs_path_init_fmt(&path, "%s/%s",
+                            atf_tc_get_config_var(tc, "srcdir"), sfile));
+
+    RE(atf_check_build_c_o(atf_fs_path_cstring(&path), "test.o", optargs, &success));
+    if (!success)
+        atf_tc_fail(failmsg);
+
+    atf_fs_path_fini(&path);
+    atf_dynstr_fini(&iflag);
+}
 
 bool
 grep_string(const atf_dynstr_t *str, const char *regex)

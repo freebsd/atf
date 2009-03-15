@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,8 @@
 #include <atf-c.h>
 
 #include "atf-c/error.h"
+
+#include "h_lib.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -246,6 +248,13 @@ ATF_TC_BODY(no_memory_format, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Tests cases for the header file.
+ * --------------------------------------------------------------------- */
+
+HEADER_TC(include, "atf-c/error.h", "d_include_error_h.c");
+HEADER_TC(include_fwd, "atf-c/error_fwd.h", "d_include_error_fwd_h.c");
+
+/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -265,6 +274,10 @@ ATF_TP_ADD_TCS(tp)
     /* Add the tests for the "no_memory" error. */
     ATF_TP_ADD_TC(tp, no_memory_new);
     ATF_TP_ADD_TC(tp, no_memory_format);
+
+    /* Add the test cases for the header file. */
+    ATF_TP_ADD_TC(tp, include);
+    ATF_TP_ADD_TC(tp, include_fwd);
 
     return atf_no_error();
 }

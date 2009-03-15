@@ -136,12 +136,21 @@ ATF_TC_BODY(get, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Tests cases for the header file.
+ * --------------------------------------------------------------------- */
+
+HEADER_TC(include, "atf-c/config.h", "d_include_config_h.c");
+
+/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
 ATF_TP_ADD_TCS(tp)
 {
     ATF_TP_ADD_TC(tp, get);
+
+    /* Add the test cases for the header file. */
+    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

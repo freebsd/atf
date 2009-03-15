@@ -882,6 +882,12 @@ ATF_TC_BODY(mkstemp_err, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Tests cases for the header file.
+ * --------------------------------------------------------------------- */
+
+HEADER_TC(include, "atf-c/fs.h", "d_include_fs_h.c");
+
+/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -911,6 +917,9 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, mkdtemp_err);
     ATF_TP_ADD_TC(tp, mkstemp_ok);
     ATF_TP_ADD_TC(tp, mkstemp_err);
+
+    /* Add the test cases for the header file. */
+    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

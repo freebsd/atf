@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -224,6 +224,12 @@ ATF_TC_BODY(unreachable, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Tests cases for the header file.
+ * --------------------------------------------------------------------- */
+
+HEADER_TC(include, "atf-c/sanity.h", "d_include_sanity_h.c");
+
+/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -233,6 +239,9 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, pre);
     ATF_TP_ADD_TC(tp, post);
     ATF_TP_ADD_TC(tp, unreachable);
+
+    /* Add the test cases for the header file. */
+    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

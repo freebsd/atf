@@ -28,6 +28,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <atf-c.h>
@@ -634,6 +635,12 @@ ATF_TC_BODY(cxx_o, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Tests cases for the header file.
+ * --------------------------------------------------------------------- */
+
+HEADER_TC(include, "atf-c/build.h", "d_include_build_h.c");
+
+/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -646,6 +653,9 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, c_o);
     ATF_TP_ADD_TC(tp, cpp);
     ATF_TP_ADD_TC(tp, cxx_o);
+
+    /* Add the test cases for the header file. */
+    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

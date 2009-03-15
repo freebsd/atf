@@ -460,6 +460,12 @@ ATF_TC_BODY(exec_unknown, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Tests cases for the header file.
+ * --------------------------------------------------------------------- */
+
+HEADER_TC(include, "atf-c/check.h", "d_include_check_h.c");
+
+/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -477,6 +483,9 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, exec_list);
     ATF_TP_ADD_TC(tp, exec_stdout_stderr);
     ATF_TP_ADD_TC(tp, exec_unknown);
+
+    /* Add the test cases for the header file. */
+    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

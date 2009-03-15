@@ -723,6 +723,17 @@ ATF_TC_BODY(msg_embedded_fmt, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Tests cases for the header file.
+ * --------------------------------------------------------------------- */
+
+HEADER_TC(include, "atf-c/macros.h", "d_include_macros_h.c");
+BUILD_TC(use, "d_use_macros_h.c",
+         "Tests that the macros provided by the atf-c/macros.h file "
+         "do not cause syntax errors when used",
+         "Build of d_use_macros_h.c failed; some macros in atf-c/macros.h "
+         "are broken");
+
+/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -737,6 +748,10 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, require_streq);
 
     ATF_TP_ADD_TC(tp, msg_embedded_fmt);
+
+    /* Add the test cases for the header file. */
+    ATF_TP_ADD_TC(tp, include);
+    ATF_TP_ADD_TC(tp, use);
 
     return atf_no_error();
 }
