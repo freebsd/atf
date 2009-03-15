@@ -292,7 +292,8 @@ impl::tc::run(const fs::path& workdirbase)
     atf_tcr_t tcrc;
     tcr tcrr(tcr::failed_state, "UNINITIALIZED");
 
-    atf_error_t err = atf_tc_run(&m_tc, &tcrc, workdirbase.c_path());
+    atf_error_t err = atf_tc_run(&m_tc, &tcrc, STDOUT_FILENO, STDERR_FILENO,
+                                 workdirbase.c_path());
     if (atf_is_error(err))
         throw_atf_error(err);
 

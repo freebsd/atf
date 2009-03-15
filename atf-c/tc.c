@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,9 +63,10 @@ struct timeout_data;
 static atf_error_t body_parent(const atf_tc_t *, const atf_fs_path_t *,
                                pid_t, atf_tcr_t *);
 static atf_error_t cleanup_parent(const atf_tc_t *, pid_t);
-static atf_error_t fork_body(const atf_tc_t *, const atf_fs_path_t *,
-                             atf_tcr_t *);
-static atf_error_t fork_cleanup(const atf_tc_t *, const atf_fs_path_t *);
+static atf_error_t fork_body(const atf_tc_t *, int, int,
+                             const atf_fs_path_t *, atf_tcr_t *);
+static atf_error_t fork_cleanup(const atf_tc_t *, int, int,
+                                const atf_fs_path_t *);
 static atf_error_t get_tc_result(const atf_fs_path_t *, atf_tcr_t *);
 static atf_error_t program_timeout(pid_t, const atf_tc_t *,
                                    struct timeout_data *);
@@ -73,7 +74,7 @@ static void unprogram_timeout(struct timeout_data *);
 static void sigalrm_handler(int);
 
 /* Child-only stuff. */
-static void body_child(const atf_tc_t *, const atf_fs_path_t *)
+static void body_child(const atf_tc_t *, int, int, const atf_fs_path_t *)
             ATF_DEFS_ATTRIBUTE_NORETURN;
 static atf_error_t check_arch(const char *, void *);
 static atf_error_t check_config(const char *, void *);
@@ -81,7 +82,7 @@ static atf_error_t check_machine(const char *, void *);
 static atf_error_t check_prog(const char *, void *);
 static atf_error_t check_prog_in_dir(const char *, void *);
 static atf_error_t check_requirements(const atf_tc_t *);
-static void cleanup_child(const atf_tc_t *, const atf_fs_path_t *)
+static void cleanup_child(const atf_tc_t *, int, int, const atf_fs_path_t *)
             ATF_DEFS_ATTRIBUTE_NORETURN;
 static void fail_internal(const char *, int, const char *, const char *,
                           const char *, va_list,
@@ -90,7 +91,8 @@ static void fatal_atf_error(const char *, atf_error_t)
             ATF_DEFS_ATTRIBUTE_NORETURN;
 static void fatal_libc_error(const char *, int)
             ATF_DEFS_ATTRIBUTE_NORETURN;
-static atf_error_t prepare_child(const atf_tc_t *, const atf_fs_path_t *);
+static atf_error_t prepare_child(const atf_tc_t *, int, int,
+                                 const atf_fs_path_t *);
 static void write_tcr(const atf_tcr_t *);
 
 /* ---------------------------------------------------------------------
@@ -269,7 +271,7 @@ atf_tc_set_md_var(atf_tc_t *tc, const char *name, const char *fmt, ...)
  * --------------------------------------------------------------------- */
 
 atf_error_t
-atf_tc_run(const atf_tc_t *tc, atf_tcr_t *tcr,
+atf_tc_run(const atf_tc_t *tc, atf_tcr_t *tcr, int fdout, int fderr,
            const atf_fs_path_t *workdirbase)
 {
     atf_error_t err, cleanuperr;
@@ -287,8 +289,8 @@ atf_tc_run(const atf_tc_t *tc, atf_tcr_t *tcr,
     if (atf_is_error(err))
         goto out_workdir;
 
-    err = fork_body(tc, &workdir, tcr);
-    cleanuperr = fork_cleanup(tc, &workdir);
+    err = fork_body(tc, fdout, fderr, &workdir, tcr);
+    cleanuperr = fork_cleanup(tc, fdout, fderr, &workdir);
     if (!atf_is_error(cleanuperr))
         (void)atf_fs_cleanup(&workdir);
     if (!atf_is_error(err))
@@ -442,7 +444,8 @@ out:
 
 static
 atf_error_t
-fork_body(const atf_tc_t *tc, const atf_fs_path_t *workdir, atf_tcr_t *tcr)
+fork_body(const atf_tc_t *tc, int fdout, int fderr,
+          const atf_fs_path_t *workdir, atf_tcr_t *tcr)
 {
     atf_error_t err;
     pid_t pid;
@@ -452,7 +455,7 @@ fork_body(const atf_tc_t *tc, const atf_fs_path_t *workdir, atf_tcr_t *tcr)
         goto out;
 
     if (pid == 0) {
-        body_child(tc, workdir);
+        body_child(tc, fdout, fderr, workdir);
         UNREACHABLE;
         abort();
     } else {
@@ -465,7 +468,8 @@ out:
 
 static
 atf_error_t
-fork_cleanup(const atf_tc_t *tc, const atf_fs_path_t *workdir)
+fork_cleanup(const atf_tc_t *tc, int fdout, int fderr,
+             const atf_fs_path_t *workdir)
 {
     atf_error_t err;
     pid_t pid;
@@ -478,7 +482,7 @@ fork_cleanup(const atf_tc_t *tc, const atf_fs_path_t *workdir)
             goto out;
 
         if (pid == 0) {
-            cleanup_child(tc, workdir);
+            cleanup_child(tc, fdout, fderr, workdir);
             UNREACHABLE;
             abort();
         } else {
@@ -531,7 +535,8 @@ static size_t current_tc_fail_count = 0;
 
 static
 atf_error_t
-prepare_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
+prepare_child(const atf_tc_t *tc, int fdout, int fderr,
+              const atf_fs_path_t *workdir)
 {
     atf_error_t err;
     int i, ret;
@@ -594,6 +599,24 @@ prepare_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
         goto out;
     }
 
+    if (fdout != STDOUT_FILENO) {
+        if (dup2(fdout, STDOUT_FILENO) == -1) {
+            err = atf_libc_error(errno, "Cannot redirect stdout");
+            goto out;
+        }
+
+        close(fdout);
+    }
+
+    if (fderr != STDERR_FILENO) {
+        if (dup2(fderr, STDERR_FILENO) == -1) {
+            err = atf_libc_error(errno, "Cannot redirect stderr");
+            goto out;
+        }
+
+        close(fderr);
+    }
+
     err = atf_no_error();
 
 out:
@@ -602,13 +625,14 @@ out:
 
 static
 void
-body_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
+body_child(const atf_tc_t *tc, int fdout, int fderr,
+           const atf_fs_path_t *workdir)
 {
     atf_error_t err;
 
     atf_disable_exit_checks();
 
-    err = prepare_child(tc, workdir);
+    err = prepare_child(tc, fdout, fderr, workdir);
     if (atf_is_error(err))
         goto print_err;
     err = check_requirements(tc);
@@ -839,13 +863,14 @@ out:
 
 static
 void
-cleanup_child(const atf_tc_t *tc, const atf_fs_path_t *workdir)
+cleanup_child(const atf_tc_t *tc, int fdout, int fderr,
+              const atf_fs_path_t *workdir)
 {
     atf_error_t err;
 
     atf_disable_exit_checks();
 
-    err = prepare_child(tc, workdir);
+    err = prepare_child(tc, fdout, fderr, workdir);
     if (atf_is_error(err))
         exit(EXIT_FAILURE);
     else {

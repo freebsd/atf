@@ -96,98 +96,30 @@ init_config(atf_map_t *config)
 
 static
 void
-run_here(const atf_tc_t *tc, atf_tcr_t *tcr)
+run_inherit(const atf_tc_t *tc, atf_tcr_t *tcr)
 {
     atf_fs_path_t cwd;
 
     RE(atf_fs_getcwd(&cwd));
-    RE(atf_tc_run(tc, tcr, &cwd));
+    RE(atf_tc_run(tc, tcr, STDOUT_FILENO, STDERR_FILENO, &cwd));
     atf_fs_path_fini(&cwd);
 }
 
 static
 void
-load_tcr(atf_tcr_t *tcr)
+run_capture(const atf_tc_t *tc, const char *errname, atf_tcr_t *tcr)
 {
-    int tcrfile;
+    int errfile;
+    atf_fs_path_t cwd;
 
-    ATF_REQUIRE((tcrfile = open("tcr", O_RDONLY)) != -1);
-    RE(atf_tcr_deserialize(tcr, tcrfile));
-    close(tcrfile);
-
-    ATF_REQUIRE(unlink("tcr") != -1);
-}
-
-static
-void
-write_tcr(const atf_tcr_t *tcr)
-{
-    int tcrfile;
-
-    ATF_REQUIRE((tcrfile = open("tcr", O_WRONLY | O_CREAT, 0644)) != -1);
-    RE(atf_tcr_serialize(tcr, tcrfile));
-    close(tcrfile);
-}
-
-static
-void
-run_as_child_child(const atf_tc_t *tc, const int errpipe[2])
-{
-    atf_tcr_t tcr;
-
-    close(errpipe[0]);
-    close(STDERR_FILENO);
-    ATF_REQUIRE(dup2(errpipe[1], STDERR_FILENO) != -1);
-    close(errpipe[1]);
-    run_here(tc, &tcr);
-
-    write_tcr(&tcr);
-
-    exit(EXIT_SUCCESS);
-}
-
-static
-void
-run_as_child_parent(const atf_tc_t *tc, atf_tcr_t *tcr, const int errpipe[2],
-                    const pid_t pid)
-{
-    int cnt, errfile, status;
-    char buf[80];
-
-    close(errpipe[1]);
-
-    ATF_REQUIRE((errfile = open("error", O_WRONLY | O_CREAT | O_TRUNC,
+    ATF_REQUIRE((errfile = open(errname, O_WRONLY | O_CREAT | O_TRUNC,
                                 0644)) != -1);
 
-    while ((cnt = read(errpipe[0], buf, sizeof(buf))) > 0)
-        ATF_REQUIRE(write(errfile, buf, cnt) == cnt);
-    ATF_REQUIRE(cnt == 0);
+    RE(atf_fs_getcwd(&cwd));
+    RE(atf_tc_run(tc, tcr, STDOUT_FILENO, errfile, &cwd));
+    atf_fs_path_fini(&cwd);
 
-    close(errpipe[0]);
     close(errfile);
-
-    ATF_REQUIRE(waitpid(pid, &status, 0) != -1);
-    ATF_REQUIRE(WIFEXITED(status));
-    ATF_REQUIRE_EQ(WEXITSTATUS(status), EXIT_SUCCESS);
-
-    load_tcr(tcr);
-}
-
-static
-void
-run_as_child(const atf_tc_t *tc, atf_tcr_t *tcr)
-{
-    pid_t pid;
-    int errpipe[2];
-
-    ATF_REQUIRE(pipe(errpipe) == 0);
-
-    RE(atf_process_fork(&pid));
-    if (pid == 0) {
-        run_as_child_child(tc, errpipe);
-        /* NOTREACHED */
-    } else
-        run_as_child_parent(tc, tcr, errpipe, pid);
 }
 
 static
@@ -384,7 +316,7 @@ ATF_TC_BODY(check, tc)
         printf("Checking with a %d value\n", t->value);
 
         RE(atf_tc_init(&tcaux, "h_check", t->head, t->body, NULL, &config));
-        run_as_child(&tcaux, &tcr);
+        run_capture(&tcaux, "error", &tcr);
         atf_tc_fini(&tcaux);
 
         ATF_REQUIRE(exists("before"));
@@ -436,7 +368,7 @@ do_check_eq_tests(const struct check_eq_test *tests)
                t->ok ? "true" : "false");
 
         RE(atf_tc_init(&tcaux, "h_check", t->head, t->body, NULL, &config));
-        run_as_child(&tcaux, &tcr);
+        run_capture(&tcaux, "error", &tcr);
         atf_tc_fini(&tcaux);
 
         ATF_CHECK(exists("before"));
@@ -594,7 +526,7 @@ ATF_TC_BODY(require, tc)
         printf("Checking with a %d value\n", t->value);
 
         RE(atf_tc_init(&tcaux, "h_require", t->head, t->body, NULL, &config));
-        run_here(&tcaux, &tcr);
+        run_inherit(&tcaux, &tcr);
         atf_tc_fini(&tcaux);
 
         ATF_REQUIRE(exists("before"));
@@ -647,7 +579,7 @@ do_require_eq_tests(const struct require_eq_test *tests)
                t->ok ? "true" : "false");
 
         RE(atf_tc_init(&tcaux, "h_require", t->head, t->body, NULL, &config));
-        run_here(&tcaux, &tcr);
+        run_inherit(&tcaux, &tcr);
         atf_tc_fini(&tcaux);
 
         ATF_REQUIRE(exists("before"));
@@ -820,7 +752,7 @@ ATF_TC_BODY(msg_embedded_fmt, tc)
         printf("Checking with an expected '%s' message\n", t->msg);
 
         RE(atf_tc_init(&tcaux, "h_check", t->head, t->body, NULL, &config));
-        run_as_child(&tcaux, &tcr);
+        run_capture(&tcaux, "error", &tcr);
         atf_tc_fini(&tcaux);
 
         ATF_CHECK(atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
