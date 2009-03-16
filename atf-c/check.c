@@ -170,7 +170,7 @@ list_to_array(const atf_list_t *l, const char ***ap)
     atf_error_t err;
     const char **a;
 
-    a = (const char **)malloc(atf_list_size(l) * sizeof(const char *));
+    a = (const char **)malloc((atf_list_size(l) + 1) * sizeof(const char *));
     if (a == NULL)
         err = atf_no_memory_error();
     else {
@@ -182,6 +182,7 @@ list_to_array(const atf_list_t *l, const char ***ap)
             *aiter = (const char *)atf_list_citer_data(liter);
             aiter++;
         }
+	*aiter = NULL;
 
         err = atf_no_error();
         *ap = a;
