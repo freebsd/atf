@@ -119,7 +119,7 @@ fork_and_wait(const char *const *argv, int fdout, int fderr, int *estatus)
         dup2(fdout, STDOUT_FILENO);
         dup2(fderr, STDERR_FILENO);
         const_execvp(argv[0], argv);
-        fprintf(stderr, "execvp(%s) failed: %s", argv[0], strerror(errno));
+        fprintf(stderr, "execvp(%s) failed: %s\n", argv[0], strerror(errno));
         exit(127);
         UNREACHABLE;
     } else {
