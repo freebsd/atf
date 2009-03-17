@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@
 #include "atf-c/sanity.h"
 
 atf_error_t
-atf_io_readline(int fd, atf_dynstr_t *dest)
+atf_io_readline(int fd, atf_dynstr_t *dest, bool *eof)
 {
     char ch[2];
     ssize_t cnt;
@@ -58,8 +58,10 @@ atf_io_readline(int fd, atf_dynstr_t *dest)
     if (cnt == -1)
         err = atf_libc_error(errno, "Failed to read line from file "
                              "descriptor %d", fd);
-    else
+    else {
+        *eof = (cnt == 0);
         err = atf_no_error();
+    }
 
     return err;
 }

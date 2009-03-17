@@ -61,6 +61,28 @@ ATF_TC_BODY(readline, tc)
 
         f = fopen("test", "w");
         ATF_REQUIRE(f != NULL);
+        fclose(f);
+    }
+
+    {
+        int fd;
+        atf_dynstr_t dest;
+        bool eof;
+
+        fd = open("test", O_RDONLY);
+        ATF_REQUIRE(fd != -1);
+
+        RE(atf_dynstr_init(&dest));
+        RE(atf_io_readline(fd, &dest, &eof));
+        ATF_REQUIRE(eof);
+        atf_dynstr_fini(&dest);
+    }
+
+    {
+        FILE *f;
+
+        f = fopen("test", "w");
+        ATF_REQUIRE(f != NULL);
 
         fprintf(f, "%s\n", l1);
         fprintf(f, "%s\n", l2);
@@ -72,29 +94,31 @@ ATF_TC_BODY(readline, tc)
     {
         int fd;
         atf_dynstr_t dest;
+        bool eof;
 
         fd = open("test", O_RDONLY);
         ATF_REQUIRE(fd != -1);
 
         RE(atf_dynstr_init(&dest));
-        RE(atf_io_readline(fd, &dest));
+        RE(atf_io_readline(fd, &dest, &eof));
+        ATF_REQUIRE(!eof);
         printf("1st line: >%s<\n", atf_dynstr_cstring(&dest));
         ATF_REQUIRE(atf_equal_dynstr_cstring(&dest, l1));
         atf_dynstr_fini(&dest);
 
         RE(atf_dynstr_init(&dest));
-        RE(atf_io_readline(fd, &dest));
+        RE(atf_io_readline(fd, &dest, &eof));
+        ATF_REQUIRE(!eof);
         printf("2nd line: >%s<\n", atf_dynstr_cstring(&dest));
         ATF_REQUIRE(atf_equal_dynstr_cstring(&dest, l2));
         atf_dynstr_fini(&dest);
 
         RE(atf_dynstr_init(&dest));
-        RE(atf_io_readline(fd, &dest));
+        RE(atf_io_readline(fd, &dest, &eof));
+        ATF_REQUIRE(eof);
         printf("3rd line: >%s<\n", atf_dynstr_cstring(&dest));
         ATF_REQUIRE(atf_equal_dynstr_cstring(&dest, l3));
         atf_dynstr_fini(&dest);
-
-        /* XXX Cannot detect eof condition. */
 
         close(fd);
     }

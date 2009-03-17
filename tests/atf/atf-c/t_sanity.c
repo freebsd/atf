@@ -114,9 +114,10 @@ do_test(enum type t, bool cond)
 
         i = 0;
         do {
+            bool eof;
             err = atf_dynstr_init(&lines[i]);
             if (!atf_is_error(err)) {
-                err = atf_io_readline(fds[0], &lines[i]);
+                err = atf_io_readline(fds[0], &lines[i], &eof);
                 if (!atf_is_error(err))
                     i++;
             }

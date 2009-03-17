@@ -95,9 +95,11 @@ void
 check_line(int fd, const char *exp)
 {
     atf_dynstr_t line;
+    bool eof;
 
     atf_dynstr_init(&line);
-    RE(atf_io_readline(fd, &line));
+    RE(atf_io_readline(fd, &line, &eof));
+    ATF_CHECK(!eof);
     ATF_CHECK_MSG(atf_equal_dynstr_cstring(&line, exp),
                   "read: '%s', expected: '%s'",
                   atf_dynstr_cstring(&line), exp);
