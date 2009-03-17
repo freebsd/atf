@@ -211,6 +211,87 @@ ATF_TC_BODY(h_build_c_o_fail, tc)
     ATF_REQUIRE(!success);
 }
 
+ATF_TC(h_build_cpp_ok);
+ATF_TC_HEAD(h_build_cpp_ok, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Helper test case for build_cpp");
+}
+ATF_TC_BODY(h_build_cpp_ok, tc)
+{
+    FILE *sfile;
+    bool success;
+    atf_fs_path_t test_p;
+
+    RE(atf_fs_path_init_fmt(&test_p, "%s/test.p",
+                            atf_tc_get_config_var(tc, "callerdir")));
+
+    ATF_REQUIRE((sfile = fopen("test.c", "w")) != NULL);
+    fprintf(sfile, "#define A foo\n");
+    fprintf(sfile, "#define B bar\n");
+    fprintf(sfile, "A B\n");
+    fclose(sfile);
+
+    RE(atf_check_build_cpp("test.c", atf_fs_path_cstring(&test_p), NULL,
+                           &success));
+    ATF_REQUIRE(success);
+
+    atf_fs_path_fini(&test_p);
+}
+
+ATF_TC(h_build_cpp_fail);
+ATF_TC_HEAD(h_build_cpp_fail, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Helper test case for build_cpp");
+}
+ATF_TC_BODY(h_build_cpp_fail, tc)
+{
+    FILE *sfile;
+    bool success;
+
+    ATF_REQUIRE((sfile = fopen("test.c", "w")) != NULL);
+    fprintf(sfile, "#include \"./non-existent.h\"\n");
+    fclose(sfile);
+
+    RE(atf_check_build_cpp("test.c", "test.p", NULL, &success));
+    ATF_REQUIRE(!success);
+}
+
+ATF_TC(h_build_cxx_o_ok);
+ATF_TC_HEAD(h_build_cxx_o_ok, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Helper test case for build_cxx_o");
+}
+ATF_TC_BODY(h_build_cxx_o_ok, tc)
+{
+    FILE *sfile;
+    bool success;
+
+    ATF_REQUIRE((sfile = fopen("test.cpp", "w")) != NULL);
+    fprintf(sfile, "#include <iostream>\n");
+    fclose(sfile);
+
+    RE(atf_check_build_cxx_o("test.cpp", "test.o", NULL, &success));
+    ATF_REQUIRE(success);
+}
+
+ATF_TC(h_build_cxx_o_fail);
+ATF_TC_HEAD(h_build_cxx_o_fail, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Helper test case for build_cxx_o");
+}
+ATF_TC_BODY(h_build_cxx_o_fail, tc)
+{
+    FILE *sfile;
+    bool success;
+
+    ATF_REQUIRE((sfile = fopen("test.cpp", "w")) != NULL);
+    fprintf(sfile, "void foo(void) { int a = UNDEFINED_SYMBOL; }\n");
+    fclose(sfile);
+
+    RE(atf_check_build_cxx_o("test.cpp", "test.o", NULL, &success));
+    ATF_REQUIRE(!success);
+}
+
 /* ---------------------------------------------------------------------
  * Test cases for the free functions.
  * --------------------------------------------------------------------- */
@@ -227,6 +308,8 @@ run_h_tc(atf_tc_t *tc, const atf_tc_pack_t *tcpack,
 
     RE(atf_fs_getcwd(&cwd));
     RE(atf_map_init(&config));
+    RE(atf_map_insert(&config, "callerdir",
+                      strdup(atf_fs_path_cstring(&cwd)), true));
 
     ATF_REQUIRE((fdout = open(outname, O_CREAT | O_WRONLY | O_TRUNC,
                               0600)) != -1);
@@ -264,6 +347,49 @@ ATF_TC_BODY(build_c_o, tc)
     ATF_CHECK(grep_file("stdout", "-o test.o"));
     ATF_CHECK(grep_file("stdout", "-c test.c"));
     ATF_CHECK(grep_file("stderr", "test.c"));
+    ATF_CHECK(grep_file("stderr", "UNDEFINED_SYMBOL"));
+}
+
+ATF_TC(build_cpp);
+ATF_TC_HEAD(build_cpp, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_check_build_cpp "
+                      "function");
+}
+ATF_TC_BODY(build_cpp, tc)
+{
+    run_h_tc(&ATF_TC_NAME(h_build_cpp_ok),
+             &ATF_TC_PACK_NAME(h_build_cpp_ok), "stdout", "stderr");
+    ATF_CHECK(grep_file("stdout", "-o.*test.p"));
+    ATF_CHECK(grep_file("stdout", "test.c"));
+    ATF_CHECK(grep_file("test.p", "foo bar"));
+
+    run_h_tc(&ATF_TC_NAME(h_build_cpp_fail),
+             &ATF_TC_PACK_NAME(h_build_cpp_fail), "stdout", "stderr");
+    ATF_CHECK(grep_file("stdout", "-o test.p"));
+    ATF_CHECK(grep_file("stdout", "test.c"));
+    ATF_CHECK(grep_file("stderr", "test.c"));
+    ATF_CHECK(grep_file("stderr", "non-existent.h"));
+}
+
+ATF_TC(build_cxx_o);
+ATF_TC_HEAD(build_cxx_o, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Checks the atf_check_build_cxx_o "
+                      "function");
+}
+ATF_TC_BODY(build_cxx_o, tc)
+{
+    run_h_tc(&ATF_TC_NAME(h_build_cxx_o_ok),
+             &ATF_TC_PACK_NAME(h_build_cxx_o_ok), "stdout", "stderr");
+    ATF_CHECK(grep_file("stdout", "-o test.o"));
+    ATF_CHECK(grep_file("stdout", "-c test.cpp"));
+
+    run_h_tc(&ATF_TC_NAME(h_build_cxx_o_fail),
+             &ATF_TC_PACK_NAME(h_build_cxx_o_fail), "stdout", "stderr");
+    ATF_CHECK(grep_file("stdout", "-o test.o"));
+    ATF_CHECK(grep_file("stdout", "-c test.cpp"));
+    ATF_CHECK(grep_file("stderr", "test.cpp"));
     ATF_CHECK(grep_file("stderr", "UNDEFINED_SYMBOL"));
 }
 
@@ -479,6 +605,8 @@ ATF_TP_ADD_TCS(tp)
 
     /* Add the test cases for the free functions. */
     ATF_TP_ADD_TC(tp, build_c_o);
+    ATF_TP_ADD_TC(tp, build_cpp);
+    ATF_TP_ADD_TC(tp, build_cxx_o);
     ATF_TP_ADD_TC(tp, exec_argv);
     ATF_TP_ADD_TC(tp, exec_cleanup);
     ATF_TP_ADD_TC(tp, exec_exitstatus);

@@ -136,6 +136,26 @@ out:
 }
 
 static
+void
+update_success_from_status(const char *progname, int status, bool *success)
+{
+    bool s = WIFEXITED(status) && WEXITSTATUS(status) == EXIT_SUCCESS;
+
+    if (!WIFEXITED(status)) {
+        INV(!s);
+        fprintf(stderr, "%s abnormally exited with status %d\n",
+                progname, status);
+    } else if (WIFEXITED(status) && WEXITSTATUS(status) != EXIT_SUCCESS) {
+        INV(!s);
+        fprintf(stderr, "%s failed with exit code %d\n",
+                progname, WEXITSTATUS(status));
+    } else
+        INV(s);
+
+    *success = s;
+}
+
+static
 atf_error_t
 array_to_list(const char *const *a, atf_list_t *l)
 {
@@ -201,6 +221,46 @@ print_list(const atf_list_t *l, const char *pfx)
     atf_list_for_each_c(iter, l)
         printf(" %s", (const char *)atf_list_citer_data(iter));
     printf("\n");
+}
+
+static
+atf_error_t
+fork_and_wait_list(const atf_list_t *argvl, const int fdout,
+                   const int fderr, int *status)
+{
+    atf_error_t err;
+    const char **argva;
+
+    err = list_to_array(argvl, &argva);
+    if (atf_is_error(err))
+        goto out;
+
+    err = fork_and_wait(argva, STDOUT_FILENO, STDERR_FILENO, status);
+
+    free(argva);
+out:
+    return err;
+}
+
+static
+atf_error_t
+check_build_run(const atf_list_t *argv, bool *success)
+{
+    atf_error_t err;
+    int status;
+
+    print_list(argv, ">");
+
+    err = fork_and_wait_list(argv, STDOUT_FILENO, STDERR_FILENO, &status);
+    if (atf_is_error(err))
+        goto out;
+
+    update_success_from_status((const char *)atf_list_index_c(argv, 0),
+                               status, success);
+
+    INV(!atf_is_error(err));
+out:
+    return err;
 }
 
 /* ---------------------------------------------------------------------
@@ -303,39 +363,53 @@ atf_check_build_c_o(const char *sfile,
 {
     atf_error_t err;
     atf_list_t argv;
-    const char **argva;
-    int status;
 
     err = atf_build_c_o(sfile, ofile, optargs, &argv);
     if (atf_is_error(err))
         goto out;
 
-    print_list(&argv, ">");
+    err = check_build_run(&argv, success);
 
-    err = list_to_array(&argv, &argva);
+    atf_list_fini(&argv);
+out:
+    return err;
+}
+
+atf_error_t
+atf_check_build_cpp(const char *sfile,
+                    const char *ofile,
+                    const char *const optargs[],
+                    bool *success)
+{
+    atf_error_t err;
+    atf_list_t argv;
+
+    err = atf_build_cpp(sfile, ofile, optargs, &argv);
     if (atf_is_error(err))
-        goto out_argv;
+        goto out;
 
-    err = fork_and_wait(argva, STDOUT_FILENO, STDERR_FILENO, &status);
+    err = check_build_run(&argv, success);
+
+    atf_list_fini(&argv);
+out:
+    return err;
+}
+
+atf_error_t
+atf_check_build_cxx_o(const char *sfile,
+                      const char *ofile,
+                      const char *const optargs[],
+                      bool *success)
+{
+    atf_error_t err;
+    atf_list_t argv;
+
+    err = atf_build_cxx_o(sfile, ofile, optargs, &argv);
     if (atf_is_error(err))
-        goto out_argva;
+        goto out;
 
-    *success = WIFEXITED(status) && WEXITSTATUS(status) == EXIT_SUCCESS;
+    err = check_build_run(&argv, success);
 
-    if (!WIFEXITED(status))
-        fprintf(stderr, "%s abnormally exited with status %d\n",
-                argva[0], status);
-    else if (WIFEXITED(status) && WEXITSTATUS(status) != EXIT_SUCCESS)
-        fprintf(stderr, "%s failed with exit code %d\n",
-                argva[0], WEXITSTATUS(status));
-    else
-        INV(*success);
-
-    err = atf_no_error();
-
-out_argva:
-    free(argva);
-out_argv:
     atf_list_fini(&argv);
 out:
     return err;
