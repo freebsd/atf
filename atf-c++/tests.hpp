@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -90,7 +90,7 @@ public:
 // The "tc" class.
 // ------------------------------------------------------------------------
 
-class tc : public atf::utils::noncopyable {
+class tc : utils::noncopyable {
     std::string m_ident;
     atf_map_t m_config;
     atf_tc_t m_tc;
