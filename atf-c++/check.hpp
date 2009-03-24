@@ -30,18 +30,70 @@
 #if !defined(_ATF_CXX_CHECK_HPP_)
 #define _ATF_CXX_CHECK_HPP_
 
-#include <string>
-
 extern "C" {
 #include "atf-c/check.h"
 }
 
+#include <string>
 #include <vector>
 
 #include "atf-c++/fs.hpp"
+#include "atf-c++/text.hpp"
+#include "atf-c++/utils.hpp"
 
 namespace atf {
 namespace check {
+
+// ------------------------------------------------------------------------
+// The "argv_array" type.
+// ------------------------------------------------------------------------
+
+class argv_array : utils::noncopyable {
+    const char* const* m_array_ext;
+    char **m_array_int;
+
+    template< class C >
+    void
+    fill_array_from_collection(char **a, const C& col)
+    {
+        std::size_t i = 0;
+        try {
+            for (typename C::const_iterator iter = col.begin();
+                 iter != col.end(); iter++) {
+                const std::string& arg = *iter;
+                a[i] = text::duplicate(arg.c_str());
+                i++;
+            }
+            a[i] = NULL;
+        } catch (...) {
+            if (i > 0) {
+                for (std::size_t j = 0; j < i - 1; j++)
+                    delete a[j];
+            }
+        }
+    }
+
+public:
+    explicit argv_array(const char* const*);
+    ~argv_array(void);
+
+    template< class C >
+    explicit argv_array(const C& collection) :
+        m_array_ext(NULL)
+    {
+        char** a = new char*[collection.size() + 1];
+        try {
+            fill_array_from_collection(a, collection);
+            assert(a[collection.size()] == NULL);
+        } catch (...) {
+            delete a;
+            throw;
+        }
+        m_array_int = a;
+    }
+
+    const char* const* to_exec_argv(void) const;
+};
 
 // ------------------------------------------------------------------------
 // The "check_result" class.
@@ -72,7 +124,7 @@ class check_result {
     check_result(const atf_check_result_t* result);
 
     friend check_result test_constructor(const char* const*);
-    friend check_result exec(const char* const*);
+    friend check_result exec(const argv_array&);
 
 public:
     //!
@@ -111,7 +163,7 @@ public:
 // Free functions.
 // ------------------------------------------------------------------------
 
-check_result exec(const char* const*);
+check_result exec(const argv_array&);
 
 // Useful for testing only.
 check_result test_constructor(void);

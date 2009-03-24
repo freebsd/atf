@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <iostream>
 #include <memory>
 
 #include <atf-c++.hpp>
@@ -67,40 +68,143 @@ static
 atf::check::check_result
 do_exec(const atf::tests::tc* tc, const char* helper_name)
 {
-    const std::string hp = tc->get_config_var("srcdir") + "/../atf-c/h_check";
+    std::vector< std::string > argv;
+    argv.push_back(tc->get_config_var("srcdir") + "/../atf-c/h_check");
+    argv.push_back(helper_name);
+    std::cout << "Executing " << argv[0] << " " << argv[1] << "\n";
 
-    atf::utils::auto_array< char > arg0(atf::text::duplicate(hp.c_str()));
-    atf::utils::auto_array< char > arg1(atf::text::duplicate(helper_name));
-
-    char *argv[3];
-    argv[0] = arg0.get();
-    argv[1] = arg1.get();
-    argv[2] = NULL;
-    printf("Executing %s %s\n", argv[0], argv[1]);
-    return atf::check::exec(argv);
+    atf::check::argv_array argva(argv);
+    return atf::check::exec(argva);
 }
 
 static
 atf::check::check_result
 do_exec(const atf::tests::tc* tc, const char* helper_name, const char *carg2)
 {
-    const std::string hp = tc->get_config_var("srcdir") + "/../atf-c/h_check";
+    std::vector< std::string > argv;
+    argv.push_back(tc->get_config_var("srcdir") + "/../atf-c/h_check");
+    argv.push_back(helper_name);
+    argv.push_back(carg2);
+    std::cout << "Executing " << argv[0] << " " << argv[1] << " "
+              << argv[2] << "\n";
 
-    atf::utils::auto_array< char > arg0(atf::text::duplicate(hp.c_str()));
-    atf::utils::auto_array< char > arg1(atf::text::duplicate(helper_name));
-    atf::utils::auto_array< char > arg2(atf::text::duplicate(carg2));
+    atf::check::argv_array argva(argv);
+    return atf::check::exec(argva);
+}
 
-    char *argv[4];
-    argv[0] = arg0.get();
-    argv[1] = arg1.get();
-    argv[2] = arg2.get();
-    argv[3] = NULL;
-    printf("Executing %s %s %s\n", argv[0], argv[1], argv[2]);
-    return atf::check::exec(argv);
+static
+std::size_t
+array_size(const char* const* array)
+{
+    std::size_t size = 0;
+
+    for (const char* const* ptr = array; *ptr != NULL; ptr++)
+        size++;
+
+    return size;
 }
 
 // ------------------------------------------------------------------------
-// Tests for the "atf_check_result" type.
+// Tests for the "argv_array" type.
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(argv_array_ext);
+ATF_TEST_CASE_HEAD(argv_array_ext)
+{
+    set_md_var("descr", "Tests that argv_array can hold an external, "
+               "constant copy of an array of strings");
+}
+ATF_TEST_CASE_BODY(argv_array_ext)
+{
+    {
+        const char* const argv[] = { NULL };
+        atf::check::argv_array argva(argv);
+
+        const char* const* eargv = argva.to_exec_argv();
+        ATF_CHECK_EQUAL(array_size(argv), array_size(eargv));
+        ATF_CHECK_EQUAL(argv, eargv);
+        ATF_CHECK_EQUAL(argv[0], eargv[0]);
+    }
+
+    {
+        const char* const argv[] = { "arg0", NULL };
+        atf::check::argv_array argva(argv);
+
+        const char* const* eargv = argva.to_exec_argv();
+        ATF_CHECK_EQUAL(array_size(argv), array_size(eargv));
+        ATF_CHECK_EQUAL(argv, eargv);
+        ATF_CHECK_EQUAL(argv[0], eargv[0]);
+        ATF_CHECK_EQUAL(argv[1], eargv[1]);
+    }
+
+    {
+        const char* const argv[] = { "arg0", "arg1", "arg2", NULL };
+        atf::check::argv_array argva(argv);
+
+        const char* const* eargv = argva.to_exec_argv();
+        ATF_CHECK_EQUAL(array_size(argv), array_size(eargv));
+        ATF_CHECK_EQUAL(argv, eargv);
+        ATF_CHECK_EQUAL(argv[0], eargv[0]);
+        ATF_CHECK_EQUAL(argv[1], eargv[1]);
+        ATF_CHECK_EQUAL(argv[2], eargv[2]);
+        ATF_CHECK_EQUAL(argv[3], eargv[3]);
+    }
+}
+
+ATF_TEST_CASE(argv_array_int);
+ATF_TEST_CASE_HEAD(argv_array_int)
+{
+    set_md_var("descr", "Tests that argv_array can hold a copy of a "
+               "collection representing an array of arguments");
+}
+ATF_TEST_CASE_BODY(argv_array_int)
+{
+    {
+        std::vector< std::string > argv;
+        atf::check::argv_array argva(argv);
+
+        const char* const* eargv = argva.to_exec_argv();
+        ATF_CHECK_EQUAL(argv.size(), array_size(eargv));
+        ATF_CHECK_EQUAL(eargv[0], NULL);
+    }
+
+    {
+        std::string arg0 = "arg0";
+        std::vector< std::string > argv;
+        argv.push_back(arg0);
+        atf::check::argv_array argva(argv);
+
+        const char* const* eargv = argva.to_exec_argv();
+        ATF_CHECK_EQUAL(argv.size(), array_size(eargv));
+        ATF_CHECK(eargv[0] != arg0.c_str());
+        ATF_CHECK_EQUAL(std::string(eargv[0]), arg0);
+        ATF_CHECK_EQUAL(eargv[1], NULL);
+    }
+
+    {
+        std::string arg0 = "arg0";
+        std::string arg1 = "arg1";
+        std::string arg2 = "arg2";
+        std::vector< std::string > argv;
+        argv.push_back(arg0);
+        argv.push_back(arg1);
+        argv.push_back(arg2);
+        atf::check::argv_array argva(argv);
+
+        const char* const* eargv = argva.to_exec_argv();
+        ATF_CHECK_EQUAL(argv.size(), array_size(eargv));
+        ATF_CHECK(eargv[0] != arg0.c_str());
+        ATF_CHECK_EQUAL(std::string(eargv[0]), arg0);
+        ATF_CHECK(eargv[1] != arg1.c_str());
+        ATF_CHECK_EQUAL(std::string(eargv[1]), arg1);
+        ATF_CHECK(eargv[2] != arg2.c_str());
+        ATF_CHECK_EQUAL(std::string(eargv[2]), arg2);
+        ATF_CHECK_EQUAL(eargv[3], NULL);
+    }
+}
+
+// ------------------------------------------------------------------------
+// Tests for the "check_result" type.
 // ------------------------------------------------------------------------
 
 ATF_TEST_CASE(result_argv);
@@ -284,14 +388,11 @@ ATF_TEST_CASE_HEAD(exec_unknown)
 }
 ATF_TEST_CASE_BODY(exec_unknown)
 {
-    const std::string path = atf::config::get("atf_workdir") + "/non-existent";
-    atf::utils::auto_array< char > arg(atf::text::duplicate(path.c_str()));
+    std::vector< std::string > argv;
+    argv.push_back(atf::config::get("atf_workdir") + "/non-existent");
 
-    char* argv[2];
-    argv[0] = arg.get();
-    argv[1] = NULL;
-
-    const atf::check::check_result r = atf::check::exec(argv);
+    atf::check::argv_array argva(argv);
+    const atf::check::check_result r = atf::check::exec(argva);
     ATF_CHECK(r.exited());
     ATF_CHECK_EQUAL(r.exitcode(), 127);
 }
@@ -302,7 +403,11 @@ ATF_TEST_CASE_BODY(exec_unknown)
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    // Add the test cases for the "atf_check_result" type.
+    // Add the test cases for the "argv_array" type.
+    ATF_ADD_TEST_CASE(tcs, argv_array_ext);
+    ATF_ADD_TEST_CASE(tcs, argv_array_int);
+
+    // Add the test cases for the "check_result" type.
     ATF_ADD_TEST_CASE(tcs, result_argv);
     ATF_ADD_TEST_CASE(tcs, result_templates);
 
