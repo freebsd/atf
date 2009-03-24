@@ -95,15 +95,48 @@ impl::check_result::stderr_path(void)
 }
 
 // ------------------------------------------------------------------------
+// The "argv_array" type.
+// ------------------------------------------------------------------------
+
+#define VALIDATE_ARRAYS \
+    INV((m_array_ext != NULL && m_array_int == NULL) || \
+        (m_array_ext == NULL && m_array_int != NULL))
+
+impl::argv_array::argv_array(const char* const* a) :
+    m_array_ext(a),
+    m_array_int(NULL)
+{
+}
+
+impl::argv_array::~argv_array(void)
+{
+    VALIDATE_ARRAYS;
+
+    if (m_array_int != NULL) {
+        for (char **iter = m_array_int; *iter != NULL; iter++)
+            delete *iter;
+        delete m_array_int;
+    }
+}
+
+const char* const*
+impl::argv_array::to_exec_argv(void)
+    const
+{
+    VALIDATE_ARRAYS;
+    return m_array_ext != NULL ? m_array_ext : m_array_int;
+}
+
+// ------------------------------------------------------------------------
 // Free functions.
 // ------------------------------------------------------------------------
 
 impl::check_result
-impl::exec(const char* const* argv)
+impl::exec(const argv_array& argva)
 {
     atf_check_result_t result;
 
-    atf_error_t err = atf_check_exec_array(argv, &result);
+    atf_error_t err = atf_check_exec_array(argva.to_exec_argv(), &result);
     if (atf_is_error(err))
         throw_atf_error(err);
 
