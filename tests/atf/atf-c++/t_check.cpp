@@ -203,6 +203,157 @@ ATF_TEST_CASE_BODY(argv_array_int)
     }
 }
 
+ATF_TEST_CASE(argv_array_assign_ext);
+ATF_TEST_CASE_HEAD(argv_array_assign_ext)
+{
+    set_md_var("descr", "Tests that an argv_array holding an external "
+               "constant copy of an array of strings can be assigned");
+}
+ATF_TEST_CASE_BODY(argv_array_assign_ext)
+{
+    using atf::check::argv_array;
+
+    const char* const array1[] = { "arg1", NULL };
+    const char* const array2[] = { "arg2", NULL };
+
+    std::auto_ptr< argv_array > argv1(new argv_array(array1));
+    std::auto_ptr< argv_array > argv2(new argv_array(array2));
+
+    {
+        const char* const* rargv1 = argv1->to_exec_argv();
+        const char* const* rargv2 = argv2->to_exec_argv();
+        ATF_CHECK(rargv1 != rargv2);
+    }
+
+    *argv2 = *argv1;
+    {
+        const char* const* rargv1 = argv1->to_exec_argv();
+        const char* const* rargv2 = argv2->to_exec_argv();
+        ATF_CHECK_EQUAL(rargv1, rargv2);
+    }
+
+    argv1.release();
+    {
+        const char* const* rargv2 = argv2->to_exec_argv();
+        ATF_CHECK_EQUAL(array1[0], rargv2[0]);
+        ATF_CHECK_EQUAL(array1[1], rargv2[1]);
+    }
+
+    argv2.release();
+}
+
+ATF_TEST_CASE(argv_array_assign_int);
+ATF_TEST_CASE_HEAD(argv_array_assign_int)
+{
+    set_md_var("descr", "Tests that an argv_array holding a copy of a "
+               "collection can be assigned");
+}
+ATF_TEST_CASE_BODY(argv_array_assign_int)
+{
+    using atf::check::argv_array;
+
+    std::string arg1 = "arg1";
+    std::vector< std::string > vector1;
+    vector1.push_back(arg1);
+
+    std::string arg2 = "arg2";
+    std::vector< std::string > vector2;
+    vector2.push_back(arg2);
+
+    std::auto_ptr< argv_array > argv1(new argv_array(vector1));
+    std::auto_ptr< argv_array > argv2(new argv_array(vector2));
+
+    {
+        const char* const* rargv1 = argv1->to_exec_argv();
+        const char* const* rargv2 = argv2->to_exec_argv();
+        ATF_CHECK(rargv1 != rargv2);
+    }
+
+    *argv2 = *argv1;
+    {
+        const char* const* rargv1 = argv1->to_exec_argv();
+        const char* const* rargv2 = argv2->to_exec_argv();
+        ATF_CHECK_EQUAL(rargv1, rargv2);
+    }
+
+    argv1.release();
+    {
+        const char* const* rargv2 = argv2->to_exec_argv();
+        ATF_CHECK_EQUAL(vector1.size(), array_size(rargv2));
+        ATF_CHECK(rargv2[0] != arg1.c_str());
+        ATF_CHECK_EQUAL(std::string(rargv2[0]), arg1);
+        ATF_CHECK_EQUAL(rargv2[1], NULL);
+    }
+
+    argv2.release();
+}
+
+ATF_TEST_CASE(argv_array_copy_ext);
+ATF_TEST_CASE_HEAD(argv_array_copy_ext)
+{
+    set_md_var("descr", "Tests that an argv_array holding an external "
+               "constant copy of an array of strings can be copied");
+}
+ATF_TEST_CASE_BODY(argv_array_copy_ext)
+{
+    using atf::check::argv_array;
+
+    const char* const array[] = { "arg0", NULL };
+
+    std::auto_ptr< argv_array > argv1(new argv_array(array));
+    std::auto_ptr< argv_array > argv2(new argv_array(*argv1));
+
+    {
+        const char* const* rargv1 = argv1->to_exec_argv();
+        const char* const* rargv2 = argv2->to_exec_argv();
+        ATF_CHECK_EQUAL(rargv1, rargv2);
+    }
+
+    argv1.release();
+    {
+        const char* const* rargv2 = argv2->to_exec_argv();
+        ATF_CHECK_EQUAL(array[0], rargv2[0]);
+        ATF_CHECK_EQUAL(array[1], rargv2[1]);
+    }
+
+    argv2.release();
+}
+
+ATF_TEST_CASE(argv_array_copy_int);
+ATF_TEST_CASE_HEAD(argv_array_copy_int)
+{
+    set_md_var("descr", "Tests that an argv_array holding a copy of a "
+               "collection can be copied");
+}
+ATF_TEST_CASE_BODY(argv_array_copy_int)
+{
+    using atf::check::argv_array;
+
+    std::string arg0 = "arg0";
+    std::vector< std::string > vector;
+    vector.push_back(arg0);
+
+    std::auto_ptr< argv_array > argv1(new argv_array(vector));
+    std::auto_ptr< argv_array > argv2(new argv_array(*argv1));
+
+    {
+        const char* const* rargv1 = argv1->to_exec_argv();
+        const char* const* rargv2 = argv2->to_exec_argv();
+        ATF_CHECK_EQUAL(rargv1, rargv2);
+    }
+
+    argv1.release();
+    {
+        const char* const* rargv2 = argv2->to_exec_argv();
+        ATF_CHECK_EQUAL(vector.size(), array_size(rargv2));
+        ATF_CHECK(rargv2[0] != arg0.c_str());
+        ATF_CHECK_EQUAL(std::string(rargv2[0]), arg0);
+        ATF_CHECK_EQUAL(rargv2[1], NULL);
+    }
+
+    argv2.release();
+}
+
 // ------------------------------------------------------------------------
 // Tests for the "check_result" type.
 // ------------------------------------------------------------------------
@@ -404,6 +555,10 @@ ATF_TEST_CASE_BODY(exec_unknown)
 ATF_INIT_TEST_CASES(tcs)
 {
     // Add the test cases for the "argv_array" type.
+    ATF_ADD_TEST_CASE(tcs, argv_array_assign_ext);
+    ATF_ADD_TEST_CASE(tcs, argv_array_assign_int);
+    ATF_ADD_TEST_CASE(tcs, argv_array_copy_ext);
+    ATF_ADD_TEST_CASE(tcs, argv_array_copy_int);
     ATF_ADD_TEST_CASE(tcs, argv_array_ext);
     ATF_ADD_TEST_CASE(tcs, argv_array_int);
 

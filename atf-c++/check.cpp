@@ -98,33 +98,105 @@ impl::check_result::stderr_path(void)
 // The "argv_array" type.
 // ------------------------------------------------------------------------
 
-#define VALIDATE_ARRAYS \
-    INV((m_array_ext != NULL && m_array_int == NULL) || \
-        (m_array_ext == NULL && m_array_int != NULL))
+impl::argv_array::base_impl::base_impl(void) :
+    m_refcnt(0)
+{
+}
+
+impl::argv_array::base_impl::~base_impl(void)
+{
+    PRE(m_refcnt == 0);
+}
+
+std::size_t
+impl::argv_array::base_impl::refcnt(void)
+    const throw()
+{
+    return m_refcnt;
+}
+
+void
+impl::argv_array::base_impl::ref(void)
+    throw()
+{
+    m_refcnt++;
+}
+
+void
+impl::argv_array::base_impl::unref(void)
+    throw()
+{
+    PRE(m_refcnt > 0);
+    m_refcnt--;
+}
+
+impl::argv_array::ext_impl::ext_impl(const char* const* a) :
+    m_array(a)
+{
+}
+
+impl::argv_array::int_impl::~int_impl(void)
+{
+    for (char **iter = m_array; *iter != NULL; iter++)
+        delete *iter;
+    delete m_array;
+}
+
+const char* const*
+impl::argv_array::ext_impl::to_exec_argv(void)
+    const
+{
+    PRE(refcnt() > 0);
+    return m_array;
+}
+
+const char* const*
+impl::argv_array::int_impl::to_exec_argv(void)
+    const
+{
+    PRE(refcnt() > 0);
+    return m_array;
+}
 
 impl::argv_array::argv_array(const char* const* a) :
-    m_array_ext(a),
-    m_array_int(NULL)
+    m_pimpl(new ext_impl(a))
 {
+    m_pimpl->ref();
+}
+
+impl::argv_array::argv_array(const argv_array& a) :
+    m_pimpl(a.m_pimpl)
+{
+    m_pimpl->ref();
 }
 
 impl::argv_array::~argv_array(void)
 {
-    VALIDATE_ARRAYS;
-
-    if (m_array_int != NULL) {
-        for (char **iter = m_array_int; *iter != NULL; iter++)
-            delete *iter;
-        delete m_array_int;
-    }
+    m_pimpl->unref();
+    if (m_pimpl->refcnt() == 0)
+        delete m_pimpl;
 }
 
 const char* const*
 impl::argv_array::to_exec_argv(void)
     const
 {
-    VALIDATE_ARRAYS;
-    return m_array_ext != NULL ? m_array_ext : m_array_int;
+    return m_pimpl->to_exec_argv();
+}
+
+impl::argv_array&
+impl::argv_array::operator=(const argv_array& a)
+{
+    if (this != &a) {
+        m_pimpl->unref();
+        if (m_pimpl->refcnt() == 0)
+            delete m_pimpl;
+
+        m_pimpl = a.m_pimpl;
+
+        m_pimpl->ref();
+    }
+    return *this;
 }
 
 // ------------------------------------------------------------------------

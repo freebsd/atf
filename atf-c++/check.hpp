@@ -48,52 +48,96 @@ namespace check {
 // The "argv_array" type.
 // ------------------------------------------------------------------------
 
-class argv_array : utils::noncopyable {
-    const char* const* m_array_ext;
-    char **m_array_int;
+class argv_array {
+    class base_impl : utils::noncopyable {
+        std::size_t m_refcnt;
 
-    template< class C >
-    void
-    fill_array_from_collection(char **a, const C& col)
-    {
-        std::size_t i = 0;
-        try {
-            for (typename C::const_iterator iter = col.begin();
-                 iter != col.end(); iter++) {
-                const std::string& arg = *iter;
-                a[i] = text::duplicate(arg.c_str());
-                i++;
-            }
-            a[i] = NULL;
-        } catch (...) {
-            if (i > 0) {
-                for (std::size_t j = 0; j < i - 1; j++)
-                    delete a[j];
-            }
-        }
-    }
+    public:
+        base_impl(void);
+        virtual ~base_impl(void);
+
+        std::size_t refcnt(void) const throw();
+        void ref(void) throw();
+        void unref(void) throw();
+
+        virtual const char* const* to_exec_argv(void) const = 0;
+    };
+
+    class ext_impl : public base_impl {
+        const char* const* m_array;
+
+    public:
+        ext_impl(const char* const*);
+
+        const char* const* to_exec_argv(void) const;
+    };
+
+    class int_impl : public base_impl {
+        char** m_array;
+
+        template< class C > void fill_array_from_collection(char**, const C&);
+
+    public:
+        template< class C > int_impl(const C&);
+        ~int_impl(void);
+
+        const char* const* to_exec_argv(void) const;
+    };
+
+    mutable base_impl* m_pimpl;
 
 public:
     explicit argv_array(const char* const*);
+    template< class C > explicit argv_array(const C&);
+    argv_array(const argv_array&);
     ~argv_array(void);
 
-    template< class C >
-    explicit argv_array(const C& collection) :
-        m_array_ext(NULL)
-    {
-        char** a = new char*[collection.size() + 1];
-        try {
-            fill_array_from_collection(a, collection);
-            assert(a[collection.size()] == NULL);
-        } catch (...) {
-            delete a;
-            throw;
-        }
-        m_array_int = a;
-    }
-
     const char* const* to_exec_argv(void) const;
+
+    argv_array& operator=(const argv_array&);
 };
+
+template< class C >
+void
+argv_array::int_impl::fill_array_from_collection(char** a, const C& col)
+{
+    std::size_t i = 0;
+    try {
+        for (typename C::const_iterator iter = col.begin();
+             iter != col.end(); iter++) {
+            const std::string& arg = *iter;
+            a[i] = text::duplicate(arg.c_str());
+            i++;
+        }
+        a[i] = NULL;
+    } catch (...) {
+        if (i > 0) {
+            for (std::size_t j = 0; j < i - 1; j++)
+                delete a[j];
+        }
+    }
+}
+
+template< class C >
+argv_array::int_impl::int_impl(const C& collection)
+{
+    char** a = new char*[collection.size() + 1];
+    try {
+        fill_array_from_collection(a, collection);
+        assert(a[collection.size()] == NULL);
+    } catch (...) {
+        delete a;
+        throw;
+    }
+    m_array = a;
+}
+
+template< class C >
+argv_array::argv_array(const C& collection) :
+    m_pimpl(new int_impl(collection))
+{
+    m_pimpl->ref();
+}
 
 // ------------------------------------------------------------------------
 // The "check_result" class.
