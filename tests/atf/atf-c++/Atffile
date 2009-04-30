@@ -15,3 +15,4 @@ tp: t_signals
 tp: t_tests
 tp: t_utils
 tp: t_process
+tp: t_build

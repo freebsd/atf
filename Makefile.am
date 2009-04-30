@@ -195,6 +195,8 @@ libatf_c___la_SOURCES = atf-c++/application.cpp \
                         atf-c++/application.hpp \
                         atf-c++/atffile.cpp \
                         atf-c++/atffile.hpp \
+                        atf-c++/build.cpp \
+                        atf-c++/build.hpp \
                         atf-c++/check.cpp \
                         atf-c++/check.hpp \
                         atf-c++/config.cpp \
@@ -232,6 +234,7 @@ libatf_c___la_SOURCES = atf-c++/application.cpp \
 include_HEADERS += atf-c++.hpp
 atf_c___HEADERS = atf-c++/application.hpp \
                   atf-c++/atffile.hpp \
+                  atf-c++/build.hpp \
                   atf-c++/check.hpp \
                   atf-c++/config.hpp \
                   atf-c++/env.hpp \
@@ -473,7 +476,8 @@ tests_atf_atf_c_t_atf_c_SOURCES = tests/atf/atf-c/t_atf_c.c
 tests_atf_atf_c_t_atf_c_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_build
-tests_atf_atf_c_t_build_SOURCES = tests/atf/atf-c/t_build.c
+tests_atf_atf_c_t_build_SOURCES = tests/atf/atf-c/t_build.c \
+                                  tests/atf/atf-c/h_build.h
 tests_atf_atf_c_t_build_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_check
@@ -556,7 +560,12 @@ atf_atf_c___DATA = tests/atf/atf-c++/Atffile
 atf_atf_c__dir = $(pkgtestsdir)/atf-c++
 EXTRA_DIST += $(atf_atf_c___DATA)
 
-atf_atf_c___PROGRAMS = tests/atf/atf-c++/t_check
+atf_atf_c___PROGRAMS = tests/atf/atf-c++/t_build
+tests_atf_atf_c___t_build_SOURCES = tests/atf/atf-c++/t_build.cpp \
+                                    tests/atf/atf-c/h_build.h
+tests_atf_atf_c___t_build_LDADD = libatf-c++.la
+
+atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_check
 tests_atf_atf_c___t_check_SOURCES = tests/atf/atf-c++/t_check.cpp
 tests_atf_atf_c___t_check_LDADD = libatf-c++.la
 
