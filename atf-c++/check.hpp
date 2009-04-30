@@ -34,6 +34,8 @@ extern "C" {
 #include "atf-c/check.h"
 }
 
+#include <cstddef>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -49,94 +51,41 @@ namespace check {
 // ------------------------------------------------------------------------
 
 class argv_array {
-    class base_impl : utils::noncopyable {
-        std::size_t m_refcnt;
+    typedef std::vector< std::string > args_vector;
+    args_vector m_args;
 
-    public:
-        base_impl(void);
-        virtual ~base_impl(void);
-
-        std::size_t refcnt(void) const throw();
-        void ref(void) throw();
-        void unref(void) throw();
-
-        virtual const char* const* to_exec_argv(void) const = 0;
-    };
-
-    class ext_impl : public base_impl {
-        const char* const* m_array;
-
-    public:
-        ext_impl(const char* const*);
-
-        const char* const* to_exec_argv(void) const;
-    };
-
-    class int_impl : public base_impl {
-        char** m_array;
-
-        template< class C > void fill_array_from_collection(char**, const C&);
-
-    public:
-        template< class C > int_impl(const C&);
-        ~int_impl(void);
-
-        const char* const* to_exec_argv(void) const;
-    };
-
-    mutable base_impl* m_pimpl;
+    // TODO: This is immutable, so we should be able to use
+    // std::tr1::shared_array instead when it becomes widely available.
+    // The reason would be to remove all copy constructors and assignment
+    // operators from this class.
+    utils::auto_array< const char* > m_exec_argv;
+    void ctor_init_exec_argv(void);
 
 public:
+    typedef args_vector::const_iterator const_iterator;
+    typedef args_vector::size_type size_type;
+
     explicit argv_array(const char* const*);
     template< class C > explicit argv_array(const C&);
     argv_array(const argv_array&);
-    ~argv_array(void);
 
-    const char* const* to_exec_argv(void) const;
+    const char* const* exec_argv(void) const;
+    size_type size(void) const;
+    const char* operator[](int) const;
+
+    const_iterator begin(void) const;
+    const_iterator end(void) const;
 
     argv_array& operator=(const argv_array&);
 };
 
 template< class C >
-void
-argv_array::int_impl::fill_array_from_collection(char** a, const C& col)
+argv_array::argv_array(const C& c)
 {
-    std::size_t i = 0;
-    try {
-        for (typename C::const_iterator iter = col.begin();
-             iter != col.end(); iter++) {
-            const std::string& arg = *iter;
-            a[i] = text::duplicate(arg.c_str());
-            i++;
-        }
-        a[i] = NULL;
-    } catch (...) {
-        if (i > 0) {
-            for (std::size_t j = 0; j < i - 1; j++)
-                delete a[j];
-        }
-    }
-}
-
-template< class C >
-argv_array::int_impl::int_impl(const C& collection)
-{
-    char** a = new char*[collection.size() + 1];
-    try {
-        fill_array_from_collection(a, collection);
-        assert(a[collection.size()] == NULL);
-    } catch (...) {
-        delete a;
-        throw;
-    }
-    m_array = a;
-}
-
-template< class C >
-argv_array::argv_array(const C& collection) :
-    m_pimpl(new int_impl(collection))
-{
-    m_pimpl->ref();
+    for (typename C::const_iterator iter = c.begin(); iter != c.end();
+         iter++)
+        m_args.push_back(*iter);
+    ctor_init_exec_argv();
 }
 
 // ------------------------------------------------------------------------

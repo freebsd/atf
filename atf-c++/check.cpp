@@ -41,6 +41,40 @@ namespace impl = atf::check;
 #define IMPL_NAME "atf::check"
 
 // ------------------------------------------------------------------------
+// Auxiliary functions.
+// ------------------------------------------------------------------------
+
+template< class C >
+atf::utils::auto_array< const char* >
+collection_to_argv(const C& c)
+{
+    atf::utils::auto_array< const char* > argv(new const char*[c.size() + 1]);
+
+    std::size_t pos = 0;
+    for (typename C::const_iterator iter = c.begin(); iter != c.end();
+         iter++) {
+        argv[pos] = (*iter).c_str();
+        pos++;
+    }
+    INV(pos == c.size());
+    argv[pos] = NULL;
+
+    return argv;
+}
+
+template< class C >
+C
+argv_to_collection(const char* const* argv)
+{
+    C c;
+
+    for (const char* const* iter = argv; *iter != NULL; iter++)
+        c.push_back(std::string(*iter));
+
+    return c;
+}
+
+// ------------------------------------------------------------------------
 // The "check_result" class.
 // ------------------------------------------------------------------------
 
@@ -98,103 +132,65 @@ impl::check_result::stderr_path(void)
 // The "argv_array" type.
 // ------------------------------------------------------------------------
 
-impl::argv_array::base_impl::base_impl(void) :
-    m_refcnt(0)
+impl::argv_array::argv_array(const char* const* ca) :
+    m_args(argv_to_collection< args_vector >(ca)),
+    m_exec_argv(collection_to_argv(m_args))
 {
-}
-
-impl::argv_array::base_impl::~base_impl(void)
-{
-    PRE(m_refcnt == 0);
-}
-
-std::size_t
-impl::argv_array::base_impl::refcnt(void)
-    const throw()
-{
-    return m_refcnt;
-}
-
-void
-impl::argv_array::base_impl::ref(void)
-    throw()
-{
-    m_refcnt++;
-}
-
-void
-impl::argv_array::base_impl::unref(void)
-    throw()
-{
-    PRE(m_refcnt > 0);
-    m_refcnt--;
-}
-
-impl::argv_array::ext_impl::ext_impl(const char* const* a) :
-    m_array(a)
-{
-}
-
-impl::argv_array::int_impl::~int_impl(void)
-{
-    for (char **iter = m_array; *iter != NULL; iter++)
-        delete *iter;
-    delete m_array;
-}
-
-const char* const*
-impl::argv_array::ext_impl::to_exec_argv(void)
-    const
-{
-    PRE(refcnt() > 0);
-    return m_array;
-}
-
-const char* const*
-impl::argv_array::int_impl::to_exec_argv(void)
-    const
-{
-    PRE(refcnt() > 0);
-    return m_array;
-}
-
-impl::argv_array::argv_array(const char* const* a) :
-    m_pimpl(new ext_impl(a))
-{
-    m_pimpl->ref();
 }
 
 impl::argv_array::argv_array(const argv_array& a) :
-    m_pimpl(a.m_pimpl)
+    m_args(a.m_args),
+    m_exec_argv(collection_to_argv(m_args))
 {
-    m_pimpl->ref();
 }
 
-impl::argv_array::~argv_array(void)
+void
+impl::argv_array::ctor_init_exec_argv(void)
 {
-    m_pimpl->unref();
-    if (m_pimpl->refcnt() == 0)
-        delete m_pimpl;
+    m_exec_argv = collection_to_argv(m_args);
 }
 
 const char* const*
-impl::argv_array::to_exec_argv(void)
+impl::argv_array::exec_argv(void)
     const
 {
-    return m_pimpl->to_exec_argv();
+    return m_exec_argv.get();
+}
+
+impl::argv_array::size_type
+impl::argv_array::size(void)
+    const
+{
+    return m_args.size();
+}
+
+const char*
+impl::argv_array::operator[](int idx)
+    const
+{
+    return m_args[idx].c_str();
+}
+
+impl::argv_array::const_iterator
+impl::argv_array::begin(void)
+    const
+{
+    return m_args.begin();
+}
+
+impl::argv_array::const_iterator
+impl::argv_array::end(void)
+    const
+{
+    return m_args.end();
 }
 
 impl::argv_array&
 impl::argv_array::operator=(const argv_array& a)
 {
     if (this != &a) {
-        m_pimpl->unref();
-        if (m_pimpl->refcnt() == 0)
-            delete m_pimpl;
-
-        m_pimpl = a.m_pimpl;
-
-        m_pimpl->ref();
+        m_args = a.m_args;
+        m_exec_argv = collection_to_argv(m_args);
     }
     return *this;
 }
@@ -208,7 +204,7 @@ impl::exec(const argv_array& argva)
 {
     atf_check_result_t result;
 
-    atf_error_t err = atf_check_exec_array(argva.to_exec_argv(), &result);
+    atf_error_t err = atf_check_exec_array(argva.exec_argv(), &result);
     if (atf_is_error(err))
         throw_atf_error(err);
 
