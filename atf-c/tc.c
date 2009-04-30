@@ -933,6 +933,7 @@ write_tcr(const atf_tcr_t *tcr)
         fatal_atf_error("Cannot write test case results", err);
 
     close(fd);
+    atf_fs_path_fini(&tcrfile);
 }
 
 void
