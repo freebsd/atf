@@ -122,7 +122,7 @@ public:
 
     tcr run(int, int, const fs::path&) const;
 
-    /* To be called from the child process only. */
+    // To be called from the child process only.
     static void pass(void);
     static void fail(const std::string&);
     static void skip(const std::string&);

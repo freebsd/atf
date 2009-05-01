@@ -271,10 +271,10 @@ HEADER_TC(include, "atf-c/build.h", "d_include_build_h.c");
 
 ATF_TP_ADD_TCS(tp)
 {
-    // Add the internal test cases.
+    /* Add the internal test cases. */
     ATF_TP_ADD_TC(tp, equal_list_array);
 
-    // Add the test cases for the free functions.
+    /* Add the test cases for the free functions. */
     ATF_TP_ADD_TC(tp, c_o);
     ATF_TP_ADD_TC(tp, cpp);
     ATF_TP_ADD_TC(tp, cxx_o);

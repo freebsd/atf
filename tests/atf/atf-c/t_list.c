@@ -209,7 +209,7 @@ ATF_TC_BODY(list_append_list, tc)
 
         end1 = atf_list_end_c(&l1);
         end2 = atf_list_end_c(&l2);
-        // XXX Shouldn't query m_entry here.
+        /* XXX Shouldn't query m_entry here. */
         ATF_CHECK(end1.m_entry != end2.m_entry);
 
         atf_list_append_list(&l1, &l2);

@@ -237,8 +237,8 @@ ATF_TEST_CASE_BODY(check)
 
         ATF_TEST_CASE_NAME(h_check) tcaux;
         tcaux.init(config);
-        atf::tests::tcr tcr =
-            tcaux.run(STDOUT_FILENO, STDERR_FILENO, atf::fs::get_current_dir());
+        atf::tests::tcr tcr = tcaux.run(STDOUT_FILENO, STDERR_FILENO,
+                                        atf::fs::get_current_dir());
 
         ATF_CHECK(atf::fs::exists(before));
         if (t->ok) {

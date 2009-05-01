@@ -202,7 +202,7 @@ list_to_array(const atf_list_t *l, const char ***ap)
             *aiter = (const char *)atf_list_citer_data(liter);
             aiter++;
         }
-	*aiter = NULL;
+        *aiter = NULL;
 
         err = atf_no_error();
         *ap = a;
