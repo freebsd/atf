@@ -216,8 +216,13 @@ ATF_TEST_CASE_BODY(has)
 
 HEADER_TC(include, "atf-c++/config.hpp", "d_include_config_hpp.cpp");
 
+// ------------------------------------------------------------------------
+// Main.
+// ------------------------------------------------------------------------
+
 ATF_INIT_TEST_CASES(tcs)
 {
+    // Add the test cases for the free functions.
     ATF_ADD_TEST_CASE(tcs, has);
     ATF_ADD_TEST_CASE(tcs, get);
     ATF_ADD_TEST_CASE(tcs, get_all);

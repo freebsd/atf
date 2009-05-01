@@ -263,6 +263,10 @@ ATF_TEST_CASE_BODY(expand_glob_tps)
 
 HEADER_TC(include, "atf-c++/expand.hpp", "d_include_expand_hpp.cpp");
 
+// ------------------------------------------------------------------------
+// Main.
+// ------------------------------------------------------------------------
+
 ATF_INIT_TEST_CASES(tcs)
 {
     // Add the tests for the free functions.

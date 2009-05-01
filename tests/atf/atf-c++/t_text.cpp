@@ -36,6 +36,10 @@
 
 #include "h_lib.hpp"
 
+// ------------------------------------------------------------------------
+// Test cases for the free functions.
+// ------------------------------------------------------------------------
+
 ATF_TEST_CASE(duplicate);
 ATF_TEST_CASE_HEAD(duplicate)
 {
@@ -323,8 +327,13 @@ ATF_TEST_CASE_BODY(to_type)
 
 HEADER_TC(include, "atf-c++/text.hpp", "d_include_text_hpp.cpp");
 
+// ------------------------------------------------------------------------
+// Main.
+// ------------------------------------------------------------------------
+
 ATF_INIT_TEST_CASES(tcs)
 {
+    // Add the test cases for the free functions.
     ATF_ADD_TEST_CASE(tcs, duplicate);
     ATF_ADD_TEST_CASE(tcs, join);
     ATF_ADD_TEST_CASE(tcs, split);

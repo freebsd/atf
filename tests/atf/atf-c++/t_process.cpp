@@ -69,6 +69,7 @@ HEADER_TC(include, "atf-c++/process.hpp", "d_include_process_hpp.cpp");
 
 ATF_INIT_TEST_CASES(tcs)
 {
+    // Add the test cases for the free functions.
     ATF_ADD_TEST_CASE(tcs, fork);
     ATF_ADD_TEST_CASE(tcs, system);
 

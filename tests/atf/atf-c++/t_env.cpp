@@ -32,6 +32,10 @@
 
 #include "h_lib.hpp"
 
+// ------------------------------------------------------------------------
+// Test cases for the free functions.
+// ------------------------------------------------------------------------
+
 ATF_TEST_CASE(has_get);
 ATF_TEST_CASE_HEAD(has_get)
 {
@@ -81,8 +85,13 @@ ATF_TEST_CASE_BODY(unset)
 
 HEADER_TC(include, "atf-c++/env.hpp", "d_include_env_hpp.cpp");
 
+// ------------------------------------------------------------------------
+// Main.
+// ------------------------------------------------------------------------
+
 ATF_INIT_TEST_CASES(tcs)
 {
+    // Add the test cases for the free functions.
     ATF_ADD_TEST_CASE(tcs, has_get);
     ATF_ADD_TEST_CASE(tcs, set);
     ATF_ADD_TEST_CASE(tcs, unset);

@@ -378,6 +378,7 @@ BUILD_TC(use, "d_use_macros_hpp.cpp",
 
 ATF_INIT_TEST_CASES(tcs)
 {
+    // Add the test cases for the macros.
     ATF_ADD_TEST_CASE(tcs, pass);
     ATF_ADD_TEST_CASE(tcs, fail);
     ATF_ADD_TEST_CASE(tcs, skip);
