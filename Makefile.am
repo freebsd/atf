@@ -247,6 +247,7 @@ atf_c___HEADERS = atf-c++/application.hpp \
                   atf-c++/parser.hpp \
                   atf-c++/process.hpp \
                   atf-c++/sanity.hpp \
+                  atf-c++/signals.hpp \
                   atf-c++/tests.hpp \
                   atf-c++/text.hpp \
                   atf-c++/ui.hpp \
