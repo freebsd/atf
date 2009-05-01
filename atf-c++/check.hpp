@@ -157,6 +157,12 @@ public:
 // Free functions.
 // ------------------------------------------------------------------------
 
+bool build_c_o(const atf::fs::path&, const atf::fs::path&,
+               const argv_array&);
+bool build_cpp(const atf::fs::path&, const atf::fs::path&,
+               const argv_array&);
+bool build_cxx_o(const atf::fs::path&, const atf::fs::path&,
+                 const argv_array&);
 check_result exec(const argv_array&);
 
 // Useful for testing only.

@@ -27,6 +27,12 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+extern "C" {
+#include <fcntl.h>
+#include <regex.h>
+#include <unistd.h>
+}
+
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
@@ -104,6 +110,45 @@ array_size(const char* const* array)
         size++;
 
     return size;
+}
+
+static
+bool
+grep_string(const std::string& str, const char* regex)
+{
+    int res;
+    regex_t preg;
+
+    std::cout << "Looking for '" << regex << "' in '" << str << "'\n";
+    ATF_CHECK(::regcomp(&preg, regex, REG_EXTENDED) == 0);
+
+    res = ::regexec(&preg, str.c_str(), 0, NULL, 0);
+    ATF_CHECK(res == 0 || res == REG_NOMATCH);
+
+    ::regfree(&preg);
+
+    return res == 0;
+}
+
+static
+bool
+grep_file(const char* name, const char* regex)
+{
+    std::ifstream is(name);
+    ATF_CHECK(is);
+
+    bool found = false;
+
+    std::string line;
+    std::getline(is, line);
+    while (!found && is.good()) {
+        if (grep_string(line, regex))
+            found = true;
+        else
+            std::getline(is, line);
+    }
+
+    return found;
 }
 
 // ------------------------------------------------------------------------
@@ -373,8 +418,196 @@ ATF_TEST_CASE_BODY(result_templates)
 }
 
 // ------------------------------------------------------------------------
+// Helper test cases for the free functions.
+// ------------------------------------------------------------------------
+
+static
+void
+run_h_tc(atf::tests::tc& tc, const char* outname, const char* errname)
+{
+    const int fdout = ::open(outname, O_CREAT | O_WRONLY | O_TRUNC, 0600);
+    ATF_CHECK(fdout != -1);
+
+    const int fderr = ::open(errname, O_CREAT | O_WRONLY | O_TRUNC, 0600);
+    ATF_CHECK(fderr != -1);
+
+    atf::tests::vars_map config;
+    config["callerdir"] = atf::fs::get_current_dir().str();
+
+    tc.init(config);
+    const atf::tests::tcr tcr =
+        tc.run(fdout, fderr, atf::fs::get_current_dir());
+
+    ATF_CHECK_EQUAL(tcr.get_state(), atf::tests::tcr::passed_state);
+
+    ::close(fderr);
+    ::close(fdout);
+}
+
+ATF_TEST_CASE(h_build_c_o_ok);
+ATF_TEST_CASE_HEAD(h_build_c_o_ok)
+{
+    set_md_var("descr", "Helper test case for build_c_o");
+}
+ATF_TEST_CASE_BODY(h_build_c_o_ok)
+{
+    std::ofstream sfile("test.c");
+    sfile << "#include <stdio.h>\n";
+    sfile.close();
+
+    ATF_CHECK(atf::check::build_c_o(atf::fs::path("test.c"),
+                                    atf::fs::path("test.o"),
+                                    atf::check::argv_array()));
+}
+
+ATF_TEST_CASE(h_build_c_o_fail);
+ATF_TEST_CASE_HEAD(h_build_c_o_fail)
+{
+    set_md_var("descr", "Helper test case for build_c_o");
+}
+ATF_TEST_CASE_BODY(h_build_c_o_fail)
+{
+    std::ofstream sfile("test.c");
+    sfile << "void foo(void) { int a = UNDEFINED_SYMBOL; }\n";
+    sfile.close();
+
+    ATF_CHECK(!atf::check::build_c_o(atf::fs::path("test.c"),
+                                     atf::fs::path("test.o"),
+                                     atf::check::argv_array()));
+}
+
+ATF_TEST_CASE(h_build_cpp_ok);
+ATF_TEST_CASE_HEAD(h_build_cpp_ok)
+{
+    set_md_var("descr", "Helper test case for build_cpp");
+}
+ATF_TEST_CASE_BODY(h_build_cpp_ok)
+{
+    std::ofstream sfile("test.c");
+    sfile << "#define A foo\n";
+    sfile << "#define B bar\n";
+    sfile << "A B\n";
+    sfile.close();
+
+    const atf::fs::path testp =
+        atf::fs::path(get_config_var("callerdir")) / "test.p";
+
+    ATF_CHECK(atf::check::build_cpp(atf::fs::path("test.c"), testp,
+                                    atf::check::argv_array()));
+}
+
+ATF_TEST_CASE(h_build_cpp_fail);
+ATF_TEST_CASE_HEAD(h_build_cpp_fail)
+{
+    set_md_var("descr", "Helper test case for build_cpp");
+}
+ATF_TEST_CASE_BODY(h_build_cpp_fail)
+{
+    std::ofstream sfile("test.c");
+    sfile << "#include \"./non-existent.h\"\n";
+    sfile.close();
+
+    ATF_CHECK(!atf::check::build_cpp(atf::fs::path("test.c"),
+                                     atf::fs::path("test.p"),
+                                     atf::check::argv_array()));
+}
+
+ATF_TEST_CASE(h_build_cxx_o_ok);
+ATF_TEST_CASE_HEAD(h_build_cxx_o_ok)
+{
+    set_md_var("descr", "Helper test case for build_cxx_o");
+}
+ATF_TEST_CASE_BODY(h_build_cxx_o_ok)
+{
+    std::ofstream sfile("test.cpp");
+    sfile << "#include <iostream>\n";
+    sfile.close();
+
+    ATF_CHECK(atf::check::build_cxx_o(atf::fs::path("test.cpp"),
+                                      atf::fs::path("test.o"),
+                                      atf::check::argv_array()));
+}
+
+ATF_TEST_CASE(h_build_cxx_o_fail);
+ATF_TEST_CASE_HEAD(h_build_cxx_o_fail)
+{
+    set_md_var("descr", "Helper test case for build_cxx_o");
+}
+ATF_TEST_CASE_BODY(h_build_cxx_o_fail)
+{
+    std::ofstream sfile("test.cpp");
+    sfile << "void foo(void) { int a = UNDEFINED_SYMBOL; }\n";
+    sfile.close();
+
+    ATF_CHECK(!atf::check::build_cxx_o(atf::fs::path("test.cpp"),
+                                       atf::fs::path("test.o"),
+                                       atf::check::argv_array()));
+}
+
+// ------------------------------------------------------------------------
 // Test cases for the free functions.
 // ------------------------------------------------------------------------
+
+ATF_TEST_CASE(build_c_o);
+ATF_TEST_CASE_HEAD(build_c_o)
+{
+    set_md_var("descr", "Tests the build_c_o function");
+}
+ATF_TEST_CASE_BODY(build_c_o)
+{
+    ATF_TEST_CASE_NAME(h_build_c_o_ok) h_build_c_o_ok;
+    run_h_tc(h_build_c_o_ok, "stdout", "stderr");
+    ATF_CHECK(grep_file("stdout", "-o test.o"));
+    ATF_CHECK(grep_file("stdout", "-c test.c"));
+
+    ATF_TEST_CASE_NAME(h_build_c_o_fail) h_build_c_o_fail;
+    run_h_tc(h_build_c_o_fail, "stdout", "stderr");
+    ATF_CHECK(grep_file("stdout", "-o test.o"));
+    ATF_CHECK(grep_file("stdout", "-c test.c"));
+    ATF_CHECK(grep_file("stderr", "test.c"));
+    ATF_CHECK(grep_file("stderr", "UNDEFINED_SYMBOL"));
+}
+
+ATF_TEST_CASE(build_cpp);
+ATF_TEST_CASE_HEAD(build_cpp)
+{
+    set_md_var("descr", "Tests the build_cpp function");
+}
+ATF_TEST_CASE_BODY(build_cpp)
+{
+    ATF_TEST_CASE_NAME(h_build_cpp_ok) h_build_cpp_ok;
+    run_h_tc(h_build_cpp_ok, "stdout", "stderr");
+    ATF_CHECK(grep_file("stdout", "-o.*test.p"));
+    ATF_CHECK(grep_file("stdout", "test.c"));
+    ATF_CHECK(grep_file("test.p", "foo bar"));
+
+    ATF_TEST_CASE_NAME(h_build_cpp_fail) h_build_cpp_fail;
+    run_h_tc(h_build_cpp_fail, "stdout", "stderr");
+    ATF_CHECK(grep_file("stdout", "-o test.p"));
+    ATF_CHECK(grep_file("stdout", "test.c"));
+    ATF_CHECK(grep_file("stderr", "test.c"));
+    ATF_CHECK(grep_file("stderr", "non-existent.h"));
+}
+
+ATF_TEST_CASE(build_cxx_o);
+ATF_TEST_CASE_HEAD(build_cxx_o)
+{
+    set_md_var("descr", "Tests the build_cxx_o function");
+}
+ATF_TEST_CASE_BODY(build_cxx_o)
+{
+    ATF_TEST_CASE_NAME(h_build_cxx_o_ok) h_build_cxx_o_ok;
+    run_h_tc(h_build_cxx_o_ok, "stdout", "stderr");
+    ATF_CHECK(grep_file("stdout", "-o test.o"));
+    ATF_CHECK(grep_file("stdout", "-c test.cpp"));
+
+    ATF_TEST_CASE_NAME(h_build_cxx_o_fail) h_build_cxx_o_fail;
+    run_h_tc(h_build_cxx_o_fail, "stdout", "stderr");
+    ATF_CHECK(grep_file("stdout", "-o test.o"));
+    ATF_CHECK(grep_file("stdout", "-c test.cpp"));
+    ATF_CHECK(grep_file("stderr", "test.cpp"));
+    ATF_CHECK(grep_file("stderr", "UNDEFINED_SYMBOL"));
+}
 
 ATF_TEST_CASE(exec_argv);
 ATF_TEST_CASE_HEAD(exec_argv)
@@ -529,6 +762,9 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, result_templates);
 
     // Add the test cases for the free functions.
+    ATF_ADD_TEST_CASE(tcs, build_c_o);
+    ATF_ADD_TEST_CASE(tcs, build_cpp);
+    ATF_ADD_TEST_CASE(tcs, build_cxx_o);
     ATF_ADD_TEST_CASE(tcs, exec_argv);
     ATF_ADD_TEST_CASE(tcs, exec_cleanup);
     ATF_ADD_TEST_CASE(tcs, exec_exitstatus);

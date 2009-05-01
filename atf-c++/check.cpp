@@ -30,6 +30,7 @@
 #include <cstring>
 
 extern "C" {
+#include "atf-c/build.h"
 #include "atf-c/error.h"
 }
 
@@ -203,6 +204,48 @@ impl::argv_array::operator=(const argv_array& a)
 // ------------------------------------------------------------------------
 // Free functions.
 // ------------------------------------------------------------------------
+
+bool
+impl::build_c_o(const atf::fs::path& sfile, const atf::fs::path& ofile,
+                const argv_array& optargs)
+{
+    bool success;
+
+    atf_error_t err = atf_check_build_c_o(sfile.c_str(), ofile.c_str(),
+                                          optargs.exec_argv(), &success);
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return success;
+}
+
+bool
+impl::build_cpp(const atf::fs::path& sfile, const atf::fs::path& ofile,
+                const argv_array& optargs)
+{
+    bool success;
+
+    atf_error_t err = atf_check_build_cpp(sfile.c_str(), ofile.c_str(),
+                                          optargs.exec_argv(), &success);
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return success;
+}
+
+bool
+impl::build_cxx_o(const atf::fs::path& sfile, const atf::fs::path& ofile,
+                  const argv_array& optargs)
+{
+    bool success;
+
+    atf_error_t err = atf_check_build_cxx_o(sfile.c_str(), ofile.c_str(),
+                                            optargs.exec_argv(), &success);
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return success;
+}
 
 impl::check_result
 impl::exec(const argv_array& argva)
