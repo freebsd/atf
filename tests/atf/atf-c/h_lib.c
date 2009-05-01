@@ -79,6 +79,8 @@ grep_string(const atf_dynstr_t *str, const char *regex)
     res = regexec(&preg, atf_dynstr_cstring(str), 0, NULL, 0);
     ATF_REQUIRE(res == 0 || res == REG_NOMATCH);
 
+    regfree(&preg);
+
     return res == 0;
 }
 
