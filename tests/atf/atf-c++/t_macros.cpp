@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,7 @@
 
 extern "C" {
 #include <fcntl.h>
+#include <unistd.h>
 }
 
 #include <iostream>
@@ -163,7 +164,8 @@ ATF_TEST_CASE_BODY(pass)
 {
     ATF_TEST_CASE_NAME(h_pass) tcaux;
     tcaux.init(init_config());
-    atf::tests::tcr tcr = tcaux.run(atf::fs::get_current_dir());
+    atf::tests::tcr tcr =
+        tcaux.run(STDOUT_FILENO, STDERR_FILENO, atf::fs::get_current_dir());
 
     ATF_CHECK(tcr.get_state() == atf::tests::tcr::passed_state);
     ATF_CHECK(atf::fs::exists(atf::fs::path("before")));
@@ -179,7 +181,8 @@ ATF_TEST_CASE_BODY(fail)
 {
     ATF_TEST_CASE_NAME(h_fail) tcaux;
     tcaux.init(init_config());
-    atf::tests::tcr tcr = tcaux.run(atf::fs::get_current_dir());
+    atf::tests::tcr tcr =
+        tcaux.run(STDOUT_FILENO, STDERR_FILENO, atf::fs::get_current_dir());
 
     ATF_CHECK(tcr.get_state() == atf::tests::tcr::failed_state);
     ATF_CHECK(tcr.get_reason() == "Failed on purpose");
@@ -196,7 +199,8 @@ ATF_TEST_CASE_BODY(skip)
 {
     ATF_TEST_CASE_NAME(h_skip) tcaux;
     tcaux.init(init_config());
-    atf::tests::tcr tcr = tcaux.run(atf::fs::get_current_dir());
+    atf::tests::tcr tcr =
+        tcaux.run(STDOUT_FILENO, STDERR_FILENO, atf::fs::get_current_dir());
 
     ATF_CHECK(tcr.get_state() == atf::tests::tcr::skipped_state);
     ATF_CHECK(tcr.get_reason() == "Skipped on purpose");
@@ -231,7 +235,8 @@ ATF_TEST_CASE_BODY(check)
 
         ATF_TEST_CASE_NAME(h_check) tcaux;
         tcaux.init(config);
-        atf::tests::tcr tcr = tcaux.run(atf::fs::get_current_dir());
+        atf::tests::tcr tcr =
+            tcaux.run(STDOUT_FILENO, STDERR_FILENO, atf::fs::get_current_dir());
 
         ATF_CHECK(atf::fs::exists(before));
         if (t->ok) {
@@ -283,7 +288,8 @@ ATF_TEST_CASE_BODY(check_equal)
 
         ATF_TEST_CASE_NAME(h_check_equal) tcaux;
         tcaux.init(config);
-        atf::tests::tcr tcr = tcaux.run(atf::fs::get_current_dir());
+        atf::tests::tcr tcr = tcaux.run(STDOUT_FILENO, STDERR_FILENO,
+                                        atf::fs::get_current_dir());
 
         ATF_CHECK(atf::fs::exists(before));
         if (t->ok) {
@@ -332,7 +338,8 @@ ATF_TEST_CASE_BODY(check_throw)
 
         ATF_TEST_CASE_NAME(h_check_throw) tcaux;
         tcaux.init(config);
-        atf::tests::tcr tcr = tcaux.run(atf::fs::get_current_dir());
+        atf::tests::tcr tcr = tcaux.run(STDOUT_FILENO, STDERR_FILENO,
+                                        atf::fs::get_current_dir());
 
         ATF_CHECK(atf::fs::exists(before));
         if (t->ok) {

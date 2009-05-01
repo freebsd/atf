@@ -120,7 +120,7 @@ public:
     bool has_md_var(const std::string&) const;
     void set_md_var(const std::string&, const std::string&);
 
-    tcr run(const fs::path&) const;
+    tcr run(int, int, const fs::path&) const;
 
     /* To be called from the child process only. */
     static void pass(void);
