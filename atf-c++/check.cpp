@@ -132,6 +132,11 @@ impl::check_result::stderr_path(void)
 // The "argv_array" type.
 // ------------------------------------------------------------------------
 
+impl::argv_array::argv_array(void) :
+    m_exec_argv(collection_to_argv(m_args))
+{
+}
+
 impl::argv_array::argv_array(const char* const* ca) :
     m_args(argv_to_collection< args_vector >(ca)),
     m_exec_argv(collection_to_argv(m_args))

@@ -182,6 +182,19 @@ ATF_TEST_CASE_BODY(argv_array_init_col)
     }
 }
 
+ATF_TEST_CASE(argv_array_init_empty);
+ATF_TEST_CASE_HEAD(argv_array_init_empty)
+{
+    set_md_var("descr", "Tests that argv_array is correctly constructed "
+               "by the default constructor");
+}
+ATF_TEST_CASE_BODY(argv_array_init_empty)
+{
+    atf::check::argv_array argv;
+
+    ATF_CHECK_EQUAL(argv.size(), 0);
+}
+
 ATF_TEST_CASE(argv_array_assign);
 ATF_TEST_CASE_HEAD(argv_array_assign)
 {
@@ -250,6 +263,13 @@ ATF_TEST_CASE_HEAD(argv_array_exec_argv)
 ATF_TEST_CASE_BODY(argv_array_exec_argv)
 {
     using atf::check::argv_array;
+
+    {
+        argv_array argv;
+        const char* const* eargv = argv.exec_argv();
+        ATF_CHECK_EQUAL(array_size(eargv), 0);
+        ATF_CHECK_EQUAL(eargv[0], NULL);
+    }
 
     {
         const char* const carray[] = { "arg0", NULL };
@@ -501,6 +521,7 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, argv_array_exec_argv);
     ATF_ADD_TEST_CASE(tcs, argv_array_init_carray);
     ATF_ADD_TEST_CASE(tcs, argv_array_init_col);
+    ATF_ADD_TEST_CASE(tcs, argv_array_init_empty);
     ATF_ADD_TEST_CASE(tcs, argv_array_iter);
 
     // Add the test cases for the "check_result" type.
