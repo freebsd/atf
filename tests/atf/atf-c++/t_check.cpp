@@ -49,6 +49,8 @@ extern "C" {
 #include "atf-c++/text.hpp"
 #include "atf-c++/utils.hpp"
 
+#include "h_lib.hpp"
+
 // ------------------------------------------------------------------------
 // Auxiliary functions.
 // ------------------------------------------------------------------------
@@ -743,6 +745,12 @@ ATF_TEST_CASE_BODY(exec_unknown)
 }
 
 // ------------------------------------------------------------------------
+// Tests cases for the header file.
+// ------------------------------------------------------------------------
+
+HEADER_TC(include, "atf-c++/check.hpp", "d_include_check_hpp.cpp");
+
+// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -770,4 +778,7 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, exec_exitstatus);
     ATF_ADD_TEST_CASE(tcs, exec_stdout_stderr);
     ATF_ADD_TEST_CASE(tcs, exec_unknown);
+
+    // Add the test cases for the header file.
+    ATF_ADD_TEST_CASE(tcs, include);
 }

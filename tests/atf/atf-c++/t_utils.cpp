@@ -32,6 +32,8 @@
 #include "atf-c++/macros.hpp"
 #include "atf-c++/utils.hpp"
 
+#include "h_lib.hpp"
+
 // ------------------------------------------------------------------------
 // Tests for the "auto_array" class.
 // ------------------------------------------------------------------------
@@ -279,6 +281,12 @@ ATF_TEST_CASE_BODY(auto_array_access)
 }
 
 // ------------------------------------------------------------------------
+// Tests cases for the header file.
+// ------------------------------------------------------------------------
+
+HEADER_TC(include, "atf-c++/utils.hpp", "d_include_utils_hpp.cpp");
+
+// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -294,4 +302,7 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, auto_array_assign);
     ATF_ADD_TEST_CASE(tcs, auto_array_assign_ref);
     ATF_ADD_TEST_CASE(tcs, auto_array_access);
+
+    // Add the test cases for the header file.
+    ATF_ADD_TEST_CASE(tcs, include);
 }

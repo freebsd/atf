@@ -39,6 +39,8 @@ extern "C" {
 #include "atf-c++/macros.hpp"
 #include "atf-c++/text.hpp"
 
+#include "h_lib.hpp"
+
 // ------------------------------------------------------------------------
 // Auxiliary functions.
 // ------------------------------------------------------------------------
@@ -360,6 +362,17 @@ ATF_TEST_CASE_BODY(check_throw)
 }
 
 // ------------------------------------------------------------------------
+// Tests cases for the header file.
+// ------------------------------------------------------------------------
+
+HEADER_TC(include, "atf-c++/macros.hpp", "d_include_macros_hpp.cpp");
+BUILD_TC(use, "d_use_macros_hpp.cpp",
+         "Tests that the macros provided by the atf-c++/macros.hpp file "
+         "do not cause syntax errors when used",
+         "Build of d_use_macros_hpp.cpp failed; some macros in "
+         "atf-c++/macros.hpp are broken");
+
+// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -371,4 +384,8 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, check);
     ATF_ADD_TEST_CASE(tcs, check_equal);
     ATF_ADD_TEST_CASE(tcs, check_throw);
+
+    // Add the test cases for the header file.
+    ATF_ADD_TEST_CASE(tcs, include);
+    ATF_ADD_TEST_CASE(tcs, use);
 }

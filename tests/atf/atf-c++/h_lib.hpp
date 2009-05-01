@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
+// Copyright (c) 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,51 +27,33 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <atf-c++.hpp>
+#if defined(TESTS_ATF_ATF_CXX_HPP_LIB_H)
+#   error "Cannot include h_lib.hpp more than once."
+#else
+#   define TESTS_ATF_ATF_CXX_HPP_LIB_H
+#endif
 
-#include "atf-c++/process.hpp"
+#define HEADER_TC(name, hdrname, sfile) \
+    BUILD_TC(name, sfile, \
+             "Tests that the " hdrname " file can be included on " \
+             "its own, without any prerequisites", \
+             "Build of " sfile " failed; " hdrname " is not self-contained");
 
-#include "h_lib.hpp"
+#define BUILD_TC(name, sfile, descr, failmsg) \
+    ATF_TEST_CASE(name); \
+    ATF_TEST_CASE_HEAD(name) \
+    { \
+        set_md_var("descr", descr); \
+    } \
+    ATF_TEST_CASE_BODY(name) \
+    { \
+        build_check_cxx_o(*this, sfile, failmsg); \
+    }
 
-// ------------------------------------------------------------------------
-// Test cases for the free functions.
-// ------------------------------------------------------------------------
-
-ATF_TEST_CASE(fork);
-ATF_TEST_CASE_HEAD(fork)
-{
-    set_md_var("descr", "Tests the fork function");
+namespace atf {
+namespace tests {
+class tc;
 }
-ATF_TEST_CASE_BODY(fork)
-{
-    ATF_SKIP("Unimplemented test case; process API not yet decided");
 }
 
-ATF_TEST_CASE(system);
-ATF_TEST_CASE_HEAD(system)
-{
-    set_md_var("descr", "Tests the system function");
-}
-ATF_TEST_CASE_BODY(system)
-{
-    ATF_SKIP("Unimplemented test case; process API not yet decided");
-}
-
-// ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/process.hpp", "d_include_process_hpp.cpp");
-
-// ------------------------------------------------------------------------
-// Main.
-// ------------------------------------------------------------------------
-
-ATF_INIT_TEST_CASES(tcs)
-{
-    ATF_ADD_TEST_CASE(tcs, fork);
-    ATF_ADD_TEST_CASE(tcs, system);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
-}
+void build_check_cxx_o(const atf::tests::tc&, const char*, const char*);

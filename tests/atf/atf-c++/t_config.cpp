@@ -35,6 +35,8 @@
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/macros.hpp"
 
+#include "h_lib.hpp"
+
 static const char *test_value = "env-value";
 
 static struct varnames {
@@ -208,9 +210,18 @@ ATF_TEST_CASE_BODY(has)
     ATF_CHECK(!atf::config::has("atf_shells"));
 }
 
+// ------------------------------------------------------------------------
+// Tests cases for the header file.
+// ------------------------------------------------------------------------
+
+HEADER_TC(include, "atf-c++/config.hpp", "d_include_config_hpp.cpp");
+
 ATF_INIT_TEST_CASES(tcs)
 {
     ATF_ADD_TEST_CASE(tcs, has);
     ATF_ADD_TEST_CASE(tcs, get);
     ATF_ADD_TEST_CASE(tcs, get_all);
+
+    // Add the test cases for the header file.
+    ATF_ADD_TEST_CASE(tcs, include);
 }

@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
+// Copyright (c) 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,51 +27,27 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <atf-c++.hpp>
+#include <string>
+#include <vector>
 
-#include "atf-c++/process.hpp"
+#include "atf-c++/check.hpp"
+#include "atf-c++/config.hpp"
+#include "atf-c++/fs.hpp"
+#include "atf-c++/macros.hpp"
 
 #include "h_lib.hpp"
 
-// ------------------------------------------------------------------------
-// Test cases for the free functions.
-// ------------------------------------------------------------------------
-
-ATF_TEST_CASE(fork);
-ATF_TEST_CASE_HEAD(fork)
+void
+build_check_cxx_o(const atf::tests::tc& tc, const char* sfile,
+                  const char* failmsg)
 {
-    set_md_var("descr", "Tests the fork function");
-}
-ATF_TEST_CASE_BODY(fork)
-{
-    ATF_SKIP("Unimplemented test case; process API not yet decided");
-}
+    std::vector< std::string > optargs;
+    optargs.push_back("-I" + atf::config::get("atf_includedir"));
 
-ATF_TEST_CASE(system);
-ATF_TEST_CASE_HEAD(system)
-{
-    set_md_var("descr", "Tests the system function");
-}
-ATF_TEST_CASE_BODY(system)
-{
-    ATF_SKIP("Unimplemented test case; process API not yet decided");
-}
+    const atf::fs::path sfilepath =
+        atf::fs::path(tc.get_config_var("srcdir")) / sfile;
 
-// ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/process.hpp", "d_include_process_hpp.cpp");
-
-// ------------------------------------------------------------------------
-// Main.
-// ------------------------------------------------------------------------
-
-ATF_INIT_TEST_CASES(tcs)
-{
-    ATF_ADD_TEST_CASE(tcs, fork);
-    ATF_ADD_TEST_CASE(tcs, system);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
+    if (!atf::check::build_cxx_o(sfilepath, atf::fs::path("test.o"),
+                                 atf::check::argv_array(optargs)))
+        ATF_FAIL(failmsg);
 }
