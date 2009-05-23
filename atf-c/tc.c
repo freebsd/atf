@@ -86,6 +86,7 @@ static void cleanup_child(const atf_tc_t *, int, int, const atf_fs_path_t *)
             ATF_DEFS_ATTRIBUTE_NORETURN;
 static void fail_internal(const char *, int, const char *, const char *,
                           const char *, va_list,
+                          void (*)(atf_dynstr_t *),
                           void (*)(const char *, ...));
 static void fatal_atf_error(const char *, atf_error_t)
             ATF_DEFS_ATTRIBUTE_NORETURN;
@@ -93,6 +94,8 @@ static void fatal_libc_error(const char *, int)
             ATF_DEFS_ATTRIBUTE_NORETURN;
 static atf_error_t prepare_child(const atf_tc_t *, int, int,
                                  const atf_fs_path_t *);
+static void tc_fail(atf_dynstr_t *) ATF_DEFS_ATTRIBUTE_NORETURN;
+static void tc_fail_nonfatal(atf_dynstr_t *);
 static void write_tcr(const atf_tcr_t *);
 
 /* ---------------------------------------------------------------------
@@ -936,6 +939,38 @@ write_tcr(const atf_tcr_t *tcr)
     atf_fs_path_fini(&tcrfile);
 }
 
+static
+void
+tc_fail(atf_dynstr_t *msg)
+{
+    atf_tcr_t tcr;
+    atf_error_t err;
+
+    PRE(current_tc != NULL);
+
+    err = atf_tcr_init_reason_fmt(&tcr, atf_tcr_failed_state, "%s",
+                                  atf_dynstr_cstring(msg));
+    if (atf_is_error(err))
+        abort();
+
+    write_tcr(&tcr);
+
+    atf_tcr_fini(&tcr);
+    atf_dynstr_fini(msg);
+
+    exit(EXIT_SUCCESS);
+}
+
+static
+void
+tc_fail_nonfatal(atf_dynstr_t *msg)
+{
+    fprintf(stderr, "%s\n", atf_dynstr_cstring(msg));
+    atf_dynstr_fini(msg);
+
+    current_tc_fail_count++;
+}
+
 void
 atf_tc_fail(const char *fmt, ...)
 {
@@ -978,7 +1013,7 @@ atf_tc_fail_check(const char *file, int line, const char *fmt, ...)
 
     va_start(ap, fmt);
     fail_internal(file, line, "Check failed", "*** ", fmt, ap,
-                  atf_tc_fail_nonfatal);
+                  tc_fail_nonfatal, atf_tc_fail_nonfatal);
     va_end(ap);
 }
 
@@ -989,7 +1024,7 @@ atf_tc_fail_requirement(const char *file, int line, const char *fmt, ...)
 
     va_start(ap, fmt);
     fail_internal(file, line, "Requirement failed", "", fmt, ap,
-                  atf_tc_fail);
+                  tc_fail, atf_tc_fail);
     va_end(ap);
 
     UNREACHABLE;
@@ -1000,7 +1035,8 @@ static
 void
 fail_internal(const char *file, int line, const char *reason,
               const char *prefix, const char *fmt, va_list ap,
-              void (*failfunc)(const char *, ...))
+              void (*failfunc)(atf_dynstr_t *),
+              void (*backupfunc)(const char *, ...))
 {
     va_list ap2;
     atf_error_t err;
@@ -1020,13 +1056,13 @@ fail_internal(const char *file, int line, const char *reason,
     }
 
     va_copy(ap2, ap);
-    failfunc("%s", atf_dynstr_cstring(&msg));
-    atf_dynstr_fini(&msg);
+    failfunc(&msg);
     return;
 
 backup:
+    atf_error_free(err);
     va_copy(ap2, ap);
-    failfunc(fmt, ap2);
+    backupfunc(fmt, ap2);
     va_end(ap2);
 }
 
