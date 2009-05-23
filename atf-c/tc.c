@@ -1022,6 +1022,8 @@ atf_tc_fail_requirement(const char *file, int line, const char *fmt, ...)
 {
     va_list ap;
 
+    atf_reset_exit_checks();
+
     va_start(ap, fmt);
     fail_internal(file, line, "Requirement failed", "", fmt, ap,
                   tc_fail, atf_tc_fail);
