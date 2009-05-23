@@ -179,6 +179,7 @@ ATF_TC_BODY(write_fmt_fail, tc)
     ATF_REQUIRE_EQ(atf_libc_error_code(err), EBADF);
     atf_error_format(err, buf, sizeof(buf));
     ATF_REQUIRE(strstr(buf, "Plain string") != NULL);
+    atf_error_free(err);
 }
 
 /* ---------------------------------------------------------------------
