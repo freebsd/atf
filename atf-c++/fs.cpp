@@ -81,9 +81,10 @@ safe_access(const impl::path& p, int mode, int experr)
     atf_error_t err = atf_fs_eaccess(p.c_path(), mode);
     if (atf_is_error(err)) {
         if (atf_error_is(err, "libc")) {
-            if (atf_libc_error_code(err) == experr)
+            if (atf_libc_error_code(err) == experr) {
+                atf_error_free(err);
                 ok = false;
-            else {
+            } else {
                 atf::throw_atf_error(err);
                 // XXX Silence warning; maybe throw_atf_error should be
                 // an exception and not a function.
