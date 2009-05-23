@@ -114,7 +114,7 @@ fork_and_wait(const char *const *argv, int fdout, int fderr, int *estatus)
         goto out;
 
     if (pid == 0) {
-        atf_disable_exit_checks();
+        atf_reset_exit_checks();
         /* XXX No error handling at all? */
         dup2(fdout, STDOUT_FILENO);
         dup2(fderr, STDERR_FILENO);

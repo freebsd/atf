@@ -630,14 +630,14 @@ body_child(const atf_tc_t *tc, int fdout, int fderr,
 {
     atf_error_t err;
 
-    atf_disable_exit_checks();
-
     err = prepare_child(tc, fdout, fderr, workdir);
     if (atf_is_error(err))
         goto print_err;
     err = check_requirements(tc);
     if (atf_is_error(err))
         goto print_err;
+
+    atf_reset_exit_checks();
     tc->m_body(tc);
 
     if (current_tc_fail_count == 0)
@@ -868,12 +868,12 @@ cleanup_child(const atf_tc_t *tc, int fdout, int fderr,
 {
     atf_error_t err;
 
-    atf_disable_exit_checks();
-
     err = prepare_child(tc, fdout, fderr, workdir);
-    if (atf_is_error(err))
+    if (atf_is_error(err)) {
+        atf_reset_exit_checks();
         exit(EXIT_FAILURE);
-    else {
+    } else {
+        atf_reset_exit_checks();
         tc->m_cleanup(tc);
         exit(EXIT_SUCCESS);
     }
