@@ -42,6 +42,13 @@
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
+#define REQUIRE_ERROR(exp) \
+    do { \
+        atf_error_t err = exp; \
+        ATF_REQUIRE(atf_is_error(err)); \
+        atf_error_free(err); \
+    } while (0)
+
 static
 size_t
 array_size(const char *words[])
@@ -308,38 +315,38 @@ ATF_TC_BODY(to_bool, tc)
     RE(atf_text_to_bool("NO", &b)); ATF_REQUIRE(!b);
 
     b = false;
-    ATF_REQUIRE(atf_is_error(atf_text_to_bool("", &b)));
+    REQUIRE_ERROR(atf_text_to_bool("", &b));
     ATF_REQUIRE(!b);
     b = true;
-    ATF_REQUIRE(atf_is_error(atf_text_to_bool("", &b)));
+    REQUIRE_ERROR(atf_text_to_bool("", &b));
     ATF_REQUIRE(b);
 
     b = false;
-    ATF_REQUIRE(atf_is_error(atf_text_to_bool("tru", &b)));
+    REQUIRE_ERROR(atf_text_to_bool("tru", &b));
     ATF_REQUIRE(!b);
     b = true;
-    ATF_REQUIRE(atf_is_error(atf_text_to_bool("tru", &b)));
+    REQUIRE_ERROR(atf_text_to_bool("tru", &b));
     ATF_REQUIRE(b);
 
     b = false;
-    ATF_REQUIRE(atf_is_error(atf_text_to_bool("true2", &b)));
+    REQUIRE_ERROR(atf_text_to_bool("true2", &b));
     ATF_REQUIRE(!b);
     b = true;
-    ATF_REQUIRE(atf_is_error(atf_text_to_bool("true2", &b)));
+    REQUIRE_ERROR(atf_text_to_bool("true2", &b));
     ATF_REQUIRE(b);
 
     b = false;
-    ATF_REQUIRE(atf_is_error(atf_text_to_bool("fals", &b)));
+    REQUIRE_ERROR(atf_text_to_bool("fals", &b));
     ATF_REQUIRE(!b);
     b = true;
-    ATF_REQUIRE(atf_is_error(atf_text_to_bool("fals", &b)));
+    REQUIRE_ERROR(atf_text_to_bool("fals", &b));
     ATF_REQUIRE(b);
 
     b = false;
-    ATF_REQUIRE(atf_is_error(atf_text_to_bool("false2", &b)));
+    REQUIRE_ERROR(atf_text_to_bool("false2", &b));
     ATF_REQUIRE(!b);
     b = true;
-    ATF_REQUIRE(atf_is_error(atf_text_to_bool("false2", &b)));
+    REQUIRE_ERROR(atf_text_to_bool("false2", &b));
     ATF_REQUIRE(b);
 }
 
@@ -358,11 +365,11 @@ ATF_TC_BODY(to_long, tc)
     RE(atf_text_to_long("123456789", &l)); ATF_REQUIRE_EQ(l, 123456789);
 
     l = 1212;
-    ATF_REQUIRE(atf_is_error(atf_text_to_long("", &l)));
+    REQUIRE_ERROR(atf_text_to_long("", &l));
     ATF_REQUIRE_EQ(l, 1212);
-    ATF_REQUIRE(atf_is_error(atf_text_to_long("foo", &l)));
+    REQUIRE_ERROR(atf_text_to_long("foo", &l));
     ATF_REQUIRE_EQ(l, 1212);
-    ATF_REQUIRE(atf_is_error(atf_text_to_long("1234x", &l)));
+    REQUIRE_ERROR(atf_text_to_long("1234x", &l));
     ATF_REQUIRE_EQ(l, 1212);
 }
 
