@@ -116,5 +116,7 @@ grep_file(const char *file, const char *regex, ...)
     } while (!found && !done);
     close(fd);
 
+    atf_dynstr_fini(&formatted);
+
     return found;
 }
