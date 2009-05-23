@@ -106,6 +106,15 @@ check_line(int fd, const char *exp)
     atf_dynstr_fini(&line);
 }
 
+static
+void
+touch_file(const atf_fs_path_t *p)
+{
+    FILE *f = fopen(atf_fs_path_cstring(p), "w");
+    ATF_REQUIRE(f != NULL);
+    fclose(f);
+}
+
 /* ---------------------------------------------------------------------
  * Test cases for the "atf_check_result" type.
  * --------------------------------------------------------------------- */
@@ -134,6 +143,10 @@ ATF_TC_BODY(result_argv, tc)
     ATF_CHECK_STREQ((const char *)atf_list_index_c(argv, 0), "progname");
     ATF_CHECK_STREQ((const char *)atf_list_index_c(argv, 1), "arg1");
     ATF_CHECK_STREQ((const char *)atf_list_index_c(argv, 2), "arg2");
+
+    touch_file(atf_check_result_stdout(&result));
+    touch_file(atf_check_result_stderr(&result));
+    atf_check_result_fini(&result);
 }
 
 ATF_TC(result_templates);
@@ -167,7 +180,11 @@ ATF_TC_BODY(result_templates, tc)
     ATF_CHECK(strcmp(atf_fs_path_cstring(err1),
                      atf_fs_path_cstring(err2)) == 0);
 
+    touch_file(atf_check_result_stdout(&result2));
+    touch_file(atf_check_result_stderr(&result2));
     atf_check_result_fini(&result2);
+    touch_file(atf_check_result_stdout(&result1));
+    touch_file(atf_check_result_stderr(&result1));
     atf_check_result_fini(&result1);
 }
 
@@ -321,6 +338,7 @@ run_h_tc(atf_tc_t *tc, const atf_tc_pack_t *tcpack,
     atf_tc_fini(tc);
 
     ATF_CHECK_EQ(atf_tcr_get_state(&tcr), atf_tcr_passed_state);
+    atf_tcr_fini(&tcr);
 
     close(fderr);
     close(fdout);
@@ -436,6 +454,9 @@ ATF_TC_BODY(exec_cleanup, tc)
     atf_check_result_fini(&result);
     RE(atf_fs_exists(&out, &exists)); ATF_CHECK(!exists);
     RE(atf_fs_exists(&err, &exists)); ATF_CHECK(!exists);
+
+    atf_fs_path_fini(&err);
+    atf_fs_path_fini(&out);
 }
 
 ATF_TC(exec_exitstatus);

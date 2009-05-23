@@ -81,15 +81,25 @@ static
 void
 cleanup_files(const atf_check_result_t *r, int fdout, int fderr)
 {
-    int ret;
+    {
+        int ret = close(fdout);
+        INV(ret == 0);
+    }
 
-    ret = close(fdout);
-    INV(ret == 0);
-    ret = close(fderr);
-    INV(ret == 0);
+    {
+        int ret = close(fderr);
+        INV(ret == 0);
+    }
 
-    atf_fs_unlink(&r->m_stdout);
-    atf_fs_unlink(&r->m_stderr);
+    {
+        atf_error_t err = atf_fs_unlink(&r->m_stdout);
+        INV(!atf_is_error(err));
+    }
+
+    {
+        atf_error_t err = atf_fs_unlink(&r->m_stderr);
+        INV(!atf_is_error(err));
+    }
 }
 
 static
@@ -305,11 +315,17 @@ out:
 void
 atf_check_result_fini(atf_check_result_t *r)
 {
-    atf_fs_unlink(&r->m_stdout);
-    atf_fs_path_fini(&r->m_stdout);
+    {
+        atf_error_t err = atf_fs_unlink(&r->m_stdout);
+        INV(!atf_is_error(err));
+        atf_fs_path_fini(&r->m_stdout);
+    }
 
-    atf_fs_unlink(&r->m_stderr);
-    atf_fs_path_fini(&r->m_stderr);
+    {
+        atf_error_t err = atf_fs_unlink(&r->m_stderr);
+        INV(!atf_is_error(err));
+        atf_fs_path_fini(&r->m_stderr);
+    }
 
     atf_list_fini(&r->m_argv);
 
