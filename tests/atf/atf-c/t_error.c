@@ -247,6 +247,30 @@ ATF_TC_BODY(no_memory_format, tc)
     atf_error_free(err);
 }
 
+ATF_TC(no_memory_twice);
+ATF_TC_HEAD(no_memory_twice, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Checks the construction of no_memory "
+                      "errors multiple times, as this error is initialized "
+                      "statically");
+}
+ATF_TC_BODY(no_memory_twice, tc)
+{
+    {
+        atf_error_t err = atf_no_memory_error();
+        ATF_REQUIRE(atf_error_is(err, "no_memory"));
+        ATF_REQUIRE(atf_error_data(err) == NULL);
+        atf_error_free(err);
+    }
+
+    {
+        atf_error_t err = atf_no_memory_error();
+        ATF_REQUIRE(atf_error_is(err, "no_memory"));
+        ATF_REQUIRE(atf_error_data(err) == NULL);
+        atf_error_free(err);
+    }
+}
+
 /* ---------------------------------------------------------------------
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
@@ -274,6 +298,7 @@ ATF_TP_ADD_TCS(tp)
     /* Add the tests for the "no_memory" error. */
     ATF_TP_ADD_TC(tp, no_memory_new);
     ATF_TP_ADD_TC(tp, no_memory_format);
+    ATF_TP_ADD_TC(tp, no_memory_twice);
 
     /* Add the test cases for the header file. */
     ATF_TP_ADD_TC(tp, include);
