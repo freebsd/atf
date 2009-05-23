@@ -52,7 +52,7 @@ ATF_TC_HEAD(readline, tc)
 }
 ATF_TC_BODY(readline, tc)
 {
-    const char *l1 = "L1";
+    const char *l1 = "First line with % formatting % characters %";
     const char *l2 = "Second line; much longer than the first one";
     const char *l3 = "Last line, without terminator";
 
