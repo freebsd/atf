@@ -107,6 +107,28 @@ word_count(const char *word, void *data)
     return atf_no_error();
 }
 
+struct fail_at {
+    int failpos;
+    int curpos;
+};
+
+static
+atf_error_t
+word_fail_at(const char *word, void *data)
+{
+    struct fail_at *fa = data;
+    atf_error_t err;
+
+    if (fa->failpos == fa->curpos)
+        err = atf_no_memory_error(); /* Just a random error. */
+    else {
+        fa->curpos++;
+        err = atf_no_error();
+    }
+
+    return err;
+}
+
 /* ---------------------------------------------------------------------
  * Test cases for the free functions.
  * --------------------------------------------------------------------- */
@@ -149,6 +171,18 @@ ATF_TC_BODY(for_each_word, tc)
     RE(atf_text_for_each_word("1 2.3.4 5", " .", word_acum, acum));
     ATF_REQUIRE(cnt == 5);
     ATF_REQUIRE(strcmp(acum, "12345") == 0);
+
+    {
+        struct fail_at fa;
+        fa.failpos = 3;
+        fa.curpos = 0;
+        atf_error_t err = atf_text_for_each_word("a b c d e", " ",
+                                                 word_fail_at, &fa);
+        ATF_REQUIRE(atf_is_error(err));
+        ATF_REQUIRE(atf_error_is(err, "no_memory"));
+        ATF_REQUIRE(fa.curpos == 3);
+        atf_error_free(err);
+    }
 }
 
 ATF_TC(format);
