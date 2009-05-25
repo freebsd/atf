@@ -633,6 +633,8 @@ body_child(const atf_tc_t *tc, int fdout, int fderr,
 {
     atf_error_t err;
 
+    atf_reset_exit_checks();
+
     err = prepare_child(tc, fdout, fderr, workdir);
     if (atf_is_error(err))
         goto print_err;
@@ -640,7 +642,6 @@ body_child(const atf_tc_t *tc, int fdout, int fderr,
     if (atf_is_error(err))
         goto print_err;
 
-    atf_reset_exit_checks();
     tc->m_body(tc);
 
     if (current_tc_fail_count == 0)
@@ -718,8 +719,12 @@ check_prog(const char *prog, void *data)
         goto out;
 
     if (atf_fs_path_is_absolute(&p)) {
-        if (atf_is_error(atf_fs_eaccess(&p, atf_fs_access_x)))
+        err = atf_fs_eaccess(&p, atf_fs_access_x);
+        if (atf_is_error(err)) {
+            atf_error_free(err);
+            atf_fs_path_fini(&p);
             atf_tc_skip("The required program %s could not be found", prog);
+        }
     } else {
         const char *path = atf_env_get("PATH");
         struct prog_found_pair pf;
@@ -729,9 +734,12 @@ check_prog(const char *prog, void *data)
         if (atf_is_error(err))
             goto out_p;
 
-        if (strcmp(atf_fs_path_cstring(&bp), ".") != 0)
+        if (strcmp(atf_fs_path_cstring(&bp), ".") != 0) {
+            atf_fs_path_fini(&bp);
+            atf_fs_path_fini(&p);
             atf_tc_fail("Relative paths are not allowed when searching for "
                         "a program (%s)", prog);
+        }
 
         pf.prog = prog;
         pf.found = false;
@@ -739,9 +747,12 @@ check_prog(const char *prog, void *data)
         if (atf_is_error(err))
             goto out_bp;
 
-        if (!pf.found)
+        if (!pf.found) {
+            atf_fs_path_fini(&bp);
+            atf_fs_path_fini(&p);
             atf_tc_skip("The required program %s could not be found in "
                         "the PATH", prog);
+        }
 
 out_bp:
         atf_fs_path_fini(&bp);
@@ -769,8 +780,14 @@ check_prog_in_dir(const char *dir, void *data)
         if (atf_is_error(err))
             goto out_p;
 
-        if (!atf_is_error(atf_fs_eaccess(&p, atf_fs_access_x)))
+        err = atf_fs_eaccess(&p, atf_fs_access_x);
+        if (!atf_is_error(err))
             pf->found = true;
+        else {
+            atf_error_free(err);
+            INV(!pf->found);
+            err = atf_no_error();
+        }
 
 out_p:
         atf_fs_path_fini(&p);
@@ -1093,8 +1110,10 @@ atf_tc_require_prog(const char *prog)
     atf_error_t err;
 
     err = check_prog(prog, NULL);
-    if (atf_is_error(err))
+    if (atf_is_error(err)) {
+        atf_error_free(err);
         atf_tc_fail("atf_tc_require_prog failed"); /* XXX Correct? */
+    }
 }
 
 void
