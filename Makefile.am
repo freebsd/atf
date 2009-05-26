@@ -509,6 +509,10 @@ atf_atf_c_PROGRAMS += tests/atf/atf-c/t_fs
 tests_atf_atf_c_t_fs_SOURCES = tests/atf/atf-c/t_fs.c
 tests_atf_atf_c_t_fs_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_h_lib
+tests_atf_atf_c_t_h_lib_SOURCES = tests/atf/atf-c/t_h_lib.c
+tests_atf_atf_c_t_h_lib_LDADD = libatf-c.la tests/atf/atf-c/libh.la
+
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_io
 tests_atf_atf_c_t_io_SOURCES = tests/atf/atf-c/t_io.c
 tests_atf_atf_c_t_io_LDADD = libatf-c.la tests/atf/atf-c/libh.la
