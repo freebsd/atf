@@ -253,7 +253,7 @@ ATF_TC_HEAD(signal_reset, tc)
 ATF_TC_BODY(signal_reset, tc)
 {
     pid_t pid;
-    RE(atf_process_fork(&pid));
+    RE(atf_process_oldfork(&pid));
     if (pid == 0) {
         struct sigaction sa;
 

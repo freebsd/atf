@@ -79,7 +79,7 @@ do_test(enum type t, bool cond)
 
     ATF_REQUIRE(pipe(fds) != -1);
 
-    RE(atf_process_fork(&pid));
+    RE(atf_process_oldfork(&pid));
     if (pid == 0) {
         ATF_REQUIRE(dup2(fds[1], STDERR_FILENO) != -1);
         close(fds[0]);

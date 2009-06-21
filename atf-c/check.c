@@ -119,7 +119,7 @@ fork_and_wait(const char *const *argv, int fdout, int fderr, int *estatus)
     int status;
     pid_t pid;
 
-    err = atf_process_fork(&pid);
+    err = atf_process_oldfork(&pid);
     if (atf_is_error(err))
         goto out;
 

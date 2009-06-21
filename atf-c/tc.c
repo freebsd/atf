@@ -453,7 +453,7 @@ fork_body(const atf_tc_t *tc, int fdout, int fderr,
     atf_error_t err;
     pid_t pid;
 
-    err = atf_process_fork(&pid);
+    err = atf_process_oldfork(&pid);
     if (atf_is_error(err))
         goto out;
 
@@ -480,7 +480,7 @@ fork_cleanup(const atf_tc_t *tc, int fdout, int fderr,
     if (tc->m_cleanup == NULL)
         err = atf_no_error();
     else {
-        err = atf_process_fork(&pid);
+        err = atf_process_oldfork(&pid);
         if (atf_is_error(err))
             goto out;
 

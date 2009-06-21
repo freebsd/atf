@@ -48,7 +48,7 @@ impl::fork(void)
     atf_error_t err;
     pid_t pid;
 
-    err = atf_process_fork(&pid);
+    err = atf_process_oldfork(&pid);
     if (atf_is_error(err))
         throw_atf_error(err);
 
