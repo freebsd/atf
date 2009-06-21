@@ -30,6 +30,7 @@
 #include <cstring>
 
 extern "C" {
+#include "atf-c/build.h"
 #include "atf-c/error.h"
 }
 
@@ -39,6 +40,40 @@ extern "C" {
 
 namespace impl = atf::check;
 #define IMPL_NAME "atf::check"
+
+// ------------------------------------------------------------------------
+// Auxiliary functions.
+// ------------------------------------------------------------------------
+
+template< class C >
+atf::utils::auto_array< const char* >
+collection_to_argv(const C& c)
+{
+    atf::utils::auto_array< const char* > argv(new const char*[c.size() + 1]);
+
+    std::size_t pos = 0;
+    for (typename C::const_iterator iter = c.begin(); iter != c.end();
+         iter++) {
+        argv[pos] = (*iter).c_str();
+        pos++;
+    }
+    INV(pos == c.size());
+    argv[pos] = NULL;
+
+    return argv;
+}
+
+template< class C >
+C
+argv_to_collection(const char* const* argv)
+{
+    C c;
+
+    for (const char* const* iter = argv; *iter != NULL; iter++)
+        c.push_back(std::string(*iter));
+
+    return c;
+}
 
 // ------------------------------------------------------------------------
 // The "check_result" class.
@@ -95,15 +130,129 @@ impl::check_result::stderr_path(void)
 }
 
 // ------------------------------------------------------------------------
+// The "argv_array" type.
+// ------------------------------------------------------------------------
+
+impl::argv_array::argv_array(void) :
+    m_exec_argv(collection_to_argv(m_args))
+{
+}
+
+impl::argv_array::argv_array(const char* const* ca) :
+    m_args(argv_to_collection< args_vector >(ca)),
+    m_exec_argv(collection_to_argv(m_args))
+{
+}
+
+impl::argv_array::argv_array(const argv_array& a) :
+    m_args(a.m_args),
+    m_exec_argv(collection_to_argv(m_args))
+{
+}
+
+void
+impl::argv_array::ctor_init_exec_argv(void)
+{
+    m_exec_argv = collection_to_argv(m_args);
+}
+
+const char* const*
+impl::argv_array::exec_argv(void)
+    const
+{
+    return m_exec_argv.get();
+}
+
+impl::argv_array::size_type
+impl::argv_array::size(void)
+    const
+{
+    return m_args.size();
+}
+
+const char*
+impl::argv_array::operator[](int idx)
+    const
+{
+    return m_args[idx].c_str();
+}
+
+impl::argv_array::const_iterator
+impl::argv_array::begin(void)
+    const
+{
+    return m_args.begin();
+}
+
+impl::argv_array::const_iterator
+impl::argv_array::end(void)
+    const
+{
+    return m_args.end();
+}
+
+impl::argv_array&
+impl::argv_array::operator=(const argv_array& a)
+{
+    if (this != &a) {
+        m_args = a.m_args;
+        m_exec_argv = collection_to_argv(m_args);
+    }
+    return *this;
+}
+
+// ------------------------------------------------------------------------
 // Free functions.
 // ------------------------------------------------------------------------
 
+bool
+impl::build_c_o(const atf::fs::path& sfile, const atf::fs::path& ofile,
+                const argv_array& optargs)
+{
+    bool success;
+
+    atf_error_t err = atf_check_build_c_o(sfile.c_str(), ofile.c_str(),
+                                          optargs.exec_argv(), &success);
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return success;
+}
+
+bool
+impl::build_cpp(const atf::fs::path& sfile, const atf::fs::path& ofile,
+                const argv_array& optargs)
+{
+    bool success;
+
+    atf_error_t err = atf_check_build_cpp(sfile.c_str(), ofile.c_str(),
+                                          optargs.exec_argv(), &success);
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return success;
+}
+
+bool
+impl::build_cxx_o(const atf::fs::path& sfile, const atf::fs::path& ofile,
+                  const argv_array& optargs)
+{
+    bool success;
+
+    atf_error_t err = atf_check_build_cxx_o(sfile.c_str(), ofile.c_str(),
+                                            optargs.exec_argv(), &success);
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return success;
+}
+
 impl::check_result
-impl::exec(const char* const* argv)
+impl::exec(const argv_array& argva)
 {
     atf_check_result_t result;
 
-    atf_error_t err = atf_check_exec_array(argv, &result);
+    atf_error_t err = atf_check_exec_array(argva.exec_argv(), &result);
     if (atf_is_error(err))
         throw_atf_error(err);
 

@@ -127,13 +127,18 @@ grep_reason(const atf_tcr_t *tcr, const char *regex, ...)
 {
     va_list ap;
     atf_dynstr_t formatted;
+    bool found;
 
     va_start(ap, regex);
     RE(atf_dynstr_init_ap(&formatted, regex, ap));
     va_end(ap);
 
-    return grep_string(atf_tcr_get_reason(tcr),
-                       atf_dynstr_cstring(&formatted));
+    found = grep_string(atf_tcr_get_reason(tcr),
+                        atf_dynstr_cstring(&formatted));
+
+    atf_dynstr_fini(&formatted);
+
+    return found;
 }
 
 /* ---------------------------------------------------------------------

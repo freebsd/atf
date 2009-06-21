@@ -59,7 +59,8 @@ build_check_c_o(const atf_tc_t *tc, const char *sfile, const char *failmsg)
     RE(atf_fs_path_init_fmt(&path, "%s/%s",
                             atf_tc_get_config_var(tc, "srcdir"), sfile));
 
-    RE(atf_check_build_c_o(atf_fs_path_cstring(&path), "test.o", optargs, &success));
+    RE(atf_check_build_c_o(atf_fs_path_cstring(&path), "test.o", optargs,
+                           &success));
 
     atf_fs_path_fini(&path);
     atf_dynstr_fini(&iflag);
@@ -79,6 +80,8 @@ grep_string(const atf_dynstr_t *str, const char *regex)
 
     res = regexec(&preg, atf_dynstr_cstring(str), 0, NULL, 0);
     ATF_REQUIRE(res == 0 || res == REG_NOMATCH);
+
+    regfree(&preg);
 
     return res == 0;
 }
@@ -101,17 +104,20 @@ grep_file(const char *file, const char *regex, ...)
     do {
         atf_error_t err;
         atf_dynstr_t line;
+        bool eof;
 
         RE(atf_dynstr_init(&line));
 
-        err = atf_io_readline(fd, &line);
-        if (!atf_is_error(err))
+        err = atf_io_readline(fd, &line, &eof);
+        done = atf_is_error(err) || eof;
+        if (!done)
             found = grep_string(&line, atf_dynstr_cstring(&formatted));
-        done = atf_is_error(err) || atf_dynstr_length(&line) == 0;
 
         atf_dynstr_fini(&line);
     } while (!found && !done);
     close(fd);
+
+    atf_dynstr_fini(&formatted);
 
     return found;
 }

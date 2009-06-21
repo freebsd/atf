@@ -39,7 +39,7 @@ AC_DEFINE(PACKAGE_COPYRIGHT,
           [Define to the copyright string applicable to this package.])
 AC_CONFIG_AUX_DIR([admin])
 AC_CONFIG_HEADERS([bconfig.h])
-AC_CONFIG_MACRO_DIR([admin])
+AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([atf-c.h])
 AC_CONFIG_TESTDIR([tests/bootstrap])
 

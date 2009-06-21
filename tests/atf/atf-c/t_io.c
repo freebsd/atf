@@ -52,9 +52,31 @@ ATF_TC_HEAD(readline, tc)
 }
 ATF_TC_BODY(readline, tc)
 {
-    const char *l1 = "L1";
+    const char *l1 = "First line with % formatting % characters %";
     const char *l2 = "Second line; much longer than the first one";
     const char *l3 = "Last line, without terminator";
+
+    {
+        FILE *f;
+
+        f = fopen("test", "w");
+        ATF_REQUIRE(f != NULL);
+        fclose(f);
+    }
+
+    {
+        int fd;
+        atf_dynstr_t dest;
+        bool eof;
+
+        fd = open("test", O_RDONLY);
+        ATF_REQUIRE(fd != -1);
+
+        RE(atf_dynstr_init(&dest));
+        RE(atf_io_readline(fd, &dest, &eof));
+        ATF_REQUIRE(eof);
+        atf_dynstr_fini(&dest);
+    }
 
     {
         FILE *f;
@@ -72,29 +94,31 @@ ATF_TC_BODY(readline, tc)
     {
         int fd;
         atf_dynstr_t dest;
+        bool eof;
 
         fd = open("test", O_RDONLY);
         ATF_REQUIRE(fd != -1);
 
         RE(atf_dynstr_init(&dest));
-        RE(atf_io_readline(fd, &dest));
+        RE(atf_io_readline(fd, &dest, &eof));
+        ATF_REQUIRE(!eof);
         printf("1st line: >%s<\n", atf_dynstr_cstring(&dest));
         ATF_REQUIRE(atf_equal_dynstr_cstring(&dest, l1));
         atf_dynstr_fini(&dest);
 
         RE(atf_dynstr_init(&dest));
-        RE(atf_io_readline(fd, &dest));
+        RE(atf_io_readline(fd, &dest, &eof));
+        ATF_REQUIRE(!eof);
         printf("2nd line: >%s<\n", atf_dynstr_cstring(&dest));
         ATF_REQUIRE(atf_equal_dynstr_cstring(&dest, l2));
         atf_dynstr_fini(&dest);
 
         RE(atf_dynstr_init(&dest));
-        RE(atf_io_readline(fd, &dest));
+        RE(atf_io_readline(fd, &dest, &eof));
+        ATF_REQUIRE(eof);
         printf("3rd line: >%s<\n", atf_dynstr_cstring(&dest));
         ATF_REQUIRE(atf_equal_dynstr_cstring(&dest, l3));
         atf_dynstr_fini(&dest);
-
-        /* XXX Cannot detect eof condition. */
 
         close(fd);
     }
@@ -155,6 +179,7 @@ ATF_TC_BODY(write_fmt_fail, tc)
     ATF_REQUIRE_EQ(atf_libc_error_code(err), EBADF);
     atf_error_format(err, buf, sizeof(buf));
     ATF_REQUIRE(strstr(buf, "Plain string") != NULL);
+    atf_error_free(err);
 }
 
 /* ---------------------------------------------------------------------

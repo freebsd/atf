@@ -35,6 +35,8 @@
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/macros.hpp"
 
+#include "h_lib.hpp"
+
 static const char *test_value = "env-value";
 
 static struct varnames {
@@ -60,9 +62,9 @@ static struct varnames {
     { NULL,                 NULL,                 false }
 };
 
-/* ---------------------------------------------------------------------
- * Auxiliary functions.
- * --------------------------------------------------------------------- */
+// ------------------------------------------------------------------------
+// Auxiliary functions.
+// ------------------------------------------------------------------------
 
 namespace atf {
     namespace config {
@@ -126,9 +128,9 @@ compare_one(const char* var, const char* expvalue)
     }
 }
 
-/* ---------------------------------------------------------------------
- * Test cases for the free functions.
- * --------------------------------------------------------------------- */
+// ------------------------------------------------------------------------
+// Test cases for the free functions.
+// ------------------------------------------------------------------------
 
 ATF_TEST_CASE(get);
 ATF_TEST_CASE_HEAD(get)
@@ -208,9 +210,23 @@ ATF_TEST_CASE_BODY(has)
     ATF_CHECK(!atf::config::has("atf_shells"));
 }
 
+// ------------------------------------------------------------------------
+// Tests cases for the header file.
+// ------------------------------------------------------------------------
+
+HEADER_TC(include, "atf-c++/config.hpp", "d_include_config_hpp.cpp");
+
+// ------------------------------------------------------------------------
+// Main.
+// ------------------------------------------------------------------------
+
 ATF_INIT_TEST_CASES(tcs)
 {
+    // Add the test cases for the free functions.
     ATF_ADD_TEST_CASE(tcs, has);
     ATF_ADD_TEST_CASE(tcs, get);
     ATF_ADD_TEST_CASE(tcs, get_all);
+
+    // Add the test cases for the header file.
+    ATF_ADD_TEST_CASE(tcs, include);
 }

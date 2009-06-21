@@ -30,18 +30,64 @@
 #if !defined(_ATF_CXX_CHECK_HPP_)
 #define _ATF_CXX_CHECK_HPP_
 
-#include <string>
-
 extern "C" {
 #include "atf-c/check.h"
 }
 
+#include <cstddef>
+#include <memory>
+#include <string>
 #include <vector>
 
 #include "atf-c++/fs.hpp"
+#include "atf-c++/text.hpp"
+#include "atf-c++/utils.hpp"
 
 namespace atf {
 namespace check {
+
+// ------------------------------------------------------------------------
+// The "argv_array" type.
+// ------------------------------------------------------------------------
+
+class argv_array {
+    typedef std::vector< std::string > args_vector;
+    args_vector m_args;
+
+    // TODO: This is immutable, so we should be able to use
+    // std::tr1::shared_array instead when it becomes widely available.
+    // The reason would be to remove all copy constructors and assignment
+    // operators from this class.
+    utils::auto_array< const char* > m_exec_argv;
+    void ctor_init_exec_argv(void);
+
+public:
+    typedef args_vector::const_iterator const_iterator;
+    typedef args_vector::size_type size_type;
+
+    argv_array(void);
+    explicit argv_array(const char* const*);
+    template< class C > explicit argv_array(const C&);
+    argv_array(const argv_array&);
+
+    const char* const* exec_argv(void) const;
+    size_type size(void) const;
+    const char* operator[](int) const;
+
+    const_iterator begin(void) const;
+    const_iterator end(void) const;
+
+    argv_array& operator=(const argv_array&);
+};
+
+template< class C >
+argv_array::argv_array(const C& c)
+{
+    for (typename C::const_iterator iter = c.begin(); iter != c.end();
+         iter++)
+        m_args.push_back(*iter);
+    ctor_init_exec_argv();
+}
 
 // ------------------------------------------------------------------------
 // The "check_result" class.
@@ -72,7 +118,7 @@ class check_result {
     check_result(const atf_check_result_t* result);
 
     friend check_result test_constructor(const char* const*);
-    friend check_result exec(const char* const*);
+    friend check_result exec(const argv_array&);
 
 public:
     //!
@@ -111,7 +157,13 @@ public:
 // Free functions.
 // ------------------------------------------------------------------------
 
-check_result exec(const char* const*);
+bool build_c_o(const atf::fs::path&, const atf::fs::path&,
+               const argv_array&);
+bool build_cpp(const atf::fs::path&, const atf::fs::path&,
+               const argv_array&);
+bool build_cxx_o(const atf::fs::path&, const atf::fs::path&,
+                 const argv_array&);
+check_result exec(const argv_array&);
 
 // Useful for testing only.
 check_result test_constructor(void);

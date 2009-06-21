@@ -83,7 +83,8 @@ execute(const char* const* argv)
         std::cout << argv[i] << " ";
     std::cout << "]" << std::endl;
 
-    return atf::check::exec(argv);
+    atf::check::argv_array argva(argv);
+    return atf::check::exec(argva);
 }
 
 static

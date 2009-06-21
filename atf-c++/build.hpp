@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
+// Copyright (c) 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,52 +27,28 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <atf-c++.hpp>
+#if !defined(_ATF_CXX_BUILD_HPP_)
+#define _ATF_CXX_BUILD_HPP_
 
-#include "atf-c++/process.hpp"
+#include <string>
 
-#include "h_lib.hpp"
+#include <atf-c++/check.hpp>
 
-// ------------------------------------------------------------------------
-// Test cases for the free functions.
-// ------------------------------------------------------------------------
-
-ATF_TEST_CASE(fork);
-ATF_TEST_CASE_HEAD(fork)
-{
-    set_md_var("descr", "Tests the fork function");
-}
-ATF_TEST_CASE_BODY(fork)
-{
-    ATF_SKIP("Unimplemented test case; process API not yet decided");
-}
-
-ATF_TEST_CASE(system);
-ATF_TEST_CASE_HEAD(system)
-{
-    set_md_var("descr", "Tests the system function");
-}
-ATF_TEST_CASE_BODY(system)
-{
-    ATF_SKIP("Unimplemented test case; process API not yet decided");
-}
+namespace atf {
+namespace build {
 
 // ------------------------------------------------------------------------
-// Tests cases for the header file.
+// Free functions.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/process.hpp", "d_include_process_hpp.cpp");
+check::argv_array c_o(const std::string&, const std::string&,
+                      const check::argv_array&);
+check::argv_array cpp(const std::string&, const std::string&,
+                      const check::argv_array&);
+check::argv_array cxx_o(const std::string&, const std::string&,
+                        const check::argv_array&);
 
-// ------------------------------------------------------------------------
-// Main.
-// ------------------------------------------------------------------------
+} // namespace build
+} // namespace atf
 
-ATF_INIT_TEST_CASES(tcs)
-{
-    // Add the test cases for the free functions.
-    ATF_ADD_TEST_CASE(tcs, fork);
-    ATF_ADD_TEST_CASE(tcs, system);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
-}
+#endif // !defined(_ATF_CXX_BUILD_HPP_)

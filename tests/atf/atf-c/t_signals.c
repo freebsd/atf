@@ -197,17 +197,20 @@ ATF_TC_HEAD(signal_programmer_init, tc)
 }
 ATF_TC_BODY(signal_programmer_init, tc)
 {
-    atf_signal_programmer_t sp;
+    atf_signal_programmer_t sp1, sp2;
 
-    RE(atf_signal_programmer_init(&sp, SIGUSR1, test1_handler));
+    RE(atf_signal_programmer_init(&sp1, SIGUSR1, test1_handler));
     ATF_REQUIRE(!test1_happened);
     ATF_REQUIRE(kill(getpid(), SIGUSR1) != -1);
     ATF_REQUIRE(test1_happened);
 
-    RE(atf_signal_programmer_init(&sp, SIGUSR2, test2_handler));
+    RE(atf_signal_programmer_init(&sp2, SIGUSR2, test2_handler));
     ATF_REQUIRE(!test2_happened);
     ATF_REQUIRE(kill(getpid(), SIGUSR2) != -1);
     ATF_REQUIRE(test2_happened);
+
+    atf_signal_programmer_fini(&sp2);
+    atf_signal_programmer_fini(&sp1);
 }
 
 ATF_TC(signal_programmer_fini);

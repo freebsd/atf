@@ -569,9 +569,9 @@ ATF_TC_BODY(srcdir_exists, tc)
     RE(atf_fs_path_init_fmt(&p, "%s/datafile",
                             atf_tc_get_config_var(tc, "srcdir")));
     RE(atf_fs_exists(&p, &b));
+    atf_fs_path_fini(&p);
     if (!b)
         atf_tc_fail("Cannot find datafile");
-    atf_fs_path_fini(&p);
 }
 
 /* ---------------------------------------------------------------------

@@ -159,6 +159,13 @@ ATF_TC_BODY(init_raw, tc)
     RE(atf_dynstr_init_raw(&str, "String\0Lost", 11));
     ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "String") == 0);
     atf_dynstr_fini(&str);
+
+    {
+        atf_error_t err = atf_dynstr_init_raw(&str, "NULL", SIZE_MAX - 1);
+        ATF_REQUIRE(atf_is_error(err));
+        ATF_REQUIRE(atf_error_is(err, "no_memory"));
+        atf_error_free(err);
+    }
 }
 
 ATF_TC(init_rep);
@@ -198,10 +205,12 @@ ATF_TC_BODY(init_rep, tc)
         err = atf_dynstr_init_rep(&str, SIZE_MAX, 'a');
         ATF_REQUIRE(atf_is_error(err));
         ATF_REQUIRE(atf_error_is(err, "no_memory"));
+        atf_error_free(err);
 
         err = atf_dynstr_init_rep(&str, SIZE_MAX - 1, 'a');
         ATF_REQUIRE(atf_is_error(err));
         ATF_REQUIRE(atf_error_is(err, "no_memory"));
+        atf_error_free(err);
     }
 }
 
@@ -241,6 +250,8 @@ ATF_TC_BODY(init_substr, tc)
     RE(atf_dynstr_init_substr(&str, &src, 7, atf_dynstr_npos));
     ATF_REQUIRE(strcmp(atf_dynstr_cstring(&str), "Str 2") == 0);
     atf_dynstr_fini(&str);
+
+    atf_dynstr_fini(&src);
 }
 
 ATF_TC(copy);

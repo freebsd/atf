@@ -286,13 +286,13 @@ impl::tc::set_md_var(const std::string& var, const std::string& val)
 }
 
 impl::tcr
-impl::tc::run(const fs::path& workdirbase)
+impl::tc::run(int fdout, int fderr, const fs::path& workdirbase)
     const
 {
     atf_tcr_t tcrc;
     tcr tcrr(tcr::failed_state, "UNINITIALIZED");
 
-    atf_error_t err = atf_tc_run(&m_tc, &tcrc, STDOUT_FILENO, STDERR_FILENO,
+    atf_error_t err = atf_tc_run(&m_tc, &tcrc, fdout, fderr,
                                  workdirbase.c_path());
     if (atf_is_error(err))
         throw_atf_error(err);
@@ -638,7 +638,7 @@ tp::run_tcs(void)
         impl::tc* tc = *iter;
 
         w.start_tc(tc->get_md_var("ident"));
-        impl::tcr tcr = tc->run(m_workdir);
+        impl::tcr tcr = tc->run(STDOUT_FILENO, STDERR_FILENO, m_workdir);
         w.end_tc(tcr);
 
         sighup.process();

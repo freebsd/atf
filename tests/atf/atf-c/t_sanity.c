@@ -106,23 +106,21 @@ do_test(enum type t, bool cond)
 
         exit(EXIT_SUCCESS);
     } else {
-        int ecode, i;
+        bool eof;
+        int ecode, nlines;
         atf_dynstr_t lines[3];
-        atf_error_t err;
 
         close(fds[1]);
 
-        i = 0;
+        nlines = 0;
         do {
-            err = atf_dynstr_init(&lines[i]);
-            if (!atf_is_error(err)) {
-                err = atf_io_readline(fds[0], &lines[i]);
-                if (!atf_is_error(err))
-                    i++;
-            }
-        } while (i < 3 && !atf_is_error(err));
-        ATF_REQUIRE(i == 3);
-        i--;
+            RE(atf_dynstr_init(&lines[nlines]));
+            if (!eof)
+                RE(atf_io_readline(fds[0], &lines[nlines], &eof));
+            nlines++;
+        } while (nlines < 3);
+        close(fds[0]);
+        ATF_REQUIRE(nlines == 0 || nlines == 3);
 
         if (!cond) {
             switch (t) {
@@ -154,6 +152,11 @@ do_test(enum type t, bool cond)
         } else {
             ATF_REQUIRE(WIFEXITED(ecode));
             ATF_REQUIRE(WEXITSTATUS(ecode) == EXIT_SUCCESS);
+        }
+
+        while (nlines > 0) {
+            nlines--;
+            atf_dynstr_fini(&lines[nlines]);
         }
     }
 }

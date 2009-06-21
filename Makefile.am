@@ -195,6 +195,8 @@ libatf_c___la_SOURCES = atf-c++/application.cpp \
                         atf-c++/application.hpp \
                         atf-c++/atffile.cpp \
                         atf-c++/atffile.hpp \
+                        atf-c++/build.cpp \
+                        atf-c++/build.hpp \
                         atf-c++/check.cpp \
                         atf-c++/check.hpp \
                         atf-c++/config.cpp \
@@ -232,6 +234,7 @@ libatf_c___la_SOURCES = atf-c++/application.cpp \
 include_HEADERS += atf-c++.hpp
 atf_c___HEADERS = atf-c++/application.hpp \
                   atf-c++/atffile.hpp \
+                  atf-c++/build.hpp \
                   atf-c++/check.hpp \
                   atf-c++/config.hpp \
                   atf-c++/env.hpp \
@@ -244,6 +247,7 @@ atf_c___HEADERS = atf-c++/application.hpp \
                   atf-c++/parser.hpp \
                   atf-c++/process.hpp \
                   atf-c++/sanity.hpp \
+                  atf-c++/signals.hpp \
                   atf-c++/tests.hpp \
                   atf-c++/text.hpp \
                   atf-c++/ui.hpp \
@@ -473,7 +477,8 @@ tests_atf_atf_c_t_atf_c_SOURCES = tests/atf/atf-c/t_atf_c.c
 tests_atf_atf_c_t_atf_c_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_build
-tests_atf_atf_c_t_build_SOURCES = tests/atf/atf-c/t_build.c
+tests_atf_atf_c_t_build_SOURCES = tests/atf/atf-c/t_build.c \
+                                  tests/atf/atf-c/h_build.h
 tests_atf_atf_c_t_build_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_check
@@ -503,6 +508,10 @@ tests_atf_atf_c_t_expand_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_fs
 tests_atf_atf_c_t_fs_SOURCES = tests/atf/atf-c/t_fs.c
 tests_atf_atf_c_t_fs_LDADD = libatf-c.la tests/atf/atf-c/libh.la
+
+atf_atf_c_PROGRAMS += tests/atf/atf-c/t_h_lib
+tests_atf_atf_c_t_h_lib_SOURCES = tests/atf/atf-c/t_h_lib.c
+tests_atf_atf_c_t_h_lib_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_io
 tests_atf_atf_c_t_io_SOURCES = tests/atf/atf-c/t_io.c
@@ -552,65 +561,125 @@ atf_atf_c_PROGRAMS += tests/atf/atf-c/t_user
 tests_atf_atf_c_t_user_SOURCES = tests/atf/atf-c/t_user.c
 tests_atf_atf_c_t_user_LDADD = libatf-c.la tests/atf/atf-c/libh.la
 
-atf_atf_c___DATA = tests/atf/atf-c++/Atffile
+atf_atf_c___DATA = tests/atf/atf-c++/Atffile \
+                   tests/atf/atf-c++/d_include_application_hpp.cpp \
+                   tests/atf/atf-c++/d_include_atf_c++_hpp.cpp \
+                   tests/atf/atf-c++/d_include_atffile_hpp.cpp \
+                   tests/atf/atf-c++/d_include_build_hpp.cpp \
+                   tests/atf/atf-c++/d_include_check_hpp.cpp \
+                   tests/atf/atf-c++/d_include_config_hpp.cpp \
+                   tests/atf/atf-c++/d_include_env_hpp.cpp \
+                   tests/atf/atf-c++/d_include_exceptions_hpp.cpp \
+                   tests/atf/atf-c++/d_include_expand_hpp.cpp \
+                   tests/atf/atf-c++/d_include_formats_hpp.cpp \
+                   tests/atf/atf-c++/d_include_fs_hpp.cpp \
+                   tests/atf/atf-c++/d_include_io_hpp.cpp \
+                   tests/atf/atf-c++/d_include_macros_hpp.cpp \
+                   tests/atf/atf-c++/d_include_parser_hpp.cpp \
+                   tests/atf/atf-c++/d_include_process_hpp.cpp \
+                   tests/atf/atf-c++/d_include_sanity_hpp.cpp \
+                   tests/atf/atf-c++/d_include_signals_hpp.cpp \
+                   tests/atf/atf-c++/d_include_tests_hpp.cpp \
+                   tests/atf/atf-c++/d_include_text_hpp.cpp \
+                   tests/atf/atf-c++/d_include_ui_hpp.cpp \
+                   tests/atf/atf-c++/d_include_user_hpp.cpp \
+                   tests/atf/atf-c++/d_include_utils_hpp.cpp \
+                   tests/atf/atf-c++/d_use_macros_hpp.cpp
 atf_atf_c__dir = $(pkgtestsdir)/atf-c++
 EXTRA_DIST += $(atf_atf_c___DATA)
 
-atf_atf_c___PROGRAMS = tests/atf/atf-c++/t_check
+noinst_LTLIBRARIES += tests/atf/atf-c++/libh.la
+tests_atf_atf_c___libh_la_SOURCES = tests/atf/atf-c++/h_lib.cpp \
+                                    tests/atf/atf-c++/h_lib.hpp
+
+atf_atf_c___PROGRAMS = tests/atf/atf-c++/t_atf_c++
+tests_atf_atf_c___t_atf_c___SOURCES = tests/atf/atf-c++/t_atf_c++.cpp
+tests_atf_atf_c___t_atf_c___LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
+
+atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_application
+tests_atf_atf_c___t_application_SOURCES = tests/atf/atf-c++/t_application.cpp
+tests_atf_atf_c___t_application_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
+
+atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_atffile
+tests_atf_atf_c___t_atffile_SOURCES = tests/atf/atf-c++/t_atffile.cpp
+tests_atf_atf_c___t_atffile_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
+
+atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_build
+tests_atf_atf_c___t_build_SOURCES = tests/atf/atf-c++/t_build.cpp \
+                                    tests/atf/atf-c/h_build.h
+tests_atf_atf_c___t_build_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
+
+atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_check
 tests_atf_atf_c___t_check_SOURCES = tests/atf/atf-c++/t_check.cpp
-tests_atf_atf_c___t_check_LDADD = libatf-c++.la
+tests_atf_atf_c___t_check_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
 
 atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_config
 tests_atf_atf_c___t_config_SOURCES = tests/atf/atf-c++/t_config.cpp
-tests_atf_atf_c___t_config_LDADD = libatf-c++.la
+tests_atf_atf_c___t_config_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
 
 atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_env
 tests_atf_atf_c___t_env_SOURCES = tests/atf/atf-c++/t_env.cpp
-tests_atf_atf_c___t_env_LDADD = libatf-c++.la
+tests_atf_atf_c___t_env_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
+
+atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_exceptions
+tests_atf_atf_c___t_exceptions_SOURCES = tests/atf/atf-c++/t_exceptions.cpp
+tests_atf_atf_c___t_exceptions_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
 
 atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_expand
 tests_atf_atf_c___t_expand_SOURCES = tests/atf/atf-c++/t_expand.cpp
-tests_atf_atf_c___t_expand_LDADD = libatf-c++.la
+tests_atf_atf_c___t_expand_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
+
+atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_formats
+tests_atf_atf_c___t_formats_SOURCES = tests/atf/atf-c++/t_formats.cpp
+tests_atf_atf_c___t_formats_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
 
 atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_fs
 tests_atf_atf_c___t_fs_SOURCES = tests/atf/atf-c++/t_fs.cpp
-tests_atf_atf_c___t_fs_LDADD = libatf-c++.la
+tests_atf_atf_c___t_fs_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
 
 atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_io
 tests_atf_atf_c___t_io_SOURCES = tests/atf/atf-c++/t_io.cpp
-tests_atf_atf_c___t_io_LDADD = libatf-c++.la
+tests_atf_atf_c___t_io_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
 
 atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_macros
 tests_atf_atf_c___t_macros_SOURCES = tests/atf/atf-c++/t_macros.cpp
-tests_atf_atf_c___t_macros_LDADD = libatf-c++.la
+tests_atf_atf_c___t_macros_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
 
 atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_parser
 tests_atf_atf_c___t_parser_SOURCES = tests/atf/atf-c++/t_parser.cpp
-tests_atf_atf_c___t_parser_LDADD = libatf-c++.la
+tests_atf_atf_c___t_parser_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
 
 atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_process
 tests_atf_atf_c___t_process_SOURCES = tests/atf/atf-c++/t_process.cpp
-tests_atf_atf_c___t_process_LDADD = libatf-c++.la
+tests_atf_atf_c___t_process_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
+
+atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_sanity
+tests_atf_atf_c___t_sanity_SOURCES = tests/atf/atf-c++/t_sanity.cpp
+tests_atf_atf_c___t_sanity_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
 
 atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_signals
 tests_atf_atf_c___t_signals_SOURCES = tests/atf/atf-c++/t_signals.cpp
-tests_atf_atf_c___t_signals_LDADD = libatf-c++.la
+tests_atf_atf_c___t_signals_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
 
 atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_tests
 tests_atf_atf_c___t_tests_SOURCES = tests/atf/atf-c++/t_tests.cpp
-tests_atf_atf_c___t_tests_LDADD = libatf-c++.la
+tests_atf_atf_c___t_tests_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
 
 atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_text
 tests_atf_atf_c___t_text_SOURCES = tests/atf/atf-c++/t_text.cpp
-tests_atf_atf_c___t_text_LDADD = libatf-c++.la
+tests_atf_atf_c___t_text_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
+
+atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_ui
+tests_atf_atf_c___t_ui_SOURCES = tests/atf/atf-c++/t_ui.cpp
+tests_atf_atf_c___t_ui_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
 
 atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_user
 tests_atf_atf_c___t_user_SOURCES = tests/atf/atf-c++/t_user.cpp
-tests_atf_atf_c___t_user_LDADD = libatf-c++.la
+tests_atf_atf_c___t_user_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
 
 atf_atf_c___PROGRAMS += tests/atf/atf-c++/t_utils
 tests_atf_atf_c___t_utils_SOURCES = tests/atf/atf-c++/t_utils.cpp
-tests_atf_atf_c___t_utils_LDADD = libatf-c++.la
+tests_atf_atf_c___t_utils_LDADD = libatf-c++.la tests/atf/atf-c++/libh.la
 
 atf_atf_sh_DATA = tests/atf/atf-sh/Atffile
 atf_atf_shdir = $(pkgtestsdir)/atf-sh
@@ -1058,36 +1127,6 @@ tests/atf/tools/t_atf_run: $(srcdir)/tests/atf/tools/t_atf_run.sh \
                            $(ATF_COMPILE_DEPS)
 	test -d tests/atf/tools || mkdir -p tests/atf/tools
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/atf/tools/t_atf_run.sh
-
-# -------------------------------------------------------------------------
-# `tests/build' directory.
-# -------------------------------------------------------------------------
-
-check_LIBRARIES = tests/build/libuseless.a
-
-tests_build_libuseless_a_SOURCES = \
-    tests/build/t_include_atf_c++_hpp.cpp \
-    tests/build/atf-c++/t_include_application_hpp.cpp \
-    tests/build/atf-c++/t_include_atffile_hpp.cpp \
-    tests/build/atf-c++/t_include_check_hpp.cpp \
-    tests/build/atf-c++/t_include_config_hpp.cpp \
-    tests/build/atf-c++/t_include_env_hpp.cpp \
-    tests/build/atf-c++/t_include_exceptions_hpp.cpp \
-    tests/build/atf-c++/t_include_expand_hpp.cpp \
-    tests/build/atf-c++/t_include_formats_hpp.cpp \
-    tests/build/atf-c++/t_include_fs_hpp.cpp \
-    tests/build/atf-c++/t_include_io_hpp.cpp \
-    tests/build/atf-c++/t_include_macros_hpp.cpp \
-    tests/build/atf-c++/t_include_parser_hpp.cpp \
-    tests/build/atf-c++/t_include_process_hpp.cpp \
-    tests/build/atf-c++/t_include_sanity_hpp.cpp \
-    tests/build/atf-c++/t_include_signals_hpp.cpp \
-    tests/build/atf-c++/t_include_tests_hpp.cpp \
-    tests/build/atf-c++/t_include_text_hpp.cpp \
-    tests/build/atf-c++/t_include_ui_hpp.cpp \
-    tests/build/atf-c++/t_include_user_hpp.cpp \
-    tests/build/atf-c++/t_include_utils_hpp.cpp \
-    tests/build/atf-c++/t_use_macros_hpp.cpp
 
 # -------------------------------------------------------------------------
 # `tools' directory.

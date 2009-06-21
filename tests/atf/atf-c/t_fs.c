@@ -271,6 +271,7 @@ ATF_TC_BODY(path_branch_path, tc)
         RE(atf_fs_path_branch_path(&p, &bp));
         printf("Output         : %s\n", atf_fs_path_cstring(&bp));
         ATF_REQUIRE(strcmp(atf_fs_path_cstring(&bp), t->branch) == 0);
+        atf_fs_path_fini(&bp);
         atf_fs_path_fini(&p);
 
         printf("\n");
@@ -309,6 +310,7 @@ ATF_TC_BODY(path_leaf_name, tc)
         RE(atf_fs_path_leaf_name(&p, &ln));
         printf("Output         : %s\n", atf_dynstr_cstring(&ln));
         ATF_REQUIRE(atf_equal_dynstr_cstring(&ln, t->leaf));
+        atf_dynstr_fini(&ln);
         atf_fs_path_fini(&p);
 
         printf("\n");
@@ -576,6 +578,9 @@ ATF_TC_BODY(exists, tc)
     RE(atf_fs_exists(&pfile, &b));
     ATF_REQUIRE(b);
 
+    /* XXX: This should probably be a separate test case to let the user
+     * be aware that some tests were skipped because privileges were not
+     * correct. */
     if (!atf_user_is_root()) {
         printf("Checking existence of a file inside a directory without "
                "permissions\n");
@@ -584,12 +589,16 @@ ATF_TC_BODY(exists, tc)
         ATF_REQUIRE(atf_is_error(err));
         ATF_REQUIRE(atf_error_is(err, "libc"));
         ATF_REQUIRE(chmod(atf_fs_path_cstring(&pdir), 0755) != -1);
+        atf_error_free(err);
     }
 
     printf("Checking existence of a non-existent file\n");
     ATF_REQUIRE(unlink(atf_fs_path_cstring(&pfile)) != -1);
     RE(atf_fs_exists(&pfile, &b));
     ATF_REQUIRE(!b);
+
+    atf_fs_path_fini(&pfile);
+    atf_fs_path_fini(&pdir);
 }
 
 ATF_TC(eaccess);
@@ -790,9 +799,12 @@ ATF_TC_BODY(mkdtemp_err, tc)
     ATF_REQUIRE(atf_is_error(err));
     ATF_REQUIRE(atf_error_is(err, "libc"));
     ATF_CHECK_EQ(atf_libc_error_code(err), EACCES);
+    atf_error_free(err);
 
     ATF_CHECK(!exists(&p));
     ATF_CHECK(strcmp(atf_fs_path_cstring(&p), "dir/testdir.XXXXXX") == 0);
+
+    atf_fs_path_fini(&p);
 }
 
 ATF_TC(mkstemp_ok);
@@ -875,10 +887,13 @@ ATF_TC_BODY(mkstemp_err, tc)
     ATF_REQUIRE(atf_is_error(err));
     ATF_REQUIRE(atf_error_is(err, "libc"));
     ATF_CHECK_EQ(atf_libc_error_code(err), EACCES);
+    atf_error_free(err);
 
     ATF_CHECK(!exists(&p));
     ATF_CHECK(strcmp(atf_fs_path_cstring(&p), "dir/testfile.XXXXXX") == 0);
     ATF_CHECK_EQ(fd, 1234);
+
+    atf_fs_path_fini(&p);
 }
 
 /* ---------------------------------------------------------------------
