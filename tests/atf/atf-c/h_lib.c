@@ -60,11 +60,12 @@ build_check_c_o(const atf_tc_t *tc, const char *sfile, const char *failmsg)
                             atf_tc_get_config_var(tc, "srcdir"), sfile));
 
     RE(atf_check_build_c_o(atf_fs_path_cstring(&path), "test.o", optargs, &success));
-    if (!success)
-        atf_tc_fail(failmsg);
 
     atf_fs_path_fini(&path);
     atf_dynstr_fini(&iflag);
+
+    if (!success)
+        atf_tc_fail(failmsg);
 }
 
 bool
