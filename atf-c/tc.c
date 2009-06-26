@@ -58,32 +58,35 @@
  * Auxiliary types and functions.
  * --------------------------------------------------------------------- */
 
+struct child_data {
+    const atf_tc_t *tc;
+    const atf_fs_path_t *workdir;
+};
+
 /* Parent-only stuff. */
 struct timeout_data;
 static atf_error_t body_parent(const atf_tc_t *, const atf_fs_path_t *,
-                               pid_t, atf_tcr_t *);
-static atf_error_t cleanup_parent(const atf_tc_t *, pid_t);
+                               atf_process_child_t *, atf_tcr_t *);
+static atf_error_t cleanup_parent(const atf_tc_t *, atf_process_child_t *);
 static atf_error_t fork_body(const atf_tc_t *, int, int,
                              const atf_fs_path_t *, atf_tcr_t *);
 static atf_error_t fork_cleanup(const atf_tc_t *, int, int,
                                 const atf_fs_path_t *);
 static atf_error_t get_tc_result(const atf_fs_path_t *, atf_tcr_t *);
-static atf_error_t program_timeout(pid_t, const atf_tc_t *,
-                                   struct timeout_data *);
+static atf_error_t program_timeout(const atf_process_child_t *,
+                                   const atf_tc_t *, struct timeout_data *);
 static void unprogram_timeout(struct timeout_data *);
 static void sigalrm_handler(int);
 
 /* Child-only stuff. */
-static void body_child(const atf_tc_t *, int, int, const atf_fs_path_t *)
-            ATF_DEFS_ATTRIBUTE_NORETURN;
+static atf_error_t body_child(const void *) ATF_DEFS_ATTRIBUTE_NORETURN;
 static atf_error_t check_arch(const char *, void *);
 static atf_error_t check_config(const char *, void *);
 static atf_error_t check_machine(const char *, void *);
 static atf_error_t check_prog(const char *, void *);
 static atf_error_t check_prog_in_dir(const char *, void *);
 static atf_error_t check_requirements(const atf_tc_t *);
-static void cleanup_child(const atf_tc_t *, int, int, const atf_fs_path_t *)
-            ATF_DEFS_ATTRIBUTE_NORETURN;
+static atf_error_t cleanup_child(const void *) ATF_DEFS_ATTRIBUTE_NORETURN;
 static void fail_internal(const char *, int, const char *, const char *,
                           const char *, va_list,
                           void (*)(atf_dynstr_t *),
@@ -92,8 +95,7 @@ static void fatal_atf_error(const char *, atf_error_t)
             ATF_DEFS_ATTRIBUTE_NORETURN;
 static void fatal_libc_error(const char *, int)
             ATF_DEFS_ATTRIBUTE_NORETURN;
-static atf_error_t prepare_child(const atf_tc_t *, int, int,
-                                 const atf_fs_path_t *);
+static atf_error_t prepare_child(const struct child_data *);
 static void tc_fail(atf_dynstr_t *) ATF_DEFS_ATTRIBUTE_NORETURN;
 static void tc_fail_nonfatal(atf_dynstr_t *);
 static void write_tcr(const atf_tcr_t *);
@@ -333,7 +335,8 @@ struct timeout_data {
 
 static
 atf_error_t
-program_timeout(pid_t pid, const atf_tc_t *tc, struct timeout_data *td)
+program_timeout(const atf_process_child_t *child, const atf_tc_t *tc,
+                struct timeout_data *td)
 {
     atf_error_t err;
     long timeout;
@@ -343,7 +346,7 @@ program_timeout(pid_t pid, const atf_tc_t *tc, struct timeout_data *td)
         goto out;
 
     if (timeout != 0) {
-        sigalrm_pid = pid;
+        sigalrm_pid = atf_process_child_pid(child);
         sigalrm_killed = false;
 
         err = atf_signal_programmer_init(&td->m_sigalrm, SIGALRM,
@@ -382,39 +385,62 @@ unprogram_timeout(struct timeout_data *td)
 
 static
 atf_error_t
-body_parent(const atf_tc_t *tc, const atf_fs_path_t *workdir, pid_t pid,
-            atf_tcr_t *tcr)
+body_parent(const atf_tc_t *tc, const atf_fs_path_t *workdir,
+            atf_process_child_t *child, atf_tcr_t *tcr)
 {
     atf_error_t err;
-    int state;
+    atf_process_status_t status;
     struct timeout_data td;
 
-    err = program_timeout(pid, tc, &td);
+    err = program_timeout(child, tc, &td);
     if (atf_is_error(err)) {
         char buf[4096];
 
         atf_error_format(err, buf, sizeof(buf));
         fprintf(stderr, "Error programming test case's timeout: %s", buf);
         atf_error_free(err);
-        killpg(pid, SIGKILL);
+        killpg(atf_process_child_pid(child), SIGKILL);
     }
 
-    if (waitpid(pid, &state, 0) == -1) {
-        if (errno == EINTR && sigalrm_killed)
+again:
+    err = atf_process_child_wait(child, &status);
+    if (atf_is_error(err)) {
+        if (atf_error_is(err, "libc") && atf_libc_error_code(err) == EINTR) {
+            atf_error_free(err);
+            goto again;
+        } else {
+            /* Propagate err */
+        }
+    } else {
+        if (sigalrm_killed)
             err = atf_tcr_init_reason_fmt(tcr, atf_tcr_failed_state,
                                           "Test case timed out after %s "
                                           "seconds",
                                           atf_tc_get_md_var(tc, "timeout"));
-        else
-            err = atf_libc_error(errno, "Error waiting for child process "
-                                 "%d", pid);
-    } else {
-        if (!WIFEXITED(state) || WEXITSTATUS(state) != EXIT_SUCCESS)
-            err = atf_tcr_init_reason_fmt(tcr, atf_tcr_failed_state,
-                                          "Test case did not exit cleanly; "
-                                          "state was %d", state);
-        else
-            err = get_tc_result(workdir, tcr);
+        else {
+            if (atf_process_status_exited(&status)) {
+                const int exitstatus = atf_process_status_exitstatus(&status);
+                if (exitstatus == EXIT_SUCCESS)
+                    err = get_tc_result(workdir, tcr);
+                else
+                    err = atf_tcr_init_reason_fmt(tcr, atf_tcr_failed_state,
+                                                  "Test case exited with "
+                                                  "status %d", exitstatus);
+            } else if (atf_process_status_signaled(&status)) {
+                const int sig = atf_process_status_termsig(&status);
+                const bool wcore = atf_process_status_coredump(&status);
+                err = atf_tcr_init_reason_fmt(tcr, atf_tcr_failed_state,
+                                              "Test case was signaled by "
+                                              "signal %d%s", sig,
+                                              wcore ? " (core dumped)" : "");
+            } else {
+                err = atf_tcr_init_reason_fmt(tcr, atf_tcr_failed_state,
+                                              "Test case exited due to an "
+                                              "unexpected condition");
+            }
+        }
+
+        atf_process_status_fini(&status);
     }
 
     unprogram_timeout(&td);
@@ -424,23 +450,23 @@ body_parent(const atf_tc_t *tc, const atf_fs_path_t *workdir, pid_t pid,
 
 static
 atf_error_t
-cleanup_parent(const atf_tc_t *tc, pid_t pid)
+cleanup_parent(const atf_tc_t *tc, atf_process_child_t *child)
 {
     atf_error_t err;
-    int state;
+    atf_process_status_t status;
 
-    if (waitpid(pid, &state, 0) == -1) {
-        err = atf_libc_error(errno, "Error waiting for child process "
-                             "%d", pid);
+    err = atf_process_child_wait(child, &status);
+    if (atf_is_error(err))
         goto out;
-    }
 
-    if (!WIFEXITED(state) || WEXITSTATUS(state) != EXIT_SUCCESS)
+    if (!atf_process_status_exited(&status) ||
+        atf_process_status_exitstatus(&status) != EXIT_SUCCESS) {
         /* XXX Not really a libc error. */
         err = atf_libc_error(EINVAL, "Child process did not exit cleanly");
-    else
+    } else
         err = atf_no_error();
 
+    atf_process_status_fini(&status);
 out:
     return err;
 }
@@ -451,20 +477,31 @@ fork_body(const atf_tc_t *tc, int fdout, int fderr,
           const atf_fs_path_t *workdir, atf_tcr_t *tcr)
 {
     atf_error_t err;
-    pid_t pid;
+    atf_process_stream_t outsb, errsb;
+    atf_process_child_t child;
+    struct child_data data = {
+        tc,
+        workdir,
+    };
 
-    err = atf_process_oldfork(&pid);
+    err = atf_process_stream_init_redirect_fd(&outsb, fdout);
     if (atf_is_error(err))
         goto out;
 
-    if (pid == 0) {
-        body_child(tc, fdout, fderr, workdir);
-        UNREACHABLE;
-        abort();
-    } else {
-        err = body_parent(tc, workdir, pid, tcr);
-    }
+    err = atf_process_stream_init_redirect_fd(&errsb, fderr);
+    if (atf_is_error(err))
+        goto out_outsb;
 
+    err = atf_process_fork(&child, body_child, &outsb, &errsb, &data);
+    if (atf_is_error(err))
+        goto out_errsb;
+
+    err = body_parent(tc, workdir, &child, tcr);
+
+out_errsb:
+    atf_process_stream_fini(&errsb);
+out_outsb:
+    atf_process_stream_fini(&outsb);
 out:
     return err;
 }
@@ -475,22 +512,35 @@ fork_cleanup(const atf_tc_t *tc, int fdout, int fderr,
              const atf_fs_path_t *workdir)
 {
     atf_error_t err;
-    pid_t pid;
 
     if (tc->m_cleanup == NULL)
         err = atf_no_error();
     else {
-        err = atf_process_oldfork(&pid);
+        atf_process_stream_t outsb, errsb;
+        atf_process_child_t child;
+        struct child_data data = {
+            tc,
+            workdir,
+        };
+
+        err = atf_process_stream_init_redirect_fd(&outsb, fdout);
         if (atf_is_error(err))
             goto out;
 
-        if (pid == 0) {
-            cleanup_child(tc, fdout, fderr, workdir);
-            UNREACHABLE;
-            abort();
-        } else {
-            err = cleanup_parent(tc, pid);
-        }
+        err = atf_process_stream_init_redirect_fd(&errsb, fderr);
+        if (atf_is_error(err))
+            goto out_outsb;
+
+        err = atf_process_fork(&child, cleanup_child, &outsb, &errsb, &data);
+        if (atf_is_error(err))
+            goto out_errsb;
+
+        err = cleanup_parent(tc, &child);
+
+out_errsb:
+        atf_process_stream_fini(&errsb);
+out_outsb:
+        atf_process_stream_fini(&outsb);
     }
 
 out:
@@ -538,14 +588,13 @@ static size_t current_tc_fail_count = 0;
 
 static
 atf_error_t
-prepare_child(const atf_tc_t *tc, int fdout, int fderr,
-              const atf_fs_path_t *workdir)
+prepare_child(const struct child_data *cd)
 {
     atf_error_t err;
     int i, ret;
 
-    current_tc = tc;
-    current_workdir = workdir;
+    current_tc = cd->tc;
+    current_workdir = cd->workdir;
     current_tc_fail_count = 0;
 
     ret = setpgid(getpid(), 0);
@@ -556,7 +605,7 @@ prepare_child(const atf_tc_t *tc, int fdout, int fderr,
     for (i = 1; i <= atf_signals_last_signo; i++)
         atf_signal_reset(i);
 
-    err = atf_env_set("HOME", atf_fs_path_cstring(workdir));
+    err = atf_env_set("HOME", atf_fs_path_cstring(cd->workdir));
     if (atf_is_error(err))
         goto out;
 
@@ -596,28 +645,10 @@ prepare_child(const atf_tc_t *tc, int fdout, int fderr,
     if (atf_is_error(err))
         goto out;
 
-    if (chdir(atf_fs_path_cstring(workdir)) == -1) {
+    if (chdir(atf_fs_path_cstring(cd->workdir)) == -1) {
         err = atf_libc_error(errno, "Cannot enter work directory '%s'",
-                             atf_fs_path_cstring(workdir));
+                             atf_fs_path_cstring(cd->workdir));
         goto out;
-    }
-
-    if (fdout != STDOUT_FILENO) {
-        if (dup2(fdout, STDOUT_FILENO) == -1) {
-            err = atf_libc_error(errno, "Cannot redirect stdout");
-            goto out;
-        }
-
-        close(fdout);
-    }
-
-    if (fderr != STDERR_FILENO) {
-        if (dup2(fderr, STDERR_FILENO) == -1) {
-            err = atf_libc_error(errno, "Cannot redirect stderr");
-            goto out;
-        }
-
-        close(fderr);
     }
 
     err = atf_no_error();
@@ -627,22 +658,22 @@ out:
 }
 
 static
-void
-body_child(const atf_tc_t *tc, int fdout, int fderr,
-           const atf_fs_path_t *workdir)
+atf_error_t
+body_child(const void *v)
 {
+    const struct child_data *cd = v;
     atf_error_t err;
 
     atf_reset_exit_checks();
 
-    err = prepare_child(tc, fdout, fderr, workdir);
+    err = prepare_child(cd);
     if (atf_is_error(err))
         goto print_err;
-    err = check_requirements(tc);
+    err = check_requirements(cd->tc);
     if (atf_is_error(err))
         goto print_err;
 
-    tc->m_body(tc);
+    cd->tc->m_body(cd->tc);
 
     if (current_tc_fail_count == 0)
         atf_tc_pass();
@@ -882,19 +913,19 @@ out:
 }
 
 static
-void
-cleanup_child(const atf_tc_t *tc, int fdout, int fderr,
-              const atf_fs_path_t *workdir)
+atf_error_t
+cleanup_child(const void *v)
 {
+    const struct child_data *cd = v;
     atf_error_t err;
 
-    err = prepare_child(tc, fdout, fderr, workdir);
+    err = prepare_child(cd);
     if (atf_is_error(err)) {
         atf_reset_exit_checks();
         exit(EXIT_FAILURE);
     } else {
         atf_reset_exit_checks();
-        tc->m_cleanup(tc);
+        cd->tc->m_cleanup(cd->tc);
         exit(EXIT_SUCCESS);
     }
 
