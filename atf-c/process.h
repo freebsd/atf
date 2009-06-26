@@ -105,6 +105,7 @@ typedef struct atf_process_child atf_process_child_t;
 
 atf_error_t atf_process_child_wait(atf_process_child_t *,
                                    atf_process_status_t *);
+pid_t atf_process_child_pid(const atf_process_child_t *);
 int atf_process_child_stdout(atf_process_child_t *);
 int atf_process_child_stderr(atf_process_child_t *);
 

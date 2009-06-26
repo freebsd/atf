@@ -315,6 +315,12 @@ atf_process_child_wait(atf_process_child_t *c, atf_process_status_t *s)
     return err;
 }
 
+pid_t
+atf_process_child_pid(const atf_process_child_t *c)
+{
+    return c->m_pid;
+}
+
 int
 atf_process_child_stdout(atf_process_child_t *c)
 {

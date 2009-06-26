@@ -568,6 +568,49 @@ ATF_TC_BODY(status_coredump, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Test cases for the "child" type.
+ * --------------------------------------------------------------------- */
+
+static
+atf_error_t
+child_report_pid(const void *v)
+{
+    const pid_t pid = getpid();
+    write(STDOUT_FILENO, &pid, sizeof(pid));
+    fprintf(stderr, "Reporting %d to parent\n", getpid());
+    return atf_no_error();
+}
+
+ATF_TC(child_pid);
+ATF_TC_HEAD(child_pid, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the correctness of the pid "
+                      "stored in the child type");
+}
+ATF_TC_BODY(child_pid, tc)
+{
+    atf_process_stream_t outsb, errsb;
+    atf_process_child_t child;
+    atf_process_status_t status;
+    pid_t pid;
+
+    RE(atf_process_stream_init_capture(&outsb));
+    RE(atf_process_stream_init_inherit(&errsb));
+
+    RE(atf_process_fork(&child, child_report_pid, &outsb, &errsb, NULL));
+    read(atf_process_child_stdout(&child), &pid, sizeof(pid));
+    printf("Expected PID: %d\n", atf_process_child_pid(&child));
+    printf("Actual PID: %d\n", pid);
+    ATF_CHECK_EQ(atf_process_child_pid(&child), pid);
+
+    RE(atf_process_child_wait(&child, &status));
+    atf_process_status_fini(&status);
+
+    atf_process_stream_fini(&outsb);
+    atf_process_stream_fini(&errsb);
+}
+
+/* ---------------------------------------------------------------------
  * Tests cases for the free functions.
  * --------------------------------------------------------------------- */
 
@@ -710,6 +753,9 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, status_exited);
     ATF_TP_ADD_TC(tp, status_signaled);
     ATF_TP_ADD_TC(tp, status_coredump);
+
+    /* Add the tests for the "child" type. */
+    ATF_TP_ADD_TC(tp, child_pid);
 
     /* Add the tests for the free functions. */
     ATF_TP_ADD_TC(tp, fork_cookie);
