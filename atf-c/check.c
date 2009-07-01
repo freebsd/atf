@@ -46,33 +46,51 @@
 #include "atf-c/process.h"
 #include "atf-c/sanity.h"
 
-/* Only needed for testing, so not in the public header. */
-atf_error_t atf_check_result_init(atf_check_result_t *, const char *const *);
-
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
 static
 atf_error_t
-create_files(atf_check_result_t *r, int *fdout, int *fderr)
+create_file(const char *basename, atf_fs_path_t *path, int *fd)
 {
     atf_error_t err;
+    const char *workdir = atf_config_get("atf_workdir");
 
-    err = atf_fs_mkstemp(&r->m_stdout, fdout);
+    err = atf_fs_path_init_fmt(path, "%s/%s.XXXXXX", workdir, basename);
     if (atf_is_error(err))
         goto out;
 
-    err = atf_fs_mkstemp(&r->m_stderr, fderr);
-    if (atf_is_error(err))
-        goto err_fdout;
+    err = atf_fs_mkstemp(path, fd);
+    if (atf_is_error(err)) {
+        atf_fs_path_fini(path);
+        goto out;
+    }
 
     INV(!atf_is_error(err));
-    goto out;
+out:
+    return err;
+}
 
-err_fdout:
-    close(*fdout);
-    atf_fs_unlink(&r->m_stdout);
+static
+atf_error_t
+create_files(atf_fs_path_t *pathout, int *fdout,
+             atf_fs_path_t *patherr, int *fderr)
+{
+    atf_error_t err;
+
+    err = create_file("stdout", pathout, fdout);
+    if (atf_is_error(err))
+        goto out;
+
+    err = create_file("stderr", patherr, fderr);
+    if (atf_is_error(err)) {
+        close(*fdout);
+        atf_fs_unlink(pathout);
+        goto out;
+    }
+
+    INV(!atf_is_error(err));
 out:
     return err;
 }
@@ -277,8 +295,11 @@ out:
  * The "atf_check_result" type.
  * --------------------------------------------------------------------- */
 
+static
 atf_error_t
-atf_check_result_init(atf_check_result_t *r, const char *const *argv)
+atf_check_result_init(atf_check_result_t *r, const char *const *argv,
+                      const atf_fs_path_t *pathout,
+                      const atf_fs_path_t *patherr)
 {
     atf_error_t err;
     const char *workdir;
@@ -291,13 +312,11 @@ atf_check_result_init(atf_check_result_t *r, const char *const *argv)
     if (atf_is_error(err))
         goto out;
 
-    err = atf_fs_path_init_fmt(&r->m_stdout, "%s/%s",
-                               workdir, "stdout.XXXXXX");
+    err = atf_fs_path_copy(&r->m_stdout, pathout);
     if (atf_is_error(err))
         goto err_argv;
 
-    err = atf_fs_path_init_fmt(&r->m_stderr, "%s/%s",
-                               workdir, "stderr.XXXXXX");
+    err = atf_fs_path_copy(&r->m_stderr, patherr);
     if (atf_is_error(err))
         goto err_stdout;
 
@@ -435,27 +454,30 @@ atf_error_t
 atf_check_exec_array(const char *const *argv, atf_check_result_t *r)
 {
     atf_error_t err;
+    atf_fs_path_t pathout, patherr;
     int fdout, fderr;
 
-    err = atf_check_result_init(r, argv);
-    if (atf_is_error(err))
-        goto out;
-
-    err = create_files(r, &fdout, &fderr);
+    err = create_files(&pathout, &fdout, &patherr, &fderr);
     if (atf_is_error(err))
         goto err_r;
 
-    err = fork_and_wait(argv, fdout, fderr, &r->m_estatus);
+    err = atf_check_result_init(r, argv, &pathout, &patherr);
+    atf_fs_path_fini(&pathout);
+    atf_fs_path_fini(&patherr);
     if (atf_is_error(err))
         goto err_files;
+
+    err = fork_and_wait(argv, fdout, fderr, &r->m_estatus);
+    if (atf_is_error(err))
+        goto err_r;
 
     INV(!atf_is_error(err));
     goto out;
 
-err_files:
-    cleanup_files(r, fdout, fderr);
 err_r:
     atf_check_result_fini(r);
+err_files:
+    cleanup_files(r, fdout, fderr);
 out:
     return err;
 }

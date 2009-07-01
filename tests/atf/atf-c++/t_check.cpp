@@ -55,25 +55,6 @@ extern "C" {
 // Auxiliary functions.
 // ------------------------------------------------------------------------
 
-extern "C" {
-atf_error_t atf_check_result_init(atf_check_result_t *, const char* const*);
-}
-
-namespace atf {
-namespace check {
-
-check_result
-test_constructor(const char* const* argv)
-{
-    atf_check_result_t r;
-    atf_check_result_init(&r, argv);
-
-    return atf::check::check_result(&r);
-}
-
-} // namespace check
-} // namespace atf
-
 static
 atf::check::check_result
 do_exec(const atf::tests::tc* tc, const char* helper_name)
@@ -360,63 +341,6 @@ ATF_TEST_CASE_BODY(argv_array_iter)
         ATF_CHECK_EQUAL(*iter, vector[pos]);
         pos++;
     }
-}
-
-// ------------------------------------------------------------------------
-// Tests for the "check_result" type.
-// ------------------------------------------------------------------------
-
-ATF_TEST_CASE(result_argv);
-ATF_TEST_CASE_HEAD(result_argv)
-{
-    set_md_var("descr", "Tests that check_result contains a valid copy of "
-               "argv");
-}
-ATF_TEST_CASE_BODY(result_argv)
-{
-    const char *const expargv[] = {
-        "progname",
-        "arg1",
-        "arg2",
-        NULL
-    };
-
-    const atf::check::check_result result =
-        atf::check::test_constructor(expargv);
-
-    ATF_CHECK_EQUAL(result.argv().size(), 3);
-    ATF_CHECK_EQUAL(result.argv()[0], "progname");
-    ATF_CHECK_EQUAL(result.argv()[1], "arg1");
-    ATF_CHECK_EQUAL(result.argv()[2], "arg2");
-}
-
-ATF_TEST_CASE(result_templates);
-ATF_TEST_CASE_HEAD(result_templates)
-{
-    set_md_var("descr", "Tests that check_result is initialized with "
-               "correct temporary file templates");
-}
-ATF_TEST_CASE_BODY(result_templates)
-{
-    const char *const argv[] = { "fake", NULL };
-
-    const atf::check::check_result result1 =
-        atf::check::test_constructor(argv);
-    const atf::check::check_result result2 =
-        atf::check::test_constructor(argv);
-
-    const atf::fs::path& out1 = result1.stdout_path();
-    const atf::fs::path& err1 = result1.stderr_path();
-    const atf::fs::path& out2 = result2.stdout_path();
-    const atf::fs::path& err2 = result2.stderr_path();
-
-    ATF_CHECK(out1.str().find("stdout.XXXXXX") != std::string::npos);
-    ATF_CHECK(err1.str().find("stderr.XXXXXX") != std::string::npos);
-    ATF_CHECK(out2.str().find("stdout.XXXXXX") != std::string::npos);
-    ATF_CHECK(err2.str().find("stderr.XXXXXX") != std::string::npos);
-
-    ATF_CHECK(out1 == out2);
-    ATF_CHECK(err1 == err2);
 }
 
 // ------------------------------------------------------------------------
@@ -718,6 +642,11 @@ ATF_TEST_CASE_BODY(exec_stdout_stderr)
     ATF_CHECK(err1.str().find("stderr.XXXXXX") == std::string::npos);
     ATF_CHECK(err2.str().find("stderr.XXXXXX") == std::string::npos);
 
+    ATF_CHECK(out1.str().find("stdout.") != std::string::npos);
+    ATF_CHECK(out2.str().find("stdout.") != std::string::npos);
+    ATF_CHECK(err1.str().find("stderr.") != std::string::npos);
+    ATF_CHECK(err2.str().find("stderr.") != std::string::npos);
+
     ATF_CHECK(out1 != out2);
     ATF_CHECK(err1 != err2);
 
@@ -764,10 +693,6 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, argv_array_init_col);
     ATF_ADD_TEST_CASE(tcs, argv_array_init_empty);
     ATF_ADD_TEST_CASE(tcs, argv_array_iter);
-
-    // Add the test cases for the "check_result" type.
-    ATF_ADD_TEST_CASE(tcs, result_argv);
-    ATF_ADD_TEST_CASE(tcs, result_templates);
 
     // Add the test cases for the free functions.
     ATF_ADD_TEST_CASE(tcs, build_c_o);

@@ -43,8 +43,6 @@
 
 #include "h_lib.h"
 
-atf_error_t atf_check_result_init(atf_check_result_t *, const char *const *);
-
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
@@ -104,88 +102,6 @@ check_line(int fd, const char *exp)
                   "read: '%s', expected: '%s'",
                   atf_dynstr_cstring(&line), exp);
     atf_dynstr_fini(&line);
-}
-
-static
-void
-touch_file(const atf_fs_path_t *p)
-{
-    FILE *f = fopen(atf_fs_path_cstring(p), "w");
-    ATF_REQUIRE(f != NULL);
-    fclose(f);
-}
-
-/* ---------------------------------------------------------------------
- * Test cases for the "atf_check_result" type.
- * --------------------------------------------------------------------- */
-
-ATF_TC(result_argv);
-ATF_TC_HEAD(result_argv, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Tests that atf_check_result contains "
-                      "a valid copy of argv");
-}
-ATF_TC_BODY(result_argv, tc)
-{
-    atf_check_result_t result;
-
-    const char *const expargv[] = {
-        "progname",
-        "arg1",
-        "arg2",
-        NULL
-    };
-
-    RE(atf_check_result_init(&result, expargv));
-
-    const atf_list_t *argv = atf_check_result_argv(&result);
-    ATF_REQUIRE_EQ(atf_list_size(argv), 3);
-    ATF_CHECK_STREQ((const char *)atf_list_index_c(argv, 0), "progname");
-    ATF_CHECK_STREQ((const char *)atf_list_index_c(argv, 1), "arg1");
-    ATF_CHECK_STREQ((const char *)atf_list_index_c(argv, 2), "arg2");
-
-    touch_file(atf_check_result_stdout(&result));
-    touch_file(atf_check_result_stderr(&result));
-    atf_check_result_fini(&result);
-}
-
-ATF_TC(result_templates);
-ATF_TC_HEAD(result_templates, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Tests that atf_check_result is "
-                      "initialized with correct temporary file templates");
-}
-ATF_TC_BODY(result_templates, tc)
-{
-    atf_check_result_t result1, result2;
-    const atf_fs_path_t *out1, *out2;
-    const atf_fs_path_t *err1, *err2;
-    const char *const argv[] = { "fake", NULL };
-
-    RE(atf_check_result_init(&result1, argv));
-    RE(atf_check_result_init(&result2, argv));
-
-    out1 = atf_check_result_stdout(&result1);
-    out2 = atf_check_result_stdout(&result2);
-    err1 = atf_check_result_stderr(&result1);
-    err2 = atf_check_result_stderr(&result2);
-
-    ATF_CHECK(strstr(atf_fs_path_cstring(out1), "stdout.XXXXXX") != NULL);
-    ATF_CHECK(strstr(atf_fs_path_cstring(out2), "stdout.XXXXXX") != NULL);
-    ATF_CHECK(strstr(atf_fs_path_cstring(err1), "stderr.XXXXXX") != NULL);
-    ATF_CHECK(strstr(atf_fs_path_cstring(err2), "stderr.XXXXXX") != NULL);
-
-    ATF_CHECK(strcmp(atf_fs_path_cstring(out1),
-                     atf_fs_path_cstring(out2)) == 0);
-    ATF_CHECK(strcmp(atf_fs_path_cstring(err1),
-                     atf_fs_path_cstring(err2)) == 0);
-
-    touch_file(atf_check_result_stdout(&result2));
-    touch_file(atf_check_result_stderr(&result2));
-    atf_check_result_fini(&result2);
-    touch_file(atf_check_result_stdout(&result1));
-    touch_file(atf_check_result_stderr(&result1));
-    atf_check_result_fini(&result1);
 }
 
 /* ---------------------------------------------------------------------
@@ -560,6 +476,11 @@ ATF_TC_BODY(exec_stdout_stderr, tc)
     ATF_CHECK(strstr(atf_fs_path_cstring(err1), "stderr.XXXXXX") == NULL);
     ATF_CHECK(strstr(atf_fs_path_cstring(err2), "stderr.XXXXXX") == NULL);
 
+    ATF_CHECK(strstr(atf_fs_path_cstring(out1), "stdout.") != NULL);
+    ATF_CHECK(strstr(atf_fs_path_cstring(out2), "stdout.") != NULL);
+    ATF_CHECK(strstr(atf_fs_path_cstring(err1), "stderr.") != NULL);
+    ATF_CHECK(strstr(atf_fs_path_cstring(err2), "stderr.") != NULL);
+
     ATF_CHECK(strcmp(atf_fs_path_cstring(out1),
                      atf_fs_path_cstring(out2)) != 0);
     ATF_CHECK(strcmp(atf_fs_path_cstring(err1),
@@ -620,10 +541,6 @@ HEADER_TC(include, "atf-c/check.h", "d_include_check_h.c");
 
 ATF_TP_ADD_TCS(tp)
 {
-    /* Add the test cases for the "atf_check_result" type. */
-    ATF_TP_ADD_TC(tp, result_argv);
-    ATF_TP_ADD_TC(tp, result_templates);
-
     /* Add the test cases for the free functions. */
     ATF_TP_ADD_TC(tp, build_c_o);
     ATF_TP_ADD_TC(tp, build_cpp);
