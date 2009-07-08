@@ -131,32 +131,35 @@ const_execvp(const char *file, const char *const *argv)
 
 static
 atf_error_t
-fork_and_wait(const char *const *argv, int fdout, int fderr, int *estatus)
+init_sb(const int fd, atf_process_stream_t *sb)
 {
     atf_error_t err;
-    int status;
-    pid_t pid;
 
-    err = atf_process_oldfork(&pid);
+    PRE(fd >= -1);
+
+    if (fd == -1)
+        err = atf_process_stream_init_inherit(sb);
+    else
+        err = atf_process_stream_init_redirect_fd(sb, fd);
+
+    return err;
+}
+
+static
+atf_error_t
+init_sbs(const int outfd, atf_process_stream_t *outsb,
+         const int errfd, atf_process_stream_t *errsb)
+{
+    atf_error_t err;
+
+    err = init_sb(outfd, outsb);
     if (atf_is_error(err))
         goto out;
 
-    if (pid == 0) {
-        atf_reset_exit_checks();
-        /* XXX No error handling at all? */
-        dup2(fdout, STDOUT_FILENO);
-        dup2(fderr, STDERR_FILENO);
-        const_execvp(argv[0], argv);
-        fprintf(stderr, "execvp(%s) failed: %s\n", argv[0], strerror(errno));
-        exit(127);
-        UNREACHABLE;
-    } else {
-        if (waitpid(pid, &status, 0) == -1) {
-            err = atf_libc_error(errno, "Error waiting for "
-                                 "child process: %d", pid);
-        } else {
-            *estatus = status;
-        }
+    err = init_sb(errfd, errsb);
+    if (atf_is_error(err)) {
+        atf_process_stream_fini(outsb);
+        goto out;
     }
 
 out:
@@ -164,21 +167,70 @@ out:
 }
 
 static
-void
-update_success_from_status(const char *progname, int status, bool *success)
+atf_error_t
+exec_child(const void *v)
 {
-    bool s = WIFEXITED(status) && WEXITSTATUS(status) == EXIT_SUCCESS;
+    const char *const *argv = v;
 
-    if (!WIFEXITED(status)) {
+    atf_reset_exit_checks();
+    const_execvp(argv[0], argv);
+    fprintf(stderr, "execvp(%s) failed: %s\n", argv[0], strerror(errno));
+    exit(127);
+    UNREACHABLE;
+    return atf_no_error();
+}
+
+static
+atf_error_t
+fork_and_wait(const char *const *argv, int outfd, int errfd,
+              atf_process_status_t *status)
+{
+    atf_error_t err;
+    atf_process_child_t child;
+    atf_process_stream_t outsb, errsb;
+
+    err = init_sbs(outfd, &outsb, errfd, &errsb);
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_process_fork(&child, exec_child, &outsb, &errsb, argv);
+    if (atf_is_error(err))
+        goto out_sbs;
+
+    err = atf_process_child_wait(&child, status);
+
+out_sbs:
+    atf_process_stream_fini(&errsb);
+    atf_process_stream_fini(&outsb);
+out:
+    return err;
+}
+
+static
+void
+update_success_from_status(const char *progname,
+                           const atf_process_status_t *status, bool *success)
+{
+    bool s = atf_process_status_exited(status) &&
+             atf_process_status_exitstatus(status) == EXIT_SUCCESS;
+
+    if (atf_process_status_exited(status)) {
+        if (atf_process_status_exitstatus(status) == EXIT_SUCCESS)
+            INV(s);
+        else {
+            INV(!s);
+            fprintf(stderr, "%s failed with exit code %d\n", progname,
+                    atf_process_status_exitstatus(status));
+        }
+    } else if (atf_process_status_signaled(status)) {
         INV(!s);
-        fprintf(stderr, "%s abnormally exited with status %d\n",
-                progname, status);
-    } else if (WIFEXITED(status) && WEXITSTATUS(status) != EXIT_SUCCESS) {
+        fprintf(stderr, "%s failed due to signal %d%s\n", progname,
+                atf_process_status_termsig(status),
+                atf_process_status_coredump(status) ? " (core dumped)" : "");
+    } else {
         INV(!s);
-        fprintf(stderr, "%s failed with exit code %d\n",
-                progname, WEXITSTATUS(status));
-    } else
-        INV(s);
+        fprintf(stderr, "%s failed due to unknown reason\n", progname);
+    }
 
     *success = s;
 }
@@ -254,7 +306,7 @@ print_list(const atf_list_t *l, const char *pfx)
 static
 atf_error_t
 fork_and_wait_list(const atf_list_t *argvl, const int fdout,
-                   const int fderr, int *status)
+                   const int fderr, atf_process_status_t *status)
 {
     atf_error_t err;
     const char **argva;
@@ -263,7 +315,7 @@ fork_and_wait_list(const atf_list_t *argvl, const int fdout,
     if (atf_is_error(err))
         goto out;
 
-    err = fork_and_wait(argva, STDOUT_FILENO, STDERR_FILENO, status);
+    err = fork_and_wait(argva, fdout, fderr, status);
 
     free(argva);
 out:
@@ -275,16 +327,17 @@ atf_error_t
 check_build_run(const atf_list_t *argv, bool *success)
 {
     atf_error_t err;
-    int status;
+    atf_process_status_t status;
 
     print_list(argv, ">");
 
-    err = fork_and_wait_list(argv, STDOUT_FILENO, STDERR_FILENO, &status);
+    err = fork_and_wait_list(argv, -1, -1, &status);
     if (atf_is_error(err))
         goto out;
 
     update_success_from_status((const char *)atf_list_index_c(argv, 0),
-                               status, success);
+                               &status, success);
+    atf_process_status_fini(&status);
 
     INV(!atf_is_error(err));
 out:
@@ -334,6 +387,8 @@ out:
 void
 atf_check_result_fini(atf_check_result_t *r)
 {
+    atf_process_status_fini(&r->m_status);
+
     {
         atf_error_t err = atf_fs_unlink(&r->m_stdout);
         INV(!atf_is_error(err));
@@ -372,15 +427,13 @@ atf_check_result_stderr(const atf_check_result_t *r)
 bool
 atf_check_result_exited(const atf_check_result_t *r)
 {
-    int estatus = r->m_estatus;
-    return WIFEXITED(estatus);
+    return atf_process_status_exited(&r->m_status);
 }
 
 int
 atf_check_result_exitcode(const atf_check_result_t *r)
 {
-    int estatus = r->m_estatus;
-    return WEXITSTATUS(estatus);
+    return atf_process_status_exitstatus(&r->m_status);
 }
 
 /* ---------------------------------------------------------------------
@@ -467,7 +520,7 @@ atf_check_exec_array(const char *const *argv, atf_check_result_t *r)
     if (atf_is_error(err))
         goto err_files;
 
-    err = fork_and_wait(argv, fdout, fderr, &r->m_estatus);
+    err = fork_and_wait(argv, fdout, fderr, &r->m_status);
     if (atf_is_error(err))
         goto err_r;
 
