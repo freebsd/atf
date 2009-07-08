@@ -70,94 +70,106 @@ grep(const atf_dynstr_t *line, const char *text)
     return found;
 }
 
+struct test_data {
+    enum type m_type;
+    bool m_cond;
+};
+
+static
+atf_error_t
+do_test_child(const void *v)
+{
+    const struct test_data *td = v;
+
+    switch (td->m_type) {
+    case inv:
+        INV(td->m_cond);
+        break;
+
+    case pre:
+        PRE(td->m_cond);
+        break;
+
+    case post:
+        POST(td->m_cond);
+        break;
+
+    case unreachable:
+        if (!td->m_cond)
+            UNREACHABLE;
+        break;
+    }
+
+    return atf_no_error();
+}
+
 static
 void
 do_test(enum type t, bool cond)
 {
-    int fds[2];
-    pid_t pid;
+    atf_process_child_t child;
+    atf_process_status_t status;
+    bool eof;
+    int nlines;
+    atf_dynstr_t lines[3];
 
-    ATF_REQUIRE(pipe(fds) != -1);
+    {
+        atf_process_stream_t outsb, errsb;
+        const struct test_data td = { t, cond };
 
-    RE(atf_process_oldfork(&pid));
-    if (pid == 0) {
-        ATF_REQUIRE(dup2(fds[1], STDERR_FILENO) != -1);
-        close(fds[0]);
-        close(fds[1]);
+        RE(atf_process_stream_init_inherit(&outsb));
+        RE(atf_process_stream_init_capture(&errsb));
+        RE(atf_process_fork(&child, do_test_child, &outsb, &errsb, &td));
+        atf_process_stream_fini(&errsb);
+        atf_process_stream_fini(&outsb);
+    }
 
+    nlines = 0;
+    do {
+        RE(atf_dynstr_init(&lines[nlines]));
+        if (!eof)
+            RE(atf_io_readline(atf_process_child_stderr(&child),
+                               &lines[nlines], &eof));
+        nlines++;
+    } while (nlines < 3);
+    ATF_REQUIRE(nlines == 0 || nlines == 3);
+
+    RE(atf_process_child_wait(&child, &status));
+    if (!cond) {
+        ATF_REQUIRE(atf_process_status_signaled(&status));
+        ATF_REQUIRE(atf_process_status_termsig(&status) == SIGABRT);
+    } else {
+        ATF_REQUIRE(atf_process_status_exited(&status));
+        ATF_REQUIRE(atf_process_status_exitstatus(&status) == EXIT_SUCCESS);
+    }
+    atf_process_status_fini(&status);
+
+    if (!cond) {
         switch (t) {
         case inv:
-            INV(cond);
+            ATF_REQUIRE(grep(&lines[0], "Invariant"));
             break;
 
         case pre:
-            PRE(cond);
+            ATF_REQUIRE(grep(&lines[0], "Precondition"));
             break;
 
         case post:
-            POST(cond);
+            ATF_REQUIRE(grep(&lines[0], "Postcondition"));
             break;
 
         case unreachable:
-            if (!cond)
-                UNREACHABLE;
+            ATF_REQUIRE(grep(&lines[0], "Invariant"));
             break;
         }
 
-        exit(EXIT_SUCCESS);
-    } else {
-        bool eof;
-        int ecode, nlines;
-        atf_dynstr_t lines[3];
+        ATF_REQUIRE(grep(&lines[0], __FILE__));
+        ATF_REQUIRE(grep(&lines[2], PACKAGE_BUGREPORT));
+    }
 
-        close(fds[1]);
-
-        nlines = 0;
-        do {
-            RE(atf_dynstr_init(&lines[nlines]));
-            if (!eof)
-                RE(atf_io_readline(fds[0], &lines[nlines], &eof));
-            nlines++;
-        } while (nlines < 3);
-        close(fds[0]);
-        ATF_REQUIRE(nlines == 0 || nlines == 3);
-
-        if (!cond) {
-            switch (t) {
-            case inv:
-                ATF_REQUIRE(grep(&lines[0], "Invariant"));
-                break;
-
-            case pre:
-                ATF_REQUIRE(grep(&lines[0], "Precondition"));
-                break;
-
-            case post:
-                ATF_REQUIRE(grep(&lines[0], "Postcondition"));
-                break;
-
-            case unreachable:
-                ATF_REQUIRE(grep(&lines[0], "Invariant"));
-                break;
-            }
-
-            ATF_REQUIRE(grep(&lines[0], __FILE__));
-            ATF_REQUIRE(grep(&lines[2], PACKAGE_BUGREPORT));
-        }
-
-        ATF_REQUIRE(waitpid(pid, &ecode, 0) != -1);
-        if (!cond) {
-            ATF_REQUIRE(WIFSIGNALED(ecode));
-            ATF_REQUIRE(WTERMSIG(ecode) == SIGABRT);
-        } else {
-            ATF_REQUIRE(WIFEXITED(ecode));
-            ATF_REQUIRE(WEXITSTATUS(ecode) == EXIT_SUCCESS);
-        }
-
-        while (nlines > 0) {
-            nlines--;
-            atf_dynstr_fini(&lines[nlines]);
-        }
+    while (nlines > 0) {
+        nlines--;
+        atf_dynstr_fini(&lines[nlines]);
     }
 }
 

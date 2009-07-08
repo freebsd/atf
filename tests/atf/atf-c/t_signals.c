@@ -245,6 +245,31 @@ ATF_TC_BODY(signal_programmer_fini, tc)
  * Test cases for the free functions.
  * --------------------------------------------------------------------- */
 
+static
+atf_error_t
+signal_reset_child(const void *v)
+{
+    struct sigaction sa;
+
+    sa.sa_handler = test1_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+
+    ATF_REQUIRE(sigaction(SIGTERM, &sa, NULL) != -1);
+    ATF_REQUIRE(!test1_happened);
+    kill(getpid(), SIGTERM);
+    ATF_REQUIRE(test1_happened);
+
+    test1_happened = false;
+    atf_signal_reset(SIGTERM);
+    kill(getpid(), SIGTERM);
+
+    printf("Signal was not resetted correctly\n");
+    abort();
+
+    return atf_no_error();
+}
+
 ATF_TC(signal_reset);
 ATF_TC_HEAD(signal_reset, tc)
 {
@@ -252,32 +277,29 @@ ATF_TC_HEAD(signal_reset, tc)
 }
 ATF_TC_BODY(signal_reset, tc)
 {
-    pid_t pid;
-    RE(atf_process_oldfork(&pid));
-    if (pid == 0) {
-        struct sigaction sa;
+    atf_process_child_t child;
 
-        sa.sa_handler = test1_handler;
-        sigemptyset(&sa.sa_mask);
-        sa.sa_flags = 0;
+    {
+        atf_process_stream_t outsb, errsb;
 
-        ATF_REQUIRE(sigaction(SIGTERM, &sa, NULL) != -1);
-        ATF_REQUIRE(!test1_happened);
-        kill(getpid(), SIGTERM);
-        ATF_REQUIRE(test1_happened);
+        RE(atf_process_stream_init_inherit(&outsb));
+        RE(atf_process_stream_init_inherit(&errsb));
+        RE(atf_process_fork(&child, signal_reset_child, &outsb, &errsb, NULL));
 
-        test1_happened = false;
-        atf_signal_reset(SIGTERM);
-        kill(getpid(), SIGTERM);
+        atf_process_stream_fini(&errsb);
+        atf_process_stream_fini(&outsb);
+    }
 
-        printf("Signal was not resetted correctly\n");
-        abort();
-    } else {
-        int ecode;
+    {
+        atf_process_status_t status;
 
-        ATF_REQUIRE(waitpid(pid, &ecode, 0) != -1);
-        ATF_REQUIRE(WIFEXITED(ecode) || WIFSIGNALED(ecode));
-        ATF_REQUIRE(!WIFSIGNALED(ecode) || WTERMSIG(ecode) == SIGTERM);
+        RE(atf_process_child_wait(&child, &status));
+        ATF_REQUIRE(atf_process_status_exited(&status) ||
+                    atf_process_status_signaled(&status));
+        ATF_REQUIRE(!atf_process_status_signaled(&status) ||
+                    atf_process_status_termsig(&status) == SIGTERM);
+
+        atf_process_status_fini(&status);
     }
 }
 
