@@ -246,7 +246,7 @@ ATF_TC_BODY(signal_programmer_fini, tc)
  * --------------------------------------------------------------------- */
 
 static
-atf_error_t
+void
 signal_reset_child(const void *v)
 {
     struct sigaction sa;
@@ -266,8 +266,6 @@ signal_reset_child(const void *v)
 
     printf("Signal was not resetted correctly\n");
     abort();
-
-    return atf_no_error();
 }
 
 ATF_TC(signal_reset);

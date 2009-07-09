@@ -75,8 +75,10 @@ struct test_data {
     bool m_cond;
 };
 
+static void do_test_child(const void *) ATF_DEFS_ATTRIBUTE_NORETURN;
+
 static
-atf_error_t
+void
 do_test_child(const void *v)
 {
     const struct test_data *td = v;
@@ -100,7 +102,7 @@ do_test_child(const void *v)
         break;
     }
 
-    return atf_no_error();
+    exit(EXIT_SUCCESS);
 }
 
 static

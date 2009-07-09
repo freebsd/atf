@@ -39,6 +39,7 @@
 #include "atf-c/build.h"
 #include "atf-c/check.h"
 #include "atf-c/config.h"
+#include "atf-c/defs.h"
 #include "atf-c/dynstr.h"
 #include "atf-c/error.h"
 #include "atf-c/fs.h"
@@ -166,8 +167,10 @@ out:
     return err;
 }
 
+static void exec_child(const void *) ATF_DEFS_ATTRIBUTE_NORETURN;
+
 static
-atf_error_t
+void
 exec_child(const void *v)
 {
     const char *const *argv = v;
@@ -176,8 +179,6 @@ exec_child(const void *v)
     const_execvp(argv[0], argv);
     fprintf(stderr, "execvp(%s) failed: %s\n", argv[0], strerror(errno));
     exit(127);
-    UNREACHABLE;
-    return atf_no_error();
 }
 
 static

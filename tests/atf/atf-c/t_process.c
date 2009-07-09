@@ -302,8 +302,10 @@ redirect_path_stream_fini(void *v)
     check_file(s->m_base.m_type);
 }
 
+static void child_print(const void *) ATF_DEFS_ATTRIBUTE_NORETURN;
+
 static
-atf_error_t
+void
 child_print(const void *v)
 {
     const char *msg = v;
@@ -311,7 +313,7 @@ child_print(const void *v)
     fprintf(stdout, "stdout: %s\n", msg);
     fprintf(stderr, "stderr: %s\n", msg);
 
-    return atf_no_error();
+    exit(EXIT_SUCCESS);
 }
 
 static
@@ -474,7 +476,6 @@ fork_and_wait_child(void (*child_func)(void))
         status = 0; /* Silence compiler warnings */
         child_func();
         UNREACHABLE;
-        abort();
     } else {
         ATF_REQUIRE(waitpid(pid, &status, 0) != 0);
     }
@@ -571,14 +572,16 @@ ATF_TC_BODY(status_coredump, tc)
  * Test cases for the "child" type.
  * --------------------------------------------------------------------- */
 
+static void child_report_pid(const void *) ATF_DEFS_ATTRIBUTE_NORETURN;
+
 static
-atf_error_t
+void
 child_report_pid(const void *v)
 {
     const pid_t pid = getpid();
     write(STDOUT_FILENO, &pid, sizeof(pid));
     fprintf(stderr, "Reporting %d to parent\n", getpid());
-    return atf_no_error();
+    exit(EXIT_SUCCESS);
 }
 
 ATF_TC(child_pid);
@@ -618,7 +621,7 @@ static const int exit_v_null = 1;
 static const int exit_v_notnull = 2;
 
 static
-atf_error_t
+void
 child_cookie(const void *v)
 {
     if (v == NULL)
@@ -627,7 +630,6 @@ child_cookie(const void *v)
         exit(exit_v_notnull);
 
     UNREACHABLE;
-    return atf_no_error();
 }
 
 ATF_TC(fork_cookie);

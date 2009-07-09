@@ -435,14 +435,14 @@ out:
 
 static
 void
-do_child(atf_error_t (*)(const void *),
+do_child(void (*)(const void *),
          const void *,
          const stream_prepare_t *,
          const stream_prepare_t *) ATF_DEFS_ATTRIBUTE_NORETURN;
 
 static
 void
-do_child(atf_error_t (*start)(const void *),
+do_child(void (*start)(const void *),
          const void *v,
          const stream_prepare_t *outsp,
          const stream_prepare_t *errsp)
@@ -458,7 +458,8 @@ do_child(atf_error_t (*start)(const void *),
     if (atf_is_error(err))
         goto out;
 
-    err = start(v);
+    start(v);
+    UNREACHABLE;
 
 out:
     if (atf_is_error(err)) {
@@ -482,7 +483,7 @@ atf_process_oldfork(pid_t *pid)
 
 atf_error_t
 atf_process_fork(atf_process_child_t *c,
-                 atf_error_t (*start)(const void *),
+                 void (*start)(const void *),
                  const atf_process_stream_t *outsb,
                  const atf_process_stream_t *errsb,
                  const void *v)
