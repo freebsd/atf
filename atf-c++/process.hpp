@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ namespace process {
 // Free functions.
 // ------------------------------------------------------------------------
 
-pid_t fork(void);
+pid_t oldfork(void);
 
 void system(const std::string&);
 

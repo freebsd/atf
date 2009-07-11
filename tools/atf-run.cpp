@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -507,7 +507,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
     int errcode;
 
     atf::io::pipe outpipe, errpipe, respipe;
-    pid_t pid = atf::process::fork();
+    pid_t pid = atf::process::oldfork();
     if (pid == 0) {
         run_test_program_child(tp, outpipe, errpipe, respipe);
         UNREACHABLE;

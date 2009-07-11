@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ namespace impl = atf::process;
 // ------------------------------------------------------------------------
 
 pid_t
-impl::fork(void)
+impl::oldfork(void)
 {
     atf_error_t err;
     pid_t pid;
