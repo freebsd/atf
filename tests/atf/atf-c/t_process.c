@@ -32,6 +32,7 @@
 #include <sys/time.h>
 #include <sys/wait.h>
 
+#include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
@@ -44,6 +45,7 @@
 #include "atf-c/io.h"
 #include "atf-c/process.h"
 #include "atf-c/sanity.h"
+#include "atf-c/signals.h"
 
 #include "h_lib.h"
 
@@ -613,6 +615,129 @@ ATF_TC_BODY(child_pid, tc)
     atf_process_stream_fini(&errsb);
 }
 
+static
+void
+child_loop(const void *v)
+{
+    for (;;)
+        sleep(1);
+}
+
+static
+void
+nop_signal(int sig)
+{
+}
+
+static
+void
+child_spawn_loop_and_wait_eintr(const void *v)
+{
+    atf_process_child_t child;
+    atf_process_status_t status;
+    atf_signal_programmer_t sighup_programmer;
+
+#define RE_ABORT(expr) \
+    do { \
+        atf_error_t _aux_err = expr; \
+        if (atf_is_error(_aux_err)) { \
+            atf_error_free(_aux_err); \
+            abort(); \
+        } \
+    } while (0)
+
+    {
+        atf_process_stream_t outsb, errsb;
+
+        RE_ABORT(atf_process_stream_init_capture(&outsb));
+        RE_ABORT(atf_process_stream_init_inherit(&errsb));
+        RE_ABORT(atf_process_fork(&child, child_loop, &outsb, &errsb, NULL));
+        atf_process_stream_fini(&outsb);
+        atf_process_stream_fini(&errsb);
+    }
+
+    RE_ABORT(atf_signal_programmer_init(&sighup_programmer, SIGHUP,
+                                        nop_signal));
+
+    printf("waiting\n");
+    fflush(stdout);
+
+    fprintf(stderr, "Child entering wait(2)\n");
+    atf_error_t err = atf_process_child_wait(&child, &status);
+    fprintf(stderr, "Child's wait(2) terminated\n");
+    if (!atf_is_error(err)) {
+        fprintf(stderr, "wait completed successfully (not interrupted)\n");
+        abort();
+    }
+    if (!atf_error_is(err, "libc")) {
+        fprintf(stderr, "wait did not raise libc_error\n");
+        abort();
+    }
+    if (atf_libc_error_code(err) != EINTR) {
+        fprintf(stderr, "libc_error is not EINTR\n");
+        abort();
+    }
+    atf_error_free(err);
+
+    atf_signal_programmer_fini(&sighup_programmer);
+
+    fprintf(stderr, "Child is killing subchild\n");
+    kill(atf_process_child_pid(&child), SIGTERM);
+
+    RE_ABORT(atf_process_child_wait(&child, &status));
+    atf_process_status_fini(&status);
+
+#undef RE_ABORT
+
+    exit(EXIT_SUCCESS);
+}
+
+ATF_TC(child_wait_eintr);
+ATF_TC_HEAD(child_wait_eintr, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the interruption of the wait "
+                      "method by an external signal, and the return of "
+                      "an EINTR error");
+    atf_tc_set_md_var(tc, "timeout", "30");
+}
+ATF_TC_BODY(child_wait_eintr, tc)
+{
+    atf_process_child_t child;
+    atf_process_status_t status;
+
+    {
+        atf_process_stream_t outsb, errsb;
+
+        RE(atf_process_stream_init_capture(&outsb));
+        RE(atf_process_stream_init_inherit(&errsb));
+        RE(atf_process_fork(&child, child_spawn_loop_and_wait_eintr,
+                            &outsb, &errsb, NULL));
+        atf_process_stream_fini(&outsb);
+        atf_process_stream_fini(&errsb);
+    }
+
+    {
+        /* Wait until the child process performs the wait call.  This is
+         * racy, because the message we get from it is sent *before*
+         * doing the real system call... but I can't figure any other way
+         * to do this. */
+        char buf[16];
+        printf("Waiting for child to issue wait(2)\n");
+        ATF_REQUIRE(read(atf_process_child_stdout(&child), buf,
+                         sizeof(buf)) > 0);
+        sleep(1);
+    }
+
+    printf("Interrupting child's wait(2) call\n");
+    kill(atf_process_child_pid(&child), SIGHUP);
+
+    printf("Waiting for child's completion\n");
+    RE(atf_process_child_wait(&child, &status));
+    ATF_REQUIRE(atf_process_status_exited(&status));
+    ATF_REQUIRE_EQ(atf_process_status_exitstatus(&status), EXIT_SUCCESS);
+    atf_process_status_fini(&status);
+}
+
 /* ---------------------------------------------------------------------
  * Tests cases for the free functions.
  * --------------------------------------------------------------------- */
@@ -758,6 +883,7 @@ ATF_TP_ADD_TCS(tp)
 
     /* Add the tests for the "child" type. */
     ATF_TP_ADD_TC(tp, child_pid);
+    ATF_TP_ADD_TC(tp, child_wait_eintr);
 
     /* Add the tests for the free functions. */
     ATF_TP_ADD_TC(tp, fork_cookie);
