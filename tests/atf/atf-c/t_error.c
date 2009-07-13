@@ -173,11 +173,13 @@ ATF_TC_BODY(libc_new, tc)
     err = atf_libc_error(ENOMEM, "Test message 1");
     ATF_REQUIRE(atf_error_is(err, "libc"));
     ATF_REQUIRE_EQ(atf_libc_error_code(err), ENOMEM);
+    ATF_REQUIRE(strcmp(atf_libc_error_msg(err), "Test message 1") == 0);
     atf_error_free(err);
 
     err = atf_libc_error(EPERM, "%s message %d", "Test", 2);
     ATF_REQUIRE(atf_error_is(err, "libc"));
     ATF_REQUIRE_EQ(atf_libc_error_code(err), EPERM);
+    ATF_REQUIRE(strcmp(atf_libc_error_msg(err), "Test message 2") == 0);
     atf_error_free(err);
 }
 

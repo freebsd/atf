@@ -231,6 +231,18 @@ atf_libc_error_code(const atf_error_t err)
     return data->m_errno;
 }
 
+const char *
+atf_libc_error_msg(const atf_error_t err)
+{
+    const struct atf_libc_error_data *data;
+
+    PRE(atf_error_is(err, "libc"));
+
+    data = atf_error_data(err);
+
+    return data->m_what;
+}
+
 /*
  * The "no_memory" error.
  */
