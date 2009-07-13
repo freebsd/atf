@@ -133,14 +133,10 @@ capture_stream_process(void *v, atf_process_child_t *c)
     case stdout_type:
         RE(atf_io_readline(atf_process_child_stdout(c),
                            &s->m_msg, &eof));
-        ATF_CHECK(grep_string(&s->m_msg, "stdout: msg"));
-        ATF_CHECK(!grep_string(&s->m_msg, "stderr: msg"));
         break;
     case stderr_type:
         RE(atf_io_readline(atf_process_child_stderr(c),
                            &s->m_msg, &eof));
-        ATF_CHECK(!grep_string(&s->m_msg, "stdout: msg"));
-        ATF_CHECK(grep_string(&s->m_msg, "stderr: msg"));
         break;
     default:
         UNREACHABLE;
@@ -152,6 +148,19 @@ void
 capture_stream_fini(void *v)
 {
     struct capture_stream *s = v;
+
+    switch (s->m_base.m_type) {
+    case stdout_type:
+        ATF_CHECK(grep_string(&s->m_msg, "stdout: msg"));
+        ATF_CHECK(!grep_string(&s->m_msg, "stderr: msg"));
+        break;
+    case stderr_type:
+        ATF_CHECK(!grep_string(&s->m_msg, "stdout: msg"));
+        ATF_CHECK(grep_string(&s->m_msg, "stderr: msg"));
+        break;
+    default:
+        UNREACHABLE;
+    }
 
     atf_dynstr_fini(&s->m_msg);
     atf_process_stream_fini(&s->m_base.m_sb);
@@ -631,62 +640,37 @@ ATF_TC_BODY(fork_cookie, tc)
 }
 
 #define TC_FORK_STREAMS(outlc, outuc, errlc, erruc) \
-    ATF_TC(fork_out ## outlc ## _err ## errlc); \
-    ATF_TC_HEAD(fork_out ## outlc ## _err ## errlc, tc) \
+    ATF_TC(fork_out_ ## outlc ## _err_ ## errlc); \
+    ATF_TC_HEAD(fork_out_ ## outlc ## _err_ ## errlc, tc) \
     { \
         atf_tc_set_md_var(tc, "descr", "Tests forking a child, with " \
-                          "stdout " #outuc " and stderr " #erruc); \
+                          "stdout " #outlc " and stderr " #errlc); \
     } \
-    ATF_TC_BODY(fork_out ## outlc ## _err ## errlc, tc) \
+    ATF_TC_BODY(fork_out_ ## outlc ## _err_ ## errlc, tc) \
     { \
         struct outlc ## _stream out = outuc ## _STREAM(stdout_type); \
         struct errlc ## _stream err = erruc ## _STREAM(stderr_type); \
         do_fork(&out.m_base, &out, &err.m_base, &err); \
     }
 
+TC_FORK_STREAMS(capture, CAPTURE, capture, CAPTURE);
 TC_FORK_STREAMS(capture, CAPTURE, inherit, INHERIT);
+TC_FORK_STREAMS(capture, CAPTURE, redirect_fd, REDIRECT_FD);
+TC_FORK_STREAMS(capture, CAPTURE, redirect_path, REDIRECT_PATH);
+TC_FORK_STREAMS(inherit, INHERIT, capture, CAPTURE);
+TC_FORK_STREAMS(inherit, INHERIT, inherit, INHERIT);
+TC_FORK_STREAMS(inherit, INHERIT, redirect_fd, REDIRECT_FD);
+TC_FORK_STREAMS(inherit, INHERIT, redirect_path, REDIRECT_PATH);
+TC_FORK_STREAMS(redirect_fd, REDIRECT_FD, capture, CAPTURE);
+TC_FORK_STREAMS(redirect_fd, REDIRECT_FD, inherit, INHERIT);
+TC_FORK_STREAMS(redirect_fd, REDIRECT_FD, redirect_fd, REDIRECT_FD);
+TC_FORK_STREAMS(redirect_fd, REDIRECT_FD, redirect_path, REDIRECT_PATH);
+TC_FORK_STREAMS(redirect_path, REDIRECT_PATH, capture, CAPTURE);
+TC_FORK_STREAMS(redirect_path, REDIRECT_PATH, inherit, INHERIT);
+TC_FORK_STREAMS(redirect_path, REDIRECT_PATH, redirect_fd, REDIRECT_FD);
+TC_FORK_STREAMS(redirect_path, REDIRECT_PATH, redirect_path, REDIRECT_PATH);
 
-ATF_TC(fork_outinherit_errinherit);
-ATF_TC_HEAD(fork_outinherit_errinherit, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Tests forking a child, with "
-                      "inherited stdout and inherited stderr");
-}
-ATF_TC_BODY(fork_outinherit_errinherit, tc)
-{
-    struct inherit_stream out = INHERIT_STREAM(stdout_type);
-    struct inherit_stream err = INHERIT_STREAM(stderr_type);
-
-    do_fork(&out.m_base, &out, &err.m_base, &err);
-}
-
-ATF_TC(fork_outredirectfd_errinherit);
-ATF_TC_HEAD(fork_outredirectfd_errinherit, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Tests forking a child, with "
-                      "inherited stdout and inherited stderr");
-}
-ATF_TC_BODY(fork_outredirectfd_errinherit, tc)
-{
-    struct redirect_fd_stream out = REDIRECT_FD_STREAM(stdout_type);
-    struct inherit_stream err = INHERIT_STREAM(stderr_type);
-
-    do_fork(&out.m_base, &out, &err.m_base, &err);
-}
-
-ATF_TC(fork_outredirectpath_errinherit);
-ATF_TC_HEAD(fork_outredirectpath_errinherit, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Tests forking a child, with "
-                      "inherited stdout and inherited stderr");
-}
-ATF_TC_BODY(fork_outredirectpath_errinherit, tc)
-{
-    struct redirect_path_stream out = REDIRECT_PATH_STREAM(stdout_type);
-    struct inherit_stream err = INHERIT_STREAM(stderr_type);
-
-    do_fork(&out.m_base, &out, &err.m_base, &err);
-}
+#undef TC_FORK_STREAMS
 
 /* ---------------------------------------------------------------------
  * Tests cases for the header file.
@@ -713,10 +697,22 @@ ATF_TP_ADD_TCS(tp)
 
     /* Add the tests for the free functions. */
     ATF_TP_ADD_TC(tp, fork_cookie);
-    ATF_TP_ADD_TC(tp, fork_outcapture_errinherit);
-    ATF_TP_ADD_TC(tp, fork_outinherit_errinherit);
-    ATF_TP_ADD_TC(tp, fork_outredirectfd_errinherit);
-    ATF_TP_ADD_TC(tp, fork_outredirectpath_errinherit);
+    ATF_TP_ADD_TC(tp, fork_out_capture_err_capture);
+    ATF_TP_ADD_TC(tp, fork_out_capture_err_inherit);
+    ATF_TP_ADD_TC(tp, fork_out_capture_err_redirect_fd);
+    ATF_TP_ADD_TC(tp, fork_out_capture_err_redirect_path);
+    ATF_TP_ADD_TC(tp, fork_out_inherit_err_capture);
+    ATF_TP_ADD_TC(tp, fork_out_inherit_err_inherit);
+    ATF_TP_ADD_TC(tp, fork_out_inherit_err_redirect_fd);
+    ATF_TP_ADD_TC(tp, fork_out_inherit_err_redirect_path);
+    ATF_TP_ADD_TC(tp, fork_out_redirect_fd_err_capture);
+    ATF_TP_ADD_TC(tp, fork_out_redirect_fd_err_inherit);
+    ATF_TP_ADD_TC(tp, fork_out_redirect_fd_err_redirect_fd);
+    ATF_TP_ADD_TC(tp, fork_out_redirect_fd_err_redirect_path);
+    ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_capture);
+    ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_inherit);
+    ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_redirect_fd);
+    ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_redirect_path);
 
     /* Add the test cases for the header file. */
     ATF_TP_ADD_TC(tp, include);
