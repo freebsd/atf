@@ -475,13 +475,6 @@ out:
 }
 
 atf_error_t
-atf_process_oldfork(pid_t *pid)
-{
-    *pid = fork();
-    return atf_no_error();
-}
-
-atf_error_t
 atf_process_fork(atf_process_child_t *c,
                  void (*start)(const void *),
                  const atf_process_stream_t *outsb,

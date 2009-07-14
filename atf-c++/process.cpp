@@ -191,19 +191,6 @@ impl::child::stderr_fd(void)
 // Free functions.
 // ------------------------------------------------------------------------
 
-pid_t
-impl::oldfork(void)
-{
-    atf_error_t err;
-    pid_t pid;
-
-    err = atf_process_oldfork(&pid);
-    if (atf_is_error(err))
-        throw_atf_error(err);
-
-    return pid;
-}
-
 void
 impl::system(const std::string& cmdline)
 {

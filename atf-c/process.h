@@ -113,7 +113,6 @@ int atf_process_child_stderr(atf_process_child_t *);
  * Free functions.
  * --------------------------------------------------------------------- */
 
-atf_error_t atf_process_oldfork(pid_t *pid); // XXX Kill this.
 atf_error_t atf_process_fork(atf_process_child_t *,
                              void (*)(const void *),
                              const atf_process_stream_t *,

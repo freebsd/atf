@@ -169,8 +169,6 @@ fork(void (*start)(const void*), const OutStream& outsb,
     return child(c);
 }
 
-pid_t oldfork(void);
-
 void system(const std::string&);
 
 } // namespace process
