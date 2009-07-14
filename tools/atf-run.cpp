@@ -222,16 +222,27 @@ class atf_run : public atf::application::app {
     int run_test_program(const atf::fs::path&,
                          atf::formats::atf_tps_writer&);
 
+    struct test_data {
+        const atf_run* m_this;
+        const atf::fs::path& m_tp;
+        atf::io::pipe& m_respipe;
+
+        test_data(const atf_run* t, const atf::fs::path& tp,
+                  atf::io::pipe& respipe) :
+            m_this(t),
+            m_tp(tp),
+            m_respipe(respipe)
+        {
+        }
+    };
+
+    static void route_run_test_program_child(const void *);
     void run_test_program_child(const atf::fs::path&,
-                                atf::io::pipe&,
-                                atf::io::pipe&,
-                                atf::io::pipe&);
+                                atf::io::pipe&) const;
     int run_test_program_parent(const atf::fs::path&,
                                 atf::formats::atf_tps_writer&,
-                                atf::io::pipe&,
-                                atf::io::pipe&,
-                                atf::io::pipe&,
-                                pid_t);
+                                atf::process::child&,
+                                atf::io::pipe&);
 
 public:
     atf_run(void);
@@ -356,18 +367,22 @@ atf_run::conf_args(void) const
 }
 
 void
-atf_run::run_test_program_child(const atf::fs::path& tp,
-                                atf::io::pipe& outpipe,
-                                atf::io::pipe& errpipe,
-                                atf::io::pipe& respipe)
+atf_run::route_run_test_program_child(const void* v)
 {
-    // Remap stdout and stderr to point to the parent, who will capture
-    // everything sent to these.
-    outpipe.rend().close();
-    outpipe.wend().posix_remap(STDOUT_FILENO);
-    errpipe.rend().close();
-    errpipe.wend().posix_remap(STDERR_FILENO);
+    const test_data* td = static_cast< const test_data* >(v);
 
+    const atf::fs::path& tp = td->m_tp;
+    atf::io::pipe& respipe = const_cast< atf::io::pipe& >(td->m_respipe);
+
+    td->m_this->run_test_program_child(tp, respipe);
+    UNREACHABLE;
+}
+
+void
+atf_run::run_test_program_child(const atf::fs::path& tp,
+                                atf::io::pipe& respipe)
+    const
+{
     // Remap the results file descriptor to point to the parent too.
     // We use the 9th one (instead of a bigger one) because shell scripts
     // can only use the [0..9] file descriptors in their redirections.
@@ -422,18 +437,14 @@ atf_run::run_test_program_child(const atf::fs::path& tp,
 int
 atf_run::run_test_program_parent(const atf::fs::path& tp,
                                  atf::formats::atf_tps_writer& w,
-                                 atf::io::pipe& outpipe,
-                                 atf::io::pipe& errpipe,
-                                 atf::io::pipe& respipe,
-                                 pid_t pid)
+                                 atf::process::child& c,
+                                 atf::io::pipe& respipe)
 {
-    // Get the file descriptor and input stream of stdout.
-    outpipe.wend().close();
-    atf::io::unbuffered_istream outin(outpipe.rend());
-
-    // Get the file descriptor and input stream of stderr.
-    errpipe.wend().close();
-    atf::io::unbuffered_istream errin(errpipe.rend());
+    // Get the input stream of stdout and stderr.
+    atf::io::file_handle outfh = c.stdout_fd();
+    atf::io::unbuffered_istream outin(outfh);
+    atf::io::file_handle errfh = c.stderr_fd();
+    atf::io::unbuffered_istream errin(errfh);
 
     // Get the file descriptor and input stream of the results channel.
     respipe.wend().close();
@@ -467,36 +478,30 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
         UNREACHABLE;
     }
 
-    int code, status;
-    if (::waitpid(pid, &status, 0) != pid) {
-        m.finalize("waitpid(2) on the child process " +
-                   atf::text::to_string(pid) + " failed" +
-                   (fmterr.empty() ? "" : (".  " + fmterr)));
-        code = EXIT_FAILURE;
-    } else {
-        if (WIFEXITED(status)) {
-            code = WEXITSTATUS(status);
-            if (m.failed() > 0 && code == EXIT_SUCCESS) {
-                code = EXIT_FAILURE;
-                m.finalize("Test program returned success but some test "
-                           "cases failed" +
-                           (fmterr.empty() ? "" : (".  " + fmterr)));
-            } else {
-                code = fmterr.empty() ? code : EXIT_FAILURE;
-                m.finalize(fmterr);
-            }
-        } else if (WIFSIGNALED(status)) {
+    const atf::process::status s = c.wait();
+
+    int code;
+    if (s.exited()) {
+        code = s.exitstatus();
+        if (m.failed() > 0 && code == EXIT_SUCCESS) {
             code = EXIT_FAILURE;
-            m.finalize("Test program received signal " +
-                       atf::text::to_string(WTERMSIG(status)) +
-                       (WCOREDUMP(status) ? " (core dumped)" : "") +
+            m.finalize("Test program returned success but some test "
+                       "cases failed" +
                        (fmterr.empty() ? "" : (".  " + fmterr)));
-        } else
-            throw std::runtime_error
-                ("Child process " + atf::text::to_string(pid) +
-                 " terminated with an unknown status condition " +
-                 atf::text::to_string(status));
-    }
+        } else {
+            code = fmterr.empty() ? code : EXIT_FAILURE;
+            m.finalize(fmterr);
+        }
+    } else if (s.signaled()) {
+        code = EXIT_FAILURE;
+        m.finalize("Test program received signal " +
+                   atf::text::to_string(s.termsig()) +
+                   (s.coredump() ? " (core dumped)" : "") +
+                   (fmterr.empty() ? "" : (".  " + fmterr)));
+    } else
+        throw std::runtime_error
+            ("Child process " + atf::text::to_string(c.pid()) +
+             " terminated with an unknown status condition");
     return code;
 }
 
@@ -504,20 +509,23 @@ int
 atf_run::run_test_program(const atf::fs::path& tp,
                           atf::formats::atf_tps_writer& w)
 {
-    int errcode;
+    // XXX: This respipe is quite annoying.  The fact that we cannot
+    // represent it as part of a portable fork API (which only supports
+    // stdin, stdout and stderr) and not even in our own fork API means
+    // that this will be a huge source of portability problems in the
+    // future, should we ever want to port ATF to Win32.  I guess it'd
+    // be worth revisiting the decision of using a third file descriptor
+    // for results reporting sooner than later.  Alternative: use a
+    // temporary file.
+    atf::io::pipe respipe;
+    test_data td(this, tp, respipe);
+    atf::process::child c =
+        atf::process::fork(route_run_test_program_child,
+                           atf::process::stream_capture(),
+                           atf::process::stream_capture(),
+                           static_cast< const void * >(&td));
 
-    atf::io::pipe outpipe, errpipe, respipe;
-    pid_t pid = atf::process::oldfork();
-    if (pid == 0) {
-        run_test_program_child(tp, outpipe, errpipe, respipe);
-        UNREACHABLE;
-        errcode = EXIT_FAILURE;
-    } else {
-        errcode = run_test_program_parent(tp, w, outpipe, errpipe,
-                                          respipe, pid);
-    }
-
-    return errcode;
+    return run_test_program_parent(tp, w, c, respipe);
 }
 
 size_t

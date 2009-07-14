@@ -33,29 +33,11 @@
 
 #include "h_lib.hpp"
 
-// ------------------------------------------------------------------------
-// Test cases for the free functions.
-// ------------------------------------------------------------------------
-
-ATF_TEST_CASE(fork);
-ATF_TEST_CASE_HEAD(fork)
-{
-    set_md_var("descr", "Tests the fork function");
-}
-ATF_TEST_CASE_BODY(fork)
-{
-    ATF_SKIP("Unimplemented test case; process API not yet decided");
-}
-
-ATF_TEST_CASE(system);
-ATF_TEST_CASE_HEAD(system)
-{
-    set_md_var("descr", "Tests the system function");
-}
-ATF_TEST_CASE_BODY(system)
-{
-    ATF_SKIP("Unimplemented test case; process API not yet decided");
-}
+// TODO: Testing this module is a huge task and I'm afraid of copy/pasting
+// tons of stuff from the C version.  I'd rather not do that until some
+// code can be shared, which cannot happen until the C++ binding is cleaned
+// by a fair amount.  Instead... just rely (at the moment) on the system
+// tests for the tools using this module.
 
 // ------------------------------------------------------------------------
 // Tests cases for the header file.
@@ -69,10 +51,6 @@ HEADER_TC(include, "atf-c++/process.hpp", "d_include_process_hpp.cpp");
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    // Add the test cases for the free functions.
-    ATF_ADD_TEST_CASE(tcs, fork);
-    ATF_ADD_TEST_CASE(tcs, system);
-
     // Add the test cases for the header file.
     ATF_ADD_TEST_CASE(tcs, include);
 }

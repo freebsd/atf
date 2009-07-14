@@ -32,16 +32,142 @@
 
 extern "C" {
 #include <sys/types.h>
+
+#include <atf-c/error.h>
+#include <atf-c/process.h>
 }
 
 #include <string>
 
+#include <atf-c++/exceptions.hpp>
+#include <atf-c++/fs.hpp>
+#include <atf-c++/io.hpp>
+
 namespace atf {
 namespace process {
+
+class child;
+class status;
+
+// ------------------------------------------------------------------------
+// The "stream" types.
+// ------------------------------------------------------------------------
+
+class basic_stream {
+protected:
+    atf_process_stream_t m_sb;
+    bool m_inited;
+
+    const atf_process_stream_t* get_sb(void) const;
+
+public:
+    basic_stream(void);
+    ~basic_stream(void);
+};
+
+class stream_capture : basic_stream {
+    // Allow access to the getters.
+    template< class OutStream, class ErrStream > friend
+    child fork(void (*)(const void*), const OutStream&, const ErrStream&,
+               const void*);
+
+public:
+    stream_capture(void);
+};
+
+class stream_inherit : basic_stream {
+    // Allow access to the getters.
+    template< class OutStream, class ErrStream > friend
+    child fork(void (*)(const void*), const OutStream&, const ErrStream&,
+               const void*);
+
+public:
+    stream_inherit(void);
+};
+
+class stream_redirect_fd : basic_stream {
+    // Allow access to the getters.
+    template< class OutStream, class ErrStream > friend
+    child fork(void (*)(const void*), const OutStream&, const ErrStream&,
+               const void*);
+
+public:
+    stream_redirect_fd(const int);
+};
+
+class stream_redirect_path : basic_stream {
+    // Allow access to the getters.
+    template< class OutStream, class ErrStream > friend
+    child fork(void (*)(const void*), const OutStream&, const ErrStream&,
+               const void*);
+
+public:
+    stream_redirect_path(const fs::path&);
+};
+
+// ------------------------------------------------------------------------
+// The "status" type.
+// ------------------------------------------------------------------------
+
+class status {
+    atf_process_status_t m_status;
+
+    friend class child;
+
+    status(atf_process_status_t&);
+
+public:
+    ~status(void);
+
+    bool exited(void) const;
+    int exitstatus(void) const;
+
+    bool signaled(void) const;
+    int termsig(void) const;
+    bool coredump(void) const;
+};
+
+// ------------------------------------------------------------------------
+// The "child" type.
+// ------------------------------------------------------------------------
+
+class child {
+    atf_process_child_t m_child;
+
+    template< class OutStream, class ErrStream > friend
+    child fork(void (*)(const void*), const OutStream&, const ErrStream&,
+               const void*);
+
+    child(atf_process_child_t& c);
+
+public:
+    ~child(void);
+
+    status wait(void);
+
+    pid_t pid(void) const;
+    io::file_handle stdout_fd(void);
+    io::file_handle stderr_fd(void);
+};
 
 // ------------------------------------------------------------------------
 // Free functions.
 // ------------------------------------------------------------------------
+
+template< class OutStream, class ErrStream >
+child
+fork(void (*start)(const void*), const OutStream& outsb,
+     const ErrStream& errsb, const void* v)
+{
+    atf_process_child_t c;
+
+    atf_error_t err = atf_process_fork(&c, start, outsb.get_sb(),
+                                       errsb.get_sb(), v);
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return child(c);
+}
 
 pid_t oldfork(void);
 
