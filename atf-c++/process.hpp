@@ -68,8 +68,7 @@ public:
 class stream_capture : basic_stream {
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
-    child fork(void (*)(const void*), const OutStream&, const ErrStream&,
-               const void*);
+    child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
 
 public:
     stream_capture(void);
@@ -78,8 +77,7 @@ public:
 class stream_inherit : basic_stream {
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
-    child fork(void (*)(const void*), const OutStream&, const ErrStream&,
-               const void*);
+    child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
 
 public:
     stream_inherit(void);
@@ -88,8 +86,7 @@ public:
 class stream_redirect_fd : basic_stream {
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
-    child fork(void (*)(const void*), const OutStream&, const ErrStream&,
-               const void*);
+    child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
 
 public:
     stream_redirect_fd(const int);
@@ -98,8 +95,7 @@ public:
 class stream_redirect_path : basic_stream {
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
-    child fork(void (*)(const void*), const OutStream&, const ErrStream&,
-               const void*);
+    child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
 
 public:
     stream_redirect_path(const fs::path&);
@@ -135,8 +131,7 @@ class child {
     atf_process_child_t m_child;
 
     template< class OutStream, class ErrStream > friend
-    child fork(void (*)(const void*), const OutStream&, const ErrStream&,
-               const void*);
+    child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
 
     child(atf_process_child_t& c);
 
@@ -156,8 +151,8 @@ public:
 
 template< class OutStream, class ErrStream >
 child
-fork(void (*start)(const void*), const OutStream& outsb,
-     const ErrStream& errsb, const void* v)
+fork(void (*start)(void*), const OutStream& outsb,
+     const ErrStream& errsb, void* v)
 {
     atf_process_child_t c;
 

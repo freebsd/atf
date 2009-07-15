@@ -80,14 +80,14 @@ static void unprogram_timeout(struct timeout_data *);
 static void sigalrm_handler(int);
 
 /* Child-only stuff. */
-static void body_child(const void *) ATF_DEFS_ATTRIBUTE_NORETURN;
+static void body_child(void *) ATF_DEFS_ATTRIBUTE_NORETURN;
 static atf_error_t check_arch(const char *, void *);
 static atf_error_t check_config(const char *, void *);
 static atf_error_t check_machine(const char *, void *);
 static atf_error_t check_prog(const char *, void *);
 static atf_error_t check_prog_in_dir(const char *, void *);
 static atf_error_t check_requirements(const atf_tc_t *);
-static void cleanup_child(const void *) ATF_DEFS_ATTRIBUTE_NORETURN;
+static void cleanup_child(void *) ATF_DEFS_ATTRIBUTE_NORETURN;
 static void fail_internal(const char *, int, const char *, const char *,
                           const char *, va_list,
                           void (*)(atf_dynstr_t *),
@@ -660,7 +660,7 @@ out:
 
 static
 void
-body_child(const void *v)
+body_child(void *v)
 {
     const struct child_data *cd = v;
     atf_error_t err;
@@ -913,7 +913,7 @@ out:
 
 static
 void
-cleanup_child(const void *v)
+cleanup_child(void *v)
 {
     const struct child_data *cd = v;
     atf_error_t err;

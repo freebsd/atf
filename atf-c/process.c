@@ -435,15 +435,15 @@ out:
 
 static
 void
-do_child(void (*)(const void *),
-         const void *,
+do_child(void (*)(void *),
+         void *,
          const stream_prepare_t *,
          const stream_prepare_t *) ATF_DEFS_ATTRIBUTE_NORETURN;
 
 static
 void
-do_child(void (*start)(const void *),
-         const void *v,
+do_child(void (*start)(void *),
+         void *v,
          const stream_prepare_t *outsp,
          const stream_prepare_t *errsp)
 {
@@ -477,10 +477,10 @@ out:
 static
 atf_error_t
 fork_with_streams(atf_process_child_t *c,
-                  void (*start)(const void *),
+                  void (*start)(void *),
                   const atf_process_stream_t *outsb,
                   const atf_process_stream_t *errsb,
-                  const void *v)
+                  void *v)
 {
     atf_error_t err;
     stream_prepare_t outsp;
@@ -545,10 +545,10 @@ init_stream_w_default(const atf_process_stream_t *usersb,
 
 atf_error_t
 atf_process_fork(atf_process_child_t *c,
-                 void (*start)(const void *),
+                 void (*start)(void *),
                  const atf_process_stream_t *outsb,
                  const atf_process_stream_t *errsb,
-                 const void *v)
+                 void *v)
 {
     atf_error_t err;
     atf_process_stream_t inherit_outsb, inherit_errsb;

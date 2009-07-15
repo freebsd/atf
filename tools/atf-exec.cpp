@@ -68,7 +68,7 @@ class atf_exec : public atf::application::app {
     unsigned int m_timeout_secs;
     std::string m_timeout_file;
 
-    static void route_do_exec(const void *);
+    static void route_do_exec(void *);
     void do_exec(void) const;
 
     static int atf_exec::handle_status(const atf::process::status&);
@@ -141,9 +141,9 @@ atf_exec::process_option(int ch, const char* arg)
 }
 
 void
-atf_exec::route_do_exec(const void *v)
+atf_exec::route_do_exec(void *v)
 {
-    const atf_exec* ae = static_cast< const atf_exec* >(v);
+    atf_exec* ae = static_cast< atf_exec* >(v);
     ae->do_exec();
 }
 

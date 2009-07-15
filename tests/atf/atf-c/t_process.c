@@ -346,16 +346,20 @@ redirect_path_stream_fini(void *v)
     check_file(s->m_base.m_type);
 }
 
-static void child_print(const void *) ATF_DEFS_ATTRIBUTE_NORETURN;
+static void child_print(void *) ATF_DEFS_ATTRIBUTE_NORETURN;
+
+struct child_print_data {
+    const char *m_msg;
+};
 
 static
 void
-child_print(const void *v)
+child_print(void *v)
 {
-    const char *msg = v;
+    struct child_print_data *cpd = v;
 
-    fprintf(stdout, "stdout: %s\n", msg);
-    fprintf(stderr, "stderr: %s\n", msg);
+    fprintf(stdout, "stdout: %s\n", cpd->m_msg);
+    fprintf(stderr, "stderr: %s\n", cpd->m_msg);
 
     exit(EXIT_SUCCESS);
 }
@@ -367,12 +371,13 @@ do_fork(const struct base_stream *outfs, void *out,
 {
     atf_process_child_t child;
     atf_process_status_t status;
+    struct child_print_data cpd = { "msg" };
 
     outfs->init(out);
     errfs->init(err);
 
     RE(atf_process_fork(&child, child_print, outfs->m_sb_ptr,
-                        errfs->m_sb_ptr, "msg"));
+                        errfs->m_sb_ptr, &cpd));
     if (outfs->process != NULL)
         outfs->process(out, &child);
     if (errfs->process != NULL)
@@ -616,11 +621,11 @@ ATF_TC_BODY(status_coredump, tc)
  * Test cases for the "child" type.
  * --------------------------------------------------------------------- */
 
-static void child_report_pid(const void *) ATF_DEFS_ATTRIBUTE_NORETURN;
+static void child_report_pid(void *) ATF_DEFS_ATTRIBUTE_NORETURN;
 
 static
 void
-child_report_pid(const void *v)
+child_report_pid(void *v)
 {
     const pid_t pid = getpid();
     if (write(STDOUT_FILENO, &pid, sizeof(pid)) != sizeof(pid))
@@ -661,7 +666,7 @@ ATF_TC_BODY(child_pid, tc)
 
 static
 void
-child_loop(const void *v)
+child_loop(void *v)
 {
     for (;;)
         sleep(1);
@@ -675,7 +680,7 @@ nop_signal(int sig)
 
 static
 void
-child_spawn_loop_and_wait_eintr(const void *v)
+child_spawn_loop_and_wait_eintr(void *v)
 {
     atf_process_child_t child;
     atf_process_status_t status;
@@ -791,7 +796,7 @@ static const int exit_v_notnull = 2;
 
 static
 void
-child_cookie(const void *v)
+child_cookie(void *v)
 {
     if (v == NULL)
         exit(exit_v_null);
@@ -830,8 +835,9 @@ ATF_TC_BODY(fork_cookie, tc)
     {
         atf_process_child_t child;
         atf_process_status_t status;
+        int dummy_int;
 
-        RE(atf_process_fork(&child, child_cookie, &outsb, &errsb, "cookie"));
+        RE(atf_process_fork(&child, child_cookie, &outsb, &errsb, &dummy_int));
         RE(atf_process_child_wait(&child, &status));
 
         ATF_CHECK(atf_process_status_exited(&status));

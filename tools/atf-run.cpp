@@ -236,7 +236,7 @@ class atf_run : public atf::application::app {
         }
     };
 
-    static void route_run_test_program_child(const void *);
+    static void route_run_test_program_child(void *);
     void run_test_program_child(const atf::fs::path&,
                                 atf::io::pipe&) const;
     int run_test_program_parent(const atf::fs::path&,
@@ -367,14 +367,10 @@ atf_run::conf_args(void) const
 }
 
 void
-atf_run::route_run_test_program_child(const void* v)
+atf_run::route_run_test_program_child(void* v)
 {
-    const test_data* td = static_cast< const test_data* >(v);
-
-    const atf::fs::path& tp = td->m_tp;
-    atf::io::pipe& respipe = const_cast< atf::io::pipe& >(td->m_respipe);
-
-    td->m_this->run_test_program_child(tp, respipe);
+    test_data* td = static_cast< test_data* >(v);
+    td->m_this->run_test_program_child(td->m_tp, td->m_respipe);
     UNREACHABLE;
 }
 
@@ -523,7 +519,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
         atf::process::fork(route_run_test_program_child,
                            atf::process::stream_capture(),
                            atf::process::stream_capture(),
-                           static_cast< const void * >(&td));
+                           static_cast< void * >(&td));
 
     return run_test_program_parent(tp, w, c, respipe);
 }

@@ -75,13 +75,13 @@ struct test_data {
     bool m_cond;
 };
 
-static void do_test_child(const void *) ATF_DEFS_ATTRIBUTE_NORETURN;
+static void do_test_child(void *) ATF_DEFS_ATTRIBUTE_NORETURN;
 
 static
 void
-do_test_child(const void *v)
+do_test_child(void *v)
 {
-    const struct test_data *td = v;
+    struct test_data *td = v;
 
     switch (td->m_type) {
     case inv:
@@ -117,7 +117,7 @@ do_test(enum type t, bool cond)
 
     {
         atf_process_stream_t outsb, errsb;
-        const struct test_data td = { t, cond };
+        struct test_data td = { t, cond };
 
         RE(atf_process_stream_init_inherit(&outsb));
         RE(atf_process_stream_init_capture(&errsb));

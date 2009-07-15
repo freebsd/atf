@@ -114,10 +114,10 @@ int atf_process_child_stderr(atf_process_child_t *);
  * --------------------------------------------------------------------- */
 
 atf_error_t atf_process_fork(atf_process_child_t *,
-                             void (*)(const void *),
+                             void (*)(void *),
                              const atf_process_stream_t *,
                              const atf_process_stream_t *,
-                             const void *);
+                             void *);
 atf_error_t atf_process_system(const char *); // XXX Kill this.
 
 #endif /* !defined(ATF_C_PROCESS_H) */

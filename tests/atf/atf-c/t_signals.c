@@ -247,7 +247,7 @@ ATF_TC_BODY(signal_programmer_fini, tc)
 
 static
 void
-signal_reset_child(const void *v)
+signal_reset_child(void *v)
 {
     struct sigaction sa;
 

@@ -167,17 +167,21 @@ out:
     return err;
 }
 
-static void exec_child(const void *) ATF_DEFS_ATTRIBUTE_NORETURN;
+struct exec_data {
+    const char *const *m_argv;
+};
+
+static void exec_child(void *) ATF_DEFS_ATTRIBUTE_NORETURN;
 
 static
 void
-exec_child(const void *v)
+exec_child(void *v)
 {
-    const char *const *argv = v;
+    struct exec_data *ea = v;
 
     atf_reset_exit_checks();
-    const_execvp(argv[0], argv);
-    fprintf(stderr, "execvp(%s) failed: %s\n", argv[0], strerror(errno));
+    const_execvp(ea->m_argv[0], ea->m_argv);
+    fprintf(stderr, "execvp(%s) failed: %s\n", ea->m_argv[0], strerror(errno));
     exit(127);
 }
 
@@ -189,12 +193,13 @@ fork_and_wait(const char *const *argv, int outfd, int errfd,
     atf_error_t err;
     atf_process_child_t child;
     atf_process_stream_t outsb, errsb;
+    struct exec_data ea = { argv };
 
     err = init_sbs(outfd, &outsb, errfd, &errsb);
     if (atf_is_error(err))
         goto out;
 
-    err = atf_process_fork(&child, exec_child, &outsb, &errsb, argv);
+    err = atf_process_fork(&child, exec_child, &outsb, &errsb, &ea);
     if (atf_is_error(err))
         goto out_sbs;
 
