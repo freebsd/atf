@@ -474,12 +474,13 @@ out:
         exit(EXIT_SUCCESS);
 }
 
+static
 atf_error_t
-atf_process_fork(atf_process_child_t *c,
-                 void (*start)(const void *),
-                 const atf_process_stream_t *outsb,
-                 const atf_process_stream_t *errsb,
-                 const void *v)
+fork_with_streams(atf_process_child_t *c,
+                  void (*start)(const void *),
+                  const atf_process_stream_t *outsb,
+                  const atf_process_stream_t *errsb,
+                  const void *v)
 {
     atf_error_t err;
     stream_prepare_t outsp;
@@ -518,6 +519,56 @@ err_errpipe:
 err_outpipe:
     stream_prepare_fini(&outsp);
 
+out:
+    return err;
+}
+
+static
+atf_error_t
+init_stream_w_default(const atf_process_stream_t *usersb,
+                      atf_process_stream_t *inheritsb,
+                      const atf_process_stream_t **realsb)
+{
+    atf_error_t err;
+
+    if (usersb == NULL) {
+        err = atf_process_stream_init_inherit(inheritsb);
+        if (!atf_is_error(err))
+            *realsb = inheritsb;
+    } else {
+        err = atf_no_error();
+        *realsb = usersb;
+    }
+
+    return err;
+}
+
+atf_error_t
+atf_process_fork(atf_process_child_t *c,
+                 void (*start)(const void *),
+                 const atf_process_stream_t *outsb,
+                 const atf_process_stream_t *errsb,
+                 const void *v)
+{
+    atf_error_t err;
+    atf_process_stream_t inherit_outsb, inherit_errsb;
+    const atf_process_stream_t *real_outsb, *real_errsb;
+
+    err = init_stream_w_default(outsb, &inherit_outsb, &real_outsb);
+    if (atf_is_error(err))
+        goto out;
+
+    err = init_stream_w_default(errsb, &inherit_errsb, &real_errsb);
+    if (atf_is_error(err))
+        goto out_out;
+
+    err = fork_with_streams(c, start, real_outsb, real_errsb, v);
+
+    if (errsb == NULL)
+        atf_process_stream_fini(&inherit_errsb);
+out_out:
+    if (outsb == NULL)
+        atf_process_stream_fini(&inherit_outsb);
 out:
     return err;
 }

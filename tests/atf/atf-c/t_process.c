@@ -76,7 +76,12 @@ struct base_stream {
     void (*process)(void *, atf_process_child_t *);
     void (*fini)(void *);
 
+    /* m_sb is initialized by subclasses that need it, but all consumers
+     * must use m_sb_ptr, which may or may not point to m_sb.  This allows
+     * us to test the interface with a NULL value, which triggers a
+     * default behavior. */
     atf_process_stream_t m_sb;
+    atf_process_stream_t *m_sb_ptr;
     enum out_type m_type;
 };
 #define BASE_STREAM(ihook, phook, fhook, type) \
@@ -120,6 +125,7 @@ capture_stream_init(void *v)
 {
     struct capture_stream *s = v;
 
+    s->m_base.m_sb_ptr = &s->m_base.m_sb;
     RE(atf_process_stream_init_capture(&s->m_base.m_sb));
     RE(atf_dynstr_init(&s->m_msg));
 }
@@ -187,6 +193,7 @@ inherit_stream_init(void *v)
     struct inherit_stream *s = v;
     const char *name;
 
+    s->m_base.m_sb_ptr = &s->m_base.m_sb;
     RE(atf_process_stream_init_inherit(&s->m_base.m_sb));
 
     switch (s->m_base.m_type) {
@@ -224,6 +231,30 @@ inherit_stream_fini(void *v)
     check_file(s->m_base.m_type);
 }
 
+#define default_stream inherit_stream
+#define DEFAULT_STREAM(type) \
+    { .m_base = BASE_STREAM(default_stream_init, \
+                            NULL, \
+                            default_stream_fini, \
+                            type) }
+
+static
+void
+default_stream_init(void *v)
+{
+    struct inherit_stream *s = v;
+
+    inherit_stream_init(v);
+    s->m_base.m_sb_ptr = NULL;
+}
+
+static
+void
+default_stream_fini(void *v)
+{
+    inherit_stream_fini(v);
+}
+
 struct redirect_fd_stream {
     struct base_stream m_base;
 
@@ -253,6 +284,7 @@ redirect_fd_stream_init(void *v)
     }
     ATF_REQUIRE(s->m_fd != -1);
 
+    s->m_base.m_sb_ptr = &s->m_base.m_sb;
     RE(atf_process_stream_init_redirect_fd(&s->m_base.m_sb, s->m_fd));
 }
 
@@ -297,6 +329,7 @@ redirect_path_stream_init(void *v)
         UNREACHABLE;
     }
 
+    s->m_base.m_sb_ptr = &s->m_base.m_sb;
     RE(atf_process_stream_init_redirect_path(&s->m_base.m_sb, &s->m_path));
 }
 
@@ -338,8 +371,8 @@ do_fork(const struct base_stream *outfs, void *out,
     outfs->init(out);
     errfs->init(err);
 
-    RE(atf_process_fork(&child, child_print,
-                        &outfs->m_sb, &errfs->m_sb, "msg"));
+    RE(atf_process_fork(&child, child_print, outfs->m_sb_ptr,
+                        errfs->m_sb_ptr, "msg"));
     if (outfs->process != NULL)
         outfs->process(out, &child);
     if (errfs->process != NULL)
@@ -824,18 +857,27 @@ ATF_TC_BODY(fork_cookie, tc)
     }
 
 TC_FORK_STREAMS(capture, CAPTURE, capture, CAPTURE);
+TC_FORK_STREAMS(capture, CAPTURE, default, DEFAULT);
 TC_FORK_STREAMS(capture, CAPTURE, inherit, INHERIT);
 TC_FORK_STREAMS(capture, CAPTURE, redirect_fd, REDIRECT_FD);
 TC_FORK_STREAMS(capture, CAPTURE, redirect_path, REDIRECT_PATH);
+TC_FORK_STREAMS(default, DEFAULT, capture, CAPTURE);
+TC_FORK_STREAMS(default, DEFAULT, default, DEFAULT);
+TC_FORK_STREAMS(default, DEFAULT, inherit, INHERIT);
+TC_FORK_STREAMS(default, DEFAULT, redirect_fd, REDIRECT_FD);
+TC_FORK_STREAMS(default, DEFAULT, redirect_path, REDIRECT_PATH);
 TC_FORK_STREAMS(inherit, INHERIT, capture, CAPTURE);
+TC_FORK_STREAMS(inherit, INHERIT, default, DEFAULT);
 TC_FORK_STREAMS(inherit, INHERIT, inherit, INHERIT);
 TC_FORK_STREAMS(inherit, INHERIT, redirect_fd, REDIRECT_FD);
 TC_FORK_STREAMS(inherit, INHERIT, redirect_path, REDIRECT_PATH);
 TC_FORK_STREAMS(redirect_fd, REDIRECT_FD, capture, CAPTURE);
+TC_FORK_STREAMS(redirect_fd, REDIRECT_FD, default, DEFAULT);
 TC_FORK_STREAMS(redirect_fd, REDIRECT_FD, inherit, INHERIT);
 TC_FORK_STREAMS(redirect_fd, REDIRECT_FD, redirect_fd, REDIRECT_FD);
 TC_FORK_STREAMS(redirect_fd, REDIRECT_FD, redirect_path, REDIRECT_PATH);
 TC_FORK_STREAMS(redirect_path, REDIRECT_PATH, capture, CAPTURE);
+TC_FORK_STREAMS(redirect_path, REDIRECT_PATH, default, DEFAULT);
 TC_FORK_STREAMS(redirect_path, REDIRECT_PATH, inherit, INHERIT);
 TC_FORK_STREAMS(redirect_path, REDIRECT_PATH, redirect_fd, REDIRECT_FD);
 TC_FORK_STREAMS(redirect_path, REDIRECT_PATH, redirect_path, REDIRECT_PATH);
@@ -872,18 +914,27 @@ ATF_TP_ADD_TCS(tp)
     /* Add the tests for the free functions. */
     ATF_TP_ADD_TC(tp, fork_cookie);
     ATF_TP_ADD_TC(tp, fork_out_capture_err_capture);
+    ATF_TP_ADD_TC(tp, fork_out_capture_err_default);
     ATF_TP_ADD_TC(tp, fork_out_capture_err_inherit);
     ATF_TP_ADD_TC(tp, fork_out_capture_err_redirect_fd);
     ATF_TP_ADD_TC(tp, fork_out_capture_err_redirect_path);
+    ATF_TP_ADD_TC(tp, fork_out_default_err_capture);
+    ATF_TP_ADD_TC(tp, fork_out_default_err_default);
+    ATF_TP_ADD_TC(tp, fork_out_default_err_inherit);
+    ATF_TP_ADD_TC(tp, fork_out_default_err_redirect_fd);
+    ATF_TP_ADD_TC(tp, fork_out_default_err_redirect_path);
     ATF_TP_ADD_TC(tp, fork_out_inherit_err_capture);
+    ATF_TP_ADD_TC(tp, fork_out_inherit_err_default);
     ATF_TP_ADD_TC(tp, fork_out_inherit_err_inherit);
     ATF_TP_ADD_TC(tp, fork_out_inherit_err_redirect_fd);
     ATF_TP_ADD_TC(tp, fork_out_inherit_err_redirect_path);
     ATF_TP_ADD_TC(tp, fork_out_redirect_fd_err_capture);
+    ATF_TP_ADD_TC(tp, fork_out_redirect_fd_err_default);
     ATF_TP_ADD_TC(tp, fork_out_redirect_fd_err_inherit);
     ATF_TP_ADD_TC(tp, fork_out_redirect_fd_err_redirect_fd);
     ATF_TP_ADD_TC(tp, fork_out_redirect_fd_err_redirect_path);
     ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_capture);
+    ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_default);
     ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_inherit);
     ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_redirect_fd);
     ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_redirect_path);
