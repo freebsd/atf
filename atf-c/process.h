@@ -36,6 +36,7 @@
 
 #include <atf-c/error_fwd.h>
 #include <atf-c/fs.h>
+#include <atf-c/list.h>
 #include <atf-c/object.h>
 
 /* ---------------------------------------------------------------------
@@ -118,6 +119,16 @@ atf_error_t atf_process_fork(atf_process_child_t *,
                              const atf_process_stream_t *,
                              const atf_process_stream_t *,
                              void *);
+atf_error_t atf_process_exec_array(atf_process_status_t *,
+                                   const atf_fs_path_t *,
+                                   const char *const *,
+                                   const atf_process_stream_t *,
+                                   const atf_process_stream_t *);
+atf_error_t atf_process_exec_list(atf_process_status_t *,
+                                  const atf_fs_path_t *,
+                                  const atf_list_t *,
+                                  const atf_process_stream_t *,
+                                  const atf_process_stream_t *);
 atf_error_t atf_process_system(const char *); // XXX Kill this.
 
 #endif /* !defined(ATF_C_PROCESS_H) */

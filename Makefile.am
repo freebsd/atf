@@ -469,8 +469,8 @@ noinst_LTLIBRARIES = tests/atf/atf-c/libh.la
 tests_atf_atf_c_libh_la_SOURCES = tests/atf/atf-c/h_lib.c \
                                   tests/atf/atf-c/h_lib.h
 
-atf_atf_c_PROGRAMS = tests/atf/atf-c/h_check
-tests_atf_atf_c_h_check_SOURCES = tests/atf/atf-c/h_check.c
+atf_atf_c_PROGRAMS = tests/atf/atf-c/h_processes
+tests_atf_atf_c_h_processes_SOURCES = tests/atf/atf-c/h_processes.c
 
 atf_atf_c_PROGRAMS += tests/atf/atf-c/t_atf_c
 tests_atf_atf_c_t_atf_c_SOURCES = tests/atf/atf-c/t_atf_c.c

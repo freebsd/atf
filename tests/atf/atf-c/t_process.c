@@ -37,6 +37,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include <atf-c.h>
@@ -791,6 +792,113 @@ ATF_TC_BODY(child_wait_eintr, tc)
  * Tests cases for the free functions.
  * --------------------------------------------------------------------- */
 
+static
+void
+do_exec(const atf_tc_t *tc, const char *helper_name, atf_process_status_t *s)
+{
+    atf_fs_path_t h_processes;
+    const char *argv[3];
+
+    get_h_processes_path(tc, &h_processes);
+
+    argv[0] = atf_fs_path_cstring(&h_processes);
+    argv[1] = helper_name;
+    argv[2] = NULL;
+    printf("Executing %s %s\n", argv[0], argv[1]);
+
+    RE(atf_process_exec_array(s, &h_processes, argv, NULL, NULL));
+    atf_fs_path_fini(&h_processes);
+}
+
+static
+void
+check_line(int fd, const char *exp)
+{
+    atf_dynstr_t line;
+    bool eof;
+
+    atf_dynstr_init(&line);
+    RE(atf_io_readline(fd, &line, &eof));
+    ATF_CHECK(!eof);
+    ATF_CHECK_MSG(atf_equal_dynstr_cstring(&line, exp),
+                  "read: '%s', expected: '%s'",
+                  atf_dynstr_cstring(&line), exp);
+    atf_dynstr_fini(&line);
+}
+
+ATF_TC(exec_failure);
+ATF_TC_HEAD(exec_failure, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests execing a command");
+}
+ATF_TC_BODY(exec_failure, tc)
+{
+    atf_process_status_t status;
+
+    do_exec(tc, "exit-failure", &status);
+    ATF_CHECK(atf_process_status_exited(&status));
+    ATF_CHECK_EQ(atf_process_status_exitstatus(&status), EXIT_FAILURE);
+    atf_process_status_fini(&status);
+}
+
+ATF_TC(exec_list);
+ATF_TC_HEAD(exec_list, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests execing a command");
+}
+ATF_TC_BODY(exec_list, tc)
+{
+    atf_fs_path_t h_processes;
+    atf_list_t argv;
+    atf_process_status_t status;
+
+    RE(atf_list_init(&argv));
+
+    get_h_processes_path(tc, &h_processes);
+    atf_list_append(&argv, strdup(atf_fs_path_cstring(&h_processes)), true);
+    atf_list_append(&argv, strdup("echo"), true);
+    atf_list_append(&argv, strdup("test-message"), true);
+    {
+        atf_fs_path_t outpath;
+        atf_process_stream_t outsb;
+
+        RE(atf_fs_path_init_fmt(&outpath, "stdout"));
+        RE(atf_process_stream_init_redirect_path(&outsb, &outpath));
+        RE(atf_process_exec_list(&status, &h_processes, &argv, &outsb, NULL));
+        atf_process_stream_fini(&outsb);
+        atf_fs_path_fini(&outpath);
+    }
+    atf_list_fini(&argv);
+
+    ATF_CHECK(atf_process_status_exited(&status));
+    ATF_CHECK_EQ(atf_process_status_exitstatus(&status), EXIT_SUCCESS);
+
+    {
+        int fd = open("stdout", O_RDONLY);
+        ATF_CHECK(fd != -1);
+        check_line(fd, "test-message");
+        close(fd);
+    }
+
+    atf_process_status_fini(&status);
+    atf_fs_path_fini(&h_processes);
+}
+
+ATF_TC(exec_success);
+ATF_TC_HEAD(exec_success, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests execing a command");
+}
+ATF_TC_BODY(exec_success, tc)
+{
+    atf_process_status_t status;
+
+    do_exec(tc, "exit-success", &status);
+    ATF_CHECK(atf_process_status_exited(&status));
+    ATF_CHECK_EQ(atf_process_status_exitstatus(&status), EXIT_SUCCESS);
+    atf_process_status_fini(&status);
+}
+
 static const int exit_v_null = 1;
 static const int exit_v_notnull = 2;
 
@@ -920,6 +1028,9 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, child_wait_eintr);
 
     /* Add the tests for the free functions. */
+    ATF_TP_ADD_TC(tp, exec_failure);
+    ATF_TP_ADD_TC(tp, exec_list);
+    ATF_TP_ADD_TC(tp, exec_success);
     ATF_TP_ADD_TC(tp, fork_cookie);
     ATF_TP_ADD_TC(tp, fork_out_capture_err_capture);
     ATF_TP_ADD_TC(tp, fork_out_capture_err_default);
