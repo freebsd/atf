@@ -34,6 +34,7 @@
 #include "atf-c++/config.hpp"
 #include "atf-c++/env.hpp"
 #include "atf-c++/macros.hpp"
+#include "atf-c++/process.hpp"
 
 #include "../atf-c/h_build.h"
 
@@ -80,11 +81,11 @@ verbose_set_env(const char *var, const char *val)
 
 static
 bool
-equal_argvs(const atf::check::argv_array& aa, const char* const* array)
+equal_argvs(const atf::process::argv_array& aa, const char* const* array)
 {
     bool equal = true;
 
-    atf::check::argv_array::size_type i = 0;
+    atf::process::argv_array::size_type i = 0;
     while (equal && (i < aa.size() && array[i] != NULL)) {
         if (std::strcmp(aa[i], array[i]) != 0)
             equal = false;
@@ -100,7 +101,7 @@ equal_argvs(const atf::check::argv_array& aa, const char* const* array)
 
 static
 void
-check_equal_argvs(const atf::check::argv_array& aa, const char* const* array)
+check_equal_argvs(const atf::process::argv_array& aa, const char* const* array)
 {
     print_array("Expected arguments", array);
     print_col("Arguments returned", aa);
@@ -124,28 +125,28 @@ ATF_TEST_CASE_BODY(equal_argvs)
         const char* const array[] = { NULL };
         const char* const argv[] = { NULL };
 
-        ATF_CHECK(equal_argvs(atf::check::argv_array(argv), array));
+        ATF_CHECK(equal_argvs(atf::process::argv_array(argv), array));
     }
 
     {
         const char* const array[] = { NULL };
         const char* const argv[] = { "foo", NULL };
 
-        ATF_CHECK(!equal_argvs(atf::check::argv_array(argv), array));
+        ATF_CHECK(!equal_argvs(atf::process::argv_array(argv), array));
     }
 
     {
         const char* const array[] = { "foo", NULL };
         const char* const argv[] = { NULL };
 
-        ATF_CHECK(!equal_argvs(atf::check::argv_array(argv), array));
+        ATF_CHECK(!equal_argvs(atf::process::argv_array(argv), array));
     }
 
     {
         const char* const array[] = { "foo", NULL };
         const char* const argv[] = { "foo", NULL };
 
-        ATF_CHECK(equal_argvs(atf::check::argv_array(argv), array));
+        ATF_CHECK(equal_argvs(atf::process::argv_array(argv), array));
     }
 }
 
@@ -169,9 +170,9 @@ ATF_TEST_CASE_BODY(c_o)
         verbose_set_env("ATF_BUILD_CPPFLAGS", test->cppflags);
         atf::config::__reinit();
 
-        atf::check::argv_array argv =
+        atf::process::argv_array argv =
             atf::build::c_o(test->sfile, test->ofile,
-                            atf::check::argv_array(test->optargs));
+                            atf::process::argv_array(test->optargs));
         check_equal_argvs(argv, test->expargv);
     }
 }
@@ -191,9 +192,9 @@ ATF_TEST_CASE_BODY(cpp)
         verbose_set_env("ATF_BUILD_CPPFLAGS", test->cppflags);
         atf::config::__reinit();
 
-        atf::check::argv_array argv =
+        atf::process::argv_array argv =
             atf::build::cpp(test->sfile, test->ofile,
-                            atf::check::argv_array(test->optargs));
+                            atf::process::argv_array(test->optargs));
         check_equal_argvs(argv, test->expargv);
     }
 }
@@ -214,9 +215,9 @@ ATF_TEST_CASE_BODY(cxx_o)
         verbose_set_env("ATF_BUILD_CPPFLAGS", test->cppflags);
         atf::config::__reinit();
 
-        atf::check::argv_array argv =
+        atf::process::argv_array argv =
             atf::build::cxx_o(test->sfile, test->ofile,
-                              atf::check::argv_array(test->optargs));
+                              atf::process::argv_array(test->optargs));
         check_equal_argvs(argv, test->expargv);
     }
 }

@@ -34,6 +34,7 @@ extern "C" {
 
 #include "atf-c++/build.hpp"
 #include "atf-c++/exceptions.hpp"
+#include "atf-c++/process.hpp"
 
 namespace impl = atf::build;
 #define IMPL_NAME "atf::build"
@@ -43,7 +44,7 @@ namespace impl = atf::build;
 // ------------------------------------------------------------------------
 
 inline
-atf::check::argv_array
+atf::process::argv_array
 clist_to_argv(const atf_list_t* l)
 {
     std::vector< const char* > aux;
@@ -52,15 +53,15 @@ clist_to_argv(const atf_list_t* l)
     atf_list_for_each_c(iter, l)
         aux.push_back(static_cast< const char* >(atf_list_citer_data(iter)));
 
-    return atf::check::argv_array(aux);
+    return atf::process::argv_array(aux);
 }
 
 inline
-atf::check::argv_array
+atf::process::argv_array
 clist_to_argv_and_free(atf_list_t* l)
 {
     try {
-        atf::check::argv_array argv = clist_to_argv(l);
+        atf::process::argv_array argv = clist_to_argv(l);
         atf_list_fini(l);
         return argv;
     } catch (...) {
@@ -73,9 +74,9 @@ clist_to_argv_and_free(atf_list_t* l)
 // Free functions.
 // ------------------------------------------------------------------------
 
-atf::check::argv_array
+atf::process::argv_array
 impl::c_o(const std::string& sfile, const std::string& ofile,
-          const check::argv_array& optargs)
+          const process::argv_array& optargs)
 {
     atf_list_t l;
 
@@ -87,9 +88,9 @@ impl::c_o(const std::string& sfile, const std::string& ofile,
     return clist_to_argv_and_free(&l);
 }
 
-atf::check::argv_array
+atf::process::argv_array
 impl::cpp(const std::string& sfile, const std::string& ofile,
-          const check::argv_array& optargs)
+          const process::argv_array& optargs)
 {
     atf_list_t l;
 
@@ -101,9 +102,9 @@ impl::cpp(const std::string& sfile, const std::string& ofile,
     return clist_to_argv_and_free(&l);
 }
 
-atf::check::argv_array
+atf::process::argv_array
 impl::cxx_o(const std::string& sfile, const std::string& ofile,
-            const check::argv_array& optargs)
+            const process::argv_array& optargs)
 {
     atf_list_t l;
 

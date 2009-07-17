@@ -47,6 +47,7 @@ extern "C" {
 #include "atf-c++/config.hpp"
 #include "atf-c++/fs.hpp"
 #include "atf-c++/io.hpp"
+#include "atf-c++/process.hpp"
 #include "atf-c++/sanity.hpp"
 #include "atf-c++/text.hpp"
 #include "atf-c++/utils.hpp"
@@ -83,7 +84,7 @@ execute(const char* const* argv)
         std::cout << argv[i] << " ";
     std::cout << "]" << std::endl;
 
-    atf::check::argv_array argva(argv);
+    atf::process::argv_array argva(argv);
     return atf::check::exec(argva);
 }
 

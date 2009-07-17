@@ -36,44 +36,11 @@ extern "C" {
 
 #include "atf-c++/check.hpp"
 #include "atf-c++/exceptions.hpp"
+#include "atf-c++/process.hpp"
 #include "atf-c++/sanity.hpp"
 
 namespace impl = atf::check;
 #define IMPL_NAME "atf::check"
-
-// ------------------------------------------------------------------------
-// Auxiliary functions.
-// ------------------------------------------------------------------------
-
-template< class C >
-atf::utils::auto_array< const char* >
-collection_to_argv(const C& c)
-{
-    atf::utils::auto_array< const char* > argv(new const char*[c.size() + 1]);
-
-    std::size_t pos = 0;
-    for (typename C::const_iterator iter = c.begin(); iter != c.end();
-         iter++) {
-        argv[pos] = (*iter).c_str();
-        pos++;
-    }
-    INV(pos == c.size());
-    argv[pos] = NULL;
-
-    return argv;
-}
-
-template< class C >
-C
-argv_to_collection(const char* const* argv)
-{
-    C c;
-
-    for (const char* const* iter = argv; *iter != NULL; iter++)
-        c.push_back(std::string(*iter));
-
-    return c;
-}
 
 // ------------------------------------------------------------------------
 // The "check_result" class.
@@ -130,84 +97,12 @@ impl::check_result::stderr_path(void)
 }
 
 // ------------------------------------------------------------------------
-// The "argv_array" type.
-// ------------------------------------------------------------------------
-
-impl::argv_array::argv_array(void) :
-    m_exec_argv(collection_to_argv(m_args))
-{
-}
-
-impl::argv_array::argv_array(const char* const* ca) :
-    m_args(argv_to_collection< args_vector >(ca)),
-    m_exec_argv(collection_to_argv(m_args))
-{
-}
-
-impl::argv_array::argv_array(const argv_array& a) :
-    m_args(a.m_args),
-    m_exec_argv(collection_to_argv(m_args))
-{
-}
-
-void
-impl::argv_array::ctor_init_exec_argv(void)
-{
-    m_exec_argv = collection_to_argv(m_args);
-}
-
-const char* const*
-impl::argv_array::exec_argv(void)
-    const
-{
-    return m_exec_argv.get();
-}
-
-impl::argv_array::size_type
-impl::argv_array::size(void)
-    const
-{
-    return m_args.size();
-}
-
-const char*
-impl::argv_array::operator[](int idx)
-    const
-{
-    return m_args[idx].c_str();
-}
-
-impl::argv_array::const_iterator
-impl::argv_array::begin(void)
-    const
-{
-    return m_args.begin();
-}
-
-impl::argv_array::const_iterator
-impl::argv_array::end(void)
-    const
-{
-    return m_args.end();
-}
-
-impl::argv_array&
-impl::argv_array::operator=(const argv_array& a)
-{
-    if (this != &a) {
-        m_args = a.m_args;
-        m_exec_argv = collection_to_argv(m_args);
-    }
-    return *this;
-}
-
-// ------------------------------------------------------------------------
 // Free functions.
 // ------------------------------------------------------------------------
 
 bool
 impl::build_c_o(const atf::fs::path& sfile, const atf::fs::path& ofile,
-                const argv_array& optargs)
+                const atf::process::argv_array& optargs)
 {
     bool success;
 
@@ -221,7 +116,7 @@ impl::build_c_o(const atf::fs::path& sfile, const atf::fs::path& ofile,
 
 bool
 impl::build_cpp(const atf::fs::path& sfile, const atf::fs::path& ofile,
-                const argv_array& optargs)
+                const atf::process::argv_array& optargs)
 {
     bool success;
 
@@ -235,7 +130,7 @@ impl::build_cpp(const atf::fs::path& sfile, const atf::fs::path& ofile,
 
 bool
 impl::build_cxx_o(const atf::fs::path& sfile, const atf::fs::path& ofile,
-                  const argv_array& optargs)
+                  const atf::process::argv_array& optargs)
 {
     bool success;
 
@@ -248,7 +143,7 @@ impl::build_cxx_o(const atf::fs::path& sfile, const atf::fs::path& ofile,
 }
 
 impl::check_result
-impl::exec(const argv_array& argva)
+impl::exec(const atf::process::argv_array& argva)
 {
     atf_check_result_t result;
 

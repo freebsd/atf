@@ -34,6 +34,7 @@
 #include "atf-c++/config.hpp"
 #include "atf-c++/fs.hpp"
 #include "atf-c++/macros.hpp"
+#include "atf-c++/process.hpp"
 
 #include "h_lib.hpp"
 
@@ -48,6 +49,6 @@ build_check_cxx_o(const atf::tests::tc& tc, const char* sfile,
         atf::fs::path(tc.get_config_var("srcdir")) / sfile;
 
     if (!atf::check::build_cxx_o(sfilepath, atf::fs::path("test.o"),
-                                 atf::check::argv_array(optargs)))
+                                 atf::process::argv_array(optargs)))
         ATF_FAIL(failmsg);
 }
