@@ -160,6 +160,31 @@ ATF_TEST_CASE_BODY(argv_array_init_empty)
     ATF_CHECK_EQUAL(argv.size(), 0);
 }
 
+ATF_TEST_CASE(argv_array_init_varargs);
+ATF_TEST_CASE_HEAD(argv_array_init_varargs)
+{
+    set_md_var("descr", "Tests that argv_array is correctly constructed "
+               "from a variable list of arguments");
+}
+ATF_TEST_CASE_BODY(argv_array_init_varargs)
+{
+    {
+        atf::process::argv_array argv("arg0", NULL);
+
+        ATF_CHECK_EQUAL(argv.size(), 1);
+        ATF_CHECK_EQUAL(argv[0], std::string("arg0"));
+    }
+
+    {
+        atf::process::argv_array argv("arg0", "arg1", "arg2", NULL);
+
+        ATF_CHECK_EQUAL(argv.size(), 3);
+        ATF_CHECK_EQUAL(argv[0], std::string("arg0"));
+        ATF_CHECK_EQUAL(argv[1], std::string("arg1"));
+        ATF_CHECK_EQUAL(argv[2], std::string("arg2"));
+    }
+}
+
 ATF_TEST_CASE(argv_array_assign);
 ATF_TEST_CASE_HEAD(argv_array_assign)
 {
@@ -327,6 +352,7 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, argv_array_init_carray);
     ATF_ADD_TEST_CASE(tcs, argv_array_init_col);
     ATF_ADD_TEST_CASE(tcs, argv_array_init_empty);
+    ATF_ADD_TEST_CASE(tcs, argv_array_init_varargs);
     ATF_ADD_TEST_CASE(tcs, argv_array_iter);
 
     // Add the test cases for the free functions.

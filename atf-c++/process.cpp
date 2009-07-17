@@ -82,6 +82,23 @@ impl::argv_array::argv_array(void) :
 {
 }
 
+impl::argv_array::argv_array(const char* arg1, ...)
+{
+    m_args.push_back(arg1);
+
+    {
+        va_list ap;
+        const char* nextarg;
+
+        va_start(ap, arg1);
+        while ((nextarg = va_arg(ap, const char*)) != NULL)
+            m_args.push_back(nextarg);
+        va_end(ap);
+    }
+
+    ctor_init_exec_argv();
+}
+
 impl::argv_array::argv_array(const char* const* ca) :
     m_args(argv_to_collection< args_vector >(ca)),
     m_exec_argv(collection_to_argv(m_args))

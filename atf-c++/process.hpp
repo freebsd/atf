@@ -71,6 +71,7 @@ public:
     typedef args_vector::size_type size_type;
 
     argv_array(void);
+    argv_array(const char*, ...);
     explicit argv_array(const char* const*);
     template< class C > explicit argv_array(const C&);
     argv_array(const argv_array&);
