@@ -48,10 +48,10 @@ struct atf_process_stream {
 
     int m_type;
 
-    // Valid if m_type == redirect_fd.
+    /* Valid if m_type == redirect_fd. */
     int m_fd;
 
-    // Valid if m_type == redirect_path.
+    /* Valid if m_type == redirect_path. */
     const atf_fs_path_t *m_path;
 };
 typedef struct atf_process_stream atf_process_stream_t;
