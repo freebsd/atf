@@ -33,11 +33,11 @@
 
 #include "h_lib.hpp"
 
-// TODO: Testing this module is a huge task and I'm afraid of copy/pasting
-// tons of stuff from the C version.  I'd rather not do that until some
-// code can be shared, which cannot happen until the C++ binding is cleaned
-// by a fair amount.  Instead... just rely (at the moment) on the system
-// tests for the tools using this module.
+// TODO: Testing the fork function is a huge task and I'm afraid of
+// copy/pasting tons of stuff from the C version.  I'd rather not do that
+// until some code can be shared, which cannot happen until the C++ binding
+// is cleaned by a fair amount.  Instead... just rely (at the moment) on
+// the system tests for the tools using this module.
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -53,6 +53,22 @@ array_size(const char* const* array)
         size++;
 
     return size;
+}
+
+static
+atf::process::status
+exec_h_processes(const atf::tests::tc& tc, const char* helper_name)
+{
+    using atf::process::exec;
+
+    std::vector< std::string > argv;
+    argv.push_back(get_h_processes_path(tc).leaf_name());
+    argv.push_back(helper_name);
+
+    return exec(get_h_processes_path(tc),
+                atf::process::argv_array(argv),
+                atf::process::stream_inherit(),
+                atf::process::stream_inherit());
 }
 
 // ------------------------------------------------------------------------
@@ -265,6 +281,34 @@ ATF_TEST_CASE_BODY(argv_array_iter)
 }
 
 // ------------------------------------------------------------------------
+// Tests cases for the free functions.
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(exec_failure);
+ATF_TEST_CASE_HEAD(exec_failure)
+{
+    set_md_var("descr", "Tests execing a command that reports failure");
+}
+ATF_TEST_CASE_BODY(exec_failure)
+{
+    const atf::process::status s = exec_h_processes(*this, "exit-failure");
+    ATF_CHECK(s.exited());
+    ATF_CHECK_EQUAL(s.exitstatus(), EXIT_FAILURE);
+}
+
+ATF_TEST_CASE(exec_success);
+ATF_TEST_CASE_HEAD(exec_success)
+{
+    set_md_var("descr", "Tests execing a command that reports success");
+}
+ATF_TEST_CASE_BODY(exec_success)
+{
+    const atf::process::status s = exec_h_processes(*this, "exit-success");
+    ATF_CHECK(s.exited());
+    ATF_CHECK_EQUAL(s.exitstatus(), EXIT_SUCCESS);
+}
+
+// ------------------------------------------------------------------------
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
@@ -284,6 +328,10 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, argv_array_init_col);
     ATF_ADD_TEST_CASE(tcs, argv_array_init_empty);
     ATF_ADD_TEST_CASE(tcs, argv_array_iter);
+
+    // Add the test cases for the free functions.
+    ATF_ADD_TEST_CASE(tcs, exec_failure);
+    ATF_ADD_TEST_CASE(tcs, exec_success);
 
     // Add the test cases for the header file.
     ATF_ADD_TEST_CASE(tcs, include);

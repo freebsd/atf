@@ -114,6 +114,9 @@ class stream_capture : basic_stream {
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
     child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
+    template< class OutStream, class ErrStream > friend
+    status exec(const atf::fs::path&, const argv_array&,
+                const OutStream&, const ErrStream&);
 
 public:
     stream_capture(void);
@@ -123,6 +126,9 @@ class stream_inherit : basic_stream {
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
     child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
+    template< class OutStream, class ErrStream > friend
+    status exec(const atf::fs::path&, const argv_array&,
+                const OutStream&, const ErrStream&);
 
 public:
     stream_inherit(void);
@@ -132,6 +138,9 @@ class stream_redirect_fd : basic_stream {
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
     child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
+    template< class OutStream, class ErrStream > friend
+    status exec(const atf::fs::path&, const argv_array&,
+                const OutStream&, const ErrStream&);
 
 public:
     stream_redirect_fd(const int);
@@ -141,6 +150,9 @@ class stream_redirect_path : basic_stream {
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
     child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
+    template< class OutStream, class ErrStream > friend
+    status exec(const atf::fs::path&, const argv_array&,
+                const OutStream&, const ErrStream&);
 
 public:
     stream_redirect_path(const fs::path&);
@@ -154,6 +166,9 @@ class status {
     atf_process_status_t m_status;
 
     friend class child;
+    template< class OutStream, class ErrStream > friend
+    status exec(const atf::fs::path&, const argv_array&,
+                const OutStream&, const ErrStream&);
 
     status(atf_process_status_t&);
 
@@ -207,6 +222,23 @@ fork(void (*start)(void*), const OutStream& outsb,
         throw_atf_error(err);
 
     return child(c);
+}
+
+template< class OutStream, class ErrStream >
+status
+exec(const atf::fs::path& prog, const argv_array& argv,
+     const OutStream& outsb, const ErrStream& errsb)
+{
+    atf_process_status_t s;
+
+    atf_error_t err = atf_process_exec_array(&s, prog.c_path(),
+                                             argv.exec_argv(),
+                                             outsb.get_sb(),
+                                             errsb.get_sb());
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return status(s);
 }
 
 void system(const std::string&);

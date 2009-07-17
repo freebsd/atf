@@ -52,3 +52,10 @@ build_check_cxx_o(const atf::tests::tc& tc, const char* sfile,
                                  atf::process::argv_array(optargs)))
         ATF_FAIL(failmsg);
 }
+
+atf::fs::path
+get_h_processes_path(const atf::tests::tc& tc)
+{
+    return atf::fs::path(tc.get_config_var("srcdir")) /
+           ".." / "atf-c" / "h_processes";
+}
