@@ -274,12 +274,28 @@ do_unmount(const atf_fs_path_t *p)
          * also have to update /etc/mtab to match what we did.  It is
          * simpler to just leave the system-specific umount(8) tool deal
          * with it, at least for now. */
-        char *cmd;
+        atf_fs_path_t prog;
 
-        err = atf_text_format(&cmd, "umount '%s'", pastr);
+        /* TODO: Should have an atf_fs_find_in_path function or similar to
+         * avoid relying on the automatic path lookup of exec, which I'd
+         * like to get rid of. */
+        err = atf_fs_path_init_fmt(&prog, "umount");
         if (!atf_is_error(err)) {
-            err = atf_process_system(cmd);
-            free(cmd);
+            atf_process_status_t status;
+            const char *argv[3] = { "unmount", pastr, NULL };
+
+            err = atf_process_exec_array(&status, &prog, argv, NULL, NULL);
+            if (!atf_is_error(err)) {
+                if (!atf_process_status_exited(&status) ||
+                    atf_process_status_exitstatus(&status) != EXIT_SUCCESS) {
+                    /* XXX: This is the wrong error type. */
+                    err = atf_libc_error(EINVAL, "Failed to exec unmount");
+                }
+
+                atf_process_status_fini(&status);
+            }
+
+            atf_fs_path_fini(&prog);
         }
     }
 #endif

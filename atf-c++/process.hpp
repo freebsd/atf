@@ -241,8 +241,6 @@ exec(const atf::fs::path& prog, const argv_array& argv,
     return status(s);
 }
 
-void system(const std::string&);
-
 } // namespace process
 } // namespace atf
 

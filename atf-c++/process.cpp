@@ -292,17 +292,3 @@ impl::child::stderr_fd(void)
 {
     return io::file_handle(atf_process_child_stderr(&m_child));
 }
-
-// ------------------------------------------------------------------------
-// Free functions.
-// ------------------------------------------------------------------------
-
-void
-impl::system(const std::string& cmdline)
-{
-    atf_error_t err;
-
-    err = atf_process_system(cmdline.c_str());
-    if (atf_is_error(err))
-        throw_atf_error(err);
-}

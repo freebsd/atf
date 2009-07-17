@@ -47,44 +47,6 @@
 atf_error_t atf_process_status_init(atf_process_status_t *, int);
 
 /* ---------------------------------------------------------------------
- * The "child" error type.
- * --------------------------------------------------------------------- */
-
-struct child_error_data {
-    char m_cmd[4096];
-    int m_state;
-};
-typedef struct child_error_data child_error_data_t;
-
-static
-void
-child_format(const atf_error_t err, char *buf, size_t buflen)
-{
-    const child_error_data_t *data;
-
-    PRE(atf_error_is(err, "child"));
-
-    data = atf_error_data(err);
-    snprintf(buf, buflen, "Unknown error while executing \"%s\"; "
-             "exit state was %d", data->m_cmd, data->m_state);
-}
-
-static
-atf_error_t
-child_error(const char *cmd, int state)
-{
-    atf_error_t err;
-    child_error_data_t data;
-
-    snprintf(data.m_cmd, sizeof(data.m_cmd), "%s", cmd);
-    data.m_state = state;
-
-    err = atf_error_new("child", &data, sizeof(data), child_format);
-
-    return err;
-}
-
-/* ---------------------------------------------------------------------
  * The "stream_prepare" auxiliary type.
  * --------------------------------------------------------------------- */
 
@@ -687,22 +649,5 @@ atf_process_exec_list(atf_process_status_t *s,
 
     free(argv2);
 out:
-    return err;
-}
-
-atf_error_t
-atf_process_system(const char *cmdline)
-{
-    atf_error_t err;
-    int state;
-
-    state = system(cmdline);
-    if (state == -1)
-        err = atf_libc_error(errno, "Failed to run \"%s\"", cmdline);
-    else if (!WIFEXITED(state) || WEXITSTATUS(state) != EXIT_SUCCESS)
-        err = child_error(cmdline, state);
-    else
-        err = atf_no_error();
-
     return err;
 }

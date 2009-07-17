@@ -129,6 +129,5 @@ atf_error_t atf_process_exec_list(atf_process_status_t *,
                                   const atf_list_t *,
                                   const atf_process_stream_t *,
                                   const atf_process_stream_t *);
-atf_error_t atf_process_system(const char *); // XXX Kill this.
 
 #endif /* !defined(ATF_C_PROCESS_H) */
