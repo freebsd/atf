@@ -78,6 +78,17 @@ exists(const atf_fs_path_t *p)
 }
 
 static
+atf_error_t
+mkstemp_discard_fd(atf_fs_path_t *p)
+{
+    int fd;
+    atf_error_t err = atf_fs_mkstemp(p, &fd);
+    if (!atf_is_error(err))
+        close(fd);
+    return err;
+}
+
+static
 bool
 not_exists(const atf_fs_path_t *p)
 {
@@ -807,6 +818,51 @@ ATF_TC_BODY(mkdtemp_err, tc)
     atf_fs_path_fini(&p);
 }
 
+static
+void
+do_umask_check(atf_error_t (*const mk_func)(atf_fs_path_t *),
+               atf_fs_path_t *path, const mode_t test_mask,
+               const char *str_mask, const char *exp_name)
+{
+    char buf[1024];
+    int old_umask;
+    atf_error_t err;
+
+    printf("Creating temporary %s with umask %s\n", exp_name, str_mask);
+
+    old_umask = umask(test_mask);
+    err = mk_func(path);
+    (void)umask(old_umask);
+
+    ATF_REQUIRE(atf_is_error(err));
+    ATF_REQUIRE(atf_error_is(err, "invalid_umask"));
+    atf_error_format(err, buf, sizeof(buf));
+    ATF_CHECK(strstr(buf, exp_name) != NULL);
+    ATF_CHECK(strstr(buf, str_mask) != NULL);
+    atf_error_free(err);
+}
+
+ATF_TC(mkdtemp_umask);
+ATF_TC_HEAD(mkdtemp_umask, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_mkdtemp function "
+                      "causing an error due to a too strict umask");
+}
+ATF_TC_BODY(mkdtemp_umask, tc)
+{
+    atf_fs_path_t p;
+
+    RE(atf_fs_path_init_fmt(&p, "testdir.XXXXXX"));
+
+    do_umask_check(atf_fs_mkdtemp, &p, 00100, "00100", "directory");
+    do_umask_check(atf_fs_mkdtemp, &p, 00200, "00200", "directory");
+    do_umask_check(atf_fs_mkdtemp, &p, 00400, "00400", "directory");
+    do_umask_check(atf_fs_mkdtemp, &p, 00500, "00500", "directory");
+    do_umask_check(atf_fs_mkdtemp, &p, 00600, "00600", "directory");
+
+    atf_fs_path_fini(&p);
+}
+
 ATF_TC(mkstemp_ok);
 ATF_TC_HEAD(mkstemp_ok, tc)
 {
@@ -896,6 +952,25 @@ ATF_TC_BODY(mkstemp_err, tc)
     atf_fs_path_fini(&p);
 }
 
+ATF_TC(mkstemp_umask);
+ATF_TC_HEAD(mkstemp_umask, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_mkstemp function "
+                      "causing an error due to a too strict umask");
+}
+ATF_TC_BODY(mkstemp_umask, tc)
+{
+    atf_fs_path_t p;
+
+    RE(atf_fs_path_init_fmt(&p, "testfile.XXXXXX"));
+
+    do_umask_check(mkstemp_discard_fd, &p, 00100, "00100", "regular file");
+    do_umask_check(mkstemp_discard_fd, &p, 00200, "00200", "regular file");
+    do_umask_check(mkstemp_discard_fd, &p, 00400, "00400", "regular file");
+
+    atf_fs_path_fini(&p);
+}
+
 /* ---------------------------------------------------------------------
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
@@ -930,8 +1005,10 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, getcwd);
     ATF_TP_ADD_TC(tp, mkdtemp_ok);
     ATF_TP_ADD_TC(tp, mkdtemp_err);
+    ATF_TP_ADD_TC(tp, mkdtemp_umask);
     ATF_TP_ADD_TC(tp, mkstemp_ok);
     ATF_TP_ADD_TC(tp, mkstemp_err);
+    ATF_TP_ADD_TC(tp, mkstemp_umask);
 
     /* Add the test cases for the header file. */
     ATF_TP_ADD_TC(tp, include);
