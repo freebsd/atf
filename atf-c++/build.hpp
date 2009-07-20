@@ -32,21 +32,24 @@
 
 #include <string>
 
-#include <atf-c++/check.hpp>
-
 namespace atf {
+
+namespace process {
+class argv_array;
+} // namespace process
+
 namespace build {
 
 // ------------------------------------------------------------------------
 // Free functions.
 // ------------------------------------------------------------------------
 
-check::argv_array c_o(const std::string&, const std::string&,
-                      const check::argv_array&);
-check::argv_array cpp(const std::string&, const std::string&,
-                      const check::argv_array&);
-check::argv_array cxx_o(const std::string&, const std::string&,
-                        const check::argv_array&);
+process::argv_array c_o(const std::string&, const std::string&,
+                        const process::argv_array&);
+process::argv_array cpp(const std::string&, const std::string&,
+                        const process::argv_array&);
+process::argv_array cxx_o(const std::string&, const std::string&,
+                          const process::argv_array&);
 
 } // namespace build
 } // namespace atf

@@ -38,6 +38,7 @@
 #include "atf-c/config.h"
 #include "atf-c/dynstr.h"
 #include "atf-c/error.h"
+#include "atf-c/fs.h"
 #include "atf-c/io.h"
 #include "atf-c/macros.h"
 
@@ -67,6 +68,13 @@ build_check_c_o(const atf_tc_t *tc, const char *sfile, const char *failmsg)
 
     if (!success)
         atf_tc_fail(failmsg);
+}
+
+void
+get_h_processes_path(const atf_tc_t *tc, atf_fs_path_t *path)
+{
+    RE(atf_fs_path_init_fmt(path, "%s/h_processes",
+                            atf_tc_get_config_var(tc, "srcdir")));
 }
 
 bool

@@ -57,3 +57,4 @@ class tc;
 }
 
 void build_check_cxx_o(const atf::tests::tc&, const char*, const char*);
+atf::fs::path get_h_processes_path(const atf::tests::tc&);

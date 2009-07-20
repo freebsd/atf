@@ -49,25 +49,20 @@
 
 static
 void
-get_helpers_path(const atf_tc_t *tc, char buf[], size_t buflen)
-{
-    snprintf(buf, buflen, "%s/h_check", atf_tc_get_config_var(tc, "srcdir"));
-}
-
-static
-void
 do_exec(const atf_tc_t *tc, const char *helper_name, atf_check_result_t *r)
 {
-    char buf[1024];
+    atf_fs_path_t h_processes;
     const char *argv[3];
 
-    get_helpers_path(tc, buf, sizeof(buf));
+    get_h_processes_path(tc, &h_processes);
 
-    argv[0] = buf;
+    argv[0] = atf_fs_path_cstring(&h_processes);
     argv[1] = helper_name;
     argv[2] = NULL;
     printf("Executing %s %s\n", argv[0], argv[1]);
     RE(atf_check_exec_array(argv, r));
+
+    atf_fs_path_fini(&h_processes);
 }
 
 static
@@ -75,17 +70,19 @@ void
 do_exec_with_arg(const atf_tc_t *tc, const char *helper_name, const char *arg,
                  atf_check_result_t *r)
 {
-    char buf[1024];
+    atf_fs_path_t h_processes;
     const char *argv[4];
 
-    get_helpers_path(tc, buf, sizeof(buf));
+    get_h_processes_path(tc, &h_processes);
 
-    argv[0] = buf;
+    argv[0] = atf_fs_path_cstring(&h_processes);
     argv[1] = helper_name;
     argv[2] = arg;
     argv[3] = NULL;
     printf("Executing %s %s %s\n", argv[0], argv[1], argv[2]);
     RE(atf_check_exec_array(argv, r));
+
+    atf_fs_path_fini(&h_processes);
 }
 
 static
@@ -335,18 +332,20 @@ ATF_TC_HEAD(exec_argv, tc)
 }
 ATF_TC_BODY(exec_argv, tc)
 {
+    atf_fs_path_t h_processes;
     atf_check_result_t result;
-    char buf[1024];
 
-    get_helpers_path(tc, buf, sizeof(buf));
+    get_h_processes_path(tc, &h_processes);
     do_exec(tc, "exit-success", &result);
 
     const atf_list_t *argv = atf_check_result_argv(&result);
     ATF_REQUIRE_EQ(atf_list_size(argv), 2);
-    ATF_CHECK_STREQ((const char *)atf_list_index_c(argv, 0), buf);
+    ATF_CHECK_STREQ((const char *)atf_list_index_c(argv, 0),
+                    atf_fs_path_cstring(&h_processes));
     ATF_CHECK_STREQ((const char *)atf_list_index_c(argv, 1), "exit-success");
 
     atf_check_result_fini(&result);
+    atf_fs_path_fini(&h_processes);
 }
 
 ATF_TC(exec_cleanup);
@@ -418,16 +417,16 @@ ATF_TC_HEAD(exec_list, tc)
 }
 ATF_TC_BODY(exec_list, tc)
 {
+    atf_fs_path_t h_processes;
     atf_list_t argv;
     atf_check_result_t result;
-    char buf[1024];
 
     RE(atf_list_init(&argv));
 
-    get_helpers_path(tc, buf, sizeof(buf));
-    atf_list_append(&argv, buf, false);
-    atf_list_append(&argv, strdup("echo"), false);
-    atf_list_append(&argv, strdup("test-message"), false);
+    get_h_processes_path(tc, &h_processes);
+    atf_list_append(&argv, strdup(atf_fs_path_cstring(&h_processes)), true);
+    atf_list_append(&argv, strdup("echo"), true);
+    atf_list_append(&argv, strdup("test-message"), true);
     RE(atf_check_exec_list(&argv, &result));
     atf_list_fini(&argv);
 
@@ -443,6 +442,7 @@ ATF_TC_BODY(exec_list, tc)
     }
 
     atf_check_result_fini(&result);
+    atf_fs_path_fini(&h_processes);
 }
 
 ATF_TC(exec_stdout_stderr);

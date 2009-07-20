@@ -38,16 +38,62 @@ extern "C" {
 }
 
 #include <string>
+#include <vector>
 
 #include <atf-c++/exceptions.hpp>
 #include <atf-c++/fs.hpp>
 #include <atf-c++/io.hpp>
+#include <atf-c++/utils.hpp>
 
 namespace atf {
 namespace process {
 
 class child;
 class status;
+
+// ------------------------------------------------------------------------
+// The "argv_array" type.
+// ------------------------------------------------------------------------
+
+class argv_array {
+    typedef std::vector< std::string > args_vector;
+    args_vector m_args;
+
+    // TODO: This is immutable, so we should be able to use
+    // std::tr1::shared_array instead when it becomes widely available.
+    // The reason would be to remove all copy constructors and assignment
+    // operators from this class.
+    utils::auto_array< const char* > m_exec_argv;
+    void ctor_init_exec_argv(void);
+
+public:
+    typedef args_vector::const_iterator const_iterator;
+    typedef args_vector::size_type size_type;
+
+    argv_array(void);
+    argv_array(const char*, ...);
+    explicit argv_array(const char* const*);
+    template< class C > explicit argv_array(const C&);
+    argv_array(const argv_array&);
+
+    const char* const* exec_argv(void) const;
+    size_type size(void) const;
+    const char* operator[](int) const;
+
+    const_iterator begin(void) const;
+    const_iterator end(void) const;
+
+    argv_array& operator=(const argv_array&);
+};
+
+template< class C >
+argv_array::argv_array(const C& c)
+{
+    for (typename C::const_iterator iter = c.begin(); iter != c.end();
+         iter++)
+        m_args.push_back(*iter);
+    ctor_init_exec_argv();
+}
 
 // ------------------------------------------------------------------------
 // The "stream" types.
@@ -69,6 +115,9 @@ class stream_capture : basic_stream {
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
     child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
+    template< class OutStream, class ErrStream > friend
+    status exec(const atf::fs::path&, const argv_array&,
+                const OutStream&, const ErrStream&);
 
 public:
     stream_capture(void);
@@ -78,6 +127,9 @@ class stream_inherit : basic_stream {
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
     child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
+    template< class OutStream, class ErrStream > friend
+    status exec(const atf::fs::path&, const argv_array&,
+                const OutStream&, const ErrStream&);
 
 public:
     stream_inherit(void);
@@ -87,6 +139,9 @@ class stream_redirect_fd : basic_stream {
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
     child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
+    template< class OutStream, class ErrStream > friend
+    status exec(const atf::fs::path&, const argv_array&,
+                const OutStream&, const ErrStream&);
 
 public:
     stream_redirect_fd(const int);
@@ -96,6 +151,9 @@ class stream_redirect_path : basic_stream {
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
     child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
+    template< class OutStream, class ErrStream > friend
+    status exec(const atf::fs::path&, const argv_array&,
+                const OutStream&, const ErrStream&);
 
 public:
     stream_redirect_path(const fs::path&);
@@ -109,6 +167,9 @@ class status {
     atf_process_status_t m_status;
 
     friend class child;
+    template< class OutStream, class ErrStream > friend
+    status exec(const atf::fs::path&, const argv_array&,
+                const OutStream&, const ErrStream&);
 
     status(atf_process_status_t&);
 
@@ -164,7 +225,22 @@ fork(void (*start)(void*), const OutStream& outsb,
     return child(c);
 }
 
-void system(const std::string&);
+template< class OutStream, class ErrStream >
+status
+exec(const atf::fs::path& prog, const argv_array& argv,
+     const OutStream& outsb, const ErrStream& errsb)
+{
+    atf_process_status_t s;
+
+    atf_error_t err = atf_process_exec_array(&s, prog.c_path(),
+                                             argv.exec_argv(),
+                                             outsb.get_sb(),
+                                             errsb.get_sb());
+    if (atf_is_error(err))
+        throw_atf_error(err);
+
+    return status(s);
+}
 
 } // namespace process
 } // namespace atf

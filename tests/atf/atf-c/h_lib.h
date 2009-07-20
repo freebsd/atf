@@ -38,6 +38,7 @@
 #include "atf-c/error_fwd.h"
 
 struct atf_dynstr;
+struct atf_fs_path;
 
 #define CE(stm) ATF_CHECK(!atf_is_error(stm))
 #define RE(stm) ATF_REQUIRE(!atf_is_error(stm))
@@ -60,5 +61,6 @@ struct atf_dynstr;
     }
 
 void build_check_c_o(const atf_tc_t *, const char *, const char *);
+void get_h_processes_path(const atf_tc_t *, struct atf_fs_path *);
 bool grep_string(const struct atf_dynstr *, const char *);
 bool grep_file(const char *, const char *, ...);

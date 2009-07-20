@@ -34,6 +34,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "atf-c/defs.h"
@@ -44,44 +45,6 @@
 /* This prototype is not in the header file because this is a private
  * function; however, we need to access it during testing. */
 atf_error_t atf_process_status_init(atf_process_status_t *, int);
-
-/* ---------------------------------------------------------------------
- * The "child" error type.
- * --------------------------------------------------------------------- */
-
-struct child_error_data {
-    char m_cmd[4096];
-    int m_state;
-};
-typedef struct child_error_data child_error_data_t;
-
-static
-void
-child_format(const atf_error_t err, char *buf, size_t buflen)
-{
-    const child_error_data_t *data;
-
-    PRE(atf_error_is(err, "child"));
-
-    data = atf_error_data(err);
-    snprintf(buf, buflen, "Unknown error while executing \"%s\"; "
-             "exit state was %d", data->m_cmd, data->m_state);
-}
-
-static
-atf_error_t
-child_error(const char *cmd, int state)
-{
-    atf_error_t err;
-    child_error_data_t data;
-
-    snprintf(data.m_cmd, sizeof(data.m_cmd), "%s", cmd);
-    data.m_state = state;
-
-    err = atf_error_new("child", &data, sizeof(data), child_format);
-
-    return err;
-}
 
 /* ---------------------------------------------------------------------
  * The "stream_prepare" auxiliary type.
@@ -573,19 +536,118 @@ out:
     return err;
 }
 
+static
+int
+const_execvp(const char *file, const char *const *argv)
+{
+#define UNCONST(a) ((void *)(unsigned long)(const void *)(a))
+    return execvp(file, UNCONST(argv));
+#undef UNCONST
+}
+
+static
 atf_error_t
-atf_process_system(const char *cmdline)
+list_to_array(const atf_list_t *l, const char ***ap)
 {
     atf_error_t err;
-    int state;
+    const char **a;
 
-    state = system(cmdline);
-    if (state == -1)
-        err = atf_libc_error(errno, "Failed to run \"%s\"", cmdline);
-    else if (!WIFEXITED(state) || WEXITSTATUS(state) != EXIT_SUCCESS)
-        err = child_error(cmdline, state);
-    else
+    a = (const char **)malloc((atf_list_size(l) + 1) * sizeof(const char *));
+    if (a == NULL)
+        err = atf_no_memory_error();
+    else {
+        const char **aiter;
+        atf_list_citer_t liter;
+
+        aiter = a;
+        atf_list_for_each_c(liter, l) {
+            *aiter = (const char *)atf_list_citer_data(liter);
+            aiter++;
+        }
+        *aiter = NULL;
+
         err = atf_no_error();
+        *ap = a;
+    }
 
+    return err;
+}
+
+struct exec_args {
+    const atf_fs_path_t *m_prog;
+    const char *const *m_argv;
+};
+
+static
+void
+do_exec(void *v)
+{
+    struct exec_args *ea = v;
+
+    atf_reset_exit_checks();
+    const int ret = const_execvp(atf_fs_path_cstring(ea->m_prog), ea->m_argv);
+    const int errnocopy = errno;
+    INV(ret == -1);
+    fprintf(stderr, "exec(%s) failed: %s\n",
+            atf_fs_path_cstring(ea->m_prog), strerror(errnocopy));
+    exit(EXIT_FAILURE);
+}
+
+atf_error_t
+atf_process_exec_array(atf_process_status_t *s,
+                       const atf_fs_path_t *prog,
+                       const char *const *argv,
+                       const atf_process_stream_t *outsb,
+                       const atf_process_stream_t *errsb)
+{
+    atf_error_t err;
+    atf_process_child_t c;
+    struct exec_args ea = { prog, argv };
+
+    PRE(outsb == NULL ||
+        atf_process_stream_type(outsb) != atf_process_stream_type_capture);
+    PRE(errsb == NULL ||
+        atf_process_stream_type(errsb) != atf_process_stream_type_capture);
+
+    err = atf_process_fork(&c, do_exec, outsb, errsb, &ea);
+    if (atf_is_error(err))
+        goto out;
+
+again:
+    err = atf_process_child_wait(&c, s);
+    if (atf_is_error(err)) {
+        INV(atf_error_is(err, "libc") && atf_libc_error_code(err) == EINTR);
+        atf_error_free(err);
+        goto again;
+    }
+
+out:
+    return err;
+}
+
+atf_error_t
+atf_process_exec_list(atf_process_status_t *s,
+                      const atf_fs_path_t *prog,
+                      const atf_list_t *argv,
+                      const atf_process_stream_t *outsb,
+                      const atf_process_stream_t *errsb)
+{
+    atf_error_t err;
+    const char **argv2;
+
+    PRE(outsb == NULL ||
+        atf_process_stream_type(outsb) != atf_process_stream_type_capture);
+    PRE(errsb == NULL ||
+        atf_process_stream_type(errsb) != atf_process_stream_type_capture);
+
+    argv2 = NULL; /* Silence GCC warning. */
+    err = list_to_array(argv, &argv2);
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_process_exec_array(s, prog, argv2, outsb, errsb);
+
+    free(argv2);
+out:
     return err;
 }
