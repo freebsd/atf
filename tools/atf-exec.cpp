@@ -71,7 +71,7 @@ class atf_exec : public atf::application::app {
     static void route_do_exec(void *);
     void do_exec(void) const;
 
-    static int atf_exec::handle_status(const atf::process::status&);
+    static int handle_status(const atf::process::status&);
 
 public:
     atf_exec(void);
