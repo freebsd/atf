@@ -57,11 +57,16 @@
  * Prototypes for auxiliary functions.
  * --------------------------------------------------------------------- */
 
+static bool check_umask(const mode_t, const mode_t);
 static atf_error_t cleanup_aux(const atf_fs_path_t *, dev_t, bool);
 static atf_error_t cleanup_aux_dir(const char *, dev_t, bool);
+static atf_error_t copy_contents(const atf_fs_path_t *, char **);
+static mode_t current_umask(void);
+static atf_error_t do_mkdtemp(char *);
 static atf_error_t do_unmount(const atf_fs_path_t *);
 static atf_error_t normalize(atf_dynstr_t *, char *);
 static atf_error_t normalize_ap(atf_dynstr_t *, const char *, va_list);
+static void replace_contents(atf_fs_path_t *, const char *);
 static const char *stat_type_to_string(const int);
 
 /* ---------------------------------------------------------------------
@@ -162,6 +167,14 @@ unknown_type_error(const char *path, int type)
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
+
+static
+bool
+check_umask(const mode_t exp_mode, const mode_t min_mode)
+{
+    const mode_t actual_mode = (~current_umask() & exp_mode);
+    return (actual_mode & min_mode) == min_mode;
+}
 
 /* The erase parameter in this routine is to control nested mount points.
  * We want to descend into a mount point to unmount anything that is
@@ -265,6 +278,15 @@ copy_contents(const atf_fs_path_t *p, char **buf)
     }
 
     return err;
+}
+
+static
+mode_t
+current_umask(void)
+{
+    const mode_t current = umask(0);
+    (void)umask(current);
+    return current;
 }
 
 static
@@ -944,23 +966,6 @@ atf_fs_getcwd(atf_fs_path_t *p)
 
 out:
     return err;
-}
-
-static
-mode_t
-current_umask(void)
-{
-    const mode_t current = umask(0);
-    (void)umask(current);
-    return current;
-}
-
-static
-bool
-check_umask(const mode_t exp_mode, const mode_t min_mode)
-{
-    const mode_t actual_mode = (~current_umask() & exp_mode);
-    return (actual_mode & min_mode) == min_mode;
 }
 
 atf_error_t
