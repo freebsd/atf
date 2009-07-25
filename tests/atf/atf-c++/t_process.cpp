@@ -209,7 +209,7 @@ ATF_TEST_CASE_BODY(argv_array_assign)
     {
         const char* const* eargv2 = argv2->exec_argv();
         ATF_CHECK(std::strcmp(eargv2[0], carray1[0]) == 0);
-        ATF_CHECK_EQUAL(eargv2[1], NULL);
+        ATF_CHECK_EQUAL(eargv2[1], static_cast< const char* >(NULL));
     }
 
     argv2.release();
@@ -238,7 +238,7 @@ ATF_TEST_CASE_BODY(argv_array_copy)
     {
         const char* const* eargv2 = argv2->exec_argv();
         ATF_CHECK(std::strcmp(eargv2[0], carray[0]) == 0);
-        ATF_CHECK_EQUAL(eargv2[1], NULL);
+        ATF_CHECK_EQUAL(eargv2[1], static_cast< const char* >(NULL));
     }
 
     argv2.release();
@@ -258,7 +258,7 @@ ATF_TEST_CASE_BODY(argv_array_exec_argv)
         argv_array argv;
         const char* const* eargv = argv.exec_argv();
         ATF_CHECK_EQUAL(array_size(eargv), 0);
-        ATF_CHECK_EQUAL(eargv[0], NULL);
+        ATF_CHECK_EQUAL(eargv[0], static_cast< const char* >(NULL));
     }
 
     {
@@ -267,7 +267,7 @@ ATF_TEST_CASE_BODY(argv_array_exec_argv)
         const char* const* eargv = argv.exec_argv();
         ATF_CHECK_EQUAL(array_size(eargv), 1);
         ATF_CHECK(std::strcmp(eargv[0], "arg0") == 0);
-        ATF_CHECK_EQUAL(eargv[1], NULL);
+        ATF_CHECK_EQUAL(eargv[1], static_cast< const char* >(NULL));
     }
 
     {
@@ -277,7 +277,7 @@ ATF_TEST_CASE_BODY(argv_array_exec_argv)
         const char* const* eargv = argv.exec_argv();
         ATF_CHECK_EQUAL(array_size(eargv), 1);
         ATF_CHECK(std::strcmp(eargv[0], "arg0") == 0);
-        ATF_CHECK_EQUAL(eargv[1], NULL);
+        ATF_CHECK_EQUAL(eargv[1], static_cast< const char* >(NULL));
     }
 }
 
