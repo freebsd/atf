@@ -516,11 +516,11 @@ ATF_TC_HEAD(exec_umask, tc)
 ATF_TC_BODY(exec_umask, tc)
 {
     atf_check_result_t result;
-    char buf[1024];
+    atf_fs_path_t h_processes;
     const char *argv[3];
 
-    get_helpers_path(tc, buf, sizeof(buf));
-    argv[0] = buf;
+    get_h_processes_path(tc, &h_processes);
+    argv[0] = atf_fs_path_cstring(&h_processes);
     argv[1] = "exit-success";
     argv[2] = NULL;
 
@@ -529,6 +529,8 @@ ATF_TC_BODY(exec_umask, tc)
     ATF_CHECK(atf_is_error(err));
     ATF_CHECK(atf_error_is(err, "invalid_umask"));
     atf_error_free(err);
+
+    atf_fs_path_fini(&h_processes);
 }
 
 ATF_TC(exec_unknown);
