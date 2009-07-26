@@ -53,41 +53,18 @@
 
 static
 atf_error_t
-create_file(const char *basename, atf_fs_path_t *path, int *fd)
-{
-    atf_error_t err;
-    const char *workdir = atf_config_get("atf_workdir");
-
-    err = atf_fs_path_init_fmt(path, "%s/%s.XXXXXX", workdir, basename);
-    if (atf_is_error(err))
-        goto out;
-
-    err = atf_fs_mkstemp(path, fd);
-    if (atf_is_error(err)) {
-        atf_fs_path_fini(path);
-        goto out;
-    }
-
-    INV(!atf_is_error(err));
-out:
-    return err;
-}
-
-static
-atf_error_t
-create_files(atf_fs_path_t *pathout, int *fdout,
-             atf_fs_path_t *patherr, int *fderr)
+create_tmpdir(atf_fs_path_t *dir)
 {
     atf_error_t err;
 
-    err = create_file("stdout", pathout, fdout);
+    err = atf_fs_path_init_fmt(dir, "%s/check.XXXXXX",
+                               atf_config_get("atf_workdir"));
     if (atf_is_error(err))
         goto out;
 
-    err = create_file("stderr", patherr, fderr);
+    err = atf_fs_mkdtemp(dir);
     if (atf_is_error(err)) {
-        close(*fdout);
-        atf_fs_unlink(pathout);
+        atf_fs_path_fini(dir);
         goto out;
     }
 
@@ -98,25 +75,31 @@ out:
 
 static
 void
-cleanup_files(const atf_check_result_t *r, int fdout, int fderr)
+cleanup_tmpdir(const atf_fs_path_t *dir, const atf_fs_path_t *outfile,
+               const atf_fs_path_t *errfile)
 {
     {
-        int ret = close(fdout);
-        INV(ret == 0);
+        atf_error_t err = atf_fs_unlink(outfile);
+        if (atf_is_error(err)) {
+            INV(atf_error_is(err, "libc") &&
+                atf_libc_error_code(err) == ENOENT);
+            atf_error_free(err);
+        } else
+            INV(!atf_is_error(err));
     }
 
     {
-        int ret = close(fderr);
-        INV(ret == 0);
+        atf_error_t err = atf_fs_unlink(errfile);
+        if (atf_is_error(err)) {
+            INV(atf_error_is(err, "libc") &&
+                atf_libc_error_code(err) == ENOENT);
+            atf_error_free(err);
+        } else
+            INV(!atf_is_error(err));
     }
 
     {
-        atf_error_t err = atf_fs_unlink(&r->m_stdout);
-        INV(!atf_is_error(err));
-    }
-
-    {
-        atf_error_t err = atf_fs_unlink(&r->m_stderr);
+        atf_error_t err = atf_fs_rmdir(dir);
         INV(!atf_is_error(err));
     }
 }
@@ -132,32 +115,30 @@ const_execvp(const char *file, const char *const *argv)
 
 static
 atf_error_t
-init_sb(const int fd, atf_process_stream_t *sb)
+init_sb(const atf_fs_path_t *path, atf_process_stream_t *sb)
 {
     atf_error_t err;
 
-    PRE(fd >= -1);
-
-    if (fd == -1)
+    if (path == NULL)
         err = atf_process_stream_init_inherit(sb);
     else
-        err = atf_process_stream_init_redirect_fd(sb, fd);
+        err = atf_process_stream_init_redirect_path(sb, path);
 
     return err;
 }
 
 static
 atf_error_t
-init_sbs(const int outfd, atf_process_stream_t *outsb,
-         const int errfd, atf_process_stream_t *errsb)
+init_sbs(const atf_fs_path_t *outfile, atf_process_stream_t *outsb,
+         const atf_fs_path_t *errfile, atf_process_stream_t *errsb)
 {
     atf_error_t err;
 
-    err = init_sb(outfd, outsb);
+    err = init_sb(outfile, outsb);
     if (atf_is_error(err))
         goto out;
 
-    err = init_sb(errfd, errsb);
+    err = init_sb(errfile, errsb);
     if (atf_is_error(err)) {
         atf_process_stream_fini(outsb);
         goto out;
@@ -187,15 +168,15 @@ exec_child(void *v)
 
 static
 atf_error_t
-fork_and_wait(const char *const *argv, int outfd, int errfd,
-              atf_process_status_t *status)
+fork_and_wait(const char *const *argv, const atf_fs_path_t *outfile,
+              const atf_fs_path_t *errfile, atf_process_status_t *status)
 {
     atf_error_t err;
     atf_process_child_t child;
     atf_process_stream_t outsb, errsb;
     struct exec_data ea = { argv };
 
-    err = init_sbs(outfd, &outsb, errfd, &errsb);
+    err = init_sbs(outfile, &outsb, errfile, &errsb);
     if (atf_is_error(err))
         goto out;
 
@@ -311,8 +292,8 @@ print_list(const atf_list_t *l, const char *pfx)
 
 static
 atf_error_t
-fork_and_wait_list(const atf_list_t *argvl, const int fdout,
-                   const int fderr, atf_process_status_t *status)
+fork_and_wait_list(const atf_list_t *argvl, const atf_fs_path_t *outfile,
+                   const atf_fs_path_t *errfile, atf_process_status_t *status)
 {
     atf_error_t err;
     const char **argva;
@@ -321,7 +302,7 @@ fork_and_wait_list(const atf_list_t *argvl, const int fdout,
     if (atf_is_error(err))
         goto out;
 
-    err = fork_and_wait(argva, fdout, fderr, status);
+    err = fork_and_wait(argva, outfile, errfile, status);
 
     free(argva);
 out:
@@ -337,7 +318,7 @@ check_build_run(const atf_list_t *argv, bool *success)
 
     print_list(argv, ">");
 
-    err = fork_and_wait_list(argv, -1, -1, &status);
+    err = fork_and_wait_list(argv, NULL, NULL, &status);
     if (atf_is_error(err))
         goto out;
 
@@ -357,8 +338,7 @@ out:
 static
 atf_error_t
 atf_check_result_init(atf_check_result_t *r, const char *const *argv,
-                      const atf_fs_path_t *pathout,
-                      const atf_fs_path_t *patherr)
+                      const atf_fs_path_t *dir)
 {
     atf_error_t err;
     const char *workdir;
@@ -371,11 +351,17 @@ atf_check_result_init(atf_check_result_t *r, const char *const *argv,
     if (atf_is_error(err))
         goto out;
 
-    err = atf_fs_path_copy(&r->m_stdout, pathout);
+    err = atf_fs_path_copy(&r->m_dir, dir);
     if (atf_is_error(err))
         goto err_argv;
 
-    err = atf_fs_path_copy(&r->m_stderr, patherr);
+    err = atf_fs_path_init_fmt(&r->m_stdout, "%s/stdout",
+                               atf_fs_path_cstring(dir));
+    if (atf_is_error(err))
+        goto err_dir;
+
+    err = atf_fs_path_init_fmt(&r->m_stderr, "%s/stderr",
+                               atf_fs_path_cstring(dir));
     if (atf_is_error(err))
         goto err_stdout;
 
@@ -384,6 +370,8 @@ atf_check_result_init(atf_check_result_t *r, const char *const *argv,
 
 err_stdout:
     atf_fs_path_fini(&r->m_stdout);
+err_dir:
+    atf_fs_path_fini(&r->m_dir);
 err_argv:
     atf_list_fini(&r->m_argv);
 out:
@@ -395,17 +383,10 @@ atf_check_result_fini(atf_check_result_t *r)
 {
     atf_process_status_fini(&r->m_status);
 
-    {
-        atf_error_t err = atf_fs_unlink(&r->m_stdout);
-        INV(!atf_is_error(err));
-        atf_fs_path_fini(&r->m_stdout);
-    }
-
-    {
-        atf_error_t err = atf_fs_unlink(&r->m_stderr);
-        INV(!atf_is_error(err));
-        atf_fs_path_fini(&r->m_stderr);
-    }
+    cleanup_tmpdir(&r->m_dir, &r->m_stdout, &r->m_stderr);
+    atf_fs_path_fini(&r->m_stdout);
+    atf_fs_path_fini(&r->m_stderr);
+    atf_fs_path_fini(&r->m_dir);
 
     atf_list_fini(&r->m_argv);
 
@@ -513,30 +494,32 @@ atf_error_t
 atf_check_exec_array(const char *const *argv, atf_check_result_t *r)
 {
     atf_error_t err;
-    atf_fs_path_t pathout, patherr;
-    int fdout, fderr;
+    atf_fs_path_t dir;
 
-    err = create_files(&pathout, &fdout, &patherr, &fderr);
+    err = create_tmpdir(&dir);
     if (atf_is_error(err))
         goto out;
 
-    err = atf_check_result_init(r, argv, &pathout, &patherr);
-    atf_fs_path_fini(&pathout);
-    atf_fs_path_fini(&patherr);
+    err = atf_check_result_init(r, argv, &dir);
     if (atf_is_error(err))
-        goto err_files;
+        goto err_dir;
 
-    err = fork_and_wait(argv, fdout, fderr, &r->m_status);
+    err = fork_and_wait(argv, &r->m_stdout, &r->m_stderr, &r->m_status);
     if (atf_is_error(err))
         goto err_r;
 
     INV(!atf_is_error(err));
-    goto out;
+    goto out_dir;
 
 err_r:
     atf_check_result_fini(r);
-err_files:
-    cleanup_files(r, fdout, fderr);
+err_dir:
+    {
+        atf_error_t err2 = atf_fs_rmdir(&dir);
+        INV(!atf_is_error(err2));
+    }
+out_dir:
+    atf_fs_path_fini(&dir);
 out:
     return err;
 }

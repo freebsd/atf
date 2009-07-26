@@ -44,6 +44,7 @@ struct atf_check_result {
     atf_object_t m_object;
 
     atf_list_t m_argv;
+    atf_fs_path_t m_dir;
     atf_fs_path_t m_stdout;
     atf_fs_path_t m_stderr;
     atf_process_status_t m_status;

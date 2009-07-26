@@ -471,15 +471,20 @@ ATF_TC_BODY(exec_stdout_stderr, tc)
     err1 = atf_check_result_stderr(&result1);
     err2 = atf_check_result_stderr(&result2);
 
-    ATF_CHECK(strstr(atf_fs_path_cstring(out1), "stdout.XXXXXX") == NULL);
-    ATF_CHECK(strstr(atf_fs_path_cstring(out2), "stdout.XXXXXX") == NULL);
-    ATF_CHECK(strstr(atf_fs_path_cstring(err1), "stderr.XXXXXX") == NULL);
-    ATF_CHECK(strstr(atf_fs_path_cstring(err2), "stderr.XXXXXX") == NULL);
+    ATF_CHECK(strstr(atf_fs_path_cstring(out1), "check.XXXXXX") == NULL);
+    ATF_CHECK(strstr(atf_fs_path_cstring(out2), "check.XXXXXX") == NULL);
+    ATF_CHECK(strstr(atf_fs_path_cstring(err1), "check.XXXXXX") == NULL);
+    ATF_CHECK(strstr(atf_fs_path_cstring(err2), "check.XXXXXX") == NULL);
 
-    ATF_CHECK(strstr(atf_fs_path_cstring(out1), "stdout.") != NULL);
-    ATF_CHECK(strstr(atf_fs_path_cstring(out2), "stdout.") != NULL);
-    ATF_CHECK(strstr(atf_fs_path_cstring(err1), "stderr.") != NULL);
-    ATF_CHECK(strstr(atf_fs_path_cstring(err2), "stderr.") != NULL);
+    ATF_CHECK(strstr(atf_fs_path_cstring(out1), "/check") != NULL);
+    ATF_CHECK(strstr(atf_fs_path_cstring(out2), "/check") != NULL);
+    ATF_CHECK(strstr(atf_fs_path_cstring(err1), "/check") != NULL);
+    ATF_CHECK(strstr(atf_fs_path_cstring(err2), "/check") != NULL);
+
+    ATF_CHECK(strstr(atf_fs_path_cstring(out1), "/stdout") != NULL);
+    ATF_CHECK(strstr(atf_fs_path_cstring(out2), "/stdout") != NULL);
+    ATF_CHECK(strstr(atf_fs_path_cstring(err1), "/stderr") != NULL);
+    ATF_CHECK(strstr(atf_fs_path_cstring(err2), "/stderr") != NULL);
 
     ATF_CHECK(strcmp(atf_fs_path_cstring(out1),
                      atf_fs_path_cstring(out2)) != 0);
