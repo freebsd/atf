@@ -506,6 +506,31 @@ ATF_TC_BODY(exec_stdout_stderr, tc)
     atf_check_result_fini(&result1);
 }
 
+ATF_TC(exec_umask);
+ATF_TC_HEAD(exec_umask, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Checks that atf_check_exec_array "
+                      "correctly reports an error if the umask is too "
+                      "restrictive to create temporary files");
+}
+ATF_TC_BODY(exec_umask, tc)
+{
+    atf_check_result_t result;
+    char buf[1024];
+    const char *argv[3];
+
+    get_helpers_path(tc, buf, sizeof(buf));
+    argv[0] = buf;
+    argv[1] = "exit-success";
+    argv[2] = NULL;
+
+    umask(0222);
+    atf_error_t err = atf_check_exec_array(argv, &result);
+    ATF_CHECK(atf_is_error(err));
+    ATF_CHECK(atf_error_is(err, "invalid_umask"));
+    atf_error_free(err);
+}
+
 ATF_TC(exec_unknown);
 ATF_TC_HEAD(exec_unknown, tc)
 {
@@ -550,6 +575,7 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, exec_exitstatus);
     ATF_TP_ADD_TC(tp, exec_list);
     ATF_TP_ADD_TC(tp, exec_stdout_stderr);
+    ATF_TP_ADD_TC(tp, exec_umask);
     ATF_TP_ADD_TC(tp, exec_unknown);
 
     /* Add the test cases for the header file. */

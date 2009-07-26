@@ -518,7 +518,7 @@ atf_check_exec_array(const char *const *argv, atf_check_result_t *r)
 
     err = create_files(&pathout, &fdout, &patherr, &fderr);
     if (atf_is_error(err))
-        goto err_r;
+        goto out;
 
     err = atf_check_result_init(r, argv, &pathout, &patherr);
     atf_fs_path_fini(&pathout);
