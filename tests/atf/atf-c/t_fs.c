@@ -437,6 +437,33 @@ ATF_TC_BODY(path_equal, tc)
  * Test cases for the "atf_fs_stat" type.
  * --------------------------------------------------------------------- */
 
+ATF_TC(stat_mode);
+ATF_TC_HEAD(stat_mode, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_stat_get_mode function "
+                      "and, indirectly, the constructor");
+}
+ATF_TC_BODY(stat_mode, tc)
+{
+    atf_fs_path_t p;
+    atf_fs_stat_t st;
+
+    create_file("f1", 0400);
+    create_file("f2", 0644);
+
+    RE(atf_fs_path_init_fmt(&p, "f1"));
+    RE(atf_fs_stat_init(&st, &p));
+    ATF_CHECK_EQ(0400, atf_fs_stat_get_mode(&st));
+    atf_fs_stat_fini(&st);
+    atf_fs_path_fini(&p);
+
+    RE(atf_fs_path_init_fmt(&p, "f2"));
+    RE(atf_fs_stat_init(&st, &p));
+    ATF_CHECK_EQ(0644, atf_fs_stat_get_mode(&st));
+    atf_fs_stat_fini(&st);
+    atf_fs_path_fini(&p);
+}
+
 ATF_TC(stat_type);
 ATF_TC_HEAD(stat_type, tc)
 {
@@ -995,6 +1022,7 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, path_equal);
 
     /* Add the tests for the "atf_fs_stat" type. */
+    ATF_TP_ADD_TC(tp, stat_mode);
     ATF_TP_ADD_TC(tp, stat_type);
     ATF_TP_ADD_TC(tp, stat_perms);
 

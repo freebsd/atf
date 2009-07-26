@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -767,6 +767,12 @@ ino_t
 atf_fs_stat_get_inode(const atf_fs_stat_t *st)
 {
     return st->m_sb.st_ino;
+}
+
+mode_t
+atf_fs_stat_get_mode(const atf_fs_stat_t *st)
+{
+    return st->m_sb.st_mode & ~S_IFMT;
 }
 
 off_t

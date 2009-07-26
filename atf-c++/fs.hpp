@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -249,6 +249,11 @@ public:
     //! \brief Returns the file's inode.
     //!
     ino_t get_inode(void) const;
+
+    //!
+    //! \brief Returns the file's permissions.
+    //!
+    mode_t get_mode(void) const;
 
     //!
     //! \brief Returns the file's size.

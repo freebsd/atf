@@ -326,6 +326,13 @@ impl::file_info::get_inode(void)
     return atf_fs_stat_get_inode(&m_stat);
 }
 
+mode_t
+impl::file_info::get_mode(void)
+    const
+{
+    return atf_fs_stat_get_mode(&m_stat);
+}
+
 off_t
 impl::file_info::get_size(void)
     const
