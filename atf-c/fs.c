@@ -59,7 +59,7 @@
 
 static bool check_umask(const mode_t, const mode_t);
 static atf_error_t cleanup_aux(const atf_fs_path_t *, dev_t, bool);
-static atf_error_t cleanup_aux_dir(const char *, dev_t, bool);
+static atf_error_t cleanup_aux_dir(const char *, const atf_fs_stat_t *, bool);
 static atf_error_t copy_contents(const atf_fs_path_t *, char **);
 static mode_t current_umask(void);
 static atf_error_t do_mkdtemp(char *);
@@ -194,7 +194,7 @@ cleanup_aux(const atf_fs_path_t *p, dev_t parent_device, bool erase)
         goto out;
 
     if (atf_fs_stat_get_type(&st) == atf_fs_stat_dir_type) {
-        err = cleanup_aux_dir(pstr, atf_fs_stat_get_device(&st),
+        err = cleanup_aux_dir(pstr, &st,
                               atf_fs_stat_get_device(&st) == parent_device);
         if (atf_is_error(err))
             goto out_st;
@@ -229,11 +229,19 @@ out:
 
 static
 atf_error_t
-cleanup_aux_dir(const char *pstr, dev_t this_device, bool erase)
+cleanup_aux_dir(const char *pstr, const atf_fs_stat_t *st, bool erase)
 {
     DIR *d;
     atf_error_t err;
     struct dirent *de;
+
+    if (erase && !(atf_fs_stat_get_mode(st) & S_IWUSR)) {
+        if (chmod(pstr, atf_fs_stat_get_mode(st) | S_IWUSR) == -1) {
+            err = atf_libc_error(errno, "Cannot grant write permissions "
+                                 "to %s", pstr);
+            goto out;
+        }
+    }
 
     d = opendir(pstr);
     if (d == NULL) {
@@ -249,7 +257,7 @@ cleanup_aux_dir(const char *pstr, dev_t this_device, bool erase)
         if (!atf_is_error(err)) {
             if (strcmp(de->d_name, ".") != 0 &&
                 strcmp(de->d_name, "..") != 0)
-                err = cleanup_aux(&p, this_device, erase);
+                err = cleanup_aux(&p, atf_fs_stat_get_device(st), erase);
 
             atf_fs_path_fini(&p);
         }

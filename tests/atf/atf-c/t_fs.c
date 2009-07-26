@@ -591,6 +591,51 @@ ATF_TC_BODY(cleanup, tc)
     /* TODO: Cleanup with mount points, just as in tools/t_atf_cleanup. */
 }
 
+ATF_TC(cleanup_eacces_on_root);
+ATF_TC_HEAD(cleanup_eacces_on_root, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_cleanup function");
+}
+ATF_TC_BODY(cleanup_eacces_on_root, tc)
+{
+    atf_fs_path_t root;
+
+    create_dir("aux", 0755);
+    create_dir("aux/root", 0755);
+    ATF_CHECK(chmod("aux", 0555) != -1);
+
+    RE(atf_fs_path_init_fmt(&root, "aux/root"));
+    atf_error_t err = atf_fs_cleanup(&root);
+    ATF_CHECK(atf_is_error(err));
+    ATF_CHECK(atf_error_is(err, "libc"));
+    ATF_CHECK_EQ(atf_libc_error_code(err), EACCES);
+    atf_error_free(err);
+
+    atf_fs_path_fini(&root);
+}
+
+ATF_TC(cleanup_eacces_on_subdir);
+ATF_TC_HEAD(cleanup_eacces_on_subdir, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_cleanup function");
+}
+ATF_TC_BODY(cleanup_eacces_on_subdir, tc)
+{
+    atf_fs_path_t root;
+
+    create_dir("root", 0755);
+    create_dir("root/1", 0755);
+    create_dir("root/1/2", 0755);
+    create_dir("root/1/2/3", 0755);
+    ATF_CHECK(chmod("root/1", 0555) != -1);
+    ATF_CHECK(chmod("root/1/2", 0555) != -1);
+
+    RE(atf_fs_path_init_fmt(&root, "root"));
+    RE(atf_fs_cleanup(&root));
+    ATF_REQUIRE(not_exists(&root));
+    atf_fs_path_fini(&root);
+}
+
 ATF_TC(exists);
 ATF_TC_HEAD(exists, tc)
 {
@@ -1028,6 +1073,8 @@ ATF_TP_ADD_TCS(tp)
 
     /* Add the tests for the free functions. */
     ATF_TP_ADD_TC(tp, cleanup);
+    ATF_TP_ADD_TC(tp, cleanup_eacces_on_root);
+    ATF_TP_ADD_TC(tp, cleanup_eacces_on_subdir);
     ATF_TP_ADD_TC(tp, eaccess);
     ATF_TP_ADD_TC(tp, exists);
     ATF_TP_ADD_TC(tp, getcwd);
