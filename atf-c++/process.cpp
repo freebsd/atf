@@ -193,6 +193,14 @@ impl::stream_capture::stream_capture(void)
     m_inited = true;
 }
 
+impl::stream_connect::stream_connect(const int src_fd, const int tgt_fd)
+{
+    atf_error_t err = atf_process_stream_init_connect(&m_sb, src_fd, tgt_fd);
+    if (atf_is_error(err))
+        throw_atf_error(err);
+    m_inited = true;
+}
+
 impl::stream_inherit::stream_inherit(void)
 {
     atf_error_t err = atf_process_stream_init_inherit(&m_sb);

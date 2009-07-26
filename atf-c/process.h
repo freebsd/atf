@@ -48,6 +48,10 @@ struct atf_process_stream {
 
     int m_type;
 
+    /* Valid if m_type == connect. */
+    int m_src_fd;
+    int m_tgt_fd;
+
     /* Valid if m_type == redirect_fd. */
     int m_fd;
 
@@ -57,11 +61,14 @@ struct atf_process_stream {
 typedef struct atf_process_stream atf_process_stream_t;
 
 extern const int atf_process_stream_type_capture;
+extern const int atf_process_stream_type_connect;
 extern const int atf_process_stream_type_inherit;
 extern const int atf_process_stream_type_redirect_fd;
 extern const int atf_process_stream_type_redirect_path;
 
 atf_error_t atf_process_stream_init_capture(atf_process_stream_t *);
+atf_error_t atf_process_stream_init_connect(atf_process_stream_t *,
+                                            const int, const int);
 atf_error_t atf_process_stream_init_inherit(atf_process_stream_t *);
 atf_error_t atf_process_stream_init_redirect_fd(atf_process_stream_t *,
                                                 const int fd);

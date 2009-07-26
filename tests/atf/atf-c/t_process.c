@@ -175,6 +175,56 @@ capture_stream_fini(void *v)
     atf_process_stream_fini(&s->m_base.m_sb);
 }
 
+struct connect_stream {
+    struct base_stream m_base;
+
+    int m_fd;
+};
+#define CONNECT_STREAM(type) \
+    { .m_base = BASE_STREAM(connect_stream_init, \
+                            NULL, \
+                            connect_stream_fini, \
+                            type) }
+
+static
+void
+connect_stream_init(void *v)
+{
+    struct connect_stream *s = v;
+    int src_fd;
+
+    switch (s->m_base.m_type) {
+    case stdout_type:
+        src_fd = STDOUT_FILENO;
+        s->m_fd = open("stdout", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        break;
+    case stderr_type:
+        src_fd = STDERR_FILENO;
+        s->m_fd = open("stderr", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        break;
+    default:
+        UNREACHABLE;
+        src_fd = -1;
+    }
+    ATF_REQUIRE(s->m_fd != -1);
+
+    s->m_base.m_sb_ptr = &s->m_base.m_sb;
+    RE(atf_process_stream_init_connect(&s->m_base.m_sb, src_fd, s->m_fd));
+}
+
+static
+void
+connect_stream_fini(void *v)
+{
+    struct connect_stream *s = v;
+
+    ATF_REQUIRE(close(s->m_fd) != -1);
+
+    atf_process_stream_fini(&s->m_base.m_sb);
+
+    check_file(s->m_base.m_type);
+}
+
 struct inherit_stream {
     struct base_stream m_base;
     int m_fd;
@@ -409,6 +459,24 @@ ATF_TC_BODY(stream_init_capture, tc)
 
     ATF_CHECK_EQ(atf_process_stream_type(&sb),
                  atf_process_stream_type_capture);
+
+    atf_process_stream_fini(&sb);
+}
+
+ATF_TC(stream_init_connect);
+ATF_TC_HEAD(stream_init_connect, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the "
+                      "atf_process_stream_init_connect function");
+}
+ATF_TC_BODY(stream_init_connect, tc)
+{
+    atf_process_stream_t sb;
+
+    RE(atf_process_stream_init_connect(&sb, 1, 2));
+
+    ATF_CHECK_EQ(atf_process_stream_type(&sb),
+                 atf_process_stream_type_connect);
 
     atf_process_stream_fini(&sb);
 }
@@ -973,26 +1041,37 @@ ATF_TC_BODY(fork_cookie, tc)
     }
 
 TC_FORK_STREAMS(capture, CAPTURE, capture, CAPTURE);
+TC_FORK_STREAMS(capture, CAPTURE, connect, CONNECT);
 TC_FORK_STREAMS(capture, CAPTURE, default, DEFAULT);
 TC_FORK_STREAMS(capture, CAPTURE, inherit, INHERIT);
 TC_FORK_STREAMS(capture, CAPTURE, redirect_fd, REDIRECT_FD);
 TC_FORK_STREAMS(capture, CAPTURE, redirect_path, REDIRECT_PATH);
+TC_FORK_STREAMS(connect, CONNECT, capture, CAPTURE);
+TC_FORK_STREAMS(connect, CONNECT, connect, CONNECT);
+TC_FORK_STREAMS(connect, CONNECT, default, DEFAULT);
+TC_FORK_STREAMS(connect, CONNECT, inherit, INHERIT);
+TC_FORK_STREAMS(connect, CONNECT, redirect_fd, REDIRECT_FD);
+TC_FORK_STREAMS(connect, CONNECT, redirect_path, REDIRECT_PATH);
 TC_FORK_STREAMS(default, DEFAULT, capture, CAPTURE);
+TC_FORK_STREAMS(default, DEFAULT, connect, CONNECT);
 TC_FORK_STREAMS(default, DEFAULT, default, DEFAULT);
 TC_FORK_STREAMS(default, DEFAULT, inherit, INHERIT);
 TC_FORK_STREAMS(default, DEFAULT, redirect_fd, REDIRECT_FD);
 TC_FORK_STREAMS(default, DEFAULT, redirect_path, REDIRECT_PATH);
 TC_FORK_STREAMS(inherit, INHERIT, capture, CAPTURE);
+TC_FORK_STREAMS(inherit, INHERIT, connect, CONNECT);
 TC_FORK_STREAMS(inherit, INHERIT, default, DEFAULT);
 TC_FORK_STREAMS(inherit, INHERIT, inherit, INHERIT);
 TC_FORK_STREAMS(inherit, INHERIT, redirect_fd, REDIRECT_FD);
 TC_FORK_STREAMS(inherit, INHERIT, redirect_path, REDIRECT_PATH);
 TC_FORK_STREAMS(redirect_fd, REDIRECT_FD, capture, CAPTURE);
+TC_FORK_STREAMS(redirect_fd, REDIRECT_FD, connect, CONNECT);
 TC_FORK_STREAMS(redirect_fd, REDIRECT_FD, default, DEFAULT);
 TC_FORK_STREAMS(redirect_fd, REDIRECT_FD, inherit, INHERIT);
 TC_FORK_STREAMS(redirect_fd, REDIRECT_FD, redirect_fd, REDIRECT_FD);
 TC_FORK_STREAMS(redirect_fd, REDIRECT_FD, redirect_path, REDIRECT_PATH);
 TC_FORK_STREAMS(redirect_path, REDIRECT_PATH, capture, CAPTURE);
+TC_FORK_STREAMS(redirect_path, REDIRECT_PATH, connect, CONNECT);
 TC_FORK_STREAMS(redirect_path, REDIRECT_PATH, default, DEFAULT);
 TC_FORK_STREAMS(redirect_path, REDIRECT_PATH, inherit, INHERIT);
 TC_FORK_STREAMS(redirect_path, REDIRECT_PATH, redirect_fd, REDIRECT_FD);
@@ -1014,6 +1093,7 @@ ATF_TP_ADD_TCS(tp)
 {
     /* Add the tests for the "stream" type. */
     ATF_TP_ADD_TC(tp, stream_init_capture);
+    ATF_TP_ADD_TC(tp, stream_init_connect);
     ATF_TP_ADD_TC(tp, stream_init_inherit);
     ATF_TP_ADD_TC(tp, stream_init_redirect_fd);
     ATF_TP_ADD_TC(tp, stream_init_redirect_path);
@@ -1033,26 +1113,37 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, exec_success);
     ATF_TP_ADD_TC(tp, fork_cookie);
     ATF_TP_ADD_TC(tp, fork_out_capture_err_capture);
+    ATF_TP_ADD_TC(tp, fork_out_capture_err_connect);
     ATF_TP_ADD_TC(tp, fork_out_capture_err_default);
     ATF_TP_ADD_TC(tp, fork_out_capture_err_inherit);
     ATF_TP_ADD_TC(tp, fork_out_capture_err_redirect_fd);
     ATF_TP_ADD_TC(tp, fork_out_capture_err_redirect_path);
+    ATF_TP_ADD_TC(tp, fork_out_connect_err_capture);
+    ATF_TP_ADD_TC(tp, fork_out_connect_err_connect);
+    ATF_TP_ADD_TC(tp, fork_out_connect_err_default);
+    ATF_TP_ADD_TC(tp, fork_out_connect_err_inherit);
+    ATF_TP_ADD_TC(tp, fork_out_connect_err_redirect_fd);
+    ATF_TP_ADD_TC(tp, fork_out_connect_err_redirect_path);
     ATF_TP_ADD_TC(tp, fork_out_default_err_capture);
+    ATF_TP_ADD_TC(tp, fork_out_default_err_connect);
     ATF_TP_ADD_TC(tp, fork_out_default_err_default);
     ATF_TP_ADD_TC(tp, fork_out_default_err_inherit);
     ATF_TP_ADD_TC(tp, fork_out_default_err_redirect_fd);
     ATF_TP_ADD_TC(tp, fork_out_default_err_redirect_path);
     ATF_TP_ADD_TC(tp, fork_out_inherit_err_capture);
+    ATF_TP_ADD_TC(tp, fork_out_inherit_err_connect);
     ATF_TP_ADD_TC(tp, fork_out_inherit_err_default);
     ATF_TP_ADD_TC(tp, fork_out_inherit_err_inherit);
     ATF_TP_ADD_TC(tp, fork_out_inherit_err_redirect_fd);
     ATF_TP_ADD_TC(tp, fork_out_inherit_err_redirect_path);
     ATF_TP_ADD_TC(tp, fork_out_redirect_fd_err_capture);
+    ATF_TP_ADD_TC(tp, fork_out_redirect_fd_err_connect);
     ATF_TP_ADD_TC(tp, fork_out_redirect_fd_err_default);
     ATF_TP_ADD_TC(tp, fork_out_redirect_fd_err_inherit);
     ATF_TP_ADD_TC(tp, fork_out_redirect_fd_err_redirect_fd);
     ATF_TP_ADD_TC(tp, fork_out_redirect_fd_err_redirect_path);
     ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_capture);
+    ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_connect);
     ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_default);
     ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_inherit);
     ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_redirect_fd);

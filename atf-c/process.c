@@ -97,15 +97,17 @@ stream_prepare_fini(stream_prepare_t *sp)
  * --------------------------------------------------------------------- */
 
 const int atf_process_stream_type_capture = 1;
-const int atf_process_stream_type_inherit = 2;
-const int atf_process_stream_type_redirect_fd = 3;
-const int atf_process_stream_type_redirect_path = 4;
+const int atf_process_stream_type_connect = 2;
+const int atf_process_stream_type_inherit = 3;
+const int atf_process_stream_type_redirect_fd = 4;
+const int atf_process_stream_type_redirect_path = 5;
 
 static
 bool
 stream_is_valid(const atf_process_stream_t *sb)
 {
     return (sb->m_type == atf_process_stream_type_capture) ||
+           (sb->m_type == atf_process_stream_type_connect) ||
            (sb->m_type == atf_process_stream_type_inherit) ||
            (sb->m_type == atf_process_stream_type_redirect_fd) ||
            (sb->m_type == atf_process_stream_type_redirect_path);
@@ -117,6 +119,24 @@ atf_process_stream_init_capture(atf_process_stream_t *sb)
     atf_object_init(&sb->m_object);
 
     sb->m_type = atf_process_stream_type_capture;
+
+    POST(stream_is_valid(sb));
+    return atf_no_error();
+}
+
+atf_error_t
+atf_process_stream_init_connect(atf_process_stream_t *sb,
+                                const int src_fd, const int tgt_fd)
+{
+    PRE(src_fd >= 0);
+    PRE(tgt_fd >= 0);
+    PRE(src_fd != tgt_fd);
+
+    atf_object_init(&sb->m_object);
+
+    sb->m_type = atf_process_stream_type_connect;
+    sb->m_src_fd = src_fd;
+    sb->m_tgt_fd = tgt_fd;
 
     POST(stream_is_valid(sb));
     return atf_no_error();
@@ -331,6 +351,12 @@ child_connect(const stream_prepare_t *sp, int procfd)
     if (type == atf_process_stream_type_capture) {
         close(sp->m_pipefds[0]);
         err = safe_dup(sp->m_pipefds[1], procfd);
+    } else if (type == atf_process_stream_type_connect) {
+        if (dup2(sp->m_sb->m_tgt_fd, sp->m_sb->m_src_fd) == -1)
+            err = atf_libc_error(errno, "Cannot connect descriptor %d to %d",
+                                 sp->m_sb->m_tgt_fd, sp->m_sb->m_src_fd);
+        else
+            err = atf_no_error();
     } else if (type == atf_process_stream_type_inherit) {
         err = atf_no_error();
     } else if (type == atf_process_stream_type_redirect_fd) {
@@ -363,6 +389,8 @@ parent_connect(const stream_prepare_t *sp, int *fd)
     if (type == atf_process_stream_type_capture) {
         close(sp->m_pipefds[1]);
         *fd = sp->m_pipefds[0];
+    } else if (type == atf_process_stream_type_connect) {
+        /* Do nothing. */
     } else if (type == atf_process_stream_type_inherit) {
         /* Do nothing. */
     } else if (type == atf_process_stream_type_redirect_fd) {

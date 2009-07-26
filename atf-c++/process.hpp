@@ -123,6 +123,18 @@ public:
     stream_capture(void);
 };
 
+class stream_connect : basic_stream {
+    // Allow access to the getters.
+    template< class OutStream, class ErrStream > friend
+    child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
+    template< class OutStream, class ErrStream > friend
+    status exec(const atf::fs::path&, const argv_array&,
+                const OutStream&, const ErrStream&);
+
+public:
+    stream_connect(const int, const int);
+};
+
 class stream_inherit : basic_stream {
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
