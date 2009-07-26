@@ -813,6 +813,76 @@ ATF_TC_BODY(getcwd, tc)
     atf_fs_path_fini(&cwd1);
 }
 
+ATF_TC(rmdir_empty);
+ATF_TC_HEAD(rmdir_empty, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_rmdir function");
+}
+ATF_TC_BODY(rmdir_empty, tc)
+{
+    atf_fs_path_t p;
+
+    RE(atf_fs_path_init_fmt(&p, "test-dir"));
+
+    ATF_REQUIRE(mkdir("test-dir", 0755) != -1);
+    ATF_REQUIRE(exists(&p));
+    RE(atf_fs_rmdir(&p));
+    ATF_REQUIRE(!exists(&p));
+
+    atf_fs_path_fini(&p);
+}
+
+ATF_TC(rmdir_enotempty);
+ATF_TC_HEAD(rmdir_enotempty, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_rmdir function");
+}
+ATF_TC_BODY(rmdir_enotempty, tc)
+{
+    atf_fs_path_t p;
+    atf_error_t err;
+
+    RE(atf_fs_path_init_fmt(&p, "test-dir"));
+
+    ATF_REQUIRE(mkdir("test-dir", 0755) != -1);
+    ATF_REQUIRE(exists(&p));
+    create_file("test-dir/foo", 0644);
+
+    err = atf_fs_rmdir(&p);
+    ATF_REQUIRE(atf_is_error(err));
+    ATF_REQUIRE(atf_error_is(err, "libc"));
+    ATF_REQUIRE_EQ(atf_libc_error_code(err), ENOTEMPTY);
+    atf_error_free(err);
+
+    atf_fs_path_fini(&p);
+}
+
+ATF_TC(rmdir_eperm);
+ATF_TC_HEAD(rmdir_eperm, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_rmdir function");
+}
+ATF_TC_BODY(rmdir_eperm, tc)
+{
+    atf_fs_path_t p;
+    atf_error_t err;
+
+    RE(atf_fs_path_init_fmt(&p, "test-dir/foo"));
+
+    ATF_REQUIRE(mkdir("test-dir", 0755) != -1);
+    ATF_REQUIRE(mkdir("test-dir/foo", 0755) != -1);
+    ATF_REQUIRE(chmod("test-dir", 0555) != -1);
+    ATF_REQUIRE(exists(&p));
+
+    err = atf_fs_rmdir(&p);
+    ATF_REQUIRE(atf_is_error(err));
+    ATF_REQUIRE(atf_error_is(err, "libc"));
+    ATF_REQUIRE_EQ(atf_libc_error_code(err), EACCES);
+    atf_error_free(err);
+
+    atf_fs_path_fini(&p);
+}
+
 ATF_TC(mkdtemp_ok);
 ATF_TC_HEAD(mkdtemp_ok, tc)
 {
@@ -1078,6 +1148,9 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, eaccess);
     ATF_TP_ADD_TC(tp, exists);
     ATF_TP_ADD_TC(tp, getcwd);
+    ATF_TP_ADD_TC(tp, rmdir_empty);
+    ATF_TP_ADD_TC(tp, rmdir_enotempty);
+    ATF_TP_ADD_TC(tp, rmdir_eperm);
     ATF_TP_ADD_TC(tp, mkdtemp_ok);
     ATF_TP_ADD_TC(tp, mkdtemp_err);
     ATF_TP_ADD_TC(tp, mkdtemp_umask);

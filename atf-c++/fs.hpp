@@ -502,6 +502,11 @@ void remove(const path&);
 //!
 void cleanup(const path&);
 
+//!
+//! \brief Removes an empty directory.
+//!
+void rmdir(const path&);
+
 } // namespace fs
 } // namespace atf
 

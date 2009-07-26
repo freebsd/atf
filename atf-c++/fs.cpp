@@ -613,3 +613,11 @@ impl::cleanup(const path& p)
     if (atf_is_error(err))
         throw_atf_error(err);
 }
+
+void
+impl::rmdir(const path& p)
+{
+    atf_error_t err = atf_fs_rmdir(p.c_path());
+    if (atf_is_error(err))
+        throw_atf_error(err);
+}

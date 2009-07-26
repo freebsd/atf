@@ -208,11 +208,7 @@ cleanup_aux(const atf_fs_path_t *p, dev_t parent_device, bool erase)
 
     if (erase) {
         if (atf_fs_stat_get_type(&st) == atf_fs_stat_dir_type) {
-            if (rmdir(pstr) == -1)
-                err = atf_libc_error(errno, "Cannot remove directory "
-                                     "%s", pstr);
-            else
-                INV(!atf_is_error(err));
+            err = atf_fs_rmdir(p);
         } else {
             if (unlink(pstr) == -1)
                 err = atf_libc_error(errno, "Cannot remove file %s", pstr);
@@ -1037,6 +1033,19 @@ atf_fs_mkstemp(atf_fs_path_t *p, int *fdout)
 out_buf:
     free(buf);
 out:
+    return err;
+}
+
+atf_error_t
+atf_fs_rmdir(const atf_fs_path_t *p)
+{
+    atf_error_t err;
+
+    if (rmdir(atf_fs_path_cstring(p)))
+        err = atf_libc_error(errno, "Cannot remove directory");
+    else
+        err = atf_no_error();
+
     return err;
 }
 
