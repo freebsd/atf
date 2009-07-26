@@ -181,13 +181,18 @@ void
 atf_check::print_diff(const atf::fs::path& p1, const atf::fs::path& p2)
     const
 {
-    std::string cmd("diff -u \"" + p1.str() + "\" \"" + p2.str() + "\" >&2");
-    int exitcode = std::system(cmd.c_str());
+    const atf::process::status s =
+        atf::process::exec(atf::fs::path("diff"),
+                           atf::process::argv_array("diff", "-u", p1.c_str(),
+                                                    p2.c_str(), NULL),
+                           atf::process::stream_connect(STDOUT_FILENO,
+                                                        STDERR_FILENO),
+                           atf::process::stream_inherit());
 
-    if (!WIFEXITED(exitcode))
+    if (!s.exited())
         std::cerr << "Failed to run diff(3)" << std::endl;
 
-    if (WEXITSTATUS(exitcode) != 1)
+    if (s.exitstatus() != 1)
         std::cerr << "Error while running diff(3)" << std::endl;
 }
 
