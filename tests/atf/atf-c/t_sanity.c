@@ -127,6 +127,7 @@ do_test(enum type t, bool cond)
     }
 
     nlines = 0;
+    eof = false;
     do {
         RE(atf_dynstr_init(&lines[nlines]));
         if (!eof)
