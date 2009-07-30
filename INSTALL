@@ -50,6 +50,14 @@ ones:
 * GNU automake 1.10.1
 * GNU libtool 1.5.26 (1.1220.2.492 2008/01/30 06:40:56)
 
+If you are building the XML documentation (which is a requisite to be able
+to generate a distfile), you will also need the following tools:
+
+* The Simple DocBook DTD 1.1.
+* tidy
+* xsltproc
+* xmlcatalog and xmllint
+
 
 Regenerating the build system
 =============================
@@ -191,6 +199,42 @@ The following flags are specific to ATF's 'configure' script:
   and work directories for test cases.  This is just a default and can
   be overriden at run time.
 
+* Variable: TIDY
+  Possible values: program name or absolute path.
+  Default: tidy.
+
+  Specifies the program name or the absolute path of the 'tidy' tool.
+  Required when --enable-doc-build is used; otherwise ignored.
+
+* Variable: XMLCATALOG
+  Possible values: program name or absolute path.
+  Default: xmlcatalog.
+
+  Specifies the program name or the absolute path of the 'xmlcatalog' tool.
+  Required when --enable-doc-build is used; otherwise ignored.
+
+* Variable: XML_CATALOG_FILE
+  Possible values: absolute path.
+  Default: /etc/xml/catalog
+
+  Specifies the path to the system-wide XML catalog used to lookup the
+  required DTDs.  The build will NOT perform any network access to load
+  them.  Required when --enable-doc-build is used; otherwise ignored.
+
+* Variable: XMLLINT
+  Possible values: program name or absolute path.
+  Default: xmllint.
+
+  Specifies the program name or the absolute path of the 'xmllint' tool.
+  Required when --enable-doc-build is used; otherwise ignored.
+
+* Variable: XSLTPROC
+  Possible values: program name or absolute path.
+  Default: xsltproc.
+
+  Specifies the program name or the absolute path of the 'xsltproc' tool.
+  Required when --enable-doc-build is used; otherwise ignored.
+
 * Flag: --enable-developer
   Possible values: yes, no
   Default: Depends on the version number.  Stable versions define this
@@ -199,6 +243,16 @@ The following flags are specific to ATF's 'configure' script:
   Enables several features useful for development, such as the inclusion
   of debugging symbols in all objects or the enabling of warnings during
   compilation.
+
+* Flag: --enable-doc-build
+  Possible values: yes, no
+  Default: no.
+
+  Enables the building of the XML documentation.  This must be enabled in
+  order to be able to generate a distribution file (aka run 'make dist').
+  Disabled by default because the toolchain required to enable this feature
+  is pretty big, and not everyone needs it: the distribution files come
+  with up-to-date, pregenerated documentation.
 
 * Flag: --enable-unstable-shared
   Possible values: yes, no

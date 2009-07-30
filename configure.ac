@@ -96,6 +96,12 @@ ATF_RUNTIME_TOOL([ATF_BUILD_CXXFLAGS],
                  [C++ compiler flags to use at runtime], [${CXXFLAGS}])
 
 dnl -----------------------------------------------------------------------
+dnl Documentation building.
+dnl -----------------------------------------------------------------------
+
+ATF_DOC_BUILD
+
+dnl -----------------------------------------------------------------------
 dnl Architecture and machine checks.
 dnl -----------------------------------------------------------------------
 
@@ -198,7 +204,7 @@ dnl -----------------------------------------------------------------------
 dnl Finally, generate output.
 dnl -----------------------------------------------------------------------
 
-AC_OUTPUT([Makefile atf-c/defs.h])
+AC_OUTPUT([Makefile atf-c/defs.h doc/xml-to-html.sh])
 
 if test ${enable_shared} = yes; then
     AC_MSG_WARN([Shared libraries with unstable ABIs/APIs have been enabled.])

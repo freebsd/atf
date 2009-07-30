@@ -328,6 +328,23 @@ doc/atf.7: $(srcdir)/doc/atf.7.in
 	    <$(srcdir)/doc/atf.7.in >doc/atf.7.tmp
 	mv doc/atf.7.tmp doc/atf.7
 
+_STANDALONE_CSS = doc/standalone/standalone.css
+_STANDALONE_XSLT = doc/standalone/sdocbook.xsl
+_BUILD_STANDALONE_HTML = \
+	$(ATF_SHELL) doc/xml-to-html.sh \
+	    doc/$${name}.xml $(_STANDALONE_XSLT) \
+	    doc/standalone/$${name}.html
+
+EXTRA_DIST += $(_STANDALONE_CSS)
+EXTRA_DIST += $(_STANDALONE_XSLT)
+
+EXTRA_DIST += doc/specification.xml
+EXTRA_DIST += doc/standalone/specification.html
+noinst_DATA = doc/standalone/specification.html
+doc/standalone/specification.html: $(srcdir)/doc/specification.xml \
+                                   $(_STANDALONE_XSLT)
+	@name=specification; $(_BUILD_STANDALONE_HTML)
+
 # -------------------------------------------------------------------------
 # `m4' directory.
 # -------------------------------------------------------------------------
