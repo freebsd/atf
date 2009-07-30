@@ -101,13 +101,14 @@ dnl
 AC_DEFUN([_ATF_DOC_DTD], [
     AC_ARG_VAR([XML_CATALOG_FILE],
                [XML catalog to use (default: /etc/xml/catalog)])
-    catalog="${XML_CATALOG_FILE:-/etc/xml/catalog}"
+    : ${XML_CATALOG_FILE:=/etc/xml/catalog}
 
     AC_MSG_CHECKING([for DTD $1])
-    XML_CATALOG_FILES= ${XMLCATALOG} ${catalog} '$1' >conftest.out 2>&1
+    XML_CATALOG_FILES= ${XMLCATALOG} ${XML_CATALOG_FILE} '$1' \
+        >conftest.out 2>&1
     if test ${?} -ne 0; then
         AC_MSG_RESULT([no])
-        echo "XML catalog: ${catalog}"
+        echo "XML catalog: ${XML_CATALOG_FILE}"
         echo "xmlcatalog output:"
         cat conftest.out
         AC_MSG_ERROR([Could not find the '$1' DTD])
