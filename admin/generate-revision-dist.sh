@@ -2,7 +2,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
+# Copyright (c) 2009 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,16 +29,13 @@
 #
 
 #
-# Generates a header file with information about the revision used to
-# build ATF.
+# Modifies a revision file to generate a new one that can be redistributed
+# as part of the source tree.
 #
 
 set -e
 
 Prog_Name=${0##*/}
-
-MTN=
-ROOT=
 
 #
 # err message
@@ -49,64 +46,36 @@ err() {
 }
 
 #
-# call_mtn args
-#
-call_mtn() {
-    ${MTN} --root=${ROOT} "${@}"
-}
-
-#
-# generate_revision revfile
-#
-# Creates the revision file 'revfile'.
-#
-generate_revision() {
-    revfile=${1}
-
-    >${revfile}
-
-    base_revision_id=$(call_mtn automate get_base_revision_id)
-    echo "#define PACKAGE_REVISION_BASE \"${base_revision_id}\"" >>${revfile}
-
-    if call_mtn status | grep "no changes" >/dev/null; then
-        :
-    else
-        echo "#define PACKAGE_REVISION_MODIFIED 1" >>${revfile}
-    fi
-}
-
-#
-# main
+# main args
 #
 # Entry point.
 #
 main() {
+    infile=
     outfile=
-    while getopts :m:r:o: arg; do
+    while getopts :i:o: arg; do
         case ${arg} in
-            m)
-                MTN=${OPTARG}
+            i)
+                infile=${OPTARG}
                 ;;
             o)
                 outfile=${OPTARG}
-                ;;
-            r)
-                ROOT=${OPTARG}
                 ;;
             *)
                 err "Unknown option ${arg}"
                 ;;
         esac
     done
-    [ -n "${ROOT}" ] || \
-        err "Must specify the top-level source directory with -r"
+    [ -n "${infile}" ] || \
+        err "Must specify an input file with -i"
     [ -n "${outfile}" ] || \
         err "Must specify an output file with -o"
 
-    if [ -n "${MTN}" -a -d ${ROOT}/_MTN ]; then
-        generate_revision ${outfile}
+    if [ -f ${infile} ]; then
+        cp ${infile} ${outfile}
+        echo '#define PACKAGE_REVISION_CACHED 1' >>${outfile}
     else
-        rm -f ${outfile}
+        [ -f ${outfile} ]
     fi
 }
 

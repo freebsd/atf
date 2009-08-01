@@ -78,23 +78,13 @@ EXTRA_DIST += admin/check-install.sh \
 
 .PHONY: admin/revision.h
 admin/revision.h:
-	@if [ -n "$(MTN)" -a -d $(top_srcdir)/_MTN ]; then \
-	    test -d admin || mkdir -p admin; \
-	    MTN="$(MTN)" ROOT="$(top_srcdir)" \
-	        $(top_srcdir)/admin/generate-revision.sh >admin/revision.h; \
-	else \
-	    rm -f admin/revision.h; \
-	fi
+	@$(top_srcdir)/admin/generate-revision.sh \
+	    -m"$(MTN)" -r $(top_srcdir) -o admin/revision.h
 CLEANFILES = admin/revision.h
 
 $(srcdir)/admin/revision-dist.h: admin/revision.h
-	@if [ -f admin/revision.h ]; then \
-	    cp admin/revision.h $(srcdir)/admin/revision-dist.h; \
-	    echo '#define PACKAGE_REVISION_CACHED 1' \
-	        >>$(srcdir)/admin/revision-dist.h; \
-	else \
-	    [ -f $(srcdir)/admin/revision-dist.h ]; \
-	fi
+	@$(top_srcdir)/admin/generate-revision-dist.sh \
+	    -i admin/revision.h -o $(srcdir)/admin/revision-dist.h
 EXTRA_DIST += admin/revision-dist.h
 
 # -------------------------------------------------------------------------
