@@ -1197,13 +1197,8 @@ dist_man_MANS += tools/atf-version.1
 
 BUILT_SOURCES = revision.h
 revision.h: admin/revision.h $(srcdir)/admin/revision-dist.h
-	@if [ -f admin/revision.h ]; then \
-	    cmp -s admin/revision.h revision.h || \
-	        cp admin/revision.h revision.h; \
-	else \
-	    cmp -s $(srcdir)/admin/revision-dist.h revision.h || \
-	        cp $(srcdir)/admin/revision-dist.h revision.h; \
-	fi
+	@$(top_srcdir)/admin/choose-revision.sh \
+	    admin/revision.h $(srcdir)/admin/revision-dist.h revision.h
 CLEANFILES += revision.h
 
 hooksdir = $(pkgdatadir)
