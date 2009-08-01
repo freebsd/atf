@@ -22,6 +22,11 @@ div.header p.author {
     margin: 5pt 0 5pt 0;
 }
 
+div.header p.revision {
+    font-size: 8pt;
+    margin: 5pt 0 5pt 0;
+}
+
 div.contents {
     margin: 0;
     padding: 3pt 20pt 3pt 20pt;

@@ -84,6 +84,26 @@
     <p class="author">
       <xsl:apply-templates mode="common" select="author" />
     </p>
+    <p class="revision">
+      <xsl:apply-templates mode="header" select="revhistory" />
+    </p>
+  </xsl:template>
+
+  <xsl:template mode="header" match="revhistory">
+    <xsl:apply-templates mode="header" select="revision[1]" />
+  </xsl:template>
+
+  <xsl:template mode="header" match="revision">
+    <xsl:text>Revision </xsl:text>
+    <xsl:apply-templates select="revnumber" />
+    <xsl:text>, created on </xsl:text>
+    <xsl:apply-templates select="date" />
+    <xsl:if test="revdescription/para[@role = 'modified'] = 'true'">
+      <xsl:text>, locally modified (not committed)</xsl:text>
+    </xsl:if>
+    <xsl:if test="revdescription/para[@role = 'cached'] = 'true'">
+      <xsl:text>, cached in distfile (untrusted)</xsl:text>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template mode="header" match="note|section|para" />

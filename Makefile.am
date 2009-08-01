@@ -79,13 +79,24 @@ EXTRA_DIST += admin/check-install.sh \
 .PHONY: admin/revision.h
 admin/revision.h:
 	@$(top_srcdir)/admin/generate-revision.sh \
-	    -m"$(MTN)" -r $(top_srcdir) -o admin/revision.h
+	    -f h -m"$(MTN)" -r $(top_srcdir) -o admin/revision.h
 CLEANFILES = admin/revision.h
 
 $(srcdir)/admin/revision-dist.h: admin/revision.h
 	@$(top_srcdir)/admin/generate-revision-dist.sh \
-	    -i admin/revision.h -o $(srcdir)/admin/revision-dist.h
+	    -f h -i admin/revision.h -o $(srcdir)/admin/revision-dist.h
 EXTRA_DIST += admin/revision-dist.h
+
+.PHONY: admin/revision.xml
+admin/revision.xml:
+	@$(top_srcdir)/admin/generate-revision.sh \
+	    -f xml -m"$(MTN)" -r $(top_srcdir) -o admin/revision.xml
+CLEANFILES += admin/revision.xml
+
+$(srcdir)/admin/revision-dist.xml: admin/revision.xml
+	@$(top_srcdir)/admin/generate-revision-dist.sh \
+	    -f xml -i admin/revision.xml -o $(srcdir)/admin/revision-dist.xml
+EXTRA_DIST += admin/revision-dist.xml
 
 # -------------------------------------------------------------------------
 # `atf-c' directory.
@@ -317,6 +328,13 @@ doc/atf.7: $(srcdir)/doc/atf.7.in
 	sed -e 's,__DOCDIR__,$(docdir),g' \
 	    <$(srcdir)/doc/atf.7.in >doc/atf.7.tmp
 	mv doc/atf.7.tmp doc/atf.7
+
+BUILT_SOURCES = doc/revision.xml
+doc/revision.xml: admin/revision.xml $(srcdir)/admin/revision-dist.xml
+	@$(top_srcdir)/admin/choose-revision.sh \
+	    admin/revision.xml $(srcdir)/admin/revision-dist.xml \
+	    doc/revision.xml
+CLEANFILES += doc/revision.xml
 
 _STANDALONE_CSS = doc/standalone/standalone.css
 _STANDALONE_XSLT = doc/standalone/sdocbook.xsl
@@ -1195,7 +1213,7 @@ tools_atf_version_SOURCES = tools/atf-version.cpp revision.h
 tools_atf_version_LDADD = libatf-c++.la
 dist_man_MANS += tools/atf-version.1
 
-BUILT_SOURCES = revision.h
+BUILT_SOURCES += revision.h
 revision.h: admin/revision.h $(srcdir)/admin/revision-dist.h
 	@$(top_srcdir)/admin/choose-revision.sh \
 	    admin/revision.h $(srcdir)/admin/revision-dist.h revision.h

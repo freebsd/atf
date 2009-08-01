@@ -46,15 +46,42 @@ err() {
 }
 
 #
+# generate_h infile outfile
+#
+generate_h() {
+    infile=${1}
+    outfile=${2}
+
+    cp ${infile} ${outfile}
+    echo '#define PACKAGE_REVISION_CACHED 1' >>${outfile}
+}
+
+#
+# generate_xml infile outfile
+#
+generate_xml() {
+    infile=${1}
+    outfile=${2}
+
+    regex="s,<para role=\"cached\">false</para>"
+    regex="${regex},<para role=\"cached\">true</para>,"
+    sed -e "${regex}" <${infile} >${outfile}
+}
+
+#
 # main args
 #
 # Entry point.
 #
 main() {
+    fmt=
     infile=
     outfile=
-    while getopts :i:o: arg; do
+    while getopts :f:i:o: arg; do
         case ${arg} in
+            f)
+                fmt=${OPTARG}
+                ;;
             i)
                 infile=${OPTARG}
                 ;;
@@ -66,14 +93,22 @@ main() {
                 ;;
         esac
     done
+    [ -n "${fmt}" ] || \
+        err "Must specify an output format with -f"
     [ -n "${infile}" ] || \
         err "Must specify an input file with -i"
     [ -n "${outfile}" ] || \
         err "Must specify an output file with -o"
 
     if [ -f ${infile} ]; then
-        cp ${infile} ${outfile}
-        echo '#define PACKAGE_REVISION_CACHED 1' >>${outfile}
+        case ${fmt} in
+            h|xml)
+                generate_${fmt} ${infile} ${outfile}
+                ;;
+            *)
+                err "Unknown format ${fmt}"
+                ;;
+        esac
     else
         [ -f ${outfile} ]
     fi

@@ -56,23 +56,68 @@ call_mtn() {
 }
 
 #
-# generate_revision revfile
+# get_rev_info_into_vars
 #
-# Creates the revision file 'revfile'.
+# Sets the following variables to describe the current revision of the tree:
+#    rev_base_id: The base revision identifier.
+#    rev_modified: true if the tree has been locally modified.
 #
-generate_revision() {
+get_rev_info_into_vars() {
+    rev_base_id=$(call_mtn automate get_base_revision_id)
+
+    if call_mtn status | grep "no changes" >/dev/null; then
+        rev_modified=false
+    else
+        rev_modified=true
+    fi
+
+    datetime=$(call_mtn automate certs ${rev_base_id} | \
+               grep 'value "[2-9][0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]' | \
+               cut -d '"' -f 2)
+    rev_date=$(echo ${datetime} | cut -d T -f 1)
+    rev_time=$(echo ${datetime} | cut -d T -f 2)
+}
+
+#
+# generate_h revfile
+#
+generate_h() {
     revfile=${1}
+
+    get_rev_info_into_vars
 
     >${revfile}
 
-    base_revision_id=$(call_mtn automate get_base_revision_id)
-    echo "#define PACKAGE_REVISION_BASE \"${base_revision_id}\"" >>${revfile}
+    echo "#define PACKAGE_REVISION_BASE \"${rev_base_id}\"" >>${revfile}
 
-    if call_mtn status | grep "no changes" >/dev/null; then
-        :
-    else
+    if [ ${rev_modified} = true ]; then
         echo "#define PACKAGE_REVISION_MODIFIED 1" >>${revfile}
     fi
+
+    echo "#define PACKAGE_REVISION_DATE \"${rev_date}\"" >>${revfile}
+    echo "#define PACKAGE_REVISION_TIME \"${rev_time}\"" >>${revfile}
+}
+
+#
+# generate_xml revfile
+#
+generate_xml() {
+    revfile=${1}
+
+    get_rev_info_into_vars
+
+    cat >${revfile} <<EOF
+<revhistory>
+  <revision>
+    <revnumber>${rev_base_id}</revnumber>
+    <date>${rev_date} ${rev_time}</date>
+    <revdescription>
+      <para role="cached">false</para>
+      <para role="modified">${rev_modified}</para>
+    </revdescription>
+  </revision>
+</revhistory>
+EOF
 }
 
 #
@@ -81,9 +126,13 @@ generate_revision() {
 # Entry point.
 #
 main() {
+    fmt=
     outfile=
-    while getopts :m:r:o: arg; do
+    while getopts :f:m:r:o: arg; do
         case ${arg} in
+            f)
+                fmt=${OPTARG}
+                ;;
             m)
                 MTN=${OPTARG}
                 ;;
@@ -100,11 +149,20 @@ main() {
     done
     [ -n "${ROOT}" ] || \
         err "Must specify the top-level source directory with -r"
+    [ -n "${fmt}" ] || \
+        err "Must specify an output format with -f"
     [ -n "${outfile}" ] || \
         err "Must specify an output file with -o"
 
     if [ -n "${MTN}" -a -d ${ROOT}/_MTN ]; then
-        generate_revision ${outfile}
+        case ${fmt} in
+            h|xml)
+                generate_${fmt} ${outfile}
+                ;;
+            *)
+                err "Unknown format ${fmt}"
+                ;;
+        esac
     else
         rm -f ${outfile}
     fi

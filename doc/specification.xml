@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN"
-                  "http://docbook.org/xml/simple/1.1/sdocbook.dtd">
+                  "http://docbook.org/xml/simple/1.1/sdocbook.dtd"
+                  [<!ENTITY generated-revhistory SYSTEM "revision.xml">]>
 
 <article>
 
@@ -11,6 +12,8 @@
     <firstname>Julio</firstname>
     <surname>Merino</surname>
   </author>
+
+  &generated-revhistory;
 </articleinfo>
 
 <note role="warning"><para>This document is very much WORK IN PROGRESS.
