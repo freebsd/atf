@@ -11,6 +11,9 @@
   <author>
     <firstname>Julio</firstname>
     <surname>Merino</surname>
+    <affiliation>
+      <orgname>The NetBSD Foundation</orgname>
+    </affiliation>
   </author>
 
   &generated-revhistory;

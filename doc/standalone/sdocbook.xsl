@@ -94,16 +94,17 @@
   </xsl:template>
 
   <xsl:template mode="header" match="revision">
-    <xsl:text>Revision </xsl:text>
-    <xsl:apply-templates select="revnumber" />
-    <xsl:text>, created on </xsl:text>
+    <xsl:text>Last updated on </xsl:text>
     <xsl:apply-templates select="date" />
+    <xsl:text> (revision </xsl:text>
+    <xsl:apply-templates select="revnumber" />
     <xsl:if test="revdescription/para[@role = 'modified'] = 'true'">
-      <xsl:text>, locally modified (not committed)</xsl:text>
+      <xsl:text>, locally modified</xsl:text>
     </xsl:if>
     <xsl:if test="revdescription/para[@role = 'cached'] = 'true'">
-      <xsl:text>, cached in distfile (untrusted)</xsl:text>
+      <xsl:text>, cached in distfile</xsl:text>
     </xsl:if>
+    <xsl:text>)</xsl:text>
   </xsl:template>
 
   <xsl:template mode="header" match="note|section|para" />
@@ -207,9 +208,14 @@
   </xsl:template>
 
   <xsl:template mode="common" match="author">
+    <xsl:text>By </xsl:text>
     <xsl:apply-templates select="firstname" />
     <xsl:text> </xsl:text>
     <xsl:apply-templates select="surname" />
+    <xsl:if test="affiliation">
+      <xsl:text>, </xsl:text>
+      <xsl:apply-templates select="affiliation/orgname" />
+    </xsl:if>
   </xsl:template>
 
   <xsl:template mode="common" match="title">
