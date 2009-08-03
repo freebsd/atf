@@ -27,6 +27,30 @@ div.header p.revision {
     margin: 5pt 0 5pt 0;
 }
 
+div.toc {
+    background: #f0f0f0;
+    margin: 20pt 20pt 20pt 20pt;
+    padding: 5pt 5pt 5pt 5pt;
+}
+
+div.toc h1 {
+    font-family: Arial;
+    font-size: 18pt;
+    font-weight: bold;
+    color: #800000;
+    margin: 0;
+    margin-bottom: 10pt;
+}
+
+div.toc ol {
+    margin: 0;
+}
+
+div.toc p {
+    margin: 0;
+    padding: 0;
+}
+
 div.contents {
     margin: 0;
     padding: 3pt 20pt 3pt 20pt;

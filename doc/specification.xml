@@ -26,7 +26,9 @@ NITPICK.  Be aware that even the ideas and design decisions in this
 document are not settled in stone; they may completely change
 too.</para></note>
 
-<section> <title>Overview</title>
+<section id="overview">
+
+<title>Overview</title>
 
 <para>The Automated Testing Framework, or ATF for short, aims to provide a
 software testing platform for both developers and end users:</para>
@@ -61,7 +63,9 @@ and allow for user assurance before we do new mistakes.</para>
 
 </section>
 
-<section> <title>Key features and differences</title>
+<section id="keys">
+
+<title>Key features and differences</title>
 
 <para>The major features of ATF will be:</para>
 
@@ -120,9 +124,13 @@ about these results.</para></listitem>
 
 </section>
 
-<section> <title>Scenarios</title>
+<section id="scenarios">
 
-<section> <title>The developer</title>
+<title>Scenarios</title>
+
+<section id="developer-scenario">
+
+<title>The developer</title>
 
 <para>The developer wants a set of libraries to be able to write test cases
 for his own software painlessly and as quickly as possible.  These
@@ -136,7 +144,9 @@ to address in the future.</para>
 
 </section>
 
-<section> <title>The end user</title>
+<section id="user-scenario">
+
+<title>The end user</title>
 
 <para>It may be argued that the end user should never see the tests
 because, when he gets the application, he has to be able to assume that it
@@ -163,7 +173,9 @@ bug reporting procedure.</para>
 
 </section>
 
-<section> <title>The administrator</title>
+<section id="admin-scenario">
+
+<title>The administrator</title>
 
 <para>System administrators need to set up beautiful new boxes pretty
 frequently.  But hardware is different on each of them, and the software
@@ -177,7 +189,9 @@ upgrades.</para>
 
 </section>
 
-<section> <title>Build farms</title>
+<section id="farm-scenario">
+
+<title>Build farms</title>
 
 <para>I am adding build farms as a scenario because this is something that
 we really need to have but which was not addressed at all in older versions
@@ -192,7 +206,9 @@ farm.</para>
 
 </section>
 
-<section> <title>Users</title>
+<section id="users">
+
+<title>Users</title>
 
 <para>The first and main consumer of ATF (during the very first releases,
 at least) will be The NetBSD Project.  As such, we need to make design
@@ -224,7 +240,9 @@ slow pace.</para>
 
 </section>
 
-<section> <title>Test case organization and identifiers</title>
+<section id="organization">
+
+<title>Test case organization and identifiers</title>
 
 <para>The smallest testing unit is a <emphasis>test case</emphasis>.  A
 test case has a specific purpose, like ensuring that a single method works
@@ -240,7 +258,9 @@ program.</para>
 <para>Test programs are stored in a subtree of the file system.  This
 subtree defines a <emphasis>test suite</emphasis>.</para>
 
-<section> <title>File system layout</title>
+<section id="fslayout">
+
+<title>File system layout</title>
 
 <para>In order to identify the root of a test suite, we will place a
 special control directory, named <literal>_ATF</literal>, as a child of the
@@ -255,7 +275,9 @@ subtree.</para>
 
 </section>
 
-<section> <title>Identifiers</title>
+<section id="identifiers">
+
+<title>Identifiers</title>
 
 <para>Based on the tree layout that defines a test suite, each test program
 and test case can be identified by an absolute path from the root of the
@@ -276,15 +298,21 @@ component, but this time using a colon as the delimiter.</para>
 
 </section>
 
-<section> <title>Test cases</title>
+<section id="tcs">
 
-<section> <title>Identifiers</title>
+<title>Test cases</title>
+
+<section id="tc-ids">
+
+<title>Identifiers</title>
 
 <para>Test case identifier vs. execution identifier.</para>
 
 </section>
 
-<section> <title>Types and sizes</title>
+<section id="tc-types">
+
+<title>Types and sizes</title>
 
 <para>Test cases have a specific purpose and, as such, they will be tagged
 by the developers.  These types can be:</para>
@@ -320,7 +348,9 @@ at some point.  To-do: consider if we really want to do this...</para>
 
 </section>
 
-<section> <title>Results</title>
+<section id="tc-results">
+
+<title>Results</title>
 
 <para>A test case results may terminate with any of the following
 results:</para>
@@ -351,7 +381,9 @@ results file.</para></listitem>
 
 </section>
 
-<section> <title>Results reporting</title>
+<section id="tc-reporting">
+
+<title>Results reporting</title>
 
 <para>A test case will create a file upon completion, which will contain
 the results of the execution of that specific test case.  If the test case
@@ -375,13 +407,17 @@ to do.</para>
 
 </section>
 
-<section> <title>Test programs</title>
+<section id="tps">
+
+<title>Test programs</title>
 
 <para>A test program is a collection of related test cases with a common
 run-time interface.  Test cases need not be of the same type; i.e. a test
 program could contain both unit and system tests.</para>
 
-<section> <title>Identifiers</title>
+<section id="tp-ids">
+
+<title>Identifiers</title>
 
 <para>A test program has a name that must be unique in the directory it is
 stored (obviously; file systems do not support multiple files with the same
@@ -393,7 +429,9 @@ name itself.</para>
 
 </section>
 
-<section> <title>On-disk representation</title>
+<section id="tp-disk">
+
+<title>On-disk representation</title>
 
 <para>Test programs are, by definition, binaries or scripts stored on disk.
 However, we need to attach some meta-data to these programs, which makes
@@ -443,7 +481,9 @@ build tools?  Specially, how to painlessly tie this to Automake?</para>
 
 </section>
 
-<section> <title>Test case isolation</title>
+<section id="tc-isolation">
+
+<title>Test case isolation</title>
 
 <para>Test programs contain a set of test cases, but we want to run each
 test case as isolatedly as possible from each other.  If we run the test
@@ -494,7 +534,9 @@ wants to mix test cases with a regular application code?</para></listitem>
 
 </section>
 
-<section> <title>The command-line interface</title>
+<section id="tp-cli">
+
+<title>The command-line interface</title>
 
 <para>All test programs must provide the same command-line interface so
 that end users are not surprised by unknown and inconsistent flags and
@@ -552,7 +594,9 @@ more by itself.</para>
 
 </section>
 
-<section> <title>Execution automation</title>
+<section id="run">
+
+<title>Execution automation</title>
 
 <para>The atf-run tool provides automation to run multiple test cases
 (coming from different test programs) sequentially.  Parallel execution may
@@ -572,7 +616,9 @@ why we are doing so.</para>
 
 </section>
 
-<section> <title>The results store</title>
+<section id="store">
+
+<title>The results store</title>
 
 <para>The atf-store implements a database that contains information about
 the execution of test cases.  The database captures the results of each
@@ -618,7 +664,9 @@ security?</para>
 
 </section>
 
-<section> <title>Build farms</title>
+<section id="farms">
+
+<title>Build farms</title>
 
 <para>Build farms, or continuous builds, are required for any software
 project that wants to achieve a minimum amount of quality in one or more

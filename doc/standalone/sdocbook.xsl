@@ -48,6 +48,10 @@
       <xsl:apply-templates mode="header" />
     </div>
 
+    <div class="toc">
+      <xsl:call-template mode="toc" name="generate-toc" />
+    </div>
+
     <div class="contents">
       <xsl:apply-templates mode="contents">
         <xsl:with-param name="depth" select="0" />
@@ -110,6 +114,35 @@
   <xsl:template mode="header" match="note|section|para" />
 
   <!-- ****************************************************************
+       Templates for mode="toc".
+       **************************************************************** -->
+
+  <xsl:template mode="toc" match="*" priority="-1">
+    <xsl:text>UNMANAGED ELEMENT</xsl:text>
+  </xsl:template>
+
+  <xsl:template mode="toc" name="generate-toc">
+    <h1><xsl:text>Contents</xsl:text></h1>
+
+    <xsl:call-template mode="toc" name="generate-entries" />
+  </xsl:template>
+
+  <xsl:template mode="toc" name="generate-entries">
+    <xsl:if test="section">
+      <ol>
+        <xsl:apply-templates mode="toc" select="section" />
+      </ol>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template mode="toc" match="section">
+    <li>
+      <p><a href="#{@id}"><xsl:value-of select="title" /></a></p>
+      <xsl:call-template mode="toc" name="generate-entries" />
+    </li>
+  </xsl:template>
+
+  <!-- ****************************************************************
        Templates for mode="contents".
        **************************************************************** -->
 
@@ -132,6 +165,12 @@
 
   <xsl:template mode="contents" match="filename">
     <tt class="filename"><xsl:apply-templates mode="contents" /></tt>
+  </xsl:template>
+
+  <xsl:template mode="contents" name="gen-title">
+    <a name="{@id}">
+      <xsl:apply-templates mode="common" select="title" />
+    </a>
   </xsl:template>
 
   <xsl:template mode="contents" match="itemizedlist">
@@ -167,22 +206,22 @@
 
     <xsl:choose>
       <xsl:when test="$depth = 0">
-        <h1><xsl:apply-templates mode="common" select="title" /></h1>
+        <h1><xsl:call-template mode="contents" name="gen-title" /></h1>
       </xsl:when>
       <xsl:when test="$depth = 1">
-        <h2><xsl:apply-templates mode="common" select="title" /></h2>
+        <h2><xsl:call-template mode="contents" name="gen-title" /></h2>
       </xsl:when>
       <xsl:when test="$depth = 2">
-        <h3><xsl:apply-templates mode="common" select="title" /></h3>
+        <h3><xsl:call-template mode="contents" name="gen-title" /></h3>
       </xsl:when>
       <xsl:when test="$depth = 3">
-        <h4><xsl:apply-templates mode="common" select="title" /></h4>
+        <h4><xsl:call-template mode="contents" name="gen-title" /></h4>
       </xsl:when>
       <xsl:when test="$depth = 4">
-        <h5><xsl:apply-templates mode="common" select="title" /></h5>
+        <h5><xsl:call-template mode="contents" name="gen-title" /></h5>
       </xsl:when>
       <xsl:when test="$depth = 5">
-        <h6><xsl:apply-templates mode="common" select="title" /></h6>
+        <h6><xsl:call-template mode="contents" name="gen-title" /></h6>
       </xsl:when>
       <xsl:otherwise>
         <!-- XXX Can we raise an error from XSLT? -->
