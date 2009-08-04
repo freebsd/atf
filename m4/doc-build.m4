@@ -87,7 +87,8 @@ dnl Checks for the 'lowercase-name' tool and sets the 'uppercase-name'
 dnl variable to it if found.  Aborts execution if not found.
 dnl
 AC_DEFUN([_ATF_DOC_CHECK_TOOL], [
-    AC_PATH_PROG([$2], [$1], [$1])
+    AC_ARG_VAR([$2], [Absolute path to the $1 tool; build-time only])
+    AC_PATH_PROG([$2], [$1])
     if test "${$2-unset}" = unset; then
         AC_MSG_ERROR([$1 could not be found])
     fi

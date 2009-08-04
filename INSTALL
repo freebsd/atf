@@ -200,14 +200,14 @@ The following flags are specific to ATF's 'configure' script:
   be overriden at run time.
 
 * Variable: TIDY
-  Possible values: program name or absolute path.
+  Possible values: absolute path.
   Default: tidy.
 
   Specifies the program name or the absolute path of the 'tidy' tool.
   Required when --enable-doc-build is used; otherwise ignored.
 
 * Variable: XMLCATALOG
-  Possible values: program name or absolute path.
+  Possible values: absolute path.
   Default: xmlcatalog.
 
   Specifies the program name or the absolute path of the 'xmlcatalog' tool.
@@ -222,14 +222,14 @@ The following flags are specific to ATF's 'configure' script:
   them.  Required when --enable-doc-build is used; otherwise ignored.
 
 * Variable: XMLLINT
-  Possible values: program name or absolute path.
+  Possible values: absolute path.
   Default: xmllint.
 
   Specifies the program name or the absolute path of the 'xmllint' tool.
   Required when --enable-doc-build is used; otherwise ignored.
 
 * Variable: XSLTPROC
-  Possible values: program name or absolute path.
+  Possible values: absolute path.
   Default: xsltproc.
 
   Specifies the program name or the absolute path of the 'xsltproc' tool.
