@@ -336,22 +336,31 @@ doc/revision.xml: admin/revision.xml $(srcdir)/admin/revision-dist.xml
 	    doc/revision.xml
 CLEANFILES += doc/revision.xml
 
-_STANDALONE_CSS = doc/standalone/standalone.css
 _STANDALONE_XSLT = doc/standalone/sdocbook.xsl
-_BUILD_STANDALONE_HTML = \
-	$(ATF_SHELL) doc/xml-to-html.sh \
-	    doc/$${name}.xml $(_STANDALONE_XSLT) \
-	    doc/standalone/$${name}.html
 
-EXTRA_DIST += $(_STANDALONE_CSS)
+EXTRA_DIST += doc/standalone/standalone.css
 EXTRA_DIST += $(_STANDALONE_XSLT)
+EXTRA_DIST += doc/text/sdocbook.xsl
+
+_BUILD_STANDALONE_HTML = \
+	$(ATF_SHELL) doc/build-xml.sh \
+	    doc/$${name}.xml html:doc/standalone/$${name}.html
+
+_BUILD_TEXT = \
+	$(ATF_SHELL) doc/build-xml.sh \
+	    doc/$${name}.xml txt:doc/text/$${name}.txt
 
 EXTRA_DIST += doc/specification.xml
 EXTRA_DIST += doc/standalone/specification.html
 noinst_DATA = doc/standalone/specification.html
+EXTRA_DIST += doc/text/specification.txt
+noinst_DATA += doc/text/specification.txt
 doc/standalone/specification.html: $(srcdir)/doc/specification.xml \
                                    $(_STANDALONE_XSLT)
 	@name=specification; $(_BUILD_STANDALONE_HTML)
+doc/text/specification.txt: $(srcdir)/doc/specification.xml \
+                            $(_STANDALONE_XSLT)
+	@name=specification; $(_BUILD_TEXT)
 
 # -------------------------------------------------------------------------
 # `m4' directory.

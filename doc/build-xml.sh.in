@@ -35,6 +35,8 @@ set -e
 # -------------------------------------------------------------------------
 
 DOC_BUILD="@DOC_BUILD@"
+LINKS="@LINKS@"
+SRCDIR="@srcdir@"
 TIDY="@TIDY@"
 XML_CATALOG_FILE="@XML_CATALOG_FILE@"
 XMLLINT="@XMLLINT@"
@@ -72,9 +74,9 @@ validate_xml() {
 }
 
 #
-# xml_to_xml input stylesheet output
+# run_xsltproc input stylesheet output
 #
-xml_to_xml() {
+run_xsltproc() {
     echo "${XSLTPROC} ${2} ${1} >${3}"
     if ${XSLTPROC} ${2} ${1} >${3}; then
         :
@@ -100,12 +102,12 @@ tidy_xml() {
 #
 xml_to_html() {
     xml_input=${1}
-    xslt_file=${2}
-    html_output=${3}
+    html_output=${2}
 
     mkdir -p $(dirname ${html_output})
     validate_xml ${xml_input}
-    xml_to_xml ${xml_input} ${xslt_file} ${html_output}.tmp
+    run_xsltproc ${xml_input} ${SRCDIR}/doc/standalone/sdocbook.xsl \
+        ${html_output}.tmp
     tidy_xml ${html_output}.tmp ${html_output}.tmp2
 
     echo "rm -f ${html_output}.tmp"
@@ -114,19 +116,64 @@ xml_to_html() {
     mv ${html_output}.tmp2 ${html_output}
 }
 
+#
+# format_txt input output
+#
+format_txt() {
+    echo "${LINKS} -dump ${1} >${2}"
+    if ${LINKS} -dump ${1} >${2}; then
+        :
+    else
+        err "Formatting of ${1} failed"
+    fi
+}
+
+#
+# xml_to_txt xml_input xslt_file txt_output
+#
+xml_to_txt() {
+    xml_input=${1}
+    txt_output=${2}
+
+    mkdir -p $(dirname ${txt_output})
+    validate_xml ${xml_input}
+    run_xsltproc ${xml_input} ${SRCDIR}/doc/standalone/sdocbook.xsl \
+        ${txt_output}.tmp
+    format_txt ${txt_output}.tmp ${txt_output}.tmp2
+
+    echo "rm -f ${txt_output}.tmp"
+    rm -f ${txt_output}.tmp
+    echo "mv ${txt_output}.tmp2 ${txt_output}"
+    mv ${txt_output}.tmp2 ${txt_output}
+}
+
+xml_to_anything() {
+    xml_input=${1}
+    format=$(echo ${2} | cut -d : -f 1)
+    output=$(echo ${2} | cut -d : -f 2)
+
+    case ${format} in
+        txt|xml)
+            xml_to_${format} ${xml_input} ${output}
+            ;;
+        *)
+            err "Unknown format ${format}"
+            ;;
+    esac
+}
+
 # -------------------------------------------------------------------------
 # Main program.
 # -------------------------------------------------------------------------
 
 main() {
-    [ ${#} -eq 3 ] || usage
+    [ ${#} -eq 2 ] || usage
 
     xml_input=${1}
-    xslt_file=${2}
-    html_output=${3}
+    output=${2}
 
     if [ ${DOC_BUILD} = yes ]; then
-        xml_to_html ${1} ${2} ${3}
+        xml_to_anything ${1} ${2}
         true
     else
         err "${html_output}: regeneration failed" \
@@ -137,7 +184,7 @@ main() {
 
 usage() {
     cat 1>&2 <<EOF
-Usage: ${Prog_Name} <xml-input> <xslt-file> <html-output>
+Usage: ${Prog_Name} <xml-input> <format>:<output>
 EOF
     exit 1
 }

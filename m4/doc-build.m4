@@ -41,6 +41,7 @@ AC_DEFUN([ATF_DOC_BUILD], [
 
     if test ${enable_doc_build} = yes; then
         dnl Required tools.
+        _ATF_DOC_CHECK_TOOL([links], [LINKS])
         _ATF_DOC_CHECK_TOOL([tidy], [TIDY])
         _ATF_DOC_CHECK_TOOL([xmlcatalog], [XMLCATALOG])
         _ATF_DOC_CHECK_TOOL([xmllint], [XMLLINT])
