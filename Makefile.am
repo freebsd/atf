@@ -79,7 +79,8 @@ EXTRA_DIST += admin/check-install.sh \
 .PHONY: admin/revision.h
 admin/revision.h:
 	@$(top_srcdir)/admin/generate-revision.sh \
-	    -f h -m"$(MTN)" -r $(top_srcdir) -o admin/revision.h
+	    -f h -m"$(MTN)" -r $(top_srcdir) -o admin/revision.h \
+	    -v $(PACKAGE_VERSION)
 CLEANFILES = admin/revision.h
 
 $(srcdir)/admin/revision-dist.h: admin/revision.h
@@ -90,7 +91,8 @@ EXTRA_DIST += admin/revision-dist.h
 .PHONY: admin/revision.xml
 admin/revision.xml:
 	@$(top_srcdir)/admin/generate-revision.sh \
-	    -f xml -m"$(MTN)" -r $(top_srcdir) -o admin/revision.xml
+	    -f xml -m"$(MTN)" -r $(top_srcdir) -o admin/revision.xml \
+	    -v $(PACKAGE_VERSION)
 CLEANFILES += admin/revision.xml
 
 $(srcdir)/admin/revision-dist.xml: admin/revision.xml

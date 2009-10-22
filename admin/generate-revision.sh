@@ -99,19 +99,21 @@ generate_h() {
 }
 
 #
-# generate_xml revfile
+# generate_xml revfile version
 #
 generate_xml() {
     revfile=${1}
+    version=${2}
 
     get_rev_info_into_vars
 
     cat >${revfile} <<EOF
 <revhistory>
   <revision>
-    <revnumber>${rev_base_id}</revnumber>
+    <revnumber>${version}</revnumber>
     <date>${rev_date} ${rev_time}</date>
     <revdescription>
+      <para role="id">${rev_base_id}</para>
       <para role="cached">false</para>
       <para role="modified">${rev_modified}</para>
     </revdescription>
@@ -128,7 +130,8 @@ EOF
 main() {
     fmt=
     outfile=
-    while getopts :f:m:r:o: arg; do
+    version=
+    while getopts :f:m:r:o:v: arg; do
         case ${arg} in
             f)
                 fmt=${OPTARG}
@@ -142,6 +145,9 @@ main() {
             r)
                 ROOT=${OPTARG}
                 ;;
+            v)
+                version=${OPTARG}
+                ;;
             *)
                 err "Unknown option ${arg}"
                 ;;
@@ -153,11 +159,13 @@ main() {
         err "Must specify an output format with -f"
     [ -n "${outfile}" ] || \
         err "Must specify an output file with -o"
+    [ -n "${version}" ] || \
+        err "Must specify a version number with -v"
 
     if [ -n "${MTN}" -a -d ${ROOT}/_MTN ]; then
         case ${fmt} in
             h|xml)
-                generate_${fmt} ${outfile}
+                generate_${fmt} ${outfile} ${version}
                 ;;
             *)
                 err "Unknown format ${fmt}"

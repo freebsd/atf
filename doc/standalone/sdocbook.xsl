@@ -100,8 +100,10 @@
   <xsl:template mode="header" match="revision">
     <xsl:text>Last updated on </xsl:text>
     <xsl:apply-templates select="date" />
-    <xsl:text> (revision </xsl:text>
+    <xsl:text> (formal release </xsl:text>
     <xsl:apply-templates select="revnumber" />
+    <xsl:text>, revision </xsl:text>
+    <xsl:apply-templates select="revdescription/para[@role = 'id']" />
     <xsl:if test="revdescription/para[@role = 'modified'] = 'true'">
       <xsl:text>, locally modified</xsl:text>
     </xsl:if>
