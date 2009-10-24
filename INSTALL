@@ -53,6 +53,7 @@ ones:
 If you are building the XML documentation (which is a requisite to be able
 to generate a distfile), you will also need the following tools:
 
+* links
 * The Simple DocBook DTD 1.1.
 * tidy
 * xsltproc
@@ -198,6 +199,14 @@ The following flags are specific to ATF's 'configure' script:
   Specifies the directory that ATF will use to place its temporary files
   and work directories for test cases.  This is just a default and can
   be overriden at run time.
+
+* Variable: LINKS
+  Possible values: absolute path.
+  Default: links.
+
+  Specifies the program name or the absolute path of the 'links'
+  application.  Required when --enable-doc-build is used; otherwise
+  ignored.
 
 * Variable: TIDY
   Possible values: absolute path.
