@@ -84,6 +84,11 @@ div.contents p {
     margin-left: 10pt;
 }
 
+div.contents pre.screen {
+    background: #e0ffe0;
+    padding: 5pt;
+}
+
 div.contents tt {
     color: #900000;
 }

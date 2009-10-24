@@ -4,6 +4,8 @@
 <xsl:stylesheet version="1.0"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
+  <xsl:param name="strip-revision" value="no" />
+
   <!-- ****************************************************************
        Root templates.
        **************************************************************** -->
@@ -88,9 +90,11 @@
     <p class="author">
       <xsl:apply-templates mode="common" select="author" />
     </p>
-    <p class="revision">
-      <xsl:apply-templates mode="header" select="revhistory" />
-    </p>
+    <xsl:if test="$strip-revision != 'yes'">
+      <p class="revision">
+        <xsl:apply-templates mode="header" select="revhistory" />
+      </p>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template mode="header" match="revhistory">
@@ -154,6 +158,10 @@
 
   <xsl:template mode="contents" match="articleinfo" />
 
+  <xsl:template mode="contents" match="email">
+    <a href="mailto:{.}">&lt;<xsl:apply-templates />&gt;</a>
+  </xsl:template>
+
   <xsl:template mode="contents" match="emphasis">
     <xsl:choose>
       <xsl:when test="@role = 'strong'">
@@ -185,6 +193,10 @@
     <li>
       <xsl:apply-templates mode="contents" />
     </li>
+  </xsl:template>
+
+  <xsl:template mode="contents" match="literal">
+    <tt><xsl:apply-templates mode="contents" /></tt>
   </xsl:template>
 
   <xsl:template mode="contents" match="note">
@@ -236,8 +248,31 @@
     </xsl:apply-templates>
   </xsl:template>
 
-  <xsl:template mode="contents" match="literal">
-    <tt><xsl:apply-templates mode="contents" /></tt>
+  <xsl:template mode="contents" match="programlisting">
+    <pre class="{@role}"><xsl:apply-templates mode="contents" /></pre>
+  </xsl:template>
+
+  <xsl:template mode="contents" match="userinput">
+    <!-- TODO: Make this bold, but tidy messes it up -->
+    <xsl:apply-templates mode="contents" />
+  </xsl:template>
+
+  <xsl:template mode="contents" match="variablelist">
+    <ul>
+      <xsl:apply-templates mode="contents" />
+    </ul>
+  </xsl:template>
+
+  <xsl:template mode="contents" match="varlistentry">
+    <li>
+      <xsl:apply-templates mode="varlistentry" />
+    </li>
+  </xsl:template>
+  <xsl:template mode="varlistentry" match="term">
+    <p><b><u><xsl:apply-templates mode="contents" /></u></b></p>
+  </xsl:template>
+  <xsl:template mode="varlistentry" match="listitem">
+    <xsl:apply-templates mode="contents" />
   </xsl:template>
 
   <!-- ****************************************************************

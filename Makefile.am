@@ -31,7 +31,8 @@
 # Top directory.
 # -------------------------------------------------------------------------
 
-doc_DATA = AUTHORS COPYING NEWS README ROADMAP
+doc_DATA = AUTHORS COPYING NEWS README
+noinst_DATA = INSTALL
 EXTRA_DIST = $(doc_DATA)
 
 dist-hook: $(srcdir)/admin/revision-dist.h check-install check-style
@@ -55,6 +56,23 @@ AM_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
 ATF_COMPILE_DEPS = $(srcdir)/atf-sh/atf.init.subr
 ATF_COMPILE_DEPS += tools/atf-host-compile
 ATF_COMPILE_SH = ./tools/atf-host-compile
+
+CP_DOC = cmp -s $${src} $${dst} || cp $${src} $${dst}
+
+$(srcdir)/AUTHORS: doc/text/authors.txt
+	src=doc/text/authors.txt dst=$(srcdir)/AUTHORS; $(CP_DOC)
+
+$(srcdir)/COPYING: doc/text/copying.txt
+	src=doc/text/copying.txt dst=$(srcdir)/COPYING; $(CP_DOC)
+
+$(srcdir)/INSTALL: doc/text/install.txt
+	src=doc/text/install.txt dst=$(srcdir)/INSTALL; $(CP_DOC)
+
+$(srcdir)/NEWS: doc/text/news.txt
+	src=doc/text/news.txt dst=$(srcdir)/NEWS; $(CP_DOC)
+
+$(srcdir)/README: doc/text/readme.txt
+	src=doc/text/readme.txt dst=$(srcdir)/README; $(CP_DOC)
 
 # -------------------------------------------------------------------------
 # `admin' directory.
@@ -352,9 +370,69 @@ _BUILD_TEXT = \
 	$(ATF_SHELL) doc/build-xml.sh \
 	    doc/$${name}.xml txt:doc/text/$${name}.txt
 
+EXTRA_DIST += doc/authors.xml
+EXTRA_DIST += doc/standalone/authors.html
+noinst_DATA += doc/standalone/authors.html
+EXTRA_DIST += doc/text/authors.txt
+noinst_DATA += doc/text/authors.txt
+doc/standalone/authors.html: $(srcdir)/doc/authors.xml $(_STANDALONE_XSLT)
+	@name=authors; $(_BUILD_STANDALONE_HTML)
+doc/text/authors.txt: $(srcdir)/doc/authors.xml $(_STANDALONE_XSLT)
+	@name=authors; $(_BUILD_TEXT)
+
+EXTRA_DIST += doc/copying.xml
+EXTRA_DIST += doc/standalone/copying.html
+noinst_DATA += doc/standalone/copying.html
+EXTRA_DIST += doc/text/copying.txt
+noinst_DATA += doc/text/copying.txt
+doc/standalone/copying.html: $(srcdir)/doc/copying.xml $(_STANDALONE_XSLT)
+	@name=copying; $(_BUILD_STANDALONE_HTML)
+doc/text/copying.txt: $(srcdir)/doc/copying.xml $(_STANDALONE_XSLT)
+	@name=copying; $(_BUILD_TEXT)
+
+EXTRA_DIST += doc/install.xml
+EXTRA_DIST += doc/standalone/install.html
+noinst_DATA += doc/standalone/install.html
+EXTRA_DIST += doc/text/install.txt
+noinst_DATA += doc/text/install.txt
+doc/standalone/install.html: $(srcdir)/doc/install.xml $(_STANDALONE_XSLT)
+	@name=install; $(_BUILD_STANDALONE_HTML)
+doc/text/install.txt: $(srcdir)/doc/install.xml $(_STANDALONE_XSLT)
+	@name=install; $(_BUILD_TEXT)
+
+EXTRA_DIST += doc/news.xml
+EXTRA_DIST += doc/standalone/news.html
+noinst_DATA += doc/standalone/news.html
+EXTRA_DIST += doc/text/news.txt
+noinst_DATA += doc/text/news.txt
+doc/standalone/news.html: $(srcdir)/doc/news.xml $(_STANDALONE_XSLT)
+	@name=news; $(_BUILD_STANDALONE_HTML)
+doc/text/news.txt: $(srcdir)/doc/news.xml $(_STANDALONE_XSLT)
+	@name=news; $(_BUILD_TEXT)
+
+EXTRA_DIST += doc/readme.xml
+EXTRA_DIST += doc/standalone/readme.html
+noinst_DATA += doc/standalone/readme.html
+EXTRA_DIST += doc/text/readme.txt
+noinst_DATA += doc/text/readme.txt
+doc/standalone/readme.html: $(srcdir)/doc/readme.xml $(_STANDALONE_XSLT)
+	@name=readme; $(_BUILD_STANDALONE_HTML)
+doc/text/readme.txt: $(srcdir)/doc/readme.xml $(_STANDALONE_XSLT)
+	@name=readme; $(_BUILD_TEXT)
+
+EXTRA_DIST += doc/roadmap.xml
+EXTRA_DIST += doc/standalone/roadmap.html
+noinst_DATA += doc/standalone/roadmap.html
+EXTRA_DIST += doc/text/roadmap.txt
+noinst_DATA += doc/text/roadmap.txt
+doc/standalone/roadmap.html: $(srcdir)/doc/roadmap.xml $(_STANDALONE_XSLT)
+	@name=roadmap; $(_BUILD_STANDALONE_HTML)
+doc/text/roadmap.txt: $(srcdir)/doc/roadmap.xml $(_STANDALONE_XSLT)
+	@name=roadmap; $(_BUILD_TEXT)
+
 EXTRA_DIST += doc/specification.xml
 EXTRA_DIST += doc/standalone/specification.html
-noinst_DATA = doc/standalone/specification.html
+noinst_DATA += doc/standalone/specification.html
 EXTRA_DIST += doc/text/specification.txt
 noinst_DATA += doc/text/specification.txt
 doc/standalone/specification.html: $(srcdir)/doc/specification.xml \

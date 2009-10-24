@@ -45,7 +45,7 @@ AC_CONFIG_TESTDIR([tests/bootstrap])
 
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE([1.9 check-news subdir-objects -Wall])
+AM_INIT_AUTOMAKE([1.9 check-news foreign subdir-objects -Wall])
 
 dnl This is just a hack to reverse the meaning of the --enable-shared
 dnl flag provided by libtool.  We want it to default to building static
