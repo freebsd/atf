@@ -90,7 +90,7 @@ dnl
 AC_DEFUN([_ATF_DOC_CHECK_TOOL], [
     AC_ARG_VAR([$2], [Absolute path to the $1 tool; build-time only])
     AC_PATH_PROG([$2], [$1])
-    if test "${$2-unset}" = unset; then
+    if test "${$2:-empty}" = empty; then
         AC_MSG_ERROR([$1 could not be found])
     fi
 ])
