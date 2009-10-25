@@ -375,9 +375,11 @@ EXTRA_DIST += doc/standalone/authors.html
 noinst_DATA += doc/standalone/authors.html
 EXTRA_DIST += doc/text/authors.txt
 noinst_DATA += doc/text/authors.txt
-doc/standalone/authors.html: $(srcdir)/doc/authors.xml $(_STANDALONE_XSLT)
+doc/standalone/authors.html: $(srcdir)/doc/authors.xml \
+                             doc/build-xml.sh $(_STANDALONE_XSLT)
 	@name=authors; $(_BUILD_STANDALONE_HTML)
-doc/text/authors.txt: $(srcdir)/doc/authors.xml $(_STANDALONE_XSLT)
+doc/text/authors.txt: $(srcdir)/doc/authors.xml \
+                      doc/build-xml.sh $(_STANDALONE_XSLT)
 	@name=authors; $(_BUILD_TEXT)
 
 EXTRA_DIST += doc/copying.xml
@@ -385,9 +387,11 @@ EXTRA_DIST += doc/standalone/copying.html
 noinst_DATA += doc/standalone/copying.html
 EXTRA_DIST += doc/text/copying.txt
 noinst_DATA += doc/text/copying.txt
-doc/standalone/copying.html: $(srcdir)/doc/copying.xml $(_STANDALONE_XSLT)
+doc/standalone/copying.html: $(srcdir)/doc/copying.xml \
+                             doc/build-xml.sh $(_STANDALONE_XSLT)
 	@name=copying; $(_BUILD_STANDALONE_HTML)
-doc/text/copying.txt: $(srcdir)/doc/copying.xml $(_STANDALONE_XSLT)
+doc/text/copying.txt: $(srcdir)/doc/copying.xml \
+                      doc/build-xml.sh $(_STANDALONE_XSLT)
 	@name=copying; $(_BUILD_TEXT)
 
 EXTRA_DIST += doc/install.xml
@@ -395,9 +399,11 @@ EXTRA_DIST += doc/standalone/install.html
 noinst_DATA += doc/standalone/install.html
 EXTRA_DIST += doc/text/install.txt
 noinst_DATA += doc/text/install.txt
-doc/standalone/install.html: $(srcdir)/doc/install.xml $(_STANDALONE_XSLT)
+doc/standalone/install.html: $(srcdir)/doc/install.xml \
+                             doc/build-xml.sh $(_STANDALONE_XSLT)
 	@name=install; $(_BUILD_STANDALONE_HTML)
-doc/text/install.txt: $(srcdir)/doc/install.xml $(_STANDALONE_XSLT)
+doc/text/install.txt: $(srcdir)/doc/install.xml \
+                      doc/build-xml.sh $(_STANDALONE_XSLT)
 	@name=install; $(_BUILD_TEXT)
 
 EXTRA_DIST += doc/news.xml
@@ -405,9 +411,11 @@ EXTRA_DIST += doc/standalone/news.html
 noinst_DATA += doc/standalone/news.html
 EXTRA_DIST += doc/text/news.txt
 noinst_DATA += doc/text/news.txt
-doc/standalone/news.html: $(srcdir)/doc/news.xml $(_STANDALONE_XSLT)
+doc/standalone/news.html: $(srcdir)/doc/news.xml \
+                          doc/build-xml.sh $(_STANDALONE_XSLT)
 	@name=news; $(_BUILD_STANDALONE_HTML)
-doc/text/news.txt: $(srcdir)/doc/news.xml $(_STANDALONE_XSLT)
+doc/text/news.txt: $(srcdir)/doc/news.xml \
+                   doc/build-xml.sh $(_STANDALONE_XSLT)
 	@name=news; $(_BUILD_TEXT)
 
 EXTRA_DIST += doc/readme.xml
@@ -415,9 +423,11 @@ EXTRA_DIST += doc/standalone/readme.html
 noinst_DATA += doc/standalone/readme.html
 EXTRA_DIST += doc/text/readme.txt
 noinst_DATA += doc/text/readme.txt
-doc/standalone/readme.html: $(srcdir)/doc/readme.xml $(_STANDALONE_XSLT)
+doc/standalone/readme.html: $(srcdir)/doc/readme.xml \
+                            doc/build-xml.sh $(_STANDALONE_XSLT)
 	@name=readme; $(_BUILD_STANDALONE_HTML)
-doc/text/readme.txt: $(srcdir)/doc/readme.xml $(_STANDALONE_XSLT)
+doc/text/readme.txt: $(srcdir)/doc/readme.xml \
+                     doc/build-xml.sh $(_STANDALONE_XSLT)
 	@name=readme; $(_BUILD_TEXT)
 
 EXTRA_DIST += doc/roadmap.xml
@@ -425,9 +435,11 @@ EXTRA_DIST += doc/standalone/roadmap.html
 noinst_DATA += doc/standalone/roadmap.html
 EXTRA_DIST += doc/text/roadmap.txt
 noinst_DATA += doc/text/roadmap.txt
-doc/standalone/roadmap.html: $(srcdir)/doc/roadmap.xml $(_STANDALONE_XSLT)
+doc/standalone/roadmap.html: $(srcdir)/doc/roadmap.xml \
+                             doc/build-xml.sh $(_STANDALONE_XSLT)
 	@name=roadmap; $(_BUILD_STANDALONE_HTML)
-doc/text/roadmap.txt: $(srcdir)/doc/roadmap.xml $(_STANDALONE_XSLT)
+doc/text/roadmap.txt: $(srcdir)/doc/roadmap.xml \
+                      doc/build-xml.sh $(_STANDALONE_XSLT)
 	@name=roadmap; $(_BUILD_TEXT)
 
 EXTRA_DIST += doc/specification.xml
@@ -436,10 +448,10 @@ noinst_DATA += doc/standalone/specification.html
 EXTRA_DIST += doc/text/specification.txt
 noinst_DATA += doc/text/specification.txt
 doc/standalone/specification.html: $(srcdir)/doc/specification.xml \
-                                   $(_STANDALONE_XSLT)
+                                   doc/build-xml.sh $(_STANDALONE_XSLT)
 	@name=specification; $(_BUILD_STANDALONE_HTML)
 doc/text/specification.txt: $(srcdir)/doc/specification.xml \
-                            $(_STANDALONE_XSLT)
+                            doc/build-xml.sh $(_STANDALONE_XSLT)
 	@name=specification; $(_BUILD_TEXT)
 
 # -------------------------------------------------------------------------
