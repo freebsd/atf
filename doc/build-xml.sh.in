@@ -74,14 +74,17 @@ validate_xml() {
 }
 
 #
-# run_xsltproc input stylesheet output
+# run_xsltproc input stylesheet output [args]
 #
 run_xsltproc() {
-    echo "${XSLTPROC} ${2} ${1} >${3}"
-    if ${XSLTPROC} ${2} ${1} >${3}; then
+    input=${1}; shift
+    stylesheet=${1}; shift
+    output=${1}; shift
+    echo "${XSLTPROC} ${*} ${stylesheet} ${input} >${output}"
+    if ${XSLTPROC} "${@}" ${stylesheet} ${input} >${output}; then
         :
     else
-        err "XSLT processing of ${1} with ${2} failed"
+        err "XSLT processing of ${input} with ${stylesheet} failed"
     fi
 }
 
@@ -138,7 +141,7 @@ xml_to_txt() {
     mkdir -p $(dirname ${txt_output})
     validate_xml ${xml_input}
     run_xsltproc ${xml_input} ${SRCDIR}/doc/standalone/sdocbook.xsl \
-        ${txt_output}.tmp
+        ${txt_output}.tmp --param strip-revision yes
     format_txt ${txt_output}.tmp ${txt_output}.tmp2
 
     echo "rm -f ${txt_output}.tmp"
