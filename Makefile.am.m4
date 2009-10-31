@@ -589,7 +589,7 @@ CLEANFILES += tests/$1/$2
 EXTRA_DIST += tests/$1/$2.sh
 tests/$1/$2: $(srcdir)/tests/$1/$2.sh $(ATF_COMPILE_DEPS)
 	test -d tests/atf/atf-sh || mkdir -p tests/$1
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/$1/$2.sh
+	$(ATF_COMPILE_SH) -o tests/$1/$2 $(srcdir)/tests/$1/$2.sh
 ])
 
 C_TP([atf/atf-c], [t_atf_c], [], [tests/atf/atf-c/libh.la])
