@@ -624,3 +624,14 @@ impl::rmdir(const path& p)
     if (atf_is_error(err))
         throw_atf_error(err);
 }
+
+// XXX: This is racy if we have other threads.  We should grab the current
+// umask durent program initialization and never query it again, provided
+// that we don't modify it, of course.
+mode_t
+impl::current_umask(void)
+{
+    const mode_t current = umask(0);
+    (void)umask(current);
+    return current;
+}
