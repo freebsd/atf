@@ -53,6 +53,7 @@ extern "C" {
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/env.hpp"
 #include "atf-c++/fs.hpp"
+#include "atf-c++/io.hpp"
 #include "atf-c++/sanity.hpp"
 #include "atf-c++/text.hpp"
 #include "atf-c++/user.hpp"
@@ -476,36 +477,28 @@ impl::temp_dir::get_path(void)
 // The "temp_file" class.
 // ------------------------------------------------------------------------
 
-impl::temp_file::temp_file(const path& p)
+impl::temp_file::temp_file(const path& p) :
+    std::ostream(NULL),
+    m_fd(-1)
 {
     atf::utils::auto_array< char > buf(new char[p.str().length() + 1]);
     std::strcpy(buf.get(), p.c_str());
+
     m_fd = ::mkstemp(buf.get());
     if (m_fd == -1)
         throw system_error(IMPL_NAME "::temp_file::temp_file(" +
                            p.str() + ")", "mkstemp(3) failed",
                            errno);
+    m_systembuf.reset(new io::systembuf(m_fd));
+    rdbuf(m_systembuf.get());
+
     m_path.reset(new path(buf.get()));
 }
 
 impl::temp_file::~temp_file(void)
 {
-    ::close(m_fd);
-    cleanup(*m_path);
-}
-
-void
-impl::temp_file::write(const std::string& s)
-{
-    const char *cstr;
-    size_t len;
-
-    cstr = s.c_str();
-    len = strlen(cstr);
-
-    if (::write(m_fd, cstr, len) != len)
-        throw system_error(IMPL_NAME "::temp_file::write(" +
-                           s + ")", "write(2) failed", errno);
+    close();
+    remove(*m_path);
 }
 
 const impl::path&
@@ -513,6 +506,16 @@ impl::temp_file::get_path(void)
     const
 {
     return *m_path;
+}
+
+void
+impl::temp_file::close(void)
+{
+    if (m_fd != -1) {
+        flush();
+        ::close(m_fd);
+        m_fd = -1;
+    }
 }
 
 // ------------------------------------------------------------------------

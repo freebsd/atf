@@ -498,6 +498,93 @@ ATF_TEST_CASE_BODY(temp_dir_raii)
     ATF_CHECK(!exists(t2));
 }
 
+
+// ------------------------------------------------------------------------
+// Test cases for the "temp_file" class.
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(temp_file_raii);
+ATF_TEST_CASE_HEAD(temp_file_raii)
+{
+    set_md_var("descr", "Tests the RAII behavior of the temp_file class");
+}
+ATF_TEST_CASE_BODY(temp_file_raii)
+{
+    using atf::fs::exists;
+    using atf::fs::file_info;
+    using atf::fs::path;
+    using atf::fs::temp_file;
+
+    path t1("non-existent");
+    path t2("non-existent");
+
+    {
+        path tmpl("testfile.XXXXXX");
+        temp_file tf1(tmpl);
+        temp_file tf2(tmpl);
+        t1 = tf1.get_path();
+        t2 = tf2.get_path();
+        ATF_CHECK(t1.str().find("XXXXXX") == std::string::npos);
+        ATF_CHECK(t2.str().find("XXXXXX") == std::string::npos);
+        ATF_CHECK(t1 != t2);
+        ATF_CHECK(!exists(tmpl));
+        ATF_CHECK( exists(t1));
+        ATF_CHECK( exists(t2));
+
+        file_info fi1(t1);
+        ATF_CHECK( fi1.is_owner_readable());
+        ATF_CHECK( fi1.is_owner_writable());
+        ATF_CHECK(!fi1.is_owner_executable());
+        ATF_CHECK(!fi1.is_group_readable());
+        ATF_CHECK(!fi1.is_group_writable());
+        ATF_CHECK(!fi1.is_group_executable());
+        ATF_CHECK(!fi1.is_other_readable());
+        ATF_CHECK(!fi1.is_other_writable());
+        ATF_CHECK(!fi1.is_other_executable());
+
+        file_info fi2(t2);
+        ATF_CHECK( fi2.is_owner_readable());
+        ATF_CHECK( fi2.is_owner_writable());
+        ATF_CHECK(!fi2.is_owner_executable());
+        ATF_CHECK(!fi2.is_group_readable());
+        ATF_CHECK(!fi2.is_group_writable());
+        ATF_CHECK(!fi2.is_group_executable());
+        ATF_CHECK(!fi2.is_other_readable());
+        ATF_CHECK(!fi2.is_other_writable());
+        ATF_CHECK(!fi2.is_other_executable());
+    }
+
+    ATF_CHECK(t1.str() != "non-existent");
+    ATF_CHECK(!exists(t1));
+    ATF_CHECK(t2.str() != "non-existent");
+    ATF_CHECK(!exists(t2));
+}
+
+ATF_TEST_CASE(temp_file_stream);
+ATF_TEST_CASE_HEAD(temp_file_stream)
+{
+    set_md_var("descr", "Tests the stream in the temp_file class");
+}
+ATF_TEST_CASE_BODY(temp_file_stream)
+{
+    std::string line;
+    {
+        using atf::fs::path;
+        using atf::fs::temp_file;
+
+        path tmpl("tempfile.XXXXXX");
+        temp_file tf(tmpl);
+        tf << "A string\n";
+        tf.close();
+
+        std::ifstream is(tf.get_path().c_str());
+        ATF_CHECK(is);
+
+        std::getline(is, line);
+    }
+    ATF_CHECK_EQUAL(line, "A string");
+}
+
 // ------------------------------------------------------------------------
 // Test cases for the free functions.
 // ------------------------------------------------------------------------
@@ -680,6 +767,10 @@ ATF_INIT_TEST_CASES(tcs)
 
     // Add the tests for the "temp_dir" class.
     ATF_ADD_TEST_CASE(tcs, temp_dir_raii);
+
+    // Add the tests for the "temp_file" class.
+    ATF_ADD_TEST_CASE(tcs, temp_file_raii);
+    ATF_ADD_TEST_CASE(tcs, temp_file_stream);
 
     // Add the tests for the free functions.
     ATF_ADD_TEST_CASE(tcs, get_current_dir);

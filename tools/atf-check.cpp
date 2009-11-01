@@ -327,11 +327,10 @@ atf_check::run_output_check(const atf::check::check_result& r,
             return false;
         }
     } else if (check == oc_inline) {
-        std::string decoded = decode(arg);
         atf::fs::path path2 = atf::fs::path(atf::config::get("atf_workdir"))
                               / "inline.XXXXXX";
         atf::fs::temp_file temp(path2);
-        temp.write(decoded);
+        temp << decode(arg);
 
         if (atf::io::cmp(path, temp.get_path()) != 0) {
             std::cerr << "Fail: incorrect " << stdxxx << std::endl;
