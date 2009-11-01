@@ -498,7 +498,11 @@ impl::temp_file::temp_file(const path& p) :
 impl::temp_file::~temp_file(void)
 {
     close();
-    remove(*m_path);
+    try {
+        remove(*m_path);
+    } catch (const atf::system_error& e) {
+        // Ignore deletion errors.
+    }
 }
 
 const impl::path&
@@ -516,6 +520,13 @@ impl::temp_file::close(void)
         ::close(m_fd);
         m_fd = -1;
     }
+}
+
+int
+impl::temp_file::fd(void)
+{
+    INV(m_fd != -1);
+    return m_fd;
 }
 
 // ------------------------------------------------------------------------

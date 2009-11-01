@@ -452,6 +452,14 @@ public:
     //! \brief Closes the file, but does not delete it.
     //!
     void close(void);
+
+    //!
+    //! \brief Gets the file descriptor.
+    //!
+    //! XXX This is very ugly because, should we use this object as a
+    //! stream, accessing the underlying file descriptor is dangerous.
+    //!
+    int fd(void);
 };
 
 // ------------------------------------------------------------------------

@@ -585,6 +585,49 @@ ATF_TEST_CASE_BODY(temp_file_stream)
     ATF_CHECK_EQUAL(line, "A string");
 }
 
+ATF_TEST_CASE(temp_file_fd);
+ATF_TEST_CASE_HEAD(temp_file_fd)
+{
+    set_md_var("descr", "Tests access to the fd in the temp_file class");
+}
+ATF_TEST_CASE_BODY(temp_file_fd)
+{
+    std::string line;
+    {
+        using atf::fs::path;
+        using atf::fs::temp_file;
+
+        path tmpl("tempfile.XXXXXX");
+        temp_file tf(tmpl);
+        ::write(tf.fd(), "A string\n", std::strlen("A string\n"));
+        tf.close();
+
+        std::ifstream is(tf.get_path().c_str());
+        ATF_CHECK(is);
+
+        std::getline(is, line);
+    }
+    ATF_CHECK_EQUAL(line, "A string");
+}
+
+ATF_TEST_CASE(temp_file_delete);
+ATF_TEST_CASE_HEAD(temp_file_delete)
+{
+    set_md_var("descr", "Tests that the destructor does not complain if the "
+               "file is deleted before it gets called");
+}
+ATF_TEST_CASE_BODY(temp_file_delete)
+{
+    atf::fs::path tmpl("tempfile.XXXXXX");
+    {
+        atf::fs::temp_file tf(tmpl);
+        tf.close();
+        atf::fs::remove(tf.get_path());
+    }
+    // We let tf go out of scope and attempt to delete the file.  If we
+    // get here, we are safe.
+}
+
 // ------------------------------------------------------------------------
 // Test cases for the free functions.
 // ------------------------------------------------------------------------
@@ -787,6 +830,8 @@ ATF_INIT_TEST_CASES(tcs)
     // Add the tests for the "temp_file" class.
     ATF_ADD_TEST_CASE(tcs, temp_file_raii);
     ATF_ADD_TEST_CASE(tcs, temp_file_stream);
+    ATF_ADD_TEST_CASE(tcs, temp_file_fd);
+    ATF_ADD_TEST_CASE(tcs, temp_file_delete);
 
     // Add the tests for the free functions.
     ATF_ADD_TEST_CASE(tcs, get_current_dir);
