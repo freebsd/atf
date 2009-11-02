@@ -331,6 +331,7 @@ atf_check::run_output_check(const atf::check::check_result& r,
                               / "inline.XXXXXX";
         atf::fs::temp_file temp(path2);
         temp << decode(arg);
+        temp.close();
 
         if (atf::io::cmp(path, temp.get_path()) != 0) {
             std::cerr << "Fail: incorrect " << stdxxx << std::endl;
