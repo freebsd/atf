@@ -215,6 +215,16 @@
        the --sysconfdir argument) under which ATF will search for its
        configuration files.
 
+     * ATF_M4
+
+       Possible values: empty, absolute path to a M4 macro processor.
+
+       Default: empty.
+
+       Specifies the M4 macro processor that ATF will use at run time to
+       generate GNU Automake files. If empty, the configure script will try
+       to find a suitable M4 implementation for you.
+
      * ATF_SHELL
 
        Possible values: empty, absolute path to a POSIX shell interpreter.
