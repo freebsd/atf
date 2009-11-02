@@ -592,6 +592,7 @@ ATF_TEST_CASE_HEAD(temp_file_fd)
 }
 ATF_TEST_CASE_BODY(temp_file_fd)
 {
+    const std::string msg = "A string\n";
     std::string line;
     {
         using atf::fs::path;
@@ -599,7 +600,8 @@ ATF_TEST_CASE_BODY(temp_file_fd)
 
         path tmpl("tempfile.XXXXXX");
         temp_file tf(tmpl);
-        ::write(tf.fd(), "A string\n", std::strlen("A string\n"));
+        ATF_CHECK_EQUAL(msg.length(),
+                        ::write(tf.fd(), msg.c_str(), msg.length()));
         tf.close();
 
         std::ifstream is(tf.get_path().c_str());
