@@ -316,6 +316,21 @@ script:</para>
 </varlistentry>
 
 <varlistentry>
+  <term>ATF_M4</term>
+
+  <listitem>
+    <para>Possible values: empty, absolute path to a M4 macro
+    processor.</para>
+
+    <para>Default: empty.</para>
+
+    <para>Specifies the M4 macro processor that ATF will use at run time to
+    generate GNU Automake files.  If empty, the configure script will try
+    to find a suitable M4 implementation for you.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
   <term>ATF_SHELL</term>
 
   <listitem>
