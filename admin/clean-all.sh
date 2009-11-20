@@ -68,6 +68,10 @@ rm -f admin/revision*
 rm -f tests/bootstrap/package.m4
 rm -f tests/bootstrap/testsuite
 
+# Generated documentation.
+rm -f doc/standalone/*.html
+rm -f doc/text/*.txt
+
 # Files and directories spread all around the tree.
 find . -name '#*' | xargs rm -rf
 find . -name '*~' | xargs rm -rf
