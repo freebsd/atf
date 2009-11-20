@@ -34,6 +34,7 @@ set -e
 # Variables set at configuration time by configure.
 # -------------------------------------------------------------------------
 
+# NO_CHECK_STYLE_BEGIN
 DOC_BUILD="@DOC_BUILD@"
 LINKS="@LINKS@"
 SRCDIR="@abs_top_srcdir@"
@@ -41,6 +42,7 @@ TIDY="@TIDY@"
 XML_CATALOG_FILE="@XML_CATALOG_FILE@"
 XMLLINT="@XMLLINT@"
 XSLTPROC="@XSLTPROC@"
+# NO_CHECK_STYLE_END
 
 # -------------------------------------------------------------------------
 # Global variables.
