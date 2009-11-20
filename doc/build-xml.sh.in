@@ -36,7 +36,7 @@ set -e
 
 DOC_BUILD="@DOC_BUILD@"
 LINKS="@LINKS@"
-SRCDIR="@srcdir@"
+SRCDIR="@abs_top_srcdir@"
 TIDY="@TIDY@"
 XML_CATALOG_FILE="@XML_CATALOG_FILE@"
 XMLLINT="@XMLLINT@"
@@ -67,9 +67,9 @@ err() {
 #
 validate_xml() {
     echo "XML_CATALOG_FILES=${XML_CATALOG_FILE} ${XMLLINT}" \
-         "--nonet --valid ${1}"
+         "--nonet --valid --path doc ${1}"
     XML_CATALOG_FILES=${XML_CATALOG_FILE} \
-        ${XMLLINT} --nonet --valid ${1} >/dev/null
+        ${XMLLINT} --nonet --valid --path doc ${1} >/dev/null
     [ ${?} -eq 0 ] || err "XML validation of ${1} failed"
 }
 
@@ -80,8 +80,8 @@ run_xsltproc() {
     input=${1}; shift
     stylesheet=${1}; shift
     output=${1}; shift
-    echo "${XSLTPROC} ${*} ${stylesheet} ${input} >${output}"
-    if ${XSLTPROC} "${@}" ${stylesheet} ${input} >${output}; then
+    echo "${XSLTPROC} --path doc ${*} ${stylesheet} ${input} >${output}"
+    if ${XSLTPROC} --path doc "${@}" ${stylesheet} ${input} >${output}; then
         :
     else
         err "XSLT processing of ${input} with ${stylesheet} failed"
@@ -107,16 +107,26 @@ xml_to_html() {
     xml_input=${1}
     html_output=${2}
 
+    tmp1=$(mktemp -t build-xml.XXXXXX)
+    tmp2=$(mktemp -t build-xml.XXXXXX)
+
     mkdir -p ${html_output%/*}
     validate_xml ${xml_input}
-    run_xsltproc ${xml_input} ${SRCDIR}/doc/standalone/sdocbook.xsl \
-        ${html_output}.tmp
-    tidy_xml ${html_output}.tmp ${html_output}.tmp2
+    # XXX: The strip-revision=yes shouldn't be here, but the lack of it breaks
+    # make distcheck.
+    run_xsltproc ${xml_input} ${SRCDIR}/doc/standalone/sdocbook.xsl ${tmp1} \
+        --param strip-revision yes
+    tidy_xml ${tmp1} ${tmp2}
 
-    echo "rm -f ${html_output}.tmp"
-    rm -f ${html_output}.tmp
-    echo "mv ${html_output}.tmp2 ${html_output}"
-    mv ${html_output}.tmp2 ${html_output}
+    echo "rm -f ${tmp1}"
+    rm -f ${tmp1}
+    if cmp -s ${tmp2} ${html_output}; then
+        echo "rm -f ${tmp2}"
+        rm -f ${tmp2}
+    else
+        echo "mv -f ${tmp2} ${html_output}"
+        mv -f ${tmp2} ${html_output}
+    fi
 }
 
 #
@@ -138,16 +148,26 @@ xml_to_txt() {
     xml_input=${1}
     txt_output=${2}
 
+    tmp1=$(mktemp -t build-xml.XXXXXX)
+    tmp2=$(mktemp -t build-xml.XXXXXX)
+
     mkdir -p ${txt_output%/*}
     validate_xml ${xml_input}
-    run_xsltproc ${xml_input} ${SRCDIR}/doc/standalone/sdocbook.xsl \
-        ${txt_output}.tmp --param strip-revision yes
-    format_txt ${txt_output}.tmp ${txt_output}.tmp2
+    run_xsltproc ${xml_input} ${SRCDIR}/doc/standalone/sdocbook.xsl ${tmp1} \
+        --param strip-revision yes
+    format_txt ${tmp1} ${tmp2}
 
-    echo "rm -f ${txt_output}.tmp"
-    rm -f ${txt_output}.tmp
-    echo "mv ${txt_output}.tmp2 ${txt_output}"
-    mv ${txt_output}.tmp2 ${txt_output}
+    echo "rm -f ${tmp1}"
+    rm -f ${tmp1}
+    if cmp -s ${tmp2} ${txt_output}; then
+        echo "rm -f ${tmp2}"
+        rm -f ${tmp2}
+        touch ${txt_output} || true
+    else
+        echo "mv -f ${tmp2} ${txt_output}"
+        mv -f ${tmp2} ${txt_output}
+        touch ${txt_output} || true
+    fi
 }
 
 xml_to_anything() {

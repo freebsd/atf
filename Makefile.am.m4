@@ -59,6 +59,8 @@ EXTRA_DIST =
 # Top directory.
 # -------------------------------------------------------------------------
 
+DISTCHECK_CONFIGURE_FLAGS = --enable-doc-build
+
 EXTRA_DIST += Makefile.am.m4
 $(srcdir)/Makefile.am: $(srcdir)/admin/generate-makefile.sh \
                        $(srcdir)/Makefile.am.m4
@@ -97,8 +99,8 @@ ATF_COMPILE_SH = ./tools/atf-host-compile
 # Generates a rule to generate the prebuilt copy of the top-level document
 # indicated in 'name' based on a generated document pointed to by 'src'.
 m4_define([DISTFILE_DOC], [
-$(srcdir)/$1: $2
-	cmp -s $2 $(srcdir)/$1 || cp $2 $(srcdir)/$1
+$(srcdir)/$1: $(srcdir)/$2
+	cmp -s $(srcdir)/$2 $(srcdir)/$1 || cp $(srcdir)/$2 $(srcdir)/$1
 ])
 
 DISTFILE_DOC([AUTHORS], [doc/text/authors.txt])
@@ -125,7 +127,11 @@ EXTRA_DIST += admin/check-install.sh \
               admin/check-style-cpp.awk \
               admin/check-style-man.awk \
               admin/check-style-shell.awk \
-              admin/check-style.sh
+              admin/check-style.sh \
+              admin/choose-revision.sh \
+              admin/generate-makefile.sh \
+              admin/generate-revision.sh \
+              admin/generate-revision-dist.sh
 
 # REVISION_FILE fmt
 #
@@ -402,10 +408,12 @@ EXTRA_DIST += doc/text/$1.txt
 noinst_DATA += doc/text/$1.txt
 doc/standalone/$1.html: $(srcdir)/doc/$1.xml doc/build-xml.sh \
                         doc/revision.xml $(_STANDALONE_XSLT)
-	$(ATF_SHELL) doc/build-xml.sh doc/$1.xml html:doc/standalone/$1.html
+	$(ATF_SHELL) doc/build-xml.sh $(srcdir)/doc/$1.xml \
+	    html:$(srcdir)/doc/standalone/$1.html
 doc/text/$1.txt: $(srcdir)/doc/$1.xml doc/build-xml.sh \
                  doc/revision.xml $(_STANDALONE_XSLT)
-	$(ATF_SHELL) doc/build-xml.sh doc/$1.xml txt:doc/text/$1.txt
+	$(ATF_SHELL) doc/build-xml.sh $(srcdir)/doc/$1.xml \
+	    txt:$(srcdir)/doc/text/$1.txt
 ])
 
 XML_DOC([authors])
@@ -589,7 +597,7 @@ AUTOMAKE_ID([$1])_SCRIPTS += tests/$1/$2
 CLEANFILES += tests/$1/$2
 EXTRA_DIST += tests/$1/$2.sh
 tests/$1/$2: $(srcdir)/tests/$1/$2.sh $(ATF_COMPILE_DEPS)
-	test -d tests/atf/atf-sh || mkdir -p tests/$1
+	test -d tests/$1 || mkdir -p tests/$1
 	$(ATF_COMPILE_SH) -o tests/$1/$2 $(srcdir)/tests/$1/$2.sh
 ])
 
