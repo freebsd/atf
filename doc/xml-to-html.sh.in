@@ -129,9 +129,8 @@ main() {
         xml_to_html ${1} ${2} ${3}
         true
     else
-        err "${html_output}: regeneration failed" \
-            "Building of documentation is disabled.  To enable, reconfigure" \
-            "the package using --enable-doc-build"
+        err "Cannot regenerate ${output}" \
+            "Reconfigure the package using --enable-doc-build"
     fi
 }
 
