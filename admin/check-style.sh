@@ -2,7 +2,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -86,7 +86,6 @@ find_sources() {
               -name "TODO" -o \
               -name "*.[0-9]" -o \
               -name "*.ac" -o \
-              -name "*.am" -o \
               -name "*.at" -o \
               -name "*.awk" -o \
               -name "*.c" -o \
