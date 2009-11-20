@@ -690,7 +690,7 @@ atf_data_DATA = tests/atf/data/Atffile
 atf_datadir = $(pkgtestsdir)/data
 EXTRA_DIST += $(atf_data_DATA)
 
-SH_TP([atf/data], [t_pkg_config]) 
+SH_TP([atf/data], [t_pkg_config])
 
 atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_atffile_1 \

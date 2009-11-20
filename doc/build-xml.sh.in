@@ -107,7 +107,7 @@ xml_to_html() {
     xml_input=${1}
     html_output=${2}
 
-    mkdir -p $(dirname ${html_output})
+    mkdir -p ${html_output%/*}
     validate_xml ${xml_input}
     run_xsltproc ${xml_input} ${SRCDIR}/doc/standalone/sdocbook.xsl \
         ${html_output}.tmp
@@ -138,7 +138,7 @@ xml_to_txt() {
     xml_input=${1}
     txt_output=${2}
 
-    mkdir -p $(dirname ${txt_output})
+    mkdir -p ${txt_output%/*}
     validate_xml ${xml_input}
     run_xsltproc ${xml_input} ${SRCDIR}/doc/standalone/sdocbook.xsl \
         ${txt_output}.tmp --param strip-revision yes
