@@ -112,10 +112,7 @@ xml_to_html() {
 
     mkdir -p ${html_output%/*}
     validate_xml ${xml_input}
-    # XXX: The strip-revision=yes shouldn't be here, but the lack of it breaks
-    # make distcheck.
-    run_xsltproc ${xml_input} ${SRCDIR}/doc/standalone/sdocbook.xsl ${tmp1} \
-        --param strip-revision yes
+    run_xsltproc ${xml_input} ${SRCDIR}/doc/standalone/sdocbook.xsl ${tmp1}
     tidy_xml ${tmp1} ${tmp2}
 
     echo "rm -f ${tmp1}"

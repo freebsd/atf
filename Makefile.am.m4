@@ -59,8 +59,6 @@ EXTRA_DIST =
 # Top directory.
 # -------------------------------------------------------------------------
 
-DISTCHECK_CONFIGURE_FLAGS = --enable-doc-build
-
 EXTRA_DIST += Makefile.am.m4
 $(srcdir)/Makefile.am: $(srcdir)/admin/generate-makefile.sh \
                        $(srcdir)/Makefile.am.m4
@@ -141,7 +139,7 @@ m4_define([REVISION_FILE], [
 .PHONY: admin/revision.$1
 admin/revision.$1:
 	@$(top_srcdir)/admin/generate-revision.sh \
-	    -f $1 -m"$(MTN)" -r $(top_srcdir) -o admin/revision.$1 \
+	    -f $1 -m "$(MTN)" -r $(top_srcdir) -o admin/revision.$1 \
 	    -v $(PACKAGE_VERSION)
 CLEANFILES += admin/revision.$1
 
@@ -406,11 +404,11 @@ EXTRA_DIST += doc/standalone/$1.html
 noinst_DATA += doc/standalone/$1.html
 EXTRA_DIST += doc/text/$1.txt
 noinst_DATA += doc/text/$1.txt
-doc/standalone/$1.html: $(srcdir)/doc/$1.xml doc/build-xml.sh \
+doc/standalone/$1.html: $(srcdir)/doc/$1.xml doc/build-xml.sh.in \
                         doc/revision.xml $(_STANDALONE_XSLT)
 	$(ATF_SHELL) doc/build-xml.sh $(srcdir)/doc/$1.xml \
 	    html:$(srcdir)/doc/standalone/$1.html
-doc/text/$1.txt: $(srcdir)/doc/$1.xml doc/build-xml.sh \
+doc/text/$1.txt: $(srcdir)/doc/$1.xml doc/build-xml.sh.in \
                  doc/revision.xml $(_STANDALONE_XSLT)
 	$(ATF_SHELL) doc/build-xml.sh $(srcdir)/doc/$1.xml \
 	    txt:$(srcdir)/doc/text/$1.txt

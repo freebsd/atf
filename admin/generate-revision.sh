@@ -165,7 +165,10 @@ main() {
     if [ -n "${MTN}" -a -d ${ROOT}/_MTN ]; then
         case ${fmt} in
             h|xml)
-                generate_${fmt} ${outfile} ${version}
+                tmp=$(mktemp -t generate-revision.XXXXXX)
+                generate_${fmt} ${tmp} ${version}
+                cmp -s ${tmp} ${outfile} || mv ${tmp} ${outfile}
+                rm -f ${tmp}
                 ;;
             *)
                 err "Unknown format ${fmt}"

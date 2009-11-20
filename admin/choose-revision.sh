@@ -46,8 +46,8 @@ err() {
 # Verbose copy.
 #
 do_cp() {
-    echo "${Prog_Name}: cp ${1} ${2}"
-    cp ${1} ${2}
+    echo "${Prog_Name}: cp -p ${1} ${2}"
+    cp -p ${1} ${2}
 }
 
 #
