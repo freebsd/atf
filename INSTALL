@@ -58,11 +58,11 @@
    strictly required. Newer ones will most likely work and, maybe, some
    slightly older ones:
 
-     * GNU autoconf 2.63
+     * GNU autoconf 2.64
 
-     * GNU automake 1.10.1
+     * GNU automake 1.11
 
-     * GNU libtool 1.5.26 (1.1220.2.492 2008/01/30 06:40:56)
+     * GNU libtool 1.5.26
 
    If you are building the XML documentation (which is a requisite to be able
    to generate a distfile), you will also need the following tools:
