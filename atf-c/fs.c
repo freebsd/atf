@@ -101,7 +101,7 @@ invalid_umask_format(const atf_error_t err, char *buf, size_t buflen)
     snprintf(buf, buflen, "Could not create the temporary %s %s because "
              "it will not have enough access rights due to the current "
              "umask %05o", stat_type_to_string(data->m_type),
-             data->m_path, data->m_umask);
+             data->m_path, (unsigned int)data->m_umask);
 }
 
 static

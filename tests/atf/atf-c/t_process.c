@@ -699,7 +699,7 @@ child_report_pid(void *v)
     const pid_t pid = getpid();
     if (write(STDOUT_FILENO, &pid, sizeof(pid)) != sizeof(pid))
         abort();
-    fprintf(stderr, "Reporting %d to parent\n", getpid());
+    fprintf(stderr, "Reporting %d to parent\n", (int)getpid());
     exit(EXIT_SUCCESS);
 }
 
@@ -722,8 +722,8 @@ ATF_TC_BODY(child_pid, tc)
     RE(atf_process_fork(&child, child_report_pid, &outsb, &errsb, NULL));
     ATF_CHECK_EQ(read(atf_process_child_stdout(&child), &pid, sizeof(pid)),
                  sizeof(pid));
-    printf("Expected PID: %d\n", atf_process_child_pid(&child));
-    printf("Actual PID: %d\n", pid);
+    printf("Expected PID: %d\n", (int)atf_process_child_pid(&child));
+    printf("Actual PID: %d\n", (int)pid);
     ATF_CHECK_EQ(atf_process_child_pid(&child), pid);
 
     RE(atf_process_child_wait(&child, &status));
