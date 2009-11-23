@@ -27,6 +27,9 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cstdlib>
+#include <cstring>
+
 #include <atf-c++.hpp>
 
 #include "atf-c++/process.hpp"

@@ -31,6 +31,8 @@ extern "C" {
 #include "atf-c/error.h"
 }
 
+#include <cstdio>
+
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/macros.hpp"
 #include "atf-c++/sanity.hpp"
