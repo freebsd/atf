@@ -103,7 +103,10 @@ main() {
     if [ -f ${infile} ]; then
         case ${fmt} in
             h|xml)
-                generate_${fmt} ${infile} ${outfile}
+                tmp=$(mktemp -t generate-revision-dist.XXXXXX)
+                generate_${fmt} ${infile} ${tmp}
+                cmp -s ${tmp} ${outfile} || cp -p ${tmp} ${outfile}
+                rm -f ${tmp}
                 ;;
             *)
                 err "Unknown format ${fmt}"

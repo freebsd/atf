@@ -167,7 +167,7 @@ main() {
             h|xml)
                 tmp=$(mktemp -t generate-revision.XXXXXX)
                 generate_${fmt} ${tmp} ${version}
-                cmp -s ${tmp} ${outfile} || mv ${tmp} ${outfile}
+                cmp -s ${tmp} ${outfile} || cp -p ${tmp} ${outfile}
                 rm -f ${tmp}
                 ;;
             *)
