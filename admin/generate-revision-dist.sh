@@ -49,23 +49,17 @@ err() {
 # generate_h infile outfile
 #
 generate_h() {
-    infile=${1}
-    outfile=${2}
-
-    cp ${infile} ${outfile}
-    echo '#define PACKAGE_REVISION_CACHED 1' >>${outfile}
+    cp ${1} ${2}
+    echo '#define PACKAGE_REVISION_CACHED 1' >>${2}
 }
 
 #
 # generate_xml infile outfile
 #
 generate_xml() {
-    infile=${1}
-    outfile=${2}
-
     regex="s,<para role=\"cached\">false</para>"
     regex="${regex},<para role=\"cached\">true</para>,"
-    sed -e "${regex}" <${infile} >${outfile}
+    sed -e "${regex}" <${1} >${2}
 }
 
 #
