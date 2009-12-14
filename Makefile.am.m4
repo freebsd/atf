@@ -69,8 +69,7 @@ doc_DATA = AUTHORS COPYING NEWS README
 noinst_DATA = INSTALL
 EXTRA_DIST += $(doc_DATA)
 
-dist-hook: $(srcdir)/admin/revision-dist.h check-install check-revision \
-           check-style
+dist-hook: $(srcdir)/admin/revision-dist.h check-install check-style
 
 AM_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
               "-DATF_BUILD_CC=\"$(ATF_BUILD_CC)\"" \
@@ -115,15 +114,6 @@ DISTFILE_DOC([README], [doc/text/readme.txt])
 .PHONY: check-install
 check-install:
 	$(srcdir)/admin/check-install.sh $(srcdir)/INSTALL
-
-.PHONY: check-revision
-check-revision: revision.h
-	@if grep 'PACKAGE_REVISION_CACHED 1' revision.h >/dev/null; then \
-	    :; \
-	else \
-	    echo "ERROR: Can't generate distfile from mtn tree"; \
-	    false; \
-	fi
 
 .PHONY: check-style
 check-style:
