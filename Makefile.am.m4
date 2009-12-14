@@ -475,8 +475,6 @@ tests/bootstrap/h_tp_atf_check_sh: \
 	test -d tests/bootstrap || mkdir -p tests/bootstrap
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh
 
-TESTS=		$(srcdir)/tests/bootstrap/testsuite
-
 DISTCLEANFILES = \
 		tests/bootstrap/atconfig \
 		testsuite.lineno \
@@ -526,7 +524,17 @@ $(srcdir)/tests/bootstrap/testsuite: $(srcdir)/tests/bootstrap/testsuite.at \
 testsdir = $(exec_prefix)/tests
 pkgtestsdir = $(exec_prefix)/tests/atf
 
-installcheck-local:
+TESTS_ENVIRONMENT = PATH=$(prefix)/bin:$${PATH} \
+                    PKG_CONFIG_PATH=$(prefix)/lib/pkgconfig
+
+installcheck-local: installcheck-bootstrap installcheck-atf
+
+.PHONY: installcheck-bootstrap
+installcheck-bootstrap:
+	$(TESTS_ENVIRONMENT) $(srcdir)/tests/bootstrap/testsuite
+
+.PHONY: installcheck-atf
+installcheck-atf:
 	logfile=$$(pwd)/installcheck.log; \
 	cd $(pkgtestsdir); \
 	$(TESTS_ENVIRONMENT) atf-run | tee $${logfile} | atf-report; \

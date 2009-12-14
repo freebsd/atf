@@ -33,7 +33,6 @@ you do not need to read this document.</para>
 <programlisting role="screen">
 $ <userinput>./configure</userinput>
 $ <userinput>make</userinput>
-$ <userinput>make check</userinput>
 Gain root privileges
 # <userinput>make install</userinput>
 Drop root privileges
@@ -46,7 +45,6 @@ directory:</para>
 <programlisting role="screen">
 $ <userinput>./configure --prefix ~/local</userinput>
 $ <userinput>make</userinput>
-$ <userinput>make check</userinput>
 $ <userinput>make install</userinput>
 $ <userinput>make installcheck</userinput>
 </programlisting>
@@ -141,13 +139,6 @@ on a later section.</para></listitem>
 Simply run 'make' on the sources' top directory after configuring them.  No
 problems should arise.</para></listitem>
 
-<listitem><para>Check that the programs built in the previous step work
-before installing them.  Run 'make check' for this.  Any serious problems
-will pop up here.  (Be aware that on, some systems, GNU Libtool will break
-these checks.  If you get some failures, try reconfiguring the project
-providing the '--disable-fast-install' flag to 'configure' and then rebuild
-and recheck.</para></listitem>
-
 <listitem><para>Install the program by running 'make install'.  You may
 need to become root to issue this step.</para></listitem>
 
@@ -156,7 +147,10 @@ These are described later in their own section.</para></listitem>
 
 <listitem><para>Check that the installed programs work by running 'make
 installcheck'.  You do not need to be root to do this, even though some
-checks will not be run otherwise.</para></listitem>
+checks will not be run otherwise.  (Be aware that on, some systems, GNU
+Libtool will break these checks.  If you get some failures, try
+reconfiguring the project providing the '--disable-fast-install' flag to
+'configure' and then rebuild and recheck.)</para></listitem>
 
 </orderedlist>
 
