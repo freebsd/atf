@@ -519,8 +519,10 @@ TESTS_ENVIRONMENT = PATH=$(prefix)/bin:$${PATH} \
 
 installcheck-local: installcheck-bootstrap installcheck-atf
 
+# TODO: This really needs to be a 'check' target and not 'installcheck', but
+# these bootstrap tests don't currently work without atf being installed.
 .PHONY: installcheck-bootstrap
-installcheck-bootstrap:
+installcheck-bootstrap: $(srcdir)/tests/bootstrap/testsuite check
 	$(TESTS_ENVIRONMENT) $(srcdir)/tests/bootstrap/testsuite
 
 .PHONY: installcheck-atf
