@@ -385,6 +385,7 @@ doc/atf.7: $(srcdir)/doc/atf.7.in
 
 BUILT_SOURCES = doc/revision.xml
 doc/revision.xml: admin/revision.xml $(srcdir)/admin/revision-dist.xml
+	test -d doc || mkdir -p doc
 	@$(top_srcdir)/admin/choose-revision.sh \
 	    admin/revision.xml $(srcdir)/admin/revision-dist.xml \
 	    doc/revision.xml
