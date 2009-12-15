@@ -395,6 +395,20 @@ _STANDALONE_XSLT = doc/standalone/sdocbook.xsl
 EXTRA_DIST += doc/standalone/standalone.css
 EXTRA_DIST += $(_STANDALONE_XSLT)
 
+doc/build-xml.sh: $(srcdir)/doc/build-xml.sh.in
+	sed -e 's,__DOC_BUILD__,$(DOC_BUILD),g' \
+	    -e 's,__LINKS__,$(LINKS),g' \
+	    -e 's,__SRCDIR__,$(abs_top_srcdir),g' \
+	    -e 's,__TIDY__,$(TIDY),g' \
+	    -e 's,__XMLLINT__,$(XMLLINT),g' \
+	    -e 's,__XML_CATALOG_FILE__,$(XML_CATALOG_FILE),g' \
+	    -e 's,__XSLTPROC__,$(XSLTPROC),g' \
+	    <$(srcdir)/doc/build-xml.sh.in \
+	    >doc/build-xml.sh.tmp
+	chmod +x doc/build-xml.sh.tmp
+	mv doc/build-xml.sh.tmp doc/build-xml.sh
+CLEANFILES += doc/build-xml.sh
+
 # XML_DOC basename
 #
 # Formats doc/<basename>.xml into HTML and plain text versions.
@@ -404,11 +418,11 @@ EXTRA_DIST += doc/standalone/$1.html
 noinst_DATA += doc/standalone/$1.html
 EXTRA_DIST += doc/text/$1.txt
 noinst_DATA += doc/text/$1.txt
-doc/standalone/$1.html: $(srcdir)/doc/$1.xml doc/build-xml.sh.in \
+doc/standalone/$1.html: $(srcdir)/doc/$1.xml doc/build-xml.sh \
                         doc/revision.xml $(_STANDALONE_XSLT)
 	$(ATF_SHELL) doc/build-xml.sh $(srcdir)/doc/$1.xml \
 	    html:$(srcdir)/doc/standalone/$1.html
-doc/text/$1.txt: $(srcdir)/doc/$1.xml doc/build-xml.sh.in \
+doc/text/$1.txt: $(srcdir)/doc/$1.xml doc/build-xml.sh \
                  doc/revision.xml $(_STANDALONE_XSLT)
 	$(ATF_SHELL) doc/build-xml.sh $(srcdir)/doc/$1.xml \
 	    txt:$(srcdir)/doc/text/$1.txt

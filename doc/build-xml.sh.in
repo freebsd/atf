@@ -35,13 +35,13 @@ set -e
 # -------------------------------------------------------------------------
 
 # NO_CHECK_STYLE_BEGIN
-DOC_BUILD="@DOC_BUILD@"
-LINKS="@LINKS@"
-SRCDIR="@abs_top_srcdir@"
-TIDY="@TIDY@"
-XML_CATALOG_FILE="@XML_CATALOG_FILE@"
-XMLLINT="@XMLLINT@"
-XSLTPROC="@XSLTPROC@"
+DOC_BUILD="__DOC_BUILD__"
+LINKS="__LINKS__"
+SRCDIR="__SRCDIR__"
+TIDY="__TIDY__"
+XML_CATALOG_FILE="__XML_CATALOG_FILE__"
+XMLLINT="__XMLLINT__"
+XSLTPROC="__XSLTPROC__"
 # NO_CHECK_STYLE_END
 
 # -------------------------------------------------------------------------
@@ -122,9 +122,11 @@ xml_to_html() {
     if cmp -s ${tmp2} ${html_output}; then
         echo "rm -f ${tmp2}"
         rm -f ${tmp2}
+        touch ${html_output} || true
     else
         echo "mv -f ${tmp2} ${html_output}"
         mv -f ${tmp2} ${html_output}
+        touch ${html_output} || true
     fi
 }
 
