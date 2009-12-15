@@ -77,9 +77,13 @@ dir_eacces_on_root_body()
     atf_check -s eq:0 -o empty -e empty mkdir aux
     atf_check -s eq:0 -o empty -e empty mkdir aux/root
     atf_check -s eq:0 -o empty -e empty chmod 0555 aux
-    atf_check -s eq:1 -o empty -e ignore "${cleanup}" aux/root
-    atf_check -s eq:0 -o empty -e empty test -d aux
-    atf_check -s eq:0 -o empty -e empty mkdir aux2
+    if [ $(id -u) = 0 ]; then
+        atf_check -s eq:0 -o empty -e ignore "${cleanup}" aux/root
+    else
+        atf_check -s eq:1 -o empty -e ignore "${cleanup}" aux/root
+        atf_check -s eq:0 -o empty -e empty test -d aux
+        atf_check -s eq:0 -o empty -e empty mkdir aux2
+    fi
 }
 
 atf_test_case dir_eacces_on_subdir

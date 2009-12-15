@@ -606,10 +606,14 @@ ATF_TC_BODY(cleanup_eacces_on_root, tc)
 
     RE(atf_fs_path_init_fmt(&root, "aux/root"));
     atf_error_t err = atf_fs_cleanup(&root);
-    ATF_REQUIRE(atf_is_error(err));
-    ATF_CHECK(atf_error_is(err, "libc"));
-    ATF_CHECK_EQ(atf_libc_error_code(err), EACCES);
-    atf_error_free(err);
+    if (atf_user_is_root()) {
+        ATF_REQUIRE(!atf_is_error(err));
+    } else {
+        ATF_REQUIRE(atf_is_error(err));
+        ATF_REQUIRE(atf_error_is(err, "libc"));
+        ATF_CHECK_EQ(atf_libc_error_code(err), EACCES);
+        atf_error_free(err);
+    }
 
     atf_fs_path_fini(&root);
 }
@@ -875,10 +879,14 @@ ATF_TC_BODY(rmdir_eperm, tc)
     ATF_REQUIRE(exists(&p));
 
     err = atf_fs_rmdir(&p);
-    ATF_REQUIRE(atf_is_error(err));
-    ATF_REQUIRE(atf_error_is(err, "libc"));
-    ATF_REQUIRE_EQ(atf_libc_error_code(err), EACCES);
-    atf_error_free(err);
+    if (atf_user_is_root()) {
+        ATF_REQUIRE(!atf_is_error(err));
+    } else {
+        ATF_REQUIRE(atf_is_error(err));
+        ATF_REQUIRE(atf_error_is(err, "libc"));
+        ATF_REQUIRE_EQ(atf_libc_error_code(err), EACCES);
+        atf_error_free(err);
+    }
 
     atf_fs_path_fini(&p);
 }
