@@ -606,7 +606,7 @@ ATF_TC_BODY(cleanup_eacces_on_root, tc)
 
     RE(atf_fs_path_init_fmt(&root, "aux/root"));
     atf_error_t err = atf_fs_cleanup(&root);
-    ATF_CHECK(atf_is_error(err));
+    ATF_REQUIRE(atf_is_error(err));
     ATF_CHECK(atf_error_is(err, "libc"));
     ATF_CHECK_EQ(atf_libc_error_code(err), EACCES);
     atf_error_free(err);
