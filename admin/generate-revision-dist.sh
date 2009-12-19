@@ -54,15 +54,6 @@ generate_h() {
 }
 
 #
-# generate_xml infile outfile
-#
-generate_xml() {
-    regex="s,<para role=\"cached\">false</para>"
-    regex="${regex},<para role=\"cached\">true</para>,"
-    sed -e "${regex}" <${1} >${2}
-}
-
-#
 # main args
 #
 # Entry point.
@@ -96,7 +87,7 @@ main() {
 
     if [ -f ${infile} ]; then
         case ${fmt} in
-            h|xml)
+            h)
                 tmp=$(mktemp -t generate-revision-dist.XXXXXX)
                 generate_${fmt} ${infile} ${tmp}
                 cmp -s ${tmp} ${outfile} || cp -p ${tmp} ${outfile}

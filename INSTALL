@@ -56,7 +56,7 @@
    strictly required. Newer ones will most likely work and, maybe, some
    slightly older ones:
 
-     * GNU autoconf 2.64
+     * GNU autoconf 2.65
 
      * GNU automake 1.11
 

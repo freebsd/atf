@@ -1,4 +1,4 @@
-#! @ATF_SHELL@
+#! /bin/sh
 #
 # Automated Testing Framework (atf)
 #
@@ -31,18 +31,15 @@
 set -e
 
 # -------------------------------------------------------------------------
-# Variables set at configuration time by configure.
+# Variables expected in the environment.
 # -------------------------------------------------------------------------
 
-# NO_CHECK_STYLE_BEGIN
-DOC_BUILD="__DOC_BUILD__"
-LINKS="__LINKS__"
-SRCDIR="__SRCDIR__"
-TIDY="__TIDY__"
-XML_CATALOG_FILE="__XML_CATALOG_FILE__"
-XMLLINT="__XMLLINT__"
-XSLTPROC="__XSLTPROC__"
-# NO_CHECK_STYLE_END
+: ${DOC_BUILD:=UNSET}
+: ${LINKS:=UNSET}
+: ${TIDY:=UNSET}
+: ${XML_CATALOG_FILE:=UNSET}
+: ${XMLLINT:=UNSET}
+: ${XSLTPROC:=UNSET}
 
 # -------------------------------------------------------------------------
 # Global variables.
@@ -107,27 +104,21 @@ tidy_xml() {
 #
 xml_to_html() {
     xml_input=${1}
-    html_output=${2}
+    xslt_file=${2}
+    html_output=${3}
 
     tmp1=$(mktemp -t build-xml.XXXXXX)
     tmp2=$(mktemp -t build-xml.XXXXXX)
 
     mkdir -p ${html_output%/*}
     validate_xml ${xml_input}
-    run_xsltproc ${xml_input} ${SRCDIR}/doc/standalone/sdocbook.xsl ${tmp1}
+    run_xsltproc ${xml_input} ${xslt_file} ${tmp1}
     tidy_xml ${tmp1} ${tmp2}
 
     echo "rm -f ${tmp1}"
     rm -f ${tmp1}
-    if cmp -s ${tmp2} ${html_output}; then
-        echo "rm -f ${tmp2}"
-        rm -f ${tmp2}
-        touch ${html_output} || true
-    else
-        echo "mv -f ${tmp2} ${html_output}"
-        mv -f ${tmp2} ${html_output}
-        touch ${html_output} || true
-    fi
+    echo "mv -f ${tmp2} ${html_output}"
+    mv -f ${tmp2} ${html_output}
 }
 
 #
@@ -147,38 +138,35 @@ format_txt() {
 #
 xml_to_txt() {
     xml_input=${1}
-    txt_output=${2}
+    xslt_file=${2}
+    txt_output=${3}
 
     tmp1=$(mktemp -t build-xml.XXXXXX)
     tmp2=$(mktemp -t build-xml.XXXXXX)
 
     mkdir -p ${txt_output%/*}
     validate_xml ${xml_input}
-    run_xsltproc ${xml_input} ${SRCDIR}/doc/standalone/sdocbook.xsl ${tmp1} \
-        --param strip-revision yes
+    run_xsltproc ${xml_input} ${xslt_file} ${tmp1}
     format_txt ${tmp1} ${tmp2}
 
     echo "rm -f ${tmp1}"
     rm -f ${tmp1}
-    if cmp -s ${tmp2} ${txt_output}; then
-        echo "rm -f ${tmp2}"
-        rm -f ${tmp2}
-        touch ${txt_output} || true
-    else
-        echo "mv -f ${tmp2} ${txt_output}"
-        mv -f ${tmp2} ${txt_output}
-        touch ${txt_output} || true
-    fi
+    echo "mv -f ${tmp2} ${txt_output}"
+    mv -f ${tmp2} ${txt_output}
 }
 
+#
+# xml_to_anything xml_input xslt_file output
+#
 xml_to_anything() {
     xml_input=${1}
-    format=$(echo ${2} | cut -d : -f 1)
-    output=$(echo ${2} | cut -d : -f 2)
+    xslt_file=${2}
+    format=$(echo ${3} | cut -d : -f 1)
+    output=$(echo ${3} | cut -d : -f 2)
 
     case ${format} in
         txt|html)
-            xml_to_${format} ${xml_input} ${output}
+            xml_to_${format} ${xml_input} ${xslt_file} ${output}
             ;;
         *)
             err "Unknown format ${format}"
@@ -191,13 +179,14 @@ xml_to_anything() {
 # -------------------------------------------------------------------------
 
 main() {
-    [ ${#} -eq 2 ] || usage
+    [ ${#} -eq 3 ] || usage
 
     xml_input=${1}
-    output=${2}
+    xslt_file=${2}
+    output=${3}
 
     if [ ${DOC_BUILD} = yes ]; then
-        xml_to_anything ${1} ${2}
+        xml_to_anything ${1} ${2} ${3}
         true
     else
         err "Cannot regenerate ${output}" \
@@ -207,7 +196,7 @@ main() {
 
 usage() {
     cat 1>&2 <<EOF
-Usage: ${Prog_Name} <xml-input> <format>:<output>
+Usage: ${Prog_Name} <xml-input> <xslt-file> <format>:<output>
 EOF
     exit 1
 }

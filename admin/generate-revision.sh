@@ -99,30 +99,6 @@ generate_h() {
 }
 
 #
-# generate_xml revfile version
-#
-generate_xml() {
-    revfile=${1}
-    version=${2}
-
-    get_rev_info_into_vars
-
-    cat >${revfile} <<EOF
-<revhistory>
-  <revision>
-    <revnumber>${version}</revnumber>
-    <date>${rev_date} ${rev_time}</date>
-    <revdescription>
-      <para role="id">${rev_base_id}</para>
-      <para role="cached">false</para>
-      <para role="modified">${rev_modified}</para>
-    </revdescription>
-  </revision>
-</revhistory>
-EOF
-}
-
-#
 # main
 #
 # Entry point.
@@ -164,7 +140,7 @@ main() {
 
     if [ -n "${MTN}" -a -d ${ROOT}/_MTN ]; then
         case ${fmt} in
-            h|xml)
+            h)
                 tmp=$(mktemp -t generate-revision.XXXXXX)
                 generate_${fmt} ${tmp} ${version}
                 cmp -s ${tmp} ${outfile} || cp -p ${tmp} ${outfile}

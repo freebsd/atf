@@ -150,7 +150,6 @@ EXTRA_DIST += admin/revision-dist.$1
 ])
 
 REVISION_FILE([h])
-REVISION_FILE([xml])
 
 # -------------------------------------------------------------------------
 # `atf-c' directory.
@@ -383,32 +382,18 @@ doc/atf.7: $(srcdir)/doc/atf.7.in
 	    <$(srcdir)/doc/atf.7.in >doc/atf.7.tmp
 	mv doc/atf.7.tmp doc/atf.7
 
-BUILT_SOURCES = doc/revision.xml
-doc/revision.xml: admin/revision.xml $(srcdir)/admin/revision-dist.xml
-	test -d doc || mkdir -p doc
-	@$(top_srcdir)/admin/choose-revision.sh \
-	    admin/revision.xml $(srcdir)/admin/revision-dist.xml \
-	    doc/revision.xml
-CLEANFILES += doc/revision.xml
-
 _STANDALONE_XSLT = doc/standalone/sdocbook.xsl
 
+EXTRA_DIST += doc/build-xml.sh
 EXTRA_DIST += doc/standalone/standalone.css
 EXTRA_DIST += $(_STANDALONE_XSLT)
 
-doc/build-xml.sh: $(srcdir)/doc/build-xml.sh.in
-	sed -e 's,__DOC_BUILD__,$(DOC_BUILD),g' \
-	    -e 's,__LINKS__,$(LINKS),g' \
-	    -e 's,__SRCDIR__,$(abs_top_srcdir),g' \
-	    -e 's,__TIDY__,$(TIDY),g' \
-	    -e 's,__XMLLINT__,$(XMLLINT),g' \
-	    -e 's,__XML_CATALOG_FILE__,$(XML_CATALOG_FILE),g' \
-	    -e 's,__XSLTPROC__,$(XSLTPROC),g' \
-	    <$(srcdir)/doc/build-xml.sh.in \
-	    >doc/build-xml.sh.tmp
-	chmod +x doc/build-xml.sh.tmp
-	mv doc/build-xml.sh.tmp doc/build-xml.sh
-CLEANFILES += doc/build-xml.sh
+BUILD_XML_ENV = DOC_BUILD=$(DOC_BUILD) \
+                LINKS=$(LINKS) \
+                TIDY=$(TIDY) \
+                XML_CATALOG_FILE=$(XML_CATALOG_FILE) \
+                XMLLINT=$(XMLLINT) \
+                XSLTPROC=$(XSLTPROC)
 
 # XML_DOC basename
 #
@@ -420,12 +405,13 @@ noinst_DATA += doc/standalone/$1.html
 EXTRA_DIST += doc/text/$1.txt
 noinst_DATA += doc/text/$1.txt
 doc/standalone/$1.html: $(srcdir)/doc/$1.xml doc/build-xml.sh \
-                        doc/revision.xml $(_STANDALONE_XSLT)
-	$(ATF_SHELL) doc/build-xml.sh $(srcdir)/doc/$1.xml \
+                        $(_STANDALONE_XSLT)
+	$(BUILD_XML_ENV) $(ATF_SHELL) doc/build-xml.sh \
+	    $(srcdir)/doc/$1.xml $(srcdir)/$(_STANDALONE_XSLT) \
 	    html:$(srcdir)/doc/standalone/$1.html
-doc/text/$1.txt: $(srcdir)/doc/$1.xml doc/build-xml.sh \
-                 doc/revision.xml $(_STANDALONE_XSLT)
-	$(ATF_SHELL) doc/build-xml.sh $(srcdir)/doc/$1.xml \
+doc/text/$1.txt: $(srcdir)/doc/$1.xml doc/build-xml.sh $(_STANDALONE_XSLT)
+	$(BUILD_XML_ENV) $(ATF_SHELL) doc/build-xml.sh \
+	    $(srcdir)/doc/$1.xml $(srcdir)/$(_STANDALONE_XSLT) \
 	    txt:$(srcdir)/doc/text/$1.txt
 ])
 
@@ -968,7 +954,7 @@ CLEANFILES += tools/atf-host-compile
 CLEANFILES += tools/atf-host-compile.tmp
 EXTRA_DIST += tools/atf-host-compile.sh
 
-BUILT_SOURCES += revision.h
+BUILT_SOURCES = revision.h
 revision.h: admin/revision.h $(srcdir)/admin/revision-dist.h
 	@$(top_srcdir)/admin/choose-revision.sh \
 	    admin/revision.h $(srcdir)/admin/revision-dist.h revision.h
