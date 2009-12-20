@@ -553,7 +553,7 @@ atf_fs_path_fini(atf_fs_path_t *p)
 atf_error_t
 atf_fs_path_branch_path(const atf_fs_path_t *p, atf_fs_path_t *bp)
 {
-    const ssize_t endpos = atf_dynstr_rfind_ch(&p->m_data, '/');
+    const size_t endpos = atf_dynstr_rfind_ch(&p->m_data, '/');
     atf_error_t err;
 
     if (endpos == atf_dynstr_npos)
@@ -582,7 +582,7 @@ atf_fs_path_cstring(const atf_fs_path_t *p)
 atf_error_t
 atf_fs_path_leaf_name(const atf_fs_path_t *p, atf_dynstr_t *ln)
 {
-    ssize_t begpos = atf_dynstr_rfind_ch(&p->m_data, '/');
+    size_t begpos = atf_dynstr_rfind_ch(&p->m_data, '/');
     atf_error_t err;
 
     if (begpos == atf_dynstr_npos)

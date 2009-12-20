@@ -56,12 +56,12 @@ AC_DEFUN([ATF_DEVELOPER_MODE], [
                          -Wcast-qual \
                          -Werror \
                          -Wextra \
-                         -Wno-sign-compare \
                          -Wno-unused-parameter \
                          -Wpointer-arith \
                          -Wredundant-decls \
                          -Wreturn-type \
                          -Wshadow \
+                         -Wsign-compare \
                          -Wswitch \
                          -Wwrite-strings"
 

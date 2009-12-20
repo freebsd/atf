@@ -232,8 +232,8 @@ ATF_TC_BODY(list_for_each, tc)
 {
     atf_list_t list;
     atf_list_iter_t iter;
-    size_t count;
-    int i, nums[10], size;
+    size_t count, i, size;
+    int nums[10];
 
     printf("Iterating over empty list\n");
     RE(atf_list_init(&list));
@@ -246,7 +246,7 @@ ATF_TC_BODY(list_for_each, tc)
     atf_list_fini(&list);
 
     for (size = 0; size <= 10; size++) {
-        printf("Iterating over list of %d elements\n", size);
+        printf("Iterating over list of %zd elements\n", size);
         RE(atf_list_init(&list));
         for (i = 0; i < size; i++) {
             nums[i] = i + 1;
@@ -271,8 +271,8 @@ ATF_TC_BODY(list_for_each_c, tc)
 {
     atf_list_t list;
     atf_list_citer_t iter;
-    size_t count;
-    int i, nums[10], size;
+    size_t count, i, size;
+    int nums[10];
 
     printf("Iterating over empty list\n");
     RE(atf_list_init(&list));
@@ -285,7 +285,7 @@ ATF_TC_BODY(list_for_each_c, tc)
     atf_list_fini(&list);
 
     for (size = 0; size <= 10; size++) {
-        printf("Iterating over list of %d elements\n", size);
+        printf("Iterating over list of %zd elements\n", size);
         RE(atf_list_init(&list));
         for (i = 0; i < size; i++) {
             nums[i] = i + 1;

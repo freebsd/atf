@@ -211,7 +211,7 @@ std::string
 atf_check::decode(const std::string& s)
     const
 {
-    int i, count;
+    size_t i;
     std::string res;
 
     res.reserve(s.length());
@@ -233,11 +233,13 @@ atf_check::decode(const std::string& s)
             case 'v': c = '\v'; break;
             case '\\': break;
             case '0':
-                c = 0;
-                count = 3;
-                while (--count >= 0 && (unsigned)(s[i] - '0') < 8)
-                    c = (c << 3) + (s[i++] - '0');
-                break;
+                {
+                    int count = 3;
+                    c = 0;
+                    while (--count >= 0 && (unsigned)(s[i] - '0') < 8)
+                        c = (c << 3) + (s[i++] - '0');
+                    break;
+                }
             default:
                 --i;
                 break;
