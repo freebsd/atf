@@ -75,9 +75,9 @@ ones:</para>
 
 <listitem><para>GNU autoconf 2.65</para></listitem>
 
-<listitem><para>GNU automake 1.11</para></listitem>
+<listitem><para>GNU automake 1.11.1</para></listitem>
 
-<listitem><para>GNU libtool 1.5.26</para></listitem>
+<listitem><para>GNU libtool 2.2.6b</para></listitem>
 
 </itemizedlist>
 

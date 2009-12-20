@@ -58,9 +58,9 @@
 
      * GNU autoconf 2.65
 
-     * GNU automake 1.11
+     * GNU automake 1.11.1
 
-     * GNU libtool 1.5.26
+     * GNU libtool 2.2.6b
 
    If you are building the XML documentation (which is a requisite to be able
    to generate a distfile), you will also need the following tools:
