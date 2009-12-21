@@ -530,7 +530,8 @@ installcheck-bootstrap: $(srcdir)/tests/bootstrap/testsuite check
 installcheck-atf:
 	logfile=$$(pwd)/installcheck.log; \
 	cd $(pkgtestsdir); \
-	$(TESTS_ENVIRONMENT) atf-run | tee $${logfile} | atf-report; \
+	$(TESTS_ENVIRONMENT) atf-run | tee $${logfile} | \
+	    $(TESTS_ENVIRONMENT) atf-report; \
 	res=$${?}; \
 	echo; \
 	echo "The verbatim output of atf-run has been saved to" \
