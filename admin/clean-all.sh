@@ -64,6 +64,10 @@ rm -f admin/ltmain.sh
 rm -f admin/missing
 rm -f admin/revision*
 
+# `m4' directory.
+rm -f m4/libtool.m4
+rm -f m4/lt*.m4
+
 # `tests/bootstrap' directory.
 rm -f tests/bootstrap/package.m4
 rm -f tests/bootstrap/testsuite
