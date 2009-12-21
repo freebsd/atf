@@ -27,29 +27,13 @@ specification (TODO: Add link somehow).</para>
 
 </section>
 
-<section id="plan-0-7">
-
-<title>The plan to 0.7</title>
-
-<para>The goal of this release is to finish outstanding issues with the
-old codebase before we start rototilling the code according to the new
-specification.</para>
-
-<itemizedlist>
-
-<listitem><para>Add tests for build-time features such as checks for
-self-contained header files or the lack of symbols in a library (by
-linking an empty test program to it).</para></listitem>
-
-</itemizedlist>
-
-</section>
-
 <section id="plan-0-8">
 
 <title>The plan to 0.8</title>
 
 <itemizedlist>
+
+<listitem><para>Add atf-sh interface to build-time tests.</para></listitem>
 
 <listitem><para>Properly document the libraries: i.e. one page per
 module, detailed information of each function and type, etc.  At the
