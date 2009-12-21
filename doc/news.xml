@@ -20,8 +20,39 @@
 
 <title>Changes in version 0.7</title>
 
-<note role="warning"><para>STILL UNDER DEVELOPMENT; NOT RELEASED
-YET</para></note>
+<para>Experimental version released on December 21st, 2009.</para>
+
+<itemizedlist>
+
+<listitem><para>Added build-time checks to atf-c and atf-c++.  A binding
+for atf-sh will come later.</para></listitem>
+
+<listitem><para>Migrated all build-time checks for header files to proper
+ATF tests.  This demonstrates the use of the new feature described
+above.</para></listitem>
+
+<listitem><para>Added an internal API for child process
+management.</para></listitem>
+
+<listitem><para>Converted all plain-text distribution documents to a Docbook
+canonical version, and include pre-generated plain text and HTML copies in
+the distribution file.</para></listitem>
+
+<listitem><para>Simplified the contents of the
+<filename>Makefile.am</filename> by regenerating it from a canonical
+<filename>Makefile.am.m4</filename> source.  As a side-effect, some
+dependency specifications were fixed.</para></listitem>
+
+<listitem><para>Migrated all checks from the <literal>check</literal> target
+to <literal>installcheck</literal>, as these require ATF to be
+installed.</para></listitem>
+
+<listitem><para>Fixed sign comparison mismatches triggered by
+the now-enabled <literal>-Wsign-compare</literal>.</para></listitem>
+
+<listitem><para>Fixed many memory and object leaks.</para></listitem>
+
+</itemizedlist>
 
 </section>
 
