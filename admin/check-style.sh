@@ -95,10 +95,15 @@ find_sources() {
               -name "*.m4" -o \
               -name "*.sh" \
            \) -a \( \
+              \! -path "*/atf-[0-9]*" -a \
               \! -path "*autom4te*" -a \
               -type f -a \
               \! -name "aclocal.m4" \
               \! -name "bconfig.h" \
+              \! -name "libtool.m4" \
+              \! -name "ltoptions.m4" \
+              \! -name "ltsugar.m4" \
+              \! -name "lt~obsolete.m4" \
               \! -name "*.so.*" \
            \)
 }

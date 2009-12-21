@@ -600,7 +600,7 @@ ATF_TEST_CASE_BODY(temp_file_fd)
 
         path tmpl("tempfile.XXXXXX");
         temp_file tf(tmpl);
-        ATF_CHECK_EQUAL(msg.length(),
+        ATF_CHECK_EQUAL(static_cast< int >(msg.length()),
                         ::write(tf.fd(), msg.c_str(), msg.length()));
         tf.close();
 

@@ -4,8 +4,6 @@
 <xsl:stylesheet version="1.0"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-  <xsl:param name="strip-revision" value="no" />
-
   <!-- ****************************************************************
        Root templates.
        **************************************************************** -->
@@ -90,31 +88,6 @@
     <p class="author">
       <xsl:apply-templates mode="common" select="author" />
     </p>
-    <xsl:if test="$strip-revision != 'yes'">
-      <p class="revision">
-        <xsl:apply-templates mode="header" select="revhistory" />
-      </p>
-    </xsl:if>
-  </xsl:template>
-
-  <xsl:template mode="header" match="revhistory">
-    <xsl:apply-templates mode="header" select="revision[1]" />
-  </xsl:template>
-
-  <xsl:template mode="header" match="revision">
-    <xsl:text>Last updated on </xsl:text>
-    <xsl:apply-templates select="date" />
-    <xsl:text> (formal release </xsl:text>
-    <xsl:apply-templates select="revnumber" />
-    <xsl:text>, revision </xsl:text>
-    <xsl:apply-templates select="revdescription/para[@role = 'id']" />
-    <xsl:if test="revdescription/para[@role = 'modified'] = 'true'">
-      <xsl:text>, locally modified</xsl:text>
-    </xsl:if>
-    <xsl:if test="revdescription/para[@role = 'cached'] = 'true'">
-      <xsl:text>, cached in distfile</xsl:text>
-    </xsl:if>
-    <xsl:text>)</xsl:text>
   </xsl:template>
 
   <xsl:template mode="header" match="note|section|para" />

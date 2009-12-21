@@ -49,23 +49,8 @@ err() {
 # generate_h infile outfile
 #
 generate_h() {
-    infile=${1}
-    outfile=${2}
-
-    cp ${infile} ${outfile}
-    echo '#define PACKAGE_REVISION_CACHED 1' >>${outfile}
-}
-
-#
-# generate_xml infile outfile
-#
-generate_xml() {
-    infile=${1}
-    outfile=${2}
-
-    regex="s,<para role=\"cached\">false</para>"
-    regex="${regex},<para role=\"cached\">true</para>,"
-    sed -e "${regex}" <${infile} >${outfile}
+    cp ${1} ${2}
+    echo '#define PACKAGE_REVISION_CACHED 1' >>${2}
 }
 
 #
@@ -102,7 +87,7 @@ main() {
 
     if [ -f ${infile} ]; then
         case ${fmt} in
-            h|xml)
+            h)
                 tmp=$(mktemp -t generate-revision-dist.XXXXXX)
                 generate_${fmt} ${infile} ${tmp}
                 cmp -s ${tmp} ${outfile} || cp -p ${tmp} ${outfile}

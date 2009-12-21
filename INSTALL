@@ -27,7 +27,6 @@
 
  $ ./configure
  $ make
- $ make check
  Gain root privileges
  # make install
  Drop root privileges
@@ -37,7 +36,6 @@
 
  $ ./configure --prefix ~/local
  $ make
- $ make check
  $ make install
  $ make installcheck
 
@@ -58,11 +56,11 @@
    strictly required. Newer ones will most likely work and, maybe, some
    slightly older ones:
 
-     * GNU autoconf 2.64
+     * GNU autoconf 2.65
 
-     * GNU automake 1.11
+     * GNU automake 1.11.1
 
-     * GNU libtool 1.5.26
+     * GNU libtool 2.2.6b
 
    If you are building the XML documentation (which is a requisite to be able
    to generate a distfile), you will also need the following tools:
@@ -102,22 +100,18 @@
        'make' on the sources' top directory after configuring them. No
        problems should arise.
 
-    3. Check that the programs built in the previous step work before
-       installing them. Run 'make check' for this. Any serious problems will
-       pop up here. (Be aware that on, some systems, GNU Libtool will break
-       these checks. If you get some failures, try reconfiguring the project
-       providing the '--disable-fast-install' flag to 'configure' and then
-       rebuild and recheck.
-
-    4. Install the program by running 'make install'. You may need to become
+    3. Install the program by running 'make install'. You may need to become
        root to issue this step.
 
-    5. Issue any manual installation steps that may be required. These are
+    4. Issue any manual installation steps that may be required. These are
        described later in their own section.
 
-    6. Check that the installed programs work by running 'make installcheck'.
+    5. Check that the installed programs work by running 'make installcheck'.
        You do not need to be root to do this, even though some checks will
-       not be run otherwise.
+       not be run otherwise. (Be aware that on, some systems, GNU Libtool
+       will break these checks. If you get some failures, try reconfiguring
+       the project providing the '--disable-fast-install' flag to 'configure'
+       and then rebuild and recheck.)
 
                               Configuration flags
 

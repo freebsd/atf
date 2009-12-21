@@ -69,8 +69,7 @@ doc_DATA = AUTHORS COPYING NEWS README
 noinst_DATA = INSTALL
 EXTRA_DIST += $(doc_DATA)
 
-dist-hook: $(srcdir)/admin/revision-dist.h check-install check-revision \
-           check-style
+dist-hook: $(srcdir)/admin/revision-dist.h check-install check-style
 
 AM_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
               "-DATF_BUILD_CC=\"$(ATF_BUILD_CC)\"" \
@@ -116,15 +115,6 @@ DISTFILE_DOC([README], [doc/text/readme.txt])
 check-install:
 	$(srcdir)/admin/check-install.sh $(srcdir)/INSTALL
 
-.PHONY: check-revision
-check-revision: revision.h
-	@if grep 'PACKAGE_REVISION_CACHED 1' revision.h >/dev/null; then \
-	    :; \
-	else \
-	    echo "ERROR: Can't generate distfile from mtn tree"; \
-	    false; \
-	fi
-
 .PHONY: check-style
 check-style:
 	$(srcdir)/admin/check-style.sh
@@ -160,7 +150,6 @@ EXTRA_DIST += admin/revision-dist.$1
 ])
 
 REVISION_FILE([h])
-REVISION_FILE([xml])
 
 # -------------------------------------------------------------------------
 # `atf-c' directory.
@@ -393,17 +382,18 @@ doc/atf.7: $(srcdir)/doc/atf.7.in
 	    <$(srcdir)/doc/atf.7.in >doc/atf.7.tmp
 	mv doc/atf.7.tmp doc/atf.7
 
-BUILT_SOURCES = doc/revision.xml
-doc/revision.xml: admin/revision.xml $(srcdir)/admin/revision-dist.xml
-	@$(top_srcdir)/admin/choose-revision.sh \
-	    admin/revision.xml $(srcdir)/admin/revision-dist.xml \
-	    doc/revision.xml
-CLEANFILES += doc/revision.xml
-
 _STANDALONE_XSLT = doc/standalone/sdocbook.xsl
 
+EXTRA_DIST += doc/build-xml.sh
 EXTRA_DIST += doc/standalone/standalone.css
 EXTRA_DIST += $(_STANDALONE_XSLT)
+
+BUILD_XML_ENV = DOC_BUILD=$(DOC_BUILD) \
+                LINKS=$(LINKS) \
+                TIDY=$(TIDY) \
+                XML_CATALOG_FILE=$(XML_CATALOG_FILE) \
+                XMLLINT=$(XMLLINT) \
+                XSLTPROC=$(XSLTPROC)
 
 # XML_DOC basename
 #
@@ -414,13 +404,14 @@ EXTRA_DIST += doc/standalone/$1.html
 noinst_DATA += doc/standalone/$1.html
 EXTRA_DIST += doc/text/$1.txt
 noinst_DATA += doc/text/$1.txt
-doc/standalone/$1.html: $(srcdir)/doc/$1.xml doc/build-xml.sh.in \
-                        doc/revision.xml $(_STANDALONE_XSLT)
-	$(ATF_SHELL) doc/build-xml.sh $(srcdir)/doc/$1.xml \
+doc/standalone/$1.html: $(srcdir)/doc/$1.xml doc/build-xml.sh \
+                        $(_STANDALONE_XSLT)
+	$(BUILD_XML_ENV) $(ATF_SHELL) doc/build-xml.sh \
+	    $(srcdir)/doc/$1.xml $(srcdir)/$(_STANDALONE_XSLT) \
 	    html:$(srcdir)/doc/standalone/$1.html
-doc/text/$1.txt: $(srcdir)/doc/$1.xml doc/build-xml.sh.in \
-                 doc/revision.xml $(_STANDALONE_XSLT)
-	$(ATF_SHELL) doc/build-xml.sh $(srcdir)/doc/$1.xml \
+doc/text/$1.txt: $(srcdir)/doc/$1.xml doc/build-xml.sh $(_STANDALONE_XSLT)
+	$(BUILD_XML_ENV) $(ATF_SHELL) doc/build-xml.sh \
+	    $(srcdir)/doc/$1.xml $(srcdir)/$(_STANDALONE_XSLT) \
 	    txt:$(srcdir)/doc/text/$1.txt
 ])
 
@@ -475,8 +466,6 @@ tests/bootstrap/h_tp_atf_check_sh: \
 	test -d tests/bootstrap || mkdir -p tests/bootstrap
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh
 
-TESTS=		$(srcdir)/tests/bootstrap/testsuite
-
 DISTCLEANFILES = \
 		tests/bootstrap/atconfig \
 		testsuite.lineno \
@@ -526,7 +515,19 @@ $(srcdir)/tests/bootstrap/testsuite: $(srcdir)/tests/bootstrap/testsuite.at \
 testsdir = $(exec_prefix)/tests
 pkgtestsdir = $(exec_prefix)/tests/atf
 
-installcheck-local:
+TESTS_ENVIRONMENT = PATH=$(prefix)/bin:$${PATH} \
+                    PKG_CONFIG_PATH=$(prefix)/lib/pkgconfig
+
+installcheck-local: installcheck-bootstrap installcheck-atf
+
+# TODO: This really needs to be a 'check' target and not 'installcheck', but
+# these bootstrap tests don't currently work without atf being installed.
+.PHONY: installcheck-bootstrap
+installcheck-bootstrap: $(srcdir)/tests/bootstrap/testsuite check
+	$(TESTS_ENVIRONMENT) $(srcdir)/tests/bootstrap/testsuite
+
+.PHONY: installcheck-atf
+installcheck-atf:
 	logfile=$$(pwd)/installcheck.log; \
 	cd $(pkgtestsdir); \
 	$(TESTS_ENVIRONMENT) atf-run | tee $${logfile} | atf-report; \
@@ -953,7 +954,7 @@ CLEANFILES += tools/atf-host-compile
 CLEANFILES += tools/atf-host-compile.tmp
 EXTRA_DIST += tools/atf-host-compile.sh
 
-BUILT_SOURCES += revision.h
+BUILT_SOURCES = revision.h
 revision.h: admin/revision.h $(srcdir)/admin/revision-dist.h
 	@$(top_srcdir)/admin/choose-revision.sh \
 	    admin/revision.h $(srcdir)/admin/revision-dist.h revision.h
