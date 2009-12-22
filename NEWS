@@ -20,7 +20,7 @@
 
                              Changes in version 0.7
 
-   Experimental version released on December 21st, 2009.
+   Experimental version released on December 22nd, 2009.
 
      * Added build-time checks to atf-c and atf-c++. A binding for atf-sh
        will come later.
