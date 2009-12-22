@@ -98,7 +98,12 @@ ATF_COMPILE_SH = ./tools/atf-host-compile
 # indicated in 'name' based on a generated document pointed to by 'src'.
 m4_define([DISTFILE_DOC], [
 $(srcdir)/$1: $(srcdir)/$2
-	cmp -s $(srcdir)/$2 $(srcdir)/$1 || cp $(srcdir)/$2 $(srcdir)/$1
+	@if cmp -s $(srcdir)/$2 $(srcdir)/$1; then \
+	    :; \
+	else \
+	    echo cp $(srcdir)/$2 $(srcdir)/$1; \
+	    cp $(srcdir)/$2 $(srcdir)/$1; \
+	fi
 ])
 
 DISTFILE_DOC([AUTHORS], [doc/text/authors.txt])
