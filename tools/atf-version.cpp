@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -67,6 +67,8 @@ atf_version::main(void)
               << PACKAGE_COPYRIGHT << std::endl
               << std::endl;
 
+    std::cout << format_text_with_tag(PACKAGE_REVISION_BRANCH, "Branch: ",
+                                      false) << std::endl;
     std::cout << format_text_with_tag(PACKAGE_REVISION_BASE
 #if PACKAGE_REVISION_MODIFIED
                                       " (locally modified)"
