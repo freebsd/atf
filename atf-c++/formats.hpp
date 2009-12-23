@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -92,6 +92,39 @@ public:
     virtual ~atf_config_reader(void);
 
     void read(void);
+};
+
+// ------------------------------------------------------------------------
+// The "atf_tcr_reader" class.
+// ------------------------------------------------------------------------
+
+class atf_tcr_reader {
+    std::istream& m_is;
+
+protected:
+    virtual void got_result(const std::string&);
+    virtual void got_reason(const std::string&);
+    virtual void got_eof(void);
+
+public:
+    atf_tcr_reader(std::istream&);
+    virtual ~atf_tcr_reader(void);
+
+    void read(void);
+};
+
+// ------------------------------------------------------------------------
+// The "atf_tcr_writer" class.
+// ------------------------------------------------------------------------
+
+class atf_tcr_writer {
+    std::ostream& m_os;
+
+public:
+    atf_tcr_writer(std::ostream&);
+
+    void result(const std::string&);
+    void reason(const std::string&);
 };
 
 // ------------------------------------------------------------------------

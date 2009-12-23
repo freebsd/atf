@@ -782,6 +782,26 @@ atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_headers_8.experr \
                    tests/atf/formats/d_headers_9 \
                    tests/atf/formats/d_headers_9.experr \
+                   tests/atf/formats/d_tcr_1 \
+                   tests/atf/formats/d_tcr_1.expout \
+                   tests/atf/formats/d_tcr_2 \
+                   tests/atf/formats/d_tcr_2.expout \
+                   tests/atf/formats/d_tcr_3 \
+                   tests/atf/formats/d_tcr_3.expout \
+                   tests/atf/formats/d_tcr_50 \
+                   tests/atf/formats/d_tcr_50.experr \
+                   tests/atf/formats/d_tcr_51 \
+                   tests/atf/formats/d_tcr_51.experr \
+                   tests/atf/formats/d_tcr_52 \
+                   tests/atf/formats/d_tcr_52.experr \
+                   tests/atf/formats/d_tcr_53 \
+                   tests/atf/formats/d_tcr_53.experr \
+                   tests/atf/formats/d_tcr_54 \
+                   tests/atf/formats/d_tcr_54.experr \
+                   tests/atf/formats/d_tcr_60 \
+                   tests/atf/formats/d_tcr_60.experr \
+                   tests/atf/formats/d_tcr_61 \
+                   tests/atf/formats/d_tcr_61.experr \
                    tests/atf/formats/d_tcs_1 \
                    tests/atf/formats/d_tcs_1.errin \
                    tests/atf/formats/d_tcs_1.expout \
