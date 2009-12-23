@@ -398,7 +398,7 @@ body_parent(const atf_tc_t *tc, const atf_fs_path_t *workdir,
         char buf[4096];
 
         atf_error_format(err, buf, sizeof(buf));
-        fprintf(stderr, "Error programming test case's timeout: %s", buf);
+        fprintf(stderr, "Error programming test case's timeout: %s\n", buf);
         atf_error_free(err);
         killpg(atf_process_child_pid(child), SIGKILL);
     }
@@ -942,7 +942,7 @@ fatal_atf_error(const char *prefix, atf_error_t err)
     atf_error_format(err, buf, sizeof(buf));
     atf_error_free(err);
 
-    fprintf(stderr, "%s: %s", prefix, buf);
+    fprintf(stderr, "%s: %s\n", prefix, buf);
 
     abort();
 }
@@ -951,7 +951,7 @@ static
 void
 fatal_libc_error(const char *prefix, int err)
 {
-    fprintf(stderr, "%s: %s", prefix, strerror(err));
+    fprintf(stderr, "%s: %s\n", prefix, strerror(err));
 
     abort();
 }
