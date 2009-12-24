@@ -162,7 +162,6 @@ class atf_tcs_writer {
     std::ostream& m_cout;
     std::ostream& m_cerr;
 
-    size_t m_ntcs, m_curtc;
     std::string m_tcname;
 
 public:

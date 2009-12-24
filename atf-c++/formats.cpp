@@ -47,7 +47,7 @@ namespace impl = atf::formats;
     do { \
         if (!(parser).has_errors()) \
             func; \
-    } while (false);
+    } while (false)
 
 // ------------------------------------------------------------------------
 // The "format_error" class.
@@ -861,24 +861,18 @@ impl::atf_tcs_reader::read_out_err(void* pptr,
 
         if (fds[0].revents & POLLIN) {
             std::string line;
-            if (atf::io::getline(out, line).good()) {
-                if (line == "__atf_tc_separator__")
-                    fds[0].events &= ~POLLIN;
-                else
-                    CALLBACK(p, got_stdout_line(line));
-            } else
+            if (atf::io::getline(out, line).good())
+                CALLBACK(p, got_stdout_line(line));
+            else
                 fds[0].events &= ~POLLIN;
         } else if (fds[0].revents & POLLHUP)
             fds[0].events &= ~POLLIN;
 
         if (fds[1].revents & POLLIN) {
             std::string line;
-            if (atf::io::getline(err, line).good()) {
-                if (line == "__atf_tc_separator__")
-                    fds[1].events &= ~POLLIN;
-                else
-                    CALLBACK(p, got_stderr_line(line));
-            } else
+            if (atf::io::getline(err, line).good())
+                CALLBACK(p, got_stderr_line(line));
+            else
                 fds[1].events &= ~POLLIN;
         } else if (fds[1].revents & POLLHUP)
             fds[1].events &= ~POLLIN;
@@ -988,10 +982,10 @@ impl::atf_tcs_writer::atf_tcs_writer(std::ostream& os,
                                      size_t ntcs) :
     m_os(os),
     m_cout(p_cout),
-    m_cerr(p_cerr),
-    m_ntcs(ntcs),
-    m_curtc(0)
+    m_cerr(p_cerr)
 {
+    PRE(ntcs == 1);
+
     headers_map hm;
     attrs_map ct_attrs;
     ct_attrs["version"] = "1";
@@ -1014,12 +1008,6 @@ impl::atf_tcs_writer::start_tc(const std::string& tcname)
 void
 impl::atf_tcs_writer::end_tc(const atf::tests::tcr& tcr)
 {
-    PRE(m_curtc < m_ntcs);
-    m_curtc++;
-    if (m_curtc < m_ntcs) {
-        m_cout << "__atf_tc_separator__\n";
-        m_cerr << "__atf_tc_separator__\n";
-    }
     m_cout.flush();
     m_cerr.flush();
 

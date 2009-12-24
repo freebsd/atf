@@ -1,7 +1,7 @@
 dnl
 dnl Automated Testing Framework (atf)
 dnl
-dnl Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+dnl Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 dnl All rights reserved.
 dnl
 dnl Redistribution and use in source and binary forms, with or without
@@ -175,6 +175,23 @@ CHECK_TPS_TCR(tc_1, passed, stdout)
 CHECK_TPS_TCR(tc_2, passed, stdout)
 AT_CHECK([grep -i 'tc_3' stdout], [1], [ignore], [])
 AT_CHECK([grep -i 'tc_4' stdout], [1], [ignore], [])
+
+dnl Run all test cases from a test program.
+AT_CHECK([rm -rf top], [0], [], [])
+AT_CHECK([mkdir top], [0], [], [])
+AT_CHECK([cp TEST_HELPER_NO_S(tp_basic_sh) top])
+AT_DATA([top/Atffile],
+[Content-Type: application/X-atf-atffile; version="1"
+
+prop: test-suite = atf
+
+tp: h_tp_basic_sh
+])
+AT_CHECK([cd top && atf-run], [0], [stdout], [stderr])
+CHECK_TPS_TCR(pass, passed, stdout)
+CHECK_TPS_TCR(fail, passed, stdout)
+CHECK_TPS_TCR(skip, passed, stdout)
+CHECK_TPS_TCR(default, passed, stdout)
 
 AT_CLEANUP()
 

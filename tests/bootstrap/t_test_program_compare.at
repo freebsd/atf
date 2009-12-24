@@ -1,7 +1,7 @@
 dnl
 dnl Automated Testing Framework (atf)
 dnl
-dnl Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+dnl Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 dnl All rights reserved.
 dnl
 dnl Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ AT_CHECK([TEST_HELPER(tp_basic_cpp) -l], [0], [expout], [])
 sed 's,tp_basic_c,tp_basic_sh,g' <stdout >expout
 AT_CHECK([TEST_HELPER(tp_basic_sh) -l], [0], [expout], [])
 
-dnl Run all tests.
+dnl Run no tests.
 AT_CHECK([TEST_HELPER(tp_basic_c) -r3 3>resout],
          [1], [stdout], [stderr])
 sed 's,tp_basic_c,tp_basic_cpp,g' <stdout >expout
@@ -151,19 +151,19 @@ AT_CHECK([TEST_HELPER(tp_basic_sh) -r3 3>resout default],
          [0], [expout], [experr])
 AT_CHECK([cmp -s resout resexp], [0], [], [])
 
-dnl Try pattern matching.
-AT_CHECK([TEST_HELPER(tp_basic_c) -r3 3>resout "*f*"],
+dnl Try running multiple tests.
+AT_CHECK([TEST_HELPER(tp_basic_c) -r3 3>resout pass fail],
          [1], [stdout], [stderr])
 sed 's,tp_basic_c,tp_basic_cpp,g' <stdout >expout
 sed 's,tp_basic_c,tp_basic_cpp,g' <stderr >experr
 sed 's,tp_basic_c,tp_basic_cpp,g' <resout >resexp
-AT_CHECK([TEST_HELPER(tp_basic_cpp) -r3 3>resout "*f*"],
+AT_CHECK([TEST_HELPER(tp_basic_cpp) -r3 3>resout pass fail],
          [1], [expout], [experr])
 AT_CHECK([cmp -s resout resexp], [0], [], [])
 sed 's,tp_basic_c,tp_basic_sh,g' <stdout >expout
 sed 's,tp_basic_c,tp_basic_sh,g' <stderr >experr
 sed 's,tp_basic_c,tp_basic_sh,g' <resout >resexp
-AT_CHECK([TEST_HELPER(tp_basic_sh) -r3 3>resout "*f*"],
+AT_CHECK([TEST_HELPER(tp_basic_sh) -r3 3>resout pass fail],
          [1], [expout], [experr])
 AT_CHECK([cmp -s resout resexp], [0], [], [])
 

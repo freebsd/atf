@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -418,6 +418,21 @@ _atf_expand_glob()
 }
 
 #
+# _atf_has_tc name
+#
+#   Returns true if the given test case exists.
+#
+_atf_has_tc()
+{
+    for _tc in ${Test_Cases}; do
+        if [ ${_tc} = ${1} ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+#
 # _atf_get_bool varname
 #
 #   Evaluates a test case-specific variable as a boolean and returns its
@@ -467,17 +482,16 @@ _atf_internal_set()
 }
 
 #
-# _atf_list_tcs [tc1 .. tcN]
+# _atf_list_tcs
 #
-#   Describes all given test cases and prints the list to the standard
-#   output.
+#   Describes all test cases and prints the list to the standard output.
 #
 _atf_list_tcs()
 {
     # Calculate the length of the longest test case name.  Needed for
     # correct indentation later on.
     _maxlen=0
-    for _tc in ${*}; do
+    for _tc in ${Test_Cases}; do
         if [ ${#_tc} -gt ${_maxlen} ]; then
             _maxlen=${#_tc}
         fi
@@ -485,7 +499,7 @@ _atf_list_tcs()
 
     # Print the list of test cases.
     _maxlen=$((${_maxlen} + 4))
-    for _tc in ${*}; do
+    for _tc in ${Test_Cases}; do
         _atf_parse_head ${_tc}
         _atf_echo -t ${_tc} -l ${_maxlen} $(atf_get descr)
     done
@@ -618,12 +632,11 @@ _atf_run_body()
 }
 
 #
-# _atf_run_tc tc nrest
+# _atf_run_tc tc
 #
 #   Runs the specified test case.  Prints its exit status to the
 #   standard output and returns a boolean indicating if the test was
-#   successful or not.  The 'nrest' parameter indicates how many test
-#   cases are left for execution.
+#   successful or not.
 #
 _atf_run_tc()
 {
@@ -651,10 +664,6 @@ _atf_run_tc()
             _ret=${?}
         fi
         ( cd ${_workdir} ; ${1}_cleanup )
-        if [ ${2} -gt 1 ]; then
-            echo __atf_tc_separator__
-            echo __atf_tc_separator__ 1>&2
-        fi
         ${Atf_Cleanup} ${_workdir}
     else
         ( atf_fail "Could not create the work directory" )
@@ -703,7 +712,7 @@ _atf_run_tcs()
 
     _ok=true
     while [ ${#} -gt 0 ]; do
-        _atf_run_tc ${1} ${#} || _ok=false
+        _atf_run_tc ${1} || _ok=false
         shift
     done
 
@@ -854,8 +863,7 @@ _atf_is_tc_defined()
 #
 _atf_usage()
 {
-    _atf_echo -t "Usage: " "${Prog_Name} [options] [test_case1" \
-                           "[.. test_caseN]]"
+    _atf_echo -t "Usage: " "${Prog_Name} [options] test_case"
     echo
     _atf_echo "This is an independent atf test program."
     echo
@@ -890,7 +898,7 @@ _atf_warning()
 }
 
 #
-# main [options] [test_case1 [.. test_caseN]]
+# main [options] test_case
 #
 #   Test program's entry point.
 #
@@ -979,27 +987,24 @@ main()
     # Call the test program's hook to register all available test cases.
     atf_init_test_cases
 
-    # Set _tcs to the test cases to run.
-    if [ ${#} -gt 0 ]; then
-        # Expand glob patterns and report erroneous test cases.
-        _tcs=
-        while [ ${#} -gt 0 ]; do
-            _matches=$(_atf_expand_glob "${1}")
-            [ ${#_matches} -eq 0 ] &&
-                _atf_error 1 "Unknown test case \`${1}'"
-
-            _tcs="${_tcs} ${_matches}"
-            shift
-        done
-    else
-        _tcs=${Test_Cases}
-    fi
-
-    # Run or list test cases, restricting them to _tcs.
+    # Run or list test cases.
     if `${_lflag}`; then
-        _atf_list_tcs ${_tcs}
+        if [ ${#} -gt 0 ]; then
+            _atf_syntax_error "Cannot provide test case names with -l"
+        fi
+        _atf_list_tcs
     else
-        _atf_run_tcs ${_tcs}
+        if [ ${#} -eq 0 ]; then
+            _atf_syntax_error "Must provide a test case name"
+        elif [ ${#} -gt 1 ]; then
+            _atf_syntax_error "Cannot provide more than one test case name"
+        else
+            if _atf_has_tc ${1}; then
+                _atf_run_tcs ${1}
+            else
+                _atf_syntax_error "Unknown test case \`${1}'"
+            fi
+        fi
     fi
 }
 
