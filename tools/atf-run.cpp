@@ -37,6 +37,7 @@ extern "C" {
 #include <unistd.h>
 }
 
+#include <algorithm>
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
@@ -83,48 +84,35 @@ public:
 };
 
 class muxer : public atf::formats::atf_tcs_reader {
-    atf::fs::path m_tp;
-    atf::formats::atf_tps_writer m_writer;
+    const atf::fs::path m_tp;
+    const std::string m_tc;
+    atf::tests::tcr m_tcr;
+    atf::formats::atf_tps_writer& m_writer;
 
-    bool m_inited, m_finalized;
-    size_t m_ntcs;
-    std::string m_tcname;
-
-    // Counters for the test cases run by the test program.
-    size_t m_passed, m_failed, m_skipped;
+    bool m_failed;
+    bool m_got_tc_end;
 
     void
     got_ntcs(size_t ntcs)
     {
-        m_writer.start_tp(m_tp.str(), ntcs);
-        m_inited = true;
-        if (ntcs == 0)
-            throw atf::formats::format_error("Bogus test program: reported "
-                                             "0 test cases");
+        if (ntcs != 1)
+            throw atf::formats::format_error("Expecting only one test case");
     }
 
     void
     got_tc_start(const std::string& tcname)
     {
-        m_tcname = tcname;
-        m_writer.start_tc(tcname);
+        if (tcname != m_tc)
+            throw atf::formats::format_error("Expected " + m_tc +
+                                             " but got " + tcname);
     }
 
     void
     got_tc_end(const atf::tests::tcr& tcr)
     {
-        const atf::tests::tcr::state& s = tcr.get_state();
-        if (s == atf::tests::tcr::passed_state) {
-            m_passed++;
-        } else if (s == atf::tests::tcr::skipped_state) {
-            m_skipped++;
-        } else if (s == atf::tests::tcr::failed_state) {
-            m_failed++;
-        } else
-            UNREACHABLE;
-
-        m_writer.end_tc(tcr);
-        m_tcname = "";
+        m_got_tc_end = true;
+        m_tcr = tcr;
+        m_failed = (tcr.get_state() == atf::tests::tcr::failed_state);
     }
 
     void
@@ -140,48 +128,46 @@ class muxer : public atf::formats::atf_tcs_reader {
     }
 
 public:
-    muxer(const atf::fs::path& tp, atf::formats::atf_tps_writer& w,
-           atf::io::pistream& is) :
+    muxer(const atf::fs::path& tp, const std::string& tc,
+           atf::formats::atf_tps_writer& w, atf::io::pistream& is) :
         atf::formats::atf_tcs_reader(is),
         m_tp(tp),
+        m_tc(tc),
+        m_tcr(atf::tests::tcr::failed_state, "UNDEFINED STATE"),
         m_writer(w),
-        m_inited(false),
-        m_finalized(false),
-        m_passed(0),
-        m_failed(0),
-        m_skipped(0)
+        m_failed(true),
+        m_got_tc_end(false)
     {
+        m_writer.start_tc(m_tc);
     }
 
-    size_t
+    bool
     failed(void)
         const
     {
+        PRE(m_got_tc_end);
         return m_failed;
     }
 
-    void
-    finalize(const std::string& reason = "")
+    bool
+    tc_ended(void)
+        const
     {
-        PRE(!m_finalized);
+        return m_got_tc_end;
+    }
 
-        if (!m_inited)
-            m_writer.start_tp(m_tp.str(), 0);
-        if (!m_tcname.empty()) {
-            INV(!reason.empty());
-            got_tc_end(atf::tests::tcr(atf::tests::tcr::failed_state,
-                                       "Bogus test program"));
-        }
-
-        m_writer.end_tp(reason);
-        m_finalized = true;
+    void
+    got_tp_error(const std::string& error)
+    {
+        m_tcr = atf::tests::tcr(atf::tests::tcr::failed_state, error);
+        m_got_tc_end = true;
+        m_failed = true;
     }
 
     ~muxer(void)
     {
-        // The following is incorrect because we cannot throw an exception
-        // from a destructor.  Let's just hope that this never happens.
-        PRE(m_finalized);
+        INV(m_got_tc_end);
+        m_writer.end_tc(m_tcr);
     }
 };
 
@@ -219,30 +205,51 @@ class atf_run : public atf::application::app {
                  atf::formats::atf_tps_writer&);
     int run_test_directory(const atf::fs::path&,
                            atf::formats::atf_tps_writer&);
-    int run_test_program(const atf::fs::path&,
-                         atf::formats::atf_tps_writer&);
+    int run_test_case(const atf::fs::path&, const std::string&,
+                      atf::formats::atf_tps_writer&);
+    int run_test_program(const atf::fs::path&, atf::formats::atf_tps_writer&);
+
+    std::vector< std::string > query_tcs(const atf::fs::path&) const;
+
+    struct query_tcs_data {
+        const atf_run* m_this;
+        const atf::fs::path& m_tp;
+
+        query_tcs_data(const atf_run* t, const atf::fs::path& tp) :
+            m_this(t),
+            m_tp(tp)
+        {
+        }
+    };
 
     struct test_data {
         const atf_run* m_this;
         const atf::fs::path& m_tp;
+        const std::string& m_tc;
         atf::io::pipe& m_respipe;
 
         test_data(const atf_run* t, const atf::fs::path& tp,
-                  atf::io::pipe& respipe) :
+                  const std::string& tc, atf::io::pipe& respipe) :
             m_this(t),
             m_tp(tp),
+            m_tc(tc),
             m_respipe(respipe)
         {
         }
     };
 
-    static void route_run_test_program_child(void *);
-    void run_test_program_child(const atf::fs::path&,
+    static void route_run_test_case_child(void *);
+    void run_test_case_child(const atf::fs::path&, const std::string&,
                                 atf::io::pipe&) const;
-    int run_test_program_parent(const atf::fs::path&,
+    int run_test_case_parent(const atf::fs::path&, const std::string&,
                                 atf::formats::atf_tps_writer&,
                                 atf::process::child&,
                                 atf::io::pipe&);
+
+    static void route_query_tcs_child(void *);
+    void query_tcs_child(const atf::fs::path&) const;
+    std::vector< std::string > query_tcs_parent(const atf::fs::path&,
+                                                atf::process::child&) const;
 
 public:
     atf_run(void);
@@ -318,8 +325,9 @@ atf_run::run_test(const atf::fs::path& tp,
     int errcode;
     if (fi.get_type() == atf::fs::file_info::dir_type)
         errcode = run_test_directory(tp, w);
-    else
+    else {
         errcode = run_test_program(tp, w);
+    }
     return errcode;
 }
 
@@ -366,17 +374,34 @@ atf_run::conf_args(void) const
     return args;
 }
 
+char** vector_to_argv(const std::vector< std::string >& v)
+{
+    char** argv = new char*[v.size() + 1];
+    for (std::vector< std::string >::size_type i = 0; i < v.size(); i++) {
+        argv[i] = strdup(v[i].c_str());
+    }
+    argv[v.size()] = NULL;
+    return argv;
+}
+
+void append_to_vector(std::vector< std::string >& v1,
+                      const std::vector< std::string >& v2)
+{
+    std::copy(v2.begin(), v2.end(),
+              std::back_insert_iterator< std::vector< std::string > >(v1));
+}
+
 void
-atf_run::route_run_test_program_child(void* v)
+atf_run::route_run_test_case_child(void* v)
 {
     test_data* td = static_cast< test_data* >(v);
-    td->m_this->run_test_program_child(td->m_tp, td->m_respipe);
+    td->m_this->run_test_case_child(td->m_tp, td->m_tc, td->m_respipe);
     UNREACHABLE;
 }
 
 void
-atf_run::run_test_program_child(const atf::fs::path& tp,
-                                atf::io::pipe& respipe)
+atf_run::run_test_case_child(const atf::fs::path& tp, const std::string& tc,
+                             atf::io::pipe& respipe)
     const
 {
     // Remap the results file descriptor to point to the parent too.
@@ -388,53 +413,27 @@ atf_run::run_test_program_child(const atf::fs::path& tp,
     // Prepare the test program's arguments.  We use dynamic memory and
     // do not care to release it.  We are going to die anyway very soon,
     // either due to exec(2) or to exit(3).
-    std::vector< std::string > confargs = conf_args();
-    char** args = new char*[4 + confargs.size()];
-    {
-        // 0: Program name.
-        std::string progname = tp.leaf_name();
-        args[0] = new char[progname.length() + 1];
-        std::strcpy(args[0], progname.c_str());
-
-        // 1: The file descriptor to which the results will be printed.
-        args[1] = new char[4];
-        std::strcpy(args[1], "-r9");
-
-        // 2: The directory where the test program lives.
-        atf::fs::path bp = tp.branch_path();
-        if (!bp.is_absolute())
-            bp = bp.to_absolute();
-        const char* dir = bp.c_str();
-        args[2] = new char[std::strlen(dir) + 3];
-        std::strcpy(args[2], "-s");
-        std::strcat(args[2], dir);
-
-        // [3..last - 1]: Configuration arguments.
-        std::vector< std::string >::size_type i;
-        for (i = 0; i < confargs.size(); i++) {
-            const char* str = confargs[i].c_str();
-            args[3 + i] = new char[std::strlen(str) + 1];
-            std::strcpy(args[3 + i], str);
-        }
-
-        // Last: Terminator.
-        args[3 + i] = NULL;
-    }
+    std::vector< std::string > argv;
+    argv.push_back(tp.leaf_name());
+    argv.push_back("-r9");
+    argv.push_back("-s" + tp.branch_path().str());
+    append_to_vector(argv, conf_args());
+    argv.push_back(tc);
 
     // Do the real exec and report any errors to the parent through the
     // only mechanism we can use: stderr.
     // TODO Try to make this fail.
-    ::execv(tp.c_str(), args);
+    ::execv(tp.c_str(), vector_to_argv(argv));
     std::cerr << "Failed to execute `" << tp.str() << "': "
               << std::strerror(errno) << std::endl;
     std::exit(EXIT_FAILURE);
 }
 
 int
-atf_run::run_test_program_parent(const atf::fs::path& tp,
-                                 atf::formats::atf_tps_writer& w,
-                                 atf::process::child& c,
-                                 atf::io::pipe& respipe)
+atf_run::run_test_case_parent(const atf::fs::path& tp, const std::string& tc,
+                              atf::formats::atf_tps_writer& w,
+                              atf::process::child& c,
+                              atf::io::pipe& respipe)
 {
     // Get the input stream of stdout and stderr.
     atf::io::file_handle outfh = c.stdout_fd();
@@ -448,7 +447,7 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
 
     // Process the test case's output and multiplex it into our output
     // stream as we read it.
-    muxer m(tp, w, resin);
+    muxer m(tp, tc, w, resin);
     std::string fmterr;
     try {
         m.read(outin, errin);
@@ -479,21 +478,21 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
     int code;
     if (s.exited()) {
         code = s.exitstatus();
-        if (m.failed() > 0 && code == EXIT_SUCCESS) {
+        if ((!m.tc_ended() || m.failed()) && code == EXIT_SUCCESS) {
             code = EXIT_FAILURE;
-            m.finalize("Test program returned success but some test "
-                       "cases failed" +
-                       (fmterr.empty() ? "" : (".  " + fmterr)));
+            m.got_tp_error("Test program returned success but some test "
+                           "cases failed" +
+                           (fmterr.empty() ? "" : (".  " + fmterr)));
         } else {
-            code = fmterr.empty() ? code : EXIT_FAILURE;
-            m.finalize(fmterr);
+            if (!fmterr.empty())
+                m.got_tp_error(fmterr);
         }
     } else if (s.signaled()) {
         code = EXIT_FAILURE;
-        m.finalize("Test program received signal " +
-                   atf::text::to_string(s.termsig()) +
-                   (s.coredump() ? " (core dumped)" : "") +
-                   (fmterr.empty() ? "" : (".  " + fmterr)));
+        m.got_tp_error("Test program received signal " +
+                       atf::text::to_string(s.termsig()) +
+                       (s.coredump() ? " (core dumped)" : "") +
+                       (fmterr.empty() ? "" : (".  " + fmterr)));
     } else
         throw std::runtime_error
             ("Child process " + atf::text::to_string(c.pid()) +
@@ -502,8 +501,8 @@ atf_run::run_test_program_parent(const atf::fs::path& tp,
 }
 
 int
-atf_run::run_test_program(const atf::fs::path& tp,
-                          atf::formats::atf_tps_writer& w)
+atf_run::run_test_case(const atf::fs::path& tp, const std::string& tc,
+                       atf::formats::atf_tps_writer& w)
 {
     // XXX: This respipe is quite annoying.  The fact that we cannot
     // represent it as part of a portable fork API (which only supports
@@ -514,14 +513,124 @@ atf_run::run_test_program(const atf::fs::path& tp,
     // for results reporting sooner than later.  Alternative: use a
     // temporary file.
     atf::io::pipe respipe;
-    test_data td(this, tp, respipe);
+    test_data td(this, tp, tc, respipe);
     atf::process::child c =
-        atf::process::fork(route_run_test_program_child,
+        atf::process::fork(route_run_test_case_child,
                            atf::process::stream_capture(),
                            atf::process::stream_capture(),
                            static_cast< void * >(&td));
 
-    return run_test_program_parent(tp, w, c, respipe);
+    return run_test_case_parent(tp, tc, w, c, respipe);
+}
+
+int
+atf_run::run_test_program(const atf::fs::path& tp,
+                          atf::formats::atf_tps_writer& w)
+{
+    int errcode = EXIT_SUCCESS;
+
+    std::vector< std::string > tcs;
+    try {
+        tcs = query_tcs(tp);
+    } catch (const atf::formats::format_error& e) {
+        w.start_tp(tp.str(), 0);
+        w.end_tp(e.what());
+        return EXIT_FAILURE;
+    }
+
+    w.start_tp(tp.str(), tcs.size());
+    if (tcs.empty()) {
+        w.end_tp("Bogus test program: reported 0 test cases");
+        errcode = EXIT_FAILURE;
+    } else {
+        for (std::vector< std::string >::const_iterator iter = tcs.begin();
+             iter != tcs.end(); iter++) {
+            if (run_test_case(tp, *iter, w) != EXIT_SUCCESS)
+                errcode = EXIT_FAILURE;
+        }
+        w.end_tp("");
+    }
+
+    return errcode;
+}
+
+void
+atf_run::route_query_tcs_child(void* v)
+{
+    query_tcs_data* td = static_cast< query_tcs_data* >(v);
+    td->m_this->query_tcs_child(td->m_tp);
+    UNREACHABLE;
+}
+
+void
+atf_run::query_tcs_child(const atf::fs::path& tp)
+    const
+{
+    std::vector< std::string > argv;
+    argv.push_back(tp.leaf_name());
+    argv.push_back("-l");
+    argv.push_back("-s" + tp.branch_path().str());
+    append_to_vector(argv, conf_args());
+
+    ::execv(tp.c_str(), vector_to_argv(argv));
+    std::cerr << "Failed to execute `" << tp.str() << "': "
+              << std::strerror(errno) << std::endl;
+    std::exit(EXIT_FAILURE);
+}
+
+std::vector< std::string >
+atf_run::query_tcs_parent(const atf::fs::path& tp, atf::process::child& child)
+    const
+{
+    // Get the input stream of stdout and stderr.
+    atf::io::file_handle outfh = child.stdout_fd();
+    atf::io::pistream outin(outfh);
+
+    std::vector< std::string > tcs;
+
+    std::string fmterr;
+
+    std::string line;
+    while (getline(outin, line).good()) {
+        std::string::size_type pos = line.find(" ");
+        if (pos == std::string::npos) {
+            fmterr = "Invalid format for test case list in \"" + line + "\"";
+            break;
+        }
+
+        const std::string tc = line.substr(0, pos);
+        tcs.push_back(tc);
+    }
+
+    try {
+        outin.close();
+    } catch (...) {
+        UNREACHABLE;
+    }
+
+    const atf::process::status status = child.wait();
+
+    if (!fmterr.empty())
+        throw atf::formats::format_error(fmterr);
+    if (!status.exited() || status.exitstatus() != EXIT_SUCCESS)
+        throw atf::formats::format_error("Test program returned failure "
+                                         "exit status for test case list");
+
+    return tcs;
+}
+
+std::vector< std::string >
+atf_run::query_tcs(const atf::fs::path& tp)
+    const
+{
+    query_tcs_data data(this, tp);
+    atf::process::child child =
+        atf::process::fork(route_query_tcs_child,
+                           atf::process::stream_capture(),
+                           atf::process::stream_inherit(),
+                           static_cast< void * >(&data));
+
+    return query_tcs_parent(tp, child);
 }
 
 size_t

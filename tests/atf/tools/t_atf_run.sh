@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,28 @@ create_helper()
     cp $(atf_get_srcdir)/h_misc helper
     create_atffile helper
     TESTCASE=${1}; export TESTCASE
+}
+
+create_helper_stdin()
+{
+    cat >${1} <<EOF
+#! $(atf-config -t atf_shell)
+while [ \${#} -gt 0 ]; do
+    if [ \${1} = -l ]; then
+EOF
+    _cnt=${2}
+    while [ ${_cnt} -gt 0 ]; do
+        echo "echo 'tc${_cnt}    Test case'" >>${1}
+        _cnt=$((${_cnt} - 1))
+    done
+cat >>${1} <<EOF
+        exit 0
+    else
+        shift
+    fi
+done
+EOF
+    cat >>${1}
 }
 
 atf_test_case config
@@ -249,8 +271,7 @@ broken_tp_hdr_body()
     # We produce two errors from the header to ensure that the parse
     # errors are printed on a single line on the output file.  Printing
     # them on separate lines would be incorrect.
-    cat >helper <<EOF
-#! $(atf-config -t atf_shell)
+    create_helper_stdin helper 1 <<EOF
 echo 'foo' 1>&9
 echo 'bar' 1>&9
 exit 0
@@ -261,7 +282,57 @@ EOF
 
     atf_check -s eq:1 -o save:stdout -e empty atf-run
     atf_check -s eq:0 -o ignore -e empty \
-              grep '^tp-end: helper, .*Line 1.*Line 2' stdout
+              grep '^tc-end: tc1, .*Line 1.*Line 2' stdout
+}
+
+atf_test_case broken_tp_list
+broken_tp_list_head()
+{
+    atf_set "descr" "Ensures that atf-run reports test programs that" \
+                    "provide a bogus test case list"
+}
+broken_tp_list_body()
+{
+    cat >helper <<EOF
+#! $(atf-config -t atf_shell)
+while [ \${#} -gt 0 ]; do
+    if [ \${1} = -l ]; then
+        echo 'no_desc'
+        exit 0
+    else
+        shift
+    fi
+done
+exit 0
+EOF
+    chmod +x helper
+
+    create_atffile helper
+
+    atf_check -s eq:1 -o save:stdout -e empty atf-run
+    atf_check -s eq:0 -o save:stdout -e empty grep '^tp-end: helper, ' stdout
+    atf_check -s eq:0 -o ignore -e empty grep 'test case list.*no_desc' stdout
+}
+
+atf_test_case failed_tp_list
+failed_tp_list_head()
+{
+    atf_set "descr" "Ensures that atf-run reports test programs that" \
+                    "fail when listing test cases"
+}
+failed_tp_list_body()
+{
+    cat >helper <<EOF
+#! $(atf-config -t atf_shell)
+exit 1
+EOF
+    chmod +x helper
+
+    create_atffile helper
+
+    atf_check -s eq:1 -o save:stdout -e empty atf-run
+    atf_check -s eq:0 -o save:stdout -e empty grep '^tp-end: helper, ' stdout
+    atf_check -s eq:0 -o ignore -e empty grep 'failure exit status' stdout
 }
 
 atf_test_case zero_tcs
@@ -272,8 +343,7 @@ zero_tcs_head()
 }
 zero_tcs_body()
 {
-    cat >helper <<EOF
-#! $(atf-config -t atf_shell)
+    create_helper_stdin helper 0 <<EOF
 echo 'Content-Type: application/X-atf-tcs; version="1"' 1>&9
 echo 1>&9
 echo "tcs-count: 0" 1>&9
@@ -296,13 +366,12 @@ exit_codes_head()
 }
 exit_codes_body()
 {
-    cat >helper <<EOF
-#! $(atf-config -t atf_shell)
+    create_helper_stdin helper 1 <<EOF
 echo 'Content-Type: application/X-atf-tcs; version="1"' 1>&9
 echo 1>&9
 echo "tcs-count: 1" 1>&9
-echo "tc-start: foo" 1>&9
-echo "tc-end: foo, failed, Yes, it failed" 1>&9
+echo "tc-start: tc1" 1>&9
+echo "tc-end: tc1, failed, Yes, it failed" 1>&9
 true
 EOF
     chmod +x helper
@@ -310,7 +379,8 @@ EOF
     create_atffile helper
 
     atf_check -s eq:1 -o save:stdout -e empty atf-run
-    atf_check -s eq:0 -o save:stdout -e empty grep '^tp-end: helper, ' stdout
+    cat stdout
+    atf_check -s eq:0 -o save:stdout -e empty grep '^tc-end: tc1, ' stdout
     atf_check -s eq:0 -o ignore -e empty \
               grep 'success.*test cases failed' stdout
 }
@@ -323,13 +393,12 @@ signaled_head()
 }
 signaled_body()
 {
-    cat >helper <<EOF
-#! $(atf-config -t atf_shell)
+    create_helper_stdin helper 1 <<EOF
 echo 'Content-Type: application/X-atf-tcs; version="1"' 1>&9
 echo 1>&9
 echo "tcs-count: 1" 1>&9
-echo "tc-start: foo" 1>&9
-echo "tc-end: foo, failed, Will fail" 1>&9
+echo "tc-start: tc1" 1>&9
+echo "tc-end: tc1, failed, Will fail" 1>&9
 kill -9 \$\$
 EOF
     chmod +x helper
@@ -337,7 +406,7 @@ EOF
     create_atffile helper
 
     atf_check -s eq:1 -o save:stdout -e empty atf-run
-    atf_check -s eq:0 -o save:stdout -e empty grep '^tp-end: helper, ' stdout
+    atf_check -s eq:0 -o save:stdout -e empty grep '^tc-end: tc1, ' stdout
     atf_check -s eq:0 -o ignore -e empty grep 'received signal 9' stdout
 }
 
@@ -351,13 +420,12 @@ no_reason_head()
 no_reason_body()
 {
     for r in failed skipped; do
-        cat >helper <<EOF
-#! $(atf-config -t atf_shell)
+        create_helper_stdin helper 1 <<EOF
 echo 'Content-Type: application/X-atf-tcs; version="1"' 1>&9
 echo 1>&9
 echo "tcs-count: 1" 1>&9
-echo "tc-start: foo" 1>&9
-echo "tc-end: foo, ${r}" 1>&9
+echo "tc-start: tc1" 1>&9
+echo "tc-end: tc1, ${r}" 1>&9
 false
 EOF
         chmod +x helper
@@ -366,7 +434,7 @@ EOF
 
         atf_check -s eq:1 -o save:stdout -e empty atf-run
         atf_check -s eq:0 -o save:stdout -e empty \
-                  grep '^tp-end: helper, ' stdout
+                  grep '^tc-end: tc1, ' stdout
         atf_check -s eq:0 -o ignore -e empty \
                   grep 'Unexpected.*NEWLINE' stdout
     done
@@ -458,6 +526,8 @@ atf_init_test_cases()
     atf_add_test_case atffile_recursive
     atf_add_test_case fds
     atf_add_test_case broken_tp_hdr
+    atf_add_test_case broken_tp_list
+    atf_add_test_case failed_tp_list
     atf_add_test_case zero_tcs
     atf_add_test_case exit_codes
     atf_add_test_case signaled

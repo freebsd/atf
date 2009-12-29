@@ -30,37 +30,17 @@ dnl
 AT_SETUP([atf-run: execution of tests])
 AT_TESTED(atf-run)
 
-dnl XXX The 9 number used below is a hack used to simplify these tests.
-dnl The correct fix could be to make the auxiliary test programs be real
-dnl test programs instead of two-liners creted from here.
-
 m4_define([CREATE_PASS_TEST],
-[cat >$1 <<EOF
-#! @S|@(atf-config -t atf_shell)
-echo "Content-Type: application/X-atf-tcs; version=\"1\"" >&9
-echo "" >&9
-echo 'tcs-count: 1' >&9
-echo 'tc-start: $2' >&9
-echo ignore-me
-echo ignore-me >&2
-echo 'tc-end: $2, passed' >&9
-true
-EOF
+[AT_CHECK([sed -e 's,@TC_NAME@,$2,g' <TEST_HELPER_NO_S(tp_pass)],
+           [0], [stdout], [])
+AT_CHECK([mv stdout $1], [0], [], [])
 AT_CHECK([chmod +x $1], [0], [], [])
 ])
 
 m4_define([CREATE_FAIL_TEST],
-[cat >$1 <<EOF
-#! @S|@(atf-config -t atf_shell)
-echo "Content-Type: application/X-atf-tcs; version=\"1\"" >&9
-echo "" >&9
-echo 'tcs-count: 1' >&9
-echo 'tc-start: $2' >&9
-echo ignore-me
-echo ignore-me >&2
-echo 'tc-end: $2, failed, No reason' >&9
-false
-EOF
+[AT_CHECK([sed -e 's,@TC_NAME@,$2,g' <TEST_HELPER_NO_S(tp_fail)],
+           [0], [stdout], [])
+AT_CHECK([mv stdout $1], [0], [], [])
 AT_CHECK([chmod +x $1], [0], [], [])
 ])
 
@@ -187,10 +167,10 @@ prop: test-suite = atf
 
 tp: h_tp_basic_sh
 ])
-AT_CHECK([cd top && atf-run], [0], [stdout], [stderr])
+AT_CHECK([cd top && atf-run], [1], [stdout], [stderr])
 CHECK_TPS_TCR(pass, passed, stdout)
-CHECK_TPS_TCR(fail, passed, stdout)
-CHECK_TPS_TCR(skip, passed, stdout)
+CHECK_TPS_TCR(fail, failed, stdout)
+CHECK_TPS_TCR(skip, skipped, stdout)
 CHECK_TPS_TCR(default, passed, stdout)
 
 AT_CLEANUP()

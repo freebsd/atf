@@ -471,6 +471,24 @@ tests/bootstrap/h_tp_atf_check_sh: \
 	test -d tests/bootstrap || mkdir -p tests/bootstrap
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh
 
+check_SCRIPTS += tests/bootstrap/h_tp_fail
+CLEANFILES += tests/bootstrap/h_tp_fail
+EXTRA_DIST += tests/bootstrap/h_tp_fail.sh
+tests/bootstrap/h_tp_fail: \
+		$(srcdir)/tests/bootstrap/h_tp_fail.sh \
+		$(ATF_COMPILE_DEPS)
+	test -d tests/bootstrap || mkdir -p tests/bootstrap
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_fail.sh
+
+check_SCRIPTS += tests/bootstrap/h_tp_pass
+CLEANFILES += tests/bootstrap/h_tp_pass
+EXTRA_DIST += tests/bootstrap/h_tp_pass.sh
+tests/bootstrap/h_tp_pass: \
+		$(srcdir)/tests/bootstrap/h_tp_pass.sh \
+		$(ATF_COMPILE_DEPS)
+	test -d tests/bootstrap || mkdir -p tests/bootstrap
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_pass.sh
+
 DISTCLEANFILES = \
 		tests/bootstrap/atconfig \
 		testsuite.lineno \
