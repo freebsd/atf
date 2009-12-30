@@ -56,12 +56,11 @@ Held_Signals=
 # head or not.
 Parsing_Head=false
 
-# The file descriptor on which the test program will print the results of
-# the test cases.
-Results_Fd=1
-
 # The file to which the test case will print its result.
-Results_File=
+Results_File=resfile # XXX
+
+# The file to which the test case will print its result.  To be removed.
+Results_File_Aux=
 
 # The test program's source directory: i.e. where its auxiliary data files
 # and helper utilities can be found.  Defaults to the current directory
@@ -173,7 +172,12 @@ atf_config_has()
 #
 atf_fail()
 {
-    echo "failed, ${*}" >>${Results_File}
+    cat >${Results_File_Aux} <<EOF
+Content-Type: application/X-atf-tcr; version="1"
+
+result: failed
+reason: ${*}
+EOF
     exit 1
 }
 
@@ -207,7 +211,11 @@ atf_get_srcdir()
 #
 atf_pass()
 {
-    echo "passed" >>${Results_File}
+    cat >${Results_File_Aux} <<EOF
+Content-Type: application/X-atf-tcr; version="1"
+
+result: passed
+EOF
     exit 0
 }
 
@@ -267,7 +275,12 @@ atf_set()
 #
 atf_skip()
 {
-    echo "skipped, ${*}" >>${Results_File}
+    cat >${Results_File_Aux} <<EOF
+Content-Type: application/X-atf-tcr; version="1"
+
+result: skipped
+reason: ${*}
+EOF
     exit 0
 }
 
@@ -441,20 +454,6 @@ _atf_has_tc()
 _atf_get_bool()
 {
     eval $(atf_get ${1})
-}
-
-#
-# _atf_init_output [tc1 .. tcN]
-#
-#   Initializes the descriptor where we will send the test case's
-#   results.
-#
-_atf_init_output()
-{
-    echo "Content-Type: application/X-atf-tcs; version=\"1\"" \
-        >&${Results_Fd}
-    echo "" >&${Results_Fd}
-    echo "tcs-count: ${#}" >&${Results_Fd}
 }
 
 #
@@ -649,11 +648,9 @@ _atf_run_tc()
     trap _atf_sigint_handler SIGINT
     trap _atf_sigterm_handler SIGTERM
 
-    echo "tc-start: ${Test_Case}" >&${Results_Fd}
-
     _atf_internal_set srcdir "${Source_Dir}"
 
-    Results_File=$(mktemp ${Work_Dir}/atf.XXXXXX)
+    Results_File_Aux=$(mktemp ${Work_Dir}/atf.XXXXXX)
 
     _workdir=$(mktemp -d ${Work_Dir}/atf.XXXXXX)
     if [ ${?} -eq 0 ]; then
@@ -671,7 +668,7 @@ _atf_run_tc()
     fi
 
     # Set a default exit status if the test case did not report any.
-    if [ -z "$(cat ${Results_File})" ]; then
+    if [ -z "$(cat ${Results_File_Aux})" ]; then
         if [ -n "${Held_Signals}" ]; then
             ( atf_fail "Test case was interrupted by${Held_Signals}" )
         else
@@ -680,9 +677,9 @@ _atf_run_tc()
     fi
 
     # Print the result of the test case and clean up the temporary file.
-    echo "tc-end: ${Test_Case}, $(cat ${Results_File})" >&${Results_Fd}
-    rm -f ${Results_File}
-    Results_File=
+    cp ${Results_File_Aux} ${Results_File}
+    rm -f ${Results_File_Aux}
+    Results_File_Aux=
 
     Test_Case=
 
@@ -707,8 +704,6 @@ _atf_run_tcs()
     # bother creating it.
     [ -d "${Work_Dir}" ] || \
         _atf_error 1 "Cannot find the work directory \`${Work_Dir}'"
-
-    _atf_init_output "${@}"
 
     _ok=true
     while [ ${#} -gt 0 ]; do
@@ -735,8 +730,7 @@ _atf_shortcut_entry()
 {
     # Set global program status.
     _config_file=${_ATF_CONFIG_FILE}; unset _ATF_CONFIG_FILE
-    Results_Fd=${_ATF_RESULTS_FD}; unset _ATF_RESULTS_FD
-    Results_File=${_ATF_RESULTS_FILE}; unset _ATF_RESULTS_FILE
+    Results_File_Aux=${_ATF_RESULTS_FILE_AUX}; unset _ATF_RESULTS_FILE_AUX
     Source_Dir=${_ATF_SOURCE_DIR}; unset _ATF_SOURCE_DIR
     Work_Dir=${_ATF_WORK_DIR}; unset _ATF_WORK_DIR
 
@@ -787,8 +781,7 @@ _atf_shortcut_exec()
     # Now do the real re-execution.
     ${Atf_Exec} -t $(atf_get timeout):${2}/atf.timed.out env \
         _ATF_CONFIG_FILE=${_config_file} \
-        _ATF_RESULTS_FD=${Results_Fd} \
-        _ATF_RESULTS_FILE=${Results_File} \
+        _ATF_RESULTS_FILE_AUX=${Results_File_Aux} \
         _ATF_SHORTCUT=${1} \
         _ATF_SOURCE_DIR=${Source_Dir} \
         _ATF_WORK_DIR=${2} \
@@ -870,9 +863,9 @@ _atf_usage()
     _atf_echo "Available options:"
     _atf_echo -t "    -h              " "Shows this help message"
     _atf_echo -t "    -l              " "List test cases and their purpose"
-    _atf_echo -t "    -r fd           " "The file descriptor to which the" \
-                                        "test program will send the results" \
-                                        "of the test cases"
+    _atf_echo -t "    -r resfile      " "The file to which the test program " \
+                                        "will write the results of the " \
+                                        "executed test case"
     _atf_echo -t "    -s srcdir       " "Directory where the test's data" \
                                         "files are located"
     _atf_echo -t "    -v var=value    " "Sets the configuration variable" \
@@ -928,7 +921,7 @@ main()
             ;;
 
         r)
-            Results_Fd=${OPTARG}
+            Results_File=${OPTARG}
             ;;
 
         s)

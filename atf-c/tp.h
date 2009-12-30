@@ -67,7 +67,7 @@ atf_error_t atf_tp_add_tc(atf_tp_t *, struct atf_tc *);
  * Free functions.
  * --------------------------------------------------------------------- */
 
-atf_error_t atf_tp_run(const atf_tp_t *, const char *, int,
-                       const struct atf_fs_path *, bool *);
+atf_error_t atf_tp_run(const atf_tp_t *, const char *,
+                       const struct atf_fs_path *, struct atf_tcr *);
 
 #endif /* ATF_C_TP_H */

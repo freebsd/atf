@@ -31,54 +31,18 @@ AT_SETUP([test_program: output format and exit codes])
 
 for h in tp_basic_c tp_basic_cpp tp_basic_sh; do
 
-AT_CHECK([TEST_HELPER(${h}) pass], 0, [stdout], [stderr])
-CHECK_TCS_TCR(pass, passed, stdout)
-
 dnl Check the -r flag to redirect the results output.
-dnl (Same checks as above, as -r1 is the default.)
-AT_CHECK([TEST_HELPER(${h}) -r1 pass], 0, [stdout], [stderr])
-CHECK_TCS_TCR(pass, passed, stdout)
+AT_CHECK([TEST_HELPER(${h}) -r resout pass], 0, [stdout], [stderr])
+CHECK_TCR([resout], [passed])
 
-dnl Check the -r flag to redirect the results output.
-AT_CHECK([TEST_HELPER(${h}) -r2 pass], 0, [ignore], [stderr])
-CHECK_TCS_TCR(pass, passed, stderr)
+AT_CHECK([TEST_HELPER(${h}) -r resout fail], 1, [stdout], [stderr])
+CHECK_TCR([resout], [failed], [On purpose])
 
-dnl Check the -r flag to redirect the results output.
-AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="1"
+AT_CHECK([TEST_HELPER(${h}) -r resout skip], 0, [stdout], [stderr])
+CHECK_TCR([resout], [skipped], [By design])
 
-tcs-count: 1
-tc-start: pass
-tc-end: pass, passed
-])
-AT_CHECK([TEST_HELPER(${h}) -r3 pass 3>resout], 0, [stdout], [stderr])
-AT_CHECK([cmp -s resout expres], 0, [], [])
-
-AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="1"
-
-tcs-count: 1
-tc-start: fail
-tc-end: fail, failed, On purpose
-])
-AT_CHECK([TEST_HELPER(${h}) -r3 fail 3>resout], 1, [stdout], [stderr])
-AT_CHECK([cmp -s resout expres], 0, [], [])
-
-AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="1"
-
-tcs-count: 1
-tc-start: skip
-tc-end: skip, skipped, By design
-])
-AT_CHECK([TEST_HELPER(${h}) -r3 skip 3>resout], 0, [stdout], [stderr])
-AT_CHECK([cmp -s resout expres], 0, [], [])
-
-AT_DATA([expres], [Content-Type: application/X-atf-tcs; version="1"
-
-tcs-count: 1
-tc-start: default
-tc-end: default, passed
-])
-AT_CHECK([TEST_HELPER(${h}) -r3 default 3>resout], 0, [stdout], [stderr])
-AT_CHECK([cmp -s resout expres], 0, [], [])
+AT_CHECK([TEST_HELPER(${h}) -r resout default], 0, [stdout], [stderr])
+CHECK_TCR([resout], [passed])
 
 done
 

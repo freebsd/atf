@@ -161,53 +161,16 @@ atf_tp_add_tc(atf_tp_t *tp, atf_tc_t *tc)
  * --------------------------------------------------------------------- */
 
 atf_error_t
-atf_tp_run(const atf_tp_t *tp, const char *tcname, int fd,
-           const atf_fs_path_t *workdir, bool *failed)
+atf_tp_run(const atf_tp_t *tp, const char *tcname,
+           const atf_fs_path_t *workdir, atf_tcr_t *tcr)
 {
     atf_error_t err;
     const atf_tc_t *tc;
-    atf_tcr_t tcr;
-    int state;
-
-    err = atf_io_write_fmt(fd, "Content-Type: application/X-atf-tcs; "
-                           "version=\"1\"\n\n");
-    if (atf_is_error(err))
-        goto out;
-    err = atf_io_write_fmt(fd, "tcs-count: %d\n", 1);
-    if (atf_is_error(err))
-        goto out;
-
-    err = atf_io_write_fmt(fd, "tc-start: %s\n", tcname);
-    if (atf_is_error(err))
-        goto out;
 
     tc = find_tc(tp, tcname);
     PRE(tc != NULL);
 
-    err = atf_tc_run(tc, &tcr, STDOUT_FILENO, STDERR_FILENO, workdir);
-    if (atf_is_error(err))
-        goto out;
+    err = atf_tc_run(tc, tcr, STDOUT_FILENO, STDERR_FILENO, workdir);
 
-    state = atf_tcr_get_state(&tcr);
-    if (state == atf_tcr_passed_state) {
-        err = atf_io_write_fmt(fd, "tc-end: %s, passed\n", tcname);
-        *failed = false;
-    } else if (state == atf_tcr_failed_state) {
-        const atf_dynstr_t *reason = atf_tcr_get_reason(&tcr);
-        err = atf_io_write_fmt(fd, "tc-end: %s, failed, %s\n", tcname,
-                               atf_dynstr_cstring(reason));
-        *failed = true;
-    } else if (state == atf_tcr_skipped_state) {
-        const atf_dynstr_t *reason = atf_tcr_get_reason(&tcr);
-        err = atf_io_write_fmt(fd, "tc-end: %s, skipped, %s\n", tcname,
-                               atf_dynstr_cstring(reason));
-        *failed = false;
-    } else
-        UNREACHABLE;
-    atf_tcr_fini(&tcr);
-    if (atf_is_error(err))
-        goto out;
-
-out:
     return err;
 }

@@ -351,8 +351,7 @@ private:
     static const char* m_description;
 
     bool m_lflag;
-    int m_results_fd;
-    std::auto_ptr< std::ostream > m_results_os;
+    atf::fs::path m_resfile;
     atf::fs::path m_srcdir;
     atf::fs::path m_workdir;
 
@@ -369,8 +368,6 @@ private:
     void handle_srcdir(void);
 
     tc_vector init_tcs(void);
-
-    std::ostream& results_stream(void);
 
     int list_tcs(void);
     impl::tc* tp::find_tc(tc_vector, const std::string&);
@@ -389,7 +386,7 @@ const char* tp::m_description =
 tp::tp(void (*add_tcs)(tc_vector&)) :
     app(m_description, "atf-test-program(1)", "atf(7)"),
     m_lflag(false),
-    m_results_fd(STDOUT_FILENO),
+    m_resfile("resfile"), // XXX
     m_srcdir("."),
     m_workdir(atf::config::get("atf_workdir")),
     m_add_tcs(add_tcs)
@@ -420,9 +417,9 @@ tp::specific_options(void)
     using atf::application::option;
     options_set opts;
     opts.insert(option('l', "", "List test cases and their purpose"));
-    opts.insert(option('r', "fd", "The file descriptor to which the test "
-                                  "program will send the results of the "
-                                  "test cases"));
+    opts.insert(option('r', "resfile", "The file to which the test program "
+                                       "will write the results of the "
+                                       "executed test case"));
     opts.insert(option('s', "srcdir", "Directory where the test's data "
                                       "files are located"));
     opts.insert(option('v', "var=value", "Sets the configuration variable "
@@ -441,10 +438,7 @@ tp::process_option(int ch, const char* arg)
         break;
 
     case 'r':
-        {
-            std::istringstream ss(arg);
-            ss >> m_results_fd;
-        }
+        m_resfile = atf::fs::path(arg);
         break;
 
     case 's':
@@ -554,17 +548,6 @@ tp::list_tcs(void)
     return EXIT_SUCCESS;
 }
 
-std::ostream&
-tp::results_stream(void)
-{
-    if (m_results_fd == STDOUT_FILENO)
-        return std::cout;
-    else if (m_results_fd == STDERR_FILENO)
-        return std::cerr;
-    else
-        return *m_results_os;
-}
-
 impl::tc*
 tp::find_tc(tc_vector tcs, const std::string& name)
 {
@@ -589,24 +572,34 @@ tp::run_tc(const std::string& name)
         throw std::runtime_error("Cannot find the work directory `" +
                                  m_workdir.str() + "'");
 
+    std::ofstream resfile(m_resfile.c_str());
+    if (!resfile)
+        throw std::runtime_error("Cannot create results file `" +
+                                 m_resfile.str() + "'");
+
     int errcode = EXIT_SUCCESS;
 
     atf::signals::signal_holder sighup(SIGHUP);
     atf::signals::signal_holder sigint(SIGINT);
     atf::signals::signal_holder sigterm(SIGTERM);
 
-    atf::formats::atf_tcs_writer w(results_stream(), std::cout, std::cerr, 1);
-
-    w.start_tc(tc->get_md_var("ident"));
     impl::tcr tcr = tc->run(STDOUT_FILENO, STDERR_FILENO, m_workdir);
-    w.end_tc(tcr);
+
+    atf::formats::atf_tcr_writer w(resfile);
+    if (tcr.get_state() == impl::tcr::passed_state) {
+        w.result("passed");
+    } else if (tcr.get_state() == impl::tcr::failed_state) {
+        w.result("failed");
+        w.reason(tcr.get_reason());
+        errcode = EXIT_FAILURE;
+    } else if (tcr.get_state() == impl::tcr::skipped_state) {
+        w.result("skipped");
+        w.reason(tcr.get_reason());
+    }
 
     sighup.process();
     sigint.process();
     sigterm.process();
-
-    if (tcr.get_state() == impl::tcr::failed_state)
-        errcode = EXIT_FAILURE;
 
     return errcode;
 }
@@ -632,11 +625,6 @@ tp::main(void)
             throw usage_error("Cannot provide more than one test case name");
         INV(m_argc == 1);
 
-        if (m_results_fd != STDOUT_FILENO && m_results_fd != STDERR_FILENO) {
-            atf::io::file_handle fh(m_results_fd);
-            m_results_os =
-                std::auto_ptr< std::ostream >(new atf::io::postream(fh));
-        }
         errcode = run_tc(m_argv[0]);
     }
 
