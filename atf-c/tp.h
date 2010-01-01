@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009, 2010 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@
 struct atf_fs_path;
 struct atf_map;
 struct atf_tc;
+struct atf_tcr;
 
 /* ---------------------------------------------------------------------
  * The "atf_tp" type.
