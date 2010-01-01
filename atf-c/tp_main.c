@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,7 @@
 #include "atf-c/map.h"
 #include "atf-c/sanity.h"
 #include "atf-c/tc.h"
+#include "atf-c/tcr.h"
 #include "atf-c/tp.h"
 #include "atf-c/ui.h"
 
@@ -177,10 +178,10 @@ print_error(const atf_error_t err)
 struct params {
     bool m_do_list;
     bool m_do_usage;
-    int m_fd;
+    const char *m_resfile;
     const char *m_srcdir;
     const char *m_workdir;
-    atf_list_t m_tcglobs;
+    const char *m_tcname;
     atf_map_t m_config;
 };
 
@@ -192,19 +193,13 @@ params_init(struct params *p)
 
     p->m_do_list = false;
     p->m_do_usage = false;
-    p->m_fd = STDOUT_FILENO;
+    p->m_resfile = "resfile"; /* XXX */
     p->m_srcdir = ".";
     p->m_workdir = atf_config_get("atf_workdir");
-
-    err = atf_list_init(&p->m_tcglobs);
-    if (atf_is_error(err))
-        goto out;
+    p->m_tcname = NULL;
 
     err = atf_map_init(&p->m_config);
-    if (atf_is_error(err))
-        atf_list_fini(&p->m_tcglobs);
 
-out:
     return err;
 }
 
@@ -213,26 +208,6 @@ void
 params_fini(struct params *p)
 {
     atf_map_fini(&p->m_config);
-    atf_list_fini(&p->m_tcglobs);
-}
-
-static
-atf_error_t
-parse_rflag(const char *arg, int *value)
-{
-    atf_error_t err;
-
-    if (strlen(arg) != 1 || !isdigit((int)arg[0])) {
-        err = usage_error("Invalid value for -r; must be a single digit.");
-        goto out;
-    }
-
-    *value = arg[0] - '0';
-    INV(*value >= 0 && *value <= 9);
-    err = atf_no_error();
-
-out:
-    return err;
 }
 
 static
@@ -258,89 +233,23 @@ out:
 }
 
 /* ---------------------------------------------------------------------
- * Test case filtering.
+ * Test case listing.
  * --------------------------------------------------------------------- */
 
 static
 atf_error_t
-match_tcs(const atf_tp_t *tp, const char *glob, atf_list_t *ids)
-{
-    atf_error_t err;
-    bool found;
-    atf_list_citer_t iter;
-
-    err = atf_no_error();
-    found = false;
-    atf_list_for_each_c(iter, atf_tp_get_tcs(tp)) {
-        const atf_tc_t *tc = atf_list_citer_data(iter);
-        const char *ident = atf_tc_get_ident(tc);
-
-        if (atf_expand_is_glob(glob)) {
-            bool matches;
-
-            err = atf_expand_matches_glob(glob, ident, &matches);
-            if (!atf_is_error(err) && matches) {
-                err = atf_list_append(ids, strdup(ident), true);
-                found = true;
-            }
-        } else {
-            if (strcmp(glob, tc->m_ident) == 0) {
-                err = atf_list_append(ids, strdup(ident), true);
-                found = true;
-            }
-        }
-
-        if (atf_is_error(err))
-            break;
-    }
-
-    if (!atf_is_error(err) && !found)
-        err = user_error("Unknown test case `%s'", glob);
-
-    return err;
-}
-
-static
-atf_error_t
-filter_tcs(const atf_tp_t *tp, const atf_list_t *globs, atf_list_t *ids)
-{
-    atf_error_t err;
-    atf_list_citer_t iter;
-
-    err = atf_list_init(ids);
-    if (atf_is_error(err))
-        goto out;
-
-    atf_list_for_each_c(iter, globs) {
-        const char *glob = atf_list_citer_data(iter);
-        err = match_tcs(tp, glob, ids);
-        if (atf_is_error(err)) {
-            atf_list_fini(ids);
-            goto out;
-        }
-    }
-
-out:
-    return err;
-}
-
-static
-atf_error_t
-list_tcs(const atf_tp_t *tp, const atf_list_t *tcids)
+list_tcs(const atf_tp_t *tp)
 {
     atf_error_t err;
     size_t col;
     atf_list_citer_t iter;
 
-    PRE(atf_list_size(tcids) > 0);
-
     err = atf_no_error();
 
     /* Calculate column where to start descriptions. */
     col = 0;
-    atf_list_for_each_c(iter, tcids) {
-        const char *id = atf_list_citer_data(iter);
-        const atf_tc_t *tc = atf_tp_get_tc(tp, id);
+    atf_list_for_each_c(iter, atf_tp_get_tcs(tp)) {
+        const atf_tc_t *tc = atf_list_citer_data(iter);
         const size_t len = strlen(atf_tc_get_ident(tc));
 
         if (col < len)
@@ -349,12 +258,12 @@ list_tcs(const atf_tp_t *tp, const atf_list_t *tcids)
     col += 4;
 
     /* Pretty-print test case identifiers and descriptions. */
-    atf_list_for_each_c(iter, tcids) {
-        const char *id = atf_list_citer_data(iter);
-        const atf_tc_t *tc = atf_tp_get_tc(tp, id);
+    atf_list_for_each_c(iter, atf_tp_get_tcs(tp)) {
+        const atf_tc_t *tc = atf_list_citer_data(iter);
         const char *descr = atf_tc_get_md_var(tc, "descr");
 
-        err = print_tag(stdout, id, false, col, "%s", descr);
+        err = print_tag(stdout, atf_tc_get_ident(tc), false, col, "%s",
+                        descr);
         if (atf_is_error(err))
             break;
     }
@@ -370,8 +279,7 @@ static
 void
 usage(void)
 {
-    print_tag(stdout, "Usage: ", false, 0,
-              "%s [options] [test_case1 [.. test_caseN]]", progname);
+    print_tag(stdout, "Usage: ", false, 0, "%s [options] test_case", progname);
     printf("\n");
     print_tag(stdout, "", false, 0, "This is an independent atf test "
               "program.");
@@ -381,9 +289,9 @@ usage(void)
               "Shows this help message");
     print_tag(stdout, "    -l              ", false, 0,
               "List test cases and their purpose");
-    print_tag(stdout, "    -r fd           ", false, 0,
-              "The file descriptor to which the test program "
-              "will send the results of the test cases");
+    print_tag(stdout, "    -r resfile      ", false, 0,
+              "The file to which the test program will write the results "
+              "of the executed test case");
     print_tag(stdout, "    -s srcdir       ", false, 0,
               "Directory where the test's data files are "
               "located");
@@ -401,6 +309,7 @@ static
 atf_error_t
 process_params(int argc, char **argv, struct params *p)
 {
+    const int original_argc = argc;
     atf_error_t err;
     int ch;
 
@@ -421,7 +330,7 @@ process_params(int argc, char **argv, struct params *p)
             break;
 
         case 'r':
-            err = parse_rflag(optarg, &p->m_fd);
+            p->m_resfile = optarg;
             break;
 
         case 's':
@@ -449,12 +358,21 @@ process_params(int argc, char **argv, struct params *p)
     argv += optind;
 
     if (!atf_is_error(err)) {
-        char **arg;
-        for (arg = argv; !atf_is_error(err) && *arg != NULL; arg++)
-            err = atf_list_append(&p->m_tcglobs, strdup(*arg), true);
-
-        if (!atf_is_error(err) && atf_list_size(&p->m_tcglobs) == 0)
-            err = atf_list_append(&p->m_tcglobs, strdup("*"), true);
+        if (p->m_do_usage) {
+            if (original_argc != 2)
+                err = usage_error("-h must be given alone.");
+        } else if (p->m_do_list) {
+            if (argc > 0)
+                err = usage_error("Cannot provide test case names with -l");
+        } else {
+            if (argc == 0)
+                err = usage_error("Must provide a test case name");
+            else if (argc == 1)
+                p->m_tcname = argv[0];
+            else if (argc > 1) {
+                err = usage_error("Cannot provide more than one test case name");
+            }
+        }
     }
 
     if (atf_is_error(err))
@@ -516,6 +434,17 @@ out:
 
 static
 atf_error_t
+handle_resfile(struct params *p, atf_fs_path_t *resfile)
+{
+    atf_error_t err;
+
+    err = atf_fs_path_init_fmt(resfile, "%s", p->m_resfile);
+
+    return err;
+}
+
+static
+atf_error_t
 handle_workdir(struct params *p, atf_fs_path_t *workdir)
 {
     atf_error_t err;
@@ -551,20 +480,15 @@ controlled_main(int argc, char **argv,
     atf_error_t err;
     struct params p;
     atf_tp_t tp;
-    atf_list_t tcids;
-    atf_fs_path_t workdir;
+    atf_fs_path_t resfile, workdir;
 
     err = process_params(argc, argv, &p);
     if (atf_is_error(err))
         goto out;
 
     if (p.m_do_usage) {
-        if (argc != 2) {
-            err = usage_error("-h must be given alone.");
-        } else {
-            usage();
-            *exitcode = EXIT_SUCCESS;
-        }
+        usage();
+        *exitcode = EXIT_SUCCESS;
         goto out_p;
     }
 
@@ -572,9 +496,13 @@ controlled_main(int argc, char **argv,
     if (atf_is_error(err))
         goto out_p;
 
-    err = handle_workdir(&p, &workdir);
+    err = handle_resfile(&p, &resfile);
     if (atf_is_error(err))
         goto out_p;
+
+    err = handle_workdir(&p, &workdir);
+    if (atf_is_error(err))
+        goto out_resfile;
 
     err = atf_tp_init(&tp, &p.m_config);
     if (atf_is_error(err))
@@ -584,26 +512,36 @@ controlled_main(int argc, char **argv,
     if (atf_is_error(err))
         goto out_tp;
 
-    err = filter_tcs(&tp, &p.m_tcglobs, &tcids);
-    if (atf_is_error(err))
-        goto out_tp;
-
     if (p.m_do_list) {
-        err = list_tcs(&tp, &tcids);
+        err = list_tcs(&tp);
         if (!atf_is_error(err))
             *exitcode = EXIT_SUCCESS;
     } else {
-        size_t failed;
-        err = atf_tp_run(&tp, &tcids, p.m_fd, &workdir, &failed);
-        if (!atf_is_error(err))
-            *exitcode = failed > 0 ? EXIT_FAILURE : EXIT_SUCCESS;
+        if (!atf_tp_has_tc(&tp, p.m_tcname)) {
+            err = usage_error("Unknown test case `%s'", p.m_tcname);
+        } else {
+            atf_tcr_t tcr;
+            err = atf_tp_run(&tp, p.m_tcname, &workdir, &tcr);
+            if (atf_is_error(err)) {
+                /* TODO: Handle error */
+                *exitcode = EXIT_FAILURE;
+            } else {
+                atf_tcr_write(&tcr, &resfile); /* TODO: Handle error */
+                const bool failed =
+                    (atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
+                *exitcode = failed ? EXIT_FAILURE : EXIT_SUCCESS;
+
+                atf_tcr_fini(&tcr);
+            }
+        }
     }
 
-    atf_list_fini(&tcids);
 out_tp:
     atf_tp_fini(&tp);
 out_workdir:
     atf_fs_path_fini(&workdir);
+out_resfile:
+    atf_fs_path_fini(&resfile);
 out_p:
     params_fini(&p);
 out:

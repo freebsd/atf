@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ namespace impl = atf::formats;
     do { \
         if (!(parser).has_errors()) \
             func; \
-    } while (false);
+    } while (false)
 
 // ------------------------------------------------------------------------
 // The "format_error" class.
@@ -389,6 +389,39 @@ public:
 } // namespace atf_config
 
 // ------------------------------------------------------------------------
+// The "atf_tcr" auxiliary parser.
+// ------------------------------------------------------------------------
+
+namespace atf_tcr {
+
+static const atf::parser::token_type eof_type = 0;
+static const atf::parser::token_type nl_type = 1;
+static const atf::parser::token_type text_type = 2;
+static const atf::parser::token_type colon_type = 3;
+static const atf::parser::token_type result_type = 4;
+static const atf::parser::token_type reason_type = 5;
+static const atf::parser::token_type passed_type = 6;
+static const atf::parser::token_type failed_type = 7;
+static const atf::parser::token_type skipped_type = 8;
+
+class tokenizer : public atf::parser::tokenizer< std::istream > {
+public:
+    tokenizer(std::istream& is, size_t curline) :
+        atf::parser::tokenizer< std::istream >
+            (is, true, eof_type, nl_type, text_type, curline)
+    {
+        add_delim(':', colon_type);
+        add_keyword("result", result_type);
+        add_keyword("reason", reason_type);
+        add_keyword("passed", passed_type);
+        add_keyword("failed", failed_type);
+        add_keyword("skipped", skipped_type);
+    }
+};
+
+} // namespace atf_tcr
+
+// ------------------------------------------------------------------------
 // The "atf_tcs" auxiliary parser.
 // ------------------------------------------------------------------------
 
@@ -654,6 +687,113 @@ impl::atf_config_reader::read(void)
 }
 
 // ------------------------------------------------------------------------
+// The "atf_tcr_reader" class.
+// ------------------------------------------------------------------------
+
+impl::atf_tcr_reader::atf_tcr_reader(std::istream& is) :
+    m_is(is)
+{
+}
+
+impl::atf_tcr_reader::~atf_tcr_reader(void)
+{
+}
+
+void
+impl::atf_tcr_reader::got_result(const std::string& str)
+{
+}
+
+void
+impl::atf_tcr_reader::got_reason(const std::string& str)
+{
+}
+
+void
+impl::atf_tcr_reader::got_eof(void)
+{
+}
+
+void
+impl::atf_tcr_reader::read(void)
+{
+    using atf::parser::parse_error;
+    using namespace atf_tcr;
+
+    std::pair< size_t, headers_map > hml = read_headers(m_is, 1);
+    validate_content_type(hml.second, "application/X-atf-tcr", 1);
+
+    tokenizer tkz(m_is, hml.first);
+    atf::parser::parser< tokenizer > p(tkz);
+
+    for (;;) {
+        try {
+            atf::parser::token t =
+                p.expect(result_type, reason_type, nl_type, eof_type,
+                         "result, reason, a new line or eof");
+            if (t.type() == eof_type)
+                break;
+
+            if (t.type() == result_type) {
+                t = p.expect(colon_type, "`:'");
+
+                t = p.expect(passed_type, failed_type, skipped_type,
+                             "passed, failed or skipped");
+                CALLBACK(p, got_result(t.text()));
+            } else if (t.type() == reason_type) {
+                t = p.expect(colon_type, "`:'");
+                const std::string reason = text::trim(p.rest_of_line());
+                if (reason.empty())
+                    throw parse_error(t.lineno(),
+                                      "Empty reason for test case result");
+                CALLBACK(p, got_reason(reason));
+            } else if (t.type() == nl_type) {
+                continue;
+            } else
+                UNREACHABLE;
+
+            t = p.expect(nl_type, eof_type, "new line or comment");
+            if (t.type() == eof_type)
+                break;
+        } catch (const parse_error& pe) {
+            p.add_error(pe);
+            p.reset(nl_type);
+        }
+    }
+
+    CALLBACK(p, got_eof());
+}
+
+// ------------------------------------------------------------------------
+// The "atf_tcr_writer" class.
+// ------------------------------------------------------------------------
+
+impl::atf_tcr_writer::atf_tcr_writer(std::ostream& os) :
+    m_os(os)
+{
+    headers_map hm;
+    attrs_map ct_attrs;
+    ct_attrs["version"] = "1";
+    hm["Content-Type"] =
+        header_entry("Content-Type", "application/X-atf-tcr", ct_attrs);
+    write_headers(hm, m_os);
+}
+
+void
+impl::atf_tcr_writer::result(const std::string& str)
+{
+    m_os << "result: " << str << std::endl;
+    m_os.flush();
+}
+
+void
+impl::atf_tcr_writer::reason(const std::string& str)
+{
+    m_os << "reason: " << str << std::endl;
+    m_os.flush();
+}
+
+// ------------------------------------------------------------------------
 // The "atf_tcs_reader" class.
 // ------------------------------------------------------------------------
 
@@ -721,24 +861,18 @@ impl::atf_tcs_reader::read_out_err(void* pptr,
 
         if (fds[0].revents & POLLIN) {
             std::string line;
-            if (atf::io::getline(out, line).good()) {
-                if (line == "__atf_tc_separator__")
-                    fds[0].events &= ~POLLIN;
-                else
-                    CALLBACK(p, got_stdout_line(line));
-            } else
+            if (atf::io::getline(out, line).good())
+                CALLBACK(p, got_stdout_line(line));
+            else
                 fds[0].events &= ~POLLIN;
         } else if (fds[0].revents & POLLHUP)
             fds[0].events &= ~POLLIN;
 
         if (fds[1].revents & POLLIN) {
             std::string line;
-            if (atf::io::getline(err, line).good()) {
-                if (line == "__atf_tc_separator__")
-                    fds[1].events &= ~POLLIN;
-                else
-                    CALLBACK(p, got_stderr_line(line));
-            } else
+            if (atf::io::getline(err, line).good())
+                CALLBACK(p, got_stderr_line(line));
+            else
                 fds[1].events &= ~POLLIN;
         } else if (fds[1].revents & POLLHUP)
             fds[1].events &= ~POLLIN;
@@ -848,10 +982,10 @@ impl::atf_tcs_writer::atf_tcs_writer(std::ostream& os,
                                      size_t ntcs) :
     m_os(os),
     m_cout(p_cout),
-    m_cerr(p_cerr),
-    m_ntcs(ntcs),
-    m_curtc(0)
+    m_cerr(p_cerr)
 {
+    PRE(ntcs == 1);
+
     headers_map hm;
     attrs_map ct_attrs;
     ct_attrs["version"] = "1";
@@ -874,12 +1008,6 @@ impl::atf_tcs_writer::start_tc(const std::string& tcname)
 void
 impl::atf_tcs_writer::end_tc(const atf::tests::tcr& tcr)
 {
-    PRE(m_curtc < m_ntcs);
-    m_curtc++;
-    if (m_curtc < m_ntcs) {
-        m_cout << "__atf_tc_separator__\n";
-        m_cerr << "__atf_tc_separator__\n";
-    }
     m_cout.flush();
     m_cerr.flush();
 

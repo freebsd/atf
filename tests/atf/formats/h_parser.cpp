@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -109,6 +109,38 @@ public:
     read(const std::string& outname, const std::string& errname)
     {
         atf_config_reader::read();
+    }
+};
+
+class tcr_reader : protected atf::formats::atf_tcr_reader {
+    void
+    got_result(const std::string& str)
+    {
+        std::cout << "got_result(" << str << ")" << std::endl;
+    }
+
+    void
+    got_reason(const std::string& str)
+    {
+        std::cout << "got_reason(" << str << ")" << std::endl;
+    }
+
+public:
+    tcr_reader(std::istream& is) :
+        atf::formats::atf_tcr_reader(is)
+    {
+    }
+
+    void
+    read(const std::string& outname, const std::string& errname)
+    {
+        atf_tcr_reader::read();
+    }
+
+    void
+    got_eof(void)
+    {
+        std::cout << "got_eof()" << std::endl;
     }
 };
 
@@ -299,6 +331,8 @@ main(int argc, char* argv[])
             process< atffile_reader >(file);
         } else if (format == std::string("application/X-atf-config")) {
             process< config_reader >(file);
+        } else if (format == std::string("application/X-atf-tcr")) {
+            process< tcr_reader >(file);
         } else if (format == std::string("application/X-atf-tcs")) {
             if (argc < 5) {
                 std::cerr << "Missing arguments" << std::endl;

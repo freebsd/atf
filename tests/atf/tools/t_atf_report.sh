@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -176,7 +176,7 @@ tc, tp3, main, passed
 tp, tp3, passed
 tc, tp4, main, failed, This always fails
 tp, tp4, failed
-tp, tp5, bogus, There were errors parsing the output of the test program: Line 1: Unexpected token \`<<EOF>>'; expected a header name.
+tp, tp5, bogus, Invalid format for test case list in "foo"
 EOF
 # NO_CHECK_STYLE_END
 
@@ -208,7 +208,7 @@ tp4 (4/5): 1 test cases
     main: Failed: This always fails
 
 tp5 (5/5): 0 test cases
-tp5: BOGUS TEST PROGRAM: Cannot trust its results because of \`There were errors parsing the output of the test program: Line 1: Unexpected token \`<<EOF>>'; expected a header name.'
+tp5: BOGUS TEST PROGRAM: Cannot trust its results because of \`Invalid format for test case list in "foo"'
 
 Failed (bogus) test programs:
     tp5
@@ -264,7 +264,7 @@ output_xml_body()
 </tc>
 </tp>
 <tp id="tp5">
-<failed>There were errors parsing the output of the test program: Line 1: Unexpected token \`&lt;&lt;EOF&gt;&gt;'; expected a header name.</failed>
+<failed>Invalid format for test case list in "foo"</failed>
 </tp>
 <info class="endinfo">Another value</info>
 </tests-results>

@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -132,6 +132,27 @@ config_body()
         d_config_54
 }
 
+atf_test_case tcr
+tcr_head()
+{
+    atf_set "descr" "Verifies the application/X-atf-tcr parser"
+}
+tcr_body()
+{
+    run_header_tests application/X-atf-tcr 1
+    run_tests application/X-atf-tcr \
+        d_tcr_1 \
+        d_tcr_2 \
+        d_tcr_3 \
+        d_tcr_50 \
+        d_tcr_51 \
+        d_tcr_52 \
+        d_tcr_53 \
+        d_tcr_54 \
+        d_tcr_60 \
+        d_tcr_61
+}
+
 atf_test_case tcs
 tcs_head()
 {
@@ -193,6 +214,7 @@ atf_init_test_cases()
 {
     atf_add_test_case atffile
     atf_add_test_case config
+    atf_add_test_case tcr
     atf_add_test_case tcs
     atf_add_test_case tps
 }

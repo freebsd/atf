@@ -471,6 +471,24 @@ tests/bootstrap/h_tp_atf_check_sh: \
 	test -d tests/bootstrap || mkdir -p tests/bootstrap
 	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh
 
+check_SCRIPTS += tests/bootstrap/h_tp_fail
+CLEANFILES += tests/bootstrap/h_tp_fail
+EXTRA_DIST += tests/bootstrap/h_tp_fail.sh
+tests/bootstrap/h_tp_fail: \
+		$(srcdir)/tests/bootstrap/h_tp_fail.sh \
+		$(ATF_COMPILE_DEPS)
+	test -d tests/bootstrap || mkdir -p tests/bootstrap
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_fail.sh
+
+check_SCRIPTS += tests/bootstrap/h_tp_pass
+CLEANFILES += tests/bootstrap/h_tp_pass
+EXTRA_DIST += tests/bootstrap/h_tp_pass.sh
+tests/bootstrap/h_tp_pass: \
+		$(srcdir)/tests/bootstrap/h_tp_pass.sh \
+		$(ATF_COMPILE_DEPS)
+	test -d tests/bootstrap || mkdir -p tests/bootstrap
+	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_pass.sh
+
 DISTCLEANFILES = \
 		tests/bootstrap/atconfig \
 		testsuite.lineno \
@@ -782,6 +800,26 @@ atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_headers_8.experr \
                    tests/atf/formats/d_headers_9 \
                    tests/atf/formats/d_headers_9.experr \
+                   tests/atf/formats/d_tcr_1 \
+                   tests/atf/formats/d_tcr_1.expout \
+                   tests/atf/formats/d_tcr_2 \
+                   tests/atf/formats/d_tcr_2.expout \
+                   tests/atf/formats/d_tcr_3 \
+                   tests/atf/formats/d_tcr_3.expout \
+                   tests/atf/formats/d_tcr_50 \
+                   tests/atf/formats/d_tcr_50.experr \
+                   tests/atf/formats/d_tcr_51 \
+                   tests/atf/formats/d_tcr_51.experr \
+                   tests/atf/formats/d_tcr_52 \
+                   tests/atf/formats/d_tcr_52.experr \
+                   tests/atf/formats/d_tcr_53 \
+                   tests/atf/formats/d_tcr_53.experr \
+                   tests/atf/formats/d_tcr_54 \
+                   tests/atf/formats/d_tcr_54.experr \
+                   tests/atf/formats/d_tcr_60 \
+                   tests/atf/formats/d_tcr_60.experr \
+                   tests/atf/formats/d_tcr_61 \
+                   tests/atf/formats/d_tcr_61.experr \
                    tests/atf/formats/d_tcs_1 \
                    tests/atf/formats/d_tcs_1.errin \
                    tests/atf/formats/d_tcs_1.expout \
