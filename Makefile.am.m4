@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -637,6 +637,7 @@ C_TP([atf/atf-c], [t_tc], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_tcr], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_sanity], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_text], [], [tests/atf/atf-c/libh.la])
+C_TP([atf/atf-c], [t_tp], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_ui], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_user], [], [tests/atf/atf-c/libh.la])
 
