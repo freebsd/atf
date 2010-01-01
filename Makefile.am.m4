@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -820,6 +820,29 @@ atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_tcr_60.experr \
                    tests/atf/formats/d_tcr_61 \
                    tests/atf/formats/d_tcr_61.experr \
+                   tests/atf/formats/d_tcr_70 \
+                   tests/atf/formats/d_tcr_70.experr \
+                   tests/atf/formats/d_tcr_70.expout \
+                   tests/atf/formats/d_tcr_71 \
+                   tests/atf/formats/d_tcr_71.experr \
+                   tests/atf/formats/d_tcr_71.expout \
+                   tests/atf/formats/d_tcr_72 \
+                   tests/atf/formats/d_tcr_72.experr \
+                   tests/atf/formats/d_tcr_72.expout \
+                   tests/atf/formats/d_tcr_73 \
+                   tests/atf/formats/d_tcr_73.experr \
+                   tests/atf/formats/d_tcr_73.expout \
+                   tests/atf/formats/d_tcr_74 \
+                   tests/atf/formats/d_tcr_74.experr \
+                   tests/atf/formats/d_tcr_74.expout \
+                   tests/atf/formats/d_tcr_75 \
+                   tests/atf/formats/d_tcr_75.experr \
+                   tests/atf/formats/d_tcr_75.expout \
+                   tests/atf/formats/d_tcr_76 \
+                   tests/atf/formats/d_tcr_76.experr \
+                   tests/atf/formats/d_tcr_76.expout \
+                   tests/atf/formats/d_tcr_77
+                   tests/atf/formats/d_tcr_77.experr \
                    tests/atf/formats/d_tcs_1 \
                    tests/atf/formats/d_tcs_1.errin \
                    tests/atf/formats/d_tcs_1.expout \

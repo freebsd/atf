@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -150,7 +150,15 @@ tcr_body()
         d_tcr_53 \
         d_tcr_54 \
         d_tcr_60 \
-        d_tcr_61
+        d_tcr_61 \
+        d_tcr_70 \
+        d_tcr_71 \
+        d_tcr_72 \
+        d_tcr_73 \
+        d_tcr_74 \
+        d_tcr_75 \
+        d_tcr_76 \
+        d_tcr_77
 }
 
 atf_test_case tcs

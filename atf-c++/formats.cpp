@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -726,6 +726,8 @@ impl::atf_tcr_reader::read(void)
     tokenizer tkz(m_is, hml.first);
     atf::parser::parser< tokenizer > p(tkz);
 
+    std::string result, reason;
+
     for (;;) {
         try {
             atf::parser::token t =
@@ -735,14 +737,26 @@ impl::atf_tcr_reader::read(void)
                 break;
 
             if (t.type() == result_type) {
+                if (!result.empty())
+                    throw parse_error(t.lineno(), "Result already specified");
+
                 t = p.expect(colon_type, "`:'");
 
                 t = p.expect(passed_type, failed_type, skipped_type,
                              "passed, failed or skipped");
+                result = t.text();
                 CALLBACK(p, got_result(t.text()));
             } else if (t.type() == reason_type) {
+                if (result.empty())
+                    throw parse_error(t.lineno(), "Reason must follow result");
+                else if (result == "passed")
+                    throw parse_error(t.lineno(), "Reason not allowed");
+
+                if (!reason.empty())
+                    throw parse_error(t.lineno(), "Reason already specified");
+
                 t = p.expect(colon_type, "`:'");
-                const std::string reason = text::trim(p.rest_of_line());
+                reason = text::trim(p.rest_of_line());
                 if (reason.empty())
                     throw parse_error(t.lineno(),
                                       "Empty reason for test case result");
@@ -761,7 +775,13 @@ impl::atf_tcr_reader::read(void)
         }
     }
 
+    atf::parser::token t = p.expect(eof_type, "end of stream");
     CALLBACK(p, got_eof());
+
+    if (result.empty())
+        p.add_error(parse_error(t.lineno(), "No result status specified"));
+    else if (result != "passed" && reason.empty())
+        p.add_error(parse_error(t.lineno(), "No reason specified"));
 }
 
 // ------------------------------------------------------------------------
