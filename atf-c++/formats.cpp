@@ -737,16 +737,18 @@ impl::atf_tcr_reader::read(void)
                 break;
 
             if (t.type() == result_type) {
+                t = p.expect(colon_type, "`:'");
+
                 if (!result.empty())
                     throw parse_error(t.lineno(), "Result already specified");
-
-                t = p.expect(colon_type, "`:'");
 
                 t = p.expect(passed_type, failed_type, skipped_type,
                              "passed, failed or skipped");
                 result = t.text();
                 CALLBACK(p, got_result(t.text()));
             } else if (t.type() == reason_type) {
+                t = p.expect(colon_type, "`:'");
+
                 if (result.empty())
                     throw parse_error(t.lineno(), "Reason must follow result");
                 else if (result == "passed")
@@ -755,7 +757,6 @@ impl::atf_tcr_reader::read(void)
                 if (!reason.empty())
                     throw parse_error(t.lineno(), "Reason already specified");
 
-                t = p.expect(colon_type, "`:'");
                 reason = text::trim(p.rest_of_line());
                 if (reason.empty())
                     throw parse_error(t.lineno(),
