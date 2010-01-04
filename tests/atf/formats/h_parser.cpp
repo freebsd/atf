@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -307,7 +307,7 @@ process(const std::string& file, const std::string& outname = "",
         R reader(is);
         reader.read(outname, errname);
     } catch (const atf::parser::parse_errors& pes) {
-        std::cerr << pes.what();
+        std::cerr << pes.what() << std::endl;
     } catch (const atf::parser::parse_error& pe) {
         std::cerr << "LONELY PARSE ERROR: " << pe.first << ": "
                   << pe.second << std::endl;
