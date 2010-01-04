@@ -611,9 +611,9 @@ INIT_VAR(AUTOMAKE_ID([$1])_SCRIPTS)
 AUTOMAKE_ID([$1])_SCRIPTS += tests/$1/$2
 CLEANFILES += tests/$1/$2
 EXTRA_DIST += tests/$1/$2.sh
-tests/$1/$2: $(srcdir)/tests/$1/$2.sh $(ATF_COMPILE_DEPS)
+tests/$1/$2: $(srcdir)/tests/$1/$2.sh $3 $(ATF_COMPILE_DEPS)
 	test -d tests/$1 || mkdir -p tests/$1
-	$(ATF_COMPILE_SH) -o tests/$1/$2 $(srcdir)/tests/$1/$2.sh
+	$(ATF_COMPILE_SH) -o tests/$1/$2 $(srcdir)/tests/$1/$2.sh $3
 ])
 
 C_TP([atf/atf-c], [t_atf_c], [], [tests/atf/atf-c/libh.la])
@@ -900,14 +900,14 @@ EXTRA_DIST += tests/atf/test_programs/common.sh
 C_TP([atf/test_programs], [h_c], [], [tests/atf/atf-c/libh.la])
 CXX_TP([atf/test_programs], [h_cpp], [], [tests/atf/atf-c++/libh.la])
 SH_TP([atf/test_programs], [h_sh])
-SH_TP([atf/test_programs], [t_cleanup])
-SH_TP([atf/test_programs], [t_config])
-SH_TP([atf/test_programs], [t_env])
-SH_TP([atf/test_programs], [t_fork])
-SH_TP([atf/test_programs], [t_meta_data])
-SH_TP([atf/test_programs], [t_srcdir])
-SH_TP([atf/test_programs], [t_status])
-SH_TP([atf/test_programs], [t_workdir])
+SH_TP([atf/test_programs], [t_cleanup], [tests/atf/test_programs/common.sh])
+SH_TP([atf/test_programs], [t_config], [tests/atf/test_programs/common.sh])
+SH_TP([atf/test_programs], [t_env], [tests/atf/test_programs/common.sh])
+SH_TP([atf/test_programs], [t_fork], [tests/atf/test_programs/common.sh])
+SH_TP([atf/test_programs], [t_meta_data], [tests/atf/test_programs/common.sh])
+SH_TP([atf/test_programs], [t_srcdir], [tests/atf/test_programs/common.sh])
+SH_TP([atf/test_programs], [t_status], [tests/atf/test_programs/common.sh])
+SH_TP([atf/test_programs], [t_workdir], [tests/atf/test_programs/common.sh])
 
 atf_tools_DATA = tests/atf/tools/Atffile
 atf_toolsdir = $(pkgtestsdir)/tools
