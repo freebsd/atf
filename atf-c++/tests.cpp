@@ -649,36 +649,19 @@ tp::run_tc(const std::string& name)
         throw std::runtime_error("Cannot find the work directory `" +
                                  m_workdir.str() + "'");
 
-    std::ofstream resfile(m_resfile.c_str());
-    if (!resfile)
-        throw std::runtime_error("Cannot create results file `" +
-                                 m_resfile.str() + "'");
-
-    int errcode = EXIT_SUCCESS;
-
     atf::signals::signal_holder sighup(SIGHUP);
     atf::signals::signal_holder sigint(SIGINT);
     atf::signals::signal_holder sigterm(SIGTERM);
 
     impl::tcr tcr = tc->run(STDOUT_FILENO, STDERR_FILENO, m_workdir);
-
-    atf::formats::atf_tcr_writer w(resfile);
-    if (tcr.get_state() == impl::tcr::passed_state) {
-        w.result("passed");
-    } else if (tcr.get_state() == impl::tcr::failed_state) {
-        w.result("failed");
-        w.reason(tcr.get_reason());
-        errcode = EXIT_FAILURE;
-    } else if (tcr.get_state() == impl::tcr::skipped_state) {
-        w.result("skipped");
-        w.reason(tcr.get_reason());
-    }
+    tcr.write(m_resfile);
 
     sighup.process();
     sigint.process();
     sigterm.process();
 
-    return errcode;
+    return (tcr.get_state() != atf::tests::tcr::failed_state) ?
+        EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int
