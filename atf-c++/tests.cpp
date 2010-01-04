@@ -373,7 +373,7 @@ private:
     std::ostream& results_stream(void);
 
     int list_tcs(void);
-    impl::tc* tp::find_tc(tc_vector, const std::string&);
+    impl::tc* find_tc(tc_vector, const std::string&);
     int run_tc(const std::string&);
 
 public:
