@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2010 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,21 +31,15 @@ run_tests()
 {
     h=${1} what=${2} status=${3} code=${4}
 
-    atf_check -s eq:${code} -o ignore -e ignore -x \
-              "${h} -s $(atf_get_srcdir) -r3 -v 'cleanup=no' \
-               -v 'tmpfile=$(pwd)/tmpfile' \
-               cleanup_${what} 3>resout"
-    atf_check -s eq:0 -o ignore -e empty \
-              grep "cleanup_${what}, ${status}" resout
+    atf_check -s eq:${code} -o ignore -e ignore ${h} -s $(atf_get_srcdir) \
+        -r resfile -v cleanup=no -v tmpfile=$(pwd)/tmpfile cleanup_${what}
+    atf_check -s eq:0 -o ignore -e empty grep "result: ${status}" resfile
     atf_check -s eq:0 -o empty -e empty test -f tmpfile
     atf_check -s eq:0 -o empty -e empty rm tmpfile
 
-    atf_check -s eq:${code} -o ignore -e ignore -x \
-              "${h} -s $(atf_get_srcdir) -r3 -v 'cleanup=yes' \
-               -v 'tmpfile=$(pwd)/tmpfile' \
-               cleanup_${what} 3>resout"
-    atf_check -s eq:0 -o ignore -e empty \
-              grep "cleanup_${what}, ${status}" resout
+    atf_check -s eq:${code} -o ignore -e ignore ${h} -s $(atf_get_srcdir) \
+        -r resfile -v cleanup=yes -v tmpfile=$(pwd)/tmpfile cleanup_${what}
+    atf_check -s eq:0 -o ignore -e empty grep "result: ${status}" resfile
     atf_check -s eq:1 -o empty -e empty test -f tmpfile
 }
 
@@ -73,8 +67,8 @@ curdir_head()
 curdir_body()
 {
     for h in $(get_helpers); do
-        atf_check -s eq:0 -o save:stdout -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 cleanup_curdir 3>resout"
+        atf_check -s eq:0 -o save:stdout -e ignore ${h} -s $(atf_get_srcdir) \
+            cleanup_curdir
         atf_check -s eq:0 -o ignore -e empty grep "Old value: 1234" stdout
     done
 }
@@ -95,10 +89,9 @@ on_signal_body()
                 ;;
         esac
 
-        ${h} -s $(atf_get_srcdir) -r3 -v "tmpfile=$(pwd)/tmpfile" \
-            cleanup_sigterm 3>resout
-        atf_check -s eq:0 -o ignore -e empty \
-                  grep 'cleanup_sigterm, failed' resout
+        ${h} -s $(atf_get_srcdir) -r resfile -v tmpfile=$(pwd)/tmpfile \
+            cleanup_sigterm
+        atf_check -s eq:0 -o ignore -e empty grep 'result: failed' resfile
         atf_check -s eq:1 -o empty -e empty test -f tmpfile
         atf_check -s eq:1 -o empty -e empty test -f tmpfile.no
     done
@@ -113,10 +106,9 @@ fork_head()
 fork_body()
 {
     for h in $(get_helpers); do
-        ${h} -s $(atf_get_srcdir) -r3 -v "tmpfile=$(pwd)/tmpfile" \
-            cleanup_fork 3>resout
-        atf_check -s eq:0 -o ignore -e empty \
-                  grep 'cleanup_fork, passed' resout
+        ${h} -s $(atf_get_srcdir) -r resfile -v tmpfile=$(pwd)/tmpfile \
+            cleanup_fork
+        atf_check -s eq:0 -o ignore -e empty grep 'result: passed' resfile
     done
 }
 

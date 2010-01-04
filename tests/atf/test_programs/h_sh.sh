@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2010 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -202,21 +202,6 @@ env_list_body()
 # Helper tests for "t_fork".
 # -------------------------------------------------------------------------
 
-atf_test_case fork_mangle_fds
-fork_mangle_fds_head()
-{
-    atf_set "descr" "Helper test case for the t_fork test program"
-}
-fork_mangle_fds_body()
-{
-    resfd=$(atf_config_get resfd)
-    touch in
-    exec 0<in
-    exec 1>out
-    exec 2>err
-    eval "exec ${resfd}>res"
-}
-
 atf_test_case fork_stop
 fork_stop_head()
 {
@@ -366,17 +351,6 @@ timeout_body()
     sleep $(atf_config_get sleep)
 }
 
-atf_test_case timeout2
-timeout2_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "timeout2" $(atf_config_get timeout2 0)
-}
-timeout2_body()
-{
-    sleep $(atf_config_get sleep2)
-}
-
 # -------------------------------------------------------------------------
 # Helper tests for "t_srcdir".
 # -------------------------------------------------------------------------
@@ -452,7 +426,6 @@ atf_init_test_cases()
     atf_add_test_case env_list
 
     # Add helper tests for t_fork.
-    atf_add_test_case fork_mangle_fds
     atf_add_test_case fork_stop
     atf_add_test_case fork_umask
 
@@ -468,7 +441,6 @@ atf_init_test_cases()
     atf_add_test_case require_user2
     atf_add_test_case require_user3
     atf_add_test_case timeout
-    atf_add_test_case timeout2
 
     # Add helper tests for t_srcdir.
     atf_add_test_case srcdir_exists

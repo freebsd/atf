@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
+ * Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -332,33 +332,6 @@ ATF_TC_BODY(env_list, tc)
  * Helper tests for "t_fork".
  * --------------------------------------------------------------------- */
 
-ATF_TC(fork_mangle_fds);
-ATF_TC_HEAD(fork_mangle_fds, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_fork test "
-                      "program");
-}
-ATF_TC_BODY(fork_mangle_fds, tc)
-{
-    long resfd;
-
-    RE(atf_text_to_long(atf_tc_get_config_var(tc, "resfd"), &resfd));
-
-    if (close(STDIN_FILENO) == -1)
-        atf_tc_fail("Failed to close stdin");
-    if (close(STDOUT_FILENO) == -1)
-        atf_tc_fail("Failed to close stdout");
-    if (close(STDERR_FILENO) == -1)
-        atf_tc_fail("Failed to close stderr");
-    if (close(resfd) == -1)
-        atf_tc_fail("Failed to close results descriptor");
-
-#if defined(F_CLOSEM)
-    if (fcntl(0, F_CLOSEM) == -1)
-        atf_tc_fail("Failed to close everything");
-#endif
-}
-
 ATF_TC(fork_stop);
 ATF_TC_HEAD(fork_stop, tc)
 {
@@ -535,22 +508,6 @@ ATF_TC_BODY(timeout, tc)
     sleep(s);
 }
 
-ATF_TC(timeout2);
-ATF_TC_HEAD(timeout2, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
-                      "test program");
-    atf_tc_set_md_var(tc, "timeout", "%s",
-                   atf_tc_get_config_var_wd(tc, "timeout2", "0"));
-}
-ATF_TC_BODY(timeout2, tc)
-{
-    long s;
-
-    RE(atf_text_to_long(atf_tc_get_config_var(tc, "sleep2"), &s));
-    sleep(s);
-}
-
 /* ---------------------------------------------------------------------
  * Helper tests for "t_srcdir".
  * --------------------------------------------------------------------- */
@@ -663,7 +620,6 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, env_list);
 
     /* Add helper tests for t_fork. */
-    ATF_TP_ADD_TC(tp, fork_mangle_fds);
     ATF_TP_ADD_TC(tp, fork_stop);
     ATF_TP_ADD_TC(tp, fork_umask);
 
@@ -679,7 +635,6 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, require_user2);
     ATF_TP_ADD_TC(tp, require_user3);
     ATF_TP_ADD_TC(tp, timeout);
-    ATF_TP_ADD_TC(tp, timeout2);
 
     /* Add helper tests for t_srcdir. */
     ATF_TP_ADD_TC(tp, srcdir_exists);

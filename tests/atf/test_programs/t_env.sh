@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2010 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -45,9 +45,8 @@ def_undef_body()
     done
 
     for h in $(get_helpers); do
-        atf_check -s eq:0 -o save:stdout -e ignore -x \
-                  "${mangleenv} ${h} -s $(atf_get_srcdir) -r3 \
-                   env_list 3>resout"
+        atf_check -s eq:0 -o save:stdout -e ignore -x "${mangleenv} ${h} \
+            -s $(atf_get_srcdir) env_list"
 
         for v in ${undef_vars}; do
             atf_check -s eq:1 -o empty -e empty grep "^${v}=" stdout

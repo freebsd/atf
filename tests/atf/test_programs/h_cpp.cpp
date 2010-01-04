@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -259,30 +259,6 @@ ATF_TEST_CASE_BODY(env_list)
 // Helper tests for "t_fork".
 // ------------------------------------------------------------------------
 
-ATF_TEST_CASE(fork_mangle_fds);
-ATF_TEST_CASE_HEAD(fork_mangle_fds)
-{
-    set_md_var("descr", "Helper test case for the t_fork test program");
-}
-ATF_TEST_CASE_BODY(fork_mangle_fds)
-{
-    int resfd = std::atoi(get_config_var("resfd").c_str());
-
-    if (::close(STDIN_FILENO) == -1)
-        ATF_FAIL("Failed to close stdin");
-    if (::close(STDOUT_FILENO) == -1)
-        ATF_FAIL("Failed to close stdout");
-    if (::close(STDERR_FILENO) == -1)
-        ATF_FAIL("Failed to close stderr");
-    if (::close(resfd) == -1)
-        ATF_FAIL("Failed to close results descriptor");
-
-#if defined(F_CLOSEM)
-    if (::fcntl(0, F_CLOSEM) == -1)
-        ATF_FAIL("Failed to close everything");
-#endif
-}
-
 ATF_TEST_CASE(fork_stop);
 ATF_TEST_CASE_HEAD(fork_stop)
 {
@@ -430,17 +406,6 @@ ATF_TEST_CASE_BODY(timeout)
     sleep(atf::text::to_type< int >(get_config_var("sleep")));
 }
 
-ATF_TEST_CASE(timeout2);
-ATF_TEST_CASE_HEAD(timeout2)
-{
-    set_md_var("descr", "Helper test case for the t_meta_data test program");
-    set_md_var("timeout", get_config_var("timeout2", "0"));
-}
-ATF_TEST_CASE_BODY(timeout2)
-{
-    sleep(atf::text::to_type< int >(get_config_var("sleep2")));
-}
-
 // ------------------------------------------------------------------------
 // Helper tests for "t_srcdir".
 // ------------------------------------------------------------------------
@@ -558,7 +523,6 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, env_list);
 
     // Add helper tests for t_fork.
-    ATF_ADD_TEST_CASE(tcs, fork_mangle_fds);
     ATF_ADD_TEST_CASE(tcs, fork_stop);
     ATF_ADD_TEST_CASE(tcs, fork_umask);
 
@@ -574,7 +538,6 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, require_user2);
     ATF_ADD_TEST_CASE(tcs, require_user3);
     ATF_ADD_TEST_CASE(tcs, timeout);
-    ATF_ADD_TEST_CASE(tcs, timeout2);
 
     // Add helper tests for t_srcdir.
     ATF_ADD_TEST_CASE(tcs, srcdir_exists);

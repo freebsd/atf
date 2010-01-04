@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2010 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -40,11 +40,11 @@ ident_body()
 {
     for h in $(get_helpers); do
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 ident_1 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep passed resout
+                  "${h} -s $(atf_get_srcdir) -r resfile ident_1"
+        atf_check -s eq:0 -o ignore -e empty grep passed resfile
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 ident_2 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep passed resout
+                  "${h} -s $(atf_get_srcdir) -r resfile ident_2"
+        atf_check -s eq:0 -o ignore -e empty grep passed resfile
     done
 }
 
@@ -63,46 +63,46 @@ require_arch_body()
         echo "Check for the real architecture"
         arch=$(atf-config -t atf_arch)
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v arch='${arch}' \
-                   require_arch 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile -v arch='${arch}' \
+                   require_arch"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v arch='foo ${arch}' \
-                   require_arch 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile -v arch='foo ${arch}' \
+                   require_arch"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v arch='${arch} foo' \
-                   require_arch 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile -v arch='${arch} foo' \
+                   require_arch"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
 
         echo "Some fictitious checks"
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r3 \
+                  "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r resfile \
                    -v arch='foo' \
-                   require_arch 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                   require_arch"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r3 \
+                  "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r resfile \
                    -v arch='foo bar' \
-                   require_arch 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                   require_arch"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r3 \
+                  "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r resfile \
                    -v arch='bar foo' \
-                   require_arch 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                   require_arch"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
 
         echo "Now some failures"
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r3 \
+                  "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r resfile \
                    -v arch='bar' \
-                   require_arch 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "skipped" resout
+                   require_arch"
+        atf_check -s eq:0 -o ignore -e empty grep "skipped" resfile
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r3 \
+                  "ATF_ARCH=foo ${h} -s $(atf_get_srcdir) -r resfile \
                    -v arch='bar baz' \
-                   require_arch 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "skipped" resout
+                   require_arch"
+        atf_check -s eq:0 -o ignore -e empty grep "skipped" resfile
     done
 }
 
@@ -119,20 +119,20 @@ require_config_body()
 {
     for h in $(get_helpers); do
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 require_config 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "skipped" resout
-        atf_check -s eq:0 -o ignore -e empty grep "var1 not defined" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile require_config"
+        atf_check -s eq:0 -o ignore -e empty grep "skipped" resfile
+        atf_check -s eq:0 -o ignore -e empty grep "var1 not defined" resfile
 
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v var1=foo \
-                   require_config 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "skipped" resout
-        atf_check -s eq:0 -o ignore -e empty grep "var2 not defined" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile -v var1=foo \
+                   require_config"
+        atf_check -s eq:0 -o ignore -e empty grep "skipped" resfile
+        atf_check -s eq:0 -o ignore -e empty grep "var2 not defined" resfile
 
         atf_check -s eq:0 -o save:stdout -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v var1=foo -v var2=bar \
-                   require_config 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile -v var1=foo -v var2=bar \
+                   require_config"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
         atf_check -s eq:0 -o ignore -e empty grep "var1: foo" stdout
         atf_check -s eq:0 -o ignore -e empty grep "var2: bar" stdout
     done
@@ -153,46 +153,46 @@ require_machine_body()
         echo "Check for the real machine type"
         machine=$(atf-config -t atf_machine)
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v machine='${machine}' \
-                   require_machine 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile -v machine='${machine}' \
+                   require_machine"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v machine='foo ${machine}' \
-                   require_machine 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile -v machine='foo ${machine}' \
+                   require_machine"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v machine='${machine} foo' \
-                   require_machine 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile -v machine='${machine} foo' \
+                   require_machine"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
 
         echo "Some fictitious checks"
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r3 \
+                  "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r resfile \
                    -v machine='foo' \
-                   require_machine 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                   require_machine"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r3 \
+                  "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r resfile \
                    -v machine='foo bar' \
-                   require_machine 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                   require_machine"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r3 \
+                  "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r resfile \
                    -v machine='bar foo' \
-                   require_machine 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                   require_machine"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
 
         echo "Now some failures"
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r3 \
+                  "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r resfile \
                    -v machine='bar' \
-                   require_machine 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "skipped" resout
+                   require_machine"
+        atf_check -s eq:0 -o ignore -e empty grep "skipped" resfile
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r3 \
+                  "ATF_MACHINE=foo ${h} -s $(atf_get_srcdir) -r resfile \
                    -v machine='bar baz' \
-                   require_machine 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "skipped" resout
+                   require_machine"
+        atf_check -s eq:0 -o ignore -e empty grep "skipped" resfile
     done
 }
 
@@ -205,30 +205,30 @@ common_tests() {
     for h in $(get_helpers); do
         # Check absolute paths.
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v 'progs=/bin/cp' \
-                   require_progs_${where} 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile -v 'progs=/bin/cp' \
+                   require_progs_${where}"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v \
+                  "${h} -s $(atf_get_srcdir) -r resfile -v \
                    'progs=/bin/__non-existent__' \
-                   require_progs_${where} 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "skipped" resout
+                   require_progs_${where}"
+        atf_check -s eq:0 -o ignore -e empty grep "skipped" resfile
 
         # Relative paths are not allowed.
         atf_check -s eq:1 -o ignore -e save:stderr -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v 'progs=bin/cp' \
-                   require_progs_${where} 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "failed" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile -v 'progs=bin/cp' \
+                   require_progs_${where}"
+        atf_check -s eq:0 -o ignore -e empty grep "failed" resfile
 
         # Check plain file names, searching them in the PATH.
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v 'progs=cp' \
-                   require_progs_${where} 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile -v 'progs=cp' \
+                   require_progs_${where}"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v 'progs=__non-existent__' \
-                   require_progs_${where} 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "skipped" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile -v 'progs=__non-existent__' \
+                   require_progs_${where}"
+        atf_check -s eq:0 -o ignore -e empty grep "skipped" resfile
     done
 }
 
@@ -256,40 +256,39 @@ require_progs_header_body()
         # Check a couple of absolute path names.  The second must make
         # the check fail.
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 \
+                  "${h} -s $(atf_get_srcdir) -r resfile \
                    -v 'progs=/bin/cp /bin/__non-existent__' \
-                   require_progs_head 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "skipped" resout
-        atf_check -s eq:0 -o ignore -e empty grep "non-existent" resout
+                   require_progs_head"
+        atf_check -s eq:0 -o ignore -e empty grep "skipped" resfile
+        atf_check -s eq:0 -o ignore -e empty grep "non-existent" resfile
 
         # Check a couple of absolute path names.  Both have to be found.
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v 'progs=/bin/cp /bin/ls' \
-                   require_progs_head 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile -v 'progs=/bin/cp /bin/ls' \
+                   require_progs_head"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
 
         # Check an absolute path name and a relative one.  The second must
         # make the check fail.
         atf_check -s eq:1 -o ignore -e save:stderr -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v 'progs=/bin/cp bin/cp' \
-                   require_progs_head 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "failed" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile -v 'progs=/bin/cp bin/cp' \
+                   require_progs_head"
+        atf_check -s eq:0 -o ignore -e empty grep "failed" resfile
 
         # Check an absolute path name and a plain one.  Both have to be
         # found.
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v 'progs=/bin/cp ls' \
-                   require_progs_head 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile -v 'progs=/bin/cp ls' \
+                   require_progs_head"
+        atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
 
         # Check an absolute path name and a plain one.  The second must
         # make the check fail.
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 \
-                   -v 'progs=/bin/cp __non-existent__' require_progs_head \
-                   3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "skipped" resout
-        atf_check -s eq:0 -o ignore -e empty grep "non-existent" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile \
+                   -v 'progs=/bin/cp __non-existent__' require_progs_head"
+        atf_check -s eq:0 -o ignore -e empty grep "skipped" resfile
+        atf_check -s eq:0 -o ignore -e empty grep "non-existent" resfile
     done
 }
 
@@ -311,12 +310,12 @@ require_user_root_body()
 {
     for h in $(get_helpers); do
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v user=root require_user \
-                   3>resout"
+                  "${h} -s $(atf_get_srcdir) -r resfile -v user=root \
+                  require_user"
         if [ $(id -u) -eq 0 ]; then
-            atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+            atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
         else
-            atf_check -s eq:0 -o ignore -e empty grep "skipped" resout
+            atf_check -s eq:0 -o ignore -e empty grep "skipped" resfile
         fi
     done
 }
@@ -330,39 +329,13 @@ require_user_unprivileged_body()
 {
     for h in $(get_helpers); do
         atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v user=unprivileged \
-                   require_user 3>resout"
+                  "${h} -s $(atf_get_srcdir) -r resfile -v user=unprivileged \
+                   require_user"
         if [ $(id -u) -eq 0 ]; then
-            atf_check -s eq:0 -o ignore -e empty grep "skipped" resout
+            atf_check -s eq:0 -o ignore -e empty grep "skipped" resfile
         else
-            atf_check -s eq:0 -o ignore -e empty grep "passed" resout
+            atf_check -s eq:0 -o ignore -e empty grep "passed" resfile
         fi
-    done
-}
-
-atf_test_case require_user_multiple
-require_user_multiple_head()
-{
-    atf_set "descr" "Tests that multiple skip results raised by the" \
-                    "handling of require.user do not abort the program" \
-                    "prematurely"
-}
-require_user_multiple_body()
-{
-    for h in $(get_helpers); do
-        if [ $(id -u) -eq 0 ]; then
-            users="-v user=unprivileged -v user2=unprivileged -v user3=root"
-        else
-            users="-v user=root -v user2=root -v user3=unprivileged"
-        fi
-        atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 ${users} require_user \
-                   require_user2 require_user3 3>resout"
-        grep "skipped" resout >skips
-        [ $(count_lines skips) -lt 2 ] && \
-            atf_fail "Test program aborted prematurely"
-        [ $(count_lines skips) -gt 2 ] && \
-            atf_fail "Test program returned more skips than expected"
     done
 }
 
@@ -376,9 +349,9 @@ require_user_bad_body()
 {
     for h in $(get_helpers); do
         atf_check -s eq:1 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) -r3 -v user=foo require_user \
-                   3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "failed.*Invalid" resout
+                  "${h} -s $(atf_get_srcdir) -r resfile -v user=foo \
+                  require_user"
+        atf_check -s eq:0 -o ignore -e empty grep "reason:.*Invalid" resfile
     done
 }
 
@@ -394,32 +367,17 @@ timeout_head()
 timeout_body()
 {
     for h in $(get_helpers); do
-        atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) \
-                   -v timeout=0 -v sleep=1 \
-                   -r3 timeout 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "timeout, passed" resout
+        atf_check -s eq:0 -o ignore -e ignore ${h} -s $(atf_get_srcdir) \
+            -v timeout=0 -v sleep=1 -r resfile timeout
+        atf_check -s eq:0 -o ignore -e empty grep "result: passed" resfile
 
-        atf_check -s eq:0 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) \
-                   -v timeout=10 -v sleep=1 \
-                   -r3 timeout 3>resout"
-        atf_check -s eq:0 -o ignore -e empty grep "timeout, passed" resout
+        atf_check -s eq:0 -o ignore -e ignore ${h} -s $(atf_get_srcdir) \
+            -v timeout=10 -v sleep=1 -r resfile timeout
+        atf_check -s eq:0 -o ignore -e empty grep "result: passed" resfile
 
-        atf_check -s eq:1 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) \
-                   -v timeout=1 -v sleep=10 \
-                   -r3 timeout 3>resout"
-        atf_check -s eq:0 -o ignore -e empty \
-                  grep "timeout, failed,.*timed out" resout
-
-        atf_check -s eq:1 -o ignore -e ignore -x \
-                  "${h} -s $(atf_get_srcdir) \
-                   -v timeout=1 -v sleep=10 -v timeout2=10 -v sleep2=1 \
-                   -r3 timeout timeout2 3>resout"
-        atf_check -s eq:0 -o ignore -e empty -x \
-                  'grep "timeout, failed,.*timed out" resout'
-        atf_check -s eq:0 -o ignore -e empty grep "timeout2, passed" resout
+        atf_check -s eq:1 -o ignore -e ignore ${h} -s $(atf_get_srcdir) \
+            -v timeout=1 -v sleep=10 -r resfile timeout
+        atf_check -s eq:0 -o ignore -e empty grep "reason:.*timed out" resfile
     done
 }
 
@@ -437,7 +395,6 @@ atf_init_test_cases()
     atf_add_test_case require_progs_header
     atf_add_test_case require_user_root
     atf_add_test_case require_user_unprivileged
-    atf_add_test_case require_user_multiple
     atf_add_test_case require_user_bad
     atf_add_test_case timeout
 }
