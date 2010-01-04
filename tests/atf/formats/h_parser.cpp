@@ -144,78 +144,6 @@ public:
     }
 };
 
-class tcs_reader : protected atf::formats::atf_tcs_reader {
-    void
-    got_ntcs(size_t ntcs)
-    {
-        std::cout << "got_ntcs(" << ntcs << ")" << std::endl;
-    }
-
-    void
-    got_tc_start(const std::string& tcname)
-    {
-        std::cout << "got_tc_start(" << tcname << ")" << std::endl;
-    }
-
-    void
-    got_tc_end(const atf::tests::tcr& tcr)
-    {
-        std::string r;
-        if (tcr.get_state() == atf::tests::tcr::passed_state)
-            r = "passed";
-        else if (tcr.get_state() == atf::tests::tcr::failed_state)
-            r = "failed, " + tcr.get_reason();
-        else if (tcr.get_state() == atf::tests::tcr::skipped_state)
-            r = "skipped, " + tcr.get_reason();
-        else
-            UNREACHABLE;
-
-        std::cout << "got_tc_end(" << r << ")" << std::endl;
-    }
-
-    void
-    got_stdout_line(const std::string& line)
-    {
-        std::cout << "got_stdout_line(" << line << ")" << std::endl;
-    }
-
-    void
-    got_stderr_line(const std::string& line)
-    {
-        std::cout << "got_stderr_line(" << line << ")" << std::endl;
-    }
-
-    void
-    got_eof(void)
-    {
-        std::cout << "got_eof()" << std::endl;
-    }
-
-public:
-    tcs_reader(std::istream& is) :
-        atf::formats::atf_tcs_reader(is)
-    {
-    }
-
-    void
-    read(const std::string& outname, const std::string& errname)
-    {
-        int outfd = ::open(outname.c_str(), O_RDONLY);
-        if (outfd == -1)
-            throw std::runtime_error("Failed to open " + outname);
-        atf::io::file_handle outfh(outfd);
-
-        int errfd = ::open(errname.c_str(), O_RDONLY);
-        if (errfd == -1)
-            throw std::runtime_error("Failed to open " + errname);
-        atf::io::file_handle errfh(errfd);
-
-        atf::io::unbuffered_istream outin(outfh);
-        atf::io::unbuffered_istream errin(errfh);
-        atf_tcs_reader::read(outin, errin);
-    }
-};
-
 class tps_reader : protected atf::formats::atf_tps_reader {
     void
     got_info(const std::string& what, const std::string& val)
@@ -333,12 +261,6 @@ main(int argc, char* argv[])
             process< config_reader >(file);
         } else if (format == std::string("application/X-atf-tcr")) {
             process< tcr_reader >(file);
-        } else if (format == std::string("application/X-atf-tcs")) {
-            if (argc < 5) {
-                std::cerr << "Missing arguments" << std::endl;
-                return EXIT_FAILURE;
-            }
-            process< tcs_reader >(file, argv[3], argv[4]);
         } else if (format == std::string("application/X-atf-tps")) {
             process< tps_reader >(file);
         } else {

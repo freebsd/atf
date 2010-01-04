@@ -845,51 +845,6 @@ atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_tcr_76.expout \
                    tests/atf/formats/d_tcr_77 \
                    tests/atf/formats/d_tcr_77.experr \
-                   tests/atf/formats/d_tcs_1 \
-                   tests/atf/formats/d_tcs_1.errin \
-                   tests/atf/formats/d_tcs_1.expout \
-                   tests/atf/formats/d_tcs_1.outin \
-                   tests/atf/formats/d_tcs_2 \
-                   tests/atf/formats/d_tcs_2.errin \
-                   tests/atf/formats/d_tcs_2.expout \
-                   tests/atf/formats/d_tcs_2.outin \
-                   tests/atf/formats/d_tcs_3 \
-                   tests/atf/formats/d_tcs_3.errin \
-                   tests/atf/formats/d_tcs_3.expout \
-                   tests/atf/formats/d_tcs_3.outin \
-                   tests/atf/formats/d_tcs_4 \
-                   tests/atf/formats/d_tcs_4.errin \
-                   tests/atf/formats/d_tcs_4.expout \
-                   tests/atf/formats/d_tcs_4.outin \
-                   tests/atf/formats/d_tcs_5 \
-                   tests/atf/formats/d_tcs_5.errin \
-                   tests/atf/formats/d_tcs_5.expout \
-                   tests/atf/formats/d_tcs_5.outin \
-                   tests/atf/formats/d_tcs_50 \
-                   tests/atf/formats/d_tcs_50.experr \
-                   tests/atf/formats/d_tcs_51 \
-                   tests/atf/formats/d_tcs_51.experr \
-                   tests/atf/formats/d_tcs_52 \
-                   tests/atf/formats/d_tcs_52.experr \
-                   tests/atf/formats/d_tcs_53 \
-                   tests/atf/formats/d_tcs_53.experr \
-                   tests/atf/formats/d_tcs_53.expout \
-                   tests/atf/formats/d_tcs_54 \
-                   tests/atf/formats/d_tcs_54.experr \
-                   tests/atf/formats/d_tcs_54.expout \
-                   tests/atf/formats/d_tcs_55 \
-                   tests/atf/formats/d_tcs_55.experr \
-                   tests/atf/formats/d_tcs_55.expout \
-                   tests/atf/formats/d_tcs_56 \
-                   tests/atf/formats/d_tcs_56.errin \
-                   tests/atf/formats/d_tcs_56.experr \
-                   tests/atf/formats/d_tcs_56.expout \
-                   tests/atf/formats/d_tcs_56.outin \
-                   tests/atf/formats/d_tcs_57 \
-                   tests/atf/formats/d_tcs_57.errin \
-                   tests/atf/formats/d_tcs_57.experr \
-                   tests/atf/formats/d_tcs_57.expout \
-                   tests/atf/formats/d_tcs_57.outin \
                    tests/atf/formats/d_tps_1 \
                    tests/atf/formats/d_tps_1.expout \
                    tests/atf/formats/d_tps_2 \

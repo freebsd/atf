@@ -128,50 +128,6 @@ public:
 };
 
 // ------------------------------------------------------------------------
-// The "atf_tcs_reader" class.
-// ------------------------------------------------------------------------
-
-class atf_tcs_reader {
-    std::istream& m_is;
-
-    void read_out_err(void*,
-                      atf::io::unbuffered_istream&,
-                      atf::io::unbuffered_istream&);
-
-protected:
-    virtual void got_ntcs(size_t);
-    virtual void got_tc_start(const std::string&);
-    virtual void got_tc_end(const atf::tests::tcr&);
-    virtual void got_stdout_line(const std::string&);
-    virtual void got_stderr_line(const std::string&);
-    virtual void got_eof(void);
-
-public:
-    atf_tcs_reader(std::istream&);
-    virtual ~atf_tcs_reader(void);
-
-    void read(atf::io::unbuffered_istream&, atf::io::unbuffered_istream&);
-};
-
-// ------------------------------------------------------------------------
-// The "atf_tcs_writer" class.
-// ------------------------------------------------------------------------
-
-class atf_tcs_writer {
-    std::ostream& m_os;
-    std::ostream& m_cout;
-    std::ostream& m_cerr;
-
-    std::string m_tcname;
-
-public:
-    atf_tcs_writer(std::ostream&, std::ostream&, std::ostream&, size_t);
-
-    void start_tc(const std::string&);
-    void end_tc(const atf::tests::tcr&);
-};
-
-// ------------------------------------------------------------------------
 // The "atf_tps_reader" class.
 // ------------------------------------------------------------------------
 

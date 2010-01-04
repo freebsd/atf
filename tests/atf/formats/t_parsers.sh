@@ -161,30 +161,6 @@ tcr_body()
         d_tcr_77
 }
 
-atf_test_case tcs
-tcs_head()
-{
-    atf_set "descr" "Verifies the application/X-atf-tcs parser"
-}
-tcs_body()
-{
-    run_header_tests application/X-atf-tcs 1
-    run_tests application/X-atf-tcs \
-        d_tcs_1 \
-        d_tcs_2 \
-        d_tcs_3 \
-        d_tcs_4 \
-        d_tcs_5 \
-        d_tcs_50 \
-        d_tcs_51 \
-        d_tcs_52 \
-        d_tcs_53 \
-        d_tcs_54 \
-        d_tcs_55 \
-        d_tcs_56 \
-        d_tcs_57
-}
-
 atf_test_case tps
 tps_head()
 {
@@ -223,7 +199,6 @@ atf_init_test_cases()
     atf_add_test_case atffile
     atf_add_test_case config
     atf_add_test_case tcr
-    atf_add_test_case tcs
     atf_add_test_case tps
 }
 
