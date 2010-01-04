@@ -2,7 +2,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ err()
 usage()
 {
     echo "${Prog_Name}: ${@}" 1>&2
-    echo "Usage: ${Prog_Name} -o outfile srcfile" 1>&2
+    echo "Usage: ${Prog_Name} -o outfile src1 [.. srcN]" 1>&2
     exit 1
 }
 

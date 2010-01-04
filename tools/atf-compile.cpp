@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2010 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,7 @@ std::string
 atf_compile::specific_args(void)
     const
 {
-    return "<test-program>";
+    return "<src1> [.. srcN]";
 }
 
 atf_compile::options_set
