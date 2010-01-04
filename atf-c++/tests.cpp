@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -161,6 +161,83 @@ impl::tcr::operator=(const tcr& o)
                                     o.get_reason().c_str());
     }
     return *this;
+}
+
+namespace {
+
+class tcr_reader : public atf::formats::atf_tcr_reader {
+    std::string m_result, m_reason;
+
+    void
+    got_result(const std::string& str)
+    {
+        m_result = str;
+    }
+
+    void
+    got_reason(const std::string& str)
+    {
+        m_reason = str;
+    }
+
+public:
+    tcr_reader(std::istream& is) :
+        atf_tcr_reader(is)
+    {
+    }
+
+    atf::tests::tcr
+    get_tcr(void)
+        const
+    {
+        using atf::tests::tcr;
+
+        if (m_result == "passed")
+            return tcr(tcr::passed_state);
+        else if (m_result == "failed")
+            return tcr(tcr::failed_state, m_reason);
+        else if (m_result == "skipped")
+            return tcr(tcr::skipped_state, m_reason);
+        else {
+            UNREACHABLE;
+            return tcr(tcr::failed_state, "UNKNOWN");
+        }
+    }
+};
+
+} // anonymous namespace
+
+impl::tcr
+impl::tcr::read(const fs::path& p)
+{
+    std::ifstream is(p.c_str());
+    if (!is)
+        throw std::runtime_error("Cannot open results file `" + p.str() + "'");
+
+    tcr_reader r(is);
+    r.read();
+    return r.get_tcr();
+}
+
+void
+impl::tcr::write(const fs::path& p)
+    const
+{
+    std::ofstream os(p.c_str());
+    if (!os)
+        throw std::runtime_error("Cannot create results file `" + p.str() +
+                                 "'");
+
+    atf::formats::atf_tcr_writer w(os);
+    if (get_state() == impl::tcr::passed_state) {
+        w.result("passed");
+    } else if (get_state() == impl::tcr::failed_state) {
+        w.result("failed");
+        w.reason(get_reason());
+    } else if (get_state() == impl::tcr::skipped_state) {
+        w.result("skipped");
+        w.reason(get_reason());
+    }
 }
 
 // ------------------------------------------------------------------------
