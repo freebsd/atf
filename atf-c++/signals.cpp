@@ -76,3 +76,13 @@ impl::signal_programmer::~signal_programmer(void)
 {
     atf_signal_programmer_fini(&m_sp);
 }
+
+// ------------------------------------------------------------------------
+// Free functions.
+// ------------------------------------------------------------------------
+
+void
+impl::reset(const int signo)
+{
+    atf_signal_reset(signo);
+}
