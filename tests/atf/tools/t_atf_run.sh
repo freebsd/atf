@@ -535,6 +535,62 @@ EOF
               grep '^info: test, user value' stdout
 }
 
+atf_test_case isolation_env
+isolation_env_head()
+{
+    atf_set "descr" "Tests that atf-run sets a set of environment variables" \
+                    "to known sane values"
+}
+isolation_env_body()
+{
+    undef_vars="LANG LC_ALL LC_COLLATE LC_CTYPE LC_MESSAGES LC_MONETARY \
+                LC_NUMERIC LC_TIME TZ"
+    def_vars="HOME"
+
+    mangleenv="env"
+    for v in ${undef_vars} ${def_vars}; do
+        mangleenv="${mangleenv} ${v}=bogus-value"
+    done
+
+    create_helper atf_run_env_list
+    create_atffile helper
+    atf_check -s eq:0 -o save:stdout -e empty ${mangleenv} atf-run helper
+
+    for v in ${undef_vars}; do
+        atf_check -s eq:1 -o empty -e empty grep "^tc-so:${v}=" stdout
+    done
+
+    for v in ${def_vars}; do
+        atf_check -s eq:0 -o ignore -e empty grep "^tc-so:${v}=" stdout
+    done
+}
+
+atf_test_case isolation_home
+isolation_home_head()
+{
+    atf_set "descr" "Tests that atf-run sets HOME to a sane and valid value"
+}
+isolation_home_body()
+{
+    create_helper atf_run_env_home
+    create_atffile helper
+    atf_check -s eq:0 -o ignore -e ignore env HOME=foo atf-run helper
+}
+
+atf_test_case isolation_umask
+isolation_umask_head()
+{
+    atf_set "descr" "Tests that atf-run sets the umask to a known value"
+}
+isolation_umask_body()
+{
+    create_helper atf_run_umask
+    create_atffile helper
+
+    atf_check -s eq:0 -o save:stdout -e ignore -x "umask 0000 && atf-run helper"
+    atf_check -s eq:0 -o ignore -e empty grep 'umask: 0022' stdout
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case config
@@ -551,6 +607,9 @@ atf_init_test_cases()
     atf_add_test_case signaled
     atf_add_test_case no_reason
     atf_add_test_case hooks
+    atf_add_test_case isolation_env
+    atf_add_test_case isolation_home
+    atf_add_test_case isolation_umask
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

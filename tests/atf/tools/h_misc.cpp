@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2010 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,10 +27,17 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+extern "C" {
+#include <sys/stat.h>
+}
+
+#include <iomanip>
 #include <iostream>
 
 #include "atf-c++/env.hpp"
+#include "atf-c++/fs.hpp"
 #include "atf-c++/macros.hpp"
+#include "atf-c++/process.hpp"
 
 // ------------------------------------------------------------------------
 // Helper tests for "t_atf_run".
@@ -74,6 +81,50 @@ ATF_TEST_CASE_BODY(atf_run_testvar)
     std::cout << "testvar: " << get_config_var("testvar") << std::endl;
 }
 
+ATF_TEST_CASE(atf_run_env_list);
+ATF_TEST_CASE_HEAD(atf_run_env_list)
+{
+    set_md_var("descr", "Helper test case for the t_atf_run test program");
+}
+ATF_TEST_CASE_BODY(atf_run_env_list)
+{
+    const atf::process::status s =
+        atf::process::exec(atf::fs::path("env"),
+                           atf::process::argv_array("env", NULL),
+                           atf::process::stream_inherit(),
+                           atf::process::stream_inherit());
+    ATF_CHECK(s.exited());
+    ATF_CHECK(s.exitstatus() == EXIT_SUCCESS);
+}
+
+ATF_TEST_CASE(atf_run_env_home);
+ATF_TEST_CASE_HEAD(atf_run_env_home)
+{
+    set_md_var("descr", "Helper test case for the t_atf_run test program");
+}
+ATF_TEST_CASE_BODY(atf_run_env_home)
+{
+    ATF_CHECK(atf::env::has("HOME"));
+    atf::fs::path p(atf::env::get("HOME"));
+    atf::fs::file_info fi1(p);
+    atf::fs::file_info fi2(atf::fs::get_current_dir());
+    ATF_CHECK_EQUAL(fi1.get_device(), fi2.get_device());
+    ATF_CHECK_EQUAL(fi1.get_inode(), fi2.get_inode());
+}
+
+ATF_TEST_CASE(atf_run_umask);
+ATF_TEST_CASE_HEAD(atf_run_umask)
+{
+    set_md_var("descr", "Helper test case for the t_atf_run test program");
+}
+ATF_TEST_CASE_BODY(atf_run_umask)
+{
+    mode_t m = ::umask(0);
+    std::cout << "umask: " << std::setw(4) << std::setfill('0')
+              << std::oct << m << std::endl;
+    (void)::umask(m);
+}
+
 // ------------------------------------------------------------------------
 // Helper tests for "t_atf_report".
 // ------------------------------------------------------------------------
@@ -115,6 +166,12 @@ ATF_INIT_TEST_CASES(tcs)
         ATF_ADD_TEST_CASE(tcs, atf_run_fds);
     if (which == "atf_run_testvar")
         ATF_ADD_TEST_CASE(tcs, atf_run_testvar);
+    if (which == "atf_run_env_list")
+        ATF_ADD_TEST_CASE(tcs, atf_run_env_list);
+    if (which == "atf_run_env_home")
+        ATF_ADD_TEST_CASE(tcs, atf_run_env_home);
+    if (which == "atf_run_umask")
+        ATF_ADD_TEST_CASE(tcs, atf_run_umask);
 
     // Add helper tests for t_atf_report.
     if (which == "atf_report_diff")

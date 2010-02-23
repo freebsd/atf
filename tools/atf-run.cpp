@@ -57,6 +57,7 @@ extern "C" {
 #include "atf-c++/parser.hpp"
 #include "atf-c++/process.hpp"
 #include "atf-c++/sanity.hpp"
+#include "atf-c++/signals.hpp"
 #include "atf-c++/tests.hpp"
 #include "atf-c++/text.hpp"
 
@@ -135,6 +136,8 @@ class atf_run : public atf::application::app {
 
     size_t count_tps(std::vector< std::string >) const;
 
+    void prepare_child(const atf::fs::path&) const;
+
     int run_test(const atf::fs::path&,
                  atf::formats::atf_tps_writer&);
     int run_test_directory(const atf::fs::path&,
@@ -162,13 +165,16 @@ class atf_run : public atf::application::app {
         const atf::fs::path& m_tp;
         const std::string& m_tc;
         const atf::fs::path& m_resfile;
+        const atf::fs::path& m_workdir;
 
         test_data(const atf_run* t, const atf::fs::path& tp,
-                  const std::string& tc, const atf::fs::path& resfile) :
+                  const std::string& tc, const atf::fs::path& resfile,
+                  const atf::fs::path& workdir) :
             m_this(t),
             m_tp(tp),
             m_tc(tc),
-            m_resfile(resfile)
+            m_resfile(resfile),
+            m_workdir(workdir)
         {
         }
     };
@@ -178,9 +184,9 @@ class atf_run : public atf::application::app {
 
     static void route_run_test_case_child(void *);
     void run_test_case_child(const atf::fs::path&, const std::string&,
-                             const atf::fs::path&) const;
+                             const atf::fs::path&, const atf::fs::path&) const;
     int run_test_case_parent(const atf::fs::path&, const std::string&,
-                             const atf::fs::path&,
+                             const atf::fs::path&, const atf::fs::path&,
                              atf::formats::atf_tps_writer&,
                              atf::process::child&);
 
@@ -252,6 +258,32 @@ atf_run::parse_vflag(const std::string& str)
 
         m_cmdline_vars[ws[0]] = ws[1];
     }
+}
+
+void
+atf_run::prepare_child(const atf::fs::path& workdir)
+    const
+{
+    const int ret = ::setpgid(::getpid(), 0);
+    INV(ret != -1);
+
+    umask(S_IWGRP | S_IWOTH);
+
+    for (int i = 1; i <= atf::signals::last_signo; i++)
+        atf::signals::reset(i);
+
+    atf::env::set("HOME", workdir.str());
+    atf::env::unset("LANG");
+    atf::env::unset("LC_ALL");
+    atf::env::unset("LC_COLLATE");
+    atf::env::unset("LC_CTYPE");
+    atf::env::unset("LC_MESSAGES");
+    atf::env::unset("LC_MONETARY");
+    atf::env::unset("LC_NUMERIC");
+    atf::env::unset("LC_TIME");
+    atf::env::unset("TZ");
+
+    atf::fs::change_directory(workdir);
 }
 
 int
@@ -333,29 +365,37 @@ void
 atf_run::route_run_test_case_child(void* v)
 {
     test_data* td = static_cast< test_data* >(v);
-    td->m_this->run_test_case_child(td->m_tp, td->m_tc, td->m_resfile);
+    td->m_this->run_test_case_child(td->m_tp, td->m_tc, td->m_resfile,
+                                    td->m_workdir);
     UNREACHABLE;
 }
 
 void
 atf_run::run_test_case_child(const atf::fs::path& tp, const std::string& tc,
-                             const atf::fs::path& resfile)
+                             const atf::fs::path& resfile,
+                             const atf::fs::path& workdir)
     const
 {
+    // The input 'tp' parameter may be relative and become invalid once
+    // we change the current working directory.
+    const atf::fs::path absolute_tp = tp.to_absolute();
+
     // Prepare the test program's arguments.  We use dynamic memory and
     // do not care to release it.  We are going to die anyway very soon,
     // either due to exec(2) or to exit(3).
     std::vector< std::string > argv;
     argv.push_back(tp.leaf_name());
     argv.push_back("-r" + resfile.str());
-    argv.push_back("-s" + tp.branch_path().str());
+    argv.push_back("-s" + absolute_tp.branch_path().str());
     append_to_vector(argv, conf_args());
     argv.push_back(tc);
+
+    prepare_child(workdir);
 
     // Do the real exec and report any errors to the parent through the
     // only mechanism we can use: stderr.
     // TODO Try to make this fail.
-    ::execv(tp.c_str(), vector_to_argv(argv));
+    ::execv(absolute_tp.c_str(), vector_to_argv(argv));
     std::cerr << "Failed to execute `" << tp.str() << "': "
               << std::strerror(errno) << std::endl;
     std::exit(EXIT_FAILURE);
@@ -411,6 +451,7 @@ atf_run::get_tcr(const atf::process::status& s,
 int
 atf_run::run_test_case_parent(const atf::fs::path& tp, const std::string& tc,
                               const atf::fs::path& resfile,
+                              const atf::fs::path& workdir,
                               atf::formats::atf_tps_writer& w,
                               atf::process::child& c)
 {
@@ -444,14 +485,20 @@ atf_run::run_test_case(const atf::fs::path& tp, const std::string& tc,
                        const atf::fs::path& resfile,
                        atf::formats::atf_tps_writer& w)
 {
-    test_data td(this, tp, tc, resfile);
+    atf::fs::temp_dir workdir(atf::fs::path(atf::config::get("atf_workdir")) /
+                              "atf-run.XXXXXX");
+
+    // TODO: Capture termination signals and deliver them to the subprocess
+    // instead.  Or maybe do something else; think about it.
+
+    test_data td(this, tp, tc, resfile, workdir.get_path());
     atf::process::child c =
         atf::process::fork(route_run_test_case_child,
                            atf::process::stream_capture(),
                            atf::process::stream_capture(),
                            static_cast< void * >(&td));
 
-    return run_test_case_parent(tp, tc, resfile, w, c);
+    return run_test_case_parent(tp, tc, resfile, workdir.get_path(), w, c);
 }
 
 int
