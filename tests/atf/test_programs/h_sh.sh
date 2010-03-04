@@ -173,32 +173,6 @@ config_multi_value_body()
 }
 
 # -------------------------------------------------------------------------
-# Helper tests for "t_env".
-# -------------------------------------------------------------------------
-
-atf_test_case env_home
-env_home_head()
-{
-    atf_set "descr" "Helper test case for the t_env test program"
-}
-env_home_body()
-{
-    [ -n "${HOME}" ] || atf_fail "HOME is undefined"
-    h=$(cd ${HOME} && pwd -P)
-    [ "${h}" = "$(pwd -P)" ] || atf_fail "HOME is invalid"
-}
-
-atf_test_case env_list
-env_list_head()
-{
-    atf_set "descr" "Helper test case for the t_env test program"
-}
-env_list_body()
-{
-    env
-}
-
-# -------------------------------------------------------------------------
 # Helper tests for "t_fork".
 # -------------------------------------------------------------------------
 
@@ -214,16 +188,6 @@ fork_stop_body()
     echo "Waiting for done file"
     while ! test -f $(atf_config_get donefile); do sleep 1; done
     echo "Exiting"
-}
-
-atf_test_case fork_umask
-fork_umask_head()
-{
-    atf_set "descr" "Helper test case for the t_fork test program"
-}
-fork_umask_body()
-{
-    echo "umask: $(umask)"
 }
 
 # -------------------------------------------------------------------------
@@ -340,17 +304,6 @@ require_user3_body()
     :
 }
 
-atf_test_case timeout
-timeout_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "timeout" $(atf_config_get timeout 0)
-}
-timeout_body()
-{
-    sleep $(atf_config_get sleep)
-}
-
 # -------------------------------------------------------------------------
 # Helper tests for "t_srcdir".
 # -------------------------------------------------------------------------
@@ -363,42 +316,6 @@ srcdir_exists_head()
 srcdir_exists_body()
 {
     [ -f "$(atf_get_srcdir)/datafile" ] || atf_fail "Cannot find datafile"
-}
-
-# -------------------------------------------------------------------------
-# Helper tests for "t_workdir".
-# -------------------------------------------------------------------------
-
-atf_test_case workdir_path
-workdir_path_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-}
-workdir_path_body()
-{
-    pwd -P >$(atf_config_get pathfile)
-}
-
-atf_test_case workdir_cleanup
-workdir_cleanup_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-}
-workdir_cleanup_body()
-{
-    pwd -P >$(atf_config_get pathfile)
-
-    mkdir 1
-    mkdir 1/1
-    mkdir 1/2
-    mkdir 1/3
-    mkdir 1/3/1
-    mkdir 1/3/2
-    mkdir 2
-    touch 2/1
-    touch 2/2
-    mkdir 2/3
-    touch 2/3/1
 }
 
 # -------------------------------------------------------------------------
@@ -421,13 +338,8 @@ atf_init_test_cases()
     atf_add_test_case config_value
     atf_add_test_case config_multi_value
 
-    # Add helper tests for t_env.
-    atf_add_test_case env_home
-    atf_add_test_case env_list
-
     # Add helper tests for t_fork.
     atf_add_test_case fork_stop
-    atf_add_test_case fork_umask
 
     # Add helper tests for t_meta_data.
     atf_add_test_case ident_1
@@ -440,14 +352,9 @@ atf_init_test_cases()
     atf_add_test_case require_user
     atf_add_test_case require_user2
     atf_add_test_case require_user3
-    atf_add_test_case timeout
 
     # Add helper tests for t_srcdir.
     atf_add_test_case srcdir_exists
-
-    # Add helper tests for t_workdir.
-    atf_add_test_case workdir_path
-    atf_add_test_case workdir_cleanup
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

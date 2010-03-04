@@ -1,0 +1,21 @@
+List of items to address before the org.NetBSD.atf.src.nofork branch can be
+merged to org.NetBSD.atf.src.
+
+- Remove the -w flag from test programs.
+
+- Fix cleanup hook execution.  Test programs have to expose a way to run
+  either the body or the cleanup routine, and atf-run has to execute them.
+
+- Expose test metadata.  atf-run needs to know the requirements of test
+  cases and also needs to know if they have a cleanup routine to invoke it.
+
+- Move checks of test requirements in the test case headers to atf-run.
+
+- Proper cleanup of a test case when ctrl+c from atf-run.
+
+- When running tests/atf/atf-run/t_atf_run manually, it overwrites Atffile.
+  This is a bit annoying and should be somehow fixed.
+
+- Templatize the void* cookie in atf-c++'s fork.
+
+- Remove obsolete helper tests in tests/atf/test_programs/h_* for cleanup.

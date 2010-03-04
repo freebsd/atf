@@ -58,12 +58,10 @@ extern "C" {
 #include "atf-c++/config.hpp"
 #include "atf-c++/env.hpp"
 #include "atf-c++/exceptions.hpp"
-#include "atf-c++/expand.hpp"
 #include "atf-c++/formats.hpp"
 #include "atf-c++/fs.hpp"
 #include "atf-c++/io.hpp"
 #include "atf-c++/sanity.hpp"
-#include "atf-c++/signals.hpp"
 #include "atf-c++/tests.hpp"
 #include "atf-c++/text.hpp"
 #include "atf-c++/ui.hpp"
@@ -71,26 +69,6 @@ extern "C" {
 
 namespace impl = atf::tests;
 #define IMPL_NAME "atf::tests"
-
-// ------------------------------------------------------------------------
-// Auxiliary stuff for the timeout implementation.
-// ------------------------------------------------------------------------
-
-namespace timeout {
-    static pid_t current_body = 0;
-    static bool killed = false;
-
-    void
-    sigalrm_handler(int signo)
-    {
-        PRE(signo == SIGALRM);
-
-        if (current_body != 0) {
-            ::killpg(current_body, SIGTERM);
-            killed = true;
-        }
-    }
-} // namespace timeout
 
 // ------------------------------------------------------------------------
 // The "tcr" class.
@@ -362,27 +340,13 @@ impl::tc::set_md_var(const std::string& var, const std::string& val)
         throw_atf_error(err);
 }
 
-impl::tcr
-impl::tc::run(int fdout, int fderr, const fs::path& workdirbase)
+void
+impl::tc::run(const fs::path& resfile)
     const
 {
-    atf_tcr_t tcrc;
-    tcr tcrr(tcr::failed_state, "UNINITIALIZED");
-
-    atf_error_t err = atf_tc_run(&m_tc, &tcrc, fdout, fderr,
-                                 workdirbase.c_path());
+    atf_error_t err = atf_tc_run(&m_tc, resfile.c_path());
     if (atf_is_error(err))
         throw_atf_error(err);
-
-    if (atf_tcr_has_reason(&tcrc)) {
-        const atf_dynstr_t* r = atf_tcr_get_reason(&tcrc);
-        tcrr = tcr(atf_tcr_get_state(&tcrc), atf_dynstr_cstring(r));
-    } else {
-        tcrr = tcr(atf_tcr_get_state(&tcrc));
-    }
-
-    atf_tcr_fini(&tcrc);
-    return tcrr;
 }
 
 void
@@ -649,19 +613,13 @@ tp::run_tc(const std::string& name)
         throw std::runtime_error("Cannot find the work directory `" +
                                  m_workdir.str() + "'");
 
-    atf::signals::signal_holder sighup(SIGHUP);
-    atf::signals::signal_holder sigint(SIGINT);
-    atf::signals::signal_holder sigterm(SIGTERM);
-
-    impl::tcr tcr = tc->run(STDOUT_FILENO, STDERR_FILENO, m_workdir);
-    tcr.write(m_resfile);
-
-    sighup.process();
-    sigint.process();
-    sigterm.process();
-
-    return (tcr.get_state() != atf::tests::tcr::failed_state) ?
-        EXIT_SUCCESS : EXIT_FAILURE;
+    try {
+        tc->run(m_resfile);
+        return EXIT_SUCCESS;
+    } catch (const std::runtime_error& e) {
+        // TODO: Handle error.
+        return EXIT_FAILURE;
+    }
 }
 
 int

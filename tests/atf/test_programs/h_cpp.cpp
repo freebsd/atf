@@ -29,7 +29,6 @@
 
 extern "C" {
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -51,14 +50,6 @@ extern "C" {
 // ------------------------------------------------------------------------
 // Auxiliary functions.
 // ------------------------------------------------------------------------
-
-static
-void
-safe_mkdir(const char* path)
-{
-    if (::mkdir(path, 0755) == -1)
-        ATF_FAIL(std::string("mkdir(2) of ") + path + " failed");
-}
 
 static
 void
@@ -221,41 +212,6 @@ ATF_TEST_CASE_BODY(config_multi_value)
 }
 
 // ------------------------------------------------------------------------
-// Helper tests for "t_env".
-// ------------------------------------------------------------------------
-
-ATF_TEST_CASE(env_home);
-ATF_TEST_CASE_HEAD(env_home)
-{
-    set_md_var("descr", "Helper test case for the t_env test program");
-}
-ATF_TEST_CASE_BODY(env_home)
-{
-    ATF_CHECK(atf::env::has("HOME"));
-    atf::fs::path p(atf::env::get("HOME"));
-    atf::fs::file_info fi1(p);
-    atf::fs::file_info fi2(atf::fs::get_current_dir());
-    ATF_CHECK_EQUAL(fi1.get_device(), fi2.get_device());
-    ATF_CHECK_EQUAL(fi1.get_inode(), fi2.get_inode());
-}
-
-ATF_TEST_CASE(env_list);
-ATF_TEST_CASE_HEAD(env_list)
-{
-    set_md_var("descr", "Helper test case for the t_env test program");
-}
-ATF_TEST_CASE_BODY(env_list)
-{
-    const atf::process::status s =
-        atf::process::exec(atf::fs::path("env"),
-                           atf::process::argv_array("env", NULL),
-                           atf::process::stream_inherit(),
-                           atf::process::stream_inherit());
-    ATF_CHECK(s.exited());
-    ATF_CHECK(s.exitstatus() == EXIT_SUCCESS);
-}
-
-// ------------------------------------------------------------------------
 // Helper tests for "t_fork".
 // ------------------------------------------------------------------------
 
@@ -274,19 +230,6 @@ ATF_TEST_CASE_BODY(fork_stop)
     while (::access(get_config_var("donefile").c_str(), F_OK) != 0)
         ::usleep(10000);
     std::cout << "Exiting" << std::endl;
-}
-
-ATF_TEST_CASE(fork_umask);
-ATF_TEST_CASE_HEAD(fork_umask)
-{
-    set_md_var("descr", "Helper test case for the t_fork test program");
-}
-ATF_TEST_CASE_BODY(fork_umask)
-{
-    mode_t m = ::umask(0);
-    std::cout << "umask: " << std::setw(4) << std::setfill('0')
-              << std::oct << m << std::endl;
-    (void)::umask(m);
 }
 
 // ------------------------------------------------------------------------
@@ -395,17 +338,6 @@ ATF_TEST_CASE_BODY(require_user3)
 {
 }
 
-ATF_TEST_CASE(timeout);
-ATF_TEST_CASE_HEAD(timeout)
-{
-    set_md_var("descr", "Helper test case for the t_meta_data test program");
-    set_md_var("timeout", get_config_var("timeout", "0"));
-}
-ATF_TEST_CASE_BODY(timeout)
-{
-    sleep(atf::text::to_type< int >(get_config_var("sleep")));
-}
-
 // ------------------------------------------------------------------------
 // Helper tests for "t_srcdir".
 // ------------------------------------------------------------------------
@@ -447,58 +379,6 @@ ATF_TEST_CASE_BODY(status_newlines_skip)
 }
 
 // ------------------------------------------------------------------------
-// Helper tests for "t_workdir".
-// ------------------------------------------------------------------------
-
-ATF_TEST_CASE(workdir_path);
-ATF_TEST_CASE_HEAD(workdir_path)
-{
-    set_md_var("descr", "Helper test case for the t_workdir test program");
-}
-ATF_TEST_CASE_BODY(workdir_path)
-{
-    const std::string& p = get_config_var("pathfile");
-
-    std::ofstream os(p.c_str());
-    if (!os)
-        ATF_FAIL("Could not open " + p + " for writing");
-
-    os << atf::fs::get_current_dir().str() << std::endl;
-
-    os.close();
-}
-
-ATF_TEST_CASE(workdir_cleanup);
-ATF_TEST_CASE_HEAD(workdir_cleanup)
-{
-    set_md_var("descr", "Helper test case for the t_workdir test program");
-}
-ATF_TEST_CASE_BODY(workdir_cleanup)
-{
-    const std::string& p = get_config_var("pathfile");
-
-    std::ofstream os(p.c_str());
-    if (!os)
-        ATF_FAIL("Could not open " + p + " for writing");
-
-    os << atf::fs::get_current_dir().str() << std::endl;
-
-    os.close();
-
-    safe_mkdir("1");
-    safe_mkdir("1/1");
-    safe_mkdir("1/2");
-    safe_mkdir("1/3");
-    safe_mkdir("1/3/1");
-    safe_mkdir("1/3/2");
-    safe_mkdir("2");
-    touch("2/1");
-    touch("2/2");
-    safe_mkdir("2/3");
-    touch("2/3/1");
-}
-
-// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -518,13 +398,8 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, config_value);
     ATF_ADD_TEST_CASE(tcs, config_multi_value);
 
-    // Add helper tests for t_env.
-    ATF_ADD_TEST_CASE(tcs, env_home);
-    ATF_ADD_TEST_CASE(tcs, env_list);
-
     // Add helper tests for t_fork.
     ATF_ADD_TEST_CASE(tcs, fork_stop);
-    ATF_ADD_TEST_CASE(tcs, fork_umask);
 
     // Add helper tests for t_meta_data.
     ATF_ADD_TEST_CASE(tcs, ident_1);
@@ -537,7 +412,6 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, require_user);
     ATF_ADD_TEST_CASE(tcs, require_user2);
     ATF_ADD_TEST_CASE(tcs, require_user3);
-    ATF_ADD_TEST_CASE(tcs, timeout);
 
     // Add helper tests for t_srcdir.
     ATF_ADD_TEST_CASE(tcs, srcdir_exists);
@@ -545,8 +419,4 @@ ATF_INIT_TEST_CASES(tcs)
     // Add helper tests for t_status.
     ATF_ADD_TEST_CASE(tcs, status_newlines_fail);
     ATF_ADD_TEST_CASE(tcs, status_newlines_skip);
-
-    // Add helper tests for t_workdir.
-    ATF_ADD_TEST_CASE(tcs, workdir_path);
-    ATF_ADD_TEST_CASE(tcs, workdir_cleanup);
 }

@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009, 2010 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -162,7 +162,7 @@ atf_tp_add_tc(atf_tp_t *tp, atf_tc_t *tc)
 
 atf_error_t
 atf_tp_run(const atf_tp_t *tp, const char *tcname,
-           const atf_fs_path_t *workdir, atf_tcr_t *tcr)
+           const atf_fs_path_t *resfile)
 {
     atf_error_t err;
     const atf_tc_t *tc;
@@ -170,7 +170,7 @@ atf_tp_run(const atf_tp_t *tp, const char *tcname,
     tc = find_tc(tp, tcname);
     PRE(tc != NULL);
 
-    err = atf_tc_run(tc, tcr, STDOUT_FILENO, STDERR_FILENO, workdir);
+    err = atf_tc_run(tc, resfile);
 
     return err;
 }

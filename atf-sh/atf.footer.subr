@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -45,22 +45,12 @@ Atf_Exec=$(atf-config -t atf_libexecdir)/atf-exec
 Atf_Format=$(atf-config -t atf_libexecdir)/atf-format
 Atf_Machine=$(atf-config -t atf_machine)
 
-# List of configuration variables set through the command line.  Needed
-# during shortcut execution.
-Config_Vars=
-
-# List of blocked signals, to be processed when unblocked.
-Held_Signals=
-
 # A boolean variable that indicates whether we are parsing a test case's
 # head or not.
 Parsing_Head=false
 
 # The file to which the test case will print its result.
 Results_File=resfile # XXX
-
-# The file to which the test case will print its result.  To be removed.
-Results_File_Aux=
 
 # The test program's source directory: i.e. where its auxiliary data files
 # and helper utilities can be found.  Defaults to the current directory
@@ -172,7 +162,7 @@ atf_config_has()
 #
 atf_fail()
 {
-    cat >${Results_File_Aux} <<EOF
+    cat >${Results_File} <<EOF
 Content-Type: application/X-atf-tcr; version="1"
 
 result: failed
@@ -204,19 +194,23 @@ atf_get_srcdir()
 }
 
 #
-# atf_pass msg1 [.. msgN]
+# atf_pass
 #
 #   Makes the test case pass.  Shouldn't be used in general, as a test
 #   case that does not explicitly fail is assumed to pass.
 #
 atf_pass()
 {
-    cat >${Results_File_Aux} <<EOF
+    _create_pass_file
+    exit 0
+}
+
+_create_pass_file() {
+    cat >${Results_File} <<EOF
 Content-Type: application/X-atf-tcr; version="1"
 
 result: passed
 EOF
-    exit 0
 }
 
 #
@@ -239,8 +233,7 @@ atf_require_prog()
             atf_skip "The required program ${1} could not be found"
         ;;
     */*)
-        _atf_error 128 "atf_require_prog does not accept relative" \
-                       "path names \`${1}'"
+        atf_fail "atf_require_prog does not accept relative path names \`${1}'"
         ;;
     *)
         _prog=$(_atf_find_in_path "${1}")
@@ -275,7 +268,7 @@ atf_set()
 #
 atf_skip()
 {
-    cat >${Results_File_Aux} <<EOF
+    cat >${Results_File} <<EOF
 Content-Type: application/X-atf-tcr; version="1"
 
 result: skipped
@@ -549,20 +542,6 @@ _atf_parse_head()
 #
 _atf_run_body()
 {
-    HOME=$(pwd)
-    export HOME
-    unset LANG
-    unset LC_ALL
-    unset LC_COLLATE
-    unset LC_CTYPE
-    unset LC_MESSAGES
-    unset LC_MONETARY
-    unset LC_NUMERIC
-    unset LC_TIME
-    unset TZ
-
-    umask 0022
-
     _arches=$(atf_get require.arch)
     if [ -n "${_arches}" ]; then
         found=no
@@ -621,13 +600,8 @@ _atf_run_body()
         ;;
     esac
 
-    # Previous versions of this code reverted all signal handlers to their
-    # default behavior at this point.  We do not need to do this any more
-    # because this piece of code is run in a clean sub-shell (through the
-    # _atf_shortcut_exec call), i.e. a completely re-executed shell, and
-    # we have not messed with signal handlers at all until this point.
-
     ${1}_body
+    _create_pass_file
 }
 
 #
@@ -639,153 +613,17 @@ _atf_run_body()
 #
 _atf_run_tc()
 {
-    _atf_parse_head ${1}
-
-    # Block some signals while we mess with temporary files so that we can
-    # clean them up later on.
-    Held_Signals=
-    trap _atf_sighup_handler SIGHUP
-    trap _atf_sigint_handler SIGINT
-    trap _atf_sigterm_handler SIGTERM
-
-    _atf_internal_set srcdir "${Source_Dir}"
-
-    Results_File_Aux=$(mktemp ${Work_Dir}/atf.XXXXXX)
-
-    _workdir=$(mktemp -d ${Work_Dir}/atf.XXXXXX)
-    if [ ${?} -eq 0 ]; then
-        _atf_shortcut_exec ${1} ${_workdir}
-        _ret=$?
-        if [ -f ${_workdir}/atf.timed.out ]; then
-            ( atf_fail "Test case timed out after $(atf_get timeout) seconds" )
-            _ret=${?}
-        fi
-        ( cd ${_workdir} ; ${1}_cleanup )
-        ${Atf_Cleanup} ${_workdir}
-    else
-        ( atf_fail "Could not create the work directory" )
-        _ret=${?}
-    fi
-
-    # Set a default exit status if the test case did not report any.
-    if [ -z "$(cat ${Results_File_Aux})" ]; then
-        if [ -n "${Held_Signals}" ]; then
-            ( atf_fail "Test case was interrupted by${Held_Signals}" )
-        else
-            ( atf_fail "Test case did not report any status; bogus test" )
-        fi
-    fi
-
-    # Print the result of the test case and clean up the temporary file.
-    cp ${Results_File_Aux} ${Results_File}
-    rm -f ${Results_File_Aux}
-    Results_File_Aux=
-
-    Test_Case=
-
-    # Restore blocked signals and process them.
-    trap - SIGHUP SIGINT SIGTERM
-    for s in ${Held_Signals}; do
-        kill -s ${s} $$
-    done
-
-    return ${_ret}
-}
-
-#
-# _atf_run_tcs [tc1 .. tcN]
-#
-#   Executes all the given test cases.  Returns 0 if all tests were
-#   successful, or 1 otherwise.
-#
-_atf_run_tcs()
-{
     # Now check that the base work directory exists.  We do not want to
     # bother creating it.
     [ -d "${Work_Dir}" ] || \
         _atf_error 1 "Cannot find the work directory \`${Work_Dir}'"
 
-    _ok=true
-    while [ ${#} -gt 0 ]; do
-        _atf_run_tc ${1} || _ok=false
-        shift
-    done
+    _atf_parse_head ${1}
 
-    ${_ok}
-}
-
-#
-# _atf_shortcut_entry
-#
-#   Secondary entry point for the program.  This is only called internally
-#   to process a test case's body.  We must do a full re-exec of the script
-#   in order to change its process group by means of an external tool.
-#   Yes, this is ugly, but there is no other way to do it -- unless we
-#   modified the shell interpreter to provide a built-in for changing the
-#   process group of the current process...
-#
-#   Keep in sync with _atf_shortcut_exec.
-#
-_atf_shortcut_entry()
-{
-    # Set global program status.
-    _config_file=${_ATF_CONFIG_FILE}; unset _ATF_CONFIG_FILE
-    Results_File_Aux=${_ATF_RESULTS_FILE_AUX}; unset _ATF_RESULTS_FILE_AUX
-    Source_Dir=${_ATF_SOURCE_DIR}; unset _ATF_SOURCE_DIR
-    Work_Dir=${_ATF_WORK_DIR}; unset _ATF_WORK_DIR
-
-    # Gather specific details of this re-exec.
-    _shortcut_tc=${_ATF_SHORTCUT}; unset _ATF_SHORTCUT
-
-    # Global initialization, as found in main.
-    if [ -n "${_config_file}" -a -f "${_config_file}" ]; then
-        . ${_config_file}
-        rm ${_config_file}
-    fi
     _atf_internal_set srcdir "${Source_Dir}"
-    atf_init_test_cases
+    _atf_run_body ${1}
 
-    # Test-case specific initialization, as found in _atf_run_tc.
-    _atf_parse_head ${_shortcut_tc}
-    _atf_internal_set srcdir "${Source_Dir}"
-
-    # Really run the test case's body.  This is the only part that
-    # should remain if we were really able to change the process group
-    # of a sub-shell.
-    cd ${Work_Dir}
-    _atf_run_body ${_shortcut_tc}
-    atf_pass
-}
-
-#
-# _atf_shortcut_exec tc
-#
-#   Re-executes the current script in a different process group in order
-#   to process the given test case's body.
-#
-#   Keep in sync with _atf_shortcut_entry.
-#
-_atf_shortcut_exec()
-{
-    # Save the value of the configuration variables set through -v.
-    # We must do this through a files as there is no other easy way to
-    # preserve spaces in them.  But this can bring raise problems...
-    if [ -n "${Config_Vars}" ]; then
-        _config_file=${Work_Dir}/atf.config.vars
-        for _var in ${Config_Vars}; do
-            _val=$(eval echo \${${_var}})
-            echo ${_var}=\'${_val}\' >>${_config_file}
-        done
-    fi
-
-    # Now do the real re-execution.
-    ${Atf_Exec} -t $(atf_get timeout):${2}/atf.timed.out env \
-        _ATF_CONFIG_FILE=${_config_file} \
-        _ATF_RESULTS_FILE_AUX=${Results_File_Aux} \
-        _ATF_SHORTCUT=${1} \
-        _ATF_SOURCE_DIR=${Source_Dir} \
-        _ATF_WORK_DIR=${2} \
-        ${Source_Dir}/${Prog_Name}
+    # TODO: Run cleanup?
 }
 
 #
@@ -897,12 +735,6 @@ _atf_warning()
 #
 main()
 {
-    # Handle shortcut execution path as early as possible.
-    if [ ${_ATF_SHORTCUT-__unset__} != __unset__ ]; then
-        _atf_shortcut_entry
-        # NOTREACHED
-    fi
-
     # The test program's base directory where it will put temporary files.
     Work_Dir=$(atf-config -t atf_workdir)
 
@@ -993,7 +825,7 @@ main()
             _atf_syntax_error "Cannot provide more than one test case name"
         else
             if _atf_has_tc ${1}; then
-                _atf_run_tcs ${1}
+                _atf_run_tc ${1}
             else
                 _atf_syntax_error "Unknown test case \`${1}'"
             fi

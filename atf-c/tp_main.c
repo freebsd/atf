@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009, 2010 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,13 +41,11 @@
 #include "atf-c/config.h"
 #include "atf-c/dynstr.h"
 #include "atf-c/error.h"
-#include "atf-c/expand.h"
 #include "atf-c/fs.h"
 #include "atf-c/object.h"
 #include "atf-c/map.h"
 #include "atf-c/sanity.h"
 #include "atf-c/tc.h"
-#include "atf-c/tcr.h"
 #include "atf-c/tp.h"
 #include "atf-c/ui.h"
 
@@ -520,18 +518,13 @@ controlled_main(int argc, char **argv,
         if (!atf_tp_has_tc(&tp, p.m_tcname)) {
             err = usage_error("Unknown test case `%s'", p.m_tcname);
         } else {
-            atf_tcr_t tcr;
-            err = atf_tp_run(&tp, p.m_tcname, &workdir, &tcr);
+            err = atf_tp_run(&tp, p.m_tcname, &resfile);
             if (atf_is_error(err)) {
                 /* TODO: Handle error */
                 *exitcode = EXIT_FAILURE;
+                atf_error_free(err);
             } else {
-                atf_tcr_write(&tcr, &resfile); /* TODO: Handle error */
-                const bool failed =
-                    (atf_tcr_get_state(&tcr) == atf_tcr_failed_state);
-                *exitcode = failed ? EXIT_FAILURE : EXIT_SUCCESS;
-
-                atf_tcr_fini(&tcr);
+                *exitcode = EXIT_SUCCESS;
             }
         }
     }

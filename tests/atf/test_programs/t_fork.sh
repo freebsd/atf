@@ -56,31 +56,9 @@ stop_body()
     done
 }
 
-atf_test_case umask
-umask_head()
-{
-    atf_set "descr" "Tests that the umask is properly set in the test" \
-                    "cases"
-}
-umask_body()
-{
-    echo 0022 >expout
-    atf_check -s eq:0 -o file:expout -e empty -x "umask"
-
-    for h in $(get_helpers); do
-        umask 0000
-        atf_check -s eq:0 -o save:stdout -e ignore -x ${h} -r resfile \
-            -s $(atf_get_srcdir) fork_umask
-        atf_check -s eq:0 -o ignore -e empty grep 'umask: 0022' stdout
-        atf_check -s eq:0 -o ignore -e empty grep 'result: passed' resfile
-        umask 0022
-    done
-}
-
 atf_init_test_cases()
 {
     atf_add_test_case stop
-    atf_add_test_case umask
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

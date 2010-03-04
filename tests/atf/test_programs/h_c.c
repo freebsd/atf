@@ -28,7 +28,6 @@
  */
 
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -50,35 +49,6 @@
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
-
-static
-void
-write_cwd(const atf_tc_t *tc, const char *confvar)
-{
-    atf_fs_path_t cwd;
-    const char *p;
-    FILE *f;
-
-    p = atf_tc_get_config_var(tc, confvar);
-
-    f = fopen(p, "w");
-    if (f == NULL)
-        atf_tc_fail("Could not open %s for writing", p);
-
-    RE(atf_fs_getcwd(&cwd));
-    fprintf(f, "%s\n", atf_fs_path_cstring(&cwd));
-    atf_fs_path_fini(&cwd);
-
-    fclose(f);
-}
-
-static
-void
-safe_mkdir(const char* path)
-{
-    if (mkdir(path, 0755) == -1)
-        atf_tc_fail("mkdir(2) of %s failed", path);
-}
 
 static
 void
@@ -287,48 +257,6 @@ ATF_TC_BODY(config_multi_value, tc)
 }
 
 /* ---------------------------------------------------------------------
- * Helper tests for "t_env".
- * --------------------------------------------------------------------- */
-
-ATF_TC(env_home);
-ATF_TC_HEAD(env_home, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_env test "
-                      "program");
-}
-ATF_TC_BODY(env_home, tc)
-{
-    atf_fs_path_t cwd, home;
-    atf_fs_stat_t stcwd, sthome;
-
-    ATF_REQUIRE(atf_env_has("HOME"));
-
-    RE(atf_fs_getcwd(&cwd));
-    RE(atf_fs_path_init_fmt(&home, "%s", atf_env_get("HOME")));
-
-    RE(atf_fs_stat_init(&stcwd, &cwd));
-    RE(atf_fs_stat_init(&sthome, &home));
-
-    ATF_REQUIRE_EQ(atf_fs_stat_get_device(&stcwd),
-                    atf_fs_stat_get_device(&sthome));
-    ATF_REQUIRE_EQ(atf_fs_stat_get_inode(&stcwd),
-                    atf_fs_stat_get_inode(&sthome));
-}
-
-ATF_TC(env_list);
-ATF_TC_HEAD(env_list, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_env test "
-                      "program");
-}
-ATF_TC_BODY(env_list, tc)
-{
-    int exitcode = system("env");
-    ATF_REQUIRE(WIFEXITED(exitcode));
-    ATF_REQUIRE(WEXITSTATUS(exitcode) == EXIT_SUCCESS);
-}
-
-/* ---------------------------------------------------------------------
  * Helper tests for "t_fork".
  * --------------------------------------------------------------------- */
 
@@ -357,17 +285,6 @@ ATF_TC_BODY(fork_stop, tc)
     while (access(dfstr, F_OK) != 0)
         usleep(10000);
     printf("Exiting\n");
-}
-
-ATF_TC(fork_umask);
-ATF_TC_HEAD(fork_umask, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_fork test "
-                      "program");
-}
-ATF_TC_BODY(fork_umask, tc)
-{
-    printf("umask: %04o\n", (unsigned int)umask(0));
 }
 
 /* ---------------------------------------------------------------------
@@ -492,22 +409,6 @@ ATF_TC_BODY(require_user3, tc)
 {
 }
 
-ATF_TC(timeout);
-ATF_TC_HEAD(timeout, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_meta_data "
-                      "test program");
-    atf_tc_set_md_var(tc, "timeout", "%s",
-                   atf_tc_get_config_var_wd(tc, "timeout", "0"));
-}
-ATF_TC_BODY(timeout, tc)
-{
-    long s;
-
-    RE(atf_text_to_long(atf_tc_get_config_var(tc, "sleep"), &s));
-    sleep(s);
-}
-
 /* ---------------------------------------------------------------------
  * Helper tests for "t_srcdir".
  * --------------------------------------------------------------------- */
@@ -558,44 +459,6 @@ ATF_TC_BODY(status_newlines_skip, tc)
 }
 
 /* ---------------------------------------------------------------------
- * Helper tests for "t_workdir".
- * --------------------------------------------------------------------- */
-
-ATF_TC(workdir_path);
-ATF_TC_HEAD(workdir_path, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_workdir test "
-                      "program");
-}
-ATF_TC_BODY(workdir_path, tc)
-{
-    write_cwd(tc, "pathfile");
-}
-
-ATF_TC(workdir_cleanup);
-ATF_TC_HEAD(workdir_cleanup, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_workdir test "
-                      "program");
-}
-ATF_TC_BODY(workdir_cleanup, tc)
-{
-    write_cwd(tc, "pathfile");
-
-    safe_mkdir("1");
-    safe_mkdir("1/1");
-    safe_mkdir("1/2");
-    safe_mkdir("1/3");
-    safe_mkdir("1/3/1");
-    safe_mkdir("1/3/2");
-    safe_mkdir("2");
-    touch("2/1");
-    touch("2/2");
-    safe_mkdir("2/3");
-    touch("2/3/1");
-}
-
-/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -615,13 +478,8 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, config_value);
     ATF_TP_ADD_TC(tp, config_multi_value);
 
-    /* Add helper tests for t_env. */
-    ATF_TP_ADD_TC(tp, env_home);
-    ATF_TP_ADD_TC(tp, env_list);
-
     /* Add helper tests for t_fork. */
     ATF_TP_ADD_TC(tp, fork_stop);
-    ATF_TP_ADD_TC(tp, fork_umask);
 
     /* Add helper tests for t_meta_data. */
     ATF_TP_ADD_TC(tp, ident_1);
@@ -634,7 +492,6 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, require_user);
     ATF_TP_ADD_TC(tp, require_user2);
     ATF_TP_ADD_TC(tp, require_user3);
-    ATF_TP_ADD_TC(tp, timeout);
 
     /* Add helper tests for t_srcdir. */
     ATF_TP_ADD_TC(tp, srcdir_exists);
@@ -642,10 +499,6 @@ ATF_TP_ADD_TCS(tp)
     /* Add helper tests for t_status. */
     ATF_TP_ADD_TC(tp, status_newlines_fail);
     ATF_TP_ADD_TC(tp, status_newlines_skip);
-
-    /* Add helper tests for t_workdir. */
-    ATF_TP_ADD_TC(tp, workdir_path);
-    ATF_TP_ADD_TC(tp, workdir_cleanup);
 
     return atf_no_error();
 }

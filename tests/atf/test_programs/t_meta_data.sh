@@ -270,7 +270,7 @@ require_progs_header_body()
 
         # Check an absolute path name and a relative one.  The second must
         # make the check fail.
-        atf_check -s eq:1 -o ignore -e save:stderr -x \
+        atf_check -s ne:0 -o ignore -e save:stderr -x \
                   "${h} -s $(atf_get_srcdir) -r resfile -v 'progs=/bin/cp bin/cp' \
                    require_progs_head"
         atf_check -s eq:0 -o ignore -e empty grep "failed" resfile
@@ -356,32 +356,6 @@ require_user_bad_body()
 }
 
 # -------------------------------------------------------------------------
-# Tests for the "timeout" meta-data property.
-# -------------------------------------------------------------------------
-
-atf_test_case timeout
-timeout_head()
-{
-    atf_set "descr" "Tests that 'timeout' works"
-}
-timeout_body()
-{
-    for h in $(get_helpers); do
-        atf_check -s eq:0 -o ignore -e ignore ${h} -s $(atf_get_srcdir) \
-            -v timeout=0 -v sleep=1 -r resfile timeout
-        atf_check -s eq:0 -o ignore -e empty grep "result: passed" resfile
-
-        atf_check -s eq:0 -o ignore -e ignore ${h} -s $(atf_get_srcdir) \
-            -v timeout=10 -v sleep=1 -r resfile timeout
-        atf_check -s eq:0 -o ignore -e empty grep "result: passed" resfile
-
-        atf_check -s eq:1 -o ignore -e ignore ${h} -s $(atf_get_srcdir) \
-            -v timeout=1 -v sleep=10 -r resfile timeout
-        atf_check -s eq:0 -o ignore -e empty grep "reason:.*timed out" resfile
-    done
-}
-
-# -------------------------------------------------------------------------
 # Main.
 # -------------------------------------------------------------------------
 
@@ -396,7 +370,6 @@ atf_init_test_cases()
     atf_add_test_case require_user_root
     atf_add_test_case require_user_unprivileged
     atf_add_test_case require_user_bad
-    atf_add_test_case timeout
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

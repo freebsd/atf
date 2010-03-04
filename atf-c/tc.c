@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009, 2010 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,47 +59,20 @@
  * Auxiliary types and functions.
  * --------------------------------------------------------------------- */
 
-struct child_data {
-    const atf_tc_t *tc;
-    const atf_fs_path_t *workdir;
-};
-
-/* Parent-only stuff. */
-struct timeout_data;
-static atf_error_t body_parent(const atf_tc_t *, const atf_fs_path_t *,
-                               atf_process_child_t *, atf_tcr_t *);
-static atf_error_t cleanup_parent(const atf_tc_t *, atf_process_child_t *);
-static atf_error_t fork_body(const atf_tc_t *, int, int,
-                             const atf_fs_path_t *, atf_tcr_t *);
-static atf_error_t fork_cleanup(const atf_tc_t *, int, int,
-                                const atf_fs_path_t *);
-static atf_error_t get_tc_result(const atf_fs_path_t *, atf_tcr_t *);
-static atf_error_t program_timeout(const atf_process_child_t *,
-                                   const atf_tc_t *, struct timeout_data *);
-static void unprogram_timeout(struct timeout_data *);
-static void sigalrm_handler(int);
-
-/* Child-only stuff. */
-static void body_child(void *) ATF_DEFS_ATTRIBUTE_NORETURN;
+static atf_error_t run_body(const atf_tc_t *, const atf_fs_path_t *);
 static atf_error_t check_arch(const char *, void *);
 static atf_error_t check_config(const char *, void *);
 static atf_error_t check_machine(const char *, void *);
 static atf_error_t check_prog(const char *, void *);
 static atf_error_t check_prog_in_dir(const char *, void *);
 static atf_error_t check_requirements(const atf_tc_t *);
-static void cleanup_child(void *) ATF_DEFS_ATTRIBUTE_NORETURN;
+static atf_error_t run_cleanup(const atf_tc_t *);
 static void fail_internal(const char *, int, const char *, const char *,
                           const char *, va_list,
                           void (*)(atf_dynstr_t *),
                           void (*)(const char *, ...));
-static void fatal_atf_error(const char *, atf_error_t)
-            ATF_DEFS_ATTRIBUTE_NORETURN;
-static void fatal_libc_error(const char *, int)
-            ATF_DEFS_ATTRIBUTE_NORETURN;
-static atf_error_t prepare_child(const struct child_data *);
 static void tc_fail(atf_dynstr_t *) ATF_DEFS_ATTRIBUTE_NORETURN;
 static void tc_fail_nonfatal(atf_dynstr_t *);
-static void write_tcr(const atf_tcr_t *);
 
 /* ---------------------------------------------------------------------
  * The "atf_tc" type.
@@ -277,404 +250,40 @@ atf_tc_set_md_var(atf_tc_t *tc, const char *name, const char *fmt, ...)
  * --------------------------------------------------------------------- */
 
 atf_error_t
-atf_tc_run(const atf_tc_t *tc, atf_tcr_t *tcr, int fdout, int fderr,
-           const atf_fs_path_t *workdirbase)
+atf_tc_run(const atf_tc_t *tc, const atf_fs_path_t *resfile)
 {
     atf_error_t err, cleanuperr;
-    atf_fs_path_t workdir;
 
-    err = atf_fs_path_copy(&workdir, workdirbase);
-    if (atf_is_error(err))
-        goto out;
-
-    err = atf_fs_path_append_fmt(&workdir, "atf.XXXXXX");
-    if (atf_is_error(err))
-        goto out_workdir;
-
-    err = atf_fs_mkdtemp(&workdir);
-    if (atf_is_error(err))
-        goto out_workdir;
-
-    err = fork_body(tc, fdout, fderr, &workdir, tcr);
-    cleanuperr = fork_cleanup(tc, fdout, fderr, &workdir);
-    if (!atf_is_error(cleanuperr))
-        (void)atf_fs_cleanup(&workdir);
+    atf_reset_exit_checks(); // XXX
+    err = run_body(tc, resfile);
+    cleanuperr = run_cleanup(tc);
     if (!atf_is_error(err))
         err = cleanuperr;
     else if (atf_is_error(cleanuperr))
         atf_error_free(cleanuperr);
 
-out_workdir:
-    atf_fs_path_fini(&workdir);
-out:
     return err;
 }
-
-/*
- * Parent-only stuff.
- */
-
-static bool sigalrm_killed = false;
-static pid_t sigalrm_pid = -1;
-
-static
-void
-sigalrm_handler(int signo)
-{
-    INV(signo == SIGALRM);
-
-    if (sigalrm_pid != -1) {
-        killpg(sigalrm_pid, SIGTERM);
-        sigalrm_killed = true;
-    }
-}
-
-struct timeout_data {
-    bool m_programmed;
-    atf_signal_programmer_t m_sigalrm;
-};
-
-static
-atf_error_t
-program_timeout(const atf_process_child_t *child, const atf_tc_t *tc,
-                struct timeout_data *td)
-{
-    atf_error_t err;
-    long timeout;
-
-    err = atf_text_to_long(atf_tc_get_md_var(tc, "timeout"), &timeout);
-    if (atf_is_error(err))
-        goto out;
-
-    if (timeout != 0) {
-        sigalrm_pid = atf_process_child_pid(child);
-        sigalrm_killed = false;
-
-        err = atf_signal_programmer_init(&td->m_sigalrm, SIGALRM,
-                                         sigalrm_handler);
-        if (atf_is_error(err))
-            goto out;
-
-        struct itimerval itv;
-        timerclear(&itv.it_interval);
-        timerclear(&itv.it_value);
-        itv.it_value.tv_sec = timeout;
-        if (setitimer(ITIMER_REAL, &itv, NULL) == -1) {
-            atf_signal_programmer_fini(&td->m_sigalrm);
-            err = atf_libc_error(errno, "Failed to program timeout "
-                                 "with %ld seconds", timeout);
-        }
-
-        td->m_programmed = !atf_is_error(err);
-    } else
-        td->m_programmed = false;
-
-out:
-    return err;
-}
-
-static
-void
-unprogram_timeout(struct timeout_data *td)
-{
-    if (td->m_programmed) {
-        atf_signal_programmer_fini(&td->m_sigalrm);
-        sigalrm_pid = -1;
-        sigalrm_killed = false;
-    }
-}
-
-static
-atf_error_t
-body_parent(const atf_tc_t *tc, const atf_fs_path_t *workdir,
-            atf_process_child_t *child, atf_tcr_t *tcr)
-{
-    atf_error_t err;
-    atf_process_status_t status;
-    struct timeout_data td;
-
-    err = program_timeout(child, tc, &td);
-    if (atf_is_error(err)) {
-        char buf[4096];
-
-        atf_error_format(err, buf, sizeof(buf));
-        fprintf(stderr, "Error programming test case's timeout: %s\n", buf);
-        atf_error_free(err);
-        killpg(atf_process_child_pid(child), SIGKILL);
-    }
-
-again:
-    err = atf_process_child_wait(child, &status);
-    if (atf_is_error(err)) {
-        if (atf_error_is(err, "libc") && atf_libc_error_code(err) == EINTR) {
-            atf_error_free(err);
-            goto again;
-        } else {
-            /* Propagate err */
-        }
-    } else {
-        if (sigalrm_killed)
-            err = atf_tcr_init_reason_fmt(tcr, atf_tcr_failed_state,
-                                          "Test case timed out after %s "
-                                          "seconds",
-                                          atf_tc_get_md_var(tc, "timeout"));
-        else {
-            if (atf_process_status_exited(&status)) {
-                const int exitstatus = atf_process_status_exitstatus(&status);
-                if (exitstatus == EXIT_SUCCESS)
-                    err = get_tc_result(workdir, tcr);
-                else
-                    err = atf_tcr_init_reason_fmt(tcr, atf_tcr_failed_state,
-                                                  "Test case exited with "
-                                                  "status %d", exitstatus);
-            } else if (atf_process_status_signaled(&status)) {
-                const int sig = atf_process_status_termsig(&status);
-                const bool wcore = atf_process_status_coredump(&status);
-                err = atf_tcr_init_reason_fmt(tcr, atf_tcr_failed_state,
-                                              "Test case was signaled by "
-                                              "signal %d%s", sig,
-                                              wcore ? " (core dumped)" : "");
-            } else {
-                err = atf_tcr_init_reason_fmt(tcr, atf_tcr_failed_state,
-                                              "Test case exited due to an "
-                                              "unexpected condition");
-            }
-        }
-
-        atf_process_status_fini(&status);
-    }
-
-    unprogram_timeout(&td);
-
-    return err;
-}
-
-static
-atf_error_t
-cleanup_parent(const atf_tc_t *tc, atf_process_child_t *child)
-{
-    atf_error_t err;
-    atf_process_status_t status;
-
-    err = atf_process_child_wait(child, &status);
-    if (atf_is_error(err))
-        goto out;
-
-    if (!atf_process_status_exited(&status) ||
-        atf_process_status_exitstatus(&status) != EXIT_SUCCESS) {
-        /* XXX Not really a libc error. */
-        err = atf_libc_error(EINVAL, "Child process did not exit cleanly");
-    } else
-        err = atf_no_error();
-
-    atf_process_status_fini(&status);
-out:
-    return err;
-}
-
-static
-atf_error_t
-fork_body(const atf_tc_t *tc, int fdout, int fderr,
-          const atf_fs_path_t *workdir, atf_tcr_t *tcr)
-{
-    atf_error_t err;
-    atf_process_stream_t outsb, errsb;
-    atf_process_child_t child;
-    struct child_data data = {
-        tc,
-        workdir,
-    };
-
-    err = atf_process_stream_init_redirect_fd(&outsb, fdout);
-    if (atf_is_error(err))
-        goto out;
-
-    err = atf_process_stream_init_redirect_fd(&errsb, fderr);
-    if (atf_is_error(err))
-        goto out_outsb;
-
-    err = atf_process_fork(&child, body_child, &outsb, &errsb, &data);
-    if (atf_is_error(err))
-        goto out_errsb;
-
-    err = body_parent(tc, workdir, &child, tcr);
-
-out_errsb:
-    atf_process_stream_fini(&errsb);
-out_outsb:
-    atf_process_stream_fini(&outsb);
-out:
-    return err;
-}
-
-static
-atf_error_t
-fork_cleanup(const atf_tc_t *tc, int fdout, int fderr,
-             const atf_fs_path_t *workdir)
-{
-    atf_error_t err;
-
-    if (tc->m_cleanup == NULL)
-        err = atf_no_error();
-    else {
-        atf_process_stream_t outsb, errsb;
-        atf_process_child_t child;
-        struct child_data data = {
-            tc,
-            workdir,
-        };
-
-        err = atf_process_stream_init_redirect_fd(&outsb, fdout);
-        if (atf_is_error(err))
-            goto out;
-
-        err = atf_process_stream_init_redirect_fd(&errsb, fderr);
-        if (atf_is_error(err))
-            goto out_outsb;
-
-        err = atf_process_fork(&child, cleanup_child, &outsb, &errsb, &data);
-        if (atf_is_error(err))
-            goto out_errsb;
-
-        err = cleanup_parent(tc, &child);
-
-out_errsb:
-        atf_process_stream_fini(&errsb);
-out_outsb:
-        atf_process_stream_fini(&outsb);
-    }
-
-out:
-    return err;
-}
-
-static
-atf_error_t
-get_tc_result(const atf_fs_path_t *workdir, atf_tcr_t *tcr)
-{
-    atf_error_t err;
-    int fd;
-    atf_fs_path_t tcrfile;
-
-    err = atf_fs_path_copy(&tcrfile, workdir);
-    if (atf_is_error(err))
-        goto out;
-
-    err = atf_fs_path_append_fmt(&tcrfile, "tc-result");
-    if (atf_is_error(err))
-        goto out_tcrfile;
-
-    fd = open(atf_fs_path_cstring(&tcrfile), O_RDONLY);
-    if (fd == -1) {
-        err = atf_libc_error(errno, "Cannot retrieve test case result");
-        goto out_tcrfile;
-    }
-
-    err = atf_tcr_deserialize(tcr, fd);
-
-    close(fd);
-out_tcrfile:
-    atf_fs_path_fini(&tcrfile);
-out:
-    return err;
-}
-
-/*
- * Child-only stuff.
- */
 
 static const atf_tc_t *current_tc = NULL;
-static const atf_fs_path_t *current_workdir = NULL;
+static const atf_fs_path_t *current_resfile = NULL;
 static size_t current_tc_fail_count = 0;
 
 static
 atf_error_t
-prepare_child(const struct child_data *cd)
+run_body(const atf_tc_t *tc, const atf_fs_path_t *resfile)
 {
     atf_error_t err;
-    int i, ret;
 
-    current_tc = cd->tc;
-    current_workdir = cd->workdir;
+    current_tc = tc;
+    current_resfile = resfile;
     current_tc_fail_count = 0;
 
-    ret = setpgid(getpid(), 0);
-    INV(ret != -1);
-
-    umask(S_IWGRP | S_IWOTH);
-
-    for (i = 1; i <= atf_signals_last_signo; i++)
-        atf_signal_reset(i);
-
-    err = atf_env_set("HOME", atf_fs_path_cstring(cd->workdir));
+    err = check_requirements(tc);
     if (atf_is_error(err))
         goto out;
 
-    err = atf_env_unset("LANG");
-    if (atf_is_error(err))
-        goto out;
-
-    err = atf_env_unset("LC_ALL");
-    if (atf_is_error(err))
-        goto out;
-
-    err = atf_env_unset("LC_COLLATE");
-    if (atf_is_error(err))
-        goto out;
-
-    err = atf_env_unset("LC_CTYPE");
-    if (atf_is_error(err))
-        goto out;
-
-    err = atf_env_unset("LC_MESSAGES");
-    if (atf_is_error(err))
-        goto out;
-
-    err = atf_env_unset("LC_MONETARY");
-    if (atf_is_error(err))
-        goto out;
-
-    err = atf_env_unset("LC_NUMERIC");
-    if (atf_is_error(err))
-        goto out;
-
-    err = atf_env_unset("LC_TIME");
-    if (atf_is_error(err))
-        goto out;
-
-    err = atf_env_unset("TZ");
-    if (atf_is_error(err))
-        goto out;
-
-    if (chdir(atf_fs_path_cstring(cd->workdir)) == -1) {
-        err = atf_libc_error(errno, "Cannot enter work directory '%s'",
-                             atf_fs_path_cstring(cd->workdir));
-        goto out;
-    }
-
-    err = atf_no_error();
-
-out:
-    return err;
-}
-
-static
-void
-body_child(void *v)
-{
-    const struct child_data *cd = v;
-    atf_error_t err;
-
-    atf_reset_exit_checks();
-
-    err = prepare_child(cd);
-    if (atf_is_error(err))
-        goto print_err;
-    err = check_requirements(cd->tc);
-    if (atf_is_error(err))
-        goto print_err;
-
-    cd->tc->m_body(cd->tc);
+    tc->m_body(tc);
 
     if (current_tc_fail_count == 0)
         atf_tc_pass();
@@ -682,20 +291,8 @@ body_child(void *v)
         atf_tc_fail("%d checks failed; see output for more details",
                     current_tc_fail_count);
 
-    UNREACHABLE;
-
-print_err:
-    INV(atf_is_error(err));
-    {
-        char buf[4096];
-
-        atf_error_format(err, buf, sizeof(buf));
-        atf_error_free(err);
-
-        atf_tc_fail("Error while preparing child process: %s", buf);
-    }
-
-    UNREACHABLE;
+out:
+    return err;
 }
 
 static
@@ -912,77 +509,11 @@ out:
 }
 
 static
-void
-cleanup_child(void *v)
+atf_error_t
+run_cleanup(const atf_tc_t *tc)
 {
-    const struct child_data *cd = v;
-    atf_error_t err;
-
-    err = prepare_child(cd);
-    if (atf_is_error(err)) {
-        atf_reset_exit_checks();
-        exit(EXIT_FAILURE);
-    } else {
-        atf_reset_exit_checks();
-        cd->tc->m_cleanup(cd->tc);
-        exit(EXIT_SUCCESS);
-    }
-
-    UNREACHABLE;
-}
-
-static
-void
-fatal_atf_error(const char *prefix, atf_error_t err)
-{
-    char buf[1024];
-
-    INV(atf_is_error(err));
-
-    atf_error_format(err, buf, sizeof(buf));
-    atf_error_free(err);
-
-    fprintf(stderr, "%s: %s\n", prefix, buf);
-
-    abort();
-}
-
-static
-void
-fatal_libc_error(const char *prefix, int err)
-{
-    fprintf(stderr, "%s: %s\n", prefix, strerror(err));
-
-    abort();
-}
-
-static
-void
-write_tcr(const atf_tcr_t *tcr)
-{
-    atf_error_t err;
-    int fd;
-    atf_fs_path_t tcrfile;
-
-    err = atf_fs_path_copy(&tcrfile, current_workdir);
-    if (atf_is_error(err))
-        fatal_atf_error("Cannot write test case results", err);
-
-    err = atf_fs_path_append_fmt(&tcrfile, "tc-result");
-    if (atf_is_error(err))
-        fatal_atf_error("Cannot write test case results", err);
-
-    fd = open(atf_fs_path_cstring(&tcrfile),
-              O_WRONLY | O_CREAT | O_TRUNC, 0755);
-    if (fd == -1)
-        fatal_libc_error("Cannot write test case results", errno);
-
-    err = atf_tcr_serialize(tcr, fd);
-    if (atf_is_error(err))
-        fatal_atf_error("Cannot write test case results", err);
-
-    close(fd);
-    atf_fs_path_fini(&tcrfile);
+    tc->m_cleanup(tc);
+    return atf_no_error(); // XXX
 }
 
 static
@@ -999,12 +530,12 @@ tc_fail(atf_dynstr_t *msg)
     if (atf_is_error(err))
         abort();
 
-    write_tcr(&tcr);
+    atf_tcr_write(&tcr, current_resfile); // XXX: Handle errors.
 
     atf_tcr_fini(&tcr);
     atf_dynstr_fini(msg);
 
-    exit(EXIT_SUCCESS);
+    exit(EXIT_FAILURE);
 }
 
 static
@@ -1032,11 +563,11 @@ atf_tc_fail(const char *fmt, ...)
     if (atf_is_error(err))
         abort();
 
-    write_tcr(&tcr);
+    atf_tcr_write(&tcr, current_resfile); // XXX: Handle errors.
 
     atf_tcr_fini(&tcr);
 
-    exit(EXIT_SUCCESS);
+    exit(EXIT_FAILURE);
 }
 
 void
@@ -1126,7 +657,7 @@ atf_tc_pass(void)
     if (atf_is_error(err))
         abort();
 
-    write_tcr(&tcr);
+    atf_tcr_write(&tcr, current_resfile); // XXX: Handle errors.
 
     atf_tcr_fini(&tcr);
 
@@ -1160,7 +691,7 @@ atf_tc_skip(const char *fmt, ...)
     if (atf_is_error(err))
         abort();
 
-    write_tcr(&tcr);
+    atf_tcr_write(&tcr, current_resfile); // XXX: Handle errors.
 
     atf_tcr_fini(&tcr);
 
