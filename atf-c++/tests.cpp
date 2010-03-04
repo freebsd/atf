@@ -55,7 +55,6 @@ extern "C" {
 }
 
 #include "atf-c++/application.hpp"
-#include "atf-c++/config.hpp"
 #include "atf-c++/env.hpp"
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/formats.hpp"
@@ -394,7 +393,6 @@ private:
     bool m_lflag;
     atf::fs::path m_resfile;
     atf::fs::path m_srcdir;
-    atf::fs::path m_workdir;
 
     atf::tests::vars_map m_vars;
 
@@ -429,7 +427,6 @@ tp::tp(void (*add_tcs)(tc_vector&)) :
     m_lflag(false),
     m_resfile("resfile"), // XXX
     m_srcdir("."),
-    m_workdir(atf::config::get("atf_workdir")),
     m_add_tcs(add_tcs)
 {
 }
@@ -465,8 +462,6 @@ tp::specific_options(void)
                                       "files are located"));
     opts.insert(option('v', "var=value", "Sets the configuration variable "
                                          "`var' to `value'"));
-    opts.insert(option('w', "workdir", "Directory where the test's "
-                                       "temporary files are located"));
     return opts;
 }
 
@@ -488,10 +483,6 @@ tp::process_option(int ch, const char* arg)
 
     case 'v':
         parse_vflag(arg);
-        break;
-
-    case 'w':
-        m_workdir = atf::fs::path(arg);
         break;
 
     default:
@@ -608,10 +599,6 @@ int
 tp::run_tc(const std::string& name)
 {
     impl::tc* tc = find_tc(init_tcs(), name);
-
-    if (!atf::fs::exists(m_workdir))
-        throw std::runtime_error("Cannot find the work directory `" +
-                                 m_workdir.str() + "'");
 
     try {
         tc->run(m_resfile);

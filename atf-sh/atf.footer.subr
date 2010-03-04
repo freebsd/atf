@@ -64,13 +64,6 @@ Test_Case=
 # Subset of ${Defined_Test_Cases}.
 Test_Cases=
 
-# The test case's work directory.  The semantics of this variable are a
-# bit screwed.  When running the parent program (not the test case's body),
-# this points to the test _program_'s directory.  When we have reexecuted
-# the code through _atf_shortcut_exec, this points to the test _case_'s
-# work directory, which is a subdirectory of the other one.
-Work_Dir=
-
 # ------------------------------------------------------------------------
 # PUBLIC INTERFACE
 # ------------------------------------------------------------------------
@@ -613,11 +606,6 @@ _atf_run_body()
 #
 _atf_run_tc()
 {
-    # Now check that the base work directory exists.  We do not want to
-    # bother creating it.
-    [ -d "${Work_Dir}" ] || \
-        _atf_error 1 "Cannot find the work directory \`${Work_Dir}'"
-
     _atf_parse_head ${1}
 
     _atf_internal_set srcdir "${Source_Dir}"
@@ -708,8 +696,6 @@ _atf_usage()
                                         "files are located"
     _atf_echo -t "    -v var=value    " "Sets the configuration variable" \
                                         "\`var' to \`value'"
-    _atf_echo -t "    -w workdir      " "Directory where the test's" \
-                                        "temporary files are located"
     echo
     _atf_echo "For more details please see atf-test-program(1) and atf(7)."
 }
@@ -735,14 +721,11 @@ _atf_warning()
 #
 main()
 {
-    # The test program's base directory where it will put temporary files.
-    Work_Dir=$(atf-config -t atf_workdir)
-
     # Process command-line options first.
     _numargs=${#}
     _hflag=false
     _lflag=false
-    while getopts :hlr:s:v:w: arg; do
+    while getopts :hlr:s:v: arg; do
         case ${arg} in
         h)
             _hflag=true
@@ -762,10 +745,6 @@ main()
 
         v)
             _atf_config_set_from_str "${OPTARG}"
-            ;;
-
-        w)
-            Work_Dir=${OPTARG}
             ;;
 
         \?)

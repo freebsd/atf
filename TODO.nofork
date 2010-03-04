@@ -1,8 +1,6 @@
 List of items to address before the org.NetBSD.atf.src.nofork branch can be
 merged to org.NetBSD.atf.src.
 
-- Remove the -w flag from test programs.
-
 - Fix cleanup hook execution.  Test programs have to expose a way to run
   either the body or the cleanup routine, and atf-run has to execute them.
 
@@ -19,3 +17,7 @@ merged to org.NetBSD.atf.src.
 - Templatize the void* cookie in atf-c++'s fork.
 
 - Remove obsolete helper tests in tests/atf/test_programs/h_* for cleanup.
+
+- Update atf-test-program(4) to reflect the command-line changes.
+
+- Update atf-test-case(4) to reflect the isolation changes.
