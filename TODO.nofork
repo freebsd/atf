@@ -21,3 +21,7 @@ merged to org.NetBSD.atf.src.
 - Update atf-test-program(4) to reflect the command-line changes.
 
 - Update atf-test-case(4) to reflect the isolation changes.
+
+- Fix default for -r flag in test programs.
+
+- Fix any XXX and TODO items introduced by this branch.
