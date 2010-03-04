@@ -175,9 +175,9 @@ print_error(const atf_error_t err)
 struct params {
     bool m_do_list;
     bool m_do_usage;
-    const char *m_resfile;
     const char *m_srcdir;
     const char *m_tcname;
+    atf_fs_path_t m_resfile;
     atf_map_t m_config;
 };
 
@@ -189,11 +189,18 @@ params_init(struct params *p)
 
     p->m_do_list = false;
     p->m_do_usage = false;
-    p->m_resfile = "resfile"; /* XXX */
     p->m_srcdir = ".";
     p->m_tcname = NULL;
 
+    err = atf_fs_path_init_fmt(&p->m_resfile, "resfile"); // XXX: Bad default.
+    if (atf_is_error(err))
+        return err;
+
     err = atf_map_init(&p->m_config);
+    if (atf_is_error(err)) {
+        atf_fs_path_fini(&p->m_resfile);
+        return err;
+    }
 
     return err;
 }
@@ -203,6 +210,7 @@ void
 params_fini(struct params *p)
 {
     atf_map_fini(&p->m_config);
+    atf_fs_path_fini(&p->m_resfile);
 }
 
 static
@@ -322,7 +330,14 @@ process_params(int argc, char **argv, struct params *p)
             break;
 
         case 'r':
-            p->m_resfile = optarg;
+            {
+                atf_fs_path_t resfile;
+                err = atf_fs_path_init_fmt(&resfile, "%s", optarg);
+                if (!atf_is_error(err)) {
+                    atf_fs_path_fini(&p->m_resfile);
+                    p->m_resfile = resfile;
+                }
+            }
             break;
 
         case 's':
@@ -422,17 +437,6 @@ out:
 
 static
 atf_error_t
-handle_resfile(struct params *p, atf_fs_path_t *resfile)
-{
-    atf_error_t err;
-
-    err = atf_fs_path_init_fmt(resfile, "%s", p->m_resfile);
-
-    return err;
-}
-
-static
-atf_error_t
 controlled_main(int argc, char **argv,
                 atf_error_t (*add_tcs_hook)(atf_tp_t *),
                 int *exitcode)
@@ -440,7 +444,6 @@ controlled_main(int argc, char **argv,
     atf_error_t err;
     struct params p;
     atf_tp_t tp;
-    atf_fs_path_t resfile;
 
     err = process_params(argc, argv, &p);
     if (atf_is_error(err))
@@ -456,13 +459,9 @@ controlled_main(int argc, char **argv,
     if (atf_is_error(err))
         goto out_p;
 
-    err = handle_resfile(&p, &resfile);
-    if (atf_is_error(err))
-        goto out_p;
-
     err = atf_tp_init(&tp, &p.m_config);
     if (atf_is_error(err))
-        goto out_resfile;
+        goto out_p;
 
     err = add_tcs_hook(&tp);
     if (atf_is_error(err))
@@ -476,7 +475,7 @@ controlled_main(int argc, char **argv,
         if (!atf_tp_has_tc(&tp, p.m_tcname)) {
             err = usage_error("Unknown test case `%s'", p.m_tcname);
         } else {
-            err = atf_tp_run(&tp, p.m_tcname, &resfile);
+            err = atf_tp_run(&tp, p.m_tcname, &p.m_resfile);
             if (atf_is_error(err)) {
                 /* TODO: Handle error */
                 *exitcode = EXIT_FAILURE;
@@ -489,8 +488,6 @@ controlled_main(int argc, char **argv,
 
 out_tp:
     atf_tp_fini(&tp);
-out_resfile:
-    atf_fs_path_fini(&resfile);
 out_p:
     params_fini(&p);
 out:

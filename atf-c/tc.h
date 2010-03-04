@@ -102,6 +102,7 @@ atf_error_t atf_tc_set_md_var(atf_tc_t *, const char *, const char *, ...);
  * --------------------------------------------------------------------- */
 
 atf_error_t atf_tc_run(const atf_tc_t *, const struct atf_fs_path *);
+atf_error_t atf_tc_cleanup(const atf_tc_t *);
 
 /* To be run from test case bodies only. */
 void atf_tc_fail(const char *, ...) ATF_DEFS_ATTRIBUTE_NORETURN;

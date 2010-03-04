@@ -59,14 +59,12 @@
  * Auxiliary types and functions.
  * --------------------------------------------------------------------- */
 
-static atf_error_t run_body(const atf_tc_t *, const atf_fs_path_t *);
 static atf_error_t check_arch(const char *, void *);
 static atf_error_t check_config(const char *, void *);
 static atf_error_t check_machine(const char *, void *);
 static atf_error_t check_prog(const char *, void *);
 static atf_error_t check_prog_in_dir(const char *, void *);
 static atf_error_t check_requirements(const atf_tc_t *);
-static atf_error_t run_cleanup(const atf_tc_t *);
 static void fail_internal(const char *, int, const char *, const char *,
                           const char *, va_list,
                           void (*)(atf_dynstr_t *),
@@ -249,31 +247,16 @@ atf_tc_set_md_var(atf_tc_t *tc, const char *name, const char *fmt, ...)
  * Free functions.
  * --------------------------------------------------------------------- */
 
-atf_error_t
-atf_tc_run(const atf_tc_t *tc, const atf_fs_path_t *resfile)
-{
-    atf_error_t err, cleanuperr;
-
-    atf_reset_exit_checks(); // XXX
-    err = run_body(tc, resfile);
-    cleanuperr = run_cleanup(tc);
-    if (!atf_is_error(err))
-        err = cleanuperr;
-    else if (atf_is_error(cleanuperr))
-        atf_error_free(cleanuperr);
-
-    return err;
-}
-
 static const atf_tc_t *current_tc = NULL;
 static const atf_fs_path_t *current_resfile = NULL;
 static size_t current_tc_fail_count = 0;
 
-static
 atf_error_t
-run_body(const atf_tc_t *tc, const atf_fs_path_t *resfile)
+atf_tc_run(const atf_tc_t *tc, const atf_fs_path_t *resfile)
 {
     atf_error_t err;
+
+    atf_reset_exit_checks(); // XXX
 
     current_tc = tc;
     current_resfile = resfile;
@@ -291,8 +274,19 @@ run_body(const atf_tc_t *tc, const atf_fs_path_t *resfile)
         atf_tc_fail("%d checks failed; see output for more details",
                     current_tc_fail_count);
 
+    current_tc = NULL;
+    current_resfile = NULL;
+    current_tc_fail_count = 0;
+
 out:
     return err;
+}
+
+atf_error_t
+atf_tc_cleanup(const atf_tc_t *tc)
+{
+    tc->m_cleanup(tc);
+    return atf_no_error(); // XXX
 }
 
 static
@@ -506,14 +500,6 @@ check_requirements(const atf_tc_t *tc)
     INV(!atf_is_error(err));
 out:
     return err;
-}
-
-static
-atf_error_t
-run_cleanup(const atf_tc_t *tc)
-{
-    tc->m_cleanup(tc);
-    return atf_no_error(); // XXX
 }
 
 static
