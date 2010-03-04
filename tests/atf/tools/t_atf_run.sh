@@ -554,7 +554,12 @@ isolation_env_body()
 
     create_helper atf_run_env_list
     create_atffile helper
-    atf_check -s eq:0 -o save:stdout -e empty ${mangleenv} atf-run helper
+
+    # We must ignore stderr in this call (instead of specifying -e empty)
+    # because, when atf-run invokes the shell to run the hooks, we may get
+    # error messages about an invalid locale.  This happens, at least, when
+    # the shell is bash 4.x.
+    atf_check -s eq:0 -o save:stdout -e ignore ${mangleenv} atf-run helper
 
     for v in ${undef_vars}; do
         atf_check -s eq:1 -o empty -e empty grep "^tc-so:${v}=" stdout
