@@ -164,13 +164,21 @@ atf_error_t
 atf_tp_run(const atf_tp_t *tp, const char *tcname,
            const atf_fs_path_t *resfile)
 {
-    atf_error_t err;
     const atf_tc_t *tc;
 
     tc = find_tc(tp, tcname);
     PRE(tc != NULL);
 
-    err = atf_tc_run(tc, resfile);
+    return atf_tc_run(tc, resfile);
+}
 
-    return err;
+atf_error_t
+atf_tp_cleanup(const atf_tp_t *tp, const char *tcname)
+{
+    const atf_tc_t *tc;
+
+    tc = find_tc(tp, tcname);
+    PRE(tc != NULL);
+
+    return atf_tc_cleanup(tc);
 }
