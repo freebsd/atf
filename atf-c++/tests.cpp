@@ -349,6 +349,15 @@ impl::tc::run(const fs::path& resfile)
 }
 
 void
+impl::tc::run_cleanup(void)
+    const
+{
+    atf_error_t err = atf_tc_cleanup(&m_tc);
+    if (atf_is_error(err))
+        throw_atf_error(err);
+}
+
+void
 impl::tc::cleanup(void)
     const
 {
@@ -408,8 +417,14 @@ private:
 
     tc_vector init_tcs(void);
 
+    enum tc_part {
+        BODY,
+        CLEANUP,
+    };
+
     int list_tcs(void);
     impl::tc* find_tc(tc_vector, const std::string&);
+    static std::pair< std::string, tc_part > process_tcarg(const std::string&);
     int run_tc(const std::string&);
 
 public:
@@ -595,13 +610,45 @@ tp::find_tc(tc_vector tcs, const std::string& name)
                                         name.c_str());
 }
 
-int
-tp::run_tc(const std::string& name)
+std::pair< std::string, tp::tc_part >
+tp::process_tcarg(const std::string& tcarg)
 {
-    impl::tc* tc = find_tc(init_tcs(), name);
+    const std::string::size_type pos = tcarg.find(':');
+    if (pos == std::string::npos) {
+        return std::make_pair(tcarg, BODY);
+    } else {
+        const std::string tcname = tcarg.substr(0, pos);
+
+        const std::string partname = tcarg.substr(pos + 1);
+        if (partname == "body")
+            return std::make_pair(tcname, BODY);
+        else if (partname == "cleanup")
+            return std::make_pair(tcname, CLEANUP);
+        else {
+            using atf::application::usage_error;
+            throw usage_error("Invalid test case part `%s'", partname.c_str());
+        }
+    }
+}
+
+int
+tp::run_tc(const std::string& tcarg)
+{
+    const std::pair< std::string, tc_part > fields = process_tcarg(tcarg);
+
+    impl::tc* tc = find_tc(init_tcs(), fields.first);
 
     try {
-        tc->run(m_resfile);
+        switch (fields.second) {
+        case BODY:
+            tc->run(m_resfile);
+            break;
+        case CLEANUP:
+            tc->run_cleanup();
+            break;
+        default:
+            UNREACHABLE;
+        }
         return EXIT_SUCCESS;
     } catch (const std::runtime_error& e) {
         // TODO: Handle error.

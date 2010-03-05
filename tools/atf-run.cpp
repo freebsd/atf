@@ -142,9 +142,10 @@ class atf_run : public atf::application::app {
                  atf::formats::atf_tps_writer&);
     int run_test_directory(const atf::fs::path&,
                            atf::formats::atf_tps_writer&);
-    int run_test_case(const atf::fs::path&, const std::string&,
-                      const atf::fs::path& resfile,
-                      atf::formats::atf_tps_writer&);
+    atf::process::status run_test_case(const atf::fs::path&, const std::string&,
+                                       const std::string&, const atf::fs::path&,
+                                       const atf::fs::path&,
+                                       atf::formats::atf_tps_writer&);
     int run_test_program(const atf::fs::path&, atf::formats::atf_tps_writer&);
 
     std::vector< std::string > query_tcs(const atf::fs::path&) const;
@@ -164,15 +165,18 @@ class atf_run : public atf::application::app {
         const atf_run* m_this;
         const atf::fs::path& m_tp;
         const std::string& m_tc;
+        const std::string& m_part;
         const atf::fs::path& m_resfile;
         const atf::fs::path& m_workdir;
 
         test_data(const atf_run* t, const atf::fs::path& tp,
-                  const std::string& tc, const atf::fs::path& resfile,
+                  const std::string& tc, const std::string& part,
+                  const atf::fs::path& resfile,
                   const atf::fs::path& workdir) :
             m_this(t),
             m_tp(tp),
             m_tc(tc),
+            m_part(part),
             m_resfile(resfile),
             m_workdir(workdir)
         {
@@ -184,11 +188,13 @@ class atf_run : public atf::application::app {
 
     static void route_run_test_case_child(void *);
     void run_test_case_child(const atf::fs::path&, const std::string&,
-                             const atf::fs::path&, const atf::fs::path&) const;
-    int run_test_case_parent(const atf::fs::path&, const std::string&,
-                             const atf::fs::path&, const atf::fs::path&,
-                             atf::formats::atf_tps_writer&,
-                             atf::process::child&);
+                             const std::string&, const atf::fs::path&,
+                             const atf::fs::path&) const;
+    atf::process::status run_test_case_parent(const atf::fs::path&,
+                                              const std::string&,
+                                              const atf::fs::path&,
+                                              atf::formats::atf_tps_writer&,
+                                              atf::process::child&);
 
     static void route_query_tcs_child(void *);
     void query_tcs_child(const atf::fs::path&) const;
@@ -365,13 +371,14 @@ void
 atf_run::route_run_test_case_child(void* v)
 {
     test_data* td = static_cast< test_data* >(v);
-    td->m_this->run_test_case_child(td->m_tp, td->m_tc, td->m_resfile,
-                                    td->m_workdir);
+    td->m_this->run_test_case_child(td->m_tp, td->m_tc, td->m_part,
+                                    td->m_resfile, td->m_workdir);
     UNREACHABLE;
 }
 
 void
 atf_run::run_test_case_child(const atf::fs::path& tp, const std::string& tc,
+                             const std::string& part,
                              const atf::fs::path& resfile,
                              const atf::fs::path& workdir)
     const
@@ -388,7 +395,7 @@ atf_run::run_test_case_child(const atf::fs::path& tp, const std::string& tc,
     argv.push_back("-r" + resfile.str());
     argv.push_back("-s" + absolute_tp.branch_path().str());
     append_to_vector(argv, conf_args());
-    argv.push_back(tc);
+    argv.push_back(tc + ":" + part);
 
     prepare_child(workdir);
 
@@ -448,9 +455,8 @@ atf_run::get_tcr(const atf::process::status& s,
     }
 }
 
-int
+atf::process::status
 atf_run::run_test_case_parent(const atf::fs::path& tp, const std::string& tc,
-                              const atf::fs::path& resfile,
                               const atf::fs::path& workdir,
                               atf::formats::atf_tps_writer& w,
                               atf::process::child& c)
@@ -460,8 +466,6 @@ atf_run::run_test_case_parent(const atf::fs::path& tp, const std::string& tc,
     atf::io::unbuffered_istream outin(outfh);
     atf::io::file_handle errfh = c.stderr_fd();
     atf::io::unbuffered_istream errin(errfh);
-
-    w.start_tc(tc);
 
     // Process the test case's output and multiplex it into our output
     // stream as we read it.
@@ -474,31 +478,26 @@ atf_run::run_test_case_parent(const atf::fs::path& tp, const std::string& tc,
         UNREACHABLE;
     }
 
-    const atf::tests::tcr tcr = get_tcr(c.wait(), resfile);
-    w.end_tc(tcr);
-    return (tcr.get_state() == atf::tests::tcr::passed_state) ?
-        EXIT_SUCCESS : EXIT_FAILURE;
+    return c.wait();
 }
 
-int
+atf::process::status
 atf_run::run_test_case(const atf::fs::path& tp, const std::string& tc,
-                       const atf::fs::path& resfile,
+                       const std::string& part, const atf::fs::path& resfile,
+                       const atf::fs::path& workdir,
                        atf::formats::atf_tps_writer& w)
 {
-    atf::fs::temp_dir workdir(atf::fs::path(atf::config::get("atf_workdir")) /
-                              "atf-run.XXXXXX");
-
     // TODO: Capture termination signals and deliver them to the subprocess
     // instead.  Or maybe do something else; think about it.
 
-    test_data td(this, tp, tc, resfile, workdir.get_path());
+    test_data td(this, tp, tc, part, resfile, workdir);
     atf::process::child c =
         atf::process::fork(route_run_test_case_child,
                            atf::process::stream_capture(),
                            atf::process::stream_capture(),
                            static_cast< void * >(&td));
 
-    return run_test_case_parent(tp, tc, resfile, workdir.get_path(), w, c);
+    return run_test_case_parent(tp, tc, workdir, w, c);
 }
 
 int
@@ -528,8 +527,23 @@ atf_run::run_test_program(const atf::fs::path& tp,
              iter != tcs.end(); iter++) {
             const atf::fs::path resfile = resdir.get_path() / "tcr";
             try {
-                if (run_test_case(tp, *iter, resfile, w) !=
-                    EXIT_SUCCESS)
+                w.start_tc(*iter);
+
+                atf::fs::temp_dir workdir(atf::fs::path(atf::config::get("atf_workdir")) /
+                                          "atf-run.XXXXXX");
+
+                const atf::process::status body_status =
+                    run_test_case(tp, *iter, "body", resfile,
+                    workdir.get_path(), w);
+                const atf::process::status cleanup_status =
+                    run_test_case(tp, *iter, "cleanup", resfile,
+                    workdir.get_path(), w);
+
+                // TODO: Force deletion of workdir.
+
+                const atf::tests::tcr tcr = get_tcr(body_status, resfile);
+                w.end_tc(tcr);
+                if (tcr.get_state() == atf::tests::tcr::failed_state)
                     errcode = EXIT_FAILURE;
             } catch (...) {
                 atf::fs::remove(resfile);

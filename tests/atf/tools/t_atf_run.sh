@@ -596,6 +596,91 @@ isolation_umask_body()
     atf_check -s eq:0 -o ignore -e empty grep 'umask: 0022' stdout
 }
 
+atf_test_case cleanup_pass
+cleanup_pass_head()
+{
+    atf_set "descr" "Tests that atf-run calls the cleanup routine of the test" \
+        "case when the test case result is passed"
+}
+cleanup_pass_body()
+{
+    create_helper atf_run_cleanup_states
+    create_atffile helper
+
+    atf_check -s eq:0 -o save:stdout -e ignore atf-run -v state=pass \
+        -v statedir=$(pwd) helper
+    atf_check -s eq:0 -o ignore -e empty grep 'atf_run_cleanup_states, passed' \
+        stdout
+    test -f to-stay || atf_fail "Test case body did not run correctly"
+    test -f to-delete && atf_fail "Test case cleanup did not run correctly"
+}
+
+atf_test_case cleanup_fail
+cleanup_fail_head()
+{
+    atf_set "descr" "Tests that atf-run calls the cleanup routine of the test" \
+        "case when the test case result is failed"
+}
+cleanup_fail_body()
+{
+    create_helper atf_run_cleanup_states
+    create_atffile helper
+
+    atf_check -s eq:1 -o save:stdout -e ignore atf-run -v state=fail \
+        -v statedir=$(pwd) helper
+    atf_check -s eq:0 -o ignore -e empty grep 'atf_run_cleanup_states, failed' \
+        stdout
+    test -f to-stay || atf_fail "Test case body did not run correctly"
+    test -f to-delete && atf_fail "Test case cleanup did not run correctly"
+}
+
+atf_test_case cleanup_skip
+cleanup_skip_head()
+{
+    atf_set "descr" "Tests that atf-run calls the cleanup routine of the test" \
+        "case when the test case result is skipped"
+}
+cleanup_skip_body()
+{
+    create_helper atf_run_cleanup_states
+    create_atffile helper
+
+    atf_check -s eq:0 -o save:stdout -e ignore atf-run -v state=skip \
+        -v statedir=$(pwd) helper
+    atf_check -s eq:0 -o ignore -e empty grep 'atf_run_cleanup_states, skipped' \
+        stdout
+    test -f to-stay || atf_fail "Test case body did not run correctly"
+    test -f to-delete && atf_fail "Test case cleanup did not run correctly"
+}
+
+atf_test_case cleanup_curdir
+cleanup_curdir_head()
+{
+    atf_set "descr" "Tests that atf-run calls the cleanup routine in the same" \
+        "work directory as the body so that they can share data"
+}
+cleanup_curdir_body()
+{
+    create_helper atf_run_cleanup_curdir
+    create_atffile helper
+
+    atf_check -s eq:0 -o save:stdout -e ignore atf-run helper
+    atf_check -s eq:0 -o ignore -e empty grep 'atf_run_cleanup_curdir, passed' \
+        stdout
+    atf_check -s eq:0 -o ignore -e empty grep 'Old value: 1234' stdout
+}
+
+atf_test_case cleanup_signal
+cleanup_signal_head()
+{
+    atf_set "descr" "Tests that atf-run calls the cleanup routine if it gets" \
+        "a termination signal while running the body"
+}
+cleanup_signal_body()
+{
+    : # TODO: Write this.
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case config
@@ -615,6 +700,11 @@ atf_init_test_cases()
     atf_add_test_case isolation_env
     atf_add_test_case isolation_home
     atf_add_test_case isolation_umask
+    atf_add_test_case cleanup_pass
+    atf_add_test_case cleanup_fail
+    atf_add_test_case cleanup_skip
+    atf_add_test_case cleanup_curdir
+    atf_add_test_case cleanup_signal
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

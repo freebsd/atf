@@ -31,13 +31,29 @@ extern "C" {
 #include <sys/stat.h>
 }
 
+#include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <string>
 
 #include "atf-c++/env.hpp"
 #include "atf-c++/fs.hpp"
 #include "atf-c++/macros.hpp"
 #include "atf-c++/process.hpp"
+
+// ------------------------------------------------------------------------
+// Auxiliary functions.
+// ------------------------------------------------------------------------
+
+static
+void
+touch(const std::string& path)
+{
+    std::ofstream os(path.c_str());
+    if (!os)
+        ATF_FAIL("Could not create file " + path);
+    os.close();
+}
 
 // ------------------------------------------------------------------------
 // Helper tests for "t_atf_run".
@@ -125,6 +141,50 @@ ATF_TEST_CASE_BODY(atf_run_umask)
     (void)::umask(m);
 }
 
+ATF_TEST_CASE_WITH_CLEANUP(atf_run_cleanup_states);
+ATF_TEST_CASE_HEAD(atf_run_cleanup_states)
+{
+    set_md_var("descr", "Helper test case for the t_atf_run test program");
+}
+ATF_TEST_CASE_BODY(atf_run_cleanup_states)
+{
+    touch(get_config_var("statedir") + "/to-delete");
+    touch(get_config_var("statedir") + "/to-stay");
+
+    if (get_config_var("state") == "fail")
+        ATF_FAIL("On purpose");
+    else if (get_config_var("state") == "skip")
+        ATF_SKIP("On purpose");
+}
+ATF_TEST_CASE_CLEANUP(atf_run_cleanup_states)
+{
+    atf::fs::remove(atf::fs::path(get_config_var("statedir") + "/to-delete"));
+}
+
+ATF_TEST_CASE_WITH_CLEANUP(atf_run_cleanup_curdir);
+ATF_TEST_CASE_HEAD(atf_run_cleanup_curdir)
+{
+    set_md_var("descr", "Helper test case for the t_atf_run test program");
+}
+ATF_TEST_CASE_BODY(atf_run_cleanup_curdir)
+{
+    std::ofstream os("oldvalue");
+    if (!os)
+        ATF_FAIL("Failed to create oldvalue file");
+    os << 1234;
+    os.close();
+}
+ATF_TEST_CASE_CLEANUP(atf_run_cleanup_curdir)
+{
+    std::ifstream is("oldvalue");
+    if (is) {
+        int i;
+        is >> i;
+        std::cout << "Old value: " << i << std::endl;
+        is.close();
+    }
+}
+
 // ------------------------------------------------------------------------
 // Helper tests for "t_atf_report".
 // ------------------------------------------------------------------------
@@ -172,6 +232,10 @@ ATF_INIT_TEST_CASES(tcs)
         ATF_ADD_TEST_CASE(tcs, atf_run_env_home);
     if (which == "atf_run_umask")
         ATF_ADD_TEST_CASE(tcs, atf_run_umask);
+    if (which == "atf_run_cleanup_states")
+        ATF_ADD_TEST_CASE(tcs, atf_run_cleanup_states);
+    if (which == "atf_run_cleanup_curdir")
+        ATF_ADD_TEST_CASE(tcs, atf_run_cleanup_curdir);
 
     // Add helper tests for t_atf_report.
     if (which == "atf_report_diff")

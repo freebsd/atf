@@ -1,8 +1,8 @@
 List of items to address before the org.NetBSD.atf.src.nofork branch can be
 merged to org.NetBSD.atf.src.
 
-- Fix cleanup hook execution.  Test programs have to expose a way to run
-  either the body or the cleanup routine, and atf-run has to execute them.
+- Validate test program command line syntax: -r has to be invalid when running
+  the cleanup part of a test case.
 
 - Expose test metadata.  atf-run needs to know the requirements of test
   cases and also needs to know if they have a cleanup routine to invoke it.

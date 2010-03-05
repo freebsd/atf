@@ -6,5 +6,4 @@ tp: t_config
 tp: t_meta_data
 tp: t_fork
 tp: t_srcdir
-tp: t_cleanup
 tp: t_status

@@ -61,6 +61,11 @@ static const char *progname = NULL;
  * though. */
 int atf_tp_main(int, char **, atf_error_t (*)(atf_tp_t *));
 
+enum tc_part {
+    BODY,
+    CLEANUP,
+};
+
 /* ---------------------------------------------------------------------
  * The "usage" and "user" error types.
  * --------------------------------------------------------------------- */
@@ -176,7 +181,8 @@ struct params {
     bool m_do_list;
     bool m_do_usage;
     const char *m_srcdir;
-    const char *m_tcname;
+    char *m_tcname;
+    enum tc_part m_tcpart;
     atf_fs_path_t m_resfile;
     atf_map_t m_config;
 };
@@ -191,6 +197,7 @@ params_init(struct params *p)
     p->m_do_usage = false;
     p->m_srcdir = ".";
     p->m_tcname = NULL;
+    p->m_tcpart = BODY;
 
     err = atf_fs_path_init_fmt(&p->m_resfile, "resfile"); // XXX: Bad default.
     if (atf_is_error(err))
@@ -211,6 +218,8 @@ params_fini(struct params *p)
 {
     atf_map_fini(&p->m_config);
     atf_fs_path_fini(&p->m_resfile);
+    if (p->m_tcname != NULL)
+        free(p->m_tcname);
 }
 
 static
@@ -307,6 +316,39 @@ usage(void)
 
 static
 atf_error_t
+handle_tcarg(const char *tcarg, char **tcname, enum tc_part *tcpart)
+{
+    atf_error_t err;
+
+    err = atf_no_error();
+
+    *tcname = strdup(tcarg);
+    if (*tcname == NULL) {
+        err = atf_no_memory_error();
+        goto out;
+    }
+
+    char *delim = strchr(*tcname, ':');
+    if (delim != NULL) {
+        *delim = '\0';
+
+        delim++;
+        if (strcmp(delim, "body") == 0) {
+            *tcpart = BODY;
+        } else if (strcmp(delim, "cleanup") == 0) {
+            *tcpart = CLEANUP;
+        } else {
+            err = usage_error("Invalid test case part `%s'", delim);
+            goto out;
+        }
+    }
+
+out:
+    return err;
+}
+
+static
+atf_error_t
 process_params(int argc, char **argv, struct params *p)
 {
     const int original_argc = argc;
@@ -371,7 +413,7 @@ process_params(int argc, char **argv, struct params *p)
             if (argc == 0)
                 err = usage_error("Must provide a test case name");
             else if (argc == 1)
-                p->m_tcname = argv[0];
+                err = handle_tcarg(argv[0], &p->m_tcname, &p->m_tcpart);
             else if (argc > 1) {
                 err = usage_error("Cannot provide more than one test case name");
             }
@@ -437,6 +479,53 @@ out:
 
 static
 atf_error_t
+run_tc(const atf_tp_t *tp, struct params *p, int *exitcode)
+{
+    atf_error_t err;
+
+    err = atf_no_error();
+
+    if (!atf_tp_has_tc(tp, p->m_tcname)) {
+        err = usage_error("Unknown test case `%s'", p->m_tcname);
+        goto out;
+    }
+
+    switch (p->m_tcpart) {
+    case BODY:
+        err = atf_tp_run(tp, p->m_tcname, &p->m_resfile);
+        if (atf_is_error(err)) {
+            /* TODO: Handle error */
+            *exitcode = EXIT_FAILURE;
+            atf_error_free(err);
+        } else {
+            *exitcode = EXIT_SUCCESS;
+        }
+
+        break;
+
+    case CLEANUP:
+        err = atf_tp_cleanup(tp, p->m_tcname);
+        if (atf_is_error(err)) {
+            /* TODO: Handle error */
+            *exitcode = EXIT_FAILURE;
+            atf_error_free(err);
+        } else {
+            *exitcode = EXIT_SUCCESS;
+        }
+
+        break;
+
+    default:
+        UNREACHABLE;
+    }
+
+    INV(!atf_is_error(err));
+out:
+    return err;
+}
+
+static
+atf_error_t
 controlled_main(int argc, char **argv,
                 atf_error_t (*add_tcs_hook)(atf_tp_t *),
                 int *exitcode)
@@ -472,18 +561,7 @@ controlled_main(int argc, char **argv,
         if (!atf_is_error(err))
             *exitcode = EXIT_SUCCESS;
     } else {
-        if (!atf_tp_has_tc(&tp, p.m_tcname)) {
-            err = usage_error("Unknown test case `%s'", p.m_tcname);
-        } else {
-            err = atf_tp_run(&tp, p.m_tcname, &p.m_resfile);
-            if (atf_is_error(err)) {
-                /* TODO: Handle error */
-                *exitcode = EXIT_FAILURE;
-                atf_error_free(err);
-            } else {
-                *exitcode = EXIT_SUCCESS;
-            }
-        }
+        err = run_tc(&tp, &p, exitcode);
     }
 
 out_tp:

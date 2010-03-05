@@ -285,7 +285,8 @@ out:
 atf_error_t
 atf_tc_cleanup(const atf_tc_t *tc)
 {
-    tc->m_cleanup(tc);
+    if (tc->m_cleanup != NULL)
+        tc->m_cleanup(tc);
     return atf_no_error(); // XXX
 }
 

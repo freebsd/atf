@@ -124,6 +124,7 @@ public:
     void set_md_var(const std::string&, const std::string&);
 
     void run(const fs::path&) const;
+    void run_cleanup(void) const;
 
     // To be called from the child process only.
     static void pass(void);

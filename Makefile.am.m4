@@ -917,7 +917,6 @@ EXTRA_DIST += tests/atf/test_programs/common.sh
 C_TP([atf/test_programs], [h_c], [], [tests/atf/atf-c/libh.la])
 CXX_TP([atf/test_programs], [h_cpp], [], [tests/atf/atf-c++/libh.la])
 SH_TP([atf/test_programs], [h_sh])
-SH_TP([atf/test_programs], [t_cleanup], [tests/atf/test_programs/common.sh])
 SH_TP([atf/test_programs], [t_config], [tests/atf/test_programs/common.sh])
 SH_TP([atf/test_programs], [t_fork], [tests/atf/test_programs/common.sh])
 SH_TP([atf/test_programs], [t_meta_data], [tests/atf/test_programs/common.sh])

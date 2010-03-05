@@ -606,12 +606,41 @@ _atf_run_body()
 #
 _atf_run_tc()
 {
-    _atf_parse_head ${1}
+    case ${1} in
+    *:*)
+        _tcname=${1%%:*}
+        _tcpart=${1#*:}
 
-    _atf_internal_set srcdir "${Source_Dir}"
-    _atf_run_body ${1}
+        if [ "${_tcpart}" != body -a "${_tcpart}" != cleanup ]; then
+            _atf_syntax_error "Unknown test case part \`${_tcpart}'"
+        fi
+        ;;
 
-    # TODO: Run cleanup?
+    *)
+        _tcname=${1}
+        _tcpart=body
+        ;;
+    esac
+
+    if _atf_has_tc ${_tcname}; then
+        _atf_parse_head ${_tcname}
+
+        _atf_internal_set srcdir "${Source_Dir}"
+
+        case ${_tcpart} in
+        body)
+            _atf_run_body ${_tcname}
+            ;;
+        cleanup)
+            ${_tcname}_cleanup
+            ;;
+        *)
+            _atf_error 128 "Unknown test case part"
+            ;;
+        esac
+    else
+        _atf_syntax_error "Unknown test case \`${1}'"
+    fi
 }
 
 #
@@ -803,11 +832,7 @@ main()
         elif [ ${#} -gt 1 ]; then
             _atf_syntax_error "Cannot provide more than one test case name"
         else
-            if _atf_has_tc ${1}; then
-                _atf_run_tc ${1}
-            else
-                _atf_syntax_error "Unknown test case \`${1}'"
-            fi
+            _atf_run_tc "${1}"
         fi
     fi
 }
