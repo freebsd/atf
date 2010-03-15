@@ -22,6 +22,12 @@
 
 <para>STILL UNDER DEVELOPMENT; NOT RELEASED YET</para>
 
+<itemizedlist>
+
+<listitem><para>Removed the atf-exec tool.</para></listitem>
+
+</itemizedlist>
+
 </section>
 
 <section id="atf-0-7">
