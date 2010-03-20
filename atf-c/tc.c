@@ -193,6 +193,12 @@ atf_tc_get_md_var(const atf_tc_t *tc, const char *name)
     return val;
 }
 
+const atf_map_t *
+atf_tc_get_md_vars(const atf_tc_t *tc)
+{
+    return &tc->m_vars;
+}
+
 bool
 atf_tc_has_config_var(const atf_tc_t *tc, const char *name)
 {

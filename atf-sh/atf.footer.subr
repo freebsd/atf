@@ -59,6 +59,9 @@ Source_Dir=.
 # Indicates the test case we are currently processing.
 Test_Case=
 
+# List of meta-data variables for the current test case.
+Test_Case_Vars=
+
 # The list of all test cases provided by the test program.
 # Subset of ${Defined_Test_Cases}.
 Test_Cases=
@@ -248,6 +251,7 @@ atf_set()
     ${Parsing_Head} || \
         _atf_error 128 "atf_set called from the test case's body"
 
+    Test_Case_Vars="${Test_Case_Vars} ${1}"
     _var=$(_atf_normalize ${1}); shift
     eval __tc_var_${Test_Case}_${_var}=\"\${*}\"
 }
@@ -472,20 +476,20 @@ _atf_internal_set()
 #
 _atf_list_tcs()
 {
-    # Calculate the length of the longest test case name.  Needed for
-    # correct indentation later on.
-    _maxlen=0
-    for _tc in ${Test_Cases}; do
-        if [ ${#_tc} -gt ${_maxlen} ]; then
-            _maxlen=${#_tc}
-        fi
-    done
+    echo 'Content-Type: application/X-atf-tp; version="1"'
+    echo
 
-    # Print the list of test cases.
-    _maxlen=$((${_maxlen} + 4))
-    for _tc in ${Test_Cases}; do
-        _atf_parse_head ${_tc}
-        _atf_echo -t ${_tc} -l ${_maxlen} $(atf_get descr)
+    set -- ${Test_Cases}
+    while [ ${#} -gt 0 ]; do
+        _atf_parse_head ${1}
+
+        echo "ident: $(atf_get ident)"
+        for _var in ${Test_Case_Vars}; do
+            [ "${_var}" != "ident" ] && echo "${_var}: $(atf_get ${_var})"
+        done
+
+        [ ${#} -gt 1 ] && echo
+        shift
     done
 }
 
@@ -511,6 +515,7 @@ _atf_parse_head()
     Parsing_Head=true
 
     Test_Case="${1}"
+    Test_Case_Vars=
 
     atf_set ident "${1}"
     atf_set timeout 300

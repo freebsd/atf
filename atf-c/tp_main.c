@@ -249,38 +249,36 @@ out:
  * --------------------------------------------------------------------- */
 
 static
-atf_error_t
+void
 list_tcs(const atf_tp_t *tp)
 {
-    atf_error_t err;
-    size_t col;
     atf_list_citer_t iter;
+    const atf_list_t *tcs;
 
-    err = atf_no_error();
+    printf("Content-Type: application/X-atf-tp; version=\"2\"\n\n");
 
-    /* Calculate column where to start descriptions. */
-    col = 0;
-    atf_list_for_each_c(iter, atf_tp_get_tcs(tp)) {
+    tcs = atf_tp_get_tcs(tp);
+
+    atf_list_for_each_c(iter, tcs) {
         const atf_tc_t *tc = atf_list_citer_data(iter);
-        const size_t len = strlen(atf_tc_get_ident(tc));
+        const atf_map_t *vars = atf_tc_get_md_vars(tc);
+        atf_map_citer_t iter2;
 
-        if (col < len)
-            col = len;
+        if (!atf_equal_list_citer_list_citer(iter, atf_list_begin_c(tcs)))
+            printf("\n");
+
+        iter2 = atf_map_find_c(vars, "ident");
+        printf("ident: %s\n", (const char *)atf_map_citer_data(iter2));
+
+        atf_map_for_each_c(iter2, vars) {
+            const char *key = atf_map_citer_key(iter2);
+
+            if (strcmp(key, "ident") != 0) {
+                const char *value = atf_map_citer_data(iter2);
+                printf("%s: %s\n", key, value);
+            }
+        }
     }
-    col += 4;
-
-    /* Pretty-print test case identifiers and descriptions. */
-    atf_list_for_each_c(iter, atf_tp_get_tcs(tp)) {
-        const atf_tc_t *tc = atf_list_citer_data(iter);
-        const char *descr = atf_tc_get_md_var(tc, "descr");
-
-        err = print_tag(stdout, atf_tc_get_ident(tc), false, col, "%s",
-                        descr);
-        if (atf_is_error(err))
-            break;
-    }
-
-    return err;
 }
 
 /* ---------------------------------------------------------------------
@@ -557,9 +555,9 @@ controlled_main(int argc, char **argv,
         goto out_tp;
 
     if (p.m_do_list) {
-        err = list_tcs(&tp);
-        if (!atf_is_error(err))
-            *exitcode = EXIT_SUCCESS;
+        list_tcs(&tp);
+        INV(!atf_is_error(err));
+        *exitcode = EXIT_SUCCESS;
     } else {
         err = run_tc(&tp, &p, exitcode);
     }

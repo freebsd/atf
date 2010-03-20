@@ -4,8 +4,14 @@ merged to org.NetBSD.atf.src.
 - Validate test program command line syntax: -r has to be invalid when running
   the cleanup part of a test case.
 
+- Make test case list sort properties alphabetically?  Wrap them on line
+  boundaries when printing to terminal?
+
 - Expose test metadata.  atf-run needs to know the requirements of test
   cases and also needs to know if they have a cleanup routine to invoke it.
+
+- Remove default timeout property from test cases; default should come from
+  atf-run.
 
 - Move checks of test requirements in the test case headers to atf-run.
 
@@ -17,6 +23,10 @@ merged to org.NetBSD.atf.src.
 - Templatize the void* cookie in atf-c++'s fork.
 
 - Remove obsolete helper tests in tests/atf/test_programs/h_* for cleanup.
+
+- Write tests for the applications/X-atf-tp parsing format.
+
+- Document the applications/X-atf-tp format.
 
 - Update atf-test-program(4) to reflect the command-line changes.
 

@@ -91,6 +91,7 @@ const char *atf_tc_get_config_var(const atf_tc_t *, const char *);
 const char *atf_tc_get_config_var_wd(const atf_tc_t *, const char *,
                                      const char *);
 const char *atf_tc_get_md_var(const atf_tc_t *, const char *);
+const atf_map_t *atf_tc_get_md_vars(const atf_tc_t *);
 bool atf_tc_has_config_var(const atf_tc_t *, const char *);
 bool atf_tc_has_md_var(const atf_tc_t *, const char *);
 

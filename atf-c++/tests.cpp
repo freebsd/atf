@@ -331,6 +331,21 @@ impl::tc::get_md_var(const std::string& var)
     return atf_tc_get_md_var(&m_tc, var.c_str());
 }
 
+const impl::vars_map
+impl::tc::get_md_vars(void)
+    const
+{
+    vars_map vars;
+
+    atf_map_citer_t iter;
+    atf_map_for_each_c(iter, atf_tc_get_md_vars(&m_tc)) {
+        vars.insert(vars_map::value_type(atf_map_citer_key(iter),
+                    static_cast< const char * >(atf_map_citer_data(iter))));
+    }
+
+    return vars;
+}
+
 void
 impl::tc::set_md_var(const std::string& var, const std::string& val)
 {
@@ -422,7 +437,7 @@ private:
         CLEANUP,
     };
 
-    int list_tcs(void);
+    void list_tcs(void);
     impl::tc* find_tc(tc_vector, const std::string&);
     static std::pair< std::string, tc_part > process_tcarg(const std::string&);
     int run_tc(const std::string&);
@@ -568,31 +583,34 @@ public:
     }
 };
 
-int
+void
 tp::list_tcs(void)
 {
     tc_vector tcs = init_tcs();
 
-    std::string::size_type maxlen = 0;
-    for (tc_vector::const_iterator iter = tcs.begin();
-         iter != tcs.end(); iter++) {
-        const impl::tc* tc = *iter;
-
-        if (maxlen < tc->get_md_var("ident").length())
-            maxlen = tc->get_md_var("ident").length();
-    }
+    std::cout << "Content-Type: application/X-atf-tcs; version=\"2\""
+              << std::endl << std::endl;
 
     for (tc_vector::const_iterator iter = tcs.begin();
          iter != tcs.end(); iter++) {
-        const impl::tc* tc = *iter;
+        const impl::vars_map vars = (*iter)->get_md_vars();
 
-        std::cout << atf::ui::format_text_with_tag(tc->get_md_var("descr"),
-                                                   tc->get_md_var("ident"),
-                                                   false, maxlen + 4)
-                  << std::endl;
+        if (iter != tcs.begin())
+            std::cout << std::endl;
+
+        {
+            impl::vars_map::const_iterator iter2 = vars.find("ident");
+            INV(iter2 != vars.end());
+            std::cout << "ident: " << (*iter2).second << std::endl;
+        }
+
+        for (impl::vars_map::const_iterator iter2 = vars.begin();
+             iter2 != vars.end(); iter2++) {
+            const std::string& key = (*iter2).first;
+            if (key != "ident")
+                std::cout << key << ": " << (*iter2).second << std::endl;
+        }
     }
-
-    return EXIT_SUCCESS;
 }
 
 impl::tc*
@@ -669,7 +687,8 @@ tp::main(void)
         if (m_argc > 0)
             throw usage_error("Cannot provide test case names with -l");
 
-        errcode = list_tcs();
+        list_tcs();
+        errcode = EXIT_SUCCESS;
     } else {
         if (m_argc == 0)
             throw usage_error("Must provide a test case name");
