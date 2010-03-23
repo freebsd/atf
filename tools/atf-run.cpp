@@ -94,6 +94,9 @@ class tp_descr : public atf::formats::atf_tp_reader {
             throw(std::runtime_error("Duplicate test case " + ident +
                                      " in test program"));
         m_tcs[ident] = props;
+
+        if (m_tcs[ident].find("timeout") == m_tcs[ident].end())
+            m_tcs[ident].insert(std::make_pair("timeout", "300"));
     }
 
 public:

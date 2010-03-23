@@ -103,10 +103,6 @@ atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
     if (atf_is_error(err))
         goto err_map;
 
-    err = atf_tc_set_md_var(tc, "timeout", "300");
-    if (atf_is_error(err))
-        goto err_map;
-
     /* XXX Should the head be able to return error codes? */
     tc->m_head(tc);
 

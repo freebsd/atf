@@ -10,8 +10,7 @@ merged to org.NetBSD.atf.src.
 - Expose test metadata.  atf-run needs to know the requirements of test
   cases and also needs to know if they have a cleanup routine to invoke it.
 
-- Remove default timeout property from test cases; default should come from
-  atf-run.
+- Implement timeout control in atf-run.
 
 - Move checks of test requirements in the test case headers to atf-run.
 

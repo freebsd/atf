@@ -34,19 +34,15 @@ for h in tp_basic_c tp_basic_cpp tp_basic_sh; do
 AT_DATA([expout], [Content-Type: application/X-atf-tp; version="1"
 
 ident: pass
-timeout: 300
 descr: An empty test case that always passes
 
 ident: fail
-timeout: 300
 descr: An empty test case that always fails
 
 ident: skip
-timeout: 300
 descr: An empty test case that is always skipped
 
 ident: default
-timeout: 300
 descr: A test case that passes without explicitly stating it
 ])
 

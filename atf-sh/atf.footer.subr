@@ -343,25 +343,6 @@ _atf_ensure_boolean()
 }
 
 #
-# _atf_ensure_integral var
-#
-#   Ensures that the test case defined the variable 'var' to an integral
-#   value.
-#
-_atf_ensure_integral()
-{
-    _atf_ensure_not_empty ${1}
-
-    case $(atf_get ${1}) in
-    [0-9]*)
-        ;;
-    *)
-        _atf_error 128 "Invalid value for integral variable \`${1}'"
-        ;;
-    esac
-}
-
-#
 # _atf_ensure_not_empty var
 #
 #   Ensures that the test case defined the variable 'var' to a non-empty
@@ -518,11 +499,9 @@ _atf_parse_head()
     Test_Case_Vars=
 
     atf_set ident "${1}"
-    atf_set timeout 300
     ${1}_head
     _atf_ensure_not_empty descr
     _atf_ensure_not_empty ident
-    _atf_ensure_integral timeout
     test $(atf_get ident) = "${1}" || \
         _atf_error 128 "Test case redefined ident"
 
