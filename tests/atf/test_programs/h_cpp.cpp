@@ -103,112 +103,6 @@ ATF_TEST_CASE_BODY(fork_stop)
 }
 
 // ------------------------------------------------------------------------
-// Helper tests for "t_meta_data".
-// ------------------------------------------------------------------------
-
-ATF_TEST_CASE(ident_1);
-ATF_TEST_CASE_HEAD(ident_1)
-{
-    set_md_var("descr", "Helper test case for the t_meta_data test program");
-}
-ATF_TEST_CASE_BODY(ident_1)
-{
-    ATF_CHECK_EQUAL(get_md_var("ident"), "ident_1");
-}
-
-ATF_TEST_CASE(ident_2);
-ATF_TEST_CASE_HEAD(ident_2)
-{
-    set_md_var("descr", "Helper test case for the t_meta_data test program");
-}
-ATF_TEST_CASE_BODY(ident_2)
-{
-    ATF_CHECK_EQUAL(get_md_var("ident"), "ident_2");
-}
-
-ATF_TEST_CASE(require_arch);
-ATF_TEST_CASE_HEAD(require_arch)
-{
-    set_md_var("descr", "Helper test case for the t_meta_data test program");
-    set_md_var("require.arch", get_config_var("arch", "not-set"));
-}
-ATF_TEST_CASE_BODY(require_arch)
-{
-}
-
-ATF_TEST_CASE(require_config);
-ATF_TEST_CASE_HEAD(require_config)
-{
-    set_md_var("descr", "Helper test case for the t_meta_data test program");
-    set_md_var("require.config", "var1 var2");
-}
-ATF_TEST_CASE_BODY(require_config)
-{
-    std::cout << "var1: " << get_config_var("var1") << std::endl;
-    std::cout << "var2: " << get_config_var("var2") << std::endl;
-}
-
-ATF_TEST_CASE(require_machine);
-ATF_TEST_CASE_HEAD(require_machine)
-{
-    set_md_var("descr", "Helper test case for the t_meta_data test program");
-    set_md_var("require.machine", get_config_var("machine", "not-set"));
-}
-ATF_TEST_CASE_BODY(require_machine)
-{
-}
-
-ATF_TEST_CASE(require_progs_body);
-ATF_TEST_CASE_HEAD(require_progs_body)
-{
-    set_md_var("descr", "Helper test case for the t_meta_data test program");
-}
-ATF_TEST_CASE_BODY(require_progs_body)
-{
-    require_prog(get_config_var("progs"));
-}
-
-ATF_TEST_CASE(require_progs_head);
-ATF_TEST_CASE_HEAD(require_progs_head)
-{
-    set_md_var("descr", "Helper test case for the t_meta_data test program");
-    set_md_var("require.progs", get_config_var("progs", "not-set"));
-}
-ATF_TEST_CASE_BODY(require_progs_head)
-{
-}
-
-ATF_TEST_CASE(require_user);
-ATF_TEST_CASE_HEAD(require_user)
-{
-    set_md_var("descr", "Helper test case for the t_meta_data test program");
-    set_md_var("require.user", get_config_var("user", "not-set"));
-}
-ATF_TEST_CASE_BODY(require_user)
-{
-}
-
-ATF_TEST_CASE(require_user2);
-ATF_TEST_CASE_HEAD(require_user2)
-{
-    set_md_var("descr", "Helper test case for the t_meta_data test program");
-    set_md_var("require.user", get_config_var("user2", "not-set"));
-}
-ATF_TEST_CASE_BODY(require_user2)
-{
-}
-
-ATF_TEST_CASE(require_user3);
-ATF_TEST_CASE_HEAD(require_user3)
-{
-    set_md_var("descr", "Helper test case for the t_meta_data test program");
-    set_md_var("require.user", get_config_var("user3", "not-set"));
-}
-ATF_TEST_CASE_BODY(require_user3)
-{
-}
-
-// ------------------------------------------------------------------------
 // Helper tests for "t_srcdir".
 // ------------------------------------------------------------------------
 
@@ -262,18 +156,6 @@ ATF_INIT_TEST_CASES(tcs)
 
     // Add helper tests for t_fork.
     ATF_ADD_TEST_CASE(tcs, fork_stop);
-
-    // Add helper tests for t_meta_data.
-    ATF_ADD_TEST_CASE(tcs, ident_1);
-    ATF_ADD_TEST_CASE(tcs, ident_2);
-    ATF_ADD_TEST_CASE(tcs, require_arch);
-    ATF_ADD_TEST_CASE(tcs, require_config);
-    ATF_ADD_TEST_CASE(tcs, require_machine);
-    ATF_ADD_TEST_CASE(tcs, require_progs_body);
-    ATF_ADD_TEST_CASE(tcs, require_progs_head);
-    ATF_ADD_TEST_CASE(tcs, require_user);
-    ATF_ADD_TEST_CASE(tcs, require_user2);
-    ATF_ADD_TEST_CASE(tcs, require_user3);
 
     // Add helper tests for t_srcdir.
     ATF_ADD_TEST_CASE(tcs, srcdir_exists);

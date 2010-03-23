@@ -59,12 +59,8 @@
  * Auxiliary types and functions.
  * --------------------------------------------------------------------- */
 
-static atf_error_t check_arch(const char *, void *);
-static atf_error_t check_config(const char *, void *);
-static atf_error_t check_machine(const char *, void *);
 static atf_error_t check_prog(const char *, void *);
 static atf_error_t check_prog_in_dir(const char *, void *);
-static atf_error_t check_requirements(const atf_tc_t *);
 static void fail_internal(const char *, int, const char *, const char *,
                           const char *, va_list,
                           void (*)(atf_dynstr_t *),
@@ -256,17 +252,11 @@ static size_t current_tc_fail_count = 0;
 atf_error_t
 atf_tc_run(const atf_tc_t *tc, const atf_fs_path_t *resfile)
 {
-    atf_error_t err;
-
     atf_reset_exit_checks(); // XXX
 
     current_tc = tc;
     current_resfile = resfile;
     current_tc_fail_count = 0;
-
-    err = check_requirements(tc);
-    if (atf_is_error(err))
-        goto out;
 
     tc->m_body(tc);
 
@@ -280,8 +270,7 @@ atf_tc_run(const atf_tc_t *tc, const atf_fs_path_t *resfile)
     current_resfile = NULL;
     current_tc_fail_count = 0;
 
-out:
-    return err;
+    return atf_no_error();
 }
 
 atf_error_t
@@ -290,40 +279,6 @@ atf_tc_cleanup(const atf_tc_t *tc)
     if (tc->m_cleanup != NULL)
         tc->m_cleanup(tc);
     return atf_no_error(); // XXX
-}
-
-static
-atf_error_t
-check_arch(const char *arch, void *data)
-{
-    bool *found = data;
-
-    if (strcmp(arch, atf_config_get("atf_arch")) == 0)
-        *found = true;
-
-    return atf_no_error();
-}
-
-static
-atf_error_t
-check_config(const char *var, void *data)
-{
-    if (!atf_tc_has_config_var(current_tc, var))
-        atf_tc_skip("Required configuration variable %s not defined", var);
-
-    return atf_no_error();
-}
-
-static
-atf_error_t
-check_machine(const char *machine, void *data)
-{
-    bool *found = data;
-
-    if (strcmp(machine, atf_config_get("atf_machine")) == 0)
-        *found = true;
-
-    return atf_no_error();
 }
 
 struct prog_found_pair {
@@ -417,91 +372,6 @@ out_p:
         atf_fs_path_fini(&p);
     }
 
-    return err;
-}
-
-static
-atf_error_t
-check_requirements(const atf_tc_t *tc)
-{
-    atf_error_t err;
-
-    err = atf_no_error();
-
-    if (atf_tc_has_md_var(tc, "require.arch")) {
-        const char *arches = atf_tc_get_md_var(tc, "require.arch");
-        bool found = false;
-
-        if (strlen(arches) == 0)
-            atf_tc_fail("Invalid value in the require.arch property");
-        else {
-            err = atf_text_for_each_word(arches, " ", check_arch, &found);
-            if (atf_is_error(err))
-                goto out;
-
-            if (!found)
-                atf_tc_skip("Requires one of the '%s' architectures",
-                            arches);
-        }
-    }
-
-    if (atf_tc_has_md_var(tc, "require.config")) {
-        const char *vars = atf_tc_get_md_var(tc, "require.config");
-
-        if (strlen(vars) == 0)
-            atf_tc_fail("Invalid value in the require.config property");
-        else {
-            err = atf_text_for_each_word(vars, " ", check_config, NULL);
-            if (atf_is_error(err))
-                goto out;
-        }
-    }
-
-    if (atf_tc_has_md_var(tc, "require.machine")) {
-        const char *machines = atf_tc_get_md_var(tc, "require.machine");
-        bool found = false;
-
-        if (strlen(machines) == 0)
-            atf_tc_fail("Invalid value in the require.machine property");
-        else {
-            err = atf_text_for_each_word(machines, " ", check_machine,
-                                         &found);
-            if (atf_is_error(err))
-                goto out;
-
-            if (!found)
-                atf_tc_skip("Requires one of the '%s' machine types",
-                            machines);
-        }
-    }
-
-    if (atf_tc_has_md_var(tc, "require.progs")) {
-        const char *progs = atf_tc_get_md_var(tc, "require.progs");
-
-        if (strlen(progs) == 0)
-            atf_tc_fail("Invalid value in the require.progs property");
-        else {
-            err = atf_text_for_each_word(progs, " ", check_prog, NULL);
-            if (atf_is_error(err))
-                goto out;
-        }
-    }
-
-    if (atf_tc_has_md_var(tc, "require.user")) {
-        const char *u = atf_tc_get_md_var(tc, "require.user");
-
-        if (strcmp(u, "root") == 0) {
-            if (!atf_user_is_root())
-                atf_tc_skip("Requires root privileges");
-        } else if (strcmp(u, "unprivileged") == 0) {
-            if (atf_user_is_root())
-                atf_tc_skip("Requires an unprivileged user");
-        } else
-            atf_tc_fail("Invalid value in the require.user property");
-    }
-
-    INV(!atf_is_error(err));
-out:
     return err;
 }
 

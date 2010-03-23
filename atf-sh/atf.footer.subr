@@ -509,78 +509,6 @@ _atf_parse_head()
 }
 
 #
-# _atf_parse_props tc
-#
-#   Runs a test case's body but, before that, handles the default
-#   properties.  This function must be run in a subshell because the
-#   test case is designed to abruptly exit the shell when any of
-#   atf_pass, atf_skip or atf_fail are executed.
-#
-_atf_run_body()
-{
-    _arches=$(atf_get require.arch)
-    if [ -n "${_arches}" ]; then
-        found=no
-        for _a in ${_arches}; do
-            if [ ${_a} = ${Atf_Arch} ]; then
-                found=yes
-                break
-            fi
-        done
-        [ ${found} = yes ] || \
-            atf_skip "Requires one of the '${_arches}' architectures"
-    fi
-
-    _machines=$(atf_get require.machine)
-    if [ -n "${_machines}" ]; then
-        found=no
-        for _m in ${_machines}; do
-            if [ ${_m} = ${Atf_Machine} ]; then
-                found=yes
-                break
-            fi
-        done
-        [ ${found} = yes ] || \
-            atf_skip "Requires one of the '${_machines}' machine types"
-    fi
-
-    _vars="$(atf_get require.config)"
-    if [ -n "${_vars}" ]; then
-        for _v in ${_vars}; do
-            if ! atf_config_has ${_v}; then
-                atf_skip "Required configuration variable ${_v} not defined"
-            fi
-        done
-    fi
-
-    _progs="$(atf_get require.progs)"
-    if [ -n "${_progs}" ]; then
-        for _p in ${_progs}; do
-            atf_require_prog ${_p}
-        done
-    fi
-
-    case $(atf_get require.user) in
-    root)
-        [ $(id -u) -eq 0 ] || \
-            atf_skip "Requires root privileges"
-        ;;
-    unprivileged)
-        [ $(id -u) -ne 0 ] || \
-            atf_skip "Requires an unprivileged user"
-        ;;
-    "")
-        ;;
-    *)
-        atf_fail "Invalid value in the require.user property"
-        ;;
-    esac
-
-    ${1}_body
-    _create_pass_file
-}
-
-#
 # _atf_run_tc tc
 #
 #   Runs the specified test case.  Prints its exit status to the
@@ -612,7 +540,8 @@ _atf_run_tc()
 
         case ${_tcpart} in
         body)
-            _atf_run_body ${_tcname}
+            ${_tcname}_body
+            _create_pass_file
             ;;
         cleanup)
             ${_tcname}_cleanup

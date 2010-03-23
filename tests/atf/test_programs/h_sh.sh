@@ -191,120 +191,6 @@ fork_stop_body()
 }
 
 # -------------------------------------------------------------------------
-# Helper tests for "t_meta_data".
-# -------------------------------------------------------------------------
-
-atf_test_case ident_1
-ident_1_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-}
-ident_1_body()
-{
-    atf_check_equal '$(atf_get ident)' ident_1
-}
-
-atf_test_case ident_2
-ident_2_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-}
-ident_2_body()
-{
-    atf_check_equal '$(atf_get ident)' ident_2
-}
-
-atf_test_case require_arch
-require_arch_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "require.arch" "$(atf_config_get arch)"
-}
-require_arch_body()
-{
-    :
-}
-
-atf_test_case require_config
-require_config_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "require.config" "var1 var2"
-}
-require_config_body()
-{
-    echo "var1: $(atf_config_get var1)"
-    echo "var2: $(atf_config_get var2)"
-}
-
-atf_test_case require_machine
-require_machine_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "require.machine" "$(atf_config_get machine)"
-}
-require_machine_body()
-{
-    :
-}
-
-atf_test_case require_progs_body
-require_progs_body_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-}
-require_progs_body_body()
-{
-    for p in $(atf_config_get progs); do
-        atf_require_prog ${p}
-    done
-}
-
-atf_test_case require_progs_head
-require_progs_head_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "require.progs" "$(atf_config_get progs)"
-}
-require_progs_head_body()
-{
-    :
-}
-
-atf_test_case require_user
-require_user_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "require.user" "$(atf_config_get user)"
-}
-require_user_body()
-{
-    :
-}
-
-atf_test_case require_user2
-require_user2_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "require.user" "$(atf_config_get user2)"
-}
-require_user2_body()
-{
-    :
-}
-
-atf_test_case require_user3
-require_user3_head()
-{
-    atf_set "descr" "Helper test case for the t_meta_data test program"
-    atf_set "require.user" "$(atf_config_get user3)"
-}
-require_user3_body()
-{
-    :
-}
-
-# -------------------------------------------------------------------------
 # Helper tests for "t_srcdir".
 # -------------------------------------------------------------------------
 
@@ -340,18 +226,6 @@ atf_init_test_cases()
 
     # Add helper tests for t_fork.
     atf_add_test_case fork_stop
-
-    # Add helper tests for t_meta_data.
-    atf_add_test_case ident_1
-    atf_add_test_case ident_2
-    atf_add_test_case require_arch
-    atf_add_test_case require_config
-    atf_add_test_case require_machine
-    atf_add_test_case require_progs_body
-    atf_add_test_case require_progs_head
-    atf_add_test_case require_user
-    atf_add_test_case require_user2
-    atf_add_test_case require_user3
 
     # Add helper tests for t_srcdir.
     atf_add_test_case srcdir_exists

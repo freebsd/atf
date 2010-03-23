@@ -7,8 +7,6 @@ merged to org.NetBSD.atf.src.
 - Make test case list sort properties alphabetically?  Wrap them on line
   boundaries when printing to terminal?
 
-- Get rid of requirement checks from test programs; they are not in atf-run.
-
 - Implement timeout control in atf-run.
 
 - Move checks of test requirements in the test case headers to atf-run.
