@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2010 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,16 +28,51 @@
 //
 
 extern "C" {
-#include "atf-c/error.h"
-#include "atf-c/expand.h"
+#include <regex.h>
 }
+
+#include <stdexcept>
 
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/expand.hpp"
-#include "atf-c++/sanity.hpp"
 
 namespace impl = atf::expand;
 #define IMPL_NAME "atf::expand"
+
+// REG_BASIC is just a synonym for 0, provided as a counterpart to
+// REG_EXTENDED to improve readability.  It is not provided by all
+// systems.
+#if !defined(REG_BASIC)
+#define REG_BASIC 0
+#endif /* !defined(REG_BASIC) */
+
+// ------------------------------------------------------------------------
+// Auxiliary functions.
+// ------------------------------------------------------------------------
+
+namespace {
+
+std::string
+glob_to_regex(const std::string& glob)
+{
+    std::string regex;
+    regex.reserve(glob.length() * 2);
+
+    regex += '^';
+    for (std::string::const_iterator iter = glob.begin(); iter != glob.end();
+         iter++) {
+        switch (*iter) {
+        case '*': regex += ".*"; break;
+        case '?': regex += "."; break;
+        default: regex += *iter;
+        }
+    }
+    regex += '$';
+
+    return regex;
+}
+
+} // anonymous namespace
 
 // ------------------------------------------------------------------------
 // Free functions.
@@ -46,18 +81,34 @@ namespace impl = atf::expand;
 bool
 impl::is_glob(const std::string& glob)
 {
-    return atf_expand_is_glob(glob.c_str());
+    // NOTE: Keep this in sync with glob_to_regex!
+    return glob.find_first_of("*?") != std::string::npos;
 }
 
 bool
 impl::matches_glob(const std::string& glob, const std::string& candidate)
 {
-    bool result;
-    atf_error_t err;
+    bool found;
 
-    err = atf_expand_matches_glob(glob.c_str(), candidate.c_str(), &result);
-    if (atf_is_error(err))
-        throw_atf_error(err);
+    // Special case: regcomp does not like empty patterns.
+    if (glob.empty()) {
+        found = candidate.empty();
+    } else {
+        const std::string regex = glob_to_regex(glob);
+        regex_t preg;
 
-    return result;
+        if (::regcomp(&preg, regex.c_str(), REG_BASIC) != 0)
+            throw std::runtime_error("Invalid regular expression '" + regex +
+                                     "'");
+
+        const int res = ::regexec(&preg, candidate.c_str(), 0, NULL, 0);
+        ::regfree(&preg);
+        if (res != 0 && res != REG_NOMATCH)
+            throw std::runtime_error("Invalid regular expression '" + regex +
+                                     "'");
+
+        found = res == 0;
+    }
+
+    return found;
 }

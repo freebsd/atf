@@ -174,8 +174,6 @@ libatf_c_la_SOURCES = atf-c/build.c \
                       atf-c/error.c \
                       atf-c/error.h \
                       atf-c/error_fwd.h \
-                      atf-c/expand.c \
-                      atf-c/expand.h \
                       atf-c/fs.c \
                       atf-c/fs.h \
                       atf-c/io.c \
@@ -224,7 +222,6 @@ atf_c_HEADERS = atf-c/build.h \
                 atf-c/env.h \
                 atf-c/error.h \
                 atf-c/error_fwd.h \
-                atf-c/expand.h \
                 atf-c/fs.h \
                 atf-c/io.h \
                 atf-c/list.h \
@@ -574,7 +571,6 @@ atf_atf_c_DATA = tests/atf/atf-c/Atffile \
                  tests/atf/atf-c/d_include_env_h.c \
                  tests/atf/atf-c/d_include_error_fwd_h.c \
                  tests/atf/atf-c/d_include_error_h.c \
-                 tests/atf/atf-c/d_include_expand_h.c \
                  tests/atf/atf-c/d_include_fs_h.c \
                  tests/atf/atf-c/d_include_io_h.c \
                  tests/atf/atf-c/d_include_list_h.c \
@@ -642,7 +638,6 @@ C_TP([atf/atf-c], [t_config], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_dynstr], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_env], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_error], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_expand], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_fs], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_h_lib], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_io], [], [tests/atf/atf-c/libh.la])
