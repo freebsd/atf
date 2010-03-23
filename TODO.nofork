@@ -9,8 +9,6 @@ merged to org.NetBSD.atf.src.
 
 - Implement timeout control in atf-run.
 
-- Move checks of test requirements in the test case headers to atf-run.
-
 - Proper cleanup of a test case when ctrl+c from atf-run.
 
 - When running tests/atf/atf-run/t_atf_run manually, it overwrites Atffile.
@@ -19,8 +17,6 @@ merged to org.NetBSD.atf.src.
 - Templatize the void* cookie in atf-c++'s fork.
 
 - Remove obsolete helper tests in tests/atf/test_programs/h_* for cleanup.
-
-- Write tests for the applications/X-atf-tp parsing format.
 
 - Document the applications/X-atf-tp format.
 

@@ -374,33 +374,6 @@ _atf_error()
 }
 
 #
-# _atf_expand_glob glob
-#
-#   Prints all test case identifiers that match the provided glob
-#   pattern.
-#
-_atf_expand_glob()
-{
-    _glob="${1}"
-    _matched=""
-    set -- ${Test_Cases}
-    while [ ${#} -gt 0 ]; do
-        case "${1}" in
-        ${_glob}) _matched="${_matched} ${1}" ;;
-        *) ;;
-        esac
-
-        shift
-    done
-
-    set -- ${_matched}
-    while [ ${#} -gt 0 ]; do
-        echo ${1}
-        shift
-    done
-}
-
-#
 # _atf_has_tc name
 #
 #   Returns true if the given test case exists.
