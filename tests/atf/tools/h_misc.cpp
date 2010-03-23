@@ -185,6 +185,58 @@ ATF_TEST_CASE_CLEANUP(atf_run_cleanup_curdir)
     }
 }
 
+ATF_TEST_CASE(atf_run_require_arch);
+ATF_TEST_CASE_HEAD(atf_run_require_arch)
+{
+    set_md_var("descr", "Helper test case for the t_atf_run test program");
+    set_md_var("require.arch", get_config_var("arch", "not-set"));
+}
+ATF_TEST_CASE_BODY(atf_run_require_arch)
+{
+}
+
+ATF_TEST_CASE(atf_run_require_config);
+ATF_TEST_CASE_HEAD(atf_run_require_config)
+{
+    set_md_var("descr", "Helper test case for the t_atf_run test program");
+    set_md_var("require.config", "var1 var2");
+}
+ATF_TEST_CASE_BODY(atf_run_require_config)
+{
+    std::cout << "var1: " << get_config_var("var1") << std::endl;
+    std::cout << "var2: " << get_config_var("var2") << std::endl;
+}
+
+ATF_TEST_CASE(atf_run_require_machine);
+ATF_TEST_CASE_HEAD(atf_run_require_machine)
+{
+    set_md_var("descr", "Helper test case for the t_atf_run test program");
+    set_md_var("require.machine", get_config_var("machine", "not-set"));
+}
+ATF_TEST_CASE_BODY(atf_run_require_machine)
+{
+}
+
+ATF_TEST_CASE(atf_run_require_progs);
+ATF_TEST_CASE_HEAD(atf_run_require_progs)
+{
+    set_md_var("descr", "Helper test case for the t_atf_run test program");
+    set_md_var("require.progs", get_config_var("progs", "not-set"));
+}
+ATF_TEST_CASE_BODY(atf_run_require_progs)
+{
+}
+
+ATF_TEST_CASE(atf_run_require_user);
+ATF_TEST_CASE_HEAD(atf_run_require_user)
+{
+    set_md_var("descr", "Helper test case for the t_atf_run test program");
+    set_md_var("require.user", get_config_var("user", "not-set"));
+}
+ATF_TEST_CASE_BODY(atf_run_require_user)
+{
+}
+
 // ------------------------------------------------------------------------
 // Helper tests for "t_atf_report".
 // ------------------------------------------------------------------------
@@ -236,6 +288,16 @@ ATF_INIT_TEST_CASES(tcs)
         ATF_ADD_TEST_CASE(tcs, atf_run_cleanup_states);
     if (which == "atf_run_cleanup_curdir")
         ATF_ADD_TEST_CASE(tcs, atf_run_cleanup_curdir);
+    if (which == "atf_run_require_arch")
+        ATF_ADD_TEST_CASE(tcs, atf_run_require_arch);
+    if (which == "atf_run_require_config")
+        ATF_ADD_TEST_CASE(tcs, atf_run_require_config);
+    if (which == "atf_run_require_machine")
+        ATF_ADD_TEST_CASE(tcs, atf_run_require_machine);
+    if (which == "atf_run_require_progs")
+        ATF_ADD_TEST_CASE(tcs, atf_run_require_progs);
+    if (which == "atf_run_require_user")
+        ATF_ADD_TEST_CASE(tcs, atf_run_require_user);
 
     // Add helper tests for t_atf_report.
     if (which == "atf_report_diff")

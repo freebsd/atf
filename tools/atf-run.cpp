@@ -60,6 +60,7 @@ extern "C" {
 #include "atf-c++/signals.hpp"
 #include "atf-c++/tests.hpp"
 #include "atf-c++/text.hpp"
+#include "atf-c++/user.hpp"
 
 class config : public atf::formats::atf_config_reader {
     atf::tests::vars_map m_vars;
@@ -144,6 +145,124 @@ merge_maps(std::map< K, V >& dest, const std::map< K, V >& src)
         dest[(*iter).first] = (*iter).second;
 }
 
+static
+bool
+find_in_spaced_list(const std::string& word, const std::string& words)
+{
+    bool found = false;
+
+    const std::vector< std::string > v = atf::text::split(words, " ");
+    for (std::vector< std::string >::const_iterator iter = v.begin();
+         !found && iter != v.end(); iter++) {
+        if ((*iter) == word)
+            found = true;
+    }
+
+    return found;
+}
+
+static
+bool
+has_program(const atf::fs::path& program)
+{
+    bool found = false;
+
+    if (program.is_absolute()) {
+        found = atf::fs::is_executable(program);
+    } else {
+        if (program.str().find('/') != std::string::npos)
+            throw atf::formats::format_error("Relative paths are not allowed "
+                                             "when searching for a program (" +
+                                             program.str() + ")");
+
+        const std::vector< std::string > dirs = atf::text::split(
+            atf::env::get("PATH"), ":");
+        for (std::vector< std::string >::const_iterator iter = dirs.begin();
+             !found && iter != dirs.end(); iter++) {
+            const atf::fs::path& p = atf::fs::path(*iter) / program;
+            if (atf::fs::is_executable(p))
+                found = true;
+        }
+    }
+
+    return found;
+}
+
+static
+std::string
+check_requirements(const atf::tests::vars_map& tcmd,
+                   const atf::tests::vars_map& config)
+{
+    atf::tests::vars_map::const_iterator iter;
+
+    iter = tcmd.find("require.arch");
+    if (iter != tcmd.end()) {
+        const std::string& value = (*iter).second;
+        INV(!value.empty()); // Enforced by application/X-atf-tp parser.
+
+        if (!find_in_spaced_list(atf::config::get("atf_arch"), value))
+            return "Requires one of the " + value + " architectures";
+    }
+
+    iter = tcmd.find("require.config");
+    if (iter != tcmd.end()) {
+        const std::string& value = (*iter).second;
+        INV(!value.empty()); // Enforced by application/X-atf-tp parser.
+
+        const std::vector< std::string > vars = atf::text::split(value, " ");
+        for (std::vector< std::string >::const_iterator iter2 = vars.begin();
+             iter2 != vars.end(); iter2++) {
+            if (config.find((*iter2)) == config.end())
+                return "Required configuration variable " + (*iter2) + " not "
+                    "defined";
+        }
+    }
+
+    iter = tcmd.find("require.machine");
+    if (iter != tcmd.end()) {
+        const std::string& value = (*iter).second;
+        INV(!value.empty()); // Enforced by application/X-atf-tp parser.
+
+        if (!find_in_spaced_list(atf::config::get("atf_machine"), value))
+            return "Requires one of the " + value + " machine types";
+    }
+
+
+    iter = tcmd.find("require.progs");
+    if (iter != tcmd.end()) {
+        const std::string& value = (*iter).second;
+        INV(!value.empty()); // Enforced by application/X-atf-tp parser.
+
+        const std::vector< std::string > progs = atf::text::split(value, " ");
+        for (std::vector< std::string >::const_iterator iter2 = progs.begin();
+             iter2 != progs.end(); iter2++) {
+            if (!has_program(atf::fs::path(*iter2)))
+                return "The required program " + (*iter2) + " could not be "
+                    "found in the PATH";
+        }
+    }
+
+
+    iter = tcmd.find("require.user");
+    if (iter != tcmd.end()) {
+        const std::string& value = (*iter).second;
+        INV(!value.empty()); // Enforced by application/X-atf-tp parser.
+
+        if (value == "root") {
+            if (!atf::user::is_root())
+                return "Requires root privileges";
+        } if (value == "unprivileged") {
+            if (atf::user::is_root())
+                return "Requires an unprivileged user";
+        } else {
+            throw atf::formats::format_error("Invalid value '" + value + "' "
+                                             "for property require.user");
+        }
+    }
+
+    return "";
+}
+
 class atf_run : public atf::application::app {
     static const char* m_description;
 
@@ -161,6 +280,7 @@ class atf_run : public atf::application::app {
 
     void read_one_config(const atf::fs::path&);
     void read_config(const std::string&);
+    atf::tests::vars_map effective_conf_vars(void) const;
     std::vector< std::string > conf_args(void) const;
 
     size_t count_tps(std::vector< std::string >) const;
@@ -177,7 +297,8 @@ class atf_run : public atf::application::app {
                                        atf::formats::atf_tps_writer&);
     int run_test_program(const atf::fs::path&, atf::formats::atf_tps_writer&);
 
-    std::vector< std::string > query_tcs(const atf::fs::path&) const;
+    std::map< std::string, atf::tests::vars_map >
+        query_tcs(const atf::fs::path&) const;
 
     struct query_tcs_data {
         const atf_run* m_this;
@@ -227,8 +348,8 @@ class atf_run : public atf::application::app {
 
     static void route_query_tcs_child(void *);
     void query_tcs_child(const atf::fs::path&) const;
-    std::vector< std::string > query_tcs_parent(const atf::fs::path&,
-                                                atf::process::child&) const;
+    std::map< std::string, atf::tests::vars_map > query_tcs_parent(
+        const atf::fs::path&, atf::process::child&) const;
 
 public:
     atf_run(void);
@@ -361,19 +482,28 @@ atf_run::run_test_directory(const atf::fs::path& tp,
     return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-std::vector< std::string >
-atf_run::conf_args(void) const
+atf::tests::vars_map
+atf_run::effective_conf_vars(void)
+    const
 {
-    using atf::tests::vars_map;
-
     atf::tests::vars_map vars;
-    std::vector< std::string > args;
-
     merge_maps(vars, m_atffile_vars);
     merge_maps(vars, m_config_vars);
     merge_maps(vars, m_cmdline_vars);
+    return vars;
+}
 
-    for (vars_map::const_iterator i = vars.begin(); i != vars.end(); i++)
+std::vector< std::string >
+atf_run::conf_args(void)
+    const
+{
+    std::vector< std::string > args;
+
+    // TODO: vars should be a parameter.  Also watch out how many times this
+    // is called alongside effective_conf_vars.
+    const atf::tests::vars_map vars = effective_conf_vars();
+    for (atf::tests::vars_map::const_iterator i = vars.begin(); i != vars.end();
+         i++)
         args.push_back("-v" + (*i).first + "=" + (*i).second);
 
     return args;
@@ -535,7 +665,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
 {
     int errcode = EXIT_SUCCESS;
 
-    std::vector< std::string > tcs;
+    std::map< std::string, atf::tests::vars_map > tcs;
     try {
         tcs = query_tcs(tp);
     } catch (const atf::formats::format_error& e) {
@@ -557,20 +687,38 @@ atf_run::run_test_program(const atf::fs::path& tp,
         w.end_tp("Bogus test program: reported 0 test cases");
         errcode = EXIT_FAILURE;
     } else {
-        for (std::vector< std::string >::const_iterator iter = tcs.begin();
-             iter != tcs.end(); iter++) {
+        for (std::map< std::string, atf::tests::vars_map >::const_iterator iter
+             = tcs.begin(); iter != tcs.end(); iter++) {
+            const std::string& tcname = (*iter).first;
+            const atf::tests::vars_map& tcmd = (*iter).second;
+
+            w.start_tc(tcname);
+
+            try {
+                const std::string& reqfail = check_requirements(
+                    tcmd, effective_conf_vars());
+                if (!reqfail.empty()) {
+                    w.end_tc(atf::tests::tcr(atf::tests::tcr::skipped_state,
+                                             reqfail));
+                    continue;
+                }
+            } catch (const std::runtime_error& e) {
+                w.end_tc(atf::tests::tcr(atf::tests::tcr::failed_state,
+                                         e.what()));
+                errcode = EXIT_FAILURE;
+                continue;
+            }
+
             const atf::fs::path resfile = resdir.get_path() / "tcr";
             try {
-                w.start_tc(*iter);
-
                 atf::fs::temp_dir workdir(atf::fs::path(atf::config::get("atf_workdir")) /
                                           "atf-run.XXXXXX");
 
                 const atf::process::status body_status =
-                    run_test_case(tp, *iter, "body", resfile,
+                    run_test_case(tp, tcname, "body", resfile,
                     workdir.get_path(), w);
                 const atf::process::status cleanup_status =
-                    run_test_case(tp, *iter, "cleanup", resfile,
+                    run_test_case(tp, tcname, "cleanup", resfile,
                     workdir.get_path(), w);
 
                 // TODO: Force deletion of workdir.
@@ -614,7 +762,7 @@ atf_run::query_tcs_child(const atf::fs::path& tp)
     std::exit(EXIT_FAILURE);
 }
 
-std::vector< std::string >
+std::map< std::string, atf::tests::vars_map >
 atf_run::query_tcs_parent(const atf::fs::path& tp, atf::process::child& child)
     const
 {
@@ -626,22 +774,14 @@ atf_run::query_tcs_parent(const atf::fs::path& tp, atf::process::child& child)
     parser.read();
 
     const atf::process::status status = child.wait();
-
-    const std::map< std::string, atf::tests::vars_map >& tcs = parser.get_tcs();
-    std::vector< std::string > idents;
-    for (std::map< std::string, atf::tests::vars_map >::const_iterator iter =
-         tcs.begin(); iter != tcs.end(); iter++) {
-        idents.push_back((*iter).first);
-    }
-
     if (!status.exited() || status.exitstatus() != EXIT_SUCCESS)
         throw atf::formats::format_error("Test program returned failure "
                                          "exit status for test case list");
 
-    return idents;
+    return parser.get_tcs();
 }
 
-std::vector< std::string >
+std::map< std::string, atf::tests::vars_map >
 atf_run::query_tcs(const atf::fs::path& tp)
     const
 {
