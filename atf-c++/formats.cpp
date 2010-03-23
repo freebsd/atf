@@ -418,6 +418,31 @@ public:
 } // namespace atf_tcr
 
 // ------------------------------------------------------------------------
+// The "atf_tp" auxiliary parser.
+// ------------------------------------------------------------------------
+
+namespace atf_tp {
+
+static const atf::parser::token_type eof_type = 0;
+static const atf::parser::token_type nl_type = 1;
+static const atf::parser::token_type text_type = 2;
+static const atf::parser::token_type colon_type = 3;
+static const atf::parser::token_type dblquote_type = 4;
+
+class tokenizer : public atf::parser::tokenizer< std::istream > {
+public:
+    tokenizer(std::istream& is, size_t curline) :
+        atf::parser::tokenizer< std::istream >
+            (is, true, eof_type, nl_type, text_type, curline)
+    {
+        add_delim(':', colon_type);
+        add_quote('"', dblquote_type);
+    }
+};
+
+} // namespace atf_tp
+
+// ------------------------------------------------------------------------
 // The "atf_tps" auxiliary parser.
 // ------------------------------------------------------------------------
 
@@ -770,6 +795,163 @@ void
 impl::atf_tcr_writer::reason(const std::string& str)
 {
     m_os << "reason: " << str << std::endl;
+    m_os.flush();
+}
+
+// ------------------------------------------------------------------------
+// The "atf_tp_reader" class.
+// ------------------------------------------------------------------------
+
+impl::atf_tp_reader::atf_tp_reader(std::istream& is) :
+    m_is(is)
+{
+}
+
+impl::atf_tp_reader::~atf_tp_reader(void)
+{
+}
+
+void
+impl::atf_tp_reader::got_tc(const std::string& ident,
+                            const std::map< std::string, std::string >& md)
+{
+}
+
+void
+impl::atf_tp_reader::got_eof(void)
+{
+}
+
+void
+impl::atf_tp_reader::validate_and_insert(const std::string& name,
+                                         const std::string& value,
+                                         const size_t lineno,
+                                         std::map< std::string, std::string >&
+                                         md)
+{
+    using atf::parser::parse_error;
+
+    if (value.empty())
+        throw parse_error(lineno, "The value for '" + name +"' cannot be "
+                          "empty");
+
+    const std::string ident_regex = "^[_A-Za-z0-9]+$";
+    const std::string integer_regex = "^[0-9]+$";
+
+    if (name == "descr") {
+        // Any non-empty value is valid.
+    } else if (name == "ident") {
+        if (!atf::text::match(value, ident_regex))
+            throw parse_error(lineno, "The identifier must match " +
+                              ident_regex + "; was '" + value + "'");
+    } else if (name == "require.arch") {
+    } else if (name == "require.config") {
+    } else if (name == "require.machine") {
+    } else if (name == "require.progs") {
+    } else if (name == "require.user") {
+    } else if (name == "timeout") {
+        if (!atf::text::match(value, integer_regex))
+            throw parse_error(lineno, "The timeout property requires an integer"
+                              " value");
+    } else if (name.size() > 2 && name[0] == 'X' && name[1] == '-') {
+        // Any non-empty value is valid.
+    } else {
+        throw parse_error(lineno, "Unknown property '" + name + "'");
+    }
+
+    md.insert(std::make_pair(name, value));
+}
+
+void
+impl::atf_tp_reader::read(void)
+{
+    using atf::parser::parse_error;
+    using namespace atf_tp;
+
+    std::pair< size_t, headers_map > hml = read_headers(m_is, 1);
+    validate_content_type(hml.second, "application/X-atf-tp", 1);
+
+    tokenizer tkz(m_is, hml.first);
+    atf::parser::parser< tokenizer > p(tkz);
+
+    try {
+        atf::parser::token t = p.expect(text_type, "property name");
+        if (t.text() != "ident")
+            throw parse_error(t.lineno(), "First property of a test case "
+                              "must be 'ident'");
+
+        std::map< std::string, std::string > props;
+        do {
+            const std::string name = t.text();
+            t = p.expect(colon_type, "`:'");
+            const std::string value = atf::text::trim(p.rest_of_line());
+            t = p.expect(nl_type, "new line");
+            validate_and_insert(name, value, t.lineno(), props);
+
+            t = p.expect(eof_type, nl_type, text_type, "property name, new "
+                         "line or eof");
+            if (t.type() == nl_type || t.type() == eof_type) {
+                const std::map< std::string, std::string >::const_iterator
+                    iter = props.find("ident");
+                if (iter == props.end())
+                    throw parse_error(t.lineno(), "Test case definition did "
+                                      "not define an 'ident' property");
+                CALLBACK(p, got_tc((*iter).second, props));
+                props.clear();
+
+                if (t.type() == nl_type) {
+                    t = p.expect(text_type, "property name");
+                    if (t.text() != "ident")
+                        throw parse_error(t.lineno(), "First property of a "
+                                          "test case must be 'ident'");
+                }
+            }
+        } while (t.type() != eof_type);
+        CALLBACK(p, got_eof());
+    } catch (const parse_error& pe) {
+        p.add_error(pe);
+        p.reset(nl_type);
+    }
+}
+
+// ------------------------------------------------------------------------
+// The "atf_tp_writer" class.
+// ------------------------------------------------------------------------
+
+impl::atf_tp_writer::atf_tp_writer(std::ostream& os) :
+    m_os(os),
+    m_is_first(true)
+{
+    headers_map hm;
+    attrs_map ct_attrs;
+    ct_attrs["version"] = "1";
+    hm["Content-Type"] =
+        header_entry("Content-Type", "application/X-atf-tp", ct_attrs);
+    write_headers(hm, m_os);
+}
+
+void
+impl::atf_tp_writer::start_tc(const std::string& ident)
+{
+    if (!m_is_first)
+        m_os << std::endl;
+    m_os << "ident: " << ident << std::endl;
+    m_os.flush();
+}
+
+void
+impl::atf_tp_writer::end_tc(void)
+{
+    if (m_is_first)
+        m_is_first = false;
+}
+
+void
+impl::atf_tp_writer::tc_meta_data(const std::string& name,
+                                  const std::string& value)
+{
+    PRE(name != "ident");
+    m_os << name << ": " << value << std::endl;
     m_os.flush();
 }
 

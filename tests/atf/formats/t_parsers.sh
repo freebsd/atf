@@ -161,6 +161,18 @@ tcr_body()
         d_tcr_77
 }
 
+atf_test_case tp
+tp_head()
+{
+    atf_set "descr" "Verifies the application/X-atf-tp parser"
+}
+tp_body()
+{
+    run_header_tests application/X-atf-tp 1
+    run_tests application/X-atf-tp \
+        d_tp_1
+}
+
 atf_test_case tps
 tps_head()
 {
@@ -199,6 +211,7 @@ atf_init_test_cases()
     atf_add_test_case atffile
     atf_add_test_case config
     atf_add_test_case tcr
+    atf_add_test_case tp
     atf_add_test_case tps
 }
 

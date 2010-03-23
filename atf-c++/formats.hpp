@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -125,6 +125,46 @@ public:
 
     void result(const std::string&);
     void reason(const std::string&);
+};
+
+// ------------------------------------------------------------------------
+// The "atf_tp_reader" class.
+// ------------------------------------------------------------------------
+
+class atf_tp_reader {
+    std::istream& m_is;
+
+    void validate_and_insert(const std::string&, const std::string&,
+                             const size_t,
+                             std::map< std::string, std::string >&);
+
+protected:
+    virtual void got_tc(const std::string&,
+                        const std::map< std::string, std::string >&);
+    virtual void got_eof(void);
+
+public:
+    atf_tp_reader(std::istream&);
+    virtual ~atf_tp_reader(void);
+
+    void read(void);
+};
+
+// ------------------------------------------------------------------------
+// The "atf_tp_writer" class.
+// ------------------------------------------------------------------------
+
+class atf_tp_writer {
+    std::ostream& m_os;
+
+    bool m_is_first;
+
+public:
+    atf_tp_writer(std::ostream&);
+
+    void start_tc(const std::string&);
+    void end_tc(void);
+    void tc_meta_data(const std::string&, const std::string&);
 };
 
 // ------------------------------------------------------------------------

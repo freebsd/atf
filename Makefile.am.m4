@@ -845,6 +845,34 @@ atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_tcr_76.expout \
                    tests/atf/formats/d_tcr_77 \
                    tests/atf/formats/d_tcr_77.experr \
+                   tests/atf/formats/d_tp_1 \
+                   tests/atf/formats/d_tp_1.expout \
+                   tests/atf/formats/d_tp_2 \
+                   tests/atf/formats/d_tp_2.expout \
+                   tests/atf/formats/d_tp_3 \
+                   tests/atf/formats/d_tp_3.expout \
+                   tests/atf/formats/d_tp_4 \
+                   tests/atf/formats/d_tp_4.expout \
+                   tests/atf/formats/d_tp_50 \
+                   tests/atf/formats/d_tp_50.experr \
+                   tests/atf/formats/d_tp_51 \
+                   tests/atf/formats/d_tp_51.experr \
+                   tests/atf/formats/d_tp_52 \
+                   tests/atf/formats/d_tp_52.expout \
+                   tests/atf/formats/d_tp_53 \
+                   tests/atf/formats/d_tp_53.experr \
+                   tests/atf/formats/d_tp_54 \
+                   tests/atf/formats/d_tp_54.experr \
+                   tests/atf/formats/d_tp_55 \
+                   tests/atf/formats/d_tp_55.experr \
+                   tests/atf/formats/d_tp_56 \
+                   tests/atf/formats/d_tp_56.experr \
+                   tests/atf/formats/d_tp_57 \
+                   tests/atf/formats/d_tp_57.experr \
+                   tests/atf/formats/d_tp_58 \
+                   tests/atf/formats/d_tp_58.experr \
+                   tests/atf/formats/d_tp_59 \
+                   tests/atf/formats/d_tp_59.experr \
                    tests/atf/formats/d_tps_1 \
                    tests/atf/formats/d_tps_1.expout \
                    tests/atf/formats/d_tps_2 \

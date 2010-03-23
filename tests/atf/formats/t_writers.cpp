@@ -64,6 +64,114 @@ check_equal(const std::string& str, const std::string& exp)
     }
 }
 
+ATF_TEST_CASE(tp);
+ATF_TEST_CASE_HEAD(tp)
+{
+    set_md_var("descr", "Verifies the application/X-atf-tp writer");
+}
+ATF_TEST_CASE_BODY(tp)
+{
+    std::ostringstream expss;
+    std::ostringstream ss;
+
+#define RESET \
+    expss.str(""); \
+    ss.str("")
+
+#define CHECK \
+    check_equal(ss.str(), expss.str())
+
+    {
+        RESET;
+
+        atf::formats::atf_tp_writer w(ss);
+        expss << "Content-Type: application/X-atf-tp; version=\"1\""
+              << std::endl << std::endl;
+        CHECK;
+    }
+
+    {
+        RESET;
+
+        atf::formats::atf_tp_writer w(ss);
+        expss << "Content-Type: application/X-atf-tp; version=\"1\""
+              << std::endl << std::endl;
+        CHECK;
+
+        w.start_tc("test1");
+        expss << "ident: test1" << std::endl;
+        CHECK;
+
+        w.end_tc();
+        CHECK;
+    }
+
+    {
+        RESET;
+
+        atf::formats::atf_tp_writer w(ss);
+        expss << "Content-Type: application/X-atf-tp; version=\"1\""
+              << std::endl << std::endl;
+        CHECK;
+
+        w.start_tc("test1");
+        expss << "ident: test1" << std::endl;
+        CHECK;
+
+        w.end_tc();
+        CHECK;
+
+        w.start_tc("test2");
+        expss << std::endl << "ident: test2" << std::endl;
+        CHECK;
+
+        w.end_tc();
+        CHECK;
+    }
+
+    {
+        RESET;
+
+        atf::formats::atf_tp_writer w(ss);
+        expss << "Content-Type: application/X-atf-tp; version=\"1\""
+              << std::endl << std::endl;
+        CHECK;
+
+        w.start_tc("test1");
+        expss << "ident: test1" << std::endl;
+        CHECK;
+
+        w.tc_meta_data("descr", "the description");
+        expss << "descr: the description" << std::endl;
+        CHECK;
+
+        w.end_tc();
+        CHECK;
+
+        w.start_tc("test2");
+        expss << std::endl << "ident: test2" << std::endl;
+        CHECK;
+
+        w.tc_meta_data("descr", "second test case");
+        expss << "descr: second test case" << std::endl;
+        CHECK;
+
+        w.tc_meta_data("require.progs", "/bin/cp");
+        expss << "require.progs: /bin/cp" << std::endl;
+        CHECK;
+
+        w.tc_meta_data("X-custom", "foo bar baz");
+        expss << "X-custom: foo bar baz" << std::endl;
+        CHECK;
+
+        w.end_tc();
+        CHECK;
+    }
+
+#undef CHECK
+#undef RESET
+}
+
 ATF_TEST_CASE(tps);
 ATF_TEST_CASE_HEAD(tps)
 {
@@ -310,5 +418,6 @@ ATF_TEST_CASE_BODY(tps)
 
 ATF_INIT_TEST_CASES(tcs)
 {
+    ATF_ADD_TEST_CASE(tcs, tp);
     ATF_ADD_TEST_CASE(tcs, tps);
 }
