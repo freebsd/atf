@@ -84,6 +84,32 @@ public:
     }
 };
 
+class tp_descr : public atf::formats::atf_tp_reader {
+    std::map< std::string, atf::tests::vars_map > m_tcs;
+
+    void got_tc(const std::string& ident,
+                const std::map< std::string, std::string >& props)
+    {
+        if (m_tcs.find(ident) != m_tcs.end())
+            throw(std::runtime_error("Duplicate test case " + ident +
+                                     " in test program"));
+        m_tcs[ident] = props;
+    }
+
+public:
+    tp_descr(std::istream& is) :
+        atf::formats::atf_tp_reader(is)
+    {
+    }
+
+    const std::map< std::string, atf::tests::vars_map >&
+    get_tcs(void)
+        const
+    {
+        return m_tcs;
+    }
+};
+
 class muxer : public atf::io::std_muxer {
     atf::formats::atf_tps_writer& m_writer;
 
@@ -511,7 +537,12 @@ atf_run::run_test_program(const atf::fs::path& tp,
         tcs = query_tcs(tp);
     } catch (const atf::formats::format_error& e) {
         w.start_tp(tp.str(), 0);
-        w.end_tp(e.what());
+        w.end_tp("Invalid format for test case list: " + std::string(e.what()));
+        return EXIT_FAILURE;
+    } catch (const atf::parser::parse_errors& e) {
+        const std::string reason = atf::text::join(e, "; ");
+        w.start_tp(tp.str(), 0);
+        w.end_tp("Invalid format for test case list: " + reason);
         return EXIT_FAILURE;
     }
 
@@ -588,37 +619,23 @@ atf_run::query_tcs_parent(const atf::fs::path& tp, atf::process::child& child)
     atf::io::file_handle outfh = child.stdout_fd();
     atf::io::pistream outin(outfh);
 
-    std::vector< std::string > tcs;
-
-    std::string fmterr;
-
-    std::string line;
-    while (getline(outin, line).good()) {
-        std::string::size_type pos = line.find(" ");
-        if (pos == std::string::npos) {
-            fmterr = "Invalid format for test case list in \"" + line + "\"";
-            break;
-        }
-
-        const std::string tc = line.substr(0, pos);
-        tcs.push_back(tc);
-    }
-
-    try {
-        outin.close();
-    } catch (...) {
-        UNREACHABLE;
-    }
+    tp_descr parser(outin);
+    parser.read();
 
     const atf::process::status status = child.wait();
 
-    if (!fmterr.empty())
-        throw atf::formats::format_error(fmterr);
+    const std::map< std::string, atf::tests::vars_map >& tcs = parser.get_tcs();
+    std::vector< std::string > idents;
+    for (std::map< std::string, atf::tests::vars_map >::const_iterator iter =
+         tcs.begin(); iter != tcs.end(); iter++) {
+        idents.push_back((*iter).first);
+    }
+
     if (!status.exited() || status.exitstatus() != EXIT_SUCCESS)
         throw atf::formats::format_error("Test program returned failure "
                                          "exit status for test case list");
 
-    return tcs;
+    return idents;
 }
 
 std::vector< std::string >

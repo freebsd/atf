@@ -255,7 +255,7 @@ list_tcs(const atf_tp_t *tp)
     atf_list_citer_t iter;
     const atf_list_t *tcs;
 
-    printf("Content-Type: application/X-atf-tp; version=\"2\"\n\n");
+    printf("Content-Type: application/X-atf-tp; version=\"1\"\n\n");
 
     tcs = atf_tp_get_tcs(tp);
 

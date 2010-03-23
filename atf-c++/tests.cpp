@@ -587,29 +587,26 @@ void
 tp::list_tcs(void)
 {
     tc_vector tcs = init_tcs();
-
-    std::cout << "Content-Type: application/X-atf-tcs; version=\"2\""
-              << std::endl << std::endl;
+    atf::formats::atf_tp_writer writer(std::cout);
 
     for (tc_vector::const_iterator iter = tcs.begin();
          iter != tcs.end(); iter++) {
         const impl::vars_map vars = (*iter)->get_md_vars();
 
-        if (iter != tcs.begin())
-            std::cout << std::endl;
-
         {
             impl::vars_map::const_iterator iter2 = vars.find("ident");
             INV(iter2 != vars.end());
-            std::cout << "ident: " << (*iter2).second << std::endl;
+            writer.start_tc((*iter2).second);
         }
 
         for (impl::vars_map::const_iterator iter2 = vars.begin();
              iter2 != vars.end(); iter2++) {
             const std::string& key = (*iter2).first;
             if (key != "ident")
-                std::cout << key << ": " << (*iter2).second << std::endl;
+                writer.tc_meta_data(key, (*iter2).second);
         }
+
+        writer.end_tc();
     }
 }
 

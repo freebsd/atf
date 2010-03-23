@@ -54,11 +54,15 @@ create_helper_stdin()
 while [ \${#} -gt 0 ]; do
     case \${1} in
         -l)
+            echo 'Content-Type: application/X-atf-tp; version="1"'
+            echo
 EOF
     _cnt=${2}
     while [ ${_cnt} -gt 0 ]; do
-        echo "echo 'tc${_cnt}    Test case'" >>${1}
+	echo "echo 'ident: tc${_cnt}'" >>${1}
         _cnt=$((${_cnt} - 1))
+
+	[ ${_cnt} -gt 0 ] && echo
     done
 cat >>${1} <<EOF
             exit 0
@@ -323,7 +327,9 @@ broken_tp_list_body()
 #! $(atf-config -t atf_shell)
 while [ \${#} -gt 0 ]; do
     if [ \${1} = -l ]; then
-        echo 'no_desc'
+        echo 'Content-Type: application/X-atf-tp; version="1"'
+        echo
+        echo 'foo: bar'
         exit 0
     else
         shift
@@ -337,28 +343,8 @@ EOF
 
     atf_check -s eq:1 -o save:stdout -e empty atf-run
     atf_check -s eq:0 -o save:stdout -e empty grep '^tp-end: helper, ' stdout
-    atf_check -s eq:0 -o ignore -e empty grep 'test case list.*no_desc' stdout
-}
-
-atf_test_case failed_tp_list
-failed_tp_list_head()
-{
-    atf_set "descr" "Ensures that atf-run reports test programs that" \
-                    "fail when listing test cases"
-}
-failed_tp_list_body()
-{
-    cat >helper <<EOF
-#! $(atf-config -t atf_shell)
-exit 1
-EOF
-    chmod +x helper
-
-    create_atffile helper
-
-    atf_check -s eq:1 -o save:stdout -e empty atf-run
-    atf_check -s eq:0 -o save:stdout -e empty grep '^tp-end: helper, ' stdout
-    atf_check -s eq:0 -o ignore -e empty grep 'failure exit status' stdout
+    atf_check -s eq:0 -o ignore -e empty \
+	grep 'Invalid format for test case list:.*First property.*ident' stdout
 }
 
 atf_test_case zero_tcs
@@ -370,6 +356,8 @@ zero_tcs_head()
 zero_tcs_body()
 {
     create_helper_stdin helper 0 <<EOF
+echo 'Content-Type: application/X-atf-tp; version="1"'
+echo
 exit 1
 EOF
     chmod +x helper
@@ -378,7 +366,7 @@ EOF
 
     atf_check -s eq:1 -o save:stdout -e empty atf-run
     atf_check -s eq:0 -o ignore -e empty \
-        grep '^tp-end: helper,.*0 test cases' stdout
+        grep '^tp-end: helper,.*Invalid format for test case list' stdout
 }
 
 atf_test_case exit_codes
@@ -691,7 +679,6 @@ atf_init_test_cases()
     atf_add_test_case missing_results
     atf_add_test_case broken_results
     atf_add_test_case broken_tp_list
-    atf_add_test_case failed_tp_list
     atf_add_test_case zero_tcs
     atf_add_test_case exit_codes
     atf_add_test_case signaled
