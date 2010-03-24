@@ -809,6 +809,7 @@ atf_atf_compile_DATA = tests/atf/atf-compile/Atffile
 atf_atf_compiledir = $(pkgtestsdir)/atf-compile
 EXTRA_DIST += $(atf_atf_compile_DATA)
 
+CXX_TP([atf/atf-compile], [h_mode])
 SH_TP([atf/atf-compile], [t_integration])
 
 atf_atf_config_DATA = tests/atf/atf-config/Atffile
@@ -821,12 +822,18 @@ atf_atf_report_DATA = tests/atf/atf-report/Atffile
 atf_atf_reportdir = $(pkgtestsdir)/atf-report
 EXTRA_DIST += $(atf_atf_report_DATA)
 
+CXX_TP([atf/atf-report], [h_fail])
+CXX_TP([atf/atf-report], [h_pass])
+CXX_TP([atf/atf-report], [h_misc])
 SH_TP([atf/atf-report], [t_integration])
 
 atf_atf_run_DATA = tests/atf/atf-run/Atffile
 atf_atf_rundir = $(pkgtestsdir)/atf-run
 EXTRA_DIST += $(atf_atf_run_DATA)
 
+CXX_TP([atf/atf-run], [h_fail])
+CXX_TP([atf/atf-run], [h_pass])
+CXX_TP([atf/atf-run], [h_misc])
 SH_TP([atf/atf-run], [t_integration])
 
 atf_atf_sh_DATA = tests/atf/atf-sh/Atffile
@@ -1061,13 +1068,5 @@ SH_TP([atf/test_programs], [t_config], [tests/atf/test_programs/common.sh])
 SH_TP([atf/test_programs], [t_fork], [tests/atf/test_programs/common.sh])
 SH_TP([atf/test_programs], [t_srcdir], [tests/atf/test_programs/common.sh])
 SH_TP([atf/test_programs], [t_status], [tests/atf/test_programs/common.sh])
-
-# TODO Get rid of atf/tools and put the helpers where they belong.
-atf_toolsdir = $(pkgtestsdir)/tools
-
-CXX_TP([atf/tools], [h_fail])
-CXX_TP([atf/tools], [h_misc])
-CXX_TP([atf/tools], [h_mode])
-CXX_TP([atf/tools], [h_pass])
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

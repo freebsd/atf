@@ -42,7 +42,7 @@ EOF
 
 create_helper()
 {
-    cp $(atf_get_srcdir)/../tools/h_misc helper
+    cp $(atf_get_srcdir)/h_misc helper
     create_atffile helper
     TESTCASE=${1}; export TESTCASE
 }
@@ -85,7 +85,7 @@ config_head()
 }
 config_body()
 {
-    create_helper atf_run_config
+    create_helper config
 
     mkdir etc
     mkdir .atf
@@ -154,7 +154,7 @@ vflag_head()
 }
 vflag_body()
 {
-    create_helper atf_run_testvar
+    create_helper testvar
 
     echo "Checking that 'testvar' is not defined."
     atf_check -s eq:1 -o ignore -e ignore -x \
@@ -193,7 +193,7 @@ atffile_head()
 }
 atffile_body()
 {
-    create_helper atf_run_testvar
+    create_helper testvar
 
     echo "Checking that 'testvar' is not defined."
     atf_check -s eq:1 -o ignore -e ignore -x \
@@ -235,7 +235,7 @@ atffile_recursive_head()
 }
 atffile_recursive_body()
 {
-    create_helper atf_run_testvar
+    create_helper testvar
 
     mkdir dir
     mv Atffile helper dir
@@ -259,7 +259,7 @@ fds_head()
 }
 fds_body()
 {
-    create_helper atf_run_fds
+    create_helper fds
 
     atf_check -s eq:0 -o save:stdout -e empty atf-run
     atf_check -s eq:0 -o ignore -e empty grep '^tc-so:msg1 to stdout$' stdout
@@ -453,7 +453,7 @@ hooks_head()
 }
 hooks_body()
 {
-    cp $(atf_get_srcdir)/../tools/h_pass helper
+    cp $(atf_get_srcdir)/h_pass helper
     create_atffile helper
 
     mkdir atf
@@ -540,7 +540,7 @@ isolation_env_body()
         mangleenv="${mangleenv} ${v}=bogus-value"
     done
 
-    create_helper atf_run_env_list
+    create_helper env_list
     create_atffile helper
 
     # We must ignore stderr in this call (instead of specifying -e empty)
@@ -565,7 +565,7 @@ isolation_home_head()
 }
 isolation_home_body()
 {
-    create_helper atf_run_env_home
+    create_helper env_home
     create_atffile helper
     atf_check -s eq:0 -o ignore -e ignore env HOME=foo atf-run helper
 }
@@ -577,7 +577,7 @@ isolation_umask_head()
 }
 isolation_umask_body()
 {
-    create_helper atf_run_umask
+    create_helper umask
     create_atffile helper
 
     atf_check -s eq:0 -o save:stdout -e ignore -x "umask 0000 && atf-run helper"
@@ -592,13 +592,12 @@ cleanup_pass_head()
 }
 cleanup_pass_body()
 {
-    create_helper atf_run_cleanup_states
+    create_helper cleanup_states
     create_atffile helper
 
     atf_check -s eq:0 -o save:stdout -e ignore atf-run -v state=pass \
         -v statedir=$(pwd) helper
-    atf_check -s eq:0 -o ignore -e empty grep 'atf_run_cleanup_states, passed' \
-        stdout
+    atf_check -s eq:0 -o ignore -e empty grep 'cleanup_states, passed' stdout
     test -f to-stay || atf_fail "Test case body did not run correctly"
     test -f to-delete && atf_fail "Test case cleanup did not run correctly"
 }
@@ -611,13 +610,12 @@ cleanup_fail_head()
 }
 cleanup_fail_body()
 {
-    create_helper atf_run_cleanup_states
+    create_helper cleanup_states
     create_atffile helper
 
     atf_check -s eq:1 -o save:stdout -e ignore atf-run -v state=fail \
         -v statedir=$(pwd) helper
-    atf_check -s eq:0 -o ignore -e empty grep 'atf_run_cleanup_states, failed' \
-        stdout
+    atf_check -s eq:0 -o ignore -e empty grep 'cleanup_states, failed' stdout
     test -f to-stay || atf_fail "Test case body did not run correctly"
     test -f to-delete && atf_fail "Test case cleanup did not run correctly"
 }
@@ -630,13 +628,12 @@ cleanup_skip_head()
 }
 cleanup_skip_body()
 {
-    create_helper atf_run_cleanup_states
+    create_helper cleanup_states
     create_atffile helper
 
     atf_check -s eq:0 -o save:stdout -e ignore atf-run -v state=skip \
         -v statedir=$(pwd) helper
-    atf_check -s eq:0 -o ignore -e empty grep 'atf_run_cleanup_states, skipped' \
-        stdout
+    atf_check -s eq:0 -o ignore -e empty grep 'cleanup_states, skipped' stdout
     test -f to-stay || atf_fail "Test case body did not run correctly"
     test -f to-delete && atf_fail "Test case cleanup did not run correctly"
 }
@@ -649,12 +646,11 @@ cleanup_curdir_head()
 }
 cleanup_curdir_body()
 {
-    create_helper atf_run_cleanup_curdir
+    create_helper cleanup_curdir
     create_atffile helper
 
     atf_check -s eq:0 -o save:stdout -e ignore atf-run helper
-    atf_check -s eq:0 -o ignore -e empty grep 'atf_run_cleanup_curdir, passed' \
-        stdout
+    atf_check -s eq:0 -o ignore -e empty grep 'cleanup_curdir, passed' stdout
     atf_check -s eq:0 -o ignore -e empty grep 'Old value: 1234' stdout
 }
 
@@ -676,7 +672,7 @@ require_arch_head()
 }
 require_arch_body()
 {
-    create_helper atf_run_require_arch
+    create_helper require_arch
     create_atffile helper
 
     echo "Checking for the real architecture"
@@ -717,7 +713,7 @@ require_config_head()
 }
 require_config_body()
 {
-    create_helper atf_run_require_config
+    create_helper require_config
     create_atffile helper
 
     atf_check -s eq:0 -o save:so -e ignore atf-run helper
@@ -739,7 +735,7 @@ require_machine_head()
 }
 require_machine_body()
 {
-    create_helper atf_run_require_machine
+    create_helper require_machine
     create_atffile helper
 
     echo "Checking for the real machineitecture"
@@ -787,7 +783,7 @@ require_progs_head()
 }
 require_progs_body()
 {
-    create_helper atf_run_require_progs
+    create_helper require_progs
     create_atffile helper
 
     echo "Checking absolute paths"
@@ -820,7 +816,7 @@ require_user_root_head()
 }
 require_user_root_body()
 {
-    create_helper atf_run_require_user
+    create_helper require_user
     create_atffile helper
 
     atf_check -s eq:0 -o save:so -e ignore atf-run -v user=root helper
@@ -839,7 +835,7 @@ require_user_unprivileged_head()
 }
 require_user_unprivileged_body()
 {
-    create_helper atf_run_require_user
+    create_helper require_user
     create_atffile helper
 
     atf_check -s eq:0 -o save:so -e ignore atf-run -v user=unprivileged helper
@@ -858,7 +854,7 @@ require_user_bad_head()
 }
 require_user_bad_body()
 {
-    create_helper atf_run_require_user
+    create_helper require_user
     create_atffile helper
 
     atf_check -s eq:1 -o save:so -e ignore atf-run -v user=foobar helper

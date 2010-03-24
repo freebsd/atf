@@ -36,3 +36,5 @@ merged to org.NetBSD.atf.src.
   (The installed layout would remain the same.)  Rename t_* to *_test.
 
 - Get rid of the data/ subdirectory: just put the files where they belong.
+
+- Get rid of h_{pass,fail,skip} duplicates.
