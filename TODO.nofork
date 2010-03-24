@@ -27,3 +27,12 @@ merged to org.NetBSD.atf.src.
 - Fix default for -r flag in test programs.
 
 - Fix any XXX and TODO items introduced by this branch.
+
+- Get rid of atf-compile.  Instead, just write a wrapper around sh that loads
+  the necessary library files and then executes the test program.  Make it be
+  usable with #! /...
+
+- Drop the tests/ hierarchy and intermix test programs with the source files.
+  (The installed layout would remain the same.)  Rename t_* to *_test.
+
+- Get rid of the data/ subdirectory: just put the files where they belong.

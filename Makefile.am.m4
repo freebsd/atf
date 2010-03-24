@@ -55,6 +55,17 @@ m4_define([INIT_VAR], [DO_ONCE($1, [$1 =])])
 CLEANFILES =
 EXTRA_DIST =
 
+# TOOL dir basename extradeps
+#
+# Builds a binary tool named 'basename' and to be installed in 'dir'.
+m4_define([TOOL], [
+INIT_VAR([$1_PROGRAMS])
+$1_PROGRAMS += $2/$2
+AUTOMAKE_ID([$2/$2])_SOURCES = $2/$2.cpp $3
+AUTOMAKE_ID([$2/$2])_LDADD = libatf-c++.la
+dist_man_MANS += $2/$2.1
+])
+
 # -------------------------------------------------------------------------
 # Top directory.
 # -------------------------------------------------------------------------
@@ -89,8 +100,8 @@ AM_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
               "-DATF_WORKDIR=\"$(ATF_WORKDIR)\""
 
 ATF_COMPILE_DEPS = $(srcdir)/atf-sh/atf.init.subr
-ATF_COMPILE_DEPS += tools/atf-host-compile
-ATF_COMPILE_SH = ./tools/atf-host-compile
+ATF_COMPILE_DEPS += atf-compile/atf-host-compile
+ATF_COMPILE_SH = ./atf-compile/atf-host-compile
 
 # DISTFILE_DOC name src
 #
@@ -314,6 +325,59 @@ atf_c__dir = $(includedir)/atf-c++
 dist_man_MANS += atf-c++/atf-c++-api.3
 
 # -------------------------------------------------------------------------
+# `atf-check' directory.
+# -------------------------------------------------------------------------
+
+TOOL([bin], [atf-check])
+
+# -------------------------------------------------------------------------
+# `atf-config' directory.
+# -------------------------------------------------------------------------
+
+TOOL([bin], [atf-config])
+
+# -------------------------------------------------------------------------
+# `atf-cleanup' directory.
+# -------------------------------------------------------------------------
+
+TOOL([libexec], [atf-cleanup])
+
+# -------------------------------------------------------------------------
+# `atf-compile' directory.
+# -------------------------------------------------------------------------
+
+TOOL([bin], [atf-compile])
+
+atf-compile/atf-host-compile: $(srcdir)/atf-compile/atf-host-compile.sh
+	sed -e 's,__ATF_PKGDATADIR__,$(srcdir)/atf-sh,g' \
+	    -e 's,__ATF_SHELL__,$(ATF_SHELL),g' \
+	    <$(srcdir)/atf-compile/atf-host-compile.sh \
+	    >atf-compile/atf-host-compile.tmp
+	chmod +x atf-compile/atf-host-compile.tmp
+	mv atf-compile/atf-host-compile.tmp atf-compile/atf-host-compile
+CLEANFILES += atf-compile/atf-host-compile
+CLEANFILES += atf-compile/atf-host-compile.tmp
+EXTRA_DIST += atf-compile/atf-host-compile.sh
+
+# -------------------------------------------------------------------------
+# `atf-format' directory.
+# -------------------------------------------------------------------------
+
+TOOL([libexec], [atf-format])
+
+# -------------------------------------------------------------------------
+# `atf-report' directory.
+# -------------------------------------------------------------------------
+
+TOOL([bin], [atf-report])
+
+# -------------------------------------------------------------------------
+# `atf-run' directory.
+# -------------------------------------------------------------------------
+
+TOOL([bin], [atf-run])
+
+# -------------------------------------------------------------------------
 # `atf-sh' directory.
 # -------------------------------------------------------------------------
 
@@ -324,6 +388,23 @@ atf_shdir = $(pkgdatadir)
 EXTRA_DIST += $(atf_sh_DATA)
 
 dist_man_MANS += atf-sh/atf-sh-api.3
+
+# -------------------------------------------------------------------------
+# `atf-version' directory.
+# -------------------------------------------------------------------------
+
+TOOL([bin], [atf-version], [revision.h])
+
+BUILT_SOURCES = atf-version/revision.h
+atf-version/revision.h: admin/revision.h $(srcdir)/admin/revision-dist.h
+	@$(top_srcdir)/admin/choose-revision.sh \
+	    admin/revision.h $(srcdir)/admin/revision-dist.h \
+	    atf-version/revision.h
+CLEANFILES += atf-version/revision.h
+
+hooksdir = $(pkgdatadir)
+hooks_DATA = atf-run/atf-run.hooks
+EXTRA_DIST += $(hooks_DATA)
 
 # -------------------------------------------------------------------------
 # `data' directory.
@@ -959,50 +1040,5 @@ SH_TP([atf/tools], [t_atf_compile])
 SH_TP([atf/tools], [t_atf_config])
 SH_TP([atf/tools], [t_atf_report])
 SH_TP([atf/tools], [t_atf_run])
-
-# -------------------------------------------------------------------------
-# `tools' directory.
-# -------------------------------------------------------------------------
-
-# TOOL dir basename extradeps
-#
-# Builds a binary tool named 'basename/ and to be installed in 'dir'.
-m4_define([TOOL], [
-INIT_VAR([$1_PROGRAMS])
-$1_PROGRAMS += tools/$2
-tools_[]AUTOMAKE_ID([$2])_SOURCES = tools/$2.cpp $3
-tools_[]AUTOMAKE_ID([$2])_LDADD = libatf-c++.la
-dist_man_MANS += tools/$2.1
-])
-
-TOOL([bin], [atf-check])
-TOOL([bin], [atf-config])
-TOOL([libexec], [atf-cleanup])
-TOOL([bin], [atf-compile])
-TOOL([libexec], [atf-format])
-TOOL([bin], [atf-report])
-TOOL([bin], [atf-run])
-TOOL([bin], [atf-version], [revision.h])
-
-tools/atf-host-compile: $(srcdir)/tools/atf-host-compile.sh
-	sed -e 's,__ATF_PKGDATADIR__,$(srcdir)/atf-sh,g' \
-	    -e 's,__ATF_SHELL__,$(ATF_SHELL),g' \
-	    <$(srcdir)/tools/atf-host-compile.sh \
-	    >tools/atf-host-compile.tmp
-	chmod +x tools/atf-host-compile.tmp
-	mv tools/atf-host-compile.tmp tools/atf-host-compile
-CLEANFILES += tools/atf-host-compile
-CLEANFILES += tools/atf-host-compile.tmp
-EXTRA_DIST += tools/atf-host-compile.sh
-
-BUILT_SOURCES = revision.h
-revision.h: admin/revision.h $(srcdir)/admin/revision-dist.h
-	@$(top_srcdir)/admin/choose-revision.sh \
-	    admin/revision.h $(srcdir)/admin/revision-dist.h revision.h
-CLEANFILES += revision.h
-
-hooksdir = $(pkgdatadir)
-hooks_DATA = tools/atf-run.hooks
-EXTRA_DIST += $(hooks_DATA)
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
