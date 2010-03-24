@@ -30,10 +30,10 @@
 create_helpers()
 {
     mkdir dir1
-    cp $(atf_get_srcdir)/h_pass dir1/tp1
-    cp $(atf_get_srcdir)/h_fail dir1/tp2
-    cp $(atf_get_srcdir)/h_pass tp3
-    cp $(atf_get_srcdir)/h_fail tp4
+    cp $(atf_get_srcdir)/../tools/h_pass dir1/tp1
+    cp $(atf_get_srcdir)/../tools/h_fail dir1/tp2
+    cp $(atf_get_srcdir)/../tools/h_pass tp3
+    cp $(atf_get_srcdir)/../tools/h_fail tp4
 
     cat >tp5 <<EOF
 #! $(atf-config -t atf_shell)
@@ -283,7 +283,7 @@ output_xml_space_head()
 }
 output_xml_space_body()
 {
-    cp $(atf_get_srcdir)/h_misc .
+    cp $(atf_get_srcdir)/../tools/h_misc .
     cat >Atffile <<EOF
 Content-Type: application/X-atf-atffile; version="1"
 

@@ -793,6 +793,42 @@ CXX_TP([atf/atf-c++], [t_ui], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_user], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_utils], [], [tests/atf/atf-c++/libh.la])
 
+atf_atf_check_DATA = tests/atf/atf-check/Atffile
+atf_atf_checkdir = $(pkgtestsdir)/atf-check
+EXTRA_DIST += $(atf_atf_check_DATA)
+
+SH_TP([atf/atf-check], [t_integration])
+
+atf_atf_cleanup_DATA = tests/atf/atf-cleanup/Atffile
+atf_atf_cleanupdir = $(pkgtestsdir)/atf-cleanup
+EXTRA_DIST += $(atf_atf_cleanup_DATA)
+
+SH_TP([atf/atf-cleanup], [t_integration])
+
+atf_atf_compile_DATA = tests/atf/atf-compile/Atffile
+atf_atf_compiledir = $(pkgtestsdir)/atf-compile
+EXTRA_DIST += $(atf_atf_compile_DATA)
+
+SH_TP([atf/atf-compile], [t_integration])
+
+atf_atf_config_DATA = tests/atf/atf-config/Atffile
+atf_atf_configdir = $(pkgtestsdir)/atf-config
+EXTRA_DIST += $(atf_atf_config_DATA)
+
+SH_TP([atf/atf-config], [t_integration])
+
+atf_atf_report_DATA = tests/atf/atf-report/Atffile
+atf_atf_reportdir = $(pkgtestsdir)/atf-report
+EXTRA_DIST += $(atf_atf_report_DATA)
+
+SH_TP([atf/atf-report], [t_integration])
+
+atf_atf_run_DATA = tests/atf/atf-run/Atffile
+atf_atf_rundir = $(pkgtestsdir)/atf-run
+EXTRA_DIST += $(atf_atf_run_DATA)
+
+SH_TP([atf/atf-run], [t_integration])
+
 atf_atf_sh_DATA = tests/atf/atf-sh/Atffile
 atf_atf_shdir = $(pkgtestsdir)/atf-sh
 EXTRA_DIST += $(atf_atf_sh_DATA)
@@ -1026,19 +1062,12 @@ SH_TP([atf/test_programs], [t_fork], [tests/atf/test_programs/common.sh])
 SH_TP([atf/test_programs], [t_srcdir], [tests/atf/test_programs/common.sh])
 SH_TP([atf/test_programs], [t_status], [tests/atf/test_programs/common.sh])
 
-atf_tools_DATA = tests/atf/tools/Atffile
+# TODO Get rid of atf/tools and put the helpers where they belong.
 atf_toolsdir = $(pkgtestsdir)/tools
-EXTRA_DIST += $(atf_tools_DATA)
 
 CXX_TP([atf/tools], [h_fail])
 CXX_TP([atf/tools], [h_misc])
 CXX_TP([atf/tools], [h_mode])
 CXX_TP([atf/tools], [h_pass])
-SH_TP([atf/tools], [t_atf_check])
-SH_TP([atf/tools], [t_atf_cleanup])
-SH_TP([atf/tools], [t_atf_compile])
-SH_TP([atf/tools], [t_atf_config])
-SH_TP([atf/tools], [t_atf_report])
-SH_TP([atf/tools], [t_atf_run])
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

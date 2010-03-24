@@ -42,7 +42,7 @@ EOF
 
 create_helper()
 {
-    cp $(atf_get_srcdir)/h_misc helper
+    cp $(atf_get_srcdir)/../tools/h_misc helper
     create_atffile helper
     TESTCASE=${1}; export TESTCASE
 }
@@ -453,7 +453,7 @@ hooks_head()
 }
 hooks_body()
 {
-    cp $(atf_get_srcdir)/h_pass helper
+    cp $(atf_get_srcdir)/../tools/h_pass helper
     create_atffile helper
 
     mkdir atf
