@@ -56,16 +56,27 @@ impl::duplicate(const char* str)
 bool
 impl::match(const std::string& str, const std::string& regex)
 {
-    ::regex_t preg;
+    bool found;
 
-    if (::regcomp(&preg, regex.c_str(), REG_EXTENDED) != 0)
-        throw std::runtime_error("Invalid regular expression " + regex);
+    // Special case: regcomp does not like empty regular expressions.
+    if (regex.empty()) {
+        found = str.empty();
+    } else {
+        ::regex_t preg;
 
-    const int res = ::regexec(&preg, str.c_str(), 0, NULL, 0);
-    regfree(&preg);
-    if (res != 0 && res != REG_NOMATCH)
-        throw std::runtime_error("Invalid regular expression " + regex);
-    return res == 0;
+        if (::regcomp(&preg, regex.c_str(), REG_EXTENDED) != 0)
+            throw std::runtime_error("Invalid regular expression '" + regex +
+                                     "'");
+
+        const int res = ::regexec(&preg, str.c_str(), 0, NULL, 0);
+        regfree(&preg);
+        if (res != 0 && res != REG_NOMATCH)
+            throw std::runtime_error("Invalid regular expression " + regex);
+
+        found = res == 0;
+    }
+
+    return found;
 }
 
 std::string

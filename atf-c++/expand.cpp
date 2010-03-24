@@ -27,24 +27,13 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-extern "C" {
-#include <regex.h>
-}
-
 #include <stdexcept>
 
-#include "atf-c++/exceptions.hpp"
 #include "atf-c++/expand.hpp"
+#include "atf-c++/text.hpp"
 
 namespace impl = atf::expand;
 #define IMPL_NAME "atf::expand"
-
-// REG_BASIC is just a synonym for 0, provided as a counterpart to
-// REG_EXTENDED to improve readability.  It is not provided by all
-// systems.
-#if !defined(REG_BASIC)
-#define REG_BASIC 0
-#endif /* !defined(REG_BASIC) */
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -88,27 +77,5 @@ impl::is_glob(const std::string& glob)
 bool
 impl::matches_glob(const std::string& glob, const std::string& candidate)
 {
-    bool found;
-
-    // Special case: regcomp does not like empty patterns.
-    if (glob.empty()) {
-        found = candidate.empty();
-    } else {
-        const std::string regex = glob_to_regex(glob);
-        regex_t preg;
-
-        if (::regcomp(&preg, regex.c_str(), REG_BASIC) != 0)
-            throw std::runtime_error("Invalid regular expression '" + regex +
-                                     "'");
-
-        const int res = ::regexec(&preg, candidate.c_str(), 0, NULL, 0);
-        ::regfree(&preg);
-        if (res != 0 && res != REG_NOMATCH)
-            throw std::runtime_error("Invalid regular expression '" + regex +
-                                     "'");
-
-        found = res == 0;
-    }
-
-    return found;
+    return atf::text::match(candidate, glob_to_regex(glob));
 }

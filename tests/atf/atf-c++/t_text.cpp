@@ -143,8 +143,10 @@ ATF_TEST_CASE_BODY(match)
 {
     using atf::text::match;
 
-    ATF_CHECK_THROW(match("", ""), std::runtime_error);
     ATF_CHECK_THROW(match("", "["), std::runtime_error);
+
+    ATF_CHECK(match("", ""));
+    ATF_CHECK(!match("foo", ""));
 
     ATF_CHECK(match("", ".*"));
     ATF_CHECK(match("", "[a-z]*"));
