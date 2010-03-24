@@ -375,7 +375,7 @@ TOOL([bin], [atf-report])
 # `atf-run' directory.
 # -------------------------------------------------------------------------
 
-TOOL([bin], [atf-run])
+TOOL([bin], [atf-run], [atf-run/requirements.cpp])
 
 # -------------------------------------------------------------------------
 # `atf-sh' directory.
@@ -834,6 +834,7 @@ EXTRA_DIST += $(atf_atf_run_DATA)
 CXX_TP([atf/atf-run], [h_fail])
 CXX_TP([atf/atf-run], [h_pass])
 CXX_TP([atf/atf-run], [h_misc])
+CXX_TP([atf/atf-run], [t_requirements], [atf-run/requirements.cpp])
 SH_TP([atf/atf-run], [t_integration])
 
 atf_atf_sh_DATA = tests/atf/atf-sh/Atffile

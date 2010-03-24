@@ -38,3 +38,8 @@ merged to org.NetBSD.atf.src.
 - Get rid of the data/ subdirectory: just put the files where they belong.
 
 - Get rid of h_{pass,fail,skip} duplicates.
+
+- Add a use.fs metadata property, defaulting to no.
+
+- Reverse arguments to ATF_CHECK_THROW.  Also add a macro to check the error
+  message of an exception, alongside its type.

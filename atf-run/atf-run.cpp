@@ -62,6 +62,10 @@ extern "C" {
 #include "atf-c++/text.hpp"
 #include "atf-c++/user.hpp"
 
+#include "requirements.hpp"
+
+namespace impl = atf::atf_run;
+
 class config : public atf::formats::atf_config_reader {
     atf::tests::vars_map m_vars;
 
@@ -143,124 +147,6 @@ merge_maps(std::map< K, V >& dest, const std::map< K, V >& src)
     for (typename std::map< K, V >::const_iterator iter = src.begin();
          iter != src.end(); iter++)
         dest[(*iter).first] = (*iter).second;
-}
-
-static
-bool
-find_in_spaced_list(const std::string& word, const std::string& words)
-{
-    bool found = false;
-
-    const std::vector< std::string > v = atf::text::split(words, " ");
-    for (std::vector< std::string >::const_iterator iter = v.begin();
-         !found && iter != v.end(); iter++) {
-        if ((*iter) == word)
-            found = true;
-    }
-
-    return found;
-}
-
-static
-bool
-has_program(const atf::fs::path& program)
-{
-    bool found = false;
-
-    if (program.is_absolute()) {
-        found = atf::fs::is_executable(program);
-    } else {
-        if (program.str().find('/') != std::string::npos)
-            throw atf::formats::format_error("Relative paths are not allowed "
-                                             "when searching for a program (" +
-                                             program.str() + ")");
-
-        const std::vector< std::string > dirs = atf::text::split(
-            atf::env::get("PATH"), ":");
-        for (std::vector< std::string >::const_iterator iter = dirs.begin();
-             !found && iter != dirs.end(); iter++) {
-            const atf::fs::path& p = atf::fs::path(*iter) / program;
-            if (atf::fs::is_executable(p))
-                found = true;
-        }
-    }
-
-    return found;
-}
-
-static
-std::string
-check_requirements(const atf::tests::vars_map& tcmd,
-                   const atf::tests::vars_map& config)
-{
-    atf::tests::vars_map::const_iterator iter;
-
-    iter = tcmd.find("require.arch");
-    if (iter != tcmd.end()) {
-        const std::string& value = (*iter).second;
-        INV(!value.empty()); // Enforced by application/X-atf-tp parser.
-
-        if (!find_in_spaced_list(atf::config::get("atf_arch"), value))
-            return "Requires one of the " + value + " architectures";
-    }
-
-    iter = tcmd.find("require.config");
-    if (iter != tcmd.end()) {
-        const std::string& value = (*iter).second;
-        INV(!value.empty()); // Enforced by application/X-atf-tp parser.
-
-        const std::vector< std::string > vars = atf::text::split(value, " ");
-        for (std::vector< std::string >::const_iterator iter2 = vars.begin();
-             iter2 != vars.end(); iter2++) {
-            if (config.find((*iter2)) == config.end())
-                return "Required configuration variable " + (*iter2) + " not "
-                    "defined";
-        }
-    }
-
-    iter = tcmd.find("require.machine");
-    if (iter != tcmd.end()) {
-        const std::string& value = (*iter).second;
-        INV(!value.empty()); // Enforced by application/X-atf-tp parser.
-
-        if (!find_in_spaced_list(atf::config::get("atf_machine"), value))
-            return "Requires one of the " + value + " machine types";
-    }
-
-
-    iter = tcmd.find("require.progs");
-    if (iter != tcmd.end()) {
-        const std::string& value = (*iter).second;
-        INV(!value.empty()); // Enforced by application/X-atf-tp parser.
-
-        const std::vector< std::string > progs = atf::text::split(value, " ");
-        for (std::vector< std::string >::const_iterator iter2 = progs.begin();
-             iter2 != progs.end(); iter2++) {
-            if (!has_program(atf::fs::path(*iter2)))
-                return "The required program " + (*iter2) + " could not be "
-                    "found in the PATH";
-        }
-    }
-
-
-    iter = tcmd.find("require.user");
-    if (iter != tcmd.end()) {
-        const std::string& value = (*iter).second;
-        INV(!value.empty()); // Enforced by application/X-atf-tp parser.
-
-        if (value == "root") {
-            if (!atf::user::is_root())
-                return "Requires root privileges";
-        } if (value == "unprivileged") {
-            if (atf::user::is_root())
-                return "Requires an unprivileged user";
-        } else {
-            throw atf::formats::format_error("Invalid value '" + value + "' "
-                                             "for property require.user");
-        }
-    }
-
-    return "";
 }
 
 class atf_run : public atf::application::app {
@@ -695,7 +581,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
             w.start_tc(tcname);
 
             try {
-                const std::string& reqfail = check_requirements(
+                const std::string& reqfail = impl::check_requirements(
                     tcmd, effective_conf_vars());
                 if (!reqfail.empty()) {
                     w.end_tc(atf::tests::tcr(atf::tests::tcr::skipped_state,

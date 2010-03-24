@@ -697,13 +697,13 @@ require_arch_body()
     echo "Triggering some failures"
     atf_check -s eq:0 -o save:so -e ignore atf-run -v arch="foo" helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*foo architectures" so
+	"${TESTCASE}, skipped, .*foo.*architecture" so
     atf_check -s eq:0 -o save:so -e ignore atf-run -v arch="foo bar" helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*foo bar architectures" so
+	"${TESTCASE}, skipped, .*foo bar.*architectures" so
     atf_check -s eq:0 -o save:so -e ignore atf-run -v arch="${arch}xxx" helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*fictitiousxxx architecture" so
+	"${TESTCASE}, skipped, .*fictitiousxxx.*architecture" so
 }
 
 atf_test_case require_config
@@ -718,11 +718,11 @@ require_config_body()
 
     atf_check -s eq:0 -o save:so -e ignore atf-run helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*var1 not defined" so
+	"${TESTCASE}, skipped, .*var1.*not defined" so
 
     atf_check -s eq:0 -o save:so -e ignore atf-run -v var1=foo helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*var2 not defined" so
+	"${TESTCASE}, skipped, .*var2.*not defined" so
 
     atf_check -s eq:0 -o save:so -e ignore atf-run -v var1=a -v var2=' ' helper
     atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
@@ -738,7 +738,7 @@ require_machine_body()
     create_helper require_machine
     create_atffile helper
 
-    echo "Checking for the real machineitecture"
+    echo "Checking for the real machine type"
     machine=$(atf-config -t atf_machine)
     atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="${machine}" \
 	helper
@@ -750,7 +750,7 @@ require_machine_body()
 	helper
     atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
 
-    echo "Checking for a fictitious machineitecture"
+    echo "Checking for a fictitious machine type"
     machine=fictitious
     export ATF_MACHINE=fictitious
     atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="${machine}" \
@@ -766,14 +766,14 @@ require_machine_body()
     echo "Triggering some failures"
     atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="foo" helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*foo machine types" so
+	"${TESTCASE}, skipped, .*foo.*machine type" so
     atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="foo bar" helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*foo bar machine types" so
+	"${TESTCASE}, skipped, .*foo bar.*machine types" so
     atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="${machine}xxx" \
 	helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*fictitiousxxx machine types" so
+	"${TESTCASE}, skipped, .*fictitiousxxx.*machine type" so
 }
 
 atf_test_case require_progs
