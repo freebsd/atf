@@ -43,3 +43,7 @@ merged to org.NetBSD.atf.src.
 
 - Reverse arguments to ATF_CHECK_THROW.  Also add a macro to check the error
   message of an exception, alongside its type.
+
+- Get rid of the atf::tests::vars_map monstrosity.  I'm thinking that we need
+  a simple "types" file containing convenience types used thorough the code,
+  and that we need a "strong_typedef" wrapper for them.

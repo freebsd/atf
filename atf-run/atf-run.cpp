@@ -347,7 +347,7 @@ int
 atf_run::run_test_directory(const atf::fs::path& tp,
                             atf::formats::atf_tps_writer& w)
 {
-    atf::atffile af(tp / "Atffile");
+    atf::atffile::atffile af = atf::atffile::read(tp / "Atffile");
     m_atffile_vars = af.conf();
 
     atf::tests::vars_map oldvars = m_config_vars;
@@ -693,7 +693,7 @@ atf_run::count_tps(std::vector< std::string > tps)
         atf::fs::file_info fi(tp);
 
         if (fi.get_type() == atf::fs::file_info::dir_type) {
-            atf::atffile af = atf::atffile(tp / "Atffile");
+            atf::atffile::atffile af = atf::atffile::read(tp / "Atffile");
             std::vector< std::string > aux = af.tps();
             for (std::vector< std::string >::iterator i2 = aux.begin();
                  i2 != aux.end(); i2++)
@@ -757,7 +757,7 @@ call_hook(const std::string& tool, const std::string& hook)
 int
 atf_run::main(void)
 {
-    atf::atffile af(atf::fs::path("Atffile"));
+    atf::atffile::atffile af = atf::atffile::read(atf::fs::path("Atffile"));
     m_atffile_vars = af.conf();
 
     std::vector< std::string > tps;
