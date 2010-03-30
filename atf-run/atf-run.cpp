@@ -62,32 +62,10 @@ extern "C" {
 #include "atf-c++/text.hpp"
 #include "atf-c++/user.hpp"
 
+#include "config.hpp"
 #include "requirements.hpp"
 
 namespace impl = atf::atf_run;
-
-class config : public atf::formats::atf_config_reader {
-    atf::tests::vars_map m_vars;
-
-    void
-    got_var(const std::string& var, const std::string& name)
-    {
-        m_vars[var] = name;
-    }
-
-public:
-    config(std::istream& is) :
-        atf::formats::atf_config_reader(is)
-    {
-    }
-
-    const atf::tests::vars_map&
-    get_vars(void)
-        const
-    {
-        return m_vars;
-    }
-};
 
 class tp_descr : public atf::formats::atf_tp_reader {
     std::map< std::string, atf::tests::vars_map > m_tcs;
@@ -140,21 +118,10 @@ public:
     }
 };
 
-template< class K, class V >
-void
-merge_maps(std::map< K, V >& dest, const std::map< K, V >& src)
-{
-    for (typename std::map< K, V >::const_iterator iter = src.begin();
-         iter != src.end(); iter++)
-        dest[(*iter).first] = (*iter).second;
-}
-
 class atf_run : public atf::application::app {
     static const char* m_description;
 
-    atf::tests::vars_map m_atffile_vars;
     atf::tests::vars_map m_cmdline_vars;
-    atf::tests::vars_map m_config_vars;
 
     static atf::tests::vars_map::value_type parse_var(const std::string&);
 
@@ -164,9 +131,6 @@ class atf_run : public atf::application::app {
 
     void parse_vflag(const std::string&);
 
-    void read_one_config(const atf::fs::path&);
-    void read_config(const std::string&);
-    atf::tests::vars_map effective_conf_vars(void) const;
     std::vector< std::string > conf_args(void) const;
 
     size_t count_tps(std::vector< std::string >) const;
@@ -174,25 +138,31 @@ class atf_run : public atf::application::app {
     void prepare_child(const atf::fs::path&) const;
 
     int run_test(const atf::fs::path&,
-                 atf::formats::atf_tps_writer&);
+                 atf::formats::atf_tps_writer&,
+                 const atf::tests::vars_map&);
     int run_test_directory(const atf::fs::path&,
                            atf::formats::atf_tps_writer&);
     atf::process::status run_test_case(const atf::fs::path&, const std::string&,
                                        const std::string&, const atf::fs::path&,
                                        const atf::fs::path&,
-                                       atf::formats::atf_tps_writer&);
-    int run_test_program(const atf::fs::path&, atf::formats::atf_tps_writer&);
+                                       atf::formats::atf_tps_writer&,
+                                       const atf::tests::vars_map&);
+    int run_test_program(const atf::fs::path&, atf::formats::atf_tps_writer&,
+                         const atf::tests::vars_map&);
 
     std::map< std::string, atf::tests::vars_map >
-        query_tcs(const atf::fs::path&) const;
+        query_tcs(const atf::fs::path&, const atf::tests::vars_map&) const;
 
     struct query_tcs_data {
         const atf_run* m_this;
         const atf::fs::path& m_tp;
+        const atf::tests::vars_map& m_config;
 
-        query_tcs_data(const atf_run* t, const atf::fs::path& tp) :
+        query_tcs_data(const atf_run* t, const atf::fs::path& tp,
+                       const atf::tests::vars_map& config) :
             m_this(t),
-            m_tp(tp)
+            m_tp(tp),
+            m_config(config)
         {
         }
     };
@@ -204,17 +174,20 @@ class atf_run : public atf::application::app {
         const std::string& m_part;
         const atf::fs::path& m_resfile;
         const atf::fs::path& m_workdir;
+        const atf::tests::vars_map& m_config;
 
         test_data(const atf_run* t, const atf::fs::path& tp,
                   const std::string& tc, const std::string& part,
                   const atf::fs::path& resfile,
-                  const atf::fs::path& workdir) :
+                  const atf::fs::path& workdir,
+                  const atf::tests::vars_map& config) :
             m_this(t),
             m_tp(tp),
             m_tc(tc),
             m_part(part),
             m_resfile(resfile),
-            m_workdir(workdir)
+            m_workdir(workdir),
+            m_config(config)
         {
         }
     };
@@ -225,7 +198,8 @@ class atf_run : public atf::application::app {
     static void route_run_test_case_child(void *);
     void run_test_case_child(const atf::fs::path&, const std::string&,
                              const std::string&, const atf::fs::path&,
-                             const atf::fs::path&) const;
+                             const atf::fs::path&,
+                             const atf::tests::vars_map&) const;
     atf::process::status run_test_case_parent(const atf::fs::path&,
                                               const std::string&,
                                               const atf::fs::path&,
@@ -233,7 +207,8 @@ class atf_run : public atf::application::app {
                                               atf::process::child&);
 
     static void route_query_tcs_child(void *);
-    void query_tcs_child(const atf::fs::path&) const;
+    void query_tcs_child(const atf::fs::path&,
+                         const atf::tests::vars_map&) const;
     std::map< std::string, atf::tests::vars_map > query_tcs_parent(
         const atf::fs::path&, atf::process::child&) const;
 
@@ -330,7 +305,8 @@ atf_run::prepare_child(const atf::fs::path& workdir)
 
 int
 atf_run::run_test(const atf::fs::path& tp,
-                  atf::formats::atf_tps_writer& w)
+                  atf::formats::atf_tps_writer& w,
+                  const atf::tests::vars_map& config)
 {
     atf::fs::file_info fi(tp);
 
@@ -338,7 +314,10 @@ atf_run::run_test(const atf::fs::path& tp,
     if (fi.get_type() == atf::fs::file_info::dir_type)
         errcode = run_test_directory(tp, w);
     else {
-        errcode = run_test_program(tp, w);
+        const atf::tests::vars_map effective_config =
+            impl::merge_configs(config, m_cmdline_vars);
+
+        errcode = run_test_program(tp, w, effective_config);
     }
     return errcode;
 }
@@ -348,51 +327,23 @@ atf_run::run_test_directory(const atf::fs::path& tp,
                             atf::formats::atf_tps_writer& w)
 {
     atf::atffile::atffile af = atf::atffile::read(tp / "Atffile");
-    m_atffile_vars = af.conf();
 
-    atf::tests::vars_map oldvars = m_config_vars;
+    atf::tests::vars_map test_suite_vars;
     {
         atf::tests::vars_map::const_iterator iter =
             af.props().find("test-suite");
         INV(iter != af.props().end());
-        read_config((*iter).second);
+        test_suite_vars = impl::read_config_files((*iter).second);
     }
 
     bool ok = true;
     for (std::vector< std::string >::const_iterator iter = af.tps().begin();
          iter != af.tps().end(); iter++)
-        ok &= (run_test(tp / *iter, w) == EXIT_SUCCESS);
-
-    m_config_vars = oldvars;
+        ok &= (run_test(tp / *iter, w,
+                        impl::merge_configs(af.conf(),
+                                            test_suite_vars)) == EXIT_SUCCESS);
 
     return ok ? EXIT_SUCCESS : EXIT_FAILURE;
-}
-
-atf::tests::vars_map
-atf_run::effective_conf_vars(void)
-    const
-{
-    atf::tests::vars_map vars;
-    merge_maps(vars, m_atffile_vars);
-    merge_maps(vars, m_config_vars);
-    merge_maps(vars, m_cmdline_vars);
-    return vars;
-}
-
-std::vector< std::string >
-atf_run::conf_args(void)
-    const
-{
-    std::vector< std::string > args;
-
-    // TODO: vars should be a parameter.  Also watch out how many times this
-    // is called alongside effective_conf_vars.
-    const atf::tests::vars_map vars = effective_conf_vars();
-    for (atf::tests::vars_map::const_iterator i = vars.begin(); i != vars.end();
-         i++)
-        args.push_back("-v" + (*i).first + "=" + (*i).second);
-
-    return args;
 }
 
 char** vector_to_argv(const std::vector< std::string >& v)
@@ -417,7 +368,7 @@ atf_run::route_run_test_case_child(void* v)
 {
     test_data* td = static_cast< test_data* >(v);
     td->m_this->run_test_case_child(td->m_tp, td->m_tc, td->m_part,
-                                    td->m_resfile, td->m_workdir);
+                                    td->m_resfile, td->m_workdir, td->m_config);
     UNREACHABLE;
 }
 
@@ -425,7 +376,8 @@ void
 atf_run::run_test_case_child(const atf::fs::path& tp, const std::string& tc,
                              const std::string& part,
                              const atf::fs::path& resfile,
-                             const atf::fs::path& workdir)
+                             const atf::fs::path& workdir,
+                             const atf::tests::vars_map& config)
     const
 {
     // The input 'tp' parameter may be relative and become invalid once
@@ -439,7 +391,7 @@ atf_run::run_test_case_child(const atf::fs::path& tp, const std::string& tc,
     argv.push_back(tp.leaf_name());
     argv.push_back("-r" + resfile.str());
     argv.push_back("-s" + absolute_tp.branch_path().str());
-    append_to_vector(argv, conf_args());
+    append_to_vector(argv, impl::config_to_args(config));
     argv.push_back(tc + ":" + part);
 
     prepare_child(workdir);
@@ -530,12 +482,13 @@ atf::process::status
 atf_run::run_test_case(const atf::fs::path& tp, const std::string& tc,
                        const std::string& part, const atf::fs::path& resfile,
                        const atf::fs::path& workdir,
-                       atf::formats::atf_tps_writer& w)
+                       atf::formats::atf_tps_writer& w,
+                       const atf::tests::vars_map& config)
 {
     // TODO: Capture termination signals and deliver them to the subprocess
     // instead.  Or maybe do something else; think about it.
 
-    test_data td(this, tp, tc, part, resfile, workdir);
+    test_data td(this, tp, tc, part, resfile, workdir, config);
     atf::process::child c =
         atf::process::fork(route_run_test_case_child,
                            atf::process::stream_capture(),
@@ -547,13 +500,14 @@ atf_run::run_test_case(const atf::fs::path& tp, const std::string& tc,
 
 int
 atf_run::run_test_program(const atf::fs::path& tp,
-                          atf::formats::atf_tps_writer& w)
+                          atf::formats::atf_tps_writer& w,
+                          const atf::tests::vars_map& config)
 {
     int errcode = EXIT_SUCCESS;
 
     std::map< std::string, atf::tests::vars_map > tcs;
     try {
-        tcs = query_tcs(tp);
+        tcs = query_tcs(tp, config);
     } catch (const atf::formats::format_error& e) {
         w.start_tp(tp.str(), 0);
         w.end_tp("Invalid format for test case list: " + std::string(e.what()));
@@ -581,8 +535,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
             w.start_tc(tcname);
 
             try {
-                const std::string& reqfail = impl::check_requirements(
-                    tcmd, effective_conf_vars());
+                const std::string& reqfail = impl::check_requirements(tcmd, config);
                 if (!reqfail.empty()) {
                     w.end_tc(atf::tests::tcr(atf::tests::tcr::skipped_state,
                                              reqfail));
@@ -602,10 +555,10 @@ atf_run::run_test_program(const atf::fs::path& tp,
 
                 const atf::process::status body_status =
                     run_test_case(tp, tcname, "body", resfile,
-                    workdir.get_path(), w);
+                                  workdir.get_path(), w, config);
                 const atf::process::status cleanup_status =
                     run_test_case(tp, tcname, "cleanup", resfile,
-                    workdir.get_path(), w);
+                                  workdir.get_path(), w, config);
 
                 // TODO: Force deletion of workdir.
 
@@ -628,19 +581,20 @@ void
 atf_run::route_query_tcs_child(void* v)
 {
     query_tcs_data* td = static_cast< query_tcs_data* >(v);
-    td->m_this->query_tcs_child(td->m_tp);
+    td->m_this->query_tcs_child(td->m_tp, td->m_config);
     UNREACHABLE;
 }
 
 void
-atf_run::query_tcs_child(const atf::fs::path& tp)
+atf_run::query_tcs_child(const atf::fs::path& tp,
+                         const atf::tests::vars_map& config)
     const
 {
     std::vector< std::string > argv;
     argv.push_back(tp.leaf_name());
     argv.push_back("-l");
     argv.push_back("-s" + tp.branch_path().str());
-    append_to_vector(argv, conf_args());
+    append_to_vector(argv, impl::config_to_args(config));
 
     ::execv(tp.c_str(), vector_to_argv(argv));
     std::cerr << "Failed to execute `" << tp.str() << "': "
@@ -668,10 +622,10 @@ atf_run::query_tcs_parent(const atf::fs::path& tp, atf::process::child& child)
 }
 
 std::map< std::string, atf::tests::vars_map >
-atf_run::query_tcs(const atf::fs::path& tp)
+atf_run::query_tcs(const atf::fs::path& tp, const atf::tests::vars_map& config)
     const
 {
-    query_tcs_data data(this, tp);
+    query_tcs_data data(this, tp, config);
     atf::process::child child =
         atf::process::fork(route_query_tcs_child,
                            atf::process::stream_capture(),
@@ -706,33 +660,6 @@ atf_run::count_tps(std::vector< std::string > tps)
     return ntps;
 }
 
-void
-atf_run::read_one_config(const atf::fs::path& p)
-{
-    std::ifstream is(p.c_str());
-    if (is) {
-        config reader(is);
-        reader.read();
-        merge_maps(m_config_vars, reader.get_vars());
-    }
-}
-
-void
-atf_run::read_config(const std::string& name)
-{
-    std::vector< atf::fs::path > dirs;
-    dirs.push_back(atf::fs::path(atf::config::get("atf_confdir")));
-    if (atf::env::has("HOME"))
-        dirs.push_back(atf::fs::path(atf::env::get("HOME")) / ".atf");
-
-    m_config_vars.clear();
-    for (std::vector< atf::fs::path >::const_iterator iter = dirs.begin();
-         iter != dirs.end(); iter++) {
-        read_one_config((*iter) / "common.conf");
-        read_one_config((*iter) / (name + ".conf"));
-    }
-}
-
 static
 void
 call_hook(const std::string& tool, const std::string& hook)
@@ -758,7 +685,6 @@ int
 atf_run::main(void)
 {
     atf::atffile::atffile af = atf::atffile::read(atf::fs::path("Atffile"));
-    m_atffile_vars = af.conf();
 
     std::vector< std::string > tps;
     tps = af.tps();
@@ -771,11 +697,12 @@ atf_run::main(void)
     }
 
     // Read configuration data for this test suite.
+    atf::tests::vars_map test_suite_vars;
     {
         atf::tests::vars_map::const_iterator iter =
             af.props().find("test-suite");
         INV(iter != af.props().end());
-        read_config((*iter).second);
+        test_suite_vars = impl::read_config_files((*iter).second);
     }
 
     atf::formats::atf_tps_writer w(std::cout);
@@ -785,7 +712,9 @@ atf_run::main(void)
     bool ok = true;
     for (std::vector< std::string >::const_iterator iter = tps.begin();
          iter != tps.end(); iter++)
-        ok &= (run_test(atf::fs::path(*iter), w) == EXIT_SUCCESS);
+        ok &= (run_test(atf::fs::path(*iter), w,
+                        impl::merge_configs(af.conf(),
+                                            test_suite_vars)) == EXIT_SUCCESS);
 
     call_hook("atf-run", "info_end_hook");
 
