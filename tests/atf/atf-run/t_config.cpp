@@ -39,28 +39,6 @@ using atf::tests::vars_map;
 // Tests.
 // -------------------------------------------------------------------------
 
-ATF_TEST_CASE(config_to_args_empty);
-ATF_TEST_CASE_HEAD(config_to_args_empty) {}
-ATF_TEST_CASE_BODY(config_to_args_empty) {
-    vars_map config;
-
-    const std::vector< std::string > args = impl::config_to_args(config);
-    ATF_CHECK(args.empty());
-}
-
-ATF_TEST_CASE(config_to_args_some);
-ATF_TEST_CASE_HEAD(config_to_args_some) {}
-ATF_TEST_CASE_BODY(config_to_args_some) {
-    vars_map config;
-    config["foo"] = "bar";
-    config["var"] = "value with spaces";
-
-    const std::vector< std::string > args = impl::config_to_args(config);
-    ATF_CHECK_EQUAL(2, args.size());
-    ATF_CHECK_EQUAL("-vfoo=bar", args[0]);
-    ATF_CHECK_EQUAL("-vvar=value with spaces", args[1]);
-}
-
 ATF_TEST_CASE(merge_configs_both_empty);
 ATF_TEST_CASE_HEAD(merge_configs_both_empty) {}
 ATF_TEST_CASE_BODY(merge_configs_both_empty) {
@@ -116,9 +94,6 @@ ATF_TEST_CASE_BODY(read_config_files_none) {
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    ATF_ADD_TEST_CASE(tcs, config_to_args_empty);
-    ATF_ADD_TEST_CASE(tcs, config_to_args_some);
-
     ATF_ADD_TEST_CASE(tcs, merge_configs_both_empty);
     ATF_ADD_TEST_CASE(tcs, merge_configs_lower_empty);
     ATF_ADD_TEST_CASE(tcs, merge_configs_upper_empty);

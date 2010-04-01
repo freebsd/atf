@@ -27,17 +27,39 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <string>
-#include <vector>
+#include <map>
 
+#include <atf-c++/formats.hpp>
+#include <atf-c++/fs.hpp>
+#include <atf-c++/process.hpp>
 #include <atf-c++/tests.hpp>
 
 namespace atf {
 namespace atf_run {
 
-atf::tests::vars_map merge_configs(const atf::tests::vars_map&,
-                                   const atf::tests::vars_map&);
-atf::tests::vars_map read_config_files(const std::string&);
+typedef std::map< std::string, atf::tests::vars_map > test_cases_map;
+
+struct metadata {
+    test_cases_map test_cases;
+
+    metadata(void)
+    {
+    }
+
+    metadata(const test_cases_map& p_test_cases) :
+        test_cases(p_test_cases)
+    {
+    }
+};
+
+metadata get_metadata(const atf::fs::path&, const atf::tests::vars_map&);
+atf::process::status run_test_case(const atf::fs::path&,
+                                   const std::string&,
+                                   const std::string&,
+                                   const atf::tests::vars_map&,
+                                   const atf::fs::path&,
+                                   const atf::fs::path&,
+                                   atf::formats::atf_tps_writer&);
 
 } // namespace atf_run
 } // namespace atf

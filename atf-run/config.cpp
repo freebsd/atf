@@ -100,20 +100,6 @@ get_config_dirs(void)
 
 } // anonymous namespace
 
-// TODO: If we create a module for test program argument management, this should
-// be moved there.
-std::vector< std::string >
-impl::config_to_args(const atf::tests::vars_map& config)
-{
-    std::vector< std::string > args;
-
-    for (atf::tests::vars_map::const_iterator iter = config.begin();
-         iter != config.end(); iter++)
-        args.push_back("-v" + (*iter).first + "=" + (*iter).second);
-
-    return args;
-}
-
 atf::tests::vars_map
 impl::merge_configs(const atf::tests::vars_map& lower,
                     const atf::tests::vars_map& upper)

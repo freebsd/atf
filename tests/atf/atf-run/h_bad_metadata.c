@@ -27,17 +27,12 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <string>
-#include <vector>
+#include <stdio.h>
+#include <stdlib.h>
 
-#include <atf-c++/tests.hpp>
-
-namespace atf {
-namespace atf_run {
-
-atf::tests::vars_map merge_configs(const atf::tests::vars_map&,
-                                   const atf::tests::vars_map&);
-atf::tests::vars_map read_config_files(const std::string&);
-
-} // namespace atf_run
-} // namespace atf
+int
+main(void)
+{
+    printf("incorrectly formatted metadata\n");
+    return EXIT_SUCCESS;
+}

@@ -27,17 +27,41 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <string>
-#include <vector>
+#include <atf-c.h>
 
-#include <atf-c++/tests.hpp>
+ATF_TC(first);
+ATF_TC_HEAD(first, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Description 1");
+}
+ATF_TC_BODY(first, tc)
+{
+}
 
-namespace atf {
-namespace atf_run {
+ATF_TC(second);
+ATF_TC_HEAD(second, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Description 2");
+    atf_tc_set_md_var(tc, "timeout", "500");
+    atf_tc_set_md_var(tc, "X-property", "Custom property");
+}
+ATF_TC_BODY(second, tc)
+{
+}
 
-atf::tests::vars_map merge_configs(const atf::tests::vars_map&,
-                                   const atf::tests::vars_map&);
-atf::tests::vars_map read_config_files(const std::string&);
+ATF_TC(third);
+ATF_TC_HEAD(third, tc)
+{
+}
+ATF_TC_BODY(third, tc)
+{
+}
 
-} // namespace atf_run
-} // namespace atf
+ATF_TP_ADD_TCS(tp)
+{
+    ATF_TP_ADD_TC(tp, first);
+    ATF_TP_ADD_TC(tp, second);
+    ATF_TP_ADD_TC(tp, third);
+
+    return atf_no_error();
+}
