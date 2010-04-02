@@ -200,8 +200,6 @@ libatf_c_la_SOURCES = atf-c/build.c \
                       atf-c/process.h \
                       atf-c/sanity.c \
                       atf-c/sanity.h \
-                      atf-c/signals.c \
-                      atf-c/signals.h \
                       atf-c/text.c \
                       atf-c/text.h \
                       atf-c/ui.c \
@@ -241,7 +239,6 @@ atf_c_HEADERS = atf-c/build.h \
                 atf-c/object.h \
                 atf-c/process.h \
                 atf-c/sanity.h \
-                atf-c/signals.h \
                 atf-c/tc.h \
                 atf-c/tcr.h \
                 atf-c/text.h \
@@ -662,7 +659,6 @@ atf_atf_c_DATA = tests/atf/atf-c/Atffile \
                  tests/atf/atf-c/d_include_object_h.c \
                  tests/atf/atf-c/d_include_process_h.c \
                  tests/atf/atf-c/d_include_sanity_h.c \
-                 tests/atf/atf-c/d_include_signals_h.c \
                  tests/atf/atf-c/d_include_tc_h.c \
                  tests/atf/atf-c/d_include_tcr_h.c \
                  tests/atf/atf-c/d_include_text_h.c \
@@ -728,7 +724,6 @@ C_TP([atf/atf-c], [t_list], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_macros], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_map], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_process], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_signals], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_tc], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_tcr], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_sanity], [], [tests/atf/atf-c/libh.la])

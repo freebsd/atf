@@ -50,3 +50,5 @@ merged to org.NetBSD.atf.src.
   "strong_typedef" wrapper for them.
 
 - Do not use std::endl.  Understand what it is for first, and then decide.
+
+- It looks like atf-c++/signals may be unused.  Review and delete as required.
