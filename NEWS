@@ -24,6 +24,43 @@
 
    STILL UNDER DEVELOPMENT; NOT RELEASED YET
 
+     * Test programs are no longer able to run several test cases in a row.
+       The execution of a test program now requires a test case name, and
+       that single test case is executed. To execute several test cases, use
+       the atf-run utility as usual.
+
+     * Test programs no longer fork a subprocess to isolate the execution of
+       test cases. They run the test case code in-process, and a crash of the
+       test case will result in a crash of the test program. This is to ease
+       debugging of faulty test cases.
+
+     * Test programs no longer isolate their test cases. This means that they
+       will not create temporary directories nor sanitize the environment any
+       more. Yes: running a test case by hand with dependencies on external
+       state will most likely yield different results depending on where
+       (machine, directory, user environment) it is run. Isolation has been
+       moved to atf-run.
+
+     * Test programs no longer print a cryptic format (application/X-atf-tcs)
+       on a special file channel. They can now print whatever they want on
+       the screen. Because test programs can now only run one test case every
+       time, providing controlled output does not make sense any more.
+
+     * Test programs no longer write their status into a special file
+       descriptor. Instead, they create a file with the results. This changes
+       the semantics of the -r flag.
+
+     * atf-run has been adjusted to perform the test case isolation. Result:
+       there is now a single canonical place for what "isolation" means.
+       Before, the three language bindings (C, C++ and shell) had to be kept
+       in sync with each other (read: not a nice thing to do at all). As a
+       side effect of this change, writing bindings for other languages will
+       be much, much easier from now on.
+
+     * atf-run forks test programs (as it before), but now it forks once for
+       each test case. This is to provide the per-test-case isolation that
+       was before provided by the test programs themselves.
+
      * Removed the atf-exec tool.
 
                              Changes in version 0.7
