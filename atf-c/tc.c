@@ -251,7 +251,7 @@ static size_t current_tc_fail_count = 0;
 atf_error_t
 atf_tc_run(const atf_tc_t *tc, const atf_fs_path_t *resfile)
 {
-    atf_reset_exit_checks(); // XXX
+    atf_reset_exit_checks(); /* XXX */
 
     current_tc = tc;
     current_resfile = resfile;
@@ -277,7 +277,7 @@ atf_tc_cleanup(const atf_tc_t *tc)
 {
     if (tc->m_cleanup != NULL)
         tc->m_cleanup(tc);
-    return atf_no_error(); // XXX
+    return atf_no_error(); /* XXX */
 }
 
 struct prog_found_pair {
@@ -388,7 +388,7 @@ tc_fail(atf_dynstr_t *msg)
     if (atf_is_error(err))
         abort();
 
-    atf_tcr_write(&tcr, current_resfile); // XXX: Handle errors.
+    atf_tcr_write(&tcr, current_resfile); /* XXX Handle errors. */
 
     atf_tcr_fini(&tcr);
     atf_dynstr_fini(msg);
@@ -421,7 +421,7 @@ atf_tc_fail(const char *fmt, ...)
     if (atf_is_error(err))
         abort();
 
-    atf_tcr_write(&tcr, current_resfile); // XXX: Handle errors.
+    atf_tcr_write(&tcr, current_resfile); /* XXX Handle errors. */
 
     atf_tcr_fini(&tcr);
 
@@ -515,7 +515,7 @@ atf_tc_pass(void)
     if (atf_is_error(err))
         abort();
 
-    atf_tcr_write(&tcr, current_resfile); // XXX: Handle errors.
+    atf_tcr_write(&tcr, current_resfile); /* XXX Handle errors. */
 
     atf_tcr_fini(&tcr);
 
@@ -549,7 +549,7 @@ atf_tc_skip(const char *fmt, ...)
     if (atf_is_error(err))
         abort();
 
-    atf_tcr_write(&tcr, current_resfile); // XXX: Handle errors.
+    atf_tcr_write(&tcr, current_resfile); /* XXX Handle errors. */
 
     atf_tcr_fini(&tcr);
 

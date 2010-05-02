@@ -57,12 +57,12 @@ while [ \${#} -gt 0 ]; do
             echo 'Content-Type: application/X-atf-tp; version="1"'
             echo
 EOF
-    _cnt=${2}
-    while [ ${_cnt} -gt 0 ]; do
-	echo "echo 'ident: tc${_cnt}'" >>${1}
-        _cnt=$((${_cnt} - 1))
+    cnt=${2}
+    while [ ${cnt} -gt 0 ]; do
+        echo "echo 'ident: tc${cnt}'" >>${1}
+        cnt=$((${cnt} - 1))
 
-	[ ${_cnt} -gt 0 ] && echo
+        [ ${cnt} -gt 0 ] && echo
     done
 cat >>${1} <<EOF
             exit 0
@@ -344,7 +344,7 @@ EOF
     atf_check -s eq:1 -o save:stdout -e empty atf-run
     atf_check -s eq:0 -o save:stdout -e empty grep '^tp-end: helper, ' stdout
     atf_check -s eq:0 -o ignore -e empty \
-	grep 'Invalid format for test case list:.*First property.*ident' stdout
+        grep 'Invalid format for test case list:.*First property.*ident' stdout
 }
 
 atf_test_case zero_tcs
@@ -697,13 +697,13 @@ require_arch_body()
     echo "Triggering some failures"
     atf_check -s eq:0 -o save:so -e ignore atf-run -v arch="foo" helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*foo.*architecture" so
+        "${TESTCASE}, skipped, .*foo.*architecture" so
     atf_check -s eq:0 -o save:so -e ignore atf-run -v arch="foo bar" helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*foo bar.*architectures" so
+        "${TESTCASE}, skipped, .*foo bar.*architectures" so
     atf_check -s eq:0 -o save:so -e ignore atf-run -v arch="${arch}xxx" helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*fictitiousxxx.*architecture" so
+        "${TESTCASE}, skipped, .*fictitiousxxx.*architecture" so
 }
 
 atf_test_case require_config
@@ -718,11 +718,11 @@ require_config_body()
 
     atf_check -s eq:0 -o save:so -e ignore atf-run helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*var1.*not defined" so
+        "${TESTCASE}, skipped, .*var1.*not defined" so
 
     atf_check -s eq:0 -o save:so -e ignore atf-run -v var1=foo helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*var2.*not defined" so
+        "${TESTCASE}, skipped, .*var2.*not defined" so
 
     atf_check -s eq:0 -o save:so -e ignore atf-run -v var1=a -v var2=' ' helper
     atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
@@ -741,39 +741,39 @@ require_machine_body()
     echo "Checking for the real machine type"
     machine=$(atf-config -t atf_machine)
     atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="${machine}" \
-	helper
+        helper
     atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
     atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="foo ${machine}" \
-	helper
+        helper
     atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
     atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="${machine} foo" \
-	helper
+        helper
     atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
 
     echo "Checking for a fictitious machine type"
     machine=fictitious
     export ATF_MACHINE=fictitious
     atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="${machine}" \
-	helper
+        helper
     atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
     atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="foo ${machine}" \
-	helper
+        helper
     atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
     atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="${machine} foo" \
-	helper
+        helper
     atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
 
     echo "Triggering some failures"
     atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="foo" helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*foo.*machine type" so
+        "${TESTCASE}, skipped, .*foo.*machine type" so
     atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="foo bar" helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*foo bar.*machine types" so
+        "${TESTCASE}, skipped, .*foo bar.*machine types" so
     atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="${machine}xxx" \
-	helper
+        helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*fictitiousxxx.*machine type" so
+        "${TESTCASE}, skipped, .*fictitiousxxx.*machine type" so
 }
 
 atf_test_case require_progs
@@ -790,29 +790,29 @@ require_progs_body()
     atf_check -s eq:0 -o save:so -e ignore atf-run -v progs='/bin/cp' helper
     atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
     atf_check -s eq:0 -o save:so -e ignore atf-run \
-	-v progs='/bin/__non-existent__' helper
+        -v progs='/bin/__non-existent__' helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*/bin/__non-existent__.*PATH" so
+        "${TESTCASE}, skipped, .*/bin/__non-existent__.*PATH" so
 
     echo "Checking that relative paths are not allowed"
     atf_check -s eq:1 -o save:so -e ignore atf-run -v progs='bin/cp' helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, failed, Relative paths.*not allowed.*bin/cp" so
+        "${TESTCASE}, failed, Relative paths.*not allowed.*bin/cp" so
 
     echo "Check plain file names, searching them in the PATH."
     atf_check -s eq:0 -o save:so -e ignore atf-run -v progs='cp' helper
     atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
     atf_check -s eq:0 -o save:so -e ignore atf-run \
-	-v progs='__non-existent__' helper
+        -v progs='__non-existent__' helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, skipped, .*__non-existent__.*PATH" so
+        "${TESTCASE}, skipped, .*__non-existent__.*PATH" so
 }
 
 atf_test_case require_user_root
 require_user_root_head()
 {
     atf_set "descr" "Tests that atf-run validates the require.user property" \
-	"when it is set to 'root'"
+        "when it is set to 'root'"
 }
 require_user_root_body()
 {
@@ -821,9 +821,9 @@ require_user_root_body()
 
     atf_check -s eq:0 -o save:so -e ignore atf-run -v user=root helper
     if [ $(id -u) -eq 0 ]; then
-	atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
+        atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
     else
-	atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, skipped" so
+        atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, skipped" so
     fi
 }
 
@@ -831,7 +831,7 @@ atf_test_case require_user_unprivileged
 require_user_unprivileged_head()
 {
     atf_set "descr" "Tests that atf-run validates the require.user property" \
-	"when it is set to 'root'"
+        "when it is set to 'root'"
 }
 require_user_unprivileged_body()
 {
@@ -840,9 +840,9 @@ require_user_unprivileged_body()
 
     atf_check -s eq:0 -o save:so -e ignore atf-run -v user=unprivileged helper
     if [ $(id -u) -eq 0 ]; then
-	atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, skipped" so
+        atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, skipped" so
     else
-	atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
+        atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
     fi
 }
 
@@ -850,7 +850,7 @@ atf_test_case require_user_bad
 require_user_bad_head()
 {
     atf_set "descr" "Tests that atf-run validates the require.user property" \
-	"when it is set to 'root'"
+        "when it is set to 'root'"
 }
 require_user_bad_body()
 {
@@ -859,7 +859,7 @@ require_user_bad_body()
 
     atf_check -s eq:1 -o save:so -e ignore atf-run -v user=foobar helper
     atf_check -s eq:0 -o ignore -e empty grep \
-	"${TESTCASE}, failed, Invalid value.*foobar" so
+        "${TESTCASE}, failed, Invalid value.*foobar" so
 }
 
 atf_test_case timeout

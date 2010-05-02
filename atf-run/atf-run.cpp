@@ -229,10 +229,6 @@ atf_run::get_tcr(const atf::process::status& s,
                        "file: " + std::string(e.what()));
         } catch (const atf::parser::parse_errors& e) {
             std::string reason = "Test case created a bogus results file: ";
-            //for (std::vector< atf::parser::parse_error >::const_iterator iter =
-                 //e.begin(); iter != e.end(); iter++) {
-                //reason += (*iter).what();
-            //}
             reason += atf::text::join(e, "; ");
             return tcr(tcr::failed_state, reason);
         } catch (const std::runtime_error& e) {
@@ -292,7 +288,8 @@ atf_run::run_test_program(const atf::fs::path& tp,
             w.start_tc(tcname);
 
             try {
-                const std::string& reqfail = impl::check_requirements(tcmd, config);
+                const std::string& reqfail = impl::check_requirements(
+                    tcmd, config);
                 if (!reqfail.empty()) {
                     w.end_tc(atf::tests::tcr(atf::tests::tcr::skipped_state,
                                              reqfail));
@@ -307,15 +304,15 @@ atf_run::run_test_program(const atf::fs::path& tp,
 
             const atf::fs::path resfile = resdir.get_path() / "tcr";
             try {
-                atf::fs::temp_dir workdir(atf::fs::path(atf::config::get("atf_workdir")) /
-                                          "atf-run.XXXXXX");
+                atf::fs::temp_dir workdir(atf::fs::path(atf::config::get(
+                    "atf_workdir")) / "atf-run.XXXXXX");
 
-                const atf::process::status body_status =
-                    impl::run_test_case(tp, tcname, "body", tcmd, config, resfile,
-                                        workdir.get_path(), w);
-                const atf::process::status cleanup_status =
-                    impl::run_test_case(tp, tcname, "cleanup", tcmd, config, resfile,
-                                        workdir.get_path(), w);
+                const atf::process::status body_status = impl::run_test_case(
+                    tp, tcname, "body", tcmd, config, resfile,
+                    workdir.get_path(), w);
+                const atf::process::status cleanup_status = impl::run_test_case(
+                    tp, tcname, "cleanup", tcmd, config, resfile,
+                    workdir.get_path(), w);
 
                 // TODO: Force deletion of workdir.
 

@@ -199,7 +199,7 @@ params_init(struct params *p)
     p->m_tcname = NULL;
     p->m_tcpart = BODY;
 
-    err = atf_fs_path_init_fmt(&p->m_resfile, "resfile"); // XXX: Bad default.
+    err = atf_fs_path_init_fmt(&p->m_resfile, "resfile"); /* XXX Bad default */
     if (atf_is_error(err))
         return err;
 
@@ -413,7 +413,8 @@ process_params(int argc, char **argv, struct params *p)
             else if (argc == 1)
                 err = handle_tcarg(argv[0], &p->m_tcname, &p->m_tcpart);
             else if (argc > 1) {
-                err = usage_error("Cannot provide more than one test case name");
+                err = usage_error("Cannot provide more than one test case "
+                                  "name");
             }
         }
     }
