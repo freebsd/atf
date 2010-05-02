@@ -33,6 +33,8 @@
 #   define TESTS_ATF_ATF_CXX_HPP_LIB_H
 #endif
 
+#include <cstdlib>
+
 #include "atf-c++/process.hpp"
 
 #define HEADER_TC(name, hdrname, sfile) \

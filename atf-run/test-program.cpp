@@ -35,6 +35,7 @@ extern "C" {
 
 #include <cerrno>
 #include <cstdlib>
+#include <cstring>
 
 #include "atf-c++/env.hpp"
 #include "atf-c++/formats.hpp"
@@ -169,7 +170,8 @@ exec_or_exit(const atf::fs::path& executable,
 
     const std::string message = "Failed to execute '" + executable.str() +
         "': " + std::strerror(errno) + "\n";
-    ::write(STDERR_FILENO, message.c_str(), message.length());
+    if (::write(STDERR_FILENO, message.c_str(), message.length()) == -1)
+        std::abort();
     std::exit(EXIT_FAILURE);
 }
 

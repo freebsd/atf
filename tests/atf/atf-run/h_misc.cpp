@@ -31,6 +31,7 @@ extern "C" {
 #include <sys/stat.h>
 }
 
+#include <cstdlib>
 #include <fstream>
 #include <iomanip>
 #include <iostream>

@@ -297,7 +297,7 @@ ATF_TEST_CASE_BODY(tcr_write_create_file_error)
 {
     using atf::tests::tcr;
 
-    const int fd = ::open("tcr.txt", O_WRONLY | O_CREAT | O_TRUNC);
+    const int fd = ::open("tcr.txt", O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
     ATF_CHECK(fd != -1);
     ATF_CHECK(::close(fd) != -1);
     ATF_CHECK(::chmod("tcr.txt", 0) != -1);

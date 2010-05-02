@@ -385,10 +385,10 @@ public:
 } // namespace atf_config
 
 // ------------------------------------------------------------------------
-// The "atf_tcr" auxiliary parser.
+// The "atf_tcr_parser" auxiliary parser.
 // ------------------------------------------------------------------------
 
-namespace atf_tcr {
+namespace atf_tcr_parser {
 
 static const atf::parser::token_type eof_type = 0;
 static const atf::parser::token_type nl_type = 1;
@@ -415,7 +415,7 @@ public:
     }
 };
 
-} // namespace atf_tcr
+} // namespace atf_tcr_parser
 
 // ------------------------------------------------------------------------
 // The "atf_tp" auxiliary parser.
@@ -702,7 +702,7 @@ void
 impl::atf_tcr_reader::read(void)
 {
     using atf::parser::parse_error;
-    using namespace atf_tcr;
+    using namespace atf_tcr_parser;
 
     std::pair< size_t, headers_map > hml = read_headers(m_is, 1);
     validate_content_type(hml.second, "application/X-atf-tcr", 1);

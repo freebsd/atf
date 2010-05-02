@@ -469,8 +469,10 @@ create_file(const char* name, const std::vector< std::string >& lines)
     ATF_CHECK(wrfd != -1);
 
     for (std::vector< std::string >::const_iterator iter = lines.begin();
-         iter != lines.end(); iter++)
-        ::write(wrfd, (*iter + "\n").c_str(), (*iter).size() + 1);
+         iter != lines.end(); iter++) {
+        const std::string line = *iter + "\n";
+        ATF_CHECK(::write(wrfd, line.c_str(), line.size()) != -1);
+    }
 
     ::close(wrfd);
 
