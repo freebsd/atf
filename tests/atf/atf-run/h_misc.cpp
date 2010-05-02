@@ -29,6 +29,8 @@
 
 extern "C" {
 #include <sys/stat.h>
+
+#include <unistd.h>
 }
 
 #include <cstdlib>
@@ -238,6 +240,18 @@ ATF_TEST_CASE_BODY(require_user)
 {
 }
 
+ATF_TEST_CASE(timeout);
+ATF_TEST_CASE_HEAD(timeout)
+{
+    set_md_var("descr", "Helper test case for the t_integration test program");
+    set_md_var("timeout", "1");
+}
+ATF_TEST_CASE_BODY(timeout)
+{
+    sleep(10);
+    touch(get_config_var("statedir") + "/finished");
+}
+
 // ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
@@ -273,4 +287,6 @@ ATF_INIT_TEST_CASES(tcs)
         ATF_ADD_TEST_CASE(tcs, require_progs);
     if (which == "require_user")
         ATF_ADD_TEST_CASE(tcs, require_user);
+    if (which == "timeout")
+        ATF_ADD_TEST_CASE(tcs, timeout);
 }

@@ -28,23 +28,28 @@
 //
 
 extern "C" {
+#include <sys/types.h>
 #include <sys/stat.h>
 
+#include <signal.h>
 #include <unistd.h>
 }
 
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 
 #include "atf-c++/env.hpp"
 #include "atf-c++/formats.hpp"
 #include "atf-c++/process.hpp"
 #include "atf-c++/sanity.hpp"
 #include "atf-c++/signals.hpp"
+#include "atf-c++/text.hpp"
 
 #include "config.hpp"
 #include "test-program.hpp"
+#include "timer.hpp"
 
 namespace impl = atf::atf_run;
 
@@ -116,6 +121,7 @@ struct test_case_params {
     const atf::fs::path& executable;
     const std::string& test_case_name;
     const std::string& test_case_part;
+    const atf::tests::vars_map& metadata;
     const atf::tests::vars_map& config;
     const atf::fs::path& resfile;
     const atf::fs::path& workdir;
@@ -123,12 +129,14 @@ struct test_case_params {
     test_case_params(const atf::fs::path& p_executable,
                      const std::string& p_test_case_name,
                      const std::string& p_test_case_part,
+                     const atf::tests::vars_map& p_metadata,
                      const atf::tests::vars_map& p_config,
                      const atf::fs::path& p_resfile,
                      const atf::fs::path& p_workdir) :
         executable(p_executable),
         test_case_name(p_test_case_name),
         test_case_part(p_test_case_part),
+        metadata(p_metadata),
         config(p_config),
         resfile(p_resfile),
         workdir(p_workdir)
@@ -173,6 +181,23 @@ exec_or_exit(const atf::fs::path& executable,
     if (::write(STDERR_FILENO, message.c_str(), message.length()) == -1)
         std::abort();
     std::exit(EXIT_FAILURE);
+}
+
+static
+void
+create_timeout_resfile(const atf::fs::path& path, const unsigned int timeout)
+{
+    std::ofstream os(path.c_str());
+    if (!os)
+        throw std::runtime_error("Failed to create " + path.str());
+
+    const std::string reason = "Test case timed out after " +
+        atf::text::to_string(timeout) + " " +
+        (timeout == 1 ? "second" : "seconds");
+
+    atf::formats::atf_tcr_writer writer(os);
+    writer.result("failed");
+    writer.reason(reason);
 }
 
 static
@@ -285,6 +310,7 @@ atf::process::status
 impl::run_test_case(const atf::fs::path& executable,
                     const std::string& test_case_name,
                     const std::string& test_case_part,
+                    const atf::tests::vars_map& metadata,
                     const atf::tests::vars_map& config,
                     const atf::fs::path& resfile,
                     const atf::fs::path& workdir,
@@ -293,13 +319,20 @@ impl::run_test_case(const atf::fs::path& executable,
     // TODO: Capture termination signals and deliver them to the subprocess
     // instead.  Or maybe do something else; think about it.
 
-    test_case_params params(executable, test_case_name, test_case_part, config,
-                            resfile, workdir);
+    test_case_params params(executable, test_case_name, test_case_part,
+                            metadata, config, resfile, workdir);
     atf::process::child child =
         atf::process::fork(run_test_case_child,
                            atf::process::stream_capture(),
                            atf::process::stream_capture(),
                            static_cast< void * >(&params));
+
+    const atf::tests::vars_map::const_iterator iter = metadata.find("timeout");
+    INV(iter != metadata.end());
+    const unsigned int timeout =
+        atf::text::to_type< unsigned int >((*iter).second);
+    const pid_t child_pid = child.pid();
+    child_timer timeout_timer(timeout, child_pid);
 
     // Get the input stream of stdout and stderr.
     atf::io::file_handle outfh = child.stdout_fd();
@@ -318,5 +351,14 @@ impl::run_test_case(const atf::fs::path& executable,
         UNREACHABLE;
     }
 
-    return child.wait();
+    atf::process::status status = child.wait();
+    ::killpg(child_pid, SIGKILL);
+
+    if (timeout_timer.fired()) {
+        INV(status.signaled());
+        INV(status.termsig() == SIGKILL);
+        create_timeout_resfile(resfile, timeout);
+    }
+
+    return status;
 }

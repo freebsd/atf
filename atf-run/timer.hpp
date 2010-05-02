@@ -27,40 +27,58 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <map>
+#if !defined(_ATF_RUN_ALARM_HPP_)
+#define _ATF_RUN_ALARM_HPP_
 
-#include <atf-c++/formats.hpp>
-#include <atf-c++/fs.hpp>
-#include <atf-c++/process.hpp>
-#include <atf-c++/tests.hpp>
+extern "C" {
+#include <sys/time.h>
+#include <sys/types.h>
+}
+
+#include <memory>
+
+#include <atf-c++/signals.hpp>
+#include <atf-c++/utils.hpp>
 
 namespace atf {
+
+namespace signals {
+class signal_programmer;
+} // namespace signals
+
 namespace atf_run {
 
-typedef std::map< std::string, atf::tests::vars_map > test_cases_map;
+// ------------------------------------------------------------------------
+// The "timer" class.
+// ------------------------------------------------------------------------
 
-struct metadata {
-    test_cases_map test_cases;
+class timer : utils::noncopyable {
+    ::itimerval m_old_timeval;
+    std::auto_ptr< signals::signal_programmer > m_sigalrm;
 
-    metadata(void)
-    {
-    }
+public:
+    timer(const unsigned int);
+    virtual ~timer(void);
 
-    metadata(const test_cases_map& p_test_cases) :
-        test_cases(p_test_cases)
-    {
-    }
+    bool fired(void) const;
+    virtual void timeout_callback(void) = 0;
 };
 
-metadata get_metadata(const atf::fs::path&, const atf::tests::vars_map&);
-atf::process::status run_test_case(const atf::fs::path&,
-                                   const std::string&,
-                                   const std::string&,
-                                   const atf::tests::vars_map&,
-                                   const atf::tests::vars_map&,
-                                   const atf::fs::path&,
-                                   const atf::fs::path&,
-                                   atf::formats::atf_tps_writer&);
+// ------------------------------------------------------------------------
+// The "child_timer" class.
+// ------------------------------------------------------------------------
+
+class child_timer : public timer {
+    const pid_t m_pid;
+
+public:
+    child_timer(const unsigned int, const pid_t);
+    virtual ~child_timer(void);
+
+    void timeout_callback(void);
+};
 
 } // namespace atf_run
 } // namespace atf
+
+#endif // !defined(_ATF_RUN_ALARM_HPP_)

@@ -7,8 +7,6 @@ merged to org.NetBSD.atf.src.
 - Make test case list sort properties alphabetically?  Wrap them on line
   boundaries when printing to terminal?
 
-- Implement timeout control in atf-run.
-
 - Proper cleanup of a test case when ctrl+c from atf-run.
 
 - When running tests/atf/atf-run/t_atf_run manually, it overwrites Atffile.

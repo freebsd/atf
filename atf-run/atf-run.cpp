@@ -241,10 +241,14 @@ atf_run::get_tcr(const atf::process::status& s,
                        std::string(e.what()));
         }
     } else if (s.signaled()) {
-        return tcr(tcr::failed_state,
-                   "Test program received signal " +
-                   atf::text::to_string(s.termsig()) +
-                   (s.coredump() ? " (core dumped)" : ""));
+        try {
+            return tcr::read(resfile);
+        } catch (...) {
+            return tcr(tcr::failed_state,
+                       "Test program received signal " +
+                       atf::text::to_string(s.termsig()) +
+                       (s.coredump() ? " (core dumped)" : ""));
+        }
     } else {
         UNREACHABLE;
         throw std::runtime_error("Unknown exit status");
@@ -307,10 +311,10 @@ atf_run::run_test_program(const atf::fs::path& tp,
                                           "atf-run.XXXXXX");
 
                 const atf::process::status body_status =
-                    impl::run_test_case(tp, tcname, "body", config, resfile,
+                    impl::run_test_case(tp, tcname, "body", tcmd, config, resfile,
                                         workdir.get_path(), w);
                 const atf::process::status cleanup_status =
-                    impl::run_test_case(tp, tcname, "cleanup", config, resfile,
+                    impl::run_test_case(tp, tcname, "cleanup", tcmd, config, resfile,
                                         workdir.get_path(), w);
 
                 // TODO: Force deletion of workdir.

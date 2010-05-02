@@ -374,7 +374,8 @@ TOOL([bin], [atf-report])
 
 TOOL([bin], [atf-run], [atf-run/config.cpp \
                         atf-run/requirements.cpp \
-                        atf-run/test-program.cpp])
+                        atf-run/test-program.cpp \
+                        atf-run/timer.cpp])
 
 # -------------------------------------------------------------------------
 # `atf-sh' directory.
@@ -836,7 +837,8 @@ CXX_TP([atf/atf-run], [h_pass])
 CXX_TP([atf/atf-run], [h_misc])
 CXX_TP([atf/atf-run], [t_config], [atf-run/config.cpp])
 CXX_TP([atf/atf-run], [t_requirements], [atf-run/requirements.cpp])
-CXX_TP([atf/atf-run], [t_test_program], [atf-run/test-program.cpp])
+CXX_TP([atf/atf-run], [t_test_program],
+       [atf-run/test-program.cpp atf-run/timer.cpp])
 SH_TP([atf/atf-run], [t_integration])
 
 atf_atf_sh_DATA = tests/atf/atf-sh/Atffile

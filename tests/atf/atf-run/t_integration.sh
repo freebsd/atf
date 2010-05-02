@@ -862,6 +862,22 @@ require_user_bad_body()
 	"${TESTCASE}, failed, Invalid value.*foobar" so
 }
 
+atf_test_case timeout
+timeout_head()
+{
+    atf_set "descr" "Tests that atf-run kills a test case that times out"
+}
+timeout_body()
+{
+    create_helper timeout
+    create_atffile helper
+
+    atf_check -s eq:1 -o save:stdout -e ignore atf-run -v statedir=$(pwd) helper
+    test -f finished && atf_fail "Test case was not killed after time out"
+    atf_check -s eq:0 -o ignore -e empty grep \
+        "${TESTCASE}, failed, .*timed out after 1 second" stdout
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case config
@@ -892,6 +908,7 @@ atf_init_test_cases()
     atf_add_test_case require_user_root
     atf_add_test_case require_user_unprivileged
     atf_add_test_case require_user_bad
+    atf_add_test_case timeout
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
