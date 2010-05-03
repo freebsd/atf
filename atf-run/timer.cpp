@@ -33,10 +33,10 @@ extern "C" {
 
 #include <cerrno>
 
-#include "atf-run/timer.hpp"
-
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/sanity.hpp"
+
+#include "timer.hpp"
 
 namespace impl = atf::atf_run;
 #define IMPL_NAME "atf::atf_run"

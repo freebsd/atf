@@ -373,9 +373,13 @@ TOOL([bin], [atf-report])
 # -------------------------------------------------------------------------
 
 TOOL([bin], [atf-run], [atf-run/config.cpp \
+                        atf-run/config.hpp \
                         atf-run/requirements.cpp \
+                        atf-run/requirements.hpp \
                         atf-run/test-program.cpp \
-                        atf-run/timer.cpp])
+                        atf-run/test-program.hpp \
+                        atf-run/timer.cpp \
+                        atf-run/timer.hpp])
 
 # -------------------------------------------------------------------------
 # `atf-sh' directory.
