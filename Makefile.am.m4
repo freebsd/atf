@@ -397,7 +397,7 @@ dist_man_MANS += atf-sh/atf-sh-api.3
 # `atf-version' directory.
 # -------------------------------------------------------------------------
 
-TOOL([bin], [atf-version], [admin/revision.h])
+TOOL([bin], [atf-version], [atf-version/revision.h])
 
 BUILT_SOURCES = atf-version/revision.h
 atf-version/revision.h: admin/revision.h $(srcdir)/admin/revision-dist.h
