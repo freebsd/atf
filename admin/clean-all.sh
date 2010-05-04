@@ -84,4 +84,12 @@ find . -name .gdb_history | xargs rm -rf
 find . -name .libs | xargs rm -rf
 find . -name .tmp | xargs rm -rf
 
+# Show remaining files
+if [ -n "${MTN}" ]; then
+    echo ">>> mtn ls unknown"
+    "${MTN}" ls unknown
+    echo ">>> mtn ls ignored"
+    "${MTN}" ls ignored
+fi
+
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
