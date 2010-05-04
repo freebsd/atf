@@ -642,15 +642,20 @@ installcheck-bootstrap: $(srcdir)/tests/bootstrap/testsuite check
 .PHONY: installcheck-atf
 installcheck-atf:
 	logfile=$$(pwd)/installcheck.log; \
+	fifofile=$$(pwd)/installcheck.fifo; \
 	cd $(pkgtestsdir); \
-	$(TESTS_ENVIRONMENT) atf-run | tee $${logfile} | \
-	    $(TESTS_ENVIRONMENT) atf-report; \
+	rm -f $${fifofile}; \
+	mkfifo $${fifofile}; \
+	cat $${fifofile} | tee $${logfile} | $(TESTS_ENVIRONMENT) atf-report & \
+	$(TESTS_ENVIRONMENT) atf-run >>$${fifofile}; \
 	res=$${?}; \
+	wait; \
+	rm $${fifofile}; \
 	echo; \
 	echo "The verbatim output of atf-run has been saved to" \
-	     "installcheck.log"; \
-	exit $${res}
-CLEANFILES += installcheck.log
+	     "installcheck.log; exit was $${res}"; \
+	test $${res} -eq 0
+CLEANFILES += installcheck.fifo installcheck.log
 
 pkgtests_DATA = tests/atf/Atffile
 EXTRA_DIST += $(pkgtests_DATA)

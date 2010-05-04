@@ -161,6 +161,12 @@ then decide.</para></listitem>
 <listitem><para>It looks like atf-c++/signals may be unused.  Review and
 delete as required.</para></listitem>
 
+<listitem><para>The suggested <literal>atf-run | atf-report</literal> does
+not work quite well because most shells lose the exit code of the first
+command in the pipeline.  Therefore, it's not possible to get the result
+of the execution of the test suite.  Find a way around this; maybe implement
+a wrapping tool.</para></listitem>
+
 </itemizedlist>
 
 </section>
