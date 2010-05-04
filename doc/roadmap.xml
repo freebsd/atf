@@ -92,6 +92,11 @@ problems:</para>
 
 <itemizedlist>
 
+<listitem><para>Get rid of the "C object model", e.g.
+<literal>atf_object_t</literal>.  It is completely useless at this point
+and just causes pain.  If we want to catch leaks, let's just use Valgrind
+in a platform where this tool works.</para></listitem>
+
 <listitem><para>Validate test program command line syntax: -r has to be
 invalid when running the cleanup part of a test case.</para></listitem>
 
