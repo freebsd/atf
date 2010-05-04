@@ -20,15 +20,10 @@ How to make a release
 * Sanity-check the resulting .tar.gz file as described in "How to
   sanity-check a distribution file".
 
+* Run 'make release'.  Store the resulting directory in a safe place.
+
 * Tag the release in the repository, using a tag name that matches the
   distfile's base name.  Typically: atf-<major>.<minor>[.<micro>]
-
-* Create a .cksums file with the tarball's checksums.  Put md5, sha1 and
-  sha512 in them.  The first two are provided for convenience and the
-  last one is provided for security.
-
-* Create an .asc file with the tarball's signature made by the release
-  manager.
 
 * Publish the release as described in "How to publish a release".
 
@@ -40,16 +35,6 @@ How to sanity-check a distribution file
   directory.
 
 * Ensure the version number is correct.
-
-* Ensure that the entry at the top of the NEWS document matches the version
-  to be distributed and that its entry is complete.  In special, be aware
-  of typos in it.
-
-* Check that the README file properly documents which tools were used to
-  generate the scripts in the release.  This includes the exact versions
-  of GNU Automake, GNU Autoconf, GNU Libtool and GNU M4.  The reason is
-  that we should be able to regenerate the file at any point in the future
-  and get the exact same results.
 
 * Configure and install the program using a temporary prefix.
 
@@ -63,7 +48,7 @@ How to sanity-check a distribution file
 * Check that building the release outside the source tree (using a build
   directory) works.
 
-* Build a complete release of NetBSD/i386 current, install it and run all
+* Build a complete release of NetBSD/amd64 current, install it and run all
   the tests in it.  Store the output of this run.
 
 * Import the new release into the NetBSD source tree.
@@ -86,8 +71,6 @@ How to publish a release
   ftp://ftp.NetBSD.org/pub/NetBSD/misc/jmmv/atf/<major>.<minor>/
 
 * Announce the new version in the ATF's web page.
-
-* Announce the new version in the ATF's mailing list.
 
 * Announce the new version in the ATF's project page at Freshmeat.net.
 

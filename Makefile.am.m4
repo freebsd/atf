@@ -123,6 +123,10 @@ DISTFILE_DOC([INSTALL], [doc/text/install.txt])
 DISTFILE_DOC([NEWS], [doc/text/news.txt])
 DISTFILE_DOC([README], [doc/text/readme.txt])
 
+.PHONY: release
+release: distcheck
+	$(SH) $(srcdir)/admin/release.sh $(PACKAGE_VERSION) $(DIST_ARCHIVES)
+
 # -------------------------------------------------------------------------
 # `admin' directory.
 # -------------------------------------------------------------------------
