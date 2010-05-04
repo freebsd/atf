@@ -288,6 +288,18 @@ ATF_TC_BODY(fork_stop, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Helper tests for "t_meta_data".
+ * --------------------------------------------------------------------- */
+
+ATF_TC(metadata_no_descr);
+ATF_TC_HEAD(metadata_no_descr, tc)
+{
+}
+ATF_TC_BODY(metadata_no_descr, tc)
+{
+}
+
+/* ---------------------------------------------------------------------
  * Helper tests for "t_srcdir".
  * --------------------------------------------------------------------- */
 
@@ -358,6 +370,9 @@ ATF_TP_ADD_TCS(tp)
 
     /* Add helper tests for t_fork. */
     ATF_TP_ADD_TC(tp, fork_stop);
+
+    /* Add helper tests for t_meta_data. */
+    ATF_TP_ADD_TC(tp, metadata_no_descr);
 
     /* Add helper tests for t_srcdir. */
     ATF_TP_ADD_TC(tp, srcdir_exists);

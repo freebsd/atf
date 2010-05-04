@@ -473,7 +473,6 @@ _atf_parse_head()
 
     atf_set ident "${1}"
     ${1}_head
-    _atf_ensure_not_empty descr
     _atf_ensure_not_empty ident
     test $(atf_get ident) = "${1}" || \
         _atf_error 128 "Test case redefined ident"

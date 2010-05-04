@@ -103,6 +103,18 @@ ATF_TEST_CASE_BODY(fork_stop)
 }
 
 // ------------------------------------------------------------------------
+// Helper tests for "t_meta_data".
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(metadata_no_descr);
+ATF_TEST_CASE_HEAD(metadata_no_descr)
+{
+}
+ATF_TEST_CASE_BODY(metadata_no_descr)
+{
+}
+
+// ------------------------------------------------------------------------
 // Helper tests for "t_srcdir".
 // ------------------------------------------------------------------------
 
@@ -156,6 +168,9 @@ ATF_INIT_TEST_CASES(tcs)
 
     // Add helper tests for t_fork.
     ATF_ADD_TEST_CASE(tcs, fork_stop);
+
+    // Add helper tests for t_meta_data.
+    ATF_ADD_TEST_CASE(tcs, metadata_no_descr);
 
     // Add helper tests for t_srcdir.
     ATF_ADD_TEST_CASE(tcs, srcdir_exists);

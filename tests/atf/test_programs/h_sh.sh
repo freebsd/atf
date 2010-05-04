@@ -191,6 +191,20 @@ fork_stop_body()
 }
 
 # -------------------------------------------------------------------------
+# Helper tests for "t_meta_data".
+# -------------------------------------------------------------------------
+
+atf_test_case metadata_no_descr
+metadata_no_descr_head()
+{
+    :
+}
+metadata_no_descr_body()
+{
+    :
+}
+
+# -------------------------------------------------------------------------
 # Helper tests for "t_srcdir".
 # -------------------------------------------------------------------------
 
@@ -226,6 +240,9 @@ atf_init_test_cases()
 
     # Add helper tests for t_fork.
     atf_add_test_case fork_stop
+
+    # Add helper tests for t_meta_data.
+    atf_add_test_case metadata_no_descr
 
     # Add helper tests for t_srcdir.
     atf_add_test_case srcdir_exists

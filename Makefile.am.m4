@@ -1075,6 +1075,7 @@ CXX_TP([atf/test_programs], [h_cpp], [], [tests/atf/atf-c++/libh.la])
 SH_TP([atf/test_programs], [h_sh])
 SH_TP([atf/test_programs], [t_config], [tests/atf/test_programs/common.sh])
 SH_TP([atf/test_programs], [t_fork], [tests/atf/test_programs/common.sh])
+SH_TP([atf/test_programs], [t_meta_data], [tests/atf/test_programs/common.sh])
 SH_TP([atf/test_programs], [t_srcdir], [tests/atf/test_programs/common.sh])
 SH_TP([atf/test_programs], [t_status], [tests/atf/test_programs/common.sh])
 
