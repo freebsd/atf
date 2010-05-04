@@ -1073,10 +1073,15 @@ EXTRA_DIST += tests/atf/test_programs/common.sh
 C_TP([atf/test_programs], [h_c], [], [tests/atf/atf-c/libh.la])
 CXX_TP([atf/test_programs], [h_cpp], [], [tests/atf/atf-c++/libh.la])
 SH_TP([atf/test_programs], [h_sh])
-SH_TP([atf/test_programs], [t_config], [tests/atf/test_programs/common.sh])
-SH_TP([atf/test_programs], [t_fork], [tests/atf/test_programs/common.sh])
-SH_TP([atf/test_programs], [t_meta_data], [tests/atf/test_programs/common.sh])
-SH_TP([atf/test_programs], [t_srcdir], [tests/atf/test_programs/common.sh])
-SH_TP([atf/test_programs], [t_status], [tests/atf/test_programs/common.sh])
+SH_TP([atf/test_programs], [t_config],
+      [$(srcdir)/tests/atf/test_programs/common.sh])
+SH_TP([atf/test_programs], [t_fork],
+      [$(srcdir)/tests/atf/test_programs/common.sh])
+SH_TP([atf/test_programs], [t_meta_data],
+      [$(srcdir)/tests/atf/test_programs/common.sh])
+SH_TP([atf/test_programs], [t_srcdir],
+      [$(srcdir)/tests/atf/test_programs/common.sh])
+SH_TP([atf/test_programs], [t_status],
+      [$(srcdir)/tests/atf/test_programs/common.sh])
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
