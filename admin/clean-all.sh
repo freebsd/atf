@@ -53,6 +53,7 @@ rm -f bconfig.h.in
 rm -f configure
 rm -f mkinstalldirs
 rm -f atf-*.tar.gz
+rm -rf release-test
 
 # `admin' directory.
 rm -f admin/compile

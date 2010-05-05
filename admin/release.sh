@@ -35,7 +35,7 @@
 set -e
 
 : ${GPG:=gpg}
-: ${SHA1:=digest sha1}
+: ${SHA1:=sha1}
 
 Prog_Name=${0##*/}
 
