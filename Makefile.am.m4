@@ -55,13 +55,14 @@ m4_define([INIT_VAR], [DO_ONCE($1, [$1 =])])
 CLEANFILES =
 EXTRA_DIST =
 
-# TOOL dir basename extradeps
+# TOOL dir basename extradeps nodist_extradeps
 #
 # Builds a binary tool named 'basename' and to be installed in 'dir'.
 m4_define([TOOL], [
 INIT_VAR([$1_PROGRAMS])
 $1_PROGRAMS += $2/$2
 AUTOMAKE_ID([$2/$2])_SOURCES = $2/$2.cpp $3
+nodist_[]AUTOMAKE_ID([$2/$2])_SOURCES = $4
 AUTOMAKE_ID([$2/$2])_LDADD = libatf-c++.la
 dist_man_MANS += $2/$2.1
 ])
@@ -405,7 +406,7 @@ dist_man_MANS += atf-sh/atf-sh-api.3
 # `atf-version' directory.
 # -------------------------------------------------------------------------
 
-TOOL([bin], [atf-version], [atf-version/revision.h])
+TOOL([bin], [atf-version], [], [atf-version/revision.h])
 
 BUILT_SOURCES = atf-version/revision.h
 atf-version/revision.h: admin/revision.h $(srcdir)/admin/revision-dist.h
