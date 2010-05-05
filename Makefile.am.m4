@@ -131,6 +131,11 @@ clean-all:
 release: distcheck
 	$(SH) $(srcdir)/admin/release.sh $(PACKAGE_VERSION) $(DIST_ARCHIVES)
 
+.PHONY: release-test
+release-test:
+	XML_CATALOG_FILE="$(XML_CATALOG_FILE)" $(SH) \
+		$(srcdir)/admin/release-test.sh $(DIST_ARCHIVES)
+
 # -------------------------------------------------------------------------
 # `admin' directory.
 # -------------------------------------------------------------------------
