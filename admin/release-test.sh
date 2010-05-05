@@ -160,7 +160,7 @@ main() {
     for make in make gmake; do
         for parallelism in 1 2; do
             local logfile
-            
+
             count=$((count + 1))
             logfile="${logdir}/${count}.log"
             one_test "${logfile}" "${distpath}" "${make}" "${parallelism}" \
