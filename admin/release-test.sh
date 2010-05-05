@@ -74,6 +74,19 @@ run_test() {
         ${make} || return 1
     fi
     ${make} install || return 1
+
+    $(pwd)/local/bin/atf-version >version.txt || return 1
+    if grep 'locally modified' version.txt >/dev/null; then
+        echo "ERROR: atf-version reports modified sources"
+        return 1
+    fi
+    if grep 'data cached' version.txt >/dev/null; then
+        :
+    else
+        echo "ERROR: atf-version does not report cached data"
+        return 1
+    fi
+
     ${make} installcheck || return 1
     sudo ${make} installcheck || return 1
     sudo rm installcheck.*
@@ -92,11 +105,12 @@ run_test() {
 one_test() {
     local logfile="${1}"; shift
 
-    info "Test: ${*}; log is ${logfile##*/})"
+    info "Test: ${*}; log is ${logfile##*/}"
     if run_test "${@}" >"${logfile}" 2>&1; then
-        :
+        true
     else
-        err "Release test failed: ${*}"
+        info "Release test failed: ${*}"
+        false
     fi
 }
 
@@ -115,6 +129,9 @@ require_package() {
 # validate_sudo
 #
 validate_sudo() {
+    info "Refreshing sudo credentials; enter your password if needed"
+    sudo -v
+
     info "Validating sudo settings"
 
     local line="$(sudo -l | grep timestamp_timeout)"
@@ -150,12 +167,14 @@ main() {
 
     local logdir="$(pwd)/release-test"
     mkdir -p "${logdir}"
+    info "Saving log files in ${logdir}"
 
     local dir="$(mktemp -d /tmp/atf.XXXXXX)"
     trap "rm -rf '${dir}'" HUP INT QUIT TERM
     cd "${dir}"
 
     local count=0
+    local failed=no
     local make=
     for make in make gmake; do
         for parallelism in 1 2; do
@@ -165,20 +184,25 @@ main() {
             logfile="${logdir}/${count}.log"
             one_test "${logfile}" "${distpath}" "${make}" "${parallelism}" \
                 ATF_SHELL=/bin/sh \
-                --disable-doc-build
+                --disable-doc-build || failed=yes
 
             count=$((count + 1))
             logfile="${logdir}/${count}.log"
             one_test "${logfile}" "${distpath}" "${make}" "${parallelism}" \
                 ATF_SHELL=/bin/sh \
                 XML_CATALOG_FILE="${XML_CATALOG_FILE}" \
-                --enable-doc-build
+                --enable-doc-build || failed=yes
         done
     done
 
     rm -rf "${dir}"
 
-    info "Successful release-test"
+    if [ "${failed}" = yes ]; then
+        err "Some tests failed; please investigate the logs"
+    else
+        info "Successful release-test"
+        true
+    fi
 }
 
 main "${@}"
