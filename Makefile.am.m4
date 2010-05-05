@@ -168,14 +168,19 @@ EXTRA_DIST += admin/check-install.sh \
 m4_define([REVISION_FILE], [
 .PHONY: admin/revision.$1
 admin/revision.$1:
+	test -d admin || mkdir -p admin
 	@$(top_srcdir)/admin/generate-revision.sh \
 	    -f $1 -m "$(MTN)" -r $(top_srcdir) -o admin/revision.$1 \
 	    -v $(PACKAGE_VERSION)
+INIT_VAR([BUILT_SOURCES])
+BUILT_SOURCES += admin/revision.$1
 CLEANFILES += admin/revision.$1
 
 $(srcdir)/admin/revision-dist.$1: admin/revision.$1
 	@$(top_srcdir)/admin/generate-revision-dist.sh \
 	    -f $1 -i admin/revision.$1 -o $(srcdir)/admin/revision-dist.$1
+INIT_VAR([BUILT_SOURCES])
+BUILT_SOURCES += $(srcdir)/admin/revision-dist.$1
 EXTRA_DIST += admin/revision-dist.$1
 ])
 
@@ -413,7 +418,8 @@ dist_man_MANS += atf-sh/atf-sh-api.3
 
 TOOL([bin], [atf-version], [], [atf-version/revision.h])
 
-BUILT_SOURCES = atf-version/revision.h
+INIT_VAR([BUILT_SOURCES])
+BUILT_SOURCES += atf-version/revision.h
 atf-version/revision.h: admin/revision.h $(srcdir)/admin/revision-dist.h
 	@$(top_srcdir)/admin/choose-revision.sh \
 	    admin/revision.h $(srcdir)/admin/revision-dist.h \
