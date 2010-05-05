@@ -42,6 +42,7 @@ extern "C" {
 
 #include "atf-c++/formats.hpp"
 #include "atf-c++/parser.hpp"
+#include "atf-c++/user.hpp"
 
 #include "h_lib.hpp"
 
@@ -303,7 +304,12 @@ ATF_TEST_CASE_BODY(tcr_write_create_file_error)
     ATF_CHECK(::chmod("tcr.txt", 0) != -1);
 
     tcr result(tcr::passed_state);
-    ATF_CHECK_THROW(result.write(atf::fs::path("tcr.txt")), std::runtime_error);
+    if (atf::user::is_root()) {
+        result.write(atf::fs::path("tcr.txt"));
+    } else {
+        ATF_CHECK_THROW(result.write(atf::fs::path("tcr.txt")),
+                        std::runtime_error);
+    }
 }
 
 // ------------------------------------------------------------------------
