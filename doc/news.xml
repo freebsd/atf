@@ -20,7 +20,7 @@
 
 <title>Changes in version 0.8</title>
 
-<para>STILL UNDER DEVELOPMENT; NOT RELEASED YET</para>
+<para>Experimental version released on May 7th, 2010.</para>
 
 <itemizedlist>
 
@@ -67,6 +67,10 @@ themselves.</para></listitem>
 
 <listitem><para>Removed the atf-exec tool.  This was used to implement test
 case isolation in atf-sh, but it is now unnecessary.</para></listitem>
+
+<listitem><para>It is now optional to define the <literal>descr</literal>
+meta-data property.  It has been proven to be mostly useless, because test
+cases often carry a descriptive name of their own.</para></listitem>
 
 </itemizedlist>
 

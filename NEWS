@@ -22,7 +22,7 @@
 
                              Changes in version 0.8
 
-   STILL UNDER DEVELOPMENT; NOT RELEASED YET
+   Experimental version released on May 7th, 2010.
 
      * Test programs no longer run several test cases in a row. The execution
        of a test program now requires a test case name, and that single test
@@ -64,6 +64,10 @@
 
      * Removed the atf-exec tool. This was used to implement test case
        isolation in atf-sh, but it is now unnecessary.
+
+     * It is now optional to define the descr meta-data property. It has been
+       proven to be mostly useless, because test cases often carry a
+       descriptive name of their own.
 
                              Changes in version 0.7
 
