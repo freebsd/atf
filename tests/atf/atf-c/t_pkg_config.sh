@@ -27,7 +27,7 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# The following tests assume that the atf.pc file is installed in a
+# The following tests assume that the atf-c.pc file is installed in a
 # directory that is known by pkg-config.  Otherwise they will fail,
 # and you will be required to adjust PKG_CONFIG_PATH accordingly.
 #
@@ -55,27 +55,27 @@ check_version()
     atf_check_equal ${ver1} ${ver2}
 }
 
-atf_test_case c_version
-c_version_head()
+atf_test_case version
+version_head()
 {
     atf_set "descr" "Checks that the version in atf-c is correct"
     atf_set "require.progs" "pkg-config"
 }
-c_version_body()
+version_body()
 {
     require_pc "atf-c"
 
     check_version "atf-c"
 }
 
-atf_test_case c_build
-c_build_head()
+atf_test_case build
+build_head()
 {
     atf_set "descr" "Checks that a test program can be built against" \
                     "the C library based on the pkg-config information"
     atf_set "require.progs" "pkg-config"
 }
-c_build_body()
+build_body()
 {
     require_pc "atf-c"
 
@@ -141,98 +141,10 @@ EOF
     atf_check -s eq:0 -o ignore -e empty grep 'Running' stdout
 }
 
-atf_test_case cxx_version
-cxx_version_head()
-{
-    atf_set "descr" "Checks that the version in atf-c++ is correct"
-    atf_set "require.progs" "pkg-config"
-}
-cxx_version_body()
-{
-    require_pc "atf-c++"
-
-    check_version "atf-c++"
-}
-
-atf_test_case cxx_build
-cxx_build_head()
-{
-    atf_set "descr" "Checks that a test program can be built against" \
-                    "the C++ library based on the pkg-config information"
-    atf_set "require.progs" "pkg-config"
-}
-cxx_build_body()
-{
-    require_pc "atf-c++"
-
-    atf_check -s eq:0 -o save:stdout -e empty \
-              pkg-config --variable=cxx atf-c++
-    cxx=$(cat stdout)
-    echo "Compiler is: ${cxx}"
-    atf_require_prog ${cxx}
-
-    cat >tp.cpp <<EOF
-#include <iostream>
-
-#include <atf-c++.hpp>
-
-ATF_TEST_CASE(tc);
-ATF_TEST_CASE_HEAD(tc) {
-    set_md_var("descr", "A test case");
-}
-ATF_TEST_CASE_BODY(tc) {
-    std::cout << "Running" << std::endl;
-}
-
-ATF_INIT_TEST_CASES(tcs) {
-    ATF_ADD_TEST_CASE(tcs, tc);
-}
-EOF
-
-    atf_check -s eq:0 -o save:stdout -e empty pkg-config --cflags atf-c++
-    cxxflags=$(cat stdout)
-    echo "CXXFLAGS are: ${cxxflags}"
-
-    atf_check -s eq:0 -o save:stdout -e empty \
-        pkg-config --libs-only-L --libs-only-other atf-c++
-    ldflags=$(cat stdout)
-    atf_check -s eq:0 -o save:stdout -e empty \
-              pkg-config --libs-only-l atf-c++
-    libs=$(cat stdout)
-    echo "LDFLAGS are: ${ldflags}"
-    echo "LIBS are: ${libs}"
-
-    atf_check -s eq:0 -o empty -e empty ${cxx} ${cxxflags} -o tp.o -c tp.cpp
-    atf_check -s eq:0 -o empty -e empty ${cxx} ${ldflags} -o tp tp.o ${libs}
-
-    libpath=
-    for f in ${ldflags}; do
-        case ${f} in
-            -L*)
-                dir=$(echo ${f} | sed -e 's,^-L,,')
-                if [ -z "${libpath}" ]; then
-                    libpath="${dir}"
-                else
-                    libpath="${libpath}:${dir}"
-                fi
-                ;;
-            *)
-                ;;
-        esac
-    done
-
-    atf_check -s eq:0 -o empty -e empty test -x tp
-    atf_check -s eq:0 -o save:stdout -e empty -x \
-              "LD_LIBRARY_PATH=${libpath} ./tp tc"
-    atf_check -s eq:0 -o ignore -e empty grep 'Running' stdout
-}
-
 atf_init_test_cases()
 {
-    atf_add_test_case c_version
-    atf_add_test_case c_build
-    atf_add_test_case cxx_version
-    atf_add_test_case cxx_build
+    atf_add_test_case version
+    atf_add_test_case build
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
