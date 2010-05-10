@@ -1,7 +1,7 @@
 <!--
   ++ Automated Testing Framework (atf)
   ++
-  ++ Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+  ++ Copyright (c) 2007, 2008, 2010 The NetBSD Foundation, Inc.
   ++ All rights reserved.
   ++
   ++ Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,8 @@
   ++ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
   ++ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
+
+<!-- TODO(1.0): Set the version of the DTD to 1.0 -->
 
 <!--
   ++ PUBLIC: -//NetBSD//DTD ATF Tests Results 0.1//EN

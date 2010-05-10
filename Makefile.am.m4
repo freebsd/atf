@@ -527,7 +527,6 @@ XML_DOC([copying])
 XML_DOC([install])
 XML_DOC([news])
 XML_DOC([readme])
-XML_DOC([roadmap])
 XML_DOC([specification])
 
 # -------------------------------------------------------------------------

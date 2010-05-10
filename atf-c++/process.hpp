@@ -223,6 +223,8 @@ public:
 // Free functions.
 // ------------------------------------------------------------------------
 
+// TODO: The void* cookie can probably be templatized, thus also allowing
+// const data structures.
 template< class OutStream, class ErrStream >
 child
 fork(void (*start)(void*), const OutStream& outsb,

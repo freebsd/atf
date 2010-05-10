@@ -52,6 +52,9 @@ dnl This is just a hack to reverse the meaning of the --enable-shared
 dnl flag provided by libtool.  We want it to default to building static
 dnl libraries only for now, but these are painful during development.
 dnl It is nice to have an easy way to enable shared library builds.
+dnl
+dnl TODO(1.0): Enable shared libraries by default, and fix their
+dnl -version-info.
 AC_ARG_ENABLE(unstable-shared,
     AS_HELP_STRING([--enable-unstable-shared],
         [Enables the build of shared libraries with unstable ABIs/APIs]),
