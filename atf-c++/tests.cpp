@@ -51,7 +51,6 @@ extern "C" {
 
 extern "C" {
 #include "atf-c/error.h"
-#include "atf-c/object.h"
 }
 
 #include "atf-c++/application.hpp"
@@ -388,21 +387,18 @@ impl::tc::require_prog(const std::string& prog)
 void
 impl::tc::pass(void)
 {
-    atf_reset_exit_checks();
     atf_tc_pass();
 }
 
 void
 impl::tc::fail(const std::string& reason)
 {
-    atf_reset_exit_checks();
     atf_tc_fail("%s", reason.c_str());
 }
 
 void
 impl::tc::skip(const std::string& reason)
 {
-    atf_reset_exit_checks();
     atf_tc_skip("%s", reason.c_str());
 }
 

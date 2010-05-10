@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
+ * Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -508,8 +508,6 @@ atf_fs_path_init_ap(atf_fs_path_t *p, const char *fmt, va_list ap)
     atf_error_t err;
     va_list ap2;
 
-    atf_object_init(&p->m_object);
-
     va_copy(ap2, ap);
     err = normalize_ap(&p->m_data, fmt, ap2);
     va_end(ap2);
@@ -533,8 +531,6 @@ atf_fs_path_init_fmt(atf_fs_path_t *p, const char *fmt, ...)
 atf_error_t
 atf_fs_path_copy(atf_fs_path_t *dest, const atf_fs_path_t *src)
 {
-    atf_object_copy(&dest->m_object, &src->m_object);
-
     return atf_dynstr_copy(&dest->m_data, &src->m_data);
 }
 
@@ -542,8 +538,6 @@ void
 atf_fs_path_fini(atf_fs_path_t *p)
 {
     atf_dynstr_fini(&p->m_data);
-
-    atf_object_fini(&p->m_object);
 }
 
 /*
@@ -560,10 +554,8 @@ atf_fs_path_branch_path(const atf_fs_path_t *p, atf_fs_path_t *bp)
         err = atf_fs_path_init_fmt(bp, ".");
     else if (endpos == 0)
         err = atf_fs_path_init_fmt(bp, "/");
-    else {
-        atf_object_init(&bp->m_object);
+    else
         err = atf_dynstr_init_substr(&bp->m_data, &p->m_data, 0, endpos);
-    }
 
 #if defined(HAVE_CONST_DIRNAME)
     INV(atf_equal_dynstr_cstring(&bp->m_data,
@@ -736,17 +728,12 @@ atf_fs_stat_init(atf_fs_stat_t *st, const atf_fs_path_t *p)
         }
     }
 
-    if (!atf_is_error(err))
-        atf_object_init(&st->m_object);
-
     return err;
 }
 
 void
 atf_fs_stat_copy(atf_fs_stat_t *dest, const atf_fs_stat_t *src)
 {
-    atf_object_copy(&dest->m_object, &src->m_object);
-
     dest->m_type = src->m_type;
     dest->m_sb = src->m_sb;
 }
@@ -754,7 +741,6 @@ atf_fs_stat_copy(atf_fs_stat_t *dest, const atf_fs_stat_t *src)
 void
 atf_fs_stat_fini(atf_fs_stat_t *st)
 {
-    atf_object_fini(&st->m_object);
 }
 
 /*

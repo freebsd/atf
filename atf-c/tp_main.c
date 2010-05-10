@@ -41,7 +41,6 @@
 #include "atf-c/dynstr.h"
 #include "atf-c/error.h"
 #include "atf-c/fs.h"
-#include "atf-c/object.h"
 #include "atf-c/map.h"
 #include "atf-c/sanity.h"
 #include "atf-c/tc.h"
@@ -576,8 +575,6 @@ atf_tp_main(int argc, char **argv, atf_error_t (*add_tcs_hook)(atf_tp_t *))
 {
     atf_error_t err;
     int exitcode;
-
-    atf_init_objects();
 
     progname = strrchr(argv[0], '/');
     if (progname == NULL)

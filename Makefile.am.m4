@@ -213,8 +213,6 @@ libatf_c_la_SOURCES = atf-c/build.c \
                       atf-c/macros.h \
                       atf-c/map.c \
                       atf-c/map.h \
-                      atf-c/object.c \
-                      atf-c/object.h \
                       atf-c/process.c \
                       atf-c/process.h \
                       atf-c/sanity.c \
@@ -255,7 +253,6 @@ atf_c_HEADERS = atf-c/build.h \
                 atf-c/list.h \
                 atf-c/macros.h \
                 atf-c/map.h \
-                atf-c/object.h \
                 atf-c/process.h \
                 atf-c/sanity.h \
                 atf-c/tc.h \
@@ -685,7 +682,6 @@ atf_atf_c_DATA = tests/atf/atf-c/Atffile \
                  tests/atf/atf-c/d_include_list_h.c \
                  tests/atf/atf-c/d_include_macros_h.c \
                  tests/atf/atf-c/d_include_map_h.c \
-                 tests/atf/atf-c/d_include_object_h.c \
                  tests/atf/atf-c/d_include_process_h.c \
                  tests/atf/atf-c/d_include_sanity_h.c \
                  tests/atf/atf-c/d_include_tc_h.c \
