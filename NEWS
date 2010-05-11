@@ -6,21 +6,34 @@
 
     1. Changes in version 0.9
 
-    2. Changes in version 0.8
+    2. Changes in version 0.9
 
-    3. Changes in version 0.7
+    3. Changes in version 0.8
 
-    4. Changes in version 0.6
+    4. Changes in version 0.7
 
-    5. Changes in version 0.5
+    5. Changes in version 0.6
 
-    6. Changes in version 0.4
+    6. Changes in version 0.5
 
-    7. Changes in version 0.3
+    7. Changes in version 0.4
 
-    8. Changes in version 0.2
+    8. Changes in version 0.3
 
-    9. Changes in version 0.1
+    9. Changes in version 0.2
+
+   10. Changes in version 0.1
+
+                             Changes in version 0.9
+
+   STILL UNDER DEVELOPMENT; NOT RELEASED YET
+
+     * Added atf-sh, an interpreter to process test programs written using
+       the shell API. This is not really a shell interpreter by itself
+       though: it is just a wrapper around the system shell that eases the
+       loading of the necessary ATF libraries.
+
+     * Removed atf-compile in favour of atf-sh.
 
                              Changes in version 0.9
 

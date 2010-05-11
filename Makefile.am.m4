@@ -100,10 +100,6 @@ AM_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
               "-DATF_SHELL=\"$(ATF_SHELL)\"" \
               "-DATF_WORKDIR=\"$(ATF_WORKDIR)\""
 
-ATF_COMPILE_DEPS = $(srcdir)/atf-sh/atf.init.subr
-ATF_COMPILE_DEPS += atf-compile/atf-host-compile
-ATF_COMPILE_SH = ./atf-compile/atf-host-compile
-
 # DISTFILE_DOC name src
 #
 # Generates a rule to generate the prebuilt copy of the top-level document
@@ -381,23 +377,6 @@ TOOL([bin], [atf-config])
 TOOL([libexec], [atf-cleanup])
 
 # -------------------------------------------------------------------------
-# `atf-compile' directory.
-# -------------------------------------------------------------------------
-
-TOOL([bin], [atf-compile])
-
-atf-compile/atf-host-compile: $(srcdir)/atf-compile/atf-host-compile.sh
-	sed -e 's,__ATF_PKGDATADIR__,$(srcdir)/atf-sh,g' \
-	    -e 's,__ATF_SHELL__,$(ATF_SHELL),g' \
-	    <$(srcdir)/atf-compile/atf-host-compile.sh \
-	    >atf-compile/atf-host-compile.tmp
-	chmod +x atf-compile/atf-host-compile.tmp
-	mv atf-compile/atf-host-compile.tmp atf-compile/atf-host-compile
-CLEANFILES += atf-compile/atf-host-compile
-CLEANFILES += atf-compile/atf-host-compile.tmp
-EXTRA_DIST += atf-compile/atf-host-compile.sh
-
-# -------------------------------------------------------------------------
 # `atf-format' directory.
 # -------------------------------------------------------------------------
 
@@ -438,9 +417,10 @@ TOOL([bin], [atf-run], [atf-run/config.cpp \
 # `atf-sh' directory.
 # -------------------------------------------------------------------------
 
+TOOL([bin], [atf-sh])
+
 atf_sh_DATA = atf-sh/atf.footer.subr \
-              atf-sh/atf.header.subr \
-              atf-sh/atf.init.subr
+              atf-sh/atf.header.subr
 atf_shdir = $(pkgdatadir)
 EXTRA_DIST += $(atf_sh_DATA)
 
@@ -536,6 +516,14 @@ ACLOCAL_AMFLAGS = -I m4
 # `tests/bootstrap' directory.
 # -------------------------------------------------------------------------
 
+# BUILD_SH_TP infile outfile
+#
+# Commands to build a test program using atf-sh.
+m4_define([BUILD_SH_TP], [echo '#! $(bindir)/atf-sh' >$2
+	cat $1 >>$2
+	chmod +x $2
+])
+
 check_PROGRAMS = tests/bootstrap/h_app_empty
 tests_bootstrap_h_app_empty_SOURCES = tests/bootstrap/h_app_empty.cpp
 tests_bootstrap_h_app_empty_LDADD = libatf-c++.la
@@ -555,37 +543,31 @@ tests_bootstrap_h_tp_basic_cpp_LDADD = libatf-c++.la
 check_SCRIPTS = tests/bootstrap/h_tp_basic_sh
 CLEANFILES += tests/bootstrap/h_tp_basic_sh
 EXTRA_DIST += tests/bootstrap/h_tp_basic_sh.sh
-tests/bootstrap/h_tp_basic_sh: $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh \
-                               $(ATF_COMPILE_DEPS)
+tests/bootstrap/h_tp_basic_sh: $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh
 	test -d tests/bootstrap || mkdir -p tests/bootstrap
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh
+	BUILD_SH_TP([$(srcdir)/tests/bootstrap/h_tp_basic_sh.sh], [$@])
 
 check_SCRIPTS += tests/bootstrap/h_tp_atf_check_sh
 CLEANFILES += tests/bootstrap/h_tp_atf_check_sh
 EXTRA_DIST += tests/bootstrap/h_tp_atf_check_sh.sh
 tests/bootstrap/h_tp_atf_check_sh: \
-		$(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh \
-		$(ATF_COMPILE_DEPS)
+		$(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh
 	test -d tests/bootstrap || mkdir -p tests/bootstrap
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh
+	BUILD_SH_TP([$(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh], [$@])
 
 check_SCRIPTS += tests/bootstrap/h_tp_fail
 CLEANFILES += tests/bootstrap/h_tp_fail
 EXTRA_DIST += tests/bootstrap/h_tp_fail.sh
-tests/bootstrap/h_tp_fail: \
-		$(srcdir)/tests/bootstrap/h_tp_fail.sh \
-		$(ATF_COMPILE_DEPS)
+tests/bootstrap/h_tp_fail: $(srcdir)/tests/bootstrap/h_tp_fail.sh
 	test -d tests/bootstrap || mkdir -p tests/bootstrap
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_fail.sh
+	BUILD_SH_TP([$(srcdir)/tests/bootstrap/h_tp_fail.sh], [$@])
 
 check_SCRIPTS += tests/bootstrap/h_tp_pass
 CLEANFILES += tests/bootstrap/h_tp_pass
 EXTRA_DIST += tests/bootstrap/h_tp_pass.sh
-tests/bootstrap/h_tp_pass: \
-		$(srcdir)/tests/bootstrap/h_tp_pass.sh \
-		$(ATF_COMPILE_DEPS)
+tests/bootstrap/h_tp_pass: $(srcdir)/tests/bootstrap/h_tp_pass.sh
 	test -d tests/bootstrap || mkdir -p tests/bootstrap
-	$(ATF_COMPILE_SH) -o $@ $(srcdir)/tests/bootstrap/h_tp_pass.sh
+	BUILD_SH_TP([$(srcdir)/tests/bootstrap/h_tp_pass.sh], [$@])
 
 DISTCLEANFILES = \
 		tests/bootstrap/atconfig \
@@ -711,7 +693,7 @@ tests_[]AUTOMAKE_ID([$1_$2])_LDADD = $4 libatf-c.la
 
 # CXX_TP subdir progname extradeps extralibs
 #
-# Generates rules to build a C test program.  The 'subdir' is relative to
+# Generates rules to build a C++ test program.  The 'subdir' is relative to
 # tests/ and progname is the source file name without .c.
 m4_define([CXX_TP], [
 INIT_VAR(AUTOMAKE_ID([$1])_PROGRAMS)
@@ -722,16 +704,16 @@ tests_[]AUTOMAKE_ID([$1_$2])_LDADD = $4 libatf-c++.la
 
 # SH_TP subdir progname extradeps
 #
-# Generates rules to build a C test program.  The 'subdir' is relative to
+# Generates rules to build a shell test program.  The 'subdir' is relative to
 # tests/ and progname is the source file name without .c.
 m4_define([SH_TP], [
 INIT_VAR(AUTOMAKE_ID([$1])_SCRIPTS)
 AUTOMAKE_ID([$1])_SCRIPTS += tests/$1/$2
 CLEANFILES += tests/$1/$2
 EXTRA_DIST += tests/$1/$2.sh
-tests/$1/$2: $(srcdir)/tests/$1/$2.sh $3 $(ATF_COMPILE_DEPS)
+tests/$1/$2: $(srcdir)/tests/$1/$2.sh $3
 	test -d tests/$1 || mkdir -p tests/$1
-	$(ATF_COMPILE_SH) -o tests/$1/$2 $(srcdir)/tests/$1/$2.sh $3
+	BUILD_SH_TP([$(srcdir)/tests/$1/$2.sh $3], [tests/$1/$2])
 ])
 
 C_TP([atf/atf-c], [t_atf_c], [], [tests/atf/atf-c/libh.la])
@@ -829,13 +811,6 @@ EXTRA_DIST += $(atf_atf_cleanup_DATA)
 
 SH_TP([atf/atf-cleanup], [t_integration])
 
-atf_atf_compile_DATA = tests/atf/atf-compile/Atffile
-atf_atf_compiledir = $(pkgtestsdir)/atf-compile
-EXTRA_DIST += $(atf_atf_compile_DATA)
-
-CXX_TP([atf/atf-compile], [h_mode])
-SH_TP([atf/atf-compile], [t_integration])
-
 atf_atf_config_DATA = tests/atf/atf-config/Atffile
 atf_atf_configdir = $(pkgtestsdir)/atf-config
 EXTRA_DIST += $(atf_atf_config_DATA)
@@ -874,6 +849,7 @@ EXTRA_DIST += $(atf_atf_sh_DATA)
 SH_TP([atf/atf-sh], [h_misc])
 SH_TP([atf/atf-sh], [t_atf_check])
 SH_TP([atf/atf-sh], [t_config])
+SH_TP([atf/atf-sh], [t_integration])
 SH_TP([atf/atf-sh], [t_normalize])
 SH_TP([atf/atf-sh], [t_tc])
 SH_TP([atf/atf-sh], [t_tp])

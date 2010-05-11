@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+# Copyright (c) 2010 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,53 +27,68 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-#
-# File: atf.init.subr
-#
-#   Initialization for a test program.  A verbatim copy of this file is
-#   stuck at the very beginning of each test program, so it has to be
-#   kept as simple as possible to minimize the possible need of rebuilding
-#   a huge amount of test programs, which could happen after modifying
-#   this file.
-#
-
-Prog_Name=${0##*/}
-
-#
-# _atf_find_in_path program
-#
-#   Looks for a program in the path and prints the full path to it or
-#   nothing if it could not be found.  It also returns true in case of
-#   success.
-#
-_atf_find_in_path()
-{
-    _prog="${1}"
-
-    _oldifs=${IFS}
-    IFS=:
-    for _dir in ${PATH}
-    do
-        if [ -x ${_dir}/${_prog} ]; then
-            IFS=${_oldifs}
-            echo ${_dir}/${_prog}
-            return 0
-        fi
-    done
-    IFS=${_oldifs}
-
-    return 1
+create_test_program() {
+    echo '#! /usr/bin/env atf-sh' >"${1}"
+    cat >>"${1}"
+    chmod +x "${1}"
 }
 
-#
-# Look for atf-config to deduce where the atf.*.subr files are stored
-# in the system.
-#
-Atf_Config=`_atf_find_in_path atf-config`
-if [ -z "${Atf_Config}" ]; then
-    echo "${Prog_Name}: ERROR: Cannot locate atf-config in PATH" 1>&2
-    exit 128
-fi
-Atf_Pkgdatadir=`${Atf_Config} -t atf_pkgdatadir`
+atf_test_case no_args
+no_args_head() { true; }
+no_args_body()
+{
+    cat >experr <<EOF
+atf-sh: ERROR: No test program provided
+atf-sh: Type \`atf-sh -h' for more details.
+EOF
+    atf_check -s eq:1 -o ignore -e file:experr atf-sh
+}
+
+atf_test_case missing_script
+missing_script_head() { true; }
+missing_script_body()
+{
+    cat >experr <<EOF
+atf-sh: ERROR: The test program 'non-existent' does not exist
+EOF
+    atf_check -s eq:1 -o ignore -e file:experr atf-sh non-existent
+}
+
+atf_test_case arguments
+arguments_head() { true; }
+arguments_body()
+{
+    create_test_program tp <<EOF
+main() {
+    echo ">>>\${0}<<<"
+    while test \${#} -gt 0; do
+        echo ">>>\${1}<<<"
+        shift
+    done
+    true
+}
+EOF
+
+    cat >expout <<EOF
+>>>./tp<<<
+>>> a b <<<
+>>>foo<<<
+EOF
+    atf_check -s eq:0 -o file:expout -e empty ./tp ' a b ' foo
+
+    cat >expout <<EOF
+>>>tp<<<
+>>> hello bye <<<
+>>>foo bar<<<
+EOF
+    atf_check -s eq:0 -o file:expout -e empty atf-sh tp ' hello bye ' 'foo bar'
+}
+
+atf_init_test_cases()
+{
+    atf_add_test_case no_args
+    atf_add_test_case missing_script
+    atf_add_test_case arguments
+}
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

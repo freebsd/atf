@@ -16,6 +16,25 @@
   </author>
 </articleinfo>
 
+<section id="atf-0-9">
+
+<title>Changes in version 0.9</title>
+
+<para>STILL UNDER DEVELOPMENT; NOT RELEASED YET</para>
+
+<itemizedlist>
+
+<listitem><para>Added atf-sh, an interpreter to process test programs
+written using the shell API.  This is not really a shell interpreter by
+itself though: it is just a wrapper around the system shell that eases
+the loading of the necessary ATF libraries.</para></listitem>
+
+<listitem><para>Removed atf-compile in favour of atf-sh.</para></listitem>
+
+</itemizedlist>
+
+</section>
+
 <section id="atf-0-8">
 
 <title>Changes in version 0.9</title>

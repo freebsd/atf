@@ -374,6 +374,32 @@ _atf_error()
 }
 
 #
+# _atf_find_in_path program
+#
+#   Looks for a program in the path and prints the full path to it or
+#   nothing if it could not be found.  It also returns true in case of
+#   success.
+#
+_atf_find_in_path()
+{
+    _prog="${1}"
+
+    _oldifs=${IFS}
+    IFS=:
+    for _dir in ${PATH}
+    do
+        if [ -x ${_dir}/${_prog} ]; then
+            IFS=${_oldifs}
+            echo ${_dir}/${_prog}
+            return 0
+        fi
+    done
+    IFS=${_oldifs}
+
+    return 1
+}
+
+#
 # _atf_has_tc name
 #
 #   Returns true if the given test case exists.

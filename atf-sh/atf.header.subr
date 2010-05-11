@@ -42,6 +42,9 @@
 # The list of all test cases defined by the test program.
 Defined_Test_Cases=
 
+# The program name.
+Prog_Name=${0##*/}
+
 # ------------------------------------------------------------------------
 # PUBLIC INTERFACE
 # ------------------------------------------------------------------------
