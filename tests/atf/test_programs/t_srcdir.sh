@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2010 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -48,9 +48,8 @@ default_body()
         cp ${hp} tmp
         atf_check -s eq:0 -o ignore -e ignore -x \
                   "cd tmp && ./${h} srcdir_exists"
-        atf_check -s eq:1 -o empty -e save:stderr "${hp}" srcdir_exists
-        atf_check -s eq:0 -o ignore -e empty \
-                  grep "Cannot.*find.*source.*directory" stderr
+        atf_check -s eq:1 -o empty -e empty "${hp}" -r res srcdir_exists
+        atf_check -s eq:0 -o ignore -e empty grep "Cannot find datafile" res
     done
 }
 
@@ -70,9 +69,8 @@ sflag_body()
         atf_check -s eq:0 -o ignore -e ignore -x \
                   "cd tmp && ./${h} -s $(pwd)/tmp \
                    srcdir_exists"
-        atf_check -s eq:1 -o empty -e save:stderr "${hp}" srcdir_exists
-        atf_check -s eq:0 -o ignore -e empty \
-                  grep "Cannot.*find.*source.*directory" stderr
+        atf_check -s eq:1 -o empty -e save:stderr "${hp}" -r res srcdir_exists
+        atf_check -s eq:0 -o ignore -e empty grep "Cannot find datafile" res
         atf_check -s eq:0 -o ignore -e ignore \
                   "${hp}" -s "$(pwd)"/tmp srcdir_exists
     done
@@ -98,9 +96,9 @@ relative_body()
 
             atf_check -s eq:0 -o ignore -e ignore \
                       "./tmp/${h}" -s "${p}" srcdir_exists
-            atf_check -s eq:1 -o empty -e save:stderr "${hp}" srcdir_exists
-            atf_check -s eq:0 -o ignore -e empty \
-                      grep "Cannot.*find.*source.*directory" stderr
+            atf_check -s eq:1 -o empty -e save:stderr "${hp}" -r res \
+                srcdir_exists
+            atf_check -s eq:0 -o ignore -e empty grep "Cannot find datafile" res
             atf_check -s eq:0 -o ignore -e ignore \
                       "${hp}" -s "${p}" srcdir_exists
         done

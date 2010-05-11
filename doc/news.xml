@@ -31,6 +31,11 @@ the loading of the necessary ATF libraries.</para></listitem>
 
 <listitem><para>Removed atf-compile in favour of atf-sh.</para></listitem>
 
+<listitem><para>Fixed test programs to get a sane default value for their
+source directory.  This means that it should not be necessary any more to
+pass <literal>-s</literal> when running test programs that do not live in
+the current directory.</para></listitem>
+
 </itemizedlist>
 
 </section>

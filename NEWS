@@ -33,6 +33,11 @@
 
      * Removed atf-compile in favour of atf-sh.
 
+     * Fixed test programs to get a sane default value for their source
+       directory. This means that it should not be necessary any more to pass
+       -s when running test programs that do not live in the current
+       directory.
+
                              Changes in version 0.8
 
    Experimental version released on May 7th, 2010.

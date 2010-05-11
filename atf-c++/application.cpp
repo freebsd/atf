@@ -253,6 +253,8 @@ impl::app::run(int argc, char* const* argv)
     m_argc = argc;
     m_argv = argv;
 
+    m_argv0 = m_argv[0];
+
     m_prog_name = std::strrchr(m_argv[0], '/');
     if (m_prog_name == NULL)
         m_prog_name = m_argv[0];

@@ -51,9 +51,8 @@ Prog_Name=${0##*/}
 Results_File=resfile # XXX
 
 # The test program's source directory: i.e. where its auxiliary data files
-# and helper utilities can be found.  Defaults to the current directory
-# but can be overriden through the '-s' flag.
-Source_Dir=.
+# and helper utilities can be found.  Can be overriden through the '-s' flag.
+Source_Dir="$(dirname ${0})"
 
 # Indicates the test case we are currently processing.
 Test_Case=
