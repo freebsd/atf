@@ -27,13 +27,6 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-#
-# File: atf.footer.subr
-#
-#   This file provides the test program's entry point and auxiliary
-#   functions used during testing.
-#
-
 # ------------------------------------------------------------------------
 # GLOBAL VARIABLES
 # ------------------------------------------------------------------------
@@ -44,9 +37,15 @@ Atf_Cleanup=$(atf-config -t atf_libexecdir)/atf-cleanup
 Atf_Format=$(atf-config -t atf_libexecdir)/atf-format
 Atf_Machine=$(atf-config -t atf_machine)
 
+# The list of all test cases defined by the test program.
+Defined_Test_Cases=
+
 # A boolean variable that indicates whether we are parsing a test case's
 # head or not.
 Parsing_Head=false
+
+# The program name.
+Prog_Name=${0##*/}
 
 # The file to which the test case will print its result.
 Results_File=resfile # XXX
@@ -189,6 +188,17 @@ atf_get_srcdir()
 }
 
 #
+# atf_init_test_cases
+#
+#   The function in charge of registering the test cases that have to
+#   be made available to the user.  Must be redefined.
+#
+atf_init_test_cases()
+{
+    _atf_error 128 "No test cases defined"
+}
+
+#
 # atf_pass
 #
 #   Makes the test case pass.  Shouldn't be used in general, as a test
@@ -271,6 +281,23 @@ result: skipped
 reason: ${*}
 EOF
     exit 0
+}
+
+#
+# atf_test_case tc-name
+#
+#   Defines a new test case named tc-name.  The name provided here must be
+#   accompanied by two functions named after it: <tc-name>_head and
+#   <tc-name>_body, and may also be accompanied by a <tc-name>_cleanup
+#   function.
+#
+atf_test_case()
+{
+    Defined_Test_Cases="${Defined_Test_Cases} ${1}"
+
+    eval "${1}_head() { _atf_error 128 '${1}_head not defined'; }"
+    eval "${1}_body() { :; }"
+    eval "${1}_cleanup() { :; }"
 }
 
 # ------------------------------------------------------------------------

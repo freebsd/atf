@@ -54,8 +54,7 @@ construct_script(const char* filename)
 
     std::string* command = new std::string();
     command->reserve(512);
-    (*command) += ". " + datadir + "/atf.header.subr ; " +
-                  ". " + datadir + "/atf.footer.subr ; " +
+    (*command) += ". " + datadir + "/libatf-sh.subr ; " +
                   ". " + std::string(filename) + " ; " +
                   "main \"${@}\"";
     return command;
