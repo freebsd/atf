@@ -461,9 +461,29 @@ out:
 
 static
 atf_error_t
+srcdir_strip_libtool(atf_fs_path_t *srcdir)
+{
+    atf_error_t err;
+    atf_fs_path_t parent;
+
+    err = atf_fs_path_branch_path(srcdir, &parent);
+    if (atf_is_error(err))
+        goto out;
+
+    atf_fs_path_fini(srcdir);
+    err = atf_fs_path_copy(srcdir, &parent);
+
+    atf_fs_path_fini(&parent);
+out:
+    return err;
+}
+
+static
+atf_error_t
 handle_srcdir(struct params *p)
 {
     atf_error_t err;
+    atf_dynstr_t leafname;
     atf_fs_path_t exe, srcdir;
     bool b;
 
@@ -480,6 +500,16 @@ handle_srcdir(struct params *p)
 
         atf_fs_path_fini(&srcdir);
         srcdir = srcdirabs;
+    }
+
+    err = atf_fs_path_leaf_name(&srcdir, &leafname);
+    if (atf_is_error(err))
+        goto out_srcdir;
+    else {
+        if (atf_equal_dynstr_cstring(&leafname, ".libs")) {
+            srcdir_strip_libtool(&srcdir);
+        }
+        atf_dynstr_fini(&leafname);
     }
 
     err = atf_fs_path_copy(&exe, &srcdir);

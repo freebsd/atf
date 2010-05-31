@@ -541,9 +541,11 @@ tp::parse_vflag(const std::string& str)
 void
 tp::handle_srcdir(void)
 {
-    if (m_srcdir_arg.empty())
+    if (m_srcdir_arg.empty()) {
         m_srcdir = atf::fs::path(m_argv0).branch_path();
-    else
+        if (m_srcdir.leaf_name() == ".libs")
+            m_srcdir = m_srcdir.branch_path();
+    } else
         m_srcdir = atf::fs::path(m_srcdir_arg);
 
     if (!atf::fs::exists(m_srcdir / m_prog_name))

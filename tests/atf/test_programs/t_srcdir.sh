@@ -53,6 +53,29 @@ default_body()
     done
 }
 
+atf_test_case libtool
+libtool_head()
+{
+    atf_set "descr" "Checks that the program can find its files if" \
+                    "executed from the source directory and if it" \
+                    "was built with libtool"
+}
+libtool_body()
+{
+    create_files
+    mkdir tmp/.libs
+
+    for hp in $(get_helpers h_c h_cpp); do
+        h=${hp##*/}
+        cp ${hp} tmp
+        cp ${hp} tmp/.libs
+        atf_check -s eq:0 -o ignore -e ignore -x \
+                  "cd tmp && ./.libs/${h} srcdir_exists"
+        atf_check -s eq:1 -o empty -e empty "${hp}" -r res srcdir_exists
+        atf_check -s eq:0 -o ignore -e empty grep "Cannot find datafile" res
+    done
+}
+
 atf_test_case sflag
 sflag_head()
 {
@@ -108,6 +131,7 @@ relative_body()
 atf_init_test_cases()
 {
     atf_add_test_case default
+    atf_add_test_case libtool
     atf_add_test_case sflag
     atf_add_test_case relative
 }
