@@ -97,7 +97,8 @@ atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
         goto err_map;
 
     /* XXX Should the head be able to return error codes? */
-    tc->m_head(tc);
+    if (tc->m_head != NULL)
+        tc->m_head(tc);
 
     if (strcmp(atf_tc_get_md_var(tc, "ident"), ident) != 0)
         atf_tc_fail("Test case head modified the read-only 'ident' "
