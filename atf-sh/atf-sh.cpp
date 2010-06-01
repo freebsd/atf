@@ -47,6 +47,17 @@ extern "C" {
 namespace {
 
 static
+std::string
+fix_plain_name(const char *filename)
+{
+    const atf::fs::path filepath(filename);
+    if (filepath.branch_path().str() == ".")
+        return std::string("./") + filename;
+    else
+        return std::string(filename);
+}
+
+static
 std::string*
 construct_script(const char* filename)
 {
@@ -56,7 +67,7 @@ construct_script(const char* filename)
     command->reserve(512);
     (*command) += ". " + datadir + "/atf.header.subr ; " +
                   ". " + datadir + "/atf.footer.subr ; " +
-                  ". " + std::string(filename) + " ; " +
+                  ". " + fix_plain_name(filename) + " ; " +
                   "main \"${@}\"";
     return command;
 }
