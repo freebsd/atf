@@ -580,7 +580,7 @@ ATF_TC_BODY(cleanup, tc)
 
     create_dir ("root", 0755);
     create_dir ("root/dir", 0755);
-    create_dir ("root/dir/1", 0755);
+    create_dir ("root/dir/1", 0100);
     create_file("root/dir/2", 0644);
     create_file("root/reg", 0644);
 

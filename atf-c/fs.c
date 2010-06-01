@@ -231,8 +231,8 @@ cleanup_aux_dir(const char *pstr, const atf_fs_stat_t *st, bool erase)
     atf_error_t err;
     struct dirent *de;
 
-    if (erase && !(atf_fs_stat_get_mode(st) & S_IWUSR)) {
-        if (chmod(pstr, atf_fs_stat_get_mode(st) | S_IWUSR) == -1) {
+    if (erase && ((atf_fs_stat_get_mode(st) & S_IRWXU) != S_IRWXU)) {
+        if (chmod(pstr, atf_fs_stat_get_mode(st) | S_IRWXU) == -1) {
             err = atf_libc_error(errno, "Cannot grant write permissions "
                                  "to %s", pstr);
             goto out;
