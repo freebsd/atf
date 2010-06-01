@@ -321,23 +321,23 @@ atf_run::run_test_program(const atf::fs::path& tp,
                     atf::fs::temp_dir workdir(atf::fs::path(atf::config::get(
                         "atf_workdir")) / "atf-run.XXXXXX");
 
-                    const atf::process::status body_status = impl::run_test_case(
-                        tp, tcname, "body", tcmd, config, resfile,
-                        workdir.get_path(), w);
-                    const atf::process::status cleanup_status = impl::run_test_case(
-                        tp, tcname, "cleanup", tcmd, config, resfile,
-                        workdir.get_path(), w);
+                    const atf::process::status body_status =
+                        impl::run_test_case(tp, tcname, "body", tcmd, config,
+                                            resfile, workdir.get_path(), w);
+                    const atf::process::status cleanup_status =
+                        impl::run_test_case(tp, tcname, "cleanup", tcmd, config,
+                                            resfile, workdir.get_path(), w);
 
                     // TODO: Force deletion of workdir.
 
                     tcr = get_tcr(body_status, resfile);
                 } else {
-                    const atf::process::status body_status = impl::run_test_case(
-                        tp, tcname, "body", tcmd, config, resfile,
-                        ro_workdir, w);
-                    const atf::process::status cleanup_status = impl::run_test_case(
-                        tp, tcname, "cleanup", tcmd, config, resfile,
-                        ro_workdir, w);
+                    const atf::process::status body_status =
+                        impl::run_test_case(tp, tcname, "body", tcmd, config,
+                                            resfile, ro_workdir, w);
+                    const atf::process::status cleanup_status =
+                        impl::run_test_case(tp, tcname, "cleanup", tcmd, config,
+                                            resfile, ro_workdir, w);
 
                     tcr = get_tcr(body_status, resfile);
                 }
