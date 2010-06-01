@@ -31,6 +31,7 @@ atf_test_case no_descr
 no_descr_head()
 {
     atf_set "descr" "Tests that the description may not be present"
+    atf_set "use.fs" "true"
 }
 no_descr_body()
 {

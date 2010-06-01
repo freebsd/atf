@@ -31,6 +31,12 @@ the loading of the necessary ATF libraries.</para></listitem>
 
 <listitem><para>Removed atf-compile in favour of atf-sh.</para></listitem>
 
+<listitem><para>Added the <literal>use.fs</literal> metadata property to
+test case, which is used to specify which test cases require file system
+access.  This is to highlight dependencies on external resources more
+clearly and to speed up the execution of test suites by skipping the
+creation of many unnecessary work directories.</para></listitem>
+
 <listitem><para>Fixed test programs to get a sane default value for their
 source directory.  This means that it should not be necessary any more to
 pass <literal>-s</literal> when running test programs that do not live in

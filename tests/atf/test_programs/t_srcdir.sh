@@ -38,6 +38,7 @@ default_head()
 {
     atf_set "descr" "Checks that the program can find its files if" \
                     "executed from the same directory"
+    atf_set "use.fs" "true"
 }
 default_body()
 {
@@ -59,6 +60,7 @@ libtool_head()
     atf_set "descr" "Checks that the program can find its files if" \
                     "executed from the source directory and if it" \
                     "was built with libtool"
+    atf_set "use.fs" "true"
 }
 libtool_body()
 {
@@ -81,6 +83,7 @@ sflag_head()
 {
     atf_set "descr" "Checks that the program can find its files when" \
                     "using the -s flag"
+    atf_set "use.fs" "true"
 }
 sflag_body()
 {
@@ -104,6 +107,7 @@ relative_head()
 {
     atf_set "descr" "Checks that passing a relative path through -s" \
                     "works"
+    atf_set "use.fs" "true"
 }
 relative_body()
 {
