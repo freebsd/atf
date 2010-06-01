@@ -32,6 +32,7 @@ extern "C" {
 }
 
 #include <cerrno>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 
@@ -65,8 +66,7 @@ construct_script(const char* filename)
 
     std::string* command = new std::string();
     command->reserve(512);
-    (*command) += ". " + datadir + "/atf.header.subr ; " +
-                  ". " + datadir + "/atf.footer.subr ; " +
+    (*command) += ". " + datadir + "/libatf-sh.subr ; " +
                   ". " + fix_plain_name(filename) + " ; " +
                   "main \"${@}\"";
     return command;

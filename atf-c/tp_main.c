@@ -179,7 +179,7 @@ print_error(const atf_error_t err)
 struct params {
     bool m_do_list;
     bool m_do_usage;
-    const char *m_srcdir;
+    atf_fs_path_t m_srcdir;
     char *m_tcname;
     enum tc_part m_tcpart;
     atf_fs_path_t m_resfile;
@@ -188,23 +188,47 @@ struct params {
 
 static
 atf_error_t
-params_init(struct params *p)
+argv0_to_dir(const char *argv0, atf_fs_path_t *dir)
+{
+    atf_error_t err;
+    atf_fs_path_t temp;
+
+    err = atf_fs_path_init_fmt(&temp, "%s", argv0);
+    if (atf_is_error(err))
+        goto out;
+
+    err = atf_fs_path_branch_path(&temp, dir);
+
+    atf_fs_path_fini(&temp);
+out:
+    return err;
+}
+
+static
+atf_error_t
+params_init(struct params *p, const char *argv0)
 {
     atf_error_t err;
 
     p->m_do_list = false;
     p->m_do_usage = false;
-    p->m_srcdir = ".";
     p->m_tcname = NULL;
     p->m_tcpart = BODY;
 
-    err = atf_fs_path_init_fmt(&p->m_resfile, "resfile"); /* XXX Bad default */
+    err = argv0_to_dir(argv0, &p->m_srcdir);
     if (atf_is_error(err))
         return err;
+
+    err = atf_fs_path_init_fmt(&p->m_resfile, "resfile"); /* XXX Bad default */
+    if (atf_is_error(err)) {
+        atf_fs_path_fini(&p->m_srcdir);
+        return err;
+    }
 
     err = atf_map_init(&p->m_config);
     if (atf_is_error(err)) {
         atf_fs_path_fini(&p->m_resfile);
+        atf_fs_path_fini(&p->m_srcdir);
         return err;
     }
 
@@ -217,6 +241,7 @@ params_fini(struct params *p)
 {
     atf_map_fini(&p->m_config);
     atf_fs_path_fini(&p->m_resfile);
+    atf_fs_path_fini(&p->m_srcdir);
     if (p->m_tcname != NULL)
         free(p->m_tcname);
 }
@@ -240,6 +265,22 @@ parse_vflag(char *arg, atf_map_t *config)
     err = atf_map_insert(config, arg, split, false);
 
 out:
+    return err;
+}
+
+static
+atf_error_t
+replace_path_param(atf_fs_path_t *param, const char *value)
+{
+    atf_error_t err;
+    atf_fs_path_t temp;
+
+    err = atf_fs_path_init_fmt(&temp, "%s", value);
+    if (!atf_is_error(err)) {
+        atf_fs_path_fini(param);
+        *param = temp;
+    }
+
     return err;
 }
 
@@ -352,7 +393,7 @@ process_params(int argc, char **argv, struct params *p)
     atf_error_t err;
     int ch;
 
-    err = params_init(p);
+    err = params_init(p, argv[0]);
     if (atf_is_error(err))
         goto out;
 
@@ -369,18 +410,11 @@ process_params(int argc, char **argv, struct params *p)
             break;
 
         case 'r':
-            {
-                atf_fs_path_t resfile;
-                err = atf_fs_path_init_fmt(&resfile, "%s", optarg);
-                if (!atf_is_error(err)) {
-                    atf_fs_path_fini(&p->m_resfile);
-                    p->m_resfile = resfile;
-                }
-            }
+            err = replace_path_param(&p->m_resfile, optarg);
             break;
 
         case 's':
-            p->m_srcdir = optarg;
+            err = replace_path_param(&p->m_srcdir, optarg);
             break;
 
         case 'v':
@@ -427,13 +461,33 @@ out:
 
 static
 atf_error_t
+srcdir_strip_libtool(atf_fs_path_t *srcdir)
+{
+    atf_error_t err;
+    atf_fs_path_t parent;
+
+    err = atf_fs_path_branch_path(srcdir, &parent);
+    if (atf_is_error(err))
+        goto out;
+
+    atf_fs_path_fini(srcdir);
+    err = atf_fs_path_copy(srcdir, &parent);
+
+    atf_fs_path_fini(&parent);
+out:
+    return err;
+}
+
+static
+atf_error_t
 handle_srcdir(struct params *p)
 {
     atf_error_t err;
+    atf_dynstr_t leafname;
     atf_fs_path_t exe, srcdir;
     bool b;
 
-    err = atf_fs_path_init_fmt(&srcdir, "%s", p->m_srcdir);
+    err = atf_fs_path_copy(&srcdir, &p->m_srcdir);
     if (atf_is_error(err))
         goto out;
 
@@ -446,6 +500,16 @@ handle_srcdir(struct params *p)
 
         atf_fs_path_fini(&srcdir);
         srcdir = srcdirabs;
+    }
+
+    err = atf_fs_path_leaf_name(&srcdir, &leafname);
+    if (atf_is_error(err))
+        goto out_srcdir;
+    else {
+        if (atf_equal_dynstr_cstring(&leafname, ".libs")) {
+            srcdir_strip_libtool(&srcdir);
+        }
+        atf_dynstr_fini(&leafname);
     }
 
     err = atf_fs_path_copy(&exe, &srcdir);

@@ -34,7 +34,9 @@ create_test_program() {
 }
 
 atf_test_case no_args
-no_args_head() { true; }
+no_args_head() {
+    atf_set "use.fs" "true"
+}
 no_args_body()
 {
     cat >experr <<EOF
@@ -45,7 +47,9 @@ EOF
 }
 
 atf_test_case missing_script
-missing_script_head() { true; }
+missing_script_head() {
+    atf_set "use.fs" "true"
+}
 missing_script_body()
 {
     cat >experr <<EOF
@@ -55,7 +59,9 @@ EOF
 }
 
 atf_test_case arguments
-arguments_head() { true; }
+arguments_head() {
+    atf_set "use.fs" "true"
+}
 arguments_body()
 {
     create_test_program tp <<EOF

@@ -6,23 +6,21 @@
 
     1. Changes in version 0.9
 
-    2. Changes in version 0.9
+    2. Changes in version 0.8
 
-    3. Changes in version 0.8
+    3. Changes in version 0.7
 
-    4. Changes in version 0.7
+    4. Changes in version 0.6
 
-    5. Changes in version 0.6
+    5. Changes in version 0.5
 
-    6. Changes in version 0.5
+    6. Changes in version 0.4
 
-    7. Changes in version 0.4
+    7. Changes in version 0.3
 
-    8. Changes in version 0.3
+    8. Changes in version 0.2
 
-    9. Changes in version 0.2
-
-   10. Changes in version 0.1
+    9. Changes in version 0.1
 
                              Changes in version 0.9
 
@@ -35,9 +33,10 @@
 
      * Removed atf-compile in favour of atf-sh.
 
-                             Changes in version 0.9
-
-   STILL UNDER DEVELOPMENT; NOT RELEASED YET
+     * Fixed test programs to get a sane default value for their source
+       directory. This means that it should not be necessary any more to pass
+       -s when running test programs that do not live in the current
+       directory.
 
                              Changes in version 0.8
 

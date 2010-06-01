@@ -419,8 +419,7 @@ TOOL([bin], [atf-run], [atf-run/config.cpp \
 
 TOOL([bin], [atf-sh])
 
-atf_sh_DATA = atf-sh/atf.footer.subr \
-              atf-sh/atf.header.subr
+atf_sh_DATA = atf-sh/libatf-sh.subr
 atf_shdir = $(pkgdatadir)
 EXTRA_DIST += $(atf_sh_DATA)
 

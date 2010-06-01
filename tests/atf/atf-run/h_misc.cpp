@@ -168,6 +168,7 @@ ATF_TEST_CASE_WITH_CLEANUP(cleanup_curdir);
 ATF_TEST_CASE_HEAD(cleanup_curdir)
 {
     set_md_var("descr", "Helper test case for the t_integration test program");
+    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(cleanup_curdir)
 {

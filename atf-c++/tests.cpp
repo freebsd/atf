@@ -372,6 +372,11 @@ impl::tc::run_cleanup(void)
 }
 
 void
+impl::tc::head(void)
+{
+}
+
+void
 impl::tc::cleanup(void)
     const
 {
@@ -415,6 +420,7 @@ private:
 
     bool m_lflag;
     atf::fs::path m_resfile;
+    std::string m_srcdir_arg;
     atf::fs::path m_srcdir;
 
     atf::tests::vars_map m_vars;
@@ -507,7 +513,7 @@ tp::process_option(int ch, const char* arg)
         break;
 
     case 's':
-        m_srcdir = atf::fs::path(arg);
+        m_srcdir_arg = arg;
         break;
 
     case 'v':
@@ -540,6 +546,13 @@ tp::parse_vflag(const std::string& str)
 void
 tp::handle_srcdir(void)
 {
+    if (m_srcdir_arg.empty()) {
+        m_srcdir = atf::fs::path(m_argv0).branch_path();
+        if (m_srcdir.leaf_name() == ".libs")
+            m_srcdir = m_srcdir.branch_path();
+    } else
+        m_srcdir = atf::fs::path(m_srcdir_arg);
+
     if (!atf::fs::exists(m_srcdir / m_prog_name))
         throw std::runtime_error("Cannot find the test program in the "
                                  "source directory `" + m_srcdir.str() + "'");
