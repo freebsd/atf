@@ -177,7 +177,7 @@ main() {
     local failed=no
     local make=
     for make in make gmake; do
-        for parallelism in 1 2; do
+        for parallelism in 1 4; do
             local logfile
 
             count=$((count + 1))
