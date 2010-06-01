@@ -372,6 +372,11 @@ impl::tc::run_cleanup(void)
 }
 
 void
+impl::tc::head(void)
+{
+}
+
+void
 impl::tc::cleanup(void)
     const
 {

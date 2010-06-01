@@ -42,6 +42,12 @@ source directory.  This means that it should not be necessary any more to
 pass <literal>-s</literal> when running test programs that do not live in
 the current directory.</para></listitem>
 
+<listitem><para>Defining test case headers became optional.  This is
+trivial to achieve in shell-based tests but a bit ugly in C and C++.  In
+C, use the new <literal>ATF_TC_WITHOUT_HEAD</literal> macro to define the
+test case, and in C++ use
+<literal>ATF_TEST_CASE_WITHOUT_HEAD</literal>.</para></listitem>
+
 </itemizedlist>
 
 </section>
