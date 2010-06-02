@@ -434,6 +434,9 @@ atf_run::main(void)
         "atf_workdir")) / "atf-run.XXXXXX");
     if (::chmod(ro_workdir.get_path().c_str(), S_IXUSR) == -1)
         throw std::runtime_error("Failed to create read-only work directory");
+    if (!atf::fs::set_immutable(ro_workdir.get_path(), true)) {
+        // TODO: Report that use.fs may not work.  Non-fatal though.
+    }
 
     bool ok = true;
     for (std::vector< std::string >::const_iterator iter = tps.begin();
