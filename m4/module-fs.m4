@@ -65,5 +65,5 @@ AC_DEFUN([ATF_MODULE_FS], [
                   [Define to 1 if getcwd(NULL, 0) works]),
         AC_MSG_RESULT(no))
 
-    AC_CHECK_FUNCS([unmount])
+    AC_CHECK_FUNCS([chflags unmount])
 ])

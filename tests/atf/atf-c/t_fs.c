@@ -1139,6 +1139,39 @@ ATF_TC_BODY(mkstemp_umask, tc)
     atf_fs_path_fini(&p);
 }
 
+ATF_TC(set_immutable);
+ATF_TC_HEAD(set_immutable, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the set_immutable function");
+    atf_tc_set_md_var(tc, "use.fs", "true");
+}
+ATF_TC_BODY(set_immutable, tc)
+{
+    atf_fs_path_t p;
+    bool supported;
+
+    RE(atf_fs_path_init_fmt(&p, "dir"));
+
+    if (mkdir("dir", 0755) == -1)
+        atf_tc_fail("Failed to create test directory");
+
+    RE(atf_fs_set_immutable(&p, true, &supported));
+    if (!supported)
+        atf_tc_skip("Don't know how to set the immutable flag");
+
+    if (mkdir("dir/other", 0755) != -1)
+        atf_tc_fail("Immutable flag was not correctly set");
+
+    RE(atf_fs_set_immutable(&p, false, &supported));
+    if (!supported)
+        atf_tc_skip("Don't know how to unset the immutable flag");
+
+    if (mkdir("dir/other", 0755) == -1)
+        atf_tc_fail("Immutable flag was not correctly unset");
+
+    atf_fs_path_fini(&p);
+}
+
 /* ---------------------------------------------------------------------
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
@@ -1183,6 +1216,7 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, mkstemp_ok);
     ATF_TP_ADD_TC(tp, mkstemp_err);
     ATF_TP_ADD_TC(tp, mkstemp_umask);
+    ATF_TP_ADD_TC(tp, set_immutable);
 
     /* Add the test cases for the header file. */
     ATF_TP_ADD_TC(tp, include);

@@ -33,6 +33,7 @@ extern "C" {
 }
 
 #include <fstream>
+#include <cstdio>
 
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/fs.hpp"
@@ -810,6 +811,32 @@ ATF_TEST_CASE_BODY(current_umask)
     ATF_CHECK_EQUAL(0222, current_umask());
 }
 
+ATF_TEST_CASE(set_immutable);
+ATF_TEST_CASE_HEAD(set_immutable)
+{
+    set_md_var("descr", "Tests the set_immutable function");
+    set_md_var("use.fs", "true");
+}
+ATF_TEST_CASE_BODY(set_immutable)
+{
+    using atf::fs::set_immutable;
+
+    if (::mkdir("dir", 0755) == -1)
+        ATF_FAIL("Failed to create test directory");
+
+    if (!set_immutable(atf::fs::path("dir"), true))
+        ATF_SKIP("Don't know how to set the immutable flag");
+
+    if (::mkdir("dir/other", 0755) != -1)
+        ATF_FAIL("Immutable flag was not correctly set");
+
+    if (!set_immutable(atf::fs::path("dir"), false))
+        ATF_SKIP("Don't know how to unset the immutable flag");
+
+    if (::mkdir("dir/other", 0755) == -1)
+        ATF_FAIL("Immutable flag was not correctly unset");
+}
+
 // ------------------------------------------------------------------------
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
@@ -860,6 +887,7 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, cleanup);
     ATF_ADD_TEST_CASE(tcs, remove);
     ATF_ADD_TEST_CASE(tcs, current_umask);
+    ATF_ADD_TEST_CASE(tcs, set_immutable);
 
     // Add the test cases for the header file.
     ATF_ADD_TEST_CASE(tcs, include);

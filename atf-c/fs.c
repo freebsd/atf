@@ -67,6 +67,7 @@ static atf_error_t do_unmount(const atf_fs_path_t *);
 static atf_error_t normalize(atf_dynstr_t *, char *);
 static atf_error_t normalize_ap(atf_dynstr_t *, const char *, va_list);
 static void replace_contents(atf_fs_path_t *, const char *);
+static atf_error_t set_immutable(const char *, bool, bool *);
 static const char *stat_type_to_string(const int);
 
 /* ---------------------------------------------------------------------
@@ -232,6 +233,11 @@ cleanup_aux_dir(const char *pstr, const atf_fs_stat_t *st, bool erase)
     struct dirent *de;
 
     if (erase && ((atf_fs_stat_get_mode(st) & S_IRWXU) != S_IRWXU)) {
+        bool unused_done;
+        err = set_immutable(pstr, false, &unused_done);
+        if (atf_is_error(err))
+            goto out;
+
         if (chmod(pstr, atf_fs_stat_get_mode(st) | S_IRWXU) == -1) {
             err = atf_libc_error(errno, "Cannot grant write permissions "
                                  "to %s", pstr);
@@ -462,6 +468,43 @@ replace_contents(atf_fs_path_t *p, const char *buf)
     err = atf_dynstr_append_fmt(&p->m_data, "%s", buf);
 
     INV(!atf_is_error(err));
+}
+
+static
+atf_error_t
+set_immutable(const char *filename, bool value, bool *done)
+{
+    atf_error_t err;
+
+#if HAVE_CHFLAGS
+    struct stat sb;
+
+    if (lstat(filename, &sb) == -1) {
+        err = atf_libc_error(errno, "lstat(%s) failed", filename);
+        goto out;
+    }
+
+    unsigned long new_flags = sb.st_flags;
+    if (value)
+        new_flags |= UF_IMMUTABLE;
+    else
+        new_flags &= ~UF_IMMUTABLE;
+
+    if (chflags(filename, new_flags) == -1) {
+        err = atf_libc_error(errno, "chflags(%s) failed", filename);
+        goto out;
+    }
+
+    err = atf_no_error();
+    *done = true;
+
+out:
+#else
+    err = atf_no_error();
+    *done = false;
+#endif
+
+    return err;
 }
 
 static
@@ -1040,6 +1083,12 @@ atf_fs_rmdir(const atf_fs_path_t *p)
         err = atf_no_error();
 
     return err;
+}
+
+atf_error_t
+atf_fs_set_immutable(const atf_fs_path_t *p, bool value, bool *done)
+{
+    return set_immutable(atf_fs_path_cstring(p), value, done);
 }
 
 atf_error_t
