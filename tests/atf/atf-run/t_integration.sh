@@ -906,6 +906,30 @@ timeout_body()
         "${TESTCASE}, failed, .*timed out after 1 second" stdout
 }
 
+atf_test_case use_fs
+use_fs_head()
+{
+    atf_set "descr" "Tests that atf-run correctly handles the use.fs property"
+    atf_set "use.fs" "true"
+}
+use_fs_body()
+{
+    create_helper use_fs
+    create_atffile helper
+
+    atf_check -s eq:0 -o ignore -e ignore atf-run \
+        -v allowed=false -v access=false helper
+
+    atf_check -s eq:1 -o ignore -e ignore atf-run \
+        -v allowed=false -v access=true helper
+
+    atf_check -s eq:0 -o ignore -e ignore atf-run \
+        -v allowed=true -v access=false helper
+
+    atf_check -s eq:0 -o ignore -e ignore atf-run \
+        -v allowed=true -v access=true helper
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case config
@@ -937,6 +961,7 @@ atf_init_test_cases()
     atf_add_test_case require_user_unprivileged
     atf_add_test_case require_user_bad
     atf_add_test_case timeout
+    atf_add_test_case use_fs
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
