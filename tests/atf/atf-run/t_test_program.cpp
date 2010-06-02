@@ -27,10 +27,10 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "atf-run/test-program.hpp"
-
 #include "atf-c++/macros.hpp"
 #include "atf-c++/parser.hpp"
+
+#include "test-program.hpp"
 
 namespace impl = atf::atf_run;
 

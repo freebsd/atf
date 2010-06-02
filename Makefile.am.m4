@@ -63,6 +63,7 @@ INIT_VAR([$1_PROGRAMS])
 $1_PROGRAMS += $2/$2
 AUTOMAKE_ID([$2/$2])_SOURCES = $2/$2.cpp $3
 nodist_[]AUTOMAKE_ID([$2/$2])_SOURCES = $4
+AUTOMAKE_ID([$2/$2])_CPPFLAGS = -I$(srcdir)/$2 -I$2
 AUTOMAKE_ID([$2/$2])_LDADD = libatf-c++.la
 dist_man_MANS += $2/$2.1
 ])
@@ -679,7 +680,7 @@ noinst_LTLIBRARIES = tests/atf/atf-c/libh.la
 tests_atf_atf_c_libh_la_SOURCES = tests/atf/atf-c/h_lib.c \
                                   tests/atf/atf-c/h_lib.h
 
-# C_TP subdir progname extradeps extralibs
+# C_TP subdir progname extradeps extralibs cppflags
 #
 # Generates rules to build a C test program.  The 'subdir' is relative to
 # tests/ and progname is the source file name without .c.
@@ -687,10 +688,11 @@ m4_define([C_TP], [
 INIT_VAR(AUTOMAKE_ID([$1])_PROGRAMS)
 AUTOMAKE_ID([$1])_PROGRAMS += tests/$1/$2
 tests_[]AUTOMAKE_ID([$1_$2])_SOURCES = tests/$1/$2.c $3
+tests_[]AUTOMAKE_ID([$1_$2])_CPPFLAGS = $5
 tests_[]AUTOMAKE_ID([$1_$2])_LDADD = $4 libatf-c.la
 ])
 
-# CXX_TP subdir progname extradeps extralibs
+# CXX_TP subdir progname extradeps extralibs cppflags
 #
 # Generates rules to build a C++ test program.  The 'subdir' is relative to
 # tests/ and progname is the source file name without .c.
@@ -698,6 +700,7 @@ m4_define([CXX_TP], [
 INIT_VAR(AUTOMAKE_ID([$1])_PROGRAMS)
 AUTOMAKE_ID([$1])_PROGRAMS += tests/$1/$2
 tests_[]AUTOMAKE_ID([$1_$2])_SOURCES = tests/$1/$2.cpp $3
+tests_[]AUTOMAKE_ID([$1_$2])_CPPFLAGS = $5
 tests_[]AUTOMAKE_ID([$1_$2])_LDADD = $4 libatf-c++.la
 ])
 
@@ -835,10 +838,12 @@ C_TP([atf/atf-run], [h_zero_tcs])
 CXX_TP([atf/atf-run], [h_fail])
 CXX_TP([atf/atf-run], [h_pass])
 CXX_TP([atf/atf-run], [h_misc])
-CXX_TP([atf/atf-run], [t_config], [atf-run/config.cpp])
-CXX_TP([atf/atf-run], [t_requirements], [atf-run/requirements.cpp])
+CXX_TP([atf/atf-run], [t_config], [atf-run/config.cpp], [],
+       [-I$(srcdir)/atf-run])
+CXX_TP([atf/atf-run], [t_requirements], [atf-run/requirements.cpp], [],
+       [-I$(srcdir)/atf-run])
 CXX_TP([atf/atf-run], [t_test_program],
-       [atf-run/test-program.cpp atf-run/timer.cpp])
+       [atf-run/test-program.cpp atf-run/timer.cpp], [], [-I$(srcdir)/atf-run])
 SH_TP([atf/atf-run], [t_integration])
 
 atf_atf_sh_DATA = tests/atf/atf-sh/Atffile
