@@ -261,6 +261,12 @@ impl::app::run(int argc, char* const* argv)
     else
         m_prog_name++;
 
+    // Libtool workaround: if running from within the source tree (binaries
+    // that are not installed yet), skip the "lt-" prefix added to files in
+    // the ".libs" directory to show the real (not temporary) name.
+    if (std::strncmp(m_prog_name, "lt-", 3) == 0)
+        m_prog_name += 3;
+
     const std::string bug =
         std::string("This is probably a bug in ") + m_prog_name +
         " or one of the libraries it uses.  Please report this problem to "

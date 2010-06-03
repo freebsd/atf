@@ -471,9 +471,9 @@ srcdir_strip_libtool(atf_fs_path_t *srcdir)
         goto out;
 
     atf_fs_path_fini(srcdir);
-    err = atf_fs_path_copy(srcdir, &parent);
+    *srcdir = parent;
 
-    atf_fs_path_fini(&parent);
+    INV(!atf_is_error(err));
 out:
     return err;
 }
@@ -506,10 +506,14 @@ handle_srcdir(struct params *p)
     if (atf_is_error(err))
         goto out_srcdir;
     else {
-        if (atf_equal_dynstr_cstring(&leafname, ".libs")) {
-            srcdir_strip_libtool(&srcdir);
-        }
+        const bool libs = atf_equal_dynstr_cstring(&leafname, ".libs");
         atf_dynstr_fini(&leafname);
+
+        if (libs) {
+            err = srcdir_strip_libtool(&srcdir);
+            if (atf_is_error(err))
+                goto out;
+        }
     }
 
     err = atf_fs_path_copy(&exe, &srcdir);
@@ -527,7 +531,7 @@ handle_srcdir(struct params *p)
                                  strdup(atf_fs_path_cstring(&srcdir)), true);
         } else {
             err = user_error("Cannot find the test program in the source "
-                             "directory `%s'", p->m_srcdir);
+                             "directory `%s'", atf_fs_path_cstring(&srcdir));
         }
     }
 
@@ -645,6 +649,12 @@ atf_tp_main(int argc, char **argv, atf_error_t (*add_tcs_hook)(atf_tp_t *))
         progname = argv[0];
     else
         progname++;
+
+    /* Libtool workaround: if running from within the source tree (binaries
+     * that are not installed yet), skip the "lt-" prefix added to files in
+     * the ".libs" directory to show the real (not temporary) name. */
+    if (strncmp(progname, "lt-", 3) == 0)
+        progname += 3;
 
     exitcode = EXIT_FAILURE; /* Silence GCC warning. */
     err = controlled_main(argc, argv, add_tcs_hook, &exitcode);
