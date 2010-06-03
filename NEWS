@@ -24,7 +24,7 @@
 
                              Changes in version 0.9
 
-   STILL UNDER DEVELOPMENT; NOT RELEASED YET
+   Experimental version released on June 3rd, 2010.
 
      * Added atf-sh, an interpreter to process test programs written using
        the shell API. This is not really a shell interpreter by itself
@@ -33,10 +33,21 @@
 
      * Removed atf-compile in favour of atf-sh.
 
+     * Added the use.fs metadata property to test case, which is used to
+       specify which test cases require file system access. This is to
+       highlight dependencies on external resources more clearly and to speed
+       up the execution of test suites by skipping the creation of many
+       unnecessary work directories.
+
      * Fixed test programs to get a sane default value for their source
        directory. This means that it should not be necessary any more to pass
        -s when running test programs that do not live in the current
        directory.
+
+     * Defining test case headers became optional. This is trivial to achieve
+       in shell-based tests but a bit ugly in C and C++. In C, use the new
+       ATF_TC_WITHOUT_HEAD macro to define the test case, and in C++ use
+       ATF_TEST_CASE_WITHOUT_HEAD.
 
                              Changes in version 0.8
 
