@@ -499,6 +499,39 @@ set_immutable(const char *filename, bool value, bool *done)
     *done = true;
 
 out:
+#elif HAVE_CHATTR
+    if (atf_user_is_root()) {
+        /* TODO: This should use ioctl(2) instead of chattr(1), but it looks
+         * like that the API to set the immutable value is file-system specific.
+         * Investigate this later. */
+        atf_fs_path_t prog;
+
+        err = atf_fs_path_init_fmt(&prog, CHATTR);
+        if (!atf_is_error(err)) {
+            atf_process_status_t status;
+            const char *argv[4] = { "chattr", value ? "+i" : "-i", filename,
+                                    NULL };
+
+            err = atf_process_exec_array(&status, &prog, argv, NULL, NULL);
+            if (!atf_is_error(err)) {
+                if (!atf_process_status_exited(&status) ||
+                    atf_process_status_exitstatus(&status) != EXIT_SUCCESS) {
+                    /* XXX: This is the wrong error type. */
+                    err = atf_libc_error(EINVAL, "Failed to exec chattr");
+                }
+
+                atf_process_status_fini(&status);
+            }
+
+            atf_fs_path_fini(&prog);
+        }
+        *done = true;
+    } else {
+        /* Linux doesn't allow to set the immutability bit by non-root; just
+         * report it as an unsupported case. */
+        err = atf_no_error();
+        *done = false;
+    }
 #else
     err = atf_no_error();
     *done = false;
