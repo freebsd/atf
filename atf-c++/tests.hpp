@@ -35,7 +35,6 @@
 
 extern "C" {
 #include <atf-c/tc.h>
-#include <atf-c/tcr.h>
 }
 
 #include <atf-c++/fs.hpp>
@@ -66,24 +65,24 @@ typedef std::map< std::string, std::string > vars_map;
 //! different classes, one for each status.
 //!
 class tcr {
-    atf_tcr_t m_tcr;
+public:
+    typedef int state;
+
+private:
+    state m_state;
+    std::string m_reason;
 
 public:
-    typedef atf_tcr_state_t state;
-
     static const state passed_state;
     static const state failed_state;
     static const state skipped_state;
 
     tcr(state);
     tcr(state, const std::string&);
-    tcr(const tcr&);
     ~tcr(void);
 
     state get_state(void) const;
-    const std::string get_reason(void) const;
-
-    tcr& operator=(const tcr&);
+    const std::string& get_reason(void) const;
 
     static tcr read(const fs::path&);
     void write(const fs::path&) const;

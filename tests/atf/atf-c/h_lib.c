@@ -39,7 +39,6 @@
 #include "atf-c/dynstr.h"
 #include "atf-c/error.h"
 #include "atf-c/fs.h"
-#include "atf-c/io.h"
 #include "atf-c/macros.h"
 
 #include "h_lib.h"
@@ -110,14 +109,11 @@ grep_file(const char *file, const char *regex, ...)
     found = false;
     ATF_REQUIRE((fd = open(file, O_RDONLY)) != -1);
     do {
-        atf_error_t err;
         atf_dynstr_t line;
-        bool eof;
 
         RE(atf_dynstr_init(&line));
 
-        err = atf_io_readline(fd, &line, &eof);
-        done = atf_is_error(err) || eof;
+        done = read_line(fd, &line);
         if (!done)
             found = grep_string(&line, atf_dynstr_cstring(&formatted));
 
@@ -128,6 +124,22 @@ grep_file(const char *file, const char *regex, ...)
     atf_dynstr_fini(&formatted);
 
     return found;
+}
+
+bool
+read_line(int fd, atf_dynstr_t *dest)
+{
+    char ch;
+    ssize_t cnt;
+
+    while ((cnt = read(fd, &ch, sizeof(ch))) == sizeof(ch) &&
+           ch != '\n') {
+        const atf_error_t err = atf_dynstr_append_fmt(dest, "%c", ch);
+        ATF_REQUIRE(!atf_is_error(err));
+    }
+    ATF_REQUIRE(cnt != -1);
+
+    return cnt == 0;
 }
 
 struct run_h_tc_data {

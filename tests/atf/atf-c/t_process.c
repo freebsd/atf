@@ -43,7 +43,6 @@
 #include <atf-c.h>
 
 #include "atf-c/defs.h"
-#include "atf-c/io.h"
 #include "atf-c/process.h"
 #include "atf-c/sanity.h"
 
@@ -139,12 +138,10 @@ capture_stream_process(void *v, atf_process_child_t *c)
     bool eof;
     switch (s->m_base.m_type) {
     case stdout_type:
-        RE(atf_io_readline(atf_process_child_stdout(c),
-                           &s->m_msg, &eof));
+        eof = read_line(atf_process_child_stdout(c), &s->m_msg);
         break;
     case stderr_type:
-        RE(atf_io_readline(atf_process_child_stderr(c),
-                           &s->m_msg, &eof));
+        eof = read_line(atf_process_child_stderr(c), &s->m_msg);
         break;
     default:
         UNREACHABLE;
@@ -889,7 +886,7 @@ check_line(int fd, const char *exp)
     bool eof;
 
     atf_dynstr_init(&line);
-    RE(atf_io_readline(fd, &line, &eof));
+    eof = read_line(fd, &line);
     ATF_CHECK(!eof);
     ATF_CHECK_MSG(atf_equal_dynstr_cstring(&line, exp),
                   "read: '%s', expected: '%s'",

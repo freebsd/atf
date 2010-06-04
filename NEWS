@@ -4,31 +4,33 @@
 
                                     Contents
 
-    1. Changes in version 0.10
+    1. [1]Changes in version 0.10
 
-    2. Changes in version 0.9
+    2. [2]Changes in version 0.9
 
-    3. Changes in version 0.8
+    3. [3]Changes in version 0.8
 
-    4. Changes in version 0.7
+    4. [4]Changes in version 0.7
 
-    5. Changes in version 0.6
+    5. [5]Changes in version 0.6
 
-    6. Changes in version 0.5
+    6. [6]Changes in version 0.5
 
-    7. Changes in version 0.4
+    7. [7]Changes in version 0.4
 
-    8. Changes in version 0.3
+    8. [8]Changes in version 0.3
 
-    9. Changes in version 0.2
+    9. [9]Changes in version 0.2
 
-   10. Changes in version 0.1
+   10. [10]Changes in version 0.1
 
                             Changes in version 0.10
 
    STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
-     * No changes recorded.
+     * Simplifications to the atf-c library: removed the io and tcr modules
+       as they had become unnecessary after all simplifications introduced in
+       the 0.8 release.
 
                              Changes in version 0.9
 
@@ -290,3 +292,17 @@
 
      * First public version. This was released coinciding with the end of the
        Google Summer of Code 2007 program.
+
+References
+
+   Visible links
+   1. file:///tmp/build-xml.aOzN1w#atf-0-10
+   2. file:///tmp/build-xml.aOzN1w#atf-0-9
+   3. file:///tmp/build-xml.aOzN1w#atf-0-8
+   4. file:///tmp/build-xml.aOzN1w#atf-0-7
+   5. file:///tmp/build-xml.aOzN1w#atf-0-6
+   6. file:///tmp/build-xml.aOzN1w#atf-0-5
+   7. file:///tmp/build-xml.aOzN1w#atf-0-4
+   8. file:///tmp/build-xml.aOzN1w#atf-0-3
+   9. file:///tmp/build-xml.aOzN1w#atf-0-2
+  10. file:///tmp/build-xml.aOzN1w#atf-0-1

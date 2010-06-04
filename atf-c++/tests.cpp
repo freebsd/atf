@@ -72,71 +72,49 @@ namespace impl = atf::tests;
 // The "tcr" class.
 // ------------------------------------------------------------------------
 
-const impl::tcr::state impl::tcr::passed_state = atf_tcr_passed_state;
-const impl::tcr::state impl::tcr::failed_state = atf_tcr_failed_state;
-const impl::tcr::state impl::tcr::skipped_state = atf_tcr_skipped_state;
+const impl::tcr::state impl::tcr::passed_state = 0;
+const impl::tcr::state impl::tcr::failed_state = 1;
+const impl::tcr::state impl::tcr::skipped_state = 2;
 
-impl::tcr::tcr(state s)
+static
+bool
+state_allows_reason(impl::tcr::state state)
 {
-    PRE(s == passed_state);
-
-    atf_error_t err = atf_tcr_init(&m_tcr, s);
-    if (atf_is_error(err))
-        throw_atf_error(err);
+    return state == impl::tcr::failed_state ||
+           state == impl::tcr::skipped_state;
 }
 
-impl::tcr::tcr(state s, const std::string& r)
+impl::tcr::tcr(state s) :
+    m_state(s)
+{
+    PRE(s == passed_state);
+}
+
+impl::tcr::tcr(state s, const std::string& r) :
+    m_state(s),
+    m_reason(r)
 {
     PRE(s == failed_state || s == skipped_state);
     PRE(!r.empty());
-
-    atf_error_t err = atf_tcr_init_reason_fmt(&m_tcr, s, "%s", r.c_str());
-    if (atf_is_error(err))
-        throw_atf_error(err);
-}
-
-impl::tcr::tcr(const tcr& o)
-{
-    if (o.get_state() == passed_state)
-        atf_tcr_init(&m_tcr, o.get_state());
-    else
-        atf_tcr_init_reason_fmt(&m_tcr, o.get_state(), "%s",
-                                o.get_reason().c_str());
 }
 
 impl::tcr::~tcr(void)
 {
-    atf_tcr_fini(&m_tcr);
 }
 
 impl::tcr::state
 impl::tcr::get_state(void)
     const
 {
-    return atf_tcr_get_state(&m_tcr);
+    return m_state;
 }
 
-const std::string
+const std::string&
 impl::tcr::get_reason(void)
     const
 {
-    const atf_dynstr_t* r = atf_tcr_get_reason(&m_tcr);
-    return atf_dynstr_cstring(r);
-}
-
-impl::tcr&
-impl::tcr::operator=(const tcr& o)
-{
-    if (this != &o) {
-        atf_tcr_fini(&m_tcr);
-
-        if (o.get_state() == passed_state)
-            atf_tcr_init(&m_tcr, o.get_state());
-        else
-            atf_tcr_init_reason_fmt(&m_tcr, o.get_state(), "%s",
-                                    o.get_reason().c_str());
-    }
-    return *this;
+    PRE(state_allows_reason(m_state));
+    return m_reason;
 }
 
 namespace {

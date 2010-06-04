@@ -41,7 +41,6 @@
 #include <atf-c.h>
 
 #include "atf-c/fs.h"
-#include "atf-c/io.h"
 #include "atf-c/process.h"
 #include "atf-c/text.h"
 

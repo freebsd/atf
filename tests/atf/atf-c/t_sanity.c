@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009, 2010 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,6 @@
 #include <atf-c.h>
 
 #include "atf-c/dynstr.h"
-#include "atf-c/io.h"
 #include "atf-c/process.h"
 #include "atf-c/sanity.h"
 
@@ -131,8 +130,7 @@ do_test(enum type t, bool cond)
     do {
         RE(atf_dynstr_init(&lines[nlines]));
         if (!eof)
-            RE(atf_io_readline(atf_process_child_stderr(&child),
-                               &lines[nlines], &eof));
+            eof = read_line(atf_process_child_stderr(&child), &lines[nlines]);
         nlines++;
     } while (nlines < 3);
     ATF_REQUIRE(nlines == 0 || nlines == 3);

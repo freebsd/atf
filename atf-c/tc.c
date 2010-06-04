@@ -50,7 +50,6 @@
 #include "atf-c/process.h"
 #include "atf-c/sanity.h"
 #include "atf-c/tc.h"
-#include "atf-c/tcr.h"
 #include "atf-c/text.h"
 #include "atf-c/user.h"
 

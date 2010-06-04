@@ -24,7 +24,10 @@
 
 <itemizedlist>
 
-<listitem><para>No changes recorded.</para></listitem>
+<listitem><para>Simplifications to the <literal>atf-c</literal> library:
+removed the <literal>io</literal> and <literal>tcr</literal> modules as
+they had become unnecessary after all simplifications introduced in the
+0.8 release.</para></listitem>
 
 </itemizedlist>
 

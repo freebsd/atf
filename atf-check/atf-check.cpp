@@ -322,7 +322,7 @@ atf_check::run_output_check(const atf::check::check_result& r,
             return false;
         }
     } else if (check == oc_file) {
-        if (atf::io::cmp(path, atf::fs::path(arg)) != 0) {
+        if (!atf::io::cmp(path, atf::fs::path(arg))) {
             std::cerr << "Fail: incorrect " << stdxxx << std::endl;
             print_diff(atf::fs::path(arg), path);
 
@@ -335,7 +335,7 @@ atf_check::run_output_check(const atf::check::check_result& r,
         temp << decode(arg);
         temp.close();
 
-        if (atf::io::cmp(path, temp.get_path()) != 0) {
+        if (!atf::io::cmp(path, temp.get_path())) {
             std::cerr << "Fail: incorrect " << stdxxx << std::endl;
             print_diff(temp.get_path(), path);
 
