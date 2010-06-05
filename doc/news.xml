@@ -29,7 +29,8 @@
 and stderr of commands.</para></listitem>
 
 <listitem><para>Changed <literal>atf-check</literal> to support specifying
-multiple checkers for stdout and stderr, not only one.</para></listitem>
+multiple checkers for stdout and stderr, not only one, and to allow negating
+the checks by prefixing them by <literal>not-</literal>.</para></listitem>
 
 <listitem><para>Simplifications to the <literal>atf-c</literal> library:
 removed the <literal>io</literal> and <literal>tcr</literal> modules as

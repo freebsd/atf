@@ -32,7 +32,8 @@
        expressions in the stdout and stderr of commands.
 
      * Changed atf-check to support specifying multiple checkers for stdout
-       and stderr, not only one.
+       and stderr, not only one, and to allow negating the checks by
+       prefixing them by not-.
 
      * Simplifications to the atf-c library: removed the io and tcr modules
        as they had become unnecessary after all simplifications introduced in
@@ -302,13 +303,13 @@
 References
 
    Visible links
-   1. file:///tmp/build-xml.Iv0wSL#atf-0-10
-   2. file:///tmp/build-xml.Iv0wSL#atf-0-9
-   3. file:///tmp/build-xml.Iv0wSL#atf-0-8
-   4. file:///tmp/build-xml.Iv0wSL#atf-0-7
-   5. file:///tmp/build-xml.Iv0wSL#atf-0-6
-   6. file:///tmp/build-xml.Iv0wSL#atf-0-5
-   7. file:///tmp/build-xml.Iv0wSL#atf-0-4
-   8. file:///tmp/build-xml.Iv0wSL#atf-0-3
-   9. file:///tmp/build-xml.Iv0wSL#atf-0-2
-  10. file:///tmp/build-xml.Iv0wSL#atf-0-1
+   1. file:///tmp/build-xml.SzU4Am#atf-0-10
+   2. file:///tmp/build-xml.SzU4Am#atf-0-9
+   3. file:///tmp/build-xml.SzU4Am#atf-0-8
+   4. file:///tmp/build-xml.SzU4Am#atf-0-7
+   5. file:///tmp/build-xml.SzU4Am#atf-0-6
+   6. file:///tmp/build-xml.SzU4Am#atf-0-5
+   7. file:///tmp/build-xml.SzU4Am#atf-0-4
+   8. file:///tmp/build-xml.SzU4Am#atf-0-3
+   9. file:///tmp/build-xml.SzU4Am#atf-0-2
+  10. file:///tmp/build-xml.SzU4Am#atf-0-1

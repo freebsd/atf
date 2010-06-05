@@ -96,6 +96,10 @@ looks for a regular expression in stdout
 .It Ar save:<path>
 saves stdout to given file
 .El
+.Pp
+Most of these checkers can be prefixed by the
+.Sq not-
+string, which effectively reverses the check.
 .It Fl e Ar action:arg
 Analyzes standard error (syntax identical to above)
 .El
@@ -114,6 +118,9 @@ atf-check -s ne:0 'false' || atf_fail
 echo foobar >expout
 atf-check -o file:expout -e inline:"xx\\tyy\\n" \\
     'echo foobar ; printf "xx\\tyy\\n" >&2' || atf_fail
+
+# Combined checks
+atf-check -o match:foo -o not-match:bar echo foo baz
 .Ed
 .Sh SEE ALSO
 .Xr atf 7
