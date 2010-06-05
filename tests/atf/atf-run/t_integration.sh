@@ -100,12 +100,13 @@ Content-Type: application/X-atf-config; version="1"
 3rd = "sw common"
 4th = "sw common"
 EOF
-    atf_check -s eq:0 -o save:stdout -e ignore -x \
+    atf_check -s eq:0 \
+        -o match:'1st: sw common' \
+        -o match:'2nd: sw common' \
+        -o match:'3rd: sw common' \
+        -o match:'4th: sw common' \
+        -e ignore -x \
         "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper"
-    atf_check -s eq:0 -o ignore -e ignore grep '1st: sw common' stdout
-    atf_check -s eq:0 -o ignore -e ignore grep '2nd: sw common' stdout
-    atf_check -s eq:0 -o ignore -e ignore grep '3rd: sw common' stdout
-    atf_check -s eq:0 -o ignore -e ignore grep '4th: sw common' stdout
 
     echo "Second: read system-wide <test-suite>.conf."
     cat >etc/atf.conf <<EOF
@@ -113,12 +114,13 @@ Content-Type: application/X-atf-config; version="1"
 
 1st = "sw atf"
 EOF
-    atf_check -s eq:0 -o save:stdout -e ignore -x \
+    atf_check -s eq:0 \
+        -o match:'1st: sw atf' \
+        -o match:'2nd: sw common' \
+        -o match:'3rd: sw common' \
+        -o match:'4th: sw common' \
+        -e ignore -x \
         "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper"
-    atf_check -s eq:0 -o ignore -e ignore grep '1st: sw atf' stdout
-    atf_check -s eq:0 -o ignore -e ignore grep '2nd: sw common' stdout
-    atf_check -s eq:0 -o ignore -e ignore grep '3rd: sw common' stdout
-    atf_check -s eq:0 -o ignore -e ignore grep '4th: sw common' stdout
 
     echo "Third: read user-specific common.conf."
     cat >.atf/common.conf <<EOF
@@ -126,12 +128,13 @@ Content-Type: application/X-atf-config; version="1"
 
 2nd = "us common"
 EOF
-    atf_check -s eq:0 -o save:stdout -e ignore -x \
+    atf_check -s eq:0 \
+        -o match:'1st: sw atf' \
+        -o match:'2nd: us common' \
+        -o match:'3rd: sw common' \
+        -o match:'4th: sw common' \
+        -e ignore -x \
         "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper"
-    atf_check -s eq:0 -o ignore -e ignore grep '1st: sw atf' stdout
-    atf_check -s eq:0 -o ignore -e ignore grep '2nd: us common' stdout
-    atf_check -s eq:0 -o ignore -e ignore grep '3rd: sw common' stdout
-    atf_check -s eq:0 -o ignore -e ignore grep '4th: sw common' stdout
 
     echo "Fourth: read user-specific <test-suite>.conf."
     cat >.atf/atf.conf <<EOF
@@ -139,12 +142,13 @@ Content-Type: application/X-atf-config; version="1"
 
 3rd = "us atf"
 EOF
-    atf_check -s eq:0 -o save:stdout -e ignore -x \
+    atf_check -s eq:0 \
+        -o match:'1st: sw atf' \
+        -o match:'2nd: us common' \
+        -o match:'3rd: us atf' \
+        -o match:'4th: sw common' \
+        -e ignore -x \
         "ATF_CONFDIR=$(pwd)/etc HOME=$(pwd) atf-run helper"
-    atf_check -s eq:0 -o ignore -e ignore grep '1st: sw atf' stdout
-    atf_check -s eq:0 -o ignore -e ignore grep '2nd: us common' stdout
-    atf_check -s eq:0 -o ignore -e ignore grep '3rd: us atf' stdout
-    atf_check -s eq:0 -o ignore -e ignore grep '4th: sw common' stdout
 }
 
 atf_test_case vflag
@@ -163,9 +167,8 @@ vflag_body()
         "ATF_CONFDIR=$(pwd)/etc atf-run helper"
 
     echo "Checking that defining 'testvar' trough '-v' works."
-    atf_check -s eq:0 -o save:stdout -e ignore -x \
+    atf_check -s eq:0 -o match:'testvar: a value' -e ignore -x \
         "ATF_CONFDIR=$(pwd)/etc atf-run -v testvar='a value' helper"
-    atf_check -s eq:0 -o ignore -e ignore grep 'testvar: a value' stdout
 
     echo "Checking that defining 'testvar' trough the configuration" \
          "file works."
@@ -175,16 +178,13 @@ Content-Type: application/X-atf-config; version="1"
 
 testvar = "value in conf file"
 EOF
-    atf_check -s eq:0 -o save:stdout -e ignore -x \
+    atf_check -s eq:0 -o match:'testvar: value in conf file' -e ignore -x \
               "ATF_CONFDIR=$(pwd)/etc atf-run helper"
-    atf_check -s eq:0 -o ignore -e ignore \
-              grep 'testvar: value in conf file' stdout
 
     echo "Checking that defining 'testvar' trough -v overrides the" \
          "configuration file."
-    atf_check -s eq:0 -o save:stdout -e ignore -x \
+    atf_check -s eq:0 -o match:'testvar: a value' -e ignore -x \
         "ATF_CONFDIR=$(pwd)/etc atf-run -v testvar='a value' helper"
-    atf_check -s eq:0 -o ignore -e ignore grep 'testvar: a value' stdout
 }
 
 atf_test_case atffile
@@ -204,10 +204,8 @@ atffile_body()
 
     echo "Checking that defining 'testvar' trough the Atffile works."
     echo 'conf: testvar = "a value"' >>Atffile
-    atf_check -s eq:0 -o save:stdout -e ignore -x \
+    atf_check -s eq:0 -o match:'testvar: a value' -e ignore -x \
               "ATF_CONFDIR=$(pwd)/etc atf-run helper"
-    atf_check -s eq:0 -o ignore -e ignore \
-              grep 'testvar: a value' stdout
 
     echo "Checking that defining 'testvar' trough the configuration" \
          "file overrides the one in the Atffile."
@@ -217,17 +215,14 @@ Content-Type: application/X-atf-config; version="1"
 
 testvar = "value in conf file"
 EOF
-    atf_check -s eq:0 -o save:stdout -e ignore -x \
+    atf_check -s eq:0 -o match:'testvar: value in conf file' -e ignore -x \
               "ATF_CONFDIR=$(pwd)/etc atf-run helper"
-    atf_check -s eq:0 -o ignore -e ignore \
-              grep 'testvar: value in conf file' stdout
     rm -rf etc
 
     echo "Checking that defining 'testvar' trough -v overrides the" \
          "one in the Atffile."
-    atf_check -s eq:0 -o save:stdout -e ignore -x \
+    atf_check -s eq:0 -o match:'testvar: new value' -e ignore -x \
         "ATF_CONFDIR=$(pwd)/etc atf-run -v testvar='new value' helper"
-    atf_check -s eq:0 -o ignore -e ignore grep 'testvar: new value' stdout
 }
 
 atf_test_case atffile_recursive
@@ -251,9 +246,8 @@ atffile_recursive_body()
 
     echo "Checking that defining 'testvar' in the correct Atffile works."
     echo 'conf: testvar = "a value"' >>dir/Atffile
-    atf_check -s eq:0 -o save:stdout -e ignore -x \
+    atf_check -s eq:0 -o match:'testvar: a value' -e ignore -x \
               "ATF_CONFDIR=$(pwd)/etc atf-run"
-    atf_check -s eq:0 -o ignore -e ignore grep 'testvar: a value' stdout
 }
 
 atf_test_case fds
@@ -266,11 +260,12 @@ fds_body()
 {
     create_helper fds
 
-    atf_check -s eq:0 -o save:stdout -e empty atf-run
-    atf_check -s eq:0 -o ignore -e empty grep '^tc-so:msg1 to stdout$' stdout
-    atf_check -s eq:0 -o ignore -e empty grep '^tc-so:msg2 to stdout$' stdout
-    atf_check -s eq:0 -o ignore -e empty grep '^tc-se:msg1 to stderr$' stdout
-    atf_check -s eq:0 -o ignore -e empty grep '^tc-se:msg2 to stderr$' stdout
+    atf_check -s eq:0 \
+        -o match:'^tc-so:msg1 to stdout$' \
+        -o match:'^tc-so:msg2 to stdout$' \
+        -o match:'^tc-se:msg1 to stderr$' \
+        -o match:'^tc-se:msg2 to stderr$' \
+        -e empty atf-run
 }
 
 atf_test_case missing_results
@@ -290,10 +285,10 @@ EOF
 
     create_atffile helper
 
-    atf_check -s eq:1 -o save:stdout -e empty atf-run
-    atf_check -s eq:0 -o ignore -e empty \
-              grep '^tc-end: tc1, failed,.*failed to create' stdout
-    atf_check -s eq:1 -o ignore -e empty grep 'resfile found' stdout
+    atf_check -s eq:1 \
+        -o match:'^tc-end: tc1, failed,.*failed to create' \
+        -o not-match:'resfile found' \
+        -e empty atf-run
 }
 
 atf_test_case broken_results
@@ -317,9 +312,7 @@ EOF
 
     create_atffile helper
 
-    atf_check -s eq:1 -o save:stdout -e empty atf-run
-    atf_check -s eq:0 -o ignore -e empty \
-              grep '^tc-end: tc1, .*1:.*2:.*' stdout
+    atf_check -s eq:1 -o match:'^tc-end: tc1, .*1:.*2:.*' -e empty atf-run
 }
 
 atf_test_case broken_tp_list
@@ -349,10 +342,9 @@ EOF
 
     create_atffile helper
 
-    atf_check -s eq:1 -o save:stdout -e empty atf-run
-    atf_check -s eq:0 -o save:stdout -e empty grep '^tp-end: helper, ' stdout
-    atf_check -s eq:0 -o ignore -e empty \
-        grep 'Invalid format for test case list:.*First property.*ident' stdout
+    re='^tp-end: helper,'
+    re="${re} Invalid format for test case list:.*First property.*ident"
+    atf_check -s eq:1 -o match:"${re}" -e empty atf-run
 }
 
 atf_test_case zero_tcs
@@ -373,9 +365,9 @@ EOF
 
     create_atffile helper
 
-    atf_check -s eq:1 -o save:stdout -e empty atf-run
-    atf_check -s eq:0 -o ignore -e empty \
-        grep '^tp-end: helper,.*Invalid format for test case list' stdout
+    atf_check -s eq:1 \
+        -o match:'^tp-end: helper,.*Invalid format for test case list' \
+        -e empty atf-run
 }
 
 atf_test_case exit_codes
@@ -398,9 +390,9 @@ EOF
 
     create_atffile helper
 
-    atf_check -s eq:1 -o save:stdout -e empty atf-run
-    atf_check -s eq:0 -o ignore -e empty \
-        grep '^tc-end: tc1,.*exited successfully.*reported failure' stdout
+    atf_check -s eq:1 \
+        -o match:'^tc-end: tc1,.*exited successfully.*reported failure' \
+        -e empty atf-run
 }
 
 atf_test_case signaled
@@ -424,9 +416,8 @@ EOF
 
     create_atffile helper
 
-    atf_check -s eq:1 -o save:stdout -e empty atf-run
-    atf_check -s eq:0 -o save:stdout -e empty grep '^tc-end: tc1, ' stdout
-    atf_check -s eq:0 -o ignore -e empty grep 'received signal 9' stdout
+    atf_check -s eq:1 -o match:'^tc-end: tc1,.*received signal 9' \
+        -e empty atf-run
 }
 
 atf_test_case no_reason
@@ -450,10 +441,8 @@ EOF
 
         create_atffile helper
 
-        atf_check -s eq:1 -o save:stdout -e empty atf-run
-        cat stdout
-        atf_check -s eq:0 -o ignore -e empty \
-                  grep '^tc-end: tc1,.*No reason specified' stdout
+        atf_check -s eq:1 -o match:'^tc-end: tc1,.*No reason specified' \
+            -e empty atf-run
     done
 }
 
@@ -473,10 +462,9 @@ hooks_body()
     mkdir .atf
 
     echo "Checking default hooks"
-    atf_check -s eq:0 -o save:stdout -e empty -x \
-              "ATF_CONFDIR=$(pwd)/atf atf-run"
-    atf_check -s eq:0 -o ignore -e empty grep '^info: time.start, ' stdout
-    atf_check -s eq:0 -o ignore -e empty grep '^info: time.end, ' stdout
+    atf_check -s eq:0 -o match:'^info: time.start, ' \
+        -o match:'^info: time.end, ' -e empty -x \
+        "ATF_CONFDIR=$(pwd)/atf atf-run"
 
     echo "Checking the system-wide info_start hook"
     cat >atf/atf-run.hooks <<EOF
@@ -485,11 +473,12 @@ info_start_hook()
     atf_tps_writer_info "test" "sw value"
 }
 EOF
-    atf_check -s eq:0 -o save:stdout -e empty -x \
-              "ATF_CONFDIR=$(pwd)/atf atf-run"
-    atf_check -s eq:0 -o ignore -e empty grep '^info: test, sw value' stdout
-    atf_check -s eq:1 -o empty -e empty grep '^info: time.start, ' stdout
-    atf_check -s eq:0 -o ignore -e empty grep '^info: time.end, ' stdout
+    atf_check -s eq:0 \
+        -o match:'^info: test, sw value' \
+        -o not-match:'^info: time.start, ' \
+        -o match:'^info: time.end, ' \
+        -e empty -x \
+        "ATF_CONFDIR=$(pwd)/atf atf-run"
 
     echo "Checking the user-specific info_start hook"
     cat >.atf/atf-run.hooks <<EOF
@@ -498,12 +487,12 @@ info_start_hook()
     atf_tps_writer_info "test" "user value"
 }
 EOF
-    atf_check -s eq:0 -o save:stdout -e empty -x \
-              "ATF_CONFDIR=$(pwd)/atf atf-run"
-    atf_check -s eq:0 -o ignore -e empty \
-              grep '^info: test, user value' stdout
-    atf_check -s eq:1 -o empty -e empty grep '^info: time.start, ' stdout
-    atf_check -s eq:0 -o ignore -e empty grep '^info: time.end, ' stdout
+    atf_check -s eq:0 \
+        -o match:'^info: test, user value' \
+        -o not-match:'^info: time.start, ' \
+        -o match:'^info: time.end, ' \
+        -e empty -x \
+        "ATF_CONFDIR=$(pwd)/atf atf-run"
 
     rm atf/atf-run.hooks
     rm .atf/atf-run.hooks
@@ -515,11 +504,12 @@ info_end_hook()
     atf_tps_writer_info "test" "sw value"
 }
 EOF
-    atf_check -s eq:0 -o save:stdout -e empty -x \
-              "ATF_CONFDIR=$(pwd)/atf atf-run"
-    atf_check -s eq:0 -o ignore -e empty grep '^info: time.start, ' stdout
-    atf_check -s eq:1 -o empty -e empty grep '^info: time.end, ' stdout
-    atf_check -s eq:0 -o ignore -e empty grep '^info: test, sw value' stdout
+    atf_check -s eq:0 \
+        -o match:'^info: time.start, ' \
+        -o not-match:'^info: time.end, ' \
+        -o match:'^info: test, sw value' \
+        -e empty -x \
+        "ATF_CONFDIR=$(pwd)/atf atf-run"
 
     echo "Checking the user-specific info_end hook"
     cat >.atf/atf-run.hooks <<EOF
@@ -528,12 +518,12 @@ info_end_hook()
     atf_tps_writer_info "test" "user value"
 }
 EOF
-    atf_check -s eq:0 -o save:stdout -e empty -x \
-              "ATF_CONFDIR=$(pwd)/atf atf-run"
-    atf_check -s eq:0 -o ignore -e empty grep '^info: time.start, ' stdout
-    atf_check -s eq:1 -o empty -e empty grep '^info: time.end, ' stdout
-    atf_check -s eq:0 -o ignore -e empty \
-              grep '^info: test, user value' stdout
+    atf_check -s eq:0 \
+        -o match:'^info: time.start, ' \
+        -o not-match:'^info: time.end, ' \
+        -o match:'^info: test, user value' \
+        -e empty -x \
+         "ATF_CONFDIR=$(pwd)/atf atf-run"
 }
 
 atf_test_case isolation_env
@@ -596,8 +586,8 @@ isolation_umask_body()
     create_helper umask
     create_atffile helper
 
-    atf_check -s eq:0 -o save:stdout -e ignore -x "umask 0000 && atf-run helper"
-    atf_check -s eq:0 -o ignore -e empty grep 'umask: 0022' stdout
+    atf_check -s eq:0 -o match:'umask: 0022' -e ignore -x \
+        "umask 0000 && atf-run helper"
 }
 
 atf_test_case cleanup_pass
@@ -612,9 +602,8 @@ cleanup_pass_body()
     create_helper cleanup_states
     create_atffile helper
 
-    atf_check -s eq:0 -o save:stdout -e ignore atf-run -v state=pass \
-        -v statedir=$(pwd) helper
-    atf_check -s eq:0 -o ignore -e empty grep 'cleanup_states, passed' stdout
+    atf_check -s eq:0 -o match:'cleanup_states, passed' -e ignore atf-run \
+        -v state=pass -v statedir=$(pwd) helper
     test -f to-stay || atf_fail "Test case body did not run correctly"
     test -f to-delete && atf_fail "Test case cleanup did not run correctly"
 }
@@ -631,9 +620,8 @@ cleanup_fail_body()
     create_helper cleanup_states
     create_atffile helper
 
-    atf_check -s eq:1 -o save:stdout -e ignore atf-run -v state=fail \
-        -v statedir=$(pwd) helper
-    atf_check -s eq:0 -o ignore -e empty grep 'cleanup_states, failed' stdout
+    atf_check -s eq:1 -o match:'cleanup_states, failed' -e ignore atf-run \
+        -v state=fail -v statedir=$(pwd) helper
     test -f to-stay || atf_fail "Test case body did not run correctly"
     test -f to-delete && atf_fail "Test case cleanup did not run correctly"
 }
@@ -650,9 +638,8 @@ cleanup_skip_body()
     create_helper cleanup_states
     create_atffile helper
 
-    atf_check -s eq:0 -o save:stdout -e ignore atf-run -v state=skip \
-        -v statedir=$(pwd) helper
-    atf_check -s eq:0 -o ignore -e empty grep 'cleanup_states, skipped' stdout
+    atf_check -s eq:0 -o match:'cleanup_states, skipped' -e ignore atf-run \
+        -v state=skip -v statedir=$(pwd) helper
     test -f to-stay || atf_fail "Test case body did not run correctly"
     test -f to-delete && atf_fail "Test case cleanup did not run correctly"
 }
@@ -669,9 +656,8 @@ cleanup_curdir_body()
     create_helper cleanup_curdir
     create_atffile helper
 
-    atf_check -s eq:0 -o save:stdout -e ignore atf-run helper
-    atf_check -s eq:0 -o ignore -e empty grep 'cleanup_curdir, passed' stdout
-    atf_check -s eq:0 -o ignore -e empty grep 'Old value: 1234' stdout
+    atf_check -s eq:0 -o match:'cleanup_curdir, passed' \
+        -o match:'Old value: 1234' -e ignore atf-run helper
 }
 
 atf_test_case cleanup_signal
@@ -698,33 +684,32 @@ require_arch_body()
 
     echo "Checking for the real architecture"
     arch=$(atf-config -t atf_arch)
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v arch="${arch}" helper
-    atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v arch="foo ${arch}" helper
-    atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v arch="${arch} foo" helper
-    atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v arch="${arch}" helper
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v arch="foo ${arch}" helper
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v arch="${arch} foo" helper
 
     echo "Checking for a fictitious architecture"
     arch=fictitious
     export ATF_ARCH=fictitious
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v arch="${arch}" helper
-    atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v arch="foo ${arch}" helper
-    atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v arch="${arch} foo" helper
-    atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v arch="${arch}" helper
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v arch="foo ${arch}" helper
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v arch="${arch} foo" helper
 
     echo "Triggering some failures"
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v arch="foo" helper
-    atf_check -s eq:0 -o ignore -e empty grep \
-        "${TESTCASE}, skipped, .*foo.*architecture" so
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v arch="foo bar" helper
-    atf_check -s eq:0 -o ignore -e empty grep \
-        "${TESTCASE}, skipped, .*foo bar.*architectures" so
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v arch="${arch}xxx" helper
-    atf_check -s eq:0 -o ignore -e empty grep \
-        "${TESTCASE}, skipped, .*fictitiousxxx.*architecture" so
+    atf_check -s eq:0 -o match:"${TESTCASE}, skipped, .*foo.*architecture" \
+        -e ignore atf-run -v arch="foo" helper
+    atf_check -s eq:0 \
+        -o match:"${TESTCASE}, skipped, .*foo bar.*architectures" -e ignore \
+        atf-run -v arch="foo bar" helper
+    atf_check -s eq:0 \
+        -o match:"${TESTCASE}, skipped, .*fictitiousxxx.*architecture" \
+        -e ignore atf-run -v arch="${arch}xxx" helper
 }
 
 atf_test_case require_config
@@ -738,16 +723,12 @@ require_config_body()
     create_helper require_config
     create_atffile helper
 
-    atf_check -s eq:0 -o save:so -e ignore atf-run helper
-    atf_check -s eq:0 -o ignore -e empty grep \
-        "${TESTCASE}, skipped, .*var1.*not defined" so
-
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v var1=foo helper
-    atf_check -s eq:0 -o ignore -e empty grep \
-        "${TESTCASE}, skipped, .*var2.*not defined" so
-
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v var1=a -v var2=' ' helper
-    atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
+    atf_check -s eq:0 -o match:"${TESTCASE}, skipped, .*var1.*not defined" \
+        -e ignore atf-run helper
+    atf_check -s eq:0 -o match:"${TESTCASE}, skipped, .*var2.*not defined" \
+        -e ignore atf-run -v var1=foo helper
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v var1=a -v var2=' ' helper
 }
 
 atf_test_case require_machine
@@ -763,40 +744,33 @@ require_machine_body()
 
     echo "Checking for the real machine type"
     machine=$(atf-config -t atf_machine)
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="${machine}" \
-        helper
-    atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="foo ${machine}" \
-        helper
-    atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="${machine} foo" \
-        helper
-    atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v machine="${machine}" helper
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v machine="foo ${machine}" helper
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v machine="${machine} foo" helper
 
     echo "Checking for a fictitious machine type"
     machine=fictitious
     export ATF_MACHINE=fictitious
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="${machine}" \
-        helper
-    atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="foo ${machine}" \
-        helper
-    atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="${machine} foo" \
-        helper
-    atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v machine="${machine}" helper
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v machine="foo ${machine}" helper
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v machine="${machine} foo" helper
 
     echo "Triggering some failures"
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="foo" helper
-    atf_check -s eq:0 -o ignore -e empty grep \
-        "${TESTCASE}, skipped, .*foo.*machine type" so
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="foo bar" helper
-    atf_check -s eq:0 -o ignore -e empty grep \
-        "${TESTCASE}, skipped, .*foo bar.*machine types" so
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v machine="${machine}xxx" \
-        helper
-    atf_check -s eq:0 -o ignore -e empty grep \
-        "${TESTCASE}, skipped, .*fictitiousxxx.*machine type" so
+    atf_check -s eq:0 -o match:"${TESTCASE}, skipped, .*foo.*machine type" \
+        -e ignore atf-run -v machine="foo" helper
+    atf_check -s eq:0 \
+        -o match:"${TESTCASE}, skipped, .*foo bar.*machine types" -e ignore \
+        atf-run -v machine="foo bar" helper
+    atf_check -s eq:0 \
+        -o match:"${TESTCASE}, skipped, .*fictitiousxxx.*machine type" \
+        -e ignore atf-run -v machine="${machine}xxx" helper
+        
 }
 
 atf_test_case require_progs
@@ -811,25 +785,23 @@ require_progs_body()
     create_atffile helper
 
     echo "Checking absolute paths"
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v progs='/bin/cp' helper
-    atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
-    atf_check -s eq:0 -o save:so -e ignore atf-run \
-        -v progs='/bin/__non-existent__' helper
-    atf_check -s eq:0 -o ignore -e empty grep \
-        "${TESTCASE}, skipped, .*/bin/__non-existent__.*PATH" so
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v progs='/bin/cp' helper
+    atf_check -s eq:0 \
+        -o match:"${TESTCASE}, skipped, .*/bin/__non-existent__.*PATH" \
+        -e ignore atf-run -v progs='/bin/__non-existent__' helper
 
     echo "Checking that relative paths are not allowed"
-    atf_check -s eq:1 -o save:so -e ignore atf-run -v progs='bin/cp' helper
-    atf_check -s eq:0 -o ignore -e empty grep \
-        "${TESTCASE}, failed, Relative paths.*not allowed.*bin/cp" so
+    atf_check -s eq:1 \
+        -o match:"${TESTCASE}, failed, Relative paths.*not allowed.*bin/cp" \
+        -e ignore atf-run -v progs='bin/cp' helper
 
     echo "Check plain file names, searching them in the PATH."
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v progs='cp' helper
-    atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
-    atf_check -s eq:0 -o save:so -e ignore atf-run \
-        -v progs='__non-existent__' helper
-    atf_check -s eq:0 -o ignore -e empty grep \
-        "${TESTCASE}, skipped, .*__non-existent__.*PATH" so
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v progs='cp' helper
+    atf_check -s eq:0 \
+        -o match:"${TESTCASE}, skipped, .*__non-existent__.*PATH" -e ignore \
+        atf-run -v progs='__non-existent__' helper
 }
 
 atf_test_case require_user_root
@@ -844,12 +816,13 @@ require_user_root_body()
     create_helper require_user
     create_atffile helper
 
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v user=root helper
     if [ $(id -u) -eq 0 ]; then
-        atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
+        exp=passed
     else
-        atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, skipped" so
+        exp=skipped
     fi
+    atf_check -s eq:0 -o match:"${TESTCASE}, ${exp}" -e ignore atf-run \
+        -v user=root helper
 }
 
 atf_test_case require_user_unprivileged
@@ -864,12 +837,13 @@ require_user_unprivileged_body()
     create_helper require_user
     create_atffile helper
 
-    atf_check -s eq:0 -o save:so -e ignore atf-run -v user=unprivileged helper
     if [ $(id -u) -eq 0 ]; then
-        atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, skipped" so
+        exp=skipped
     else
-        atf_check -s eq:0 -o ignore -e empty grep "${TESTCASE}, passed" so
+        exp=passed
     fi
+    atf_check -s eq:0 -o match:"${TESTCASE}, ${exp}" -e ignore atf-run \
+        -v user=unprivileged helper
 }
 
 atf_test_case require_user_bad
@@ -884,9 +858,8 @@ require_user_bad_body()
     create_helper require_user
     create_atffile helper
 
-    atf_check -s eq:1 -o save:so -e ignore atf-run -v user=foobar helper
-    atf_check -s eq:0 -o ignore -e empty grep \
-        "${TESTCASE}, failed, Invalid value.*foobar" so
+    atf_check -s eq:1 -o match:"${TESTCASE}, failed, Invalid value.*foobar" \
+        -e ignore atf-run -v user=foobar helper
 }
 
 atf_test_case timeout
@@ -900,10 +873,10 @@ timeout_body()
     create_helper timeout
     create_atffile helper
 
-    atf_check -s eq:1 -o save:stdout -e ignore atf-run -v statedir=$(pwd) helper
+    atf_check -s eq:1 \
+        -o match:"${TESTCASE}, failed, .*timed out after 1 second" -e ignore \
+        atf-run -v statedir=$(pwd) helper
     test -f finished && atf_fail "Test case was not killed after time out"
-    atf_check -s eq:0 -o ignore -e empty grep \
-        "${TESTCASE}, failed, .*timed out after 1 second" stdout
 }
 
 atf_test_case use_fs

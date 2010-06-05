@@ -44,11 +44,9 @@ helper_subr() {
 }
 EOF
 
-    atf_check -s eq:0 -o save:stdout -e empty \
-              ./work/h_misc -s "$(pwd)"/work tp_srcdir
-    atf_check -s eq:0 -o ignore -e empty grep 'Calling helper' stdout
-    atf_check -s eq:0 -o ignore -e empty \
-              grep 'This is a helper subroutine' stdout
+    atf_check -s eq:0 -o match:'Calling helper' \
+        -o match:'This is a helper subroutine' -e empty ./work/h_misc \
+        -s "$(pwd)"/work tp_srcdir
 }
 
 atf_init_test_cases()

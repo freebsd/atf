@@ -71,10 +71,10 @@ query_one_head()
 query_one_body()
 {
     for v in ${all_vars}; do
-        atf_check -s eq:0 -o save:stdout -e empty atf-config "${v}"
+        atf_check -s eq:0 -o save:stdout -o match:"${v}" -e empty \
+            atf-config "${v}"
         atf_check -s eq:0 -o empty -e empty \
                   test "$(wc -l stdout | awk '{ print $1 }')" = 1
-        atf_check -s eq:0 -o ignore -e empty grep "${v}" stdout
     done
 }
 
@@ -88,10 +88,10 @@ query_one_terse_head()
 query_one_terse_body()
 {
     for v in ${all_vars}; do
-        atf_check -s eq:0 -o save:stdout -e empty atf-config "${v}"
+        atf_check -s eq:0 -o save:stdout -o match:"${v}" -e empty \
+            atf-config "${v}"
         atf_check -s eq:0 -o empty -e empty \
                   test "$(wc -l stdout | awk '{ print $1 }')" = 1
-        atf_check -s eq:0 -o ignore -e empty grep "${v}" stdout
         atf_check -s eq:0 -o save:stdout -e empty cut -d ' ' -f 3- stdout
         atf_check -s eq:0 -o empty -e empty mv stdout expout
         atf_check -s eq:0 -o file:expout -e empty atf-config -t "${v}"
@@ -106,12 +106,10 @@ query_multiple_head()
 }
 query_multiple_body()
 {
-    atf_check -s eq:0 -o save:stdout -e empty \
-              atf-config atf_libexecdir atf_shell
+    atf_check -s eq:0 -o save:stdout -o match:'atf_libexecdir' \
+        -o match:'atf_shell' -e empty atf-config atf_libexecdir atf_shell
     atf_check -s eq:0 -o empty -e empty \
               test "$(wc -l stdout | awk '{ print $1 }')" = 2
-    atf_check -s eq:0 -o ignore -e empty grep atf_libexecdir stdout
-    atf_check -s eq:0 -o ignore -e empty grep atf_shell stdout
 }
 
 atf_test_case query_unknown
@@ -123,9 +121,8 @@ query_unknown_head()
 }
 query_unknown_body()
 {
-    atf_check -s eq:1 -o empty -e save:stderr atf-config non_existent
-    atf_check -s eq:0 -o ignore -e empty \
-              grep "Unknown variable.*non_existent" stderr
+    atf_check -s eq:1 -o empty -e match:'Unknown variable.*non_existent' \
+        atf-config non_existent
 }
 
 atf_test_case query_mixture
@@ -138,14 +135,10 @@ query_mixture_head()
 query_mixture_body()
 {
     for v in ${all_vars}; do
-        atf_check -s eq:1 -o empty -e save:stderr \
+        atf_check -s eq:1 -o empty -e match:'Unknown variable.*non_existent' \
                   atf-config "${v}" non_existent
-        atf_check -s eq:0 -o ignore -e empty \
-                  grep 'Unknown variable.*non_existent' stderr
-        atf_check -s eq:1 -o empty -e save:stderr \
+        atf_check -s eq:1 -o empty -e match:'Unknown variable.*non_existent' \
                   atf-config non_existent "${v}"
-        atf_check -s eq:0 -o ignore -e empty \
-                  grep 'Unknown variable.*non_existent' stderr
     done
 }
 
