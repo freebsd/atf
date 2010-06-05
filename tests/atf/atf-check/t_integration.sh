@@ -197,6 +197,20 @@ oflag_save_body()
     cmp -s out exp || atf_fail "Saved output does not match expected results"
 }
 
+atf_test_case oflag_multiple
+oflag_multiple_head()
+{
+    atf_set "descr" "Tests for multiple occurrences of the -o option"
+    atf_set "use.fs" "true"
+}
+oflag_multiple_body()
+{
+    h_pass "echo foo bar" -o match:foo -o match:bar
+    h_pass "echo foo; echo bar" -o match:foo -o match:bar
+    h_fail "echo foo baz" -o match:bar -o match:foo
+    h_fail "echo foo; echo baz" -o match:bar -o match:foo
+}
+
 atf_test_case eflag_empty
 eflag_empty_head()
 {
@@ -295,6 +309,20 @@ eflag_match_body()
     h_fail "echo foo bar 1>&2" -e "match:^bar"
 }
 
+atf_test_case eflag_multiple
+eflag_multiple_head()
+{
+    atf_set "descr" "Tests for multiple occurrences of the -e option"
+    atf_set "use.fs" "true"
+}
+eflag_multiple_body()
+{
+    h_pass "echo foo bar 1>&2" -e match:foo -e match:bar
+    h_pass "echo foo 1>&2; echo bar 1>&2" -e match:foo -e match:bar
+    h_fail "echo foo baz 1>&2" -e match:bar -e match:foo
+    h_fail "echo foo 1>&2; echo baz 1>&2" -e match:bar -e match:foo
+}
+
 atf_test_case invalid_umask
 invalid_umask_head()
 {
@@ -324,6 +352,7 @@ atf_init_test_cases()
     atf_add_test_case oflag_inline
     atf_add_test_case oflag_match
     atf_add_test_case oflag_save
+    atf_add_test_case oflag_multiple
 
     atf_add_test_case eflag_empty
     atf_add_test_case eflag_ignore
@@ -331,6 +360,7 @@ atf_init_test_cases()
     atf_add_test_case eflag_inline
     atf_add_test_case eflag_match
     atf_add_test_case eflag_save
+    atf_add_test_case eflag_multiple
 
     atf_add_test_case invalid_umask
 }

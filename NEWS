@@ -31,6 +31,9 @@
      * Added the match output checker to atf-check to look for regular
        expressions in the stdout and stderr of commands.
 
+     * Changed atf-check to support specifying multiple checkers for stdout
+       and stderr, not only one.
+
      * Simplifications to the atf-c library: removed the io and tcr modules
        as they had become unnecessary after all simplifications introduced in
        the 0.8 release.
@@ -299,13 +302,13 @@
 References
 
    Visible links
-   1. file:///tmp/build-xml.44Q3VQ#atf-0-10
-   2. file:///tmp/build-xml.44Q3VQ#atf-0-9
-   3. file:///tmp/build-xml.44Q3VQ#atf-0-8
-   4. file:///tmp/build-xml.44Q3VQ#atf-0-7
-   5. file:///tmp/build-xml.44Q3VQ#atf-0-6
-   6. file:///tmp/build-xml.44Q3VQ#atf-0-5
-   7. file:///tmp/build-xml.44Q3VQ#atf-0-4
-   8. file:///tmp/build-xml.44Q3VQ#atf-0-3
-   9. file:///tmp/build-xml.44Q3VQ#atf-0-2
-  10. file:///tmp/build-xml.44Q3VQ#atf-0-1
+   1. file:///tmp/build-xml.Iv0wSL#atf-0-10
+   2. file:///tmp/build-xml.Iv0wSL#atf-0-9
+   3. file:///tmp/build-xml.Iv0wSL#atf-0-8
+   4. file:///tmp/build-xml.Iv0wSL#atf-0-7
+   5. file:///tmp/build-xml.Iv0wSL#atf-0-6
+   6. file:///tmp/build-xml.Iv0wSL#atf-0-5
+   7. file:///tmp/build-xml.Iv0wSL#atf-0-4
+   8. file:///tmp/build-xml.Iv0wSL#atf-0-3
+   9. file:///tmp/build-xml.Iv0wSL#atf-0-2
+  10. file:///tmp/build-xml.Iv0wSL#atf-0-1

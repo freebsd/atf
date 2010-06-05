@@ -35,8 +35,8 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl s Ar qual:value
-.Op Fl o Ar action:arg
-.Op Fl e Ar action:arg
+.Op Fl o Ar action:arg ...
+.Op Fl e Ar action:arg ...
 .Ar command
 .Nm
 .Fl h
@@ -55,7 +55,10 @@ By default it will act as if it was run with
 .Fl o
 .Ar empty
 .Fl e
-.Ar empty
+.Ar empty .
+Multiple checks for the same output channel are allowed and, if specified,
+their results will be combined as a logical and (meaning that the output must
+match all the provided checks).
 .Pp
 In the second synopsis form,
 .Nm
