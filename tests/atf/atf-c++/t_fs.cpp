@@ -841,7 +841,7 @@ ATF_TEST_CASE_BODY(set_immutable)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/fs.hpp", "d_include_fs_hpp.cpp");
+HEADER_TC(include, "atf-c++/fs.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

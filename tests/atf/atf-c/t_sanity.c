@@ -243,7 +243,7 @@ ATF_TC_BODY(unreachable, tc)
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/sanity.h", "d_include_sanity_h.c");
+HEADER_TC(include, "atf-c/sanity.h");
 
 /* ---------------------------------------------------------------------
  * Main.

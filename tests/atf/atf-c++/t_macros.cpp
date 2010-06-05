@@ -340,7 +340,7 @@ ATF_TEST_CASE_BODY(check_throw)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/macros.hpp", "d_include_macros_hpp.cpp");
+HEADER_TC(include, "atf-c++/macros.hpp");
 BUILD_TC(use, "d_use_macros_hpp.cpp",
          "Tests that the macros provided by the atf-c++/macros.hpp file "
          "do not cause syntax errors when used",

@@ -635,7 +635,7 @@ ATF_TC_BODY(msg_embedded_fmt, tc)
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/macros.h", "d_include_macros_h.c");
+HEADER_TC(include, "atf-c/macros.h");
 BUILD_TC(use, "d_use_macros_h.c",
          "Tests that the macros provided by the atf-c/macros.h file "
          "do not cause syntax errors when used",

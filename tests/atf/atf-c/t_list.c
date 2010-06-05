@@ -306,7 +306,7 @@ ATF_TC_BODY(list_for_each_c, tc)
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/list.h", "d_include_list_h.c");
+HEADER_TC(include, "atf-c/list.h");
 
 /* ---------------------------------------------------------------------
  * Main.

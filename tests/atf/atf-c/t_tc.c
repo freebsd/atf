@@ -175,7 +175,7 @@ ATF_TC_BODY(config, tcin)
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/tc.h", "d_include_tc_h.c");
+HEADER_TC(include, "atf-c/tc.h");
 
 /* ---------------------------------------------------------------------
  * Main.

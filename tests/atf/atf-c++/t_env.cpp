@@ -83,7 +83,7 @@ ATF_TEST_CASE_BODY(unset)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/env.hpp", "d_include_env_hpp.cpp");
+HEADER_TC(include, "atf-c++/env.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

@@ -545,7 +545,7 @@ ATF_TEST_CASE_BODY(std_muxer_lines)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/io.hpp", "d_include_io_hpp.cpp");
+HEADER_TC(include, "atf-c++/io.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

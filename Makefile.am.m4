@@ -645,25 +645,6 @@ pkgtests_DATA = tests/atf/Atffile
 EXTRA_DIST += $(pkgtests_DATA)
 
 atf_atf_c_DATA = tests/atf/atf-c/Atffile \
-                 tests/atf/atf-c/d_include_atf_c_h.c \
-                 tests/atf/atf-c/d_include_build_h.c \
-                 tests/atf/atf-c/d_include_check_h.c \
-                 tests/atf/atf-c/d_include_config_h.c \
-                 tests/atf/atf-c/d_include_dynstr_h.c \
-                 tests/atf/atf-c/d_include_env_h.c \
-                 tests/atf/atf-c/d_include_error_fwd_h.c \
-                 tests/atf/atf-c/d_include_error_h.c \
-                 tests/atf/atf-c/d_include_fs_h.c \
-                 tests/atf/atf-c/d_include_list_h.c \
-                 tests/atf/atf-c/d_include_macros_h.c \
-                 tests/atf/atf-c/d_include_map_h.c \
-                 tests/atf/atf-c/d_include_process_h.c \
-                 tests/atf/atf-c/d_include_sanity_h.c \
-                 tests/atf/atf-c/d_include_tc_h.c \
-                 tests/atf/atf-c/d_include_text_h.c \
-                 tests/atf/atf-c/d_include_tp_h.c \
-                 tests/atf/atf-c/d_include_ui_h.c \
-                 tests/atf/atf-c/d_include_user_h.c \
                  tests/atf/atf-c/d_use_macros_h.c
 atf_atf_cdir = $(pkgtestsdir)/atf-c
 EXTRA_DIST += $(atf_atf_c_DATA)
@@ -736,28 +717,6 @@ atf_atf_c_PROGRAMS += tests/atf/atf-c/h_processes
 tests_atf_atf_c_h_processes_SOURCES = tests/atf/atf-c/h_processes.c
 
 atf_atf_c___DATA = tests/atf/atf-c++/Atffile \
-                   tests/atf/atf-c++/d_include_application_hpp.cpp \
-                   tests/atf/atf-c++/d_include_atf_c++_hpp.cpp \
-                   tests/atf/atf-c++/d_include_atffile_hpp.cpp \
-                   tests/atf/atf-c++/d_include_build_hpp.cpp \
-                   tests/atf/atf-c++/d_include_check_hpp.cpp \
-                   tests/atf/atf-c++/d_include_config_hpp.cpp \
-                   tests/atf/atf-c++/d_include_env_hpp.cpp \
-                   tests/atf/atf-c++/d_include_exceptions_hpp.cpp \
-                   tests/atf/atf-c++/d_include_expand_hpp.cpp \
-                   tests/atf/atf-c++/d_include_formats_hpp.cpp \
-                   tests/atf/atf-c++/d_include_fs_hpp.cpp \
-                   tests/atf/atf-c++/d_include_io_hpp.cpp \
-                   tests/atf/atf-c++/d_include_macros_hpp.cpp \
-                   tests/atf/atf-c++/d_include_parser_hpp.cpp \
-                   tests/atf/atf-c++/d_include_process_hpp.cpp \
-                   tests/atf/atf-c++/d_include_sanity_hpp.cpp \
-                   tests/atf/atf-c++/d_include_signals_hpp.cpp \
-                   tests/atf/atf-c++/d_include_tests_hpp.cpp \
-                   tests/atf/atf-c++/d_include_text_hpp.cpp \
-                   tests/atf/atf-c++/d_include_ui_hpp.cpp \
-                   tests/atf/atf-c++/d_include_user_hpp.cpp \
-                   tests/atf/atf-c++/d_include_utils_hpp.cpp \
                    tests/atf/atf-c++/d_use_macros_hpp.cpp
 atf_atf_c__dir = $(pkgtestsdir)/atf-c++
 EXTRA_DIST += $(atf_atf_c___DATA)

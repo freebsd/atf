@@ -326,7 +326,7 @@ ATF_TEST_CASE_BODY(tcr_write_create_file_error)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/tests.hpp", "d_include_tests_hpp.cpp");
+HEADER_TC(include, "atf-c++/tests.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

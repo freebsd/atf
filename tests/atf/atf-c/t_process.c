@@ -1085,7 +1085,7 @@ TC_FORK_STREAMS(redirect_path, REDIRECT_PATH, redirect_path, REDIRECT_PATH);
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/process.h", "d_include_process_h.c");
+HEADER_TC(include, "atf-c/process.h");
 
 /* ---------------------------------------------------------------------
  * Main.

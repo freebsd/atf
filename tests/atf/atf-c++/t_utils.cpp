@@ -284,7 +284,7 @@ ATF_TEST_CASE_BODY(auto_array_access)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/utils.hpp", "d_include_utils_hpp.cpp");
+HEADER_TC(include, "atf-c++/utils.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

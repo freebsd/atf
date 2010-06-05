@@ -208,7 +208,7 @@ ATF_TEST_CASE_BODY(read_missing_test_program) {
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atffile.hpp", "d_include_atffile_hpp.cpp");
+HEADER_TC(include, "atf-c++/atffile.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

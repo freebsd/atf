@@ -1176,7 +1176,7 @@ ATF_TC_BODY(set_immutable, tc)
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/fs.h", "d_include_fs_h.c");
+HEADER_TC(include, "atf-c/fs.h");
 
 /* ---------------------------------------------------------------------
  * Main.

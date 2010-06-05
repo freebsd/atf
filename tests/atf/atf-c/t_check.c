@@ -546,7 +546,7 @@ ATF_TC_BODY(exec_unknown, tc)
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/check.h", "d_include_check_h.c");
+HEADER_TC(include, "atf-c/check.h");
 
 /* ---------------------------------------------------------------------
  * Main.

@@ -391,7 +391,7 @@ ATF_TEST_CASE_BODY(exec_unknown)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/check.hpp", "d_include_check_hpp.cpp");
+HEADER_TC(include, "atf-c++/check.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

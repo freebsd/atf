@@ -258,7 +258,7 @@ ATF_TEST_CASE_BODY(reset)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/signals.hpp", "d_include_signals_hpp.cpp");
+HEADER_TC(include, "atf-c++/signals.hpp");
 
 // ------------------------------------------------------------------------
 // Main.
