@@ -33,11 +33,13 @@ extern "C" {
 }
 
 #include <fstream>
+#include <cerrno>
 #include <cstdio>
 
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/fs.hpp"
 #include "atf-c++/macros.hpp"
+#include "atf-c++/user.hpp"
 
 #include "h_lib.hpp"
 
@@ -47,13 +49,19 @@ extern "C" {
 
 static
 void
+create_file(const char *name)
+{
+    std::ofstream os(name);
+    os.close();
+}
+
+static
+void
 create_files(void)
 {
     ::mkdir("files", 0755);
     ::mkdir("files/dir", 0755);
-
-    std::ofstream os("files/reg");
-    os.close();
+    create_file("files/reg");
 
     // TODO: Should create all other file types (blk, chr, fifo, lnk, sock)
     // and test for them... but the underlying file system may not support
@@ -762,14 +770,67 @@ ATF_TEST_CASE_BODY(cleanup)
     using atf::fs::exists;
     using atf::fs::path;
 
-    create_files();
+    ::mkdir("root", 0755);
+    ::mkdir("root/dir", 0755);
+    ::mkdir("root/dir/1", 0100);
+    ::mkdir("root/dir/2", 0644);
+    create_file("root/reg");
 
-    path p("files");
+    path p("root");
     ATF_CHECK( exists(p));
     ATF_CHECK( exists(p / "dir"));
+    ATF_CHECK( exists(p / "dir/1"));
+    ATF_CHECK( exists(p / "dir/2"));
     ATF_CHECK( exists(p / "reg"));
     cleanup(p);
     ATF_CHECK(!exists(p));
+}
+
+ATF_TEST_CASE(cleanup_eacces_on_root);
+ATF_TEST_CASE_HEAD(cleanup_eacces_on_root)
+{
+    set_md_var("descr", "Tests the cleanup function");
+    set_md_var("use.fs", "true");
+}
+ATF_TEST_CASE_BODY(cleanup_eacces_on_root)
+{
+    using atf::fs::cleanup;
+    using atf::fs::path;
+
+    ::mkdir("aux", 0755);
+    ::mkdir("aux/root", 0755);
+    ATF_CHECK(::chmod("aux", 0555) != -1);
+
+    try {
+        cleanup(path("aux/root"));
+        ATF_CHECK(atf::user::is_root());
+    } catch (const atf::system_error& e) {
+        ATF_CHECK(!atf::user::is_root());
+        ATF_CHECK_EQUAL(EACCES, e.code());
+    }
+}
+
+ATF_TEST_CASE(cleanup_eacces_on_subdir);
+ATF_TEST_CASE_HEAD(cleanup_eacces_on_subdir)
+{
+    set_md_var("descr", "Tests the cleanup function");
+    set_md_var("use.fs", "true");
+}
+ATF_TEST_CASE_BODY(cleanup_eacces_on_subdir)
+{
+    using atf::fs::cleanup;
+    using atf::fs::exists;
+    using atf::fs::path;
+
+    ::mkdir("root", 0755);
+    ::mkdir("root/1", 0755);
+    ::mkdir("root/1/2", 0755);
+    ::mkdir("root/1/2/3", 0755);
+    ATF_CHECK(::chmod("root/1/2", 0555) != -1);
+    ATF_CHECK(::chmod("root/1", 0555) != -1);
+
+    cleanup(path("root"));
+    ATF_CHECK(!exists(path("root")));
 }
 
 ATF_TEST_CASE(remove);
@@ -885,6 +946,8 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, is_executable);
     ATF_ADD_TEST_CASE(tcs, change_directory);
     ATF_ADD_TEST_CASE(tcs, cleanup);
+    ATF_ADD_TEST_CASE(tcs, cleanup_eacces_on_root);
+    ATF_ADD_TEST_CASE(tcs, cleanup_eacces_on_subdir);
     ATF_ADD_TEST_CASE(tcs, remove);
     ATF_ADD_TEST_CASE(tcs, current_umask);
     ATF_ADD_TEST_CASE(tcs, set_immutable);
