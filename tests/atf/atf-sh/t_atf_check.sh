@@ -67,9 +67,9 @@ expout_mismatch_body()
               "${h} atf_check_expout_mismatch"
     grep 'Executing command.*echo bar' stdout >/dev/null || \
         atf_fail "atf_check does not print an informative message"
-    grep 'incorrect stdout' stderr >/dev/null || \
+    grep 'stdout does not match golden output' stderr >/dev/null || \
         atf_fail "atf_check does not print the stdout header"
-    grep 'incorrect stderr' stderr >/dev/null && \
+    grep 'stderr' stderr >/dev/null && \
         atf_fail "atf_check prints the stderr header"
     grep '^-foo' stderr >/dev/null || \
         atf_fail "atf_check does not print the stdout's diff"
@@ -93,9 +93,9 @@ experr_mismatch_body()
               "${h} atf_check_experr_mismatch"
     grep 'Executing command.*echo bar' stdout >/dev/null || \
         atf_fail "atf_check does not print an informative message"
-    grep 'incorrect stdout' stderr >/dev/null && \
+    grep 'stdout' stderr >/dev/null && \
         atf_fail "atf_check prints the stdout header"
-    grep 'incorrect stderr' stderr >/dev/null || \
+    grep 'stderr does not match golden output' stderr >/dev/null || \
         atf_fail "atf_check does not print the stderr header"
     grep '^-foo' stderr >/dev/null || \
         atf_fail "atf_check does not print the stderr's diff"
@@ -118,9 +118,9 @@ null_stdout_body()
               "${h} atf_check_null_stdout"
     grep 'Executing command.*echo.*These.*contents' stdout >/dev/null || \
         atf_fail "atf_check does not print an informative message"
-    grep 'incorrect stdout' stderr >/dev/null || \
+    grep 'stdout not empty' stderr >/dev/null || \
         atf_fail "atf_check does not print the stdout header"
-    grep 'incorrect stderr' stderr >/dev/null && \
+    grep 'stderr' stderr >/dev/null && \
         atf_fail "atf_check prints the stderr header"
     grep 'These are the contents' stderr >/dev/null || \
         atf_fail "atf_check does not print stdout's contents"
@@ -141,9 +141,9 @@ null_stderr_body()
               "${h} atf_check_null_stderr"
     grep 'Executing command.*echo.*These.*contents' stdout >/dev/null || \
         atf_fail "atf_check does not print an informative message"
-    grep 'incorrect stdout' stderr >/dev/null && \
+    grep 'stdout' stderr >/dev/null && \
         atf_fail "atf_check prints the stdout header"
-    grep 'incorrect stderr' stderr >/dev/null || \
+    grep 'stderr not empty' stderr >/dev/null || \
         atf_fail "atf_check does not print the stderr header"
     grep 'These are the contents' stderr >/dev/null || \
         atf_fail "atf_check does not print stderr's contents"
