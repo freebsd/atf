@@ -24,6 +24,10 @@
 
 <itemizedlist>
 
+<listitem><para>Added the <literal>match</literal> output checker to
+<literal>atf-check</literal> to look for regular expressions in the stdout
+and stderr of commands.</para></listitem>
+
 <listitem><para>Simplifications to the <literal>atf-c</literal> library:
 removed the <literal>io</literal> and <literal>tcr</literal> modules as
 they had become unnecessary after all simplifications introduced in the

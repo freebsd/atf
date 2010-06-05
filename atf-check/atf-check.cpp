@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
+// Copyright (c) 2008, 2009, 2010 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -102,6 +102,42 @@ execute_with_shell(char* const* argv)
     return execute(sh_argv);
 }
 
+static
+void
+cat_file(const atf::fs::path& path)
+{
+    std::ifstream stream(path.c_str());
+    if (!stream)
+        throw std::runtime_error("Failed to open " + path.str());
+
+    std::string line;
+    while (std::getline(stream, line).good())
+        std::cout << line << std::endl;
+
+    stream.close();
+}
+
+static
+bool
+grep_file(const atf::fs::path& path, const std::string& regexp)
+{
+    std::ifstream stream(path.c_str());
+    if (!stream)
+        throw std::runtime_error("Failed to open " + path.str());
+
+    bool found = false;
+
+    std::string line;
+    while (!found && std::getline(stream, line).good()) {
+        if (atf::text::match(line, regexp))
+            found = true;
+    }
+
+    stream.close();
+
+    return found;
+}
+
 // ------------------------------------------------------------------------
 // The "atf_check" application.
 // ------------------------------------------------------------------------
@@ -112,6 +148,7 @@ class atf_check : public atf::application::app {
         oc_inline,
         oc_file,
         oc_empty,
+        oc_match,
         oc_save
     };
 
@@ -351,6 +388,14 @@ atf_check::run_output_check(const atf::check::check_result& r,
         std::ostream_iterator <char> obegin(ofs);
 
         std::copy(begin, end, obegin);
+    } else if (check == oc_match) {
+        if (!grep_file(path, arg)) {
+            std::cerr << "Fail: regexp " + arg + " not in " << stdxxx
+                      << std::endl;
+            cat_file(path);
+
+            return false;
+        }
     }
 
     return true;
@@ -373,9 +418,11 @@ atf_check::specific_options(void)
     opts.insert(option('s', "qual:value", "Handle status. Qualifier "
                 "must be one of: ignore eq:<num> ne:<num>"));
     opts.insert(option('o', "action:arg", "Handle stdout. Action must be "
-                "one of: empty ignore file:<path> inline:<val> save:<path>"));
+                "one of: empty ignore file:<path> inline:<val> match:regexp "
+                "save:<path>"));
     opts.insert(option('e', "action:arg", "Handle stderr. Action must be "
-                "one of: empty ignore file:<path> inline:<val> save:<path>"));
+                "one of: empty ignore file:<path> inline:<val> match:regexp "
+                "save:<path>"));
     opts.insert(option('x', "", "Execute command as a shell command"));
 
     return opts;
@@ -434,6 +481,8 @@ atf_check::process_option_o(const std::string& arg)
         m_stdout_check = oc_inline;
     else if (action == "file")
         m_stdout_check = oc_file;
+    else if (action == "match")
+        m_stdout_check = oc_match;
     else
         throw usage_error("Invalid value for -o option");
 
@@ -458,6 +507,8 @@ atf_check::process_option_e(const std::string& arg)
         m_stderr_check = oc_inline;
     else if (action == "file")
         m_stderr_check = oc_file;
+    else if (action == "match")
+        m_stderr_check = oc_match;
     else
         throw usage_error("Invalid value for -e option");
 

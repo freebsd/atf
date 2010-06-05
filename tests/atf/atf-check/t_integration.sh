@@ -170,6 +170,20 @@ oflag_inline_body()
     h_fail "echo -n foo bar" -o inline:"foo bar\n"
 }
 
+atf_test_case oflag_match
+oflag_match_head()
+{
+    atf_set "descr" "Tests for the -o option using the 'match:' argument"
+    atf_set "use.fs" "true"
+}
+oflag_match_body()
+{
+    h_pass "echo line1; echo foo bar" -o "match:^foo"
+    h_pass "echo foo bar" -o "match:o b"
+    h_fail "echo foo bar" -o "match:baz"
+    h_fail "echo foo bar" -o "match:^bar"
+}
+
 atf_test_case oflag_save
 oflag_save_head()
 {
@@ -267,6 +281,20 @@ eflag_save_body()
     cmp -s out exp || atf_fail "Saved output does not match expected results"
 }
 
+atf_test_case eflag_match
+eflag_match_head()
+{
+    atf_set "descr" "Tests for the -e option using the 'match:' argument"
+    atf_set "use.fs" "true"
+}
+eflag_match_body()
+{
+    h_pass "echo line1 1>&2; echo foo bar 1>&2" -e "match:^foo"
+    h_pass "echo foo bar 1>&2" -e "match:o b"
+    h_fail "echo foo bar 1>&2" -e "match:baz"
+    h_fail "echo foo bar 1>&2" -e "match:^bar"
+}
+
 atf_test_case invalid_umask
 invalid_umask_head()
 {
@@ -294,12 +322,14 @@ atf_init_test_cases()
     atf_add_test_case oflag_ignore
     atf_add_test_case oflag_file
     atf_add_test_case oflag_inline
+    atf_add_test_case oflag_match
     atf_add_test_case oflag_save
 
     atf_add_test_case eflag_empty
     atf_add_test_case eflag_ignore
     atf_add_test_case eflag_file
     atf_add_test_case eflag_inline
+    atf_add_test_case eflag_match
     atf_add_test_case eflag_save
 
     atf_add_test_case invalid_umask
