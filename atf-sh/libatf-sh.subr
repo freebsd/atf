@@ -33,7 +33,6 @@
 
 # Values of configuration variables obtained from atf-config.
 Atf_Arch=$(atf-config -t atf_arch)
-Atf_Cleanup=$(atf-config -t atf_libexecdir)/atf-cleanup
 Atf_Format=$(atf-config -t atf_libexecdir)/atf-format
 Atf_Machine=$(atf-config -t atf_machine)
 

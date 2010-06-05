@@ -366,12 +366,6 @@ TOOL([bin], [atf-check])
 TOOL([bin], [atf-config])
 
 # -------------------------------------------------------------------------
-# `atf-cleanup' directory.
-# -------------------------------------------------------------------------
-
-TOOL([libexec], [atf-cleanup])
-
-# -------------------------------------------------------------------------
 # `atf-format' directory.
 # -------------------------------------------------------------------------
 
@@ -755,12 +749,6 @@ atf_atf_checkdir = $(pkgtestsdir)/atf-check
 EXTRA_DIST += $(atf_atf_check_DATA)
 
 SH_TP([atf/atf-check], [t_integration])
-
-atf_atf_cleanup_DATA = tests/atf/atf-cleanup/Atffile
-atf_atf_cleanupdir = $(pkgtestsdir)/atf-cleanup
-EXTRA_DIST += $(atf_atf_cleanup_DATA)
-
-SH_TP([atf/atf-cleanup], [t_integration])
 
 atf_atf_config_DATA = tests/atf/atf-config/Atffile
 atf_atf_configdir = $(pkgtestsdir)/atf-config
