@@ -395,6 +395,8 @@ EXTRA_DIST += $(xsl_DATA)
 
 TOOL([bin], [atf-run], [atf-run/config.cpp \
                         atf-run/config.hpp \
+                        atf-run/fs.cpp \
+                        atf-run/fs.hpp \
                         atf-run/requirements.cpp \
                         atf-run/requirements.hpp \
                         atf-run/test-program.cpp \
@@ -777,10 +779,12 @@ CXX_TP([atf/atf-run], [h_pass])
 CXX_TP([atf/atf-run], [h_misc])
 CXX_TP([atf/atf-run], [t_config], [atf-run/config.cpp], [],
        [-I$(srcdir)/atf-run])
+CXX_TP([atf/atf-run], [t_fs], [atf-run/fs.cpp], [], [-I$(srcdir)/atf-run])
 CXX_TP([atf/atf-run], [t_requirements], [atf-run/requirements.cpp], [],
        [-I$(srcdir)/atf-run])
 CXX_TP([atf/atf-run], [t_test_program],
-       [atf-run/test-program.cpp atf-run/timer.cpp], [], [-I$(srcdir)/atf-run])
+       [atf-run/fs.cpp atf-run/test-program.cpp atf-run/timer.cpp], [],
+       [-I$(srcdir)/atf-run])
 SH_TP([atf/atf-run], [t_integration])
 
 atf_atf_sh_DATA = tests/atf/atf-sh/Atffile
