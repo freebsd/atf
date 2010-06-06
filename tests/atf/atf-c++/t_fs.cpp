@@ -657,22 +657,6 @@ ATF_TEST_CASE_BODY(remove)
     ATF_CHECK( exists(path("files/dir")));
 }
 
-ATF_TEST_CASE(current_umask);
-ATF_TEST_CASE_HEAD(current_umask)
-{
-    set_md_var("descr", "Tests the current_umask function");
-}
-ATF_TEST_CASE_BODY(current_umask)
-{
-    using atf::fs::current_umask;
-
-    umask(0000);
-    ATF_CHECK_EQUAL(0000, current_umask());
-
-    umask(0222);
-    ATF_CHECK_EQUAL(0222, current_umask());
-}
-
 // ------------------------------------------------------------------------
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
@@ -716,7 +700,6 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, exists);
     ATF_ADD_TEST_CASE(tcs, is_executable);
     ATF_ADD_TEST_CASE(tcs, remove);
-    ATF_ADD_TEST_CASE(tcs, current_umask);
 
     // Add the test cases for the header file.
     ATF_ADD_TEST_CASE(tcs, include);

@@ -451,11 +451,6 @@ void remove(const path&);
 //!
 void rmdir(const path&);
 
-//!
-//! \brief Gets the current umask.
-//!
-mode_t current_umask(void);
-
 } // namespace fs
 } // namespace atf
 
