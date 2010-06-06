@@ -277,8 +277,6 @@ lib_LTLIBRARIES += libatf-c++.la
 libatf_c___la_LIBADD = libatf-c.la
 libatf_c___la_SOURCES = atf-c++/application.cpp \
                         atf-c++/application.hpp \
-                        atf-c++/atffile.cpp \
-                        atf-c++/atffile.hpp \
                         atf-c++/build.cpp \
                         atf-c++/build.hpp \
                         atf-c++/check.cpp \
@@ -317,7 +315,6 @@ libatf_c___la_SOURCES = atf-c++/application.cpp \
 
 include_HEADERS += atf-c++.hpp
 atf_c___HEADERS = atf-c++/application.hpp \
-                  atf-c++/atffile.hpp \
                   atf-c++/build.hpp \
                   atf-c++/check.hpp \
                   atf-c++/config.hpp \
@@ -393,7 +390,9 @@ EXTRA_DIST += $(xsl_DATA)
 # `atf-run' directory.
 # -------------------------------------------------------------------------
 
-TOOL([bin], [atf-run], [atf-run/config.cpp \
+TOOL([bin], [atf-run], [atf-run/atffile.cpp \
+                        atf-run/atffile.hpp \
+                        atf-run/config.cpp \
                         atf-run/config.hpp \
                         atf-run/fs.cpp \
                         atf-run/fs.hpp \
@@ -723,7 +722,6 @@ tests_atf_atf_c___libh_la_SOURCES = tests/atf/atf-c++/h_lib.cpp \
 
 CXX_TP([atf/atf-c++], [t_atf_c++], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_application], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_atffile], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_build], [tests/atf/atf-c/h_build.h],
        [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_check], [], [tests/atf/atf-c++/libh.la])
@@ -777,6 +775,8 @@ C_TP([atf/atf-run], [h_zero_tcs])
 CXX_TP([atf/atf-run], [h_fail])
 CXX_TP([atf/atf-run], [h_pass])
 CXX_TP([atf/atf-run], [h_misc])
+CXX_TP([atf/atf-run], [t_atffile], [atf-run/atffile.cpp], [],
+       [-I$(srcdir)/atf-run])
 CXX_TP([atf/atf-run], [t_config], [atf-run/config.cpp], [],
        [-I$(srcdir)/atf-run])
 CXX_TP([atf/atf-run], [t_fs], [atf-run/fs.cpp], [], [-I$(srcdir)/atf-run])

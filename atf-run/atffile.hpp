@@ -27,8 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_ATFFILE_HPP_)
-#define _ATF_CXX_ATFFILE_HPP_
+#if !defined(_ATF_RUN_ATFFILE_HPP_)
+#define _ATF_RUN_ATFFILE_HPP_
 
 #include <string>
 #include <vector>
@@ -37,7 +37,7 @@
 #include <atf-c++/tests.hpp>
 
 namespace atf {
-namespace atffile {
+namespace atf_run {
 
 // ------------------------------------------------------------------------
 // The "atffile" class.
@@ -62,9 +62,9 @@ public:
 // Free functions.
 // ------------------------------------------------------------------------
 
-atffile read(const fs::path&);
+atffile read_atffile(const fs::path&);
 
-} // namespace atffile
+} // namespace atf_run
 } // namespace atf
 
-#endif // !defined(_ATF_CXX_ATFFILE_HPP_)
+#endif // !defined(_ATF_RUN_ATFFILE_HPP_)

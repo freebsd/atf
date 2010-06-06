@@ -36,12 +36,10 @@ extern "C" {
 #include <fstream>
 #include <memory>
 
-#include "atf-c++/atffile.hpp"
+#include "atf-c++/exceptions.hpp"
 #include "atf-c++/macros.hpp"
 
-#include "h_lib.hpp"
-
-namespace impl = atf::atffile;
+#include "atffile.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -95,7 +93,8 @@ ATF_TEST_CASE_BODY(atffile_getters) {
     atf::tests::vars_map properties;
     properties["test-suite"] = "a test name";
 
-    const impl::atffile atffile(config_vars, test_program_names, properties);
+    const atf::atf_run::atffile atffile(config_vars, test_program_names,
+                                        properties);
     ATF_CHECK(config_vars == atffile.conf());
     ATF_CHECK(test_program_names == atffile.tps());
     ATF_CHECK(properties == atffile.props());
@@ -124,7 +123,8 @@ ATF_TEST_CASE_BODY(read_ok_simple) {
     touch_exec("tp-2");
     touch_exec("tp-3");
 
-    const impl::atffile atffile = impl::read(atf::fs::path("Atffile"));
+    const atf::atf_run::atffile atffile = atf::atf_run::read_atffile(
+        atf::fs::path("Atffile"));
     ATF_CHECK_EQUAL(2, atffile.conf().size());
     ATF_CHECK_EQUAL("value1", atffile.conf().find("var1")->second);
     ATF_CHECK_EQUAL("value2", atffile.conf().find("var2")->second);
@@ -157,7 +157,8 @@ ATF_TEST_CASE_BODY(read_ok_some_globs) {
     touch_exec("t_hello");
     touch_exec("zzzt_hello");
 
-    const impl::atffile atffile = impl::read(atf::fs::path("Atffile"));
+    const atf::atf_run::atffile atffile = atf::atf_run::read_atffile(
+        atf::fs::path("Atffile"));
     ATF_CHECK_EQUAL(5, atffile.tps().size());
     ATF_CHECK(is_in("foo", atffile.tps()));
     ATF_CHECK(is_in("bar", atffile.tps()));
@@ -175,7 +176,7 @@ ATF_TEST_CASE_BODY(read_missing_test_suite) {
     (*os).close();
 
     try {
-        (void)impl::read(atf::fs::path("Atffile"));
+        (void)atf::atf_run::read_atffile(atf::fs::path("Atffile"));
         ATF_FAIL("Missing property 'test-suite' did not raise an error");
     } catch (const atf::not_found_error< std::string >& e) {
         ATF_CHECK_EQUAL("test-suite", e.get_value());
@@ -197,18 +198,12 @@ ATF_TEST_CASE_BODY(read_missing_test_program) {
     touch_exec("baz");
 
     try {
-        (void)impl::read(atf::fs::path("Atffile"));
+        (void)atf::atf_run::read_atffile(atf::fs::path("Atffile"));
         ATF_FAIL("Missing file 'bar' did not raise an error");
     } catch (const atf::not_found_error< atf::fs::path >& e) {
         ATF_CHECK_EQUAL("bar", e.get_value().str());
     }
 }
-
-// ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/atffile.hpp");
 
 // ------------------------------------------------------------------------
 // Main.
@@ -224,7 +219,4 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, read_ok_some_globs);
     ATF_ADD_TEST_CASE(tcs, read_missing_test_suite);
     ATF_ADD_TEST_CASE(tcs, read_missing_test_program);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
 }

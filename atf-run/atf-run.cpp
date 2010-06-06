@@ -48,7 +48,6 @@ extern "C" {
 #include <string>
 
 #include "atf-c++/application.hpp"
-#include "atf-c++/atffile.hpp"
 #include "atf-c++/config.hpp"
 #include "atf-c++/env.hpp"
 #include "atf-c++/exceptions.hpp"
@@ -63,6 +62,7 @@ extern "C" {
 #include "atf-c++/text.hpp"
 #include "atf-c++/user.hpp"
 
+#include "atffile.hpp"
 #include "config.hpp"
 #include "fs.hpp"
 #include "requirements.hpp"
@@ -191,7 +191,7 @@ atf_run::run_test_directory(const atf::fs::path& tp,
                             atf::formats::atf_tps_writer& w,
                             const atf::fs::path& ro_workdir)
 {
-    atf::atffile::atffile af = atf::atffile::read(tp / "Atffile");
+    impl::atffile af = impl::read_atffile(tp / "Atffile");
 
     atf::tests::vars_map test_suite_vars;
     {
@@ -369,7 +369,7 @@ atf_run::count_tps(std::vector< std::string > tps)
         atf::fs::file_info fi(tp);
 
         if (fi.get_type() == atf::fs::file_info::dir_type) {
-            atf::atffile::atffile af = atf::atffile::read(tp / "Atffile");
+            impl::atffile af = impl::read_atffile(tp / "Atffile");
             std::vector< std::string > aux = af.tps();
             for (std::vector< std::string >::iterator i2 = aux.begin();
                  i2 != aux.end(); i2++)
@@ -406,7 +406,7 @@ call_hook(const std::string& tool, const std::string& hook)
 int
 atf_run::main(void)
 {
-    atf::atffile::atffile af = atf::atffile::read(atf::fs::path("Atffile"));
+    impl::atffile af = impl::read_atffile(atf::fs::path("Atffile"));
 
     std::vector< std::string > tps;
     tps = af.tps();

@@ -40,7 +40,7 @@ extern "C" {
 #include "atf-c++/macros.hpp"
 #include "atf-c++/user.hpp"
 
-#include "atf-run/fs.hpp"
+#include "fs.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
