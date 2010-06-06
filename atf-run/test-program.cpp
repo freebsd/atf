@@ -48,6 +48,7 @@ extern "C" {
 #include "atf-c++/text.hpp"
 
 #include "config.hpp"
+#include "fs.hpp"
 #include "test-program.hpp"
 #include "timer.hpp"
 
@@ -239,7 +240,7 @@ prepare_child(const atf::fs::path& workdir)
     atf::env::unset("LC_TIME");
     atf::env::unset("TZ");
 
-    atf::fs::change_directory(workdir);
+    impl::change_directory(workdir);
 }
 
 static

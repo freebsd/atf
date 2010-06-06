@@ -67,91 +67,7 @@ namespace impl = atf::fs;
 // Auxiliary functions.
 // ------------------------------------------------------------------------
 
-static void cleanup_aux(const impl::path&, dev_t, bool);
-static void cleanup_aux_dir(const impl::path&, const impl::file_info&, bool);
-static void do_unmount(const impl::path&);
 static bool safe_access(const impl::path&, int, int);
-
-// The erase parameter in this routine is to control nested mount points.
-// We want to descend into a mount point to unmount anything that is
-// mounted under it, but we do not want to delete any files while doing
-// this traversal.  In other words, we erase files until we cross the
-// first mount point, and after that point we only scan and unmount.
-static
-void
-cleanup_aux(const impl::path& p, dev_t parent_device, bool erase)
-{
-    impl::file_info fi(p);
-
-    if (fi.get_type() == impl::file_info::dir_type)
-        cleanup_aux_dir(p, fi, fi.get_device() == parent_device);
-
-    if (fi.get_device() != parent_device)
-        do_unmount(p);
-
-    if (erase) {
-        if (fi.get_type() == impl::file_info::dir_type)
-            impl::rmdir(p);
-        else
-            impl::remove(p);
-    }
-}
-
-static
-void
-cleanup_aux_dir(const impl::path& p, const impl::file_info& fi, bool erase)
-{
-    if (erase && ((fi.get_mode() & S_IRWXU) != S_IRWXU)) {
-        (void)set_immutable(p, false);
-
-        if (chmod(p.c_str(), fi.get_mode() | S_IRWXU) == -1)
-            throw atf::system_error(IMPL_NAME "::cleanup(" +
-                                    p.str() + ")", "chmod(2) failed", errno);
-    }
-
-    std::set< std::string > subdirs;
-    {
-        const impl::directory d(p);
-        subdirs = d.names();
-    }
-
-    for (std::set< std::string >::const_iterator iter = subdirs.begin();
-         iter != subdirs.end(); iter++) {
-        const std::string& name = *iter;
-        if (name != "." && name != "..")
-            cleanup_aux(p / name, fi.get_device(), erase);
-    }
-}
-
-static
-void
-do_unmount(const impl::path& in_path)
-{
-    // At least, FreeBSD's unmount(2) requires the path to be absolute.
-    // Let's make it absolute in all cases just to be safe that this does
-    // not affect other systems.
-    const impl::path& abs_path = in_path.to_absolute();
-
-#if defined(HAVE_UNMOUNT)
-    if (unmount(abs_path.c_str(), 0) == -1)
-        throw atf::system_error(IMPL_NAME "::cleanup(" + in_path.str() + ")",
-                                "unmount(2) failed", errno);
-#else
-    // We could use umount(2) instead if it was available... but
-    // trying to do so under, e.g. Linux, is a nightmare because we
-    // also have to update /etc/mtab to match what we did.  It is
-    // simpler to just leave the system-specific umount(8) tool deal
-    // with it, at least for now.
-
-    const atf::fs::path prog("unmount");
-    atf::process::argv_array argv("unmount", abs_path.c_str(), NULL);
-
-    atf::process::status s = atf::process::exec(prog, argv,
-        atf::process::stream_inherit(), atf::process::stream_inherit());
-    if (!s.exited() || s.exitstatus() != EXIT_SUCCESS)
-        throw std::runtime_error("Call to unmount failed");
-#endif
-}
 
 //!
 //! \brief A controlled version of access(2).
@@ -533,34 +449,6 @@ impl::directory::names(void)
 }
 
 // ------------------------------------------------------------------------
-// The "temp_dir" class.
-// ------------------------------------------------------------------------
-
-impl::temp_dir::temp_dir(const path& p)
-{
-    atf::utils::auto_array< char > buf(new char[p.str().length() + 1]);
-    std::strcpy(buf.get(), p.c_str());
-    if (::mkdtemp(buf.get()) == NULL)
-        throw system_error(IMPL_NAME "::temp_dir::temp_dir(" +
-                           p.str() + ")", "mkdtemp(3) failed",
-                           errno);
-
-    m_path.reset(new path(buf.get()));
-}
-
-impl::temp_dir::~temp_dir(void)
-{
-    cleanup(*m_path);
-}
-
-const impl::path&
-impl::temp_dir::get_path(void)
-    const
-{
-    return *m_path;
-}
-
-// ------------------------------------------------------------------------
 // The "temp_file" class.
 // ------------------------------------------------------------------------
 
@@ -620,20 +508,6 @@ impl::temp_file::fd(void)
 // Free functions.
 // ------------------------------------------------------------------------
 
-impl::path
-impl::change_directory(const path& dir)
-{
-    path olddir = get_current_dir();
-
-    if (olddir != dir) {
-        if (::chdir(dir.c_str()) == -1)
-            throw system_error(IMPL_NAME "::chdir(" + dir.str() + ")",
-                               "chdir(2) failed", errno);
-    }
-
-    return olddir;
-}
-
 bool
 impl::exists(const path& p)
 {
@@ -670,20 +544,6 @@ impl::have_prog_in_path(const std::string& prog)
     return found;
 }
 
-impl::path
-impl::get_current_dir(void)
-{
-    atf_fs_path_t cwd;
-
-    atf_error_t err = atf_fs_getcwd(&cwd);
-    if (atf_is_error(err))
-        throw_atf_error(err);
-
-    path p(atf_fs_path_cstring(&cwd));
-    atf_fs_path_fini(&cwd);
-    return p;
-}
-
 bool
 impl::is_executable(const path& p)
 {
@@ -706,13 +566,6 @@ impl::remove(const path& p)
 }
 
 void
-impl::cleanup(const path& p)
-{
-    file_info fi(p);
-    cleanup_aux(p, fi.get_device(), true);
-}
-
-void
 impl::rmdir(const path& p)
 {
     atf_error_t err = atf_fs_rmdir(p.c_path());
@@ -729,45 +582,4 @@ impl::current_umask(void)
     const mode_t current = umask(0);
     (void)umask(current);
     return current;
-}
-
-bool
-impl::set_immutable(const atf::fs::path& p, bool value)
-{
-#if HAVE_CHFLAGS
-    struct stat sb;
-    if (::lstat(p.c_str(), &sb) == -1)
-        throw atf::system_error(IMPL_NAME "::set_immutable(" + p.str() + ")",
-                                "lstat(" + p.str() + ") failed", errno);
-
-    unsigned long new_flags = sb.st_flags;
-    if (value)
-        new_flags |= UF_IMMUTABLE;
-    else
-        new_flags &= ~UF_IMMUTABLE;
-
-    if (::chflags(p.c_str(), new_flags) == -1)
-        throw atf::system_error(IMPL_NAME "::set_immutable(" + p.str() + ")",
-                                "chflags(" + p.str() + ") failed", errno);
-    return true;
-#elif HAVE_CHATTR
-    if (atf::user::is_root()) {
-        const atf::fs::path prog(CHATTR);
-        const atf::process::argv_array argv("chattr", value ? "+i" : "-i",
-            p.c_str(), NULL);
-
-        const atf::process::status s =
-            atf::process::exec(prog, argv, atf::process::stream_inherit(),
-                               atf::process::stream_inherit());
-
-        if (!s.exited() || s.exitstatus() != EXIT_SUCCESS)
-            throw std::runtime_error("Failed to exec chattr");
-
-        return true;
-    } else {
-        return false;
-    }
-#else
-    return false;
-#endif
 }

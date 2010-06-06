@@ -64,6 +64,7 @@ extern "C" {
 #include "atf-c++/user.hpp"
 
 #include "config.hpp"
+#include "fs.hpp"
 #include "requirements.hpp"
 #include "test-program.hpp"
 
@@ -280,8 +281,8 @@ atf_run::run_test_program(const atf::fs::path& tp,
         return EXIT_FAILURE;
     }
 
-    atf::fs::temp_dir resdir(atf::fs::path(atf::config::get("atf_workdir")) /
-                             "atf-run.XXXXXX");
+    impl::temp_dir resdir(atf::fs::path(atf::config::get("atf_workdir")) /
+                          "atf-run.XXXXXX");
 
     w.start_tp(tp.str(), md.test_cases.size());
     if (md.test_cases.empty()) {
@@ -318,7 +319,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
                 atf::tests::tcr tcr(atf::tests::tcr::passed_state);
 
                 if (use_fs) {
-                    atf::fs::temp_dir workdir(atf::fs::path(atf::config::get(
+                    impl::temp_dir workdir(atf::fs::path(atf::config::get(
                         "atf_workdir")) / "atf-run.XXXXXX");
 
                     const atf::process::status body_status =
@@ -430,11 +431,11 @@ atf_run::main(void)
     call_hook("atf-run", "info_start_hook");
     w.ntps(count_tps(tps));
 
-    atf::fs::temp_dir ro_workdir(atf::fs::path(atf::config::get(
+    impl::temp_dir ro_workdir(atf::fs::path(atf::config::get(
         "atf_workdir")) / "atf-run.XXXXXX");
     if (::chmod(ro_workdir.get_path().c_str(), S_IXUSR) == -1)
         throw std::runtime_error("Failed to create read-only work directory");
-    if (!atf::fs::set_immutable(ro_workdir.get_path(), true)) {
+    if (!impl::set_immutable(ro_workdir.get_path(), true)) {
         // TODO: Report that use.fs may not work.  Non-fatal though.
     }
 
