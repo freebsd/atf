@@ -36,6 +36,12 @@ the checks by prefixing them by <literal>not-</literal>.</para></listitem>
 been unused since the test case isolation was moved to
 <literal>atf-run</literal> in 0.8</para></listitem>
 
+<listitem><para>Test cases now export a <literal>has.cleanup</literal>
+meta-data property that specifies whether the test case has a cleanup
+routine or not; its value is automatically set.  The property is read by
+<literal>atf-run</literal> to know if it has to run the cleanup routine,
+which significantly speeds up the runtime of test suites.</para></listitem>
+
 <listitem><para>Simplifications to the <literal>atf-c</literal> library:
 removed the <literal>io</literal> and <literal>tcr</literal> modules as
 they had become unnecessary after all simplifications introduced in the

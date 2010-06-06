@@ -227,8 +227,9 @@ impl::tc::wrap_cleanup(const atf_tc_t *tc)
     (*iter).second->cleanup();
 }
 
-impl::tc::tc(const std::string& ident) :
-    m_ident(ident)
+impl::tc::tc(const std::string& ident, const bool has_cleanup) :
+    m_ident(ident),
+    m_has_cleanup(has_cleanup)
 {
 }
 
@@ -266,7 +267,7 @@ impl::tc::init(const vars_map& config)
     cwraps[&m_tc] = this;
 
     err = atf_tc_init(&m_tc, m_ident.c_str(), wrap_head, wrap_body,
-                      wrap_cleanup, &m_config);
+                      m_has_cleanup ? wrap_cleanup : NULL, &m_config);
     if (atf_is_error(err)) {
         atf_map_fini(&m_config);
         throw_atf_error(err);

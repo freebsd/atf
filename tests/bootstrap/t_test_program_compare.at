@@ -171,6 +171,18 @@ sed 's,tp_basic_c,tp_basic_sh,g' <stderr >experr
 AT_CHECK([TEST_HELPER(tp_basic_sh) unknown],
          [1], [expout], [experr])
 
+dnl Try running a non-existent cleanup routine.
+AT_CHECK([TEST_HELPER(tp_basic_c) pass:cleanup],
+         [0], [stdout], [stderr])
+sed 's,tp_basic_c,tp_basic_cpp,g' <stdout >expout
+sed 's,tp_basic_c,tp_basic_cpp,g' <stderr >experr
+AT_CHECK([TEST_HELPER(tp_basic_cpp) pass:cleanup],
+         [0], [expout], [experr])
+sed 's,tp_basic_c,tp_basic_sh,g' <stdout >expout
+sed 's,tp_basic_c,tp_basic_sh,g' <stderr >experr
+AT_CHECK([TEST_HELPER(tp_basic_sh) pass:cleanup],
+         [0], [expout], [experr])
+
 AT_CLEANUP()
 
 dnl vim: syntax=m4:expandtab:shiftwidth=4:softtabstop=4

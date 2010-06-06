@@ -35,6 +35,15 @@
        and stderr, not only one, and to allow negating the checks by
        prefixing them by not-.
 
+     * Removed the atf-cleanup tool. It has been unused since the test case
+       isolation was moved to atf-run in 0.8
+
+     * Test cases now export a has.cleanup meta-data property that specifies
+       whether the test case has a cleanup routine or not; its value is
+       automatically set. The property is read by atf-run to know if it has
+       to run the cleanup routine, which significantly speeds up the runtime
+       of test suites.
+
      * Simplifications to the atf-c library: removed the io and tcr modules
        as they had become unnecessary after all simplifications introduced in
        the 0.8 release.
@@ -303,13 +312,13 @@
 References
 
    Visible links
-   1. file:///tmp/build-xml.SzU4Am#atf-0-10
-   2. file:///tmp/build-xml.SzU4Am#atf-0-9
-   3. file:///tmp/build-xml.SzU4Am#atf-0-8
-   4. file:///tmp/build-xml.SzU4Am#atf-0-7
-   5. file:///tmp/build-xml.SzU4Am#atf-0-6
-   6. file:///tmp/build-xml.SzU4Am#atf-0-5
-   7. file:///tmp/build-xml.SzU4Am#atf-0-4
-   8. file:///tmp/build-xml.SzU4Am#atf-0-3
-   9. file:///tmp/build-xml.SzU4Am#atf-0-2
-  10. file:///tmp/build-xml.SzU4Am#atf-0-1
+   1. file:///tmp/build-xml.NZbUrY#atf-0-10
+   2. file:///tmp/build-xml.NZbUrY#atf-0-9
+   3. file:///tmp/build-xml.NZbUrY#atf-0-8
+   4. file:///tmp/build-xml.NZbUrY#atf-0-7
+   5. file:///tmp/build-xml.NZbUrY#atf-0-6
+   6. file:///tmp/build-xml.NZbUrY#atf-0-5
+   7. file:///tmp/build-xml.NZbUrY#atf-0-4
+   8. file:///tmp/build-xml.NZbUrY#atf-0-3
+   9. file:///tmp/build-xml.NZbUrY#atf-0-2
+  10. file:///tmp/build-xml.NZbUrY#atf-0-1

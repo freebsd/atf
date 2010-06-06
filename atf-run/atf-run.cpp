@@ -313,6 +313,8 @@ atf_run::run_test_program(const atf::fs::path& tp,
 
             const atf::fs::path resfile = resdir.get_path() / "tcr";
             try {
+                const bool has_cleanup = atf::text::to_bool(
+                    (*tcmd.find("has.cleanup")).second);
                 const bool use_fs = atf::text::to_bool(
                     (*tcmd.find("use.fs")).second);
 
@@ -325,9 +327,9 @@ atf_run::run_test_program(const atf::fs::path& tp,
                     const atf::process::status body_status =
                         impl::run_test_case(tp, tcname, "body", tcmd, config,
                                             resfile, workdir.get_path(), w);
-                    const atf::process::status cleanup_status =
-                        impl::run_test_case(tp, tcname, "cleanup", tcmd, config,
-                                            resfile, workdir.get_path(), w);
+                    if (has_cleanup)
+                        (void)impl::run_test_case(tp, tcname, "cleanup", tcmd,
+                                config, resfile, workdir.get_path(), w);
 
                     // TODO: Force deletion of workdir.
 
@@ -336,9 +338,9 @@ atf_run::run_test_program(const atf::fs::path& tp,
                     const atf::process::status body_status =
                         impl::run_test_case(tp, tcname, "body", tcmd, config,
                                             resfile, ro_workdir, w);
-                    const atf::process::status cleanup_status =
-                        impl::run_test_case(tp, tcname, "cleanup", tcmd, config,
-                                            resfile, ro_workdir, w);
+                    if (has_cleanup)
+                        (void)impl::run_test_case(tp, tcname, "cleanup", tcmd,
+                            config, resfile, ro_workdir, w);
 
                     tcr = get_tcr(body_status, resfile);
                 }

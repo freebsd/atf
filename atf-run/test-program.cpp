@@ -66,6 +66,9 @@ class metadata_reader : public atf::formats::atf_tp_reader {
                                      " in test program"));
         m_tcs[ident] = props;
 
+        if (m_tcs[ident].find("has.cleanup") == m_tcs[ident].end())
+            m_tcs[ident].insert(std::make_pair("has.cleanup", "false"));
+
         if (m_tcs[ident].find("timeout") == m_tcs[ident].end())
             m_tcs[ident].insert(std::make_pair("timeout", "300"));
 

@@ -96,6 +96,7 @@ class tc : utils::noncopyable {
     std::string m_ident;
     atf_map_t m_config;
     atf_tc_t m_tc;
+    bool m_has_cleanup;
 
 protected:
     virtual void head(void);
@@ -109,7 +110,7 @@ protected:
     static void wrap_cleanup(const atf_tc_t *);
 
 public:
-    tc(const std::string&);
+    tc(const std::string&, const bool);
     virtual ~tc(void);
 
     void init(const vars_map&);

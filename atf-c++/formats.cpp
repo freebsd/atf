@@ -840,6 +840,13 @@ impl::atf_tp_reader::validate_and_insert(const std::string& name,
 
     if (name == "descr") {
         // Any non-empty value is valid.
+    } else if (name == "has.cleanup") {
+        try {
+            (void)atf::text::to_bool(value);
+        } catch (const std::runtime_error& e) {
+            throw parse_error(lineno, "The has.cleanup property requires a"
+                              " boolean value");
+        }
     } else if (name == "ident") {
         if (!atf::text::match(value, ident_regex))
             throw parse_error(lineno, "The identifier must match " +

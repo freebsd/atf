@@ -88,8 +88,9 @@ ATF_TEST_CASE_BODY(get_metadata_several_tcs) {
             md.test_cases.find("first");
         ATF_CHECK(iter != md.test_cases.end());
 
-        ATF_CHECK_EQUAL(4, (*iter).second.size());
+        ATF_CHECK_EQUAL(5, (*iter).second.size());
         check_property((*iter).second, "descr", "Description 1");
+        check_property((*iter).second, "has.cleanup", "false");
         check_property((*iter).second, "ident", "first");
         check_property((*iter).second, "timeout", "300");
         check_property((*iter).second, "use.fs", "false");
@@ -100,8 +101,9 @@ ATF_TEST_CASE_BODY(get_metadata_several_tcs) {
             md.test_cases.find("second");
         ATF_CHECK(iter != md.test_cases.end());
 
-        ATF_CHECK_EQUAL(5, (*iter).second.size());
+        ATF_CHECK_EQUAL(6, (*iter).second.size());
         check_property((*iter).second, "descr", "Description 2");
+        check_property((*iter).second, "has.cleanup", "true");
         check_property((*iter).second, "ident", "second");
         check_property((*iter).second, "timeout", "500");
         check_property((*iter).second, "use.fs", "true");
@@ -113,7 +115,8 @@ ATF_TEST_CASE_BODY(get_metadata_several_tcs) {
             md.test_cases.find("third");
         ATF_CHECK(iter != md.test_cases.end());
 
-        ATF_CHECK_EQUAL(3, (*iter).second.size());
+        ATF_CHECK_EQUAL(4, (*iter).second.size());
+        check_property((*iter).second, "has.cleanup", "false");
         check_property((*iter).second, "ident", "third");
         check_property((*iter).second, "timeout", "300");
         check_property((*iter).second, "use.fs", "false");
