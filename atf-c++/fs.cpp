@@ -143,13 +143,11 @@ do_unmount(const impl::path& in_path)
     // simpler to just leave the system-specific umount(8) tool deal
     // with it, at least for now.
 
+    const atf::fs::path prog("unmount");
     atf::process::argv_array argv("unmount", abs_path.c_str(), NULL);
 
-    // TODO: Should have an find_prog_in_path function or similar to avoid
-    // relying on the automatic path lookup of exec, which I'd like to get
-    // rid of.
-    atf::process::status s = atf::process::exec("unmount", argv,
-        atf::process::inherit_stream(), atf::process::inherit_stream());
+    atf::process::status s = atf::process::exec(prog, argv,
+        atf::process::stream_inherit(), atf::process::stream_inherit());
     if (!s.exited() || s.exitstatus() != EXIT_SUCCESS)
         throw std::runtime_error("Call to unmount failed");
 #endif
@@ -754,13 +752,13 @@ impl::set_immutable(const atf::fs::path& p, bool value)
     return true;
 #elif HAVE_CHATTR
     if (atf::user::is_root()) {
-        const atf::process::argv_array("chattr", value ? "+i" : "-i",
+        const atf::fs::path prog(CHATTR);
+        const atf::process::argv_array argv("chattr", value ? "+i" : "-i",
             p.c_str(), NULL);
 
         const atf::process::status s =
-            atf::process::exec(CHATTR, argv_array,
-                               atf::process::inherit_stream(),
-                               atf::process::inherit_stream());
+            atf::process::exec(prog, argv, atf::process::stream_inherit(),
+                               atf::process::stream_inherit());
 
         if (!s.exited() || s.exitstatus() != EXIT_SUCCESS)
             throw std::runtime_error("Failed to exec chattr");
