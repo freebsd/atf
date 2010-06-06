@@ -33,7 +33,10 @@
 
 extern "C" {
 #include <sys/types.h>
+#include <sys/param.h>
+#include <sys/mount.h>
 #include <sys/stat.h>
+
 #include <unistd.h>
 }
 
@@ -120,7 +123,7 @@ do_unmount(const atf::fs::path& in_path)
 
 #if defined(HAVE_UNMOUNT)
     if (unmount(abs_path.c_str(), 0) == -1)
-        throw atf::system_error(ATF::FS_NAME "::cleanup(" + in_path.str() + ")",
+        throw atf::system_error(IMPL_NAME "::cleanup(" + in_path.str() + ")",
                                 "unmount(2) failed", errno);
 #else
     // We could use umount(2) instead if it was available... but
