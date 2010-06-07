@@ -47,7 +47,7 @@ Parsing_Head=false
 Prog_Name=${0##*/}
 
 # The file to which the test case will print its result.
-Results_File=resfile # XXX
+Results_File=
 
 # The test program's source directory: i.e. where its auxiliary data files
 # and helper utilities can be found.  Can be overriden through the '-s' flag.
@@ -155,7 +155,11 @@ atf_config_has()
 #
 atf_fail()
 {
-    echo 'failed:' "${@}" >${Results_File}
+    if [ -n "${Results_File}" ]; then
+        echo 'failed:' "${@}" >${Results_File}
+    else
+        echo 'failed:' "${@}"
+    fi
     exit 1
 }
 
@@ -205,7 +209,11 @@ atf_pass()
 }
 
 _create_pass_file() {
-    echo 'passed' >${Results_File}
+    if [ -n "${Results_File}" ]; then
+        echo 'passed' >${Results_File}
+    else
+        echo 'passed'
+    fi
 }
 
 #
@@ -264,7 +272,11 @@ atf_set()
 #
 atf_skip()
 {
-    echo 'skipped:' "${@}" >${Results_File}
+    if [ -n "${Results_File}" ]; then
+        echo 'skipped:' "${@}" >${Results_File}
+    else
+        echo 'skipped:' "${@}"
+    fi
     exit 0
 }
 

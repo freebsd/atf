@@ -6,4 +6,4 @@ tp: t_config
 tp: t_fork
 tp: t_meta_data
 tp: t_srcdir
-tp: t_status
+tp: t_result

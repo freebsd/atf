@@ -972,9 +972,9 @@ SH_TP([atf/test_programs], [t_fork],
       [$(srcdir)/tests/atf/test_programs/common.sh])
 SH_TP([atf/test_programs], [t_meta_data],
       [$(srcdir)/tests/atf/test_programs/common.sh])
-SH_TP([atf/test_programs], [t_srcdir],
+SH_TP([atf/test_programs], [t_result],
       [$(srcdir)/tests/atf/test_programs/common.sh])
-SH_TP([atf/test_programs], [t_status],
+SH_TP([atf/test_programs], [t_srcdir],
       [$(srcdir)/tests/atf/test_programs/common.sh])
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

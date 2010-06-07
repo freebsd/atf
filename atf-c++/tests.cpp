@@ -362,7 +362,7 @@ const char* tp::m_description =
 tp::tp(void (*add_tcs)(tc_vector&)) :
     app(m_description, "atf-test-program(1)", "atf(7)"),
     m_lflag(false),
-    m_resfile("resfile"), // XXX
+    m_resfile("/dev/stdout"),
     m_srcdir("."),
     m_add_tcs(add_tcs)
 {

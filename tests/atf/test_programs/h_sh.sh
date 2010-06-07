@@ -225,6 +225,27 @@ srcdir_exists_body()
 }
 
 # -------------------------------------------------------------------------
+# Helper tests for "t_result".
+# -------------------------------------------------------------------------
+
+atf_test_case result_pass
+result_pass_body()
+{
+}
+
+atf_test_case result_fail
+result_fail_body()
+{
+    atf_fail "Failure reason"
+}
+
+atf_test_case result_skip
+result_skip_body()
+{
+    atf_skip "Skipped reason"
+}
+
+# -------------------------------------------------------------------------
 # Main.
 # -------------------------------------------------------------------------
 
@@ -253,6 +274,11 @@ atf_init_test_cases()
 
     # Add helper tests for t_srcdir.
     atf_add_test_case srcdir_exists
+
+    # Add helper tests for t_result.
+    atf_add_test_case result_pass
+    atf_add_test_case result_fail
+    atf_add_test_case result_skip
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
