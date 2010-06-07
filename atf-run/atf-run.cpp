@@ -221,7 +221,7 @@ atf_run::get_tcr(const atf::process::status& s,
 
     if (s.exited()) {
         try {
-            const tcr ret = tcr::read(resfile);
+            const tcr ret = impl::read_test_case_result(resfile);
             if (ret.get_state() == tcr::failed_state) {
                 if (s.exitstatus() == EXIT_SUCCESS)
                     return tcr(tcr::failed_state, "Test case exited "
@@ -232,13 +232,6 @@ atf_run::get_tcr(const atf::process::status& s,
                                "with error but reported success");
             }
             return ret;
-        } catch (const atf::formats::format_error& e) {
-            return tcr(tcr::failed_state, "Test case created a bogus results "
-                       "file: " + std::string(e.what()));
-        } catch (const atf::parser::parse_errors& e) {
-            std::string reason = "Test case created a bogus results file: ";
-            reason += atf::text::join(e, "; ");
-            return tcr(tcr::failed_state, reason);
         } catch (const std::runtime_error& e) {
             return tcr(tcr::failed_state, "Test case exited normally but "
                        "failed to create the results file: " +
@@ -246,7 +239,7 @@ atf_run::get_tcr(const atf::process::status& s,
         }
     } else if (s.signaled()) {
         try {
-            return tcr::read(resfile);
+            return impl::read_test_case_result(resfile);
         } catch (...) {
             return tcr(tcr::failed_state,
                        "Test program received signal " +

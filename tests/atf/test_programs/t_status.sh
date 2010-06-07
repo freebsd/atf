@@ -46,10 +46,7 @@ newlines_body()
 
         # NO_CHECK_STYLE_BEGIN
         cat >resexp <<EOF
-Content-Type: application/X-atf-tcr; version="1"
-
-result: failed
-reason: BOGUS REASON (THE ORIGINAL HAD NEWLINES): First line<<NEWLINE>>Second line
+failed: BOGUS REASON (THE ORIGINAL HAD NEWLINES): First line<<NEWLINE>>Second line
 EOF
         # NO_CHECK_STYLE_END
         atf_check -s eq:1 -o empty -e empty "${h}" -r resfile \
@@ -58,10 +55,7 @@ EOF
 
         # NO_CHECK_STYLE_BEGIN
         cat >resexp <<EOF
-Content-Type: application/X-atf-tcr; version="1"
-
-result: skipped
-reason: BOGUS REASON (THE ORIGINAL HAD NEWLINES): First line<<NEWLINE>>Second line
+skipped: BOGUS REASON (THE ORIGINAL HAD NEWLINES): First line<<NEWLINE>>Second line
 EOF
         # NO_CHECK_STYLE_END
         atf_check -s eq:0 -o empty -e empty "${h}" -r resfile \

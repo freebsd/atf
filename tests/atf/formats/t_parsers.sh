@@ -134,36 +134,6 @@ config_body()
         d_config_54
 }
 
-atf_test_case tcr
-tcr_head()
-{
-    atf_set "descr" "Verifies the application/X-atf-tcr parser"
-    atf_set "use.fs" "true"
-}
-tcr_body()
-{
-    run_header_tests application/X-atf-tcr 1
-    run_tests application/X-atf-tcr \
-        d_tcr_1 \
-        d_tcr_2 \
-        d_tcr_3 \
-        d_tcr_50 \
-        d_tcr_51 \
-        d_tcr_52 \
-        d_tcr_53 \
-        d_tcr_54 \
-        d_tcr_60 \
-        d_tcr_61 \
-        d_tcr_70 \
-        d_tcr_71 \
-        d_tcr_72 \
-        d_tcr_73 \
-        d_tcr_74 \
-        d_tcr_75 \
-        d_tcr_76 \
-        d_tcr_77
-}
-
 atf_test_case tp
 tp_head()
 {
@@ -215,7 +185,6 @@ atf_init_test_cases()
 {
     atf_add_test_case atffile
     atf_add_test_case config
-    atf_add_test_case tcr
     atf_add_test_case tp
     atf_add_test_case tps
 }

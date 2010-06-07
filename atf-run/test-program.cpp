@@ -202,9 +202,7 @@ create_timeout_resfile(const atf::fs::path& path, const unsigned int timeout)
         atf::text::to_string(timeout) + " " +
         (timeout == 1 ? "second" : "seconds");
 
-    atf::formats::atf_tcr_writer writer(os);
-    writer.result("failed");
-    writer.reason(reason);
+    os << "failed: " << reason << "\n";
 }
 
 static
@@ -311,6 +309,33 @@ impl::get_metadata(const atf::fs::path& executable,
                                          "exit status for test case list");
 
     return metadata(parser.get_tcs());
+}
+
+atf::tests::tcr
+impl::read_test_case_result(const atf::fs::path& results_path)
+{
+    std::ifstream results_file(results_path.c_str());
+    if (!results_file)
+        throw std::runtime_error("Failed to open " + results_path.str());
+
+    std::string line, extra_line;
+    std::getline(results_file, line);
+    if (!results_file.good())
+        throw std::runtime_error("Results file is empty");
+
+    while (std::getline(results_file, extra_line).good())
+        line += "<<NEWLINE UNEXPECTED>>" + extra_line;
+
+    results_file.close();
+
+    if (line == "passed")
+        return atf::tests::tcr(atf::tests::tcr::passed_state);
+    else if (line.compare(0, 8, "failed: ") == 0)
+        return atf::tests::tcr(atf::tests::tcr::failed_state, line.substr(8));
+    else if (line.compare(0, 9, "skipped: ") == 0)
+        return atf::tests::tcr(atf::tests::tcr::skipped_state, line.substr(9));
+    else
+        throw std::runtime_error("Invalid results file, contents: " + line);
 }
 
 atf::process::status

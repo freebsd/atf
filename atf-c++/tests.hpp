@@ -83,9 +83,6 @@ public:
 
     state get_state(void) const;
     const std::string& get_reason(void) const;
-
-    static tcr read(const fs::path&);
-    void write(const fs::path&) const;
 };
 
 // ------------------------------------------------------------------------

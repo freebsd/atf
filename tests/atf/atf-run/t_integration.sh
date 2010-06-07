@@ -304,15 +304,15 @@ broken_results_body()
     # errors are printed on a single line on the output file.  Printing
     # them on separate lines would be incorrect.
     create_helper_stdin helper 1 <<EOF
-echo 'foo' >\${resfile}
-echo 'bar' >>\${resfile}
+echo 'line 1' >\${resfile}
+echo 'line 2' >>\${resfile}
 exit 0
 EOF
     chmod +x helper
 
     create_atffile helper
 
-    atf_check -s eq:1 -o match:'^tc-end: tc1, .*1:.*2:.*' -e empty atf-run
+    atf_check -s eq:1 -o match:'^tc-end: tc1, .*line 1.*line 2' -e empty atf-run
 }
 
 atf_test_case broken_tp_list
@@ -380,10 +380,7 @@ exit_codes_head()
 exit_codes_body()
 {
     create_helper_stdin helper 1 <<EOF
-echo 'Content-Type: application/X-atf-tcr; version="1"' >\${resfile}
-echo >>\${resfile}
-echo "result: failed" >>\${resfile}
-echo "reason: Yes, it failed" >>\${resfile}
+echo "failed: Yes, it failed" >\${resfile}
 exit 0
 EOF
     chmod +x helper
@@ -418,32 +415,6 @@ EOF
 
     atf_check -s eq:1 -o match:'^tc-end: tc1,.*received signal 9' \
         -e empty atf-run
-}
-
-atf_test_case no_reason
-no_reason_head()
-{
-    atf_set "descr" "Ensures that atf-run reports bogus test programs" \
-                    "that do not provide a reason for failed or skipped" \
-                    "test cases"
-    atf_set "use.fs" "true"
-}
-no_reason_body()
-{
-    for r in failed skipped; do
-        create_helper_stdin helper 1 <<EOF
-echo 'Content-Type: application/X-atf-tcr; version="1"' >\${resfile}
-echo '' >>\${resfile}
-echo 'result: ${r}' >>\${resfile}
-false
-EOF
-        chmod +x helper
-
-        create_atffile helper
-
-        atf_check -s eq:1 -o match:'^tc-end: tc1,.*No reason specified' \
-            -e empty atf-run
-    done
 }
 
 atf_test_case hooks
@@ -916,7 +887,6 @@ atf_init_test_cases()
     atf_add_test_case zero_tcs
     atf_add_test_case exit_codes
     atf_add_test_case signaled
-    atf_add_test_case no_reason
     atf_add_test_case hooks
     atf_add_test_case isolation_env
     atf_add_test_case isolation_home

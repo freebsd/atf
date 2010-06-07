@@ -163,7 +163,7 @@ equal_body()
 
     atf_check -s eq:1 -o ignore -e ignore -x \
         "${h} -r resfile atf_check_equal_fail"
-    atf_check -s eq:0 -o ignore -e empty grep '^reason: a != b (a != b)$' \
+    atf_check -s eq:0 -o ignore -e empty grep '^failed: a != b (a != b)$' \
         resfile
 
     atf_check -s eq:0 -o ignore -e ignore -x "${h} atf_check_equal_eval_ok"
@@ -171,7 +171,7 @@ equal_body()
     atf_check -s eq:1 -o ignore -e ignore -x \
         "${h} -r resfile atf_check_equal_eval_fail"
     atf_check -s eq:0 -o ignore -e empty \
-        grep '^reason: \${x} != \${y} (a != b)$' resfile
+        grep '^failed: \${x} != \${y} (a != b)$' resfile
 }
 
 atf_init_test_cases()

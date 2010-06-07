@@ -47,6 +47,10 @@ removed the <literal>io</literal> and <literal>tcr</literal> modules as
 they had become unnecessary after all simplifications introduced in the
 0.8 release.</para></listitem>
 
+<listitem><para>Removed the <literal>application/X-atf-tcr</literal> format
+introduced in 0.8 release.  Tests now print a much simplified format that
+is easy to parse and nicer to read by end users.</para></listitem>
+
 </itemizedlist>
 
 </section>

@@ -155,12 +155,7 @@ atf_config_has()
 #
 atf_fail()
 {
-    cat >${Results_File} <<EOF
-Content-Type: application/X-atf-tcr; version="1"
-
-result: failed
-reason: ${*}
-EOF
+    echo 'failed:' "${@}" >${Results_File}
     exit 1
 }
 
@@ -210,11 +205,7 @@ atf_pass()
 }
 
 _create_pass_file() {
-    cat >${Results_File} <<EOF
-Content-Type: application/X-atf-tcr; version="1"
-
-result: passed
-EOF
+    echo 'passed' >${Results_File}
 }
 
 #
@@ -273,12 +264,7 @@ atf_set()
 #
 atf_skip()
 {
-    cat >${Results_File} <<EOF
-Content-Type: application/X-atf-tcr; version="1"
-
-result: skipped
-reason: ${*}
-EOF
+    echo 'skipped:' "${@}" >${Results_File}
     exit 0
 }
 

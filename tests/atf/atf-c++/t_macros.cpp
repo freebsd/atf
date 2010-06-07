@@ -158,7 +158,7 @@ ATF_TEST_CASE_HEAD(pass)
 ATF_TEST_CASE_BODY(pass)
 {
     run_h_tc< ATF_TEST_CASE_NAME(h_pass) >();
-    ATF_CHECK(grep_file("result", "result: passed"));
+    ATF_CHECK(grep_file("result", "^passed"));
     ATF_CHECK(atf::fs::exists(atf::fs::path("before")));
     ATF_CHECK(!atf::fs::exists(atf::fs::path("after")));
 }
@@ -172,8 +172,7 @@ ATF_TEST_CASE_HEAD(fail)
 ATF_TEST_CASE_BODY(fail)
 {
     run_h_tc< ATF_TEST_CASE_NAME(h_fail) >();
-    ATF_CHECK(grep_file("result", "result: failed"));
-    ATF_CHECK(grep_file("result", "reason: Failed on purpose"));
+    ATF_CHECK(grep_file("result", "^failed: Failed on purpose"));
     ATF_CHECK(atf::fs::exists(atf::fs::path("before")));
     ATF_CHECK(!atf::fs::exists(atf::fs::path("after")));
 }
@@ -187,8 +186,7 @@ ATF_TEST_CASE_HEAD(skip)
 ATF_TEST_CASE_BODY(skip)
 {
     run_h_tc< ATF_TEST_CASE_NAME(h_skip) >();
-    ATF_CHECK(grep_file("result", "result: skipped"));
-    ATF_CHECK(grep_file("result", "reason: Skipped on purpose"));
+    ATF_CHECK(grep_file("result", "^skipped: Skipped on purpose"));
     ATF_CHECK(atf::fs::exists(atf::fs::path("before")));
     ATF_CHECK(!atf::fs::exists(atf::fs::path("after")));
 }
@@ -223,11 +221,10 @@ ATF_TEST_CASE_BODY(check)
 
         ATF_CHECK(atf::fs::exists(before));
         if (t->ok) {
-            ATF_CHECK(grep_file("result", "result: passed"));
+            ATF_CHECK(grep_file("result", "^passed"));
             ATF_CHECK(atf::fs::exists(after));
         } else {
-            ATF_CHECK(grep_file("result", "result: failed"));
-            ATF_CHECK(grep_file("result", "reason: .*condition not met"));
+            ATF_CHECK(grep_file("result", "^failed: .*condition not met"));
             ATF_CHECK(!atf::fs::exists(after));
         }
 
@@ -273,11 +270,10 @@ ATF_TEST_CASE_BODY(check_equal)
 
         ATF_CHECK(atf::fs::exists(before));
         if (t->ok) {
-            ATF_CHECK(grep_file("result", "result: passed"));
+            ATF_CHECK(grep_file("result", "^passed"));
             ATF_CHECK(atf::fs::exists(after));
         } else {
-            ATF_CHECK(grep_file("result", "result: failed"));
-            ATF_CHECK(grep_file("result", "reason: .*v1 != v2"));
+            ATF_CHECK(grep_file("result", "^failed: .*v1 != v2"));
             ATF_CHECK(!atf::fs::exists(after));
         }
 
@@ -320,13 +316,13 @@ ATF_TEST_CASE_BODY(check_throw)
 
         ATF_CHECK(atf::fs::exists(before));
         if (t->ok) {
-            ATF_CHECK(grep_file("result", "result: passed"));
+            ATF_CHECK(grep_file("result", "^passed"));
             ATF_CHECK(atf::fs::exists(after));
         } else {
-            ATF_CHECK(grep_file("result", "result: failed"));
             std::cout << "Checking that message contains '" << t->msg
                       << "'" << std::endl;
-            ATF_CHECK(grep_file("result", t->msg));
+            std::string exp_result = std::string("^failed: .*") + t->msg;
+            ATF_CHECK(grep_file("result", exp_result.c_str()));
             ATF_CHECK(!atf::fs::exists(after));
         }
 

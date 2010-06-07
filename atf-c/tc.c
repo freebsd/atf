@@ -436,15 +436,14 @@ create_resfile(const atf_fs_path_t *resfile, const char *result,
     } else
         err = atf_no_error();
 
-    fprintf(file, "Content-Type: application/X-atf-tcr; version=\"1\"\n\n");
-    fprintf(file, "result: %s\n", result);
     if (reason) {
         atf_dynstr_t formatted;
 
         err = format_reason(&formatted, reason, ap);
         if (!atf_is_error(err))
-            fprintf(file, "reason: %s\n", atf_dynstr_cstring(&formatted));
-    }
+            fprintf(file, "%s: %s\n", result, atf_dynstr_cstring(&formatted));
+    } else
+        fprintf(file, "%s\n", result);
 
     fclose(file);
 out:
