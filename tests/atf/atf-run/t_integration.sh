@@ -407,17 +407,17 @@ atf_test_case signaled
 signaled_head()
 {
     atf_set "descr" "Ensures that atf-run reports test program's crashes" \
-                    "correctly"
+                    "correctly regardless of their actual results"
     atf_set "use.fs" "true"
 }
 signaled_body()
 {
     create_helper_stdin helper 1 <<EOF
-echo 'Content-Type: application/X-atf-tcs; version="1"' 1>&9
-echo 1>&9
-echo "tcs-count: 1" 1>&9
-echo "tc-start: tc1" 1>&9
-echo "tc-end: tc1, failed, Will fail" 1>&9
+echo 'Content-Type: application/X-atf-tcs; version="1"' >\${resfile}
+echo >>\${resfile}
+echo "tcs-count: 1" >>\${resfile}
+echo "tc-start: tc1" >>\${resfile}
+echo "tc-end: tc1, passed" >>\${resfile}
 kill -9 \$\$
 EOF
     chmod +x helper
