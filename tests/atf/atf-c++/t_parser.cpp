@@ -727,7 +727,7 @@ ATF_TEST_CASE_BODY(tokenizer_quotes_ws)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/parser.hpp", "d_include_parser_hpp.cpp");
+HEADER_TC(include, "atf-c++/parser.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

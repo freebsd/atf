@@ -131,7 +131,7 @@ ATF_TC_BODY(is_unprivileged, tc)
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/user.h", "d_include_user_h.c");
+HEADER_TC(include, "atf-c/user.h");
 
 /* ---------------------------------------------------------------------
  * Main.

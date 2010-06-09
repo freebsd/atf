@@ -226,7 +226,7 @@ ATF_TEST_CASE_BODY(cxx_o)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/build.hpp", "d_include_build_hpp.cpp");
+HEADER_TC(include, "atf-c++/build.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

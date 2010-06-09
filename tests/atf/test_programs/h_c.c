@@ -328,27 +328,47 @@ ATF_TC_BODY(srcdir_exists, tc)
 }
 
 /* ---------------------------------------------------------------------
- * Helper tests for "t_status".
+ * Helper tests for "t_result".
  * --------------------------------------------------------------------- */
 
-ATF_TC(status_newlines_fail);
-ATF_TC_HEAD(status_newlines_fail, tc)
+ATF_TC(result_pass);
+ATF_TC_HEAD(result_pass, tc) { }
+ATF_TC_BODY(result_pass, tc)
 {
-    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_status test "
+}
+
+ATF_TC(result_fail);
+ATF_TC_HEAD(result_fail, tc) { }
+ATF_TC_BODY(result_fail, tc)
+{
+    atf_tc_fail("Failure reason");
+}
+
+ATF_TC(result_skip);
+ATF_TC_HEAD(result_skip, tc) { }
+ATF_TC_BODY(result_skip, tc)
+{
+    atf_tc_skip("Skipped reason");
+}
+
+ATF_TC(result_newlines_fail);
+ATF_TC_HEAD(result_newlines_fail, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_result test "
                       "program");
 }
-ATF_TC_BODY(status_newlines_fail, tc)
+ATF_TC_BODY(result_newlines_fail, tc)
 {
     atf_tc_fail("First line\nSecond line");
 }
 
-ATF_TC(status_newlines_skip);
-ATF_TC_HEAD(status_newlines_skip, tc)
+ATF_TC(result_newlines_skip);
+ATF_TC_HEAD(result_newlines_skip, tc)
 {
-    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_status test "
+    atf_tc_set_md_var(tc, "descr", "Helper test case for the t_result test "
                       "program");
 }
-ATF_TC_BODY(status_newlines_skip, tc)
+ATF_TC_BODY(result_newlines_skip, tc)
 {
     atf_tc_skip("First line\nSecond line");
 }
@@ -383,9 +403,12 @@ ATF_TP_ADD_TCS(tp)
     /* Add helper tests for t_srcdir. */
     ATF_TP_ADD_TC(tp, srcdir_exists);
 
-    /* Add helper tests for t_status. */
-    ATF_TP_ADD_TC(tp, status_newlines_fail);
-    ATF_TP_ADD_TC(tp, status_newlines_skip);
+    /* Add helper tests for t_result. */
+    ATF_TP_ADD_TC(tp, result_pass);
+    ATF_TP_ADD_TC(tp, result_fail);
+    ATF_TP_ADD_TC(tp, result_skip);
+    ATF_TP_ADD_TC(tp, result_newlines_fail);
+    ATF_TP_ADD_TC(tp, result_newlines_skip);
 
     return atf_no_error();
 }

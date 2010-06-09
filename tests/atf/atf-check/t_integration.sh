@@ -170,6 +170,20 @@ oflag_inline_body()
     h_fail "echo -n foo bar" -o inline:"foo bar\n"
 }
 
+atf_test_case oflag_match
+oflag_match_head()
+{
+    atf_set "descr" "Tests for the -o option using the 'match:' argument"
+    atf_set "use.fs" "true"
+}
+oflag_match_body()
+{
+    h_pass "echo line1; echo foo bar" -o "match:^foo"
+    h_pass "echo foo bar" -o "match:o b"
+    h_fail "echo foo bar" -o "match:baz"
+    h_fail "echo foo bar" -o "match:^bar"
+}
+
 atf_test_case oflag_save
 oflag_save_head()
 {
@@ -181,6 +195,35 @@ oflag_save_body()
     h_pass "echo foo" -o save:out
     echo foo >exp
     cmp -s out exp || atf_fail "Saved output does not match expected results"
+}
+
+atf_test_case oflag_multiple
+oflag_multiple_head()
+{
+    atf_set "descr" "Tests for multiple occurrences of the -o option"
+    atf_set "use.fs" "true"
+}
+oflag_multiple_body()
+{
+    h_pass "echo foo bar" -o match:foo -o match:bar
+    h_pass "echo foo; echo bar" -o match:foo -o match:bar
+    h_fail "echo foo baz" -o match:bar -o match:foo
+    h_fail "echo foo; echo baz" -o match:bar -o match:foo
+}
+
+atf_test_case oflag_negated
+oflag_negated_head()
+{
+    atf_set "descr" "Tests for negated occurrences of the -o option"
+    atf_set "use.fs" "true"
+}
+oflag_negated_body()
+{
+    h_fail "echo foo" -o empty
+    h_pass "echo foo" -o not-empty
+
+    h_pass "echo foo bar" -o match:foo
+    h_fail "echo foo bar" -o not-match:foo
 }
 
 atf_test_case eflag_empty
@@ -267,6 +310,49 @@ eflag_save_body()
     cmp -s out exp || atf_fail "Saved output does not match expected results"
 }
 
+atf_test_case eflag_match
+eflag_match_head()
+{
+    atf_set "descr" "Tests for the -e option using the 'match:' argument"
+    atf_set "use.fs" "true"
+}
+eflag_match_body()
+{
+    h_pass "echo line1 1>&2; echo foo bar 1>&2" -e "match:^foo"
+    h_pass "echo foo bar 1>&2" -e "match:o b"
+    h_fail "echo foo bar 1>&2" -e "match:baz"
+    h_fail "echo foo bar 1>&2" -e "match:^bar"
+}
+
+atf_test_case eflag_multiple
+eflag_multiple_head()
+{
+    atf_set "descr" "Tests for multiple occurrences of the -e option"
+    atf_set "use.fs" "true"
+}
+eflag_multiple_body()
+{
+    h_pass "echo foo bar 1>&2" -e match:foo -e match:bar
+    h_pass "echo foo 1>&2; echo bar 1>&2" -e match:foo -e match:bar
+    h_fail "echo foo baz 1>&2" -e match:bar -e match:foo
+    h_fail "echo foo 1>&2; echo baz 1>&2" -e match:bar -e match:foo
+}
+
+atf_test_case eflag_negated
+eflag_negated_head()
+{
+    atf_set "descr" "Tests for negated occurrences of the -e option"
+    atf_set "use.fs" "true"
+}
+eflag_negated_body()
+{
+    h_fail "echo foo 1>&2" -e empty
+    h_pass "echo foo 1>&2" -e not-empty
+
+    h_pass "echo foo bar 1>&2" -e match:foo
+    h_fail "echo foo bar 1>&2" -e not-match:foo
+}
+
 atf_test_case invalid_umask
 invalid_umask_head()
 {
@@ -294,13 +380,19 @@ atf_init_test_cases()
     atf_add_test_case oflag_ignore
     atf_add_test_case oflag_file
     atf_add_test_case oflag_inline
+    atf_add_test_case oflag_match
     atf_add_test_case oflag_save
+    atf_add_test_case oflag_multiple
+    atf_add_test_case oflag_negated
 
     atf_add_test_case eflag_empty
     atf_add_test_case eflag_ignore
     atf_add_test_case eflag_file
     atf_add_test_case eflag_inline
+    atf_add_test_case eflag_match
     atf_add_test_case eflag_save
+    atf_add_test_case eflag_multiple
+    atf_add_test_case eflag_negated
 
     atf_add_test_case invalid_umask
 }

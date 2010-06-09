@@ -474,7 +474,7 @@ ATF_TC_BODY(format, tc)
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/ui.h", "d_include_ui_h.c");
+HEADER_TC(include, "atf-c/ui.h");
 
 /* ---------------------------------------------------------------------
  * Main.

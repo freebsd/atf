@@ -203,8 +203,6 @@ libatf_c_la_SOURCES = atf-c/build.c \
                       atf-c/error_fwd.h \
                       atf-c/fs.c \
                       atf-c/fs.h \
-                      atf-c/io.c \
-                      atf-c/io.h \
                       atf-c/list.c \
                       atf-c/list.h \
                       atf-c/macros.h \
@@ -222,8 +220,6 @@ libatf_c_la_SOURCES = atf-c/build.c \
                       atf-c/user.h \
                       atf-c/tc.c \
                       atf-c/tc.h \
-                      atf-c/tcr.c \
-                      atf-c/tcr.h \
                       atf-c/tp.c \
                       atf-c/tp.h \
                       atf-c/tp_main.c
@@ -246,14 +242,12 @@ atf_c_HEADERS = atf-c/build.h \
                 atf-c/error.h \
                 atf-c/error_fwd.h \
                 atf-c/fs.h \
-                atf-c/io.h \
                 atf-c/list.h \
                 atf-c/macros.h \
                 atf-c/map.h \
                 atf-c/process.h \
                 atf-c/sanity.h \
                 atf-c/tc.h \
-                atf-c/tcr.h \
                 atf-c/text.h \
                 atf-c/tp.h \
                 atf-c/ui.h \
@@ -283,8 +277,6 @@ lib_LTLIBRARIES += libatf-c++.la
 libatf_c___la_LIBADD = libatf-c.la
 libatf_c___la_SOURCES = atf-c++/application.cpp \
                         atf-c++/application.hpp \
-                        atf-c++/atffile.cpp \
-                        atf-c++/atffile.hpp \
                         atf-c++/build.cpp \
                         atf-c++/build.hpp \
                         atf-c++/check.cpp \
@@ -323,7 +315,6 @@ libatf_c___la_SOURCES = atf-c++/application.cpp \
 
 include_HEADERS += atf-c++.hpp
 atf_c___HEADERS = atf-c++/application.hpp \
-                  atf-c++/atffile.hpp \
                   atf-c++/build.hpp \
                   atf-c++/check.hpp \
                   atf-c++/config.hpp \
@@ -372,12 +363,6 @@ TOOL([bin], [atf-check])
 TOOL([bin], [atf-config])
 
 # -------------------------------------------------------------------------
-# `atf-cleanup' directory.
-# -------------------------------------------------------------------------
-
-TOOL([libexec], [atf-cleanup])
-
-# -------------------------------------------------------------------------
 # `atf-format' directory.
 # -------------------------------------------------------------------------
 
@@ -405,8 +390,12 @@ EXTRA_DIST += $(xsl_DATA)
 # `atf-run' directory.
 # -------------------------------------------------------------------------
 
-TOOL([bin], [atf-run], [atf-run/config.cpp \
+TOOL([bin], [atf-run], [atf-run/atffile.cpp \
+                        atf-run/atffile.hpp \
+                        atf-run/config.cpp \
                         atf-run/config.hpp \
+                        atf-run/fs.cpp \
+                        atf-run/fs.hpp \
                         atf-run/requirements.cpp \
                         atf-run/requirements.hpp \
                         atf-run/test-program.cpp \
@@ -651,27 +640,6 @@ pkgtests_DATA = tests/atf/Atffile
 EXTRA_DIST += $(pkgtests_DATA)
 
 atf_atf_c_DATA = tests/atf/atf-c/Atffile \
-                 tests/atf/atf-c/d_include_atf_c_h.c \
-                 tests/atf/atf-c/d_include_build_h.c \
-                 tests/atf/atf-c/d_include_check_h.c \
-                 tests/atf/atf-c/d_include_config_h.c \
-                 tests/atf/atf-c/d_include_dynstr_h.c \
-                 tests/atf/atf-c/d_include_env_h.c \
-                 tests/atf/atf-c/d_include_error_fwd_h.c \
-                 tests/atf/atf-c/d_include_error_h.c \
-                 tests/atf/atf-c/d_include_fs_h.c \
-                 tests/atf/atf-c/d_include_io_h.c \
-                 tests/atf/atf-c/d_include_list_h.c \
-                 tests/atf/atf-c/d_include_macros_h.c \
-                 tests/atf/atf-c/d_include_map_h.c \
-                 tests/atf/atf-c/d_include_process_h.c \
-                 tests/atf/atf-c/d_include_sanity_h.c \
-                 tests/atf/atf-c/d_include_tc_h.c \
-                 tests/atf/atf-c/d_include_tcr_h.c \
-                 tests/atf/atf-c/d_include_text_h.c \
-                 tests/atf/atf-c/d_include_tp_h.c \
-                 tests/atf/atf-c/d_include_ui_h.c \
-                 tests/atf/atf-c/d_include_user_h.c \
                  tests/atf/atf-c/d_use_macros_h.c
 atf_atf_cdir = $(pkgtestsdir)/atf-c
 EXTRA_DIST += $(atf_atf_c_DATA)
@@ -728,13 +696,11 @@ C_TP([atf/atf-c], [t_env], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_error], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_fs], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_h_lib], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_io], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_list], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_macros], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_map], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_process], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_tc], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_tcr], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_sanity], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_text], [], [tests/atf/atf-c/libh.la])
 C_TP([atf/atf-c], [t_tp], [], [tests/atf/atf-c/libh.la])
@@ -746,28 +712,6 @@ atf_atf_c_PROGRAMS += tests/atf/atf-c/h_processes
 tests_atf_atf_c_h_processes_SOURCES = tests/atf/atf-c/h_processes.c
 
 atf_atf_c___DATA = tests/atf/atf-c++/Atffile \
-                   tests/atf/atf-c++/d_include_application_hpp.cpp \
-                   tests/atf/atf-c++/d_include_atf_c++_hpp.cpp \
-                   tests/atf/atf-c++/d_include_atffile_hpp.cpp \
-                   tests/atf/atf-c++/d_include_build_hpp.cpp \
-                   tests/atf/atf-c++/d_include_check_hpp.cpp \
-                   tests/atf/atf-c++/d_include_config_hpp.cpp \
-                   tests/atf/atf-c++/d_include_env_hpp.cpp \
-                   tests/atf/atf-c++/d_include_exceptions_hpp.cpp \
-                   tests/atf/atf-c++/d_include_expand_hpp.cpp \
-                   tests/atf/atf-c++/d_include_formats_hpp.cpp \
-                   tests/atf/atf-c++/d_include_fs_hpp.cpp \
-                   tests/atf/atf-c++/d_include_io_hpp.cpp \
-                   tests/atf/atf-c++/d_include_macros_hpp.cpp \
-                   tests/atf/atf-c++/d_include_parser_hpp.cpp \
-                   tests/atf/atf-c++/d_include_process_hpp.cpp \
-                   tests/atf/atf-c++/d_include_sanity_hpp.cpp \
-                   tests/atf/atf-c++/d_include_signals_hpp.cpp \
-                   tests/atf/atf-c++/d_include_tests_hpp.cpp \
-                   tests/atf/atf-c++/d_include_text_hpp.cpp \
-                   tests/atf/atf-c++/d_include_ui_hpp.cpp \
-                   tests/atf/atf-c++/d_include_user_hpp.cpp \
-                   tests/atf/atf-c++/d_include_utils_hpp.cpp \
                    tests/atf/atf-c++/d_use_macros_hpp.cpp
 atf_atf_c__dir = $(pkgtestsdir)/atf-c++
 EXTRA_DIST += $(atf_atf_c___DATA)
@@ -778,7 +722,6 @@ tests_atf_atf_c___libh_la_SOURCES = tests/atf/atf-c++/h_lib.cpp \
 
 CXX_TP([atf/atf-c++], [t_atf_c++], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_application], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_atffile], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_build], [tests/atf/atf-c/h_build.h],
        [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_check], [], [tests/atf/atf-c++/libh.la])
@@ -807,12 +750,6 @@ EXTRA_DIST += $(atf_atf_check_DATA)
 
 SH_TP([atf/atf-check], [t_integration])
 
-atf_atf_cleanup_DATA = tests/atf/atf-cleanup/Atffile
-atf_atf_cleanupdir = $(pkgtestsdir)/atf-cleanup
-EXTRA_DIST += $(atf_atf_cleanup_DATA)
-
-SH_TP([atf/atf-cleanup], [t_integration])
-
 atf_atf_config_DATA = tests/atf/atf-config/Atffile
 atf_atf_configdir = $(pkgtestsdir)/atf-config
 EXTRA_DIST += $(atf_atf_config_DATA)
@@ -838,12 +775,16 @@ C_TP([atf/atf-run], [h_zero_tcs])
 CXX_TP([atf/atf-run], [h_fail])
 CXX_TP([atf/atf-run], [h_pass])
 CXX_TP([atf/atf-run], [h_misc])
+CXX_TP([atf/atf-run], [t_atffile], [atf-run/atffile.cpp], [],
+       [-I$(srcdir)/atf-run])
 CXX_TP([atf/atf-run], [t_config], [atf-run/config.cpp], [],
        [-I$(srcdir)/atf-run])
+CXX_TP([atf/atf-run], [t_fs], [atf-run/fs.cpp], [], [-I$(srcdir)/atf-run])
 CXX_TP([atf/atf-run], [t_requirements], [atf-run/requirements.cpp], [],
        [-I$(srcdir)/atf-run])
 CXX_TP([atf/atf-run], [t_test_program],
-       [atf-run/test-program.cpp atf-run/timer.cpp], [], [-I$(srcdir)/atf-run])
+       [atf-run/fs.cpp atf-run/test-program.cpp atf-run/timer.cpp], [],
+       [-I$(srcdir)/atf-run])
 SH_TP([atf/atf-run], [t_integration])
 
 atf_atf_sh_DATA = tests/atf/atf-sh/Atffile
@@ -925,50 +866,6 @@ atf_formats_DATA = tests/atf/formats/Atffile \
                    tests/atf/formats/d_headers_8.experr \
                    tests/atf/formats/d_headers_9 \
                    tests/atf/formats/d_headers_9.experr \
-                   tests/atf/formats/d_tcr_1 \
-                   tests/atf/formats/d_tcr_1.expout \
-                   tests/atf/formats/d_tcr_2 \
-                   tests/atf/formats/d_tcr_2.expout \
-                   tests/atf/formats/d_tcr_3 \
-                   tests/atf/formats/d_tcr_3.expout \
-                   tests/atf/formats/d_tcr_50 \
-                   tests/atf/formats/d_tcr_50.experr \
-                   tests/atf/formats/d_tcr_51 \
-                   tests/atf/formats/d_tcr_51.experr \
-                   tests/atf/formats/d_tcr_52 \
-                   tests/atf/formats/d_tcr_52.experr \
-                   tests/atf/formats/d_tcr_53 \
-                   tests/atf/formats/d_tcr_53.experr \
-                   tests/atf/formats/d_tcr_54 \
-                   tests/atf/formats/d_tcr_54.experr \
-                   tests/atf/formats/d_tcr_60 \
-                   tests/atf/formats/d_tcr_60.experr \
-                   tests/atf/formats/d_tcr_61 \
-                   tests/atf/formats/d_tcr_61.expout \
-                   tests/atf/formats/d_tcr_61.experr \
-                   tests/atf/formats/d_tcr_70 \
-                   tests/atf/formats/d_tcr_70.experr \
-                   tests/atf/formats/d_tcr_70.expout \
-                   tests/atf/formats/d_tcr_71 \
-                   tests/atf/formats/d_tcr_71.experr \
-                   tests/atf/formats/d_tcr_71.expout \
-                   tests/atf/formats/d_tcr_72 \
-                   tests/atf/formats/d_tcr_72.experr \
-                   tests/atf/formats/d_tcr_72.expout \
-                   tests/atf/formats/d_tcr_73 \
-                   tests/atf/formats/d_tcr_73.experr \
-                   tests/atf/formats/d_tcr_73.expout \
-                   tests/atf/formats/d_tcr_74 \
-                   tests/atf/formats/d_tcr_74.experr \
-                   tests/atf/formats/d_tcr_74.expout \
-                   tests/atf/formats/d_tcr_75 \
-                   tests/atf/formats/d_tcr_75.experr \
-                   tests/atf/formats/d_tcr_75.expout \
-                   tests/atf/formats/d_tcr_76 \
-                   tests/atf/formats/d_tcr_76.experr \
-                   tests/atf/formats/d_tcr_76.expout \
-                   tests/atf/formats/d_tcr_77 \
-                   tests/atf/formats/d_tcr_77.experr \
                    tests/atf/formats/d_tp_1 \
                    tests/atf/formats/d_tp_1.expout \
                    tests/atf/formats/d_tp_2 \
@@ -1075,9 +972,9 @@ SH_TP([atf/test_programs], [t_fork],
       [$(srcdir)/tests/atf/test_programs/common.sh])
 SH_TP([atf/test_programs], [t_meta_data],
       [$(srcdir)/tests/atf/test_programs/common.sh])
-SH_TP([atf/test_programs], [t_srcdir],
+SH_TP([atf/test_programs], [t_result],
       [$(srcdir)/tests/atf/test_programs/common.sh])
-SH_TP([atf/test_programs], [t_status],
+SH_TP([atf/test_programs], [t_srcdir],
       [$(srcdir)/tests/atf/test_programs/common.sh])
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

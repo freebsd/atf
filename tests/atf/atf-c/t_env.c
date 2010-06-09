@@ -106,7 +106,7 @@ ATF_TC_BODY(unset, tc)
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/env.h", "d_include_env_h.c");
+HEADER_TC(include, "atf-c/env.h");
 
 /* ---------------------------------------------------------------------
  * Main.

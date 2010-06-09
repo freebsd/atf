@@ -140,7 +140,7 @@ ATF_TC_BODY(get, tc)
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/config.h", "d_include_config_h.c");
+HEADER_TC(include, "atf-c/config.h");
 
 /* ---------------------------------------------------------------------
  * Main.

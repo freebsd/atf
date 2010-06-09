@@ -340,7 +340,7 @@ ATF_TEST_CASE_BODY(exec_success)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/process.hpp", "d_include_process_hpp.cpp");
+HEADER_TC(include, "atf-c++/process.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

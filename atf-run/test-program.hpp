@@ -53,6 +53,7 @@ struct metadata {
 };
 
 metadata get_metadata(const atf::fs::path&, const atf::tests::vars_map&);
+atf::tests::tcr read_test_case_result(const atf::fs::path&);
 atf::process::status run_test_case(const atf::fs::path&,
                                    const std::string&,
                                    const std::string&,

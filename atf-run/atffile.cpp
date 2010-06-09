@@ -29,13 +29,14 @@
 
 #include <fstream>
 
-#include "atf-c++/atffile.hpp"
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/expand.hpp"
 #include "atf-c++/formats.hpp"
 #include "atf-c++/sanity.hpp"
 
-namespace impl = atf::atffile;
+#include "atffile.hpp"
+
+namespace impl = atf::atf_run;
 
 // ------------------------------------------------------------------------
 // The "reader" helper class.
@@ -149,7 +150,7 @@ impl::atffile::props(void)
 // XXX Glob expansion and file existance checks certainly do not belong in
 // a *parser*.  This needs to be taken out...
 impl::atffile
-impl::read(const atf::fs::path& filename)
+impl::read_atffile(const atf::fs::path& filename)
 {
     // Scan the directory where the atffile lives in to gather a list of
     // all possible test programs in it.

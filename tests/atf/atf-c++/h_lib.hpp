@@ -37,11 +37,18 @@
 
 #include "atf-c++/process.hpp"
 
-#define HEADER_TC(name, hdrname, sfile) \
-    BUILD_TC(name, sfile, \
-             "Tests that the " hdrname " file can be included on " \
-             "its own, without any prerequisites", \
-             "Build of " sfile " failed; " hdrname " is not self-contained");
+#define HEADER_TC(name, hdrname) \
+    ATF_TEST_CASE(name); \
+    ATF_TEST_CASE_HEAD(name) \
+    { \
+        set_md_var("descr", "Tests that the " hdrname " file can be " \
+            "included on its own, without any prerequisites"); \
+        set_md_var("use.fs", "true"); \
+    } \
+    ATF_TEST_CASE_BODY(name) \
+    { \
+        header_check(*this, hdrname); \
+    }
 
 #define BUILD_TC(name, sfile, descr, failmsg) \
     ATF_TEST_CASE(name); \
@@ -61,6 +68,7 @@ class tc;
 }
 }
 
+void header_check(const atf::tests::tc&, const char*);
 void build_check_cxx_o(const atf::tests::tc&, const char*, const char*);
 atf::fs::path get_h_processes_path(const atf::tests::tc&);
 bool grep_file(const char*, const char*);

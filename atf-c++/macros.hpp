@@ -40,7 +40,7 @@
     class atfu_tc_ ## name : public atf::tests::tc { \
         void body(void) const; \
     public: \
-        atfu_tc_ ## name(void) : atf::tests::tc(#name) {} \
+        atfu_tc_ ## name(void) : atf::tests::tc(#name, false) {} \
     };
 
 #define ATF_TEST_CASE(name) \
@@ -48,7 +48,7 @@
         void head(void); \
         void body(void) const; \
     public: \
-        atfu_tc_ ## name(void) : atf::tests::tc(#name) {} \
+        atfu_tc_ ## name(void) : atf::tests::tc(#name, false) {} \
     };
 
 #define ATF_TEST_CASE_WITH_CLEANUP(name) \
@@ -57,7 +57,7 @@
         void body(void) const; \
         void cleanup(void) const; \
     public: \
-        atfu_tc_ ## name(void) : atf::tests::tc(#name) {} \
+        atfu_tc_ ## name(void) : atf::tests::tc(#name, true) {} \
     };
 
 #define ATF_TEST_CASE_NAME(name) atfu_tc_ ## name

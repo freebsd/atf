@@ -299,7 +299,7 @@ ATF_TC_BODY(stable_keys, tc)
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/map.h", "d_include_map_h.c");
+HEADER_TC(include, "atf-c/map.h");
 
 /* ---------------------------------------------------------------------
  * Main.

@@ -41,7 +41,6 @@
 #include <atf-c.h>
 
 #include "atf-c/fs.h"
-#include "atf-c/io.h"
 #include "atf-c/process.h"
 #include "atf-c/text.h"
 
@@ -221,9 +220,9 @@ ATF_TC_BODY(check, tc)
         ATF_REQUIRE(exists("after"));
 
         if (t->ok) {
-            ATF_REQUIRE(grep_file("result", "result: passed"));
+            ATF_REQUIRE(grep_file("result", "^passed"));
         } else {
-            ATF_REQUIRE(grep_file("result", "result: failed"));
+            ATF_REQUIRE(grep_file("result", "^failed"));
             ATF_REQUIRE(grep_file("error", "t_macros.c:[0-9]+: "
                                   "Check failed: %s$", t->msg));
         }
@@ -262,9 +261,9 @@ do_check_eq_tests(const struct check_eq_test *tests)
         ATF_CHECK(exists("after"));
 
         if (t->ok) {
-            ATF_REQUIRE(grep_file("result", "result: passed"));
+            ATF_REQUIRE(grep_file("result", "^passed"));
         } else {
-            ATF_REQUIRE(grep_file("result", "result: failed"));
+            ATF_REQUIRE(grep_file("result", "^failed"));
             ATF_CHECK(grep_file("error", "t_macros.c:[0-9]+: "
                                 "Check failed: %s$", t->msg));
         }
@@ -410,13 +409,12 @@ ATF_TC_BODY(require, tc)
 
         ATF_REQUIRE(exists("before"));
         if (t->ok) {
-            ATF_REQUIRE(grep_file("result", "result: passed"));
+            ATF_REQUIRE(grep_file("result", "^passed"));
             ATF_REQUIRE(exists("after"));
         } else {
-            ATF_REQUIRE(grep_file("result", "result: failed"));
-            ATF_REQUIRE(!exists("after"));
-            ATF_REQUIRE(grep_file("result", "reason:.*t_macros.c:[0-9]+: "
+            ATF_REQUIRE(grep_file("result", "^failed: .*t_macros.c:[0-9]+: "
                                   "Requirement failed: %s$", t->msg));
+            ATF_REQUIRE(!exists("after"));
         }
 
         ATF_REQUIRE(unlink("before") != -1);
@@ -452,13 +450,12 @@ do_require_eq_tests(const struct require_eq_test *tests)
 
         ATF_REQUIRE(exists("before"));
         if (t->ok) {
-            ATF_REQUIRE(grep_file("result", "result: passed"));
+            ATF_REQUIRE(grep_file("result", "^passed"));
             ATF_REQUIRE(exists("after"));
         } else {
-            ATF_REQUIRE(grep_file("result", "result: failed"));
+            ATF_REQUIRE(grep_file("result", "^failed: reason:.*t_macros.c"
+                ":[0-9]+: Requirement failed: %s$", t->msg));
             ATF_REQUIRE(!exists("after"));
-            ATF_REQUIRE(grep_file("result", "reason:.*t_macros.c:[0-9]+: "
-                                  "Requirement failed: %s$", t->msg));
         }
 
         ATF_REQUIRE(unlink("before") != -1);
@@ -617,16 +614,15 @@ ATF_TC_BODY(msg_embedded_fmt, tc)
 
         init_and_run_h_tc("h_check", t->head, t->body);
 
-        ATF_REQUIRE(grep_file("result", "result: failed"));
         if (t->fatal) {
             bool matched =
-                grep_file("result", "result:.*t_macros.c:[0-9]+: Requirement "
+                grep_file("result", "^failed: .*t_macros.c:[0-9]+: Requirement "
                           "failed: %s$", t->msg);
             ATF_CHECK_MSG(matched, "couldn't find error string in result");
         } else {
             bool matched =
-                grep_file("error", "t_macros.c:[0-9]+: Check failed: %s$",
-                          t->msg);
+                grep_file("error", "^failed: t_macros.c:[0-9]+: Check failed: "
+                    "%s$", t->msg);
             ATF_CHECK_MSG(matched, "couldn't find error string in output");
         }
     }
@@ -636,7 +632,7 @@ ATF_TC_BODY(msg_embedded_fmt, tc)
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/macros.h", "d_include_macros_h.c");
+HEADER_TC(include, "atf-c/macros.h");
 BUILD_TC(use, "d_use_macros_h.c",
          "Tests that the macros provided by the atf-c/macros.h file "
          "do not cause syntax errors when used",

@@ -35,7 +35,7 @@
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "ui.hpp", "d_include_ui_hpp.cpp");
+HEADER_TC(include, "atf-c++/ui.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

@@ -38,7 +38,7 @@ ATF_TC_BODY(first, tc)
 {
 }
 
-ATF_TC(second);
+ATF_TC_WITH_CLEANUP(second);
 ATF_TC_HEAD(second, tc)
 {
     atf_tc_set_md_var(tc, "descr", "Description 2");
@@ -47,6 +47,9 @@ ATF_TC_HEAD(second, tc)
     atf_tc_set_md_var(tc, "X-property", "Custom property");
 }
 ATF_TC_BODY(second, tc)
+{
+}
+ATF_TC_CLEANUP(second, tc)
 {
 }
 

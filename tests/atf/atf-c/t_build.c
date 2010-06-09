@@ -263,7 +263,7 @@ ATF_TC_BODY(cxx_o, tc)
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/build.h", "d_include_build_h.c");
+HEADER_TC(include, "atf-c/build.h");
 
 /* ---------------------------------------------------------------------
  * Main.

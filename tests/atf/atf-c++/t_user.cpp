@@ -133,7 +133,7 @@ ATF_TEST_CASE_BODY(is_unprivileged)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/user.hpp", "d_include_user_hpp.cpp");
+HEADER_TC(include, "atf-c++/user.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

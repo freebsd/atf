@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,52 +27,32 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <cstdlib>
-#include <iostream>
+#if !defined(_ATF_RUN_FS_HPP_)
+#define _ATF_RUN_FS_HPP_
 
-#include "atf-c++/application.hpp"
-#include "atf-c++/fs.hpp"
-#include "atf-c++/ui.hpp"
+#include <memory>
 
-class atf_cleanup : public atf::application::app {
-    static const char* m_description;
+#include <atf-c++/fs.hpp>
 
-    std::string specific_args(void) const;
+namespace atf {
+namespace atf_run {
+
+class temp_dir {
+    std::auto_ptr< atf::fs::path > m_path;
 
 public:
-    atf_cleanup(void);
+    temp_dir(const atf::fs::path&);
+    ~temp_dir(void);
 
-    int main(void);
+    const atf::fs::path& get_path(void) const;
 };
 
-const char* atf_cleanup::m_description =
-    "atf-cleanup recursively removes a test case's work directory, "
-    "unmounting any file systems it may contain and preventing to "
-    "recurse into them if the unmounting fails.";
+atf::fs::path change_directory(const atf::fs::path&);
+void cleanup(const atf::fs::path&);
+atf::fs::path get_current_dir(void);
+bool set_immutable(const atf::fs::path&, bool);
 
-atf_cleanup::atf_cleanup(void) :
-    app(m_description, "atf-cleanup(1)", "atf(7)")
-{
-}
+} // namespace atf_run
+} // namespace atf
 
-std::string
-atf_cleanup::specific_args(void)
-    const
-{
-    return "[path1 [.. pathN]]";
-}
-
-int
-atf_cleanup::main(void)
-{
-    for (int i = 0; i < m_argc; i++)
-        atf::fs::cleanup(atf::fs::path(m_argv[i]));
-
-    return EXIT_SUCCESS;
-}
-
-int
-main(int argc, char* const* argv)
-{
-    return atf_cleanup().run(argc, argv);
-}
+#endif // !defined(_ATF_RUN_FS_HPP_)

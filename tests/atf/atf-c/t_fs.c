@@ -89,13 +89,6 @@ mkstemp_discard_fd(atf_fs_path_t *p)
     return err;
 }
 
-static
-bool
-not_exists(const atf_fs_path_t *p)
-{
-    return access(atf_fs_path_cstring(p), F_OK) == -1 && errno == ENOENT;
-}
-
 /* ---------------------------------------------------------------------
  * Test cases for the "atf_fs_path" type.
  * --------------------------------------------------------------------- */
@@ -572,81 +565,6 @@ ATF_TC_BODY(stat_perms, tc)
 /* ---------------------------------------------------------------------
  * Test cases for the free functions.
  * --------------------------------------------------------------------- */
-
-ATF_TC(cleanup);
-ATF_TC_HEAD(cleanup, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_cleanup function");
-    atf_tc_set_md_var(tc, "use.fs", "true");
-}
-ATF_TC_BODY(cleanup, tc)
-{
-    atf_fs_path_t root;
-
-    create_dir ("root", 0755);
-    create_dir ("root/dir", 0755);
-    create_dir ("root/dir/1", 0100);
-    create_file("root/dir/2", 0644);
-    create_file("root/reg", 0644);
-
-    RE(atf_fs_path_init_fmt(&root, "root"));
-    RE(atf_fs_cleanup(&root));
-    ATF_REQUIRE(not_exists(&root));
-    atf_fs_path_fini(&root);
-
-    /* TODO: Cleanup with mount points, just as in tools/t_atf_cleanup. */
-}
-
-ATF_TC(cleanup_eacces_on_root);
-ATF_TC_HEAD(cleanup_eacces_on_root, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_cleanup function");
-    atf_tc_set_md_var(tc, "use.fs", "true");
-}
-ATF_TC_BODY(cleanup_eacces_on_root, tc)
-{
-    atf_fs_path_t root;
-
-    create_dir("aux", 0755);
-    create_dir("aux/root", 0755);
-    ATF_CHECK(chmod("aux", 0555) != -1);
-
-    RE(atf_fs_path_init_fmt(&root, "aux/root"));
-    atf_error_t err = atf_fs_cleanup(&root);
-    if (atf_user_is_root()) {
-        ATF_REQUIRE(!atf_is_error(err));
-    } else {
-        ATF_REQUIRE(atf_is_error(err));
-        ATF_REQUIRE(atf_error_is(err, "libc"));
-        ATF_CHECK_EQ(atf_libc_error_code(err), EACCES);
-        atf_error_free(err);
-    }
-
-    atf_fs_path_fini(&root);
-}
-
-ATF_TC(cleanup_eacces_on_subdir);
-ATF_TC_HEAD(cleanup_eacces_on_subdir, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Tests the atf_fs_cleanup function");
-    atf_tc_set_md_var(tc, "use.fs", "true");
-}
-ATF_TC_BODY(cleanup_eacces_on_subdir, tc)
-{
-    atf_fs_path_t root;
-
-    create_dir("root", 0755);
-    create_dir("root/1", 0755);
-    create_dir("root/1/2", 0755);
-    create_dir("root/1/2/3", 0755);
-    ATF_CHECK(chmod("root/1", 0555) != -1);
-    ATF_CHECK(chmod("root/1/2", 0555) != -1);
-
-    RE(atf_fs_path_init_fmt(&root, "root"));
-    RE(atf_fs_cleanup(&root));
-    ATF_REQUIRE(not_exists(&root));
-    atf_fs_path_fini(&root);
-}
 
 ATF_TC(exists);
 ATF_TC_HEAD(exists, tc)
@@ -1139,44 +1057,11 @@ ATF_TC_BODY(mkstemp_umask, tc)
     atf_fs_path_fini(&p);
 }
 
-ATF_TC(set_immutable);
-ATF_TC_HEAD(set_immutable, tc)
-{
-    atf_tc_set_md_var(tc, "descr", "Tests the set_immutable function");
-    atf_tc_set_md_var(tc, "use.fs", "true");
-}
-ATF_TC_BODY(set_immutable, tc)
-{
-    atf_fs_path_t p;
-    bool supported;
-
-    RE(atf_fs_path_init_fmt(&p, "dir"));
-
-    if (mkdir("dir", 0755) == -1)
-        atf_tc_fail("Failed to create test directory");
-
-    RE(atf_fs_set_immutable(&p, true, &supported));
-    if (!supported)
-        atf_tc_skip("Don't know how to set the immutable flag");
-
-    if (mkdir("dir/other", 0755) != -1)
-        atf_tc_fail("Immutable flag was not correctly set");
-
-    RE(atf_fs_set_immutable(&p, false, &supported));
-    if (!supported)
-        atf_tc_skip("Don't know how to unset the immutable flag");
-
-    if (mkdir("dir/other", 0755) == -1)
-        atf_tc_fail("Immutable flag was not correctly unset");
-
-    atf_fs_path_fini(&p);
-}
-
 /* ---------------------------------------------------------------------
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/fs.h", "d_include_fs_h.c");
+HEADER_TC(include, "atf-c/fs.h");
 
 /* ---------------------------------------------------------------------
  * Main.
@@ -1201,9 +1086,6 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, stat_perms);
 
     /* Add the tests for the free functions. */
-    ATF_TP_ADD_TC(tp, cleanup);
-    ATF_TP_ADD_TC(tp, cleanup_eacces_on_root);
-    ATF_TP_ADD_TC(tp, cleanup_eacces_on_subdir);
     ATF_TP_ADD_TC(tp, eaccess);
     ATF_TP_ADD_TC(tp, exists);
     ATF_TP_ADD_TC(tp, getcwd);
@@ -1216,7 +1098,6 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, mkstemp_ok);
     ATF_TP_ADD_TC(tp, mkstemp_err);
     ATF_TP_ADD_TC(tp, mkstemp_umask);
-    ATF_TP_ADD_TC(tp, set_immutable);
 
     /* Add the test cases for the header file. */
     ATF_TP_ADD_TC(tp, include);

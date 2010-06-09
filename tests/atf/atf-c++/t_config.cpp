@@ -215,7 +215,7 @@ ATF_TEST_CASE_BODY(has)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/config.hpp", "d_include_config_hpp.cpp");
+HEADER_TC(include, "atf-c++/config.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

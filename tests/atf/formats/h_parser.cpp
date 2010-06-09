@@ -108,38 +108,6 @@ public:
     }
 };
 
-class tcr_reader : protected atf::formats::atf_tcr_reader {
-    void
-    got_result(const std::string& str)
-    {
-        std::cout << "got_result(" << str << ")" << std::endl;
-    }
-
-    void
-    got_reason(const std::string& str)
-    {
-        std::cout << "got_reason(" << str << ")" << std::endl;
-    }
-
-public:
-    tcr_reader(std::istream& is) :
-        atf::formats::atf_tcr_reader(is)
-    {
-    }
-
-    void
-    read(const std::string& outname, const std::string& errname)
-    {
-        atf_tcr_reader::read();
-    }
-
-    void
-    got_eof(void)
-    {
-        std::cout << "got_eof()" << std::endl;
-    }
-};
-
 class tp_reader : protected atf::formats::atf_tp_reader {
     void
     got_tc(const std::string& ident,
@@ -287,8 +255,6 @@ main(int argc, char* argv[])
             process< atffile_reader >(file);
         } else if (format == std::string("application/X-atf-config")) {
             process< config_reader >(file);
-        } else if (format == std::string("application/X-atf-tcr")) {
-            process< tcr_reader >(file);
         } else if (format == std::string("application/X-atf-tp")) {
             process< tp_reader >(file);
         } else if (format == std::string("application/X-atf-tps")) {

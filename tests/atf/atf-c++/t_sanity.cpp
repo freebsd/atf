@@ -35,7 +35,7 @@
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "sanity.hpp", "d_include_sanity_hpp.cpp");
+HEADER_TC(include, "atf-c++/sanity.hpp");
 
 // ------------------------------------------------------------------------
 // Main.
