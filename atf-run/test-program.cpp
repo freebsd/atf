@@ -554,7 +554,7 @@ impl::read_test_case_result(const atf::fs::path& results_path)
         throw std::runtime_error("Invalid results file, contents: " + line);
 }
 
-atf::process::status
+std::pair< std::string, atf::process::status >
 impl::run_test_case(const atf::fs::path& executable,
                     const std::string& test_case_name,
                     const std::string& test_case_part,

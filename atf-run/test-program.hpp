@@ -102,7 +102,7 @@ atf::tests::tcr read_test_case_result(const atf::fs::path&);
 std::pair< std::string, atf::process::status > run_test_case(const atf::fs::path&,
     const std::string&, const std::string&, const atf::tests::vars_map&,
     const atf::tests::vars_map&, const atf::fs::path&, const atf::fs::path&,
-    atf::formats::atf_tps_writer&);
+    atf_tps_writer&);
 
 } // namespace atf_run
 } // namespace atf

@@ -413,7 +413,7 @@ EOF
 
     create_atffile helper
 
-    atf_check -s eq:1 -o match:'^tc-end: tc1,.*received signal 9' \
+    atf_check -s eq:1 -o match:'^tc-end: tc2,.*received signal 9' \
         -e empty atf-run
 }
 
