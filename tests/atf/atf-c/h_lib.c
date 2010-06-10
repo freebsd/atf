@@ -39,16 +39,15 @@
 #include "atf-c/dynstr.h"
 #include "atf-c/error.h"
 #include "atf-c/fs.h"
-#include "atf-c/io.h"
 #include "atf-c/macros.h"
 
 #include "h_lib.h"
 
+static
 void
-build_check_c_o(const atf_tc_t *tc, const char *sfile, const char *failmsg)
+build_check_c_o_aux(const char *path, const char *failmsg)
 {
     bool success;
-    atf_fs_path_t path;
     atf_dynstr_t iflag;
     const char *optargs[2];
 
@@ -57,17 +56,40 @@ build_check_c_o(const atf_tc_t *tc, const char *sfile, const char *failmsg)
     optargs[0] = atf_dynstr_cstring(&iflag);
     optargs[1] = NULL;
 
-    RE(atf_fs_path_init_fmt(&path, "%s/%s",
-                            atf_tc_get_config_var(tc, "srcdir"), sfile));
+    RE(atf_check_build_c_o(path, "test.o", optargs, &success));
 
-    RE(atf_check_build_c_o(atf_fs_path_cstring(&path), "test.o", optargs,
-                           &success));
-
-    atf_fs_path_fini(&path);
     atf_dynstr_fini(&iflag);
 
     if (!success)
         atf_tc_fail(failmsg);
+}
+
+void
+build_check_c_o(const atf_tc_t *tc, const char *sfile, const char *failmsg)
+{
+    atf_fs_path_t path;
+
+    RE(atf_fs_path_init_fmt(&path, "%s/%s",
+                            atf_tc_get_config_var(tc, "srcdir"), sfile));
+    build_check_c_o_aux(atf_fs_path_cstring(&path), failmsg);
+    atf_fs_path_fini(&path);
+}
+
+void
+header_check(const atf_tc_t *tc, const char *hdrname)
+{
+    FILE *srcfile;
+    char failmsg[128];
+
+    srcfile = fopen("test.c", "w");
+    ATF_REQUIRE(srcfile != NULL);
+    fprintf(srcfile, "#include <%s>\n", hdrname);
+    fclose(srcfile);
+
+    snprintf(failmsg, sizeof(failmsg),
+             "Header check failed; %s is not self-contained", hdrname);
+
+    build_check_c_o_aux("test.c", failmsg);
 }
 
 void
@@ -110,14 +132,11 @@ grep_file(const char *file, const char *regex, ...)
     found = false;
     ATF_REQUIRE((fd = open(file, O_RDONLY)) != -1);
     do {
-        atf_error_t err;
         atf_dynstr_t line;
-        bool eof;
 
         RE(atf_dynstr_init(&line));
 
-        err = atf_io_readline(fd, &line, &eof);
-        done = atf_is_error(err) || eof;
+        done = read_line(fd, &line);
         if (!done)
             found = grep_string(&line, atf_dynstr_cstring(&formatted));
 
@@ -128,6 +147,22 @@ grep_file(const char *file, const char *regex, ...)
     atf_dynstr_fini(&formatted);
 
     return found;
+}
+
+bool
+read_line(int fd, atf_dynstr_t *dest)
+{
+    char ch;
+    ssize_t cnt;
+
+    while ((cnt = read(fd, &ch, sizeof(ch))) == sizeof(ch) &&
+           ch != '\n') {
+        const atf_error_t err = atf_dynstr_append_fmt(dest, "%c", ch);
+        ATF_REQUIRE(!atf_is_error(err));
+    }
+    ATF_REQUIRE(cnt != -1);
+
+    return cnt == 0;
 }
 
 struct run_h_tc_data {

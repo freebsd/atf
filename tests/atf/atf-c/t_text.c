@@ -411,7 +411,7 @@ ATF_TC_BODY(to_long, tc)
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/text.h", "d_include_text_h.c");
+HEADER_TC(include, "atf-c/text.h");
 
 /* ---------------------------------------------------------------------
  * Main.

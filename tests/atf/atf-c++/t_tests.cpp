@@ -47,6 +47,148 @@ extern "C" {
 #include "h_lib.hpp"
 
 // ------------------------------------------------------------------------
+// Tests for the "atf_tp_writer" class.
+// ------------------------------------------------------------------------
+
+static
+void
+print_indented(const std::string& str)
+{
+    std::vector< std::string > ws = atf::text::split(str, "\n");
+    for (std::vector< std::string >::const_iterator iter = ws.begin();
+         iter != ws.end(); iter++)
+        std::cout << ">>" << *iter << "<<" << std::endl;
+}
+
+// XXX Should this string handling and verbosity level be part of the
+// ATF_CHECK_EQUAL macro?  It may be hard to predict sometimes that a
+// string can have newlines in it, and so the error message generated
+// at the moment will be bogus if there are some.
+static
+void
+check_equal(const std::string& str, const std::string& exp)
+{
+    if (str != exp) {
+        std::cout << "String equality check failed." << std::endl
+                  << "Adding >> and << to delimit the string boundaries "
+                     "below." << std::endl;
+        std::cout << "GOT:" << std::endl;
+        print_indented(str);
+        std::cout << "EXPECTED:" << std::endl;
+        print_indented(exp);
+        atf_tc_fail("Constructed string differs from the expected one");
+    }
+}
+
+ATF_TEST_CASE(atf_tp_writer);
+ATF_TEST_CASE_HEAD(atf_tp_writer)
+{
+    set_md_var("descr", "Verifies the application/X-atf-tp writer");
+}
+ATF_TEST_CASE_BODY(atf_tp_writer)
+{
+    std::ostringstream expss;
+    std::ostringstream ss;
+
+#define RESET \
+    expss.str(""); \
+    ss.str("")
+
+#define CHECK \
+    check_equal(ss.str(), expss.str())
+
+    {
+        RESET;
+
+        atf::tests::detail::atf_tp_writer w(ss);
+        expss << "Content-Type: application/X-atf-tp; version=\"1\""
+              << std::endl << std::endl;
+        CHECK;
+    }
+
+    {
+        RESET;
+
+        atf::tests::detail::atf_tp_writer w(ss);
+        expss << "Content-Type: application/X-atf-tp; version=\"1\""
+              << std::endl << std::endl;
+        CHECK;
+
+        w.start_tc("test1");
+        expss << "ident: test1" << std::endl;
+        CHECK;
+
+        w.end_tc();
+        CHECK;
+    }
+
+    {
+        RESET;
+
+        atf::tests::detail::atf_tp_writer w(ss);
+        expss << "Content-Type: application/X-atf-tp; version=\"1\""
+              << std::endl << std::endl;
+        CHECK;
+
+        w.start_tc("test1");
+        expss << "ident: test1" << std::endl;
+        CHECK;
+
+        w.end_tc();
+        CHECK;
+
+        w.start_tc("test2");
+        expss << std::endl << "ident: test2" << std::endl;
+        CHECK;
+
+        w.end_tc();
+        CHECK;
+    }
+
+    {
+        RESET;
+
+        atf::tests::detail::atf_tp_writer w(ss);
+        expss << "Content-Type: application/X-atf-tp; version=\"1\""
+              << std::endl << std::endl;
+        CHECK;
+
+        w.start_tc("test1");
+        expss << "ident: test1" << std::endl;
+        CHECK;
+
+        w.tc_meta_data("descr", "the description");
+        expss << "descr: the description" << std::endl;
+        CHECK;
+
+        w.end_tc();
+        CHECK;
+
+        w.start_tc("test2");
+        expss << std::endl << "ident: test2" << std::endl;
+        CHECK;
+
+        w.tc_meta_data("descr", "second test case");
+        expss << "descr: second test case" << std::endl;
+        CHECK;
+
+        w.tc_meta_data("require.progs", "/bin/cp");
+        expss << "require.progs: /bin/cp" << std::endl;
+        CHECK;
+
+        w.tc_meta_data("X-custom", "foo bar baz");
+        expss << "X-custom: foo bar baz" << std::endl;
+        CHECK;
+
+        w.end_tc();
+        CHECK;
+    }
+
+#undef CHECK
+#undef RESET
+}
+
+// ------------------------------------------------------------------------
 // Tests for the "tcr" class.
 // ------------------------------------------------------------------------
 
@@ -97,236 +239,11 @@ ATF_TEST_CASE_BODY(tcr_ctor_w_reason)
     }
 }
 
-ATF_TEST_CASE(tcr_read_passed);
-ATF_TEST_CASE_HEAD(tcr_read_passed)
-{
-    set_md_var("descr", "Tests reading a passed test case result");
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(tcr_read_passed)
-{
-    using atf::tests::tcr;
-
-    std::ofstream os("tcr.txt");
-    ATF_CHECK(os);
-    os << "Content-Type: application/X-atf-tcr; version=\"1\"\n\n";
-    os << "result: passed\n";
-    os.close();
-
-    const tcr result = tcr::read(atf::fs::path("tcr.txt"));
-    ATF_CHECK_EQUAL(tcr::passed_state, result.get_state());
-}
-
-ATF_TEST_CASE(tcr_read_failed);
-ATF_TEST_CASE_HEAD(tcr_read_failed)
-{
-    set_md_var("descr", "Tests reading a failed test case result");
-    set_md_var("use.fs", "true");
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(tcr_read_failed)
-{
-    using atf::tests::tcr;
-
-    std::ofstream os("tcr.txt");
-    ATF_CHECK(os);
-    os << "Content-Type: application/X-atf-tcr; version=\"1\"\n\n";
-    os << "result: failed\n";
-    os << "reason: A test reason\n";
-    os.close();
-
-    const tcr result = tcr::read(atf::fs::path("tcr.txt"));
-    ATF_CHECK_EQUAL(tcr::failed_state, result.get_state());
-    ATF_CHECK_EQUAL("A test reason", result.get_reason());
-}
-
-ATF_TEST_CASE(tcr_read_skipped);
-ATF_TEST_CASE_HEAD(tcr_read_skipped)
-{
-    set_md_var("descr", "Tests reading a skipped test case result");
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(tcr_read_skipped)
-{
-    using atf::tests::tcr;
-
-    std::ofstream os("tcr.txt");
-    ATF_CHECK(os);
-    os << "Content-Type: application/X-atf-tcr; version=\"1\"\n\n";
-    os << "result: skipped\n";
-    os << "reason: Another test reason\n";
-    os.close();
-
-    const tcr result = tcr::read(atf::fs::path("tcr.txt"));
-    ATF_CHECK_EQUAL(tcr::skipped_state, result.get_state());
-    ATF_CHECK_EQUAL("Another test reason", result.get_reason());
-}
-
-ATF_TEST_CASE(tcr_read_missing_file_error);
-ATF_TEST_CASE_HEAD(tcr_read_missing_file_error)
-{
-    set_md_var("descr", "Tests reading a test case result from a non-existent "
-               "file");
-}
-ATF_TEST_CASE_BODY(tcr_read_missing_file_error)
-{
-    using atf::tests::tcr;
-
-    ATF_CHECK_THROW(tcr::read(atf::fs::path("tcr.txt")), std::runtime_error);
-}
-
-ATF_TEST_CASE(tcr_read_format_error);
-ATF_TEST_CASE_HEAD(tcr_read_format_error)
-{
-    set_md_var("descr", "Tests reading a test case result with a format error");
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(tcr_read_format_error)
-{
-    using atf::tests::tcr;
-
-    std::ofstream os("tcr.txt");
-    ATF_CHECK(os);
-    os << "Content-Type: application/X-atf-tcr; version=\"50\"\n\n";
-    os << "the body\n";
-    os.close();
-
-    ATF_CHECK_THROW(tcr::read(atf::fs::path("tcr.txt")),
-                    atf::formats::format_error);
-}
-
-ATF_TEST_CASE(tcr_read_parse_error);
-ATF_TEST_CASE_HEAD(tcr_read_parse_error)
-{
-    set_md_var("descr", "Tests reading a test case result with a parse error");
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(tcr_read_parse_error)
-{
-    using atf::tests::tcr;
-
-    std::ofstream os("tcr.txt");
-    ATF_CHECK(os);
-    os << "Content-Type: application/X-atf-tcr; version=\"1\"\n\n";
-    os << "result: foo\n";
-    os.close();
-
-    ATF_CHECK_THROW(tcr::read(atf::fs::path("tcr.txt")),
-                    std::vector< atf::parser::parse_error >);
-}
-
-// TODO: The tests below suggest that we'd benefit from a generic macro
-// to check for differences in generated files and golden contents.
-
-ATF_TEST_CASE(tcr_write_passed);
-ATF_TEST_CASE_HEAD(tcr_write_passed)
-{
-    set_md_var("descr", "Tests writing a passed test case result");
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(tcr_write_passed)
-{
-    using atf::tests::tcr;
-
-    tcr result(tcr::passed_state);
-    result.write(atf::fs::path("tcr.txt"));
-
-    std::ifstream is("tcr.txt");
-    ATF_CHECK(is);
-    std::string line;
-    ATF_CHECK(std::getline(is, line).good());
-    ATF_CHECK_EQUAL("Content-Type: application/X-atf-tcr; version=\"1\"", line);
-    ATF_CHECK(std::getline(is, line).good());
-    ATF_CHECK_EQUAL("", line);
-    ATF_CHECK(std::getline(is, line).good());
-    ATF_CHECK_EQUAL("result: passed", line);
-    ATF_CHECK(!std::getline(is, line).good());
-}
-
-ATF_TEST_CASE(tcr_write_failed);
-ATF_TEST_CASE_HEAD(tcr_write_failed)
-{
-    set_md_var("descr", "Tests writing a failed test case result");
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(tcr_write_failed)
-{
-    using atf::tests::tcr;
-
-    tcr result(tcr::failed_state, "A test reason");
-    result.write(atf::fs::path("tcr.txt"));
-
-    std::ifstream is("tcr.txt");
-    ATF_CHECK(is);
-    std::string line;
-    ATF_CHECK(std::getline(is, line).good());
-    ATF_CHECK_EQUAL("Content-Type: application/X-atf-tcr; version=\"1\"", line);
-    ATF_CHECK(std::getline(is, line).good());
-    ATF_CHECK_EQUAL("", line);
-    ATF_CHECK(std::getline(is, line).good());
-    ATF_CHECK_EQUAL("result: failed", line);
-    ATF_CHECK(std::getline(is, line).good());
-    ATF_CHECK_EQUAL("reason: A test reason", line);
-    ATF_CHECK(!std::getline(is, line).good());
-}
-
-ATF_TEST_CASE(tcr_write_skipped);
-ATF_TEST_CASE_HEAD(tcr_write_skipped)
-{
-    set_md_var("descr", "Tests writing a skipped test case result");
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(tcr_write_skipped)
-{
-    using atf::tests::tcr;
-
-    tcr result(tcr::skipped_state, "Another test reason");
-    result.write(atf::fs::path("tcr.txt"));
-
-    std::ifstream is("tcr.txt");
-    ATF_CHECK(is);
-    std::string line;
-    ATF_CHECK(std::getline(is, line).good());
-    ATF_CHECK_EQUAL("Content-Type: application/X-atf-tcr; version=\"1\"", line);
-    ATF_CHECK(std::getline(is, line).good());
-    ATF_CHECK_EQUAL("", line);
-    ATF_CHECK(std::getline(is, line).good());
-    ATF_CHECK_EQUAL("result: skipped", line);
-    ATF_CHECK(std::getline(is, line).good());
-    ATF_CHECK_EQUAL("reason: Another test reason", line);
-    ATF_CHECK(!std::getline(is, line).good());
-}
-
-ATF_TEST_CASE(tcr_write_create_file_error);
-ATF_TEST_CASE_HEAD(tcr_write_create_file_error)
-{
-    set_md_var("descr", "Tests writing a test case result to an unwritable "
-               "file");
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(tcr_write_create_file_error)
-{
-    using atf::tests::tcr;
-
-    const int fd = ::open("tcr.txt", O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
-    ATF_CHECK(fd != -1);
-    ATF_CHECK(::close(fd) != -1);
-    ATF_CHECK(::chmod("tcr.txt", 0) != -1);
-
-    tcr result(tcr::passed_state);
-    if (atf::user::is_root()) {
-        result.write(atf::fs::path("tcr.txt"));
-    } else {
-        ATF_CHECK_THROW(result.write(atf::fs::path("tcr.txt")),
-                        std::runtime_error);
-    }
-}
-
 // ------------------------------------------------------------------------
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/tests.hpp", "d_include_tests_hpp.cpp");
+HEADER_TC(include, "atf-c++/tests.hpp");
 
 // ------------------------------------------------------------------------
 // Main.
@@ -334,19 +251,12 @@ HEADER_TC(include, "atf-c++/tests.hpp", "d_include_tests_hpp.cpp");
 
 ATF_INIT_TEST_CASES(tcs)
 {
+    // Add tests for the "atf_tp_writer" class.
+    ATF_ADD_TEST_CASE(tcs, atf_tp_writer);
+
     // Add tests for the "tcr" class.
     ATF_ADD_TEST_CASE(tcs, tcr_ctor_wo_reason);
     ATF_ADD_TEST_CASE(tcs, tcr_ctor_w_reason);
-    ATF_ADD_TEST_CASE(tcs, tcr_read_passed);
-    ATF_ADD_TEST_CASE(tcs, tcr_read_failed);
-    ATF_ADD_TEST_CASE(tcs, tcr_read_skipped);
-    ATF_ADD_TEST_CASE(tcs, tcr_read_missing_file_error);
-    ATF_ADD_TEST_CASE(tcs, tcr_read_format_error);
-    ATF_ADD_TEST_CASE(tcs, tcr_read_parse_error);
-    ATF_ADD_TEST_CASE(tcs, tcr_write_passed);
-    ATF_ADD_TEST_CASE(tcs, tcr_write_failed);
-    ATF_ADD_TEST_CASE(tcs, tcr_write_skipped);
-    ATF_ADD_TEST_CASE(tcs, tcr_write_create_file_error);
 
     // Add the test cases for the header file.
     ATF_ADD_TEST_CASE(tcs, include);

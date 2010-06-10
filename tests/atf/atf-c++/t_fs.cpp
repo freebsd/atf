@@ -33,11 +33,13 @@ extern "C" {
 }
 
 #include <fstream>
+#include <cerrno>
 #include <cstdio>
 
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/fs.hpp"
 #include "atf-c++/macros.hpp"
+#include "atf-c++/user.hpp"
 
 #include "h_lib.hpp"
 
@@ -445,69 +447,6 @@ ATF_TEST_CASE_BODY(file_info_perms)
 }
 
 // ------------------------------------------------------------------------
-// Test cases for the "temp_dir" class.
-// ------------------------------------------------------------------------
-
-ATF_TEST_CASE(temp_dir_raii);
-ATF_TEST_CASE_HEAD(temp_dir_raii)
-{
-    set_md_var("descr", "Tests the RAII behavior of the temp_dir class");
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(temp_dir_raii)
-{
-    using atf::fs::exists;
-    using atf::fs::file_info;
-    using atf::fs::path;
-    using atf::fs::temp_dir;
-
-    path t1("non-existent");
-    path t2("non-existent");
-
-    {
-        path tmpl("testdir.XXXXXX");
-        temp_dir td1(tmpl);
-        temp_dir td2(tmpl);
-        t1 = td1.get_path();
-        t2 = td2.get_path();
-        ATF_CHECK(t1.str().find("XXXXXX") == std::string::npos);
-        ATF_CHECK(t2.str().find("XXXXXX") == std::string::npos);
-        ATF_CHECK(t1 != t2);
-        ATF_CHECK(!exists(tmpl));
-        ATF_CHECK( exists(t1));
-        ATF_CHECK( exists(t2));
-
-        file_info fi1(t1);
-        ATF_CHECK( fi1.is_owner_readable());
-        ATF_CHECK( fi1.is_owner_writable());
-        ATF_CHECK( fi1.is_owner_executable());
-        ATF_CHECK(!fi1.is_group_readable());
-        ATF_CHECK(!fi1.is_group_writable());
-        ATF_CHECK(!fi1.is_group_executable());
-        ATF_CHECK(!fi1.is_other_readable());
-        ATF_CHECK(!fi1.is_other_writable());
-        ATF_CHECK(!fi1.is_other_executable());
-
-        file_info fi2(t2);
-        ATF_CHECK( fi2.is_owner_readable());
-        ATF_CHECK( fi2.is_owner_writable());
-        ATF_CHECK( fi2.is_owner_executable());
-        ATF_CHECK(!fi2.is_group_readable());
-        ATF_CHECK(!fi2.is_group_writable());
-        ATF_CHECK(!fi2.is_group_executable());
-        ATF_CHECK(!fi2.is_other_readable());
-        ATF_CHECK(!fi2.is_other_writable());
-        ATF_CHECK(!fi2.is_other_executable());
-    }
-
-    ATF_CHECK(t1.str() != "non-existent");
-    ATF_CHECK(!exists(t1));
-    ATF_CHECK(t2.str() != "non-existent");
-    ATF_CHECK(!exists(t2));
-}
-
-
-// ------------------------------------------------------------------------
 // Test cases for the "temp_file" class.
 // ------------------------------------------------------------------------
 
@@ -646,33 +585,6 @@ ATF_TEST_CASE_BODY(temp_file_delete)
 // Test cases for the free functions.
 // ------------------------------------------------------------------------
 
-ATF_TEST_CASE(change_directory);
-ATF_TEST_CASE_HEAD(change_directory)
-{
-    set_md_var("descr", "Tests the change_directory function");
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(change_directory)
-{
-    using atf::fs::change_directory;
-    using atf::fs::get_current_dir;
-    using atf::fs::path;
-
-    create_files();
-    const path old = get_current_dir();
-
-    ATF_CHECK_THROW(change_directory(path("files/reg")), atf::system_error);
-    ATF_CHECK(get_current_dir() == old);
-
-    path old2 = change_directory(path("files"));
-    ATF_CHECK(old2 == old);
-    path old3 = change_directory(path("dir"));
-    ATF_CHECK(old3 == old2 / "files");
-    path old4 = change_directory(path("../.."));
-    ATF_CHECK(old4 == old3 / "dir");
-    ATF_CHECK(get_current_dir() == old);
-}
-
 ATF_TEST_CASE(exists);
 ATF_TEST_CASE_HEAD(exists)
 {
@@ -695,33 +607,6 @@ ATF_TEST_CASE_BODY(exists)
     ATF_CHECK( exists(path("files/dir")));
     ATF_CHECK( exists(path("files/reg")));
     ATF_CHECK(!exists(path("files/foo")));
-}
-
-ATF_TEST_CASE(get_current_dir);
-ATF_TEST_CASE_HEAD(get_current_dir)
-{
-    set_md_var("descr", "Tests the get_current_dir function");
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(get_current_dir)
-{
-    using atf::fs::change_directory;
-    using atf::fs::get_current_dir;
-    using atf::fs::path;
-
-    create_files();
-
-    path curdir = get_current_dir();
-    change_directory(path("."));
-    ATF_CHECK(get_current_dir() == curdir);
-    change_directory(path("files"));
-    ATF_CHECK(get_current_dir() == curdir / "files");
-    change_directory(path("dir"));
-    ATF_CHECK(get_current_dir() == curdir / "files/dir");
-    change_directory(path(".."));
-    ATF_CHECK(get_current_dir() == curdir / "files");
-    change_directory(path(".."));
-    ATF_CHECK(get_current_dir() == curdir);
 }
 
 ATF_TEST_CASE(is_executable);
@@ -749,29 +634,6 @@ ATF_TEST_CASE_BODY(is_executable)
     ATF_CHECK( is_executable(path("files/reg")));
 }
 
-ATF_TEST_CASE(cleanup);
-ATF_TEST_CASE_HEAD(cleanup)
-{
-    set_md_var("descr", "Tests the cleanup function");
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(cleanup)
-{
-    using atf::fs::cleanup;
-    using atf::fs::get_current_dir;
-    using atf::fs::exists;
-    using atf::fs::path;
-
-    create_files();
-
-    path p("files");
-    ATF_CHECK( exists(p));
-    ATF_CHECK( exists(p / "dir"));
-    ATF_CHECK( exists(p / "reg"));
-    cleanup(p);
-    ATF_CHECK(!exists(p));
-}
-
 ATF_TEST_CASE(remove);
 ATF_TEST_CASE_HEAD(remove)
 {
@@ -795,53 +657,11 @@ ATF_TEST_CASE_BODY(remove)
     ATF_CHECK( exists(path("files/dir")));
 }
 
-ATF_TEST_CASE(current_umask);
-ATF_TEST_CASE_HEAD(current_umask)
-{
-    set_md_var("descr", "Tests the current_umask function");
-}
-ATF_TEST_CASE_BODY(current_umask)
-{
-    using atf::fs::current_umask;
-
-    umask(0000);
-    ATF_CHECK_EQUAL(0000, current_umask());
-
-    umask(0222);
-    ATF_CHECK_EQUAL(0222, current_umask());
-}
-
-ATF_TEST_CASE(set_immutable);
-ATF_TEST_CASE_HEAD(set_immutable)
-{
-    set_md_var("descr", "Tests the set_immutable function");
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(set_immutable)
-{
-    using atf::fs::set_immutable;
-
-    if (::mkdir("dir", 0755) == -1)
-        ATF_FAIL("Failed to create test directory");
-
-    if (!set_immutable(atf::fs::path("dir"), true))
-        ATF_SKIP("Don't know how to set the immutable flag");
-
-    if (::mkdir("dir/other", 0755) != -1)
-        ATF_FAIL("Immutable flag was not correctly set");
-
-    if (!set_immutable(atf::fs::path("dir"), false))
-        ATF_SKIP("Don't know how to unset the immutable flag");
-
-    if (::mkdir("dir/other", 0755) == -1)
-        ATF_FAIL("Immutable flag was not correctly unset");
-}
-
 // ------------------------------------------------------------------------
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/fs.hpp", "d_include_fs_hpp.cpp");
+HEADER_TC(include, "atf-c++/fs.hpp");
 
 // ------------------------------------------------------------------------
 // Main.
@@ -870,9 +690,6 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, directory_names);
     ATF_ADD_TEST_CASE(tcs, directory_file_info);
 
-    // Add the tests for the "temp_dir" class.
-    ATF_ADD_TEST_CASE(tcs, temp_dir_raii);
-
     // Add the tests for the "temp_file" class.
     ATF_ADD_TEST_CASE(tcs, temp_file_raii);
     ATF_ADD_TEST_CASE(tcs, temp_file_stream);
@@ -880,14 +697,9 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, temp_file_delete);
 
     // Add the tests for the free functions.
-    ATF_ADD_TEST_CASE(tcs, get_current_dir);
     ATF_ADD_TEST_CASE(tcs, exists);
     ATF_ADD_TEST_CASE(tcs, is_executable);
-    ATF_ADD_TEST_CASE(tcs, change_directory);
-    ATF_ADD_TEST_CASE(tcs, cleanup);
     ATF_ADD_TEST_CASE(tcs, remove);
-    ATF_ADD_TEST_CASE(tcs, current_umask);
-    ATF_ADD_TEST_CASE(tcs, set_immutable);
 
     // Add the test cases for the header file.
     ATF_ADD_TEST_CASE(tcs, include);

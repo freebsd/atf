@@ -278,8 +278,8 @@ ATF_TC_BODY(no_memory_twice, tc)
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/error.h", "d_include_error_h.c");
-HEADER_TC(include_fwd, "atf-c/error_fwd.h", "d_include_error_fwd_h.c");
+HEADER_TC(include, "atf-c/error.h");
+HEADER_TC(include_fwd, "atf-c/error_fwd.h");
 
 /* ---------------------------------------------------------------------
  * Main.

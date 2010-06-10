@@ -96,10 +96,8 @@ default_body()
     run_helpers
 
     # Check that the default output uses the ticker format.
-    atf_check -s eq:0 -o save:stdout -e empty -x 'atf-report <tps.out'
-    atf_check -s eq:0 -o ignore -e empty grep "test cases" stdout
-    atf_check -s eq:0 -o ignore -e empty grep "Failed test cases" stdout
-    atf_check -s eq:0 -o ignore -e empty grep "Summary for" stdout
+    atf_check -s eq:0 -o match:'test cases' -o match:'Failed test cases' \
+        -o match:'Summary for' -e empty -x 'atf-report <tps.out'
 }
 
 atf_test_case oflag
@@ -145,16 +143,14 @@ oflag_body()
     rm -f fmt.out fmt2.out
 
     # Check that defining two outputs over the same file does not work.
-    atf_check -s eq:1 -o empty -e save:stderr -x \
+    atf_check -s eq:1 -o empty -e match:'more than once' -x \
               'atf-report -o csv:fmt.out -o ticker:fmt.out <tps.out'
-    atf_check -s eq:0 -o ignore -e empty grep "more than once" stderr
     rm -f fmt.out
 
     # Check that defining two outputs over stdout (but using different
     # paths) does not work.
-    atf_check -s eq:1 -o empty -e save:stderr -x \
+    atf_check -s eq:1 -o empty -e match:'more than once' -x \
               'atf-report -o csv:- -o ticker:/dev/stdout <tps.out'
-    atf_check -s eq:0 -o ignore -e empty grep "more than once" stderr
     rm -f fmt.out
 }
 

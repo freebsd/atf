@@ -52,7 +52,7 @@ stop_body()
         echo "Wrote done file"
         kill -CONT ${pid}
         wait ${ppid}
-        atf_check -s eq:0 -o ignore -e empty grep 'result: passed' resfile
+        atf_check -s eq:0 -o ignore -e empty grep '^passed$' resfile
         rm -f pid done
     done
 }

@@ -4,23 +4,49 @@
 
                                     Contents
 
-    1. Changes in version 0.9
+    1. [1]Changes in version 0.10
 
-    2. Changes in version 0.8
+    2. [2]Changes in version 0.9
 
-    3. Changes in version 0.7
+    3. [3]Changes in version 0.8
 
-    4. Changes in version 0.6
+    4. [4]Changes in version 0.7
 
-    5. Changes in version 0.5
+    5. [5]Changes in version 0.6
 
-    6. Changes in version 0.4
+    6. [6]Changes in version 0.5
 
-    7. Changes in version 0.3
+    7. [7]Changes in version 0.4
 
-    8. Changes in version 0.2
+    8. [8]Changes in version 0.3
 
-    9. Changes in version 0.1
+    9. [9]Changes in version 0.2
+
+   10. [10]Changes in version 0.1
+
+                            Changes in version 0.10
+
+   STILL UNDER DEVELOPMENT; NOT RELEASED YET.
+
+     * Added the match output checker to atf-check to look for regular
+       expressions in the stdout and stderr of commands.
+
+     * Changed atf-check to support specifying multiple checkers for stdout
+       and stderr, not only one, and to allow negating the checks by
+       prefixing them by not-.
+
+     * Removed the atf-cleanup tool. It has been unused since the test case
+       isolation was moved to atf-run in 0.8
+
+     * Test cases now export a has.cleanup meta-data property that specifies
+       whether the test case has a cleanup routine or not; its value is
+       automatically set. The property is read by atf-run to know if it has
+       to run the cleanup routine, which significantly speeds up the runtime
+       of test suites.
+
+     * Simplifications to the atf-c library: removed the io and tcr modules
+       as they had become unnecessary after all simplifications introduced in
+       the 0.8 release.
 
                              Changes in version 0.9
 
@@ -282,3 +308,17 @@
 
      * First public version. This was released coinciding with the end of the
        Google Summer of Code 2007 program.
+
+References
+
+   Visible links
+   1. file:///tmp/build-xml.NZbUrY#atf-0-10
+   2. file:///tmp/build-xml.NZbUrY#atf-0-9
+   3. file:///tmp/build-xml.NZbUrY#atf-0-8
+   4. file:///tmp/build-xml.NZbUrY#atf-0-7
+   5. file:///tmp/build-xml.NZbUrY#atf-0-6
+   6. file:///tmp/build-xml.NZbUrY#atf-0-5
+   7. file:///tmp/build-xml.NZbUrY#atf-0-4
+   8. file:///tmp/build-xml.NZbUrY#atf-0-3
+   9. file:///tmp/build-xml.NZbUrY#atf-0-2
+  10. file:///tmp/build-xml.NZbUrY#atf-0-1

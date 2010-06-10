@@ -31,7 +31,7 @@
 # Helper tests for "t_cleanup".
 # -------------------------------------------------------------------------
 
-atf_test_case cleanup_pass
+atf_test_case cleanup_pass cleanup
 cleanup_pass_head()
 {
     atf_set "descr" "Helper test case for the t_cleanup test program"
@@ -47,7 +47,7 @@ cleanup_pass_cleanup()
     fi
 }
 
-atf_test_case cleanup_fail
+atf_test_case cleanup_fail cleanup
 cleanup_fail_head()
 {
     atf_set "descr" "Helper test case for the t_cleanup test program"
@@ -64,7 +64,7 @@ cleanup_fail_cleanup()
     fi
 }
 
-atf_test_case cleanup_skip
+atf_test_case cleanup_skip cleanup
 cleanup_skip_head()
 {
     atf_set "descr" "Helper test case for the t_cleanup test program"
@@ -81,7 +81,7 @@ cleanup_skip_cleanup()
     fi
 }
 
-atf_test_case cleanup_curdir
+atf_test_case cleanup_curdir cleanup
 cleanup_curdir_head()
 {
     atf_set "descr" "Helper test case for the t_cleanup test program"
@@ -95,7 +95,7 @@ cleanup_curdir_cleanup()
     test -f oldvalue && echo "Old value: $(cat oldvalue)"
 }
 
-atf_test_case cleanup_sigterm
+atf_test_case cleanup_sigterm cleanup
 cleanup_sigterm_head()
 {
     atf_set "descr" "Helper test case for the t_cleanup test program"
@@ -111,7 +111,7 @@ cleanup_sigterm_cleanup()
     rm $(atf_config_get tmpfile)
 }
 
-atf_test_case cleanup_fork
+atf_test_case cleanup_fork cleanup
 cleanup_fork_head()
 {
     atf_set "descr" "Helper test case for the t_cleanup test program"
@@ -225,6 +225,27 @@ srcdir_exists_body()
 }
 
 # -------------------------------------------------------------------------
+# Helper tests for "t_result".
+# -------------------------------------------------------------------------
+
+atf_test_case result_pass
+result_pass_body()
+{
+}
+
+atf_test_case result_fail
+result_fail_body()
+{
+    atf_fail "Failure reason"
+}
+
+atf_test_case result_skip
+result_skip_body()
+{
+    atf_skip "Skipped reason"
+}
+
+# -------------------------------------------------------------------------
 # Main.
 # -------------------------------------------------------------------------
 
@@ -253,6 +274,11 @@ atf_init_test_cases()
 
     # Add helper tests for t_srcdir.
     atf_add_test_case srcdir_exists
+
+    # Add helper tests for t_result.
+    atf_add_test_case result_pass
+    atf_add_test_case result_fail
+    atf_add_test_case result_skip
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

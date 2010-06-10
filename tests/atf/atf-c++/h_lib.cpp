@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2009 The NetBSD Foundation, Inc.
+// Copyright (c) 2009, 2010 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,18 +45,36 @@ extern "C" {
 #include "h_lib.hpp"
 
 void
-build_check_cxx_o(const atf::tests::tc& tc, const char* sfile,
-                  const char* failmsg)
+build_check_cxx_o_aux(const atf::fs::path& sfile, const char* failmsg)
 {
     std::vector< std::string > optargs;
     optargs.push_back("-I" + atf::config::get("atf_includedir"));
 
-    const atf::fs::path sfilepath =
-        atf::fs::path(tc.get_config_var("srcdir")) / sfile;
-
-    if (!atf::check::build_cxx_o(sfilepath, atf::fs::path("test.o"),
+    if (!atf::check::build_cxx_o(sfile, atf::fs::path("test.o"),
                                  atf::process::argv_array(optargs)))
         ATF_FAIL(failmsg);
+}
+
+void
+build_check_cxx_o(const atf::tests::tc& tc, const char* sfile,
+                  const char* failmsg)
+{
+    const atf::fs::path sfilepath =
+        atf::fs::path(tc.get_config_var("srcdir")) / sfile;
+    build_check_cxx_o_aux(sfilepath, failmsg);
+}
+
+void
+header_check(const atf::tests::tc& tc, const char *hdrname)
+{
+    std::ofstream srcfile("test.c");
+    ATF_CHECK(srcfile);
+    srcfile << "#include <" << hdrname << ">\n";
+    srcfile.close();
+
+    const std::string failmsg = std::string("Header check failed; ") +
+        hdrname + " is not self-contained";
+    build_check_cxx_o_aux(atf::fs::path("test.c"), failmsg.c_str());
 }
 
 atf::fs::path

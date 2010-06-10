@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
+// Copyright (c) 2008, 2009, 2010 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -56,6 +56,65 @@ extern "C" {
 // Auxiliary functions.
 // ------------------------------------------------------------------------
 
+namespace {
+
+enum output_check_t {
+    oc_ignore,
+    oc_inline,
+    oc_file,
+    oc_empty,
+    oc_match,
+    oc_save
+};
+
+struct output_check {
+    output_check_t type;
+    bool negated;
+    std::string value;
+
+    output_check(const output_check_t& p_type, const bool p_negated,
+                 const std::string& p_value) :
+        type(p_type),
+        negated(p_negated),
+        value(p_value)
+    {
+    }
+};
+
+} // anonymous namespace
+
+static
+output_check
+parse_output_check_arg(const std::string& arg)
+{
+    const std::string::size_type delimiter = arg.find(':');
+    const bool negated = (arg.compare(0, 4, "not-") == 0);
+    const std::string action_str = arg.substr(0, delimiter);
+    const std::string action = negated ? action_str.substr(4) : action_str;
+
+    output_check_t type;
+    if (action == "empty")
+        type = oc_empty;
+    else if (action == "file")
+        type = oc_file;
+    else if (action == "ignore") {
+        if (negated)
+            throw atf::application::usage_error("Cannot negate ignore checker");
+        type = oc_ignore;
+    } else if (action == "inline")
+        type = oc_inline;
+    else if (action == "match")
+        type = oc_match;
+    else if (action == "save") {
+        if (negated)
+            throw atf::application::usage_error("Cannot negate save checker");
+        type = oc_save;
+    } else
+        throw atf::application::usage_error("Invalid output checker");
+
+    return output_check(type, negated, arg.substr(delimiter + 1));
+}
+
 static
 std::string
 flatten_argv(char* const* argv)
@@ -102,84 +161,54 @@ execute_with_shell(char* const* argv)
     return execute(sh_argv);
 }
 
-// ------------------------------------------------------------------------
-// The "atf_check" application.
-// ------------------------------------------------------------------------
-
-class atf_check : public atf::application::app {
-    enum output_check_t {
-        oc_ignore,
-        oc_inline,
-        oc_file,
-        oc_empty,
-        oc_save
-    };
-
-    enum status_check_t {
-        sc_equal,
-        sc_not_equal,
-        sc_ignore
-    };
-
-    bool m_xflag;
-
-    output_check_t m_stdout_check;
-    std::string m_stdout_arg;
-
-    output_check_t m_stderr_check;
-    std::string m_stderr_arg;
-
-    status_check_t m_status_check;
-    int m_status_arg;
-
-    static const char* m_description;
-
-    bool file_empty(const atf::fs::path&) const;
-    void print_diff(const atf::fs::path&, const atf::fs::path&) const;
-    void print_file(const atf::fs::path&) const;
-    std::string decode(const std::string&) const;
-
-    bool run_status_check(const atf::check::check_result&) const;
-    bool run_output_check(const atf::check::check_result&,
-                          const std::string&) const;
-
-    std::string specific_args(void) const;
-    options_set specific_options(void) const;
-    void process_option(int, const char*);
-    void process_option_s(const std::string&);
-    void process_option_o(const std::string&);
-    void process_option_e(const std::string&);
-
-public:
-    atf_check(void);
-    int main(void);
-};
-
-const char* atf_check::m_description =
-    "atf-check executes given command and analyzes its results.";
-
-atf_check::atf_check(void) :
-    app(m_description, "atf-check(1)", "atf(7)"),
-    m_xflag(false),
-    m_stdout_check(oc_empty),
-    m_stderr_check(oc_empty),
-    m_status_check(sc_equal),
-    m_status_arg(0)
+static
+void
+cat_file(const atf::fs::path& path)
 {
+    std::ifstream stream(path.c_str());
+    if (!stream)
+        throw std::runtime_error("Failed to open " + path.str());
+
+    std::string line;
+    while (std::getline(stream, line).good())
+        std::cout << line << std::endl;
+
+    stream.close();
 }
 
+static
 bool
-atf_check::file_empty(const atf::fs::path& p)
-    const
+grep_file(const atf::fs::path& path, const std::string& regexp)
+{
+    std::ifstream stream(path.c_str());
+    if (!stream)
+        throw std::runtime_error("Failed to open " + path.str());
+
+    bool found = false;
+
+    std::string line;
+    while (!found && std::getline(stream, line).good()) {
+        if (atf::text::match(line, regexp))
+            found = true;
+    }
+
+    stream.close();
+
+    return found;
+}
+
+static
+bool
+file_empty(const atf::fs::path& p)
 {
     atf::fs::file_info f(p);
 
     return (f.get_size() == 0);
 }
 
+static
 void
-atf_check::print_diff(const atf::fs::path& p1, const atf::fs::path& p2)
-    const
+print_diff(const atf::fs::path& p1, const atf::fs::path& p2)
 {
     const atf::process::status s =
         atf::process::exec(atf::fs::path("diff"),
@@ -196,9 +225,9 @@ atf_check::print_diff(const atf::fs::path& p1, const atf::fs::path& p2)
         std::cerr << "Error while running diff(3)" << std::endl;
 }
 
+static
 void
-atf_check::print_file(const atf::fs::path& p)
-    const
+print_file(const atf::fs::path& p)
 {
     std::ifstream f(p.c_str());
     f >> std::noskipws;
@@ -207,9 +236,9 @@ atf_check::print_file(const atf::fs::path& p)
     std::copy(begin, end, out);
 }
 
+static
 std::string
-atf_check::decode(const std::string& s)
-    const
+decode(const std::string& s)
 {
     size_t i;
     std::string res;
@@ -250,6 +279,155 @@ atf_check::decode(const std::string& s)
     }
 
     return res;
+}
+
+static
+bool
+run_output_check(const output_check oc, const atf::fs::path& path,
+                 const std::string& stdxxx)
+{
+    bool result;
+
+    if (oc.type == oc_empty) {
+        const bool is_empty = file_empty(path);
+        if (!oc.negated && !is_empty) {
+            std::cerr << "Fail: " << stdxxx << " not empty" << std::endl;
+            print_diff(atf::fs::path("/dev/null"), path);
+            result = false;
+        } else if (oc.negated && is_empty) {
+            std::cerr << "Fail: " << stdxxx << " is empty" << std::endl;
+            result = false;
+        } else
+            result = true;
+    } else if (oc.type == oc_file) {
+        const bool equals = atf::io::cmp(path, atf::fs::path(oc.value));
+        if (!oc.negated && !equals) {
+            std::cerr << "Fail: " << stdxxx << " does not match golden output"
+                      << std::endl;
+            print_diff(atf::fs::path(oc.value), path);
+            result = false;
+        } else if (oc.negated && equals) {
+            std::cerr << "Fail: " << stdxxx << " matches golden output"
+                      << std::endl;
+            cat_file(atf::fs::path(oc.value));
+            result = false;
+        } else
+            result = true;
+    } else if (oc.type == oc_ignore) {
+        result = true;
+    } else if (oc.type == oc_inline) {
+        atf::fs::path path2 = atf::fs::path(atf::config::get("atf_workdir"))
+                              / "inline.XXXXXX";
+        atf::fs::temp_file temp(path2);
+        temp << decode(oc.value);
+        temp.close();
+
+        const bool equals = atf::io::cmp(path, temp.get_path());
+        if (!oc.negated && !equals) {
+            std::cerr << "Fail: " << stdxxx << " does not match expected value"
+                      << std::endl;
+            print_diff(temp.get_path(), path);
+            result = false;
+        } else if (oc.negated && equals) {
+            std::cerr << "Fail: " << stdxxx << " matches expected value"
+                      << std::endl;
+            cat_file(temp.get_path());
+            result = false;
+        } else
+            result = true;
+    } else if (oc.type == oc_match) {
+        const bool matches = grep_file(path, oc.value);
+        if (!oc.negated && !matches) {
+            std::cerr << "Fail: regexp " + oc.value + " not in " << stdxxx
+                      << std::endl;
+            cat_file(path);
+            result = false;
+        } else if (oc.negated && matches) {
+            std::cerr << "Fail: regexp " + oc.value + " is in " << stdxxx
+                      << std::endl;
+            cat_file(path);
+            result = false;
+        } else
+            result = true;
+    } else if (oc.type == oc_save) {
+        INV(!oc.negated);
+        std::ifstream ifs(path.c_str(), std::fstream::binary);
+        ifs >> std::noskipws;
+        std::istream_iterator< char > begin(ifs), end;
+
+        std::ofstream ofs(oc.value.c_str(), std::fstream::binary
+                                     | std::fstream::trunc);
+        std::ostream_iterator <char> obegin(ofs);
+
+        std::copy(begin, end, obegin);
+        result = true;
+    } else {
+        UNREACHABLE;
+        result = false;
+    }
+
+    return result;
+}
+
+static
+bool
+run_output_checks(const std::vector< output_check >& checks,
+                  const atf::fs::path& path, const std::string& stdxxx)
+{
+    bool ok = true;
+
+    for (std::vector< output_check >::const_iterator iter = checks.begin();
+         iter != checks.end(); iter++) {
+         ok &= run_output_check(*iter, path, stdxxx);
+    }
+
+    return ok;
+}
+
+// ------------------------------------------------------------------------
+// The "atf_check" application.
+// ------------------------------------------------------------------------
+
+class atf_check : public atf::application::app {
+    enum status_check_t {
+        sc_equal,
+        sc_not_equal,
+        sc_ignore
+    };
+
+    bool m_xflag;
+
+    std::vector< output_check > m_stdout_checks;
+    std::vector< output_check > m_stderr_checks;
+
+    status_check_t m_status_check;
+    int m_status_arg;
+
+    static const char* m_description;
+
+    bool run_status_check(const atf::check::check_result&) const;
+    bool run_output_checks(const atf::check::check_result&,
+                           const std::string&) const;
+
+    std::string specific_args(void) const;
+    options_set specific_options(void) const;
+    void process_option(int, const char*);
+    void process_option_s(const std::string&);
+
+public:
+    atf_check(void);
+    int main(void);
+};
+
+const char* atf_check::m_description =
+    "atf-check executes given command and analyzes its results.";
+
+atf_check::atf_check(void) :
+    app(m_description, "atf-check(1)", "atf(7)"),
+    m_xflag(false),
+    m_status_check(sc_equal),
+    m_status_arg(0)
+{
 }
 
 bool
@@ -295,65 +473,18 @@ atf_check::run_status_check(const atf::check::check_result& r)
 }
 
 bool
-atf_check::run_output_check(const atf::check::check_result& r,
-                            const std::string& stdxxx)
+atf_check::run_output_checks(const atf::check::check_result& r,
+                             const std::string& stdxxx)
     const
 {
-    atf::fs::path path("/");
-    std::string arg;
-    output_check_t check = m_stdout_check;
-
     if (stdxxx == "stdout") {
-        path = r.stdout_path();
-        arg = m_stdout_arg.c_str();
-        check = m_stdout_check;
+        return ::run_output_checks(m_stdout_checks, r.stdout_path(), "stdout");
     } else if (stdxxx == "stderr") {
-        path = r.stderr_path();
-        arg = m_stderr_arg.c_str();
-        check = m_stderr_check;
-    } else
+        return ::run_output_checks(m_stderr_checks, r.stderr_path(), "stderr");
+    } else {
         UNREACHABLE;
-
-    if (check == oc_empty) {
-        if (!file_empty(path)) {
-            std::cerr << "Fail: incorrect " << stdxxx << std::endl;
-            print_diff(atf::fs::path("/dev/null"), path);
-
-            return false;
-        }
-    } else if (check == oc_file) {
-        if (atf::io::cmp(path, atf::fs::path(arg)) != 0) {
-            std::cerr << "Fail: incorrect " << stdxxx << std::endl;
-            print_diff(atf::fs::path(arg), path);
-
-            return false;
-        }
-    } else if (check == oc_inline) {
-        atf::fs::path path2 = atf::fs::path(atf::config::get("atf_workdir"))
-                              / "inline.XXXXXX";
-        atf::fs::temp_file temp(path2);
-        temp << decode(arg);
-        temp.close();
-
-        if (atf::io::cmp(path, temp.get_path()) != 0) {
-            std::cerr << "Fail: incorrect " << stdxxx << std::endl;
-            print_diff(temp.get_path(), path);
-
-            return false;
-        }
-    } else if (check == oc_save) {
-        std::ifstream ifs(path.c_str(), std::fstream::binary);
-        ifs >> std::noskipws;
-        std::istream_iterator< char > begin(ifs), end;
-
-        std::ofstream ofs(arg.c_str(), std::fstream::binary
-                                     | std::fstream::trunc);
-        std::ostream_iterator <char> obegin(ofs);
-
-        std::copy(begin, end, obegin);
+        return false;
     }
-
-    return true;
 }
 
 std::string
@@ -373,9 +504,11 @@ atf_check::specific_options(void)
     opts.insert(option('s', "qual:value", "Handle status. Qualifier "
                 "must be one of: ignore eq:<num> ne:<num>"));
     opts.insert(option('o', "action:arg", "Handle stdout. Action must be "
-                "one of: empty ignore file:<path> inline:<val> save:<path>"));
+                "one of: empty ignore file:<path> inline:<val> match:regexp "
+                "save:<path>"));
     opts.insert(option('e', "action:arg", "Handle stderr. Action must be "
-                "one of: empty ignore file:<path> inline:<val> save:<path>"));
+                "one of: empty ignore file:<path> inline:<val> match:regexp "
+                "save:<path>"));
     opts.insert(option('x', "", "Execute command as a shell command"));
 
     return opts;
@@ -417,54 +550,6 @@ atf_check::process_option_s(const std::string& arg)
 }
 
 void
-atf_check::process_option_o(const std::string& arg)
-{
-    using atf::application::usage_error;
-
-    std::string::size_type pos = arg.find(':');
-    std::string action = arg.substr(0, pos);
-
-    if (action == "empty")
-        m_stdout_check = oc_empty;
-    else if (action == "ignore")
-        m_stdout_check = oc_ignore;
-    else if (action == "save")
-        m_stdout_check = oc_save;
-    else if (action == "inline")
-        m_stdout_check = oc_inline;
-    else if (action == "file")
-        m_stdout_check = oc_file;
-    else
-        throw usage_error("Invalid value for -o option");
-
-    m_stdout_arg = arg.substr(pos + 1);
-}
-
-void
-atf_check::process_option_e(const std::string& arg)
-{
-    using atf::application::usage_error;
-
-    std::string::size_type pos = arg.find(':');
-    std::string action = arg.substr(0, pos);
-
-    if (action == "empty")
-        m_stderr_check = oc_empty;
-    else if (action == "ignore")
-        m_stderr_check = oc_ignore;
-    else if (action == "save")
-        m_stderr_check = oc_save;
-    else if (action == "inline")
-        m_stderr_check = oc_inline;
-    else if (action == "file")
-        m_stderr_check = oc_file;
-    else
-        throw usage_error("Invalid value for -e option");
-
-    m_stderr_arg = arg.substr(pos + 1);
-}
-
-void
 atf_check::process_option(int ch, const char* arg)
 {
     switch (ch) {
@@ -473,11 +558,11 @@ atf_check::process_option(int ch, const char* arg)
         break;
 
     case 'o':
-        process_option_o(arg);
+        m_stdout_checks.push_back(parse_output_check_arg(arg));
         break;
 
     case 'e':
-        process_option_e(arg);
+        m_stderr_checks.push_back(parse_output_check_arg(arg));
         break;
 
     case 'x':
@@ -500,9 +585,14 @@ atf_check::main(void)
     atf::check::check_result r =
         m_xflag ? execute_with_shell(m_argv) : execute(m_argv);
 
+    if (m_stdout_checks.empty())
+        m_stdout_checks.push_back(output_check(oc_empty, false, ""));
+    if (m_stderr_checks.empty())
+        m_stderr_checks.push_back(output_check(oc_empty, false, ""));
+
     if ((run_status_check(r) == false) ||
-        (run_output_check(r, "stderr") == false) ||
-        (run_output_check(r, "stdout") == false))
+        (run_output_checks(r, "stderr") == false) ||
+        (run_output_checks(r, "stdout") == false))
         status = EXIT_FAILURE;
     else
         status = EXIT_SUCCESS;

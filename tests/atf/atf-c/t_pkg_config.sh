@@ -138,9 +138,8 @@ EOF
     done
 
     atf_check -s eq:0 -o empty -e empty test -x tp
-    atf_check -s eq:0 -o save:stdout -e empty -x \
+    atf_check -s eq:0 -o match:'Running' -e empty -x \
               "LD_LIBRARY_PATH=${libpath} ./tp tc"
-    atf_check -s eq:0 -o ignore -e empty grep 'Running' stdout
 }
 
 atf_init_test_cases()

@@ -7,8 +7,6 @@ tp: atf-c++
 tp: atf-sh
 tp: test_programs
 tp: atf-check
-tp: atf-cleanup
 tp: atf-config
 tp: atf-report
 tp: atf-run
-tp: formats

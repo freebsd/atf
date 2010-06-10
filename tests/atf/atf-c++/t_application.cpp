@@ -35,7 +35,7 @@
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "application.hpp", "d_include_application_hpp.cpp");
+HEADER_TC(include, "atf-c++/application.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

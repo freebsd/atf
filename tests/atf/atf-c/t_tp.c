@@ -35,7 +35,7 @@
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/tp.h", "d_include_tp_h.c");
+HEADER_TC(include, "atf-c/tp.h");
 
 /* ---------------------------------------------------------------------
  * Main.

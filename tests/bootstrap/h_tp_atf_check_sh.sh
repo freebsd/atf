@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2010 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -148,6 +148,28 @@ stdout_stdout_written_body()
     cmp -s stdout aux || atf_fail "Test failed"
 }
 
+atf_test_case stdout_match_ok
+stdout_match_ok_head()
+{
+    atf_set "descr" "Runs a program with stdout set to match and" \
+                    "matches the regular expression"
+}
+stdout_match_ok_body()
+{
+    atf_check -s eq:0 -o 'match:bar$' -e empty -x "echo line; echo foo bar"
+}
+
+atf_test_case stdout_match_fail
+stdout_match_fail_head()
+{
+    atf_set "descr" "Runs a program with stdout set to match and" \
+                    "does not match the regular expression"
+}
+stdout_match_fail_body()
+{
+    atf_check -s eq:0 -o 'match:bar$' -e empty -x "echo line; echo foo bar baz"
+}
+
 atf_test_case stderr_experr_pass
 stderr_experr_pass_head()
 {
@@ -227,6 +249,30 @@ stderr_stderr_written_body()
     cmp -s stderr aux || atf_fail "Test failed"
 }
 
+atf_test_case stderr_match_ok
+stderr_match_ok_head()
+{
+    atf_set "descr" "Runs a program with stderr set to match and" \
+                    "matches the regular expression"
+}
+stderr_match_ok_body()
+{
+    atf_check -s eq:0 -o empty -e 'match:bar$' -x \
+        "echo line 1>&2; echo foo bar 1>&2"
+}
+
+atf_test_case stderr_match_fail
+stderr_match_fail_head()
+{
+    atf_set "descr" "Runs a program with stderr set to match and" \
+                    "does not match the regular expression"
+}
+stderr_match_fail_body()
+{
+    atf_check -s eq:0 -o empty -e 'match:bar$' -x \
+        "echo line 1>&2; echo foo bar baz 1>&2"
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case exitcode_0_0
@@ -241,6 +287,8 @@ atf_init_test_cases()
     atf_add_test_case stdout_null_empty
     atf_add_test_case stdout_null_sth
     atf_add_test_case stdout_stdout_written
+    atf_add_test_case stdout_match_ok
+    atf_add_test_case stdout_match_fail
 
     atf_add_test_case stderr_experr_pass
     atf_add_test_case stderr_experr_fail
@@ -249,6 +297,8 @@ atf_init_test_cases()
     atf_add_test_case stderr_null_empty
     atf_add_test_case stderr_null_sth
     atf_add_test_case stderr_stderr_written
+    atf_add_test_case stderr_match_ok
+    atf_add_test_case stderr_match_fail
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

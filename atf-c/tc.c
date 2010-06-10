@@ -50,7 +50,6 @@
 #include "atf-c/process.h"
 #include "atf-c/sanity.h"
 #include "atf-c/tc.h"
-#include "atf-c/tcr.h"
 #include "atf-c/text.h"
 #include "atf-c/user.h"
 
@@ -60,10 +59,13 @@
 
 static atf_error_t check_prog(const char *, void *);
 static atf_error_t check_prog_in_dir(const char *, void *);
+static atf_error_t create_resfile(const atf_fs_path_t *, const char *,
+                                  const char *, va_list);
 static void fail_internal(const char *, int, const char *, const char *,
                           const char *, va_list,
                           void (*)(atf_dynstr_t *),
                           void (*)(const char *, ...));
+static atf_error_t format_reason(atf_dynstr_t *, const char *, va_list);
 static void tc_fail(atf_dynstr_t *) ATF_DEFS_ATTRIBUTE_NORETURN;
 static void tc_fail_nonfatal(atf_dynstr_t *);
 
@@ -95,6 +97,12 @@ atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
     err = atf_tc_set_md_var(tc, "ident", ident);
     if (atf_is_error(err))
         goto err_map;
+
+    if (cleanup != NULL) {
+        err = atf_tc_set_md_var(tc, "has.cleanup", "true");
+        if (atf_is_error(err))
+            goto err_map;
+    }
 
     /* XXX Should the head be able to return error codes? */
     if (tc->m_head != NULL)
@@ -368,23 +376,109 @@ out_p:
 }
 
 static
+atf_error_t
+format_reason(atf_dynstr_t *reason, const char *fmt, va_list ap)
+{
+    atf_error_t err;
+    atf_dynstr_t tmp;
+    va_list ap2;
+
+    va_copy(ap2, ap);
+    err = atf_dynstr_init_ap(&tmp, fmt, ap2);
+    va_end(ap2);
+    if (atf_is_error(err))
+        goto out;
+
+    /* There is no reason for calling rfind instead of find other than
+     * find is not implemented. */
+    if (atf_dynstr_rfind_ch(&tmp, '\n') == atf_dynstr_npos) {
+        err = atf_dynstr_copy(reason, &tmp);
+    } else {
+        const char *iter;
+
+        err = atf_dynstr_init_fmt(reason, "BOGUS REASON (THE ORIGINAL "
+                                  "HAD NEWLINES): ");
+        if (atf_is_error(err))
+            goto out_tmp;
+
+        for (iter = atf_dynstr_cstring(&tmp); *iter != '\0'; iter++) {
+            if (*iter == '\n')
+                err = atf_dynstr_append_fmt(reason, "<<NEWLINE>>");
+            else
+                err = atf_dynstr_append_fmt(reason, "%c", *iter);
+
+            if (atf_is_error(err)) {
+                atf_dynstr_fini(reason);
+                break;
+            }
+        }
+    }
+
+out_tmp:
+    atf_dynstr_fini(&tmp);
+out:
+    return err;
+}
+
+static
+atf_error_t
+create_resfile(const atf_fs_path_t *resfile, const char *result,
+               const char *reason, va_list ap)
+{
+    atf_error_t err;
+    FILE *file;
+
+    file = fopen(atf_fs_path_cstring(resfile), "w");
+    if (file == NULL) {
+        err = atf_libc_error(errno, "Cannot create results file `%s'",
+                             atf_fs_path_cstring(resfile));
+        goto out;
+    } else
+        err = atf_no_error();
+
+    if (reason) {
+        atf_dynstr_t formatted;
+
+        err = format_reason(&formatted, reason, ap);
+        if (!atf_is_error(err))
+            fprintf(file, "%s: %s\n", result, atf_dynstr_cstring(&formatted));
+    } else
+        fprintf(file, "%s\n", result);
+
+    fclose(file);
+out:
+    return err;
+}
+
+static
+atf_error_t
+create_resfile_fmt(const atf_fs_path_t *resfile, const char *result,
+                   const char *reason, ...)
+{
+    atf_error_t err;
+    va_list ap;
+
+    va_start(ap, reason);
+    err = create_resfile(resfile, result, reason, ap);
+    va_end(ap);
+    if (atf_is_error(err))
+        abort();
+
+    return err;
+}
+
+static
 void
 tc_fail(atf_dynstr_t *msg)
 {
-    atf_tcr_t tcr;
     atf_error_t err;
 
     PRE(current_tc != NULL);
 
-    err = atf_tcr_init_reason_fmt(&tcr, atf_tcr_failed_state, "%s",
-                                  atf_dynstr_cstring(msg));
+    err = create_resfile_fmt(current_resfile, "failed", "%s",
+                             atf_dynstr_cstring(msg));
     if (atf_is_error(err))
         abort();
-
-    atf_tcr_write(&tcr, current_resfile); /* XXX Handle errors. */
-
-    atf_tcr_fini(&tcr);
-    atf_dynstr_fini(msg);
 
     exit(EXIT_FAILURE);
 }
@@ -402,21 +496,16 @@ tc_fail_nonfatal(atf_dynstr_t *msg)
 void
 atf_tc_fail(const char *fmt, ...)
 {
-    va_list ap;
-    atf_tcr_t tcr;
     atf_error_t err;
+    va_list ap;
 
     PRE(current_tc != NULL);
 
     va_start(ap, fmt);
-    err = atf_tcr_init_reason_ap(&tcr, atf_tcr_failed_state, fmt, ap);
+    err = create_resfile(current_resfile, "failed", fmt, ap);
     va_end(ap);
     if (atf_is_error(err))
         abort();
-
-    atf_tcr_write(&tcr, current_resfile); /* XXX Handle errors. */
-
-    atf_tcr_fini(&tcr);
 
     exit(EXIT_FAILURE);
 }
@@ -497,18 +586,14 @@ backup:
 void
 atf_tc_pass(void)
 {
-    atf_tcr_t tcr;
     atf_error_t err;
+    va_list dummy_ap;
 
     PRE(current_tc != NULL);
 
-    err = atf_tcr_init(&tcr, atf_tcr_passed_state);
+    err = create_resfile(current_resfile, "passed", NULL, dummy_ap);
     if (atf_is_error(err))
         abort();
-
-    atf_tcr_write(&tcr, current_resfile); /* XXX Handle errors. */
-
-    atf_tcr_fini(&tcr);
 
     exit(EXIT_SUCCESS);
 }
@@ -528,21 +613,16 @@ atf_tc_require_prog(const char *prog)
 void
 atf_tc_skip(const char *fmt, ...)
 {
-    va_list ap;
-    atf_tcr_t tcr;
     atf_error_t err;
+    va_list ap;
 
     PRE(current_tc != NULL);
 
     va_start(ap, fmt);
-    err = atf_tcr_init_reason_ap(&tcr, atf_tcr_skipped_state, fmt, ap);
-    va_end(ap);
+    err = create_resfile(current_resfile, "skipped", fmt, ap);
     if (atf_is_error(err))
         abort();
-
-    atf_tcr_write(&tcr, current_resfile); /* XXX Handle errors. */
-
-    atf_tcr_fini(&tcr);
+    va_end(ap);
 
     exit(EXIT_SUCCESS);
 }

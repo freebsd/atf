@@ -139,7 +139,7 @@ ATF_TEST_CASE_BODY(throw_atf_error_unknown)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "exceptions.hpp", "d_include_exceptions_hpp.cpp");
+HEADER_TC(include, "atf-c++/exceptions.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

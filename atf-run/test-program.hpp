@@ -37,6 +37,49 @@
 namespace atf {
 namespace atf_run {
 
+namespace detail {
+
+class atf_tp_reader {
+    std::istream& m_is;
+
+    void validate_and_insert(const std::string&, const std::string&,
+                             const size_t,
+                             std::map< std::string, std::string >&);
+
+protected:
+    virtual void got_tc(const std::string&,
+                        const std::map< std::string, std::string >&);
+    virtual void got_eof(void);
+
+public:
+    atf_tp_reader(std::istream&);
+    virtual ~atf_tp_reader(void);
+
+    void read(void);
+};
+
+} // namespace detail
+
+class atf_tps_writer {
+    std::ostream& m_os;
+
+    std::string m_tpname, m_tcname;
+
+public:
+    atf_tps_writer(std::ostream&);
+
+    void info(const std::string&, const std::string&);
+    void ntps(size_t);
+
+    void start_tp(const std::string&, size_t);
+    void end_tp(const std::string&);
+
+    void start_tc(const std::string&);
+    void stdout_tc(const std::string&);
+    void stderr_tc(const std::string&);
+    void end_tc(const atf::tests::tcr&);
+};
+
 typedef std::map< std::string, atf::tests::vars_map > test_cases_map;
 
 struct metadata {
@@ -52,7 +95,10 @@ struct metadata {
     }
 };
 
+class atf_tps_writer;
+
 metadata get_metadata(const atf::fs::path&, const atf::tests::vars_map&);
+atf::tests::tcr read_test_case_result(const atf::fs::path&);
 std::pair< std::string, atf::process::status > run_test_case(const atf::fs::path&,
     const std::string&, const std::string&, const atf::tests::vars_map&,
     const atf::tests::vars_map&, const atf::fs::path&, const atf::fs::path&,

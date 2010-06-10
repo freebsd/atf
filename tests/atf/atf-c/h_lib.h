@@ -43,11 +43,18 @@ struct atf_fs_path;
 #define CE(stm) ATF_CHECK(!atf_is_error(stm))
 #define RE(stm) ATF_REQUIRE(!atf_is_error(stm))
 
-#define HEADER_TC(name, hdrname, sfile) \
-    BUILD_TC(name, sfile, \
-             "Tests that the " hdrname " file can be included on " \
-             "its own, without any prerequisites", \
-             "Build of " sfile " failed; " hdrname " is not self-contained");
+#define HEADER_TC(name, hdrname) \
+    ATF_TC(name); \
+    ATF_TC_HEAD(name, tc) \
+    { \
+        atf_tc_set_md_var(tc, "descr", "Tests that the " hdrname " file can " \
+            "be included on its own, without any prerequisites"); \
+        atf_tc_set_md_var(tc, "use.fs", "true"); \
+    } \
+    ATF_TC_BODY(name, tc) \
+    { \
+        header_check(tc, hdrname); \
+    }
 
 #define BUILD_TC(name, sfile, descr, failmsg) \
     ATF_TC(name); \
@@ -62,7 +69,9 @@ struct atf_fs_path;
     }
 
 void build_check_c_o(const atf_tc_t *, const char *, const char *);
+void header_check(const atf_tc_t *, const char *);
 void get_h_processes_path(const atf_tc_t *, struct atf_fs_path *);
 bool grep_string(const struct atf_dynstr *, const char *);
 bool grep_file(const char *, const char *, ...);
+bool read_line(int, struct atf_dynstr *);
 void run_h_tc(atf_tc_t *, const char *, const char *, const char *);

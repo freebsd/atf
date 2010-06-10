@@ -606,7 +606,7 @@ ATF_TC_BODY(equal_dynstr, tc)
  * Tests cases for the header file.
  * --------------------------------------------------------------------- */
 
-HEADER_TC(include, "atf-c/dynstr.h", "d_include_dynstr_h.c");
+HEADER_TC(include, "atf-c/dynstr.h");
 
 /* ---------------------------------------------------------------------
  * Main.

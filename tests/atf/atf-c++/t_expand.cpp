@@ -261,7 +261,7 @@ ATF_TEST_CASE_BODY(expand_glob_tps)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/expand.hpp", "d_include_expand_hpp.cpp");
+HEADER_TC(include, "atf-c++/expand.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

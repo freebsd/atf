@@ -16,6 +16,48 @@
   </author>
 </articleinfo>
 
+<section id="atf-0-10">
+
+<title>Changes in version 0.10</title>
+
+<para>STILL UNDER DEVELOPMENT; NOT RELEASED YET.</para>
+
+<itemizedlist>
+
+<listitem><para>Added the <literal>match</literal> output checker to
+<literal>atf-check</literal> to look for regular expressions in the stdout
+and stderr of commands.</para></listitem>
+
+<listitem><para>Changed <literal>atf-check</literal> to support specifying
+multiple checkers for stdout and stderr, not only one, and to allow negating
+the checks by prefixing them by <literal>not-</literal>.</para></listitem>
+
+<listitem><para>Removed the <literal>atf-cleanup</literal> tool.  It has
+been unused since the test case isolation was moved to
+<literal>atf-run</literal> in 0.8</para></listitem>
+
+<listitem><para>Test cases now export a <literal>has.cleanup</literal>
+meta-data property that specifies whether the test case has a cleanup
+routine or not; its value is automatically set.  The property is read by
+<literal>atf-run</literal> to know if it has to run the cleanup routine,
+which significantly speeds up the runtime of test suites.</para></listitem>
+
+<listitem><para>Simplifications to the <literal>atf-c</literal> library:
+removed the <literal>io</literal> and <literal>tcr</literal> modules as
+they had become unnecessary after all simplifications introduced in the
+0.8 release.</para></listitem>
+
+<listitem><para>Removed the <literal>application/X-atf-tcr</literal> format
+introduced in 0.8 release.  Tests now print a much simplified format that
+is easy to parse and nicer to read by end users.  As a side effect, the
+default for test cases is now to print their results to stdout unless
+otherwise stated by providing the <literal>-r</literal>
+flag.</para></listitem>
+
+</itemizedlist>
+
+</section>
+
 <section id="atf-0-9">
 
 <title>Changes in version 0.9</title>

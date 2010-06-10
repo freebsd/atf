@@ -351,7 +351,7 @@ ATF_TEST_CASE_BODY(to_type)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/text.hpp", "d_include_text_hpp.cpp");
+HEADER_TC(include, "atf-c++/text.hpp");
 
 // ------------------------------------------------------------------------
 // Main.

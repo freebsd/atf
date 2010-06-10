@@ -35,7 +35,6 @@
 
 extern "C" {
 #include <atf-c/tc.h>
-#include <atf-c/tcr.h>
 }
 
 #include <atf-c++/fs.hpp>
@@ -43,6 +42,23 @@ extern "C" {
 
 namespace atf {
 namespace tests {
+
+namespace detail {
+
+class atf_tp_writer {
+    std::ostream& m_os;
+
+    bool m_is_first;
+
+public:
+    atf_tp_writer(std::ostream&);
+
+    void start_tc(const std::string&);
+    void end_tc(void);
+    void tc_meta_data(const std::string&, const std::string&);
+};
+
+} // namespace
 
 // ------------------------------------------------------------------------
 // The "vars_map" class.
@@ -66,27 +82,24 @@ typedef std::map< std::string, std::string > vars_map;
 //! different classes, one for each status.
 //!
 class tcr {
-    atf_tcr_t m_tcr;
+public:
+    typedef int state;
+
+private:
+    state m_state;
+    std::string m_reason;
 
 public:
-    typedef atf_tcr_state_t state;
-
     static const state passed_state;
     static const state failed_state;
     static const state skipped_state;
 
     tcr(state);
     tcr(state, const std::string&);
-    tcr(const tcr&);
     ~tcr(void);
 
     state get_state(void) const;
-    const std::string get_reason(void) const;
-
-    tcr& operator=(const tcr&);
-
-    static tcr read(const fs::path&);
-    void write(const fs::path&) const;
+    const std::string& get_reason(void) const;
 };
 
 // ------------------------------------------------------------------------
@@ -97,6 +110,7 @@ class tc : utils::noncopyable {
     std::string m_ident;
     atf_map_t m_config;
     atf_tc_t m_tc;
+    bool m_has_cleanup;
 
 protected:
     virtual void head(void);
@@ -110,7 +124,7 @@ protected:
     static void wrap_cleanup(const atf_tc_t *);
 
 public:
-    tc(const std::string&);
+    tc(const std::string&, const bool);
     virtual ~tc(void);
 
     void init(const vars_map&);
