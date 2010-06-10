@@ -40,7 +40,6 @@ extern "C" {
 
 #include <atf-c++.hpp>
 
-#include "atf-c++/formats.hpp"
 #include "atf-c++/parser.hpp"
 #include "atf-c++/user.hpp"
 
