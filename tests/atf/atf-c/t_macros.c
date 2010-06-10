@@ -586,6 +586,7 @@ ATF_TC_HEAD(msg_embedded_fmt, tc)
     atf_tc_set_md_var(tc, "descr", "Tests that format strings passed "
                       "as part of the automatically-generated messages "
                       "do not get expanded");
+    atf_tc_set_md_var(tc, "use.fs", "true");
 }
 ATF_TC_BODY(msg_embedded_fmt, tc)
 {
@@ -596,18 +597,15 @@ ATF_TC_BODY(msg_embedded_fmt, tc)
         const char *msg;
     } *t, tests[] = {
        {  H_CHECK_HEAD_NAME(msg), H_CHECK_BODY_NAME(msg), false,
-          "aux_bool(\"%d\")" },
+          "aux_bool\\(\"%d\"\\) not met" },
        {  H_REQUIRE_HEAD_NAME(msg), H_REQUIRE_BODY_NAME(msg), true,
-          "aux_bool(\"%d\")" },
+          "aux_bool\\(\"%d\"\\) not met" },
        {  H_CHECK_STREQ_HEAD_NAME(msg), H_CHECK_STREQ_BODY_NAME(msg), false,
-          "aux_str(\"%d\") != \"\" (foo != )" },
+          "aux_str\\(\"%d\"\\) != \"\" \\(foo != \\)" },
        {  H_REQUIRE_STREQ_HEAD_NAME(msg), H_REQUIRE_STREQ_BODY_NAME(msg), true,
-          "aux_str(\"%d\") != \"\" (foo != )" },
+          "aux_str\\(\"%d\"\\) != \"\" \\(foo != \\)" },
        { NULL, NULL, false, NULL }
     };
-
-    atf_tc_skip("Broken test.  XXX: This should really be signaled as an "
-                "expected failure, not as a skipped test.");
 
     for (t = &tests[0]; t->head != NULL; t++) {
         printf("Checking with an expected '%s' message\n", t->msg);
@@ -621,7 +619,7 @@ ATF_TC_BODY(msg_embedded_fmt, tc)
             ATF_CHECK_MSG(matched, "couldn't find error string in result");
         } else {
             bool matched =
-                grep_file("error", "^failed: t_macros.c:[0-9]+: Check failed: "
+                grep_file("error", "t_macros.c:[0-9]+: Check failed: "
                     "%s$", t->msg);
             ATF_CHECK_MSG(matched, "couldn't find error string in output");
         }

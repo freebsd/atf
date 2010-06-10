@@ -135,10 +135,16 @@
     } while(0)
 
 #define ATF_REQUIRE(x) \
-    ATF_REQUIRE_MSG(x, #x " not met")
+    do { \
+        if (!(x)) \
+            atf_tc_fail_requirement(__FILE__, __LINE__, "%s", #x " not met"); \
+    } while(0)
 
 #define ATF_CHECK(x) \
-    ATF_CHECK_MSG(x, #x " not met")
+    do { \
+        if (!(x)) \
+            atf_tc_fail_check(__FILE__, __LINE__, "%s", #x " not met"); \
+    } while(0)
 
 #define ATF_REQUIRE_EQ(x, y) \
     ATF_REQUIRE_MSG((x) == (y), "%s != %s", #x, #y)
