@@ -289,8 +289,6 @@ libatf_c___la_SOURCES = atf-c++/application.cpp \
                         atf-c++/exceptions.hpp \
                         atf-c++/expand.cpp \
                         atf-c++/expand.hpp \
-                        atf-c++/formats.cpp \
-                        atf-c++/formats.hpp \
                         atf-c++/fs.cpp \
                         atf-c++/fs.hpp \
                         atf-c++/io.cpp \
@@ -321,7 +319,6 @@ atf_c___HEADERS = atf-c++/application.hpp \
                   atf-c++/env.hpp \
                   atf-c++/exceptions.hpp \
                   atf-c++/expand.hpp \
-                  atf-c++/formats.hpp \
                   atf-c++/fs.hpp \
                   atf-c++/io.hpp \
                   atf-c++/macros.hpp \
@@ -372,7 +369,8 @@ TOOL([libexec], [atf-format])
 # `atf-report' directory.
 # -------------------------------------------------------------------------
 
-TOOL([bin], [atf-report])
+TOOL([bin], [atf-report], [atf-report/reader.cpp \
+                           atf-report/reader.hpp])
 
 cssdir = $(atf_cssdir)
 css_DATA = atf-report/tests-results.css
@@ -729,7 +727,6 @@ CXX_TP([atf/atf-c++], [t_config], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_env], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_exceptions], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_expand], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_formats], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_fs], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_io], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_macros], [], [tests/atf/atf-c++/libh.la])
@@ -764,6 +761,9 @@ CXX_TP([atf/atf-report], [h_fail])
 CXX_TP([atf/atf-report], [h_pass])
 CXX_TP([atf/atf-report], [h_misc])
 SH_TP([atf/atf-report], [t_integration])
+CXX_TP([atf/atf-report], [t_reader], [atf-report/reader.cpp],
+       [tests/atf/atf-c++/libh.la],
+       [-I$(srcdir)/atf-report -I$(srcdir)/tests/atf/atf-c++])
 
 atf_atf_run_DATA = tests/atf/atf-run/Atffile
 atf_atf_rundir = $(pkgtestsdir)/atf-run
@@ -775,16 +775,19 @@ C_TP([atf/atf-run], [h_zero_tcs])
 CXX_TP([atf/atf-run], [h_fail])
 CXX_TP([atf/atf-run], [h_pass])
 CXX_TP([atf/atf-run], [h_misc])
-CXX_TP([atf/atf-run], [t_atffile], [atf-run/atffile.cpp], [],
-       [-I$(srcdir)/atf-run])
-CXX_TP([atf/atf-run], [t_config], [atf-run/config.cpp], [],
-       [-I$(srcdir)/atf-run])
+CXX_TP([atf/atf-run], [t_atffile], [atf-run/atffile.cpp],
+       [tests/atf/atf-c++/libh.la],
+       [-I$(srcdir)/atf-run -I$(srcdir)/tests/atf/atf-c++])
+CXX_TP([atf/atf-run], [t_config], [atf-run/config.cpp],
+       [tests/atf/atf-c++/libh.la],
+       [-I$(srcdir)/atf-run -I$(srcdir)/tests/atf/atf-c++])
 CXX_TP([atf/atf-run], [t_fs], [atf-run/fs.cpp], [], [-I$(srcdir)/atf-run])
 CXX_TP([atf/atf-run], [t_requirements], [atf-run/requirements.cpp], [],
        [-I$(srcdir)/atf-run])
 CXX_TP([atf/atf-run], [t_test_program],
-       [atf-run/fs.cpp atf-run/test-program.cpp atf-run/timer.cpp], [],
-       [-I$(srcdir)/atf-run])
+       [atf-run/fs.cpp atf-run/test-program.cpp atf-run/timer.cpp],
+       [tests/atf/atf-c++/libh.la],
+       [-I$(srcdir)/atf-run -I$(srcdir)/tests/atf/atf-c++])
 SH_TP([atf/atf-run], [t_integration])
 
 atf_atf_sh_DATA = tests/atf/atf-sh/Atffile
@@ -798,13 +801,6 @@ SH_TP([atf/atf-sh], [t_integration])
 SH_TP([atf/atf-sh], [t_normalize])
 SH_TP([atf/atf-sh], [t_tc])
 SH_TP([atf/atf-sh], [t_tp])
-
-atf_formats_DATA = tests/atf/formats/Atffile
-atf_formatsdir = $(pkgtestsdir)/formats
-EXTRA_DIST += $(atf_formats_DATA)
-
-CXX_TP([atf/formats], [t_parsers])
-CXX_TP([atf/formats], [t_writers])
 
 atf_test_programs_DATA = tests/atf/test_programs/Atffile
 atf_test_programsdir = $(pkgtestsdir)/test_programs

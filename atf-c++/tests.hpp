@@ -43,6 +43,23 @@ extern "C" {
 namespace atf {
 namespace tests {
 
+namespace detail {
+
+class atf_tp_writer {
+    std::ostream& m_os;
+
+    bool m_is_first;
+
+public:
+    atf_tp_writer(std::ostream&);
+
+    void start_tc(const std::string&);
+    void end_tc(void);
+    void tc_meta_data(const std::string&, const std::string&);
+};
+
+} // namespace
+
 // ------------------------------------------------------------------------
 // The "vars_map" class.
 // ------------------------------------------------------------------------

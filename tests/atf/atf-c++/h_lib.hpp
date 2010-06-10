@@ -34,8 +34,13 @@
 #endif
 
 #include <cstdlib>
+#include <iostream>
+#include <sstream>
+#include <utility>
 
+#include "atf-c++/parser.hpp"
 #include "atf-c++/process.hpp"
+#include "atf-c++/text.hpp"
 
 #define HEADER_TC(name, hdrname) \
     ATF_TEST_CASE(name); \
@@ -105,4 +110,76 @@ run_h_tc(atf::tests::vars_map config = atf::tests::vars_map())
         &data);
     const atf::process::status s = c.wait();
     ATF_CHECK(s.exited());
+}
+
+namespace h_lib_detail {
+
+typedef std::vector< std::string > string_vector;
+
+template< class Reader >
+std::pair< string_vector, string_vector >
+do_read(const char* input)
+{
+    string_vector errors;
+
+    std::istringstream is(input);
+    Reader reader(is);
+    try {
+        reader.read();
+    } catch (const atf::parser::parse_errors& pes) {
+        for (std::vector< atf::parser::parse_error >::const_iterator iter =
+             pes.begin(); iter != pes.end(); iter++)
+            errors.push_back(*iter);
+    } catch (const atf::parser::parse_error& pe) {
+        ATF_FAIL("Raised a lonely parse error: " +
+                 atf::text::to_string(pe.first) + ": " + pe.second);
+    }
+
+    return std::make_pair(reader.m_calls, errors);
+}
+
+static
+void
+check_equal(const char* expected[], const string_vector& actual)
+{
+    const char** expected_iter = expected;
+    string_vector::const_iterator actual_iter = actual.begin();
+
+    bool equals = true;
+    while (equals && *expected_iter != NULL && actual_iter != actual.end()) {
+        if (*expected_iter != *actual_iter) {
+            equals = false;
+        } else {
+            expected_iter++;
+            actual_iter++;
+        }
+    }
+    if (equals && ((*expected_iter == NULL && actual_iter != actual.end()) ||
+                   (*expected_iter != NULL && actual_iter == actual.end())))
+        equals = false;
+
+    if (!equals) {
+        std::cerr << "EXPECTED:\n";
+        for (expected_iter = expected; *expected_iter != NULL; expected_iter++)
+            std::cerr << *expected_iter << "\n";
+
+        std::cerr << "ACTUAL:\n";
+        for (actual_iter = actual.begin(); actual_iter != actual.end();
+             actual_iter++)
+            std::cerr << *actual_iter << "\n";
+
+        ATF_FAIL("Expected results differ to actual values");
+    }
+}
+
+} // namespace h_lib_detail
+
+template< class Reader >
+void
+do_parser_test(const char* input, const char* exp_calls[], const char* exp_errors[])
+{
+    const std::pair< h_lib_detail::string_vector, h_lib_detail::string_vector >
+        actual = h_lib_detail::do_read< Reader >(input);
+    h_lib_detail::check_equal(exp_calls, actual.first);
+    h_lib_detail::check_equal(exp_errors, actual.second);
 }

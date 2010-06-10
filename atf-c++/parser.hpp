@@ -30,7 +30,9 @@
 #if !defined(_ATF_CXX_PARSER_HPP_)
 #define _ATF_CXX_PARSER_HPP_
 
+#include <istream>
 #include <map>
+#include <ostream>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -70,6 +72,15 @@ public:
     ~parse_errors(void) throw();
 
     const char* what(void) const throw();
+};
+
+// ------------------------------------------------------------------------
+// The "format_error" class.
+// ------------------------------------------------------------------------
+
+class format_error : public std::runtime_error {
+public:
+    format_error(const std::string&);
 };
 
 // ------------------------------------------------------------------------
@@ -519,6 +530,41 @@ parser< TKZ >::expect(const token_type& t1,
 
     return t;
 }
+
+#define ATF_PARSER_CALLBACK(parser, func) \
+    do { \
+        if (!(parser).has_errors()) \
+            func; \
+    } while (false)
+
+// ------------------------------------------------------------------------
+// Header parsing.
+// ------------------------------------------------------------------------
+
+typedef std::map< std::string, std::string > attrs_map;
+
+class header_entry {
+    std::string m_name;
+    std::string m_value;
+    attrs_map m_attrs;
+
+public:
+    header_entry(void);
+    header_entry(const std::string&, const std::string&,
+                 attrs_map = attrs_map());
+
+    const std::string& name(void) const;
+    const std::string& value(void) const;
+    const attrs_map& attrs(void) const;
+    bool has_attr(const std::string&) const;
+    const std::string& get_attr(const std::string&) const;
+};
+
+typedef std::map< std::string, header_entry > headers_map;
+
+std::pair< size_t, headers_map > read_headers(std::istream&, size_t);
+void write_headers(const headers_map&, std::ostream&);
+void validate_content_type(const headers_map&, const std::string&, int);
 
 } // namespace parser
 } // namespace atf

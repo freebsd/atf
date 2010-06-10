@@ -724,6 +724,283 @@ ATF_TEST_CASE_BODY(tokenizer_quotes_ws)
 }
 
 // ------------------------------------------------------------------------
+// Tests for the headers parser.
+// ------------------------------------------------------------------------
+
+class header_reader {
+    std::istream& m_is;
+
+public:
+    header_reader(std::istream& is) :
+        m_is(is)
+    {
+    }
+
+    void
+    read(void)
+    {
+        std::pair< size_t, atf::parser::headers_map > hml =
+            atf::parser::read_headers(m_is, 1);
+        atf::parser::validate_content_type(hml.second,
+            "application/X-atf-headers-test", 1234);
+    }
+
+    std::vector< std::string > m_calls;
+};
+
+ATF_TEST_CASE_WITHOUT_HEAD(headers_1);
+ATF_TEST_CASE_BODY(headers_1)
+{
+    const char* input =
+        ""
+    ;
+
+    const char* exp_calls[] = {
+        NULL
+    };
+
+    const char* exp_errors[] = {
+        "1: Unexpected token `<<EOF>>'; expected a header name",
+        NULL
+    };
+
+    do_parser_test< header_reader >(input, exp_calls, exp_errors);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(headers_2);
+ATF_TEST_CASE_BODY(headers_2)
+{
+    const char* input =
+        "Content-Type\n"
+    ;
+
+    const char* exp_calls[] = {
+        NULL
+    };
+
+    const char* exp_errors[] = {
+        "1: Unexpected token `<<NEWLINE>>'; expected `:'",
+        NULL
+    };
+
+    do_parser_test< header_reader >(input, exp_calls, exp_errors);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(headers_3);
+ATF_TEST_CASE_BODY(headers_3)
+{
+    const char* input =
+        "Content-Type:\n"
+    ;
+
+    const char* exp_calls[] = {
+        NULL
+    };
+
+    const char* exp_errors[] = {
+        "1: Unexpected token `<<NEWLINE>>'; expected a textual value",
+        NULL
+    };
+
+    do_parser_test< header_reader >(input, exp_calls, exp_errors);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(headers_4);
+ATF_TEST_CASE_BODY(headers_4)
+{
+    const char* input =
+        "Content-Type: application/X-atf-headers-test\n"
+    ;
+
+    const char* exp_calls[] = {
+        NULL
+    };
+
+    const char* exp_errors[] = {
+        "2: Unexpected token `<<EOF>>'; expected a header name",
+        NULL
+    };
+
+    do_parser_test< header_reader >(input, exp_calls, exp_errors);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(headers_5);
+ATF_TEST_CASE_BODY(headers_5)
+{
+    const char* input =
+        "Content-Type: application/X-atf-headers-test;\n"
+    ;
+
+    const char* exp_calls[] = {
+        NULL
+    };
+
+    const char* exp_errors[] = {
+        "1: Unexpected token `<<NEWLINE>>'; expected an attribute name",
+        NULL
+    };
+
+    do_parser_test< header_reader >(input, exp_calls, exp_errors);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(headers_6);
+ATF_TEST_CASE_BODY(headers_6)
+{
+    const char* input =
+        "Content-Type: application/X-atf-headers-test; version\n"
+    ;
+
+    const char* exp_calls[] = {
+        NULL
+    };
+
+    const char* exp_errors[] = {
+        "1: Unexpected token `<<NEWLINE>>'; expected `='",
+        NULL
+    };
+
+    do_parser_test< header_reader >(input, exp_calls, exp_errors);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(headers_7);
+ATF_TEST_CASE_BODY(headers_7)
+{
+    const char* input =
+        "Content-Type: application/X-atf-headers-test; version=\n"
+    ;
+
+    const char* exp_calls[] = {
+        NULL
+    };
+
+    const char* exp_errors[] = {
+        "1: Unexpected token `<<NEWLINE>>'; expected word or quoted string",
+        NULL
+    };
+
+    do_parser_test< header_reader >(input, exp_calls, exp_errors);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(headers_8);
+ATF_TEST_CASE_BODY(headers_8)
+{
+    const char* input =
+        "Content-Type: application/X-atf-headers-test; version=\"1234\n"
+    ;
+
+    const char* exp_calls[] = {
+        NULL
+    };
+
+    const char* exp_errors[] = {
+        "1: Missing double quotes before end of line",
+        NULL
+    };
+
+    do_parser_test< header_reader >(input, exp_calls, exp_errors);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(headers_9);
+ATF_TEST_CASE_BODY(headers_9)
+{
+    const char* input =
+        "Content-Type: application/X-atf-headers-test; version=1234\"\n"
+    ;
+
+    const char* exp_calls[] = {
+        NULL
+    };
+
+    const char* exp_errors[] = {
+        "1: Missing double quotes before end of line",
+        NULL
+    };
+
+    do_parser_test< header_reader >(input, exp_calls, exp_errors);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(headers_10);
+ATF_TEST_CASE_BODY(headers_10)
+{
+    const char* input =
+        "Content-Type: application/X-atf-headers-test; version=1234\n"
+    ;
+
+    const char* exp_calls[] = {
+        NULL
+    };
+
+    const char* exp_errors[] = {
+        "2: Unexpected token `<<EOF>>'; expected a header name",
+        NULL
+    };
+
+    do_parser_test< header_reader >(input, exp_calls, exp_errors);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(headers_11);
+ATF_TEST_CASE_BODY(headers_11)
+{
+    const char* input =
+        "Content-Type: application/X-atf-headers-test; version=\"1234\"\n"
+    ;
+
+    const char* exp_calls[] = {
+        NULL
+    };
+
+    const char* exp_errors[] = {
+        "2: Unexpected token `<<EOF>>'; expected a header name",
+        NULL
+    };
+
+    do_parser_test< header_reader >(input, exp_calls, exp_errors);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(headers_12);
+ATF_TEST_CASE_BODY(headers_12)
+{
+    const char* input =
+        "Content-Type: application/X-atf-headers-test; version=\"1234\"\n"
+        "a b\n"
+        "a-b:\n"
+        "a-b: foo;\n"
+        "a-b: foo; var\n"
+        "a-b: foo; var=\n"
+        "a-b: foo; var=\"a\n"
+        "a-b: foo; var=a\"\n"
+        "a-b: foo; var=\"a\";\n"
+        "a-b: foo; var=\"a\"; second\n"
+        "a-b: foo; var=\"a\"; second=\n"
+        "a-b: foo; var=\"a\"; second=\"b\n"
+        "a-b: foo; var=\"a\"; second=b\"\n"
+        "a-b: foo; var=\"a\"; second=\"b\"\n"
+    ;
+
+    const char* exp_calls[] = {
+        NULL
+    };
+
+    const char* exp_errors[] = {
+        "2: Unexpected token `b'; expected `:'",
+        "3: Unexpected token `<<NEWLINE>>'; expected a textual value",
+        "4: Unexpected token `<<NEWLINE>>'; expected an attribute name",
+        "5: Unexpected token `<<NEWLINE>>'; expected `='",
+        "6: Unexpected token `<<NEWLINE>>'; expected word or quoted string",
+        "7: Missing double quotes before end of line",
+        "8: Missing double quotes before end of line",
+        "9: Unexpected token `<<NEWLINE>>'; expected an attribute name",
+        "10: Unexpected token `<<NEWLINE>>'; expected `='",
+        "11: Unexpected token `<<NEWLINE>>'; expected word or quoted string",
+        "12: Missing double quotes before end of line",
+        "13: Missing double quotes before end of line",
+        NULL
+    };
+
+    do_parser_test< header_reader >(input, exp_calls, exp_errors);
+}
+
+// ------------------------------------------------------------------------
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
@@ -754,6 +1031,20 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, tokenizer_quotes_nows);
     ATF_ADD_TEST_CASE(tcs, tokenizer_quotes_ws);
 
+    // Add the tests for the headers parser.
+
     // Add the test cases for the header file.
+    ATF_ADD_TEST_CASE(tcs, headers_1);
+    ATF_ADD_TEST_CASE(tcs, headers_2);
+    ATF_ADD_TEST_CASE(tcs, headers_3);
+    ATF_ADD_TEST_CASE(tcs, headers_4);
+    ATF_ADD_TEST_CASE(tcs, headers_5);
+    ATF_ADD_TEST_CASE(tcs, headers_6);
+    ATF_ADD_TEST_CASE(tcs, headers_7);
+    ATF_ADD_TEST_CASE(tcs, headers_8);
+    ATF_ADD_TEST_CASE(tcs, headers_9);
+    ATF_ADD_TEST_CASE(tcs, headers_10);
+    ATF_ADD_TEST_CASE(tcs, headers_11);
+    ATF_ADD_TEST_CASE(tcs, headers_12);
     ATF_ADD_TEST_CASE(tcs, include);
 }

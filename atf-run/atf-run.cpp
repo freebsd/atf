@@ -51,7 +51,6 @@ extern "C" {
 #include "atf-c++/config.hpp"
 #include "atf-c++/env.hpp"
 #include "atf-c++/exceptions.hpp"
-#include "atf-c++/formats.hpp"
 #include "atf-c++/fs.hpp"
 #include "atf-c++/io.hpp"
 #include "atf-c++/parser.hpp"
@@ -88,13 +87,13 @@ class atf_run : public atf::application::app {
     size_t count_tps(std::vector< std::string >) const;
 
     int run_test(const atf::fs::path&,
-                 atf::formats::atf_tps_writer&,
+                 impl::atf_tps_writer&,
                  const atf::tests::vars_map&,
                  const atf::fs::path&);
     int run_test_directory(const atf::fs::path&,
-                           atf::formats::atf_tps_writer&,
+                           impl::atf_tps_writer&,
                            const atf::fs::path&);
-    int run_test_program(const atf::fs::path&, atf::formats::atf_tps_writer&,
+    int run_test_program(const atf::fs::path&, impl::atf_tps_writer&,
                          const atf::tests::vars_map&,
                          const atf::fs::path&);
 
@@ -168,7 +167,7 @@ atf_run::parse_vflag(const std::string& str)
 
 int
 atf_run::run_test(const atf::fs::path& tp,
-                  atf::formats::atf_tps_writer& w,
+                  impl::atf_tps_writer& w,
                   const atf::tests::vars_map& config,
                   const atf::fs::path& ro_workdir)
 {
@@ -188,7 +187,7 @@ atf_run::run_test(const atf::fs::path& tp,
 
 int
 atf_run::run_test_directory(const atf::fs::path& tp,
-                            atf::formats::atf_tps_writer& w,
+                            impl::atf_tps_writer& w,
                             const atf::fs::path& ro_workdir)
 {
     impl::atffile af = impl::read_atffile(tp / "Atffile");
@@ -254,7 +253,7 @@ atf_run::get_tcr(const atf::process::status& s,
 
 int
 atf_run::run_test_program(const atf::fs::path& tp,
-                          atf::formats::atf_tps_writer& w,
+                          impl::atf_tps_writer& w,
                           const atf::tests::vars_map& config,
                           const atf::fs::path& ro_workdir)
 {
@@ -263,7 +262,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
     impl::metadata md;
     try {
         md = impl::get_metadata(tp, config);
-    } catch (const atf::formats::format_error& e) {
+    } catch (const atf::parser::format_error& e) {
         w.start_tp(tp.str(), 0);
         w.end_tp("Invalid format for test case list: " + std::string(e.what()));
         return EXIT_FAILURE;
@@ -422,7 +421,7 @@ atf_run::main(void)
         test_suite_vars = impl::read_config_files((*iter).second);
     }
 
-    atf::formats::atf_tps_writer w(std::cout);
+    impl::atf_tps_writer w(std::cout);
     call_hook("atf-run", "info_start_hook");
     w.ntps(count_tps(tps));
 

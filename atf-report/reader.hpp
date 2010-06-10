@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2009 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,22 +27,44 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "atf-c++/macros.hpp"
+#if !defined(_ATF_REPORT_FORMATS_HPP_)
+#define _ATF_REPORT_FORMATS_HPP_
 
-#include "h_lib.hpp"
+#include <istream>
+#include <string>
 
-// ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
+#include <atf-c++/tests.hpp>
 
-HEADER_TC(include, "atf-c++/formats.hpp");
+namespace atf {
+namespace atf_report {
 
-// ------------------------------------------------------------------------
-// Main.
-// ------------------------------------------------------------------------
+class atf_tps_reader {
+    std::istream& m_is;
 
-ATF_INIT_TEST_CASES(tcs)
-{
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
-}
+    void read_info(void*);
+    void read_tp(void*);
+    void read_tc(void*);
+
+protected:
+    virtual void got_info(const std::string&, const std::string&);
+    virtual void got_ntps(size_t);
+    virtual void got_tp_start(const std::string&, size_t);
+    virtual void got_tp_end(const std::string&);
+
+    virtual void got_tc_start(const std::string&);
+    virtual void got_tc_stdout_line(const std::string&);
+    virtual void got_tc_stderr_line(const std::string&);
+    virtual void got_tc_end(const atf::tests::tcr&);
+    virtual void got_eof(void);
+
+public:
+    atf_tps_reader(std::istream&);
+    virtual ~atf_tps_reader(void);
+
+    void read(void);
+};
+
+} // namespace atf_report
+} // namespace atf
+
+#endif // !defined(_ATF_REPORT_FORMATS_HPP_)
