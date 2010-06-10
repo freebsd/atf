@@ -29,7 +29,6 @@
 
 #include <map>
 
-#include <atf-c++/formats.hpp>
 #include <atf-c++/fs.hpp>
 #include <atf-c++/process.hpp>
 #include <atf-c++/tests.hpp>

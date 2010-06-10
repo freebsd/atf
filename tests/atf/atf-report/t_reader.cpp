@@ -33,7 +33,6 @@
 #include <utility>
 #include <vector>
 
-#include "atf-c++/formats.hpp"
 #include "atf-c++/macros.hpp"
 #include "atf-c++/parser.hpp"
 #include "atf-c++/sanity.hpp"
