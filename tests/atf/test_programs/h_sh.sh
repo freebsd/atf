@@ -231,6 +231,7 @@ srcdir_exists_body()
 atf_test_case result_pass
 result_pass_body()
 {
+    :
 }
 
 atf_test_case result_fail
