@@ -78,6 +78,47 @@ EOF
     cat >>${1}
 }
 
+create_mount_helper()
+{
+    cat >${1} <<EOF
+#! /usr/bin/env atf-sh
+
+do_mount() {
+    platform=\$(uname)
+    case \${platform} in
+    Linux|NetBSD)
+        mount -t tmpfs tmpfs \${1} || atf_fail "Mount failed"
+        ;;
+    FreeBSD)
+        mdmfs -s 16m md \${1} || atf_fail "Mount failed"
+        ;;
+    SunOS)
+        mount -F tmpfs tmpfs \$(pwd)/\${1} || atf_fail "Mount failed"
+        ;;
+    *)
+        atf_fail "create_mount_helper called for an unsupported platform."
+        ;;
+    esac
+}
+
+atf_test_case main
+main_head() {
+    atf_set "use.fs" "true"
+    atf_set "require.user" "root"
+}
+main_body() {
+EOF
+    cat >>${1}
+    cat >>${1} <<EOF
+}
+
+atf_init_test_cases()
+{
+    atf_add_test_case main
+}
+EOF
+}
+
 atf_test_case config
 config_head()
 {
@@ -642,6 +683,87 @@ cleanup_signal_body()
     : # TODO: Write this.
 }
 
+atf_test_case cleanup_mount
+cleanup_mount_head()
+{
+    atf_set "descr" "Tests that the removal algorithm does not cross" \
+                    "mount points"
+    atf_set "require.user" "root"
+    atf_set "use.fs" "true"
+}
+cleanup_mount_body()
+{
+    ROOT="$(pwd)/root"; export ROOT
+
+    create_mount_helper helper <<EOF
+echo \$(pwd) >\${ROOT}
+mkdir foo
+mkdir foo/bar
+mkdir foo/bar/mnt
+do_mount foo/bar/mnt
+mkdir foo/baz
+do_mount foo/baz
+mkdir foo/baz/foo
+mkdir foo/baz/foo/bar
+do_mount foo/baz/foo/bar
+EOF
+    create_atffile helper
+    chmod +x helper
+
+    platform=$(uname)
+    case ${platform} in
+    Linux|FreeBSD|NetBSD|SunOS)
+        ;;
+    *)
+        # XXX Possibly specify in meta-data too.
+        atf_skip "Test unimplemented in this platform (${platform})"
+        ;;
+    esac
+
+    atf_check -s eq:0 -o match:"main, passed" -e ignore atf-run helper
+    mount | grep $(cat root) && atf_fail "Some file systems remain mounted"
+    atf_check -s eq:1 -o empty -e empty test -d $(cat root)/foo
+}
+
+atf_test_case cleanup_symlink
+cleanup_symlink_head()
+{
+    atf_set "descr" "Tests that the removal algorithm does not follow" \
+                    "symlinks, which may live in another device and thus" \
+                    "be treated as mount points"
+    atf_set "require.user" "root"
+    atf_set "use.fs" "true"
+}
+cleanup_symlink_body()
+{
+    ROOT="$(pwd)/root"; export ROOT
+
+    create_mount_helper helper <<EOF
+echo \$(pwd) >\${ROOT}
+atf_check -s eq:0 -o empty -e empty mkdir foo
+atf_check -s eq:0 -o empty -e empty mkdir foo/bar
+do_mount foo/bar
+atf_check -s eq:0 -o empty -e empty touch a
+atf_check -s eq:0 -o empty -e empty ln -s "\$(pwd)/a" foo/bar
+EOF
+    create_atffile helper
+    chmod +x helper
+
+    platform=$(uname)
+    case ${platform} in
+    Linux|FreeBSD|NetBSD|SunOS)
+        ;;
+    *)
+        # XXX Possibly specify in meta-data too.
+        atf_skip "Test unimplemented in this platform (${platform})"
+        ;;
+    esac
+
+    atf_check -s eq:0 -o match:"main, passed" -e ignore atf-run helper
+    mount | grep $(cat root) && atf_fail "Some file systems remain mounted"
+    atf_check -s eq:1 -o empty -e empty test -d $(cat root)/foo
+}
+
 atf_test_case require_arch
 require_arch_head()
 {
@@ -896,6 +1018,8 @@ atf_init_test_cases()
     atf_add_test_case cleanup_skip
     atf_add_test_case cleanup_curdir
     atf_add_test_case cleanup_signal
+    atf_add_test_case cleanup_mount
+    atf_add_test_case cleanup_symlink
     atf_add_test_case require_arch
     atf_add_test_case require_config
     atf_add_test_case require_machine

@@ -119,7 +119,8 @@ do_unmount(const atf::fs::path& in_path)
     // At least, FreeBSD's unmount(2) requires the path to be absolute.
     // Let's make it absolute in all cases just to be safe that this does
     // not affect other systems.
-    const atf::fs::path& abs_path = in_path.to_absolute();
+    const atf::fs::path& abs_path = in_path.is_absolute() ?
+        in_path : in_path.to_absolute();
 
 #if defined(HAVE_UNMOUNT)
     if (unmount(abs_path.c_str(), 0) == -1)
