@@ -453,7 +453,7 @@ do_require_eq_tests(const struct require_eq_test *tests)
             ATF_REQUIRE(grep_file("result", "^passed"));
             ATF_REQUIRE(exists("after"));
         } else {
-            ATF_REQUIRE(grep_file("result", "^failed: reason:.*t_macros.c"
+            ATF_REQUIRE(grep_file("result", "^failed: .*t_macros.c"
                 ":[0-9]+: Requirement failed: %s$", t->msg));
             ATF_REQUIRE(!exists("after"));
         }
