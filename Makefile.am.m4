@@ -640,7 +640,7 @@ EXTRA_DIST += $(pkgtests_DATA)
 tests_atf_c_DATA = atf-c/Atffile \
                    atf-c/d_use_macros_h.c
 tests_atf_cdir = $(pkgtestsdir)/atf-c
-EXTRA_DIST += $(atf_atf_c_DATA)
+EXTRA_DIST += $(tests_atf_c_DATA)
 
 noinst_LTLIBRARIES = atf-c/libh.la
 atf_c_libh_la_SOURCES = atf-c/h_lib.c \
@@ -711,7 +711,7 @@ atf_c_h_processes_SOURCES = atf-c/h_processes.c
 tests_atf_c___DATA = atf-c++/Atffile \
                    atf-c++/d_use_macros_hpp.cpp
 tests_atf_c__dir = $(pkgtestsdir)/atf-c++
-EXTRA_DIST += $(atf_atf_c___DATA)
+EXTRA_DIST += $(tests_atf_c___DATA)
 
 noinst_LTLIBRARIES += atf-c++/libh.la
 atf_c___libh_la_SOURCES = atf-c++/h_lib.cpp \
@@ -741,19 +741,19 @@ SH_TP([atf-c++], [pkg_config_test])
 
 tests_atf_check_DATA = atf-check/Atffile
 tests_atf_checkdir = $(pkgtestsdir)/atf-check
-EXTRA_DIST += $(atf_atf_check_DATA)
+EXTRA_DIST += $(tests_atf_check_DATA)
 
 SH_TP([atf-check], [integration_test])
 
 tests_atf_config_DATA = atf-config/Atffile
 tests_atf_configdir = $(pkgtestsdir)/atf-config
-EXTRA_DIST += $(atf_atf_config_DATA)
+EXTRA_DIST += $(tests_atf_config_DATA)
 
 SH_TP([atf-config], [integration_test])
 
 tests_atf_report_DATA = atf-report/Atffile
 tests_atf_reportdir = $(pkgtestsdir)/atf-report
-EXTRA_DIST += $(atf_atf_report_DATA)
+EXTRA_DIST += $(tests_atf_report_DATA)
 
 CXX_TP([atf-report], [h_fail])
 CXX_TP([atf-report], [h_pass])
@@ -764,7 +764,7 @@ CXX_TP([atf-report], [reader_test], [atf-report/reader.cpp],
 
 tests_atf_run_DATA = atf-run/Atffile
 tests_atf_rundir = $(pkgtestsdir)/atf-run
-EXTRA_DIST += $(atf_atf_run_DATA)
+EXTRA_DIST += $(tests_atf_run_DATA)
 
 C_TP([atf-run], [h_bad_metadata])
 C_TP([atf-run], [h_several_tcs])
@@ -786,7 +786,7 @@ SH_TP([atf-run], [integration_test])
 
 tests_atf_sh_DATA = atf-sh/Atffile
 tests_atf_shdir = $(pkgtestsdir)/atf-sh
-EXTRA_DIST += $(atf_atf_sh_DATA)
+EXTRA_DIST += $(tests_atf_sh_DATA)
 
 SH_TP([atf-sh], [h_misc])
 SH_TP([atf-sh], [atf_check_test])
