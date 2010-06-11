@@ -863,7 +863,6 @@ require_machine_body()
     atf_check -s eq:0 \
         -o match:"${TESTCASE}, skipped, .*fictitiousxxx.*machine type" \
         -e ignore atf-run -v machine="${machine}xxx" helper
-        
 }
 
 atf_test_case require_progs

@@ -350,10 +350,12 @@ ATF_TEST_CASE_BODY(atffile_50)
         NULL
     };
 
+    // NO_CHECK_STYLE_BEGIN
     const char* exp_errors[] = {
         "3: Unexpected token `foo'; expected conf, #, prop, tp, tp-glob, a new line or eof",
         NULL
     };
+    // NO_CHECK_STYLE_END
 
     do_parser_test< atffile_reader >(input, exp_calls, exp_errors);
 }
@@ -372,11 +374,13 @@ ATF_TEST_CASE_BODY(atffile_51)
         NULL
     };
 
+    // NO_CHECK_STYLE_BEGIN
     const char* exp_errors[] = {
         "3: Unexpected token `foo'; expected conf, #, prop, tp, tp-glob, a new line or eof",
         "4: Unexpected token `baz'; expected conf, #, prop, tp, tp-glob, a new line or eof",
         NULL
     };
+    // NO_CHECK_STYLE_END
 
     do_parser_test< atffile_reader >(input, exp_calls, exp_errors);
 }

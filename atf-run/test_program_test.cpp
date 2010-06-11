@@ -189,6 +189,7 @@ ATF_TEST_CASE_BODY(tp_2)
         "descr: Third test case\n"
     ;
 
+    // NO_CHECK_STYLE_BEGIN
     const char* exp_calls[] = {
         "got_tc(test_case_1, {descr=This is the description, ident=test_case_1, timeout=300})",
         "got_tc(test_case_2, {ident=test_case_2})",
@@ -196,6 +197,7 @@ ATF_TEST_CASE_BODY(tp_2)
         "got_eof()",
         NULL
     };
+    // NO_CHECK_STYLE_END
 
     const char* exp_errors[] = {
         NULL
@@ -220,11 +222,13 @@ ATF_TEST_CASE_BODY(tp_3)
         "require.user: root\n"
     ;
 
+    // NO_CHECK_STYLE_BEGIN
     const char* exp_calls[] = {
         "got_tc(single_test, {descr=Some description, ident=single_test, require.arch=thearch, require.config=foo-bar, require.machine=themachine, require.progs=/bin/cp mv, require.user=root, timeout=300})",
         "got_eof()",
         NULL
     };
+    // NO_CHECK_STYLE_END
 
     const char* exp_errors[] = {
         NULL

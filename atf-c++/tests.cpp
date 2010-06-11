@@ -102,7 +102,8 @@ detail::atf_tp_writer::end_tc(void)
 }
 
 void
-detail::atf_tp_writer::tc_meta_data(const std::string& name, const std::string& value)
+detail::atf_tp_writer::tc_meta_data(const std::string& name,
+                                    const std::string& value)
 {
     PRE(name != "ident");
     m_os << name << ": " << value << std::endl;
