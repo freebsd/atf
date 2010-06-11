@@ -370,6 +370,7 @@ ATF_TEST_CASE_BODY(tps_5)
         "tp-end: the-prog\n"
     ;
 
+    // NO_CHECK_STYLE_BEGIN
     const char* exp_calls[] = {
         "got_ntps(1)",
         "got_tp_start(the-prog, 1)",
@@ -391,6 +392,7 @@ ATF_TEST_CASE_BODY(tps_5)
         "got_eof()",
         NULL
     };
+    // NO_CHECK_STYLE_END
 
     const char* exp_errors[] = {
         NULL
@@ -563,6 +565,7 @@ ATF_TEST_CASE_BODY(tps_55)
         NULL
     };
 
+    // NO_CHECK_STYLE_BEGIN
     const char* exp_errors[] = {
         "5: Unexpected token `foo'; expected start of test case",
         "6: Unexpected token `<<NEWLINE>>'; expected `:'",
@@ -576,6 +579,7 @@ ATF_TEST_CASE_BODY(tps_55)
         "20: Unexpected token `tp-end'; expected start of test case",
         NULL
     };
+    // NO_CHECK_STYLE_END
 
     do_parser_test< tps_reader >(input, exp_calls, exp_errors);
 }

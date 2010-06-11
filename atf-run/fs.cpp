@@ -88,7 +88,8 @@ cleanup_aux(const atf::fs::path& p, dev_t parent_device, bool erase)
 
 static
 void
-cleanup_aux_dir(const atf::fs::path& p, const atf::fs::file_info& fi, bool erase)
+cleanup_aux_dir(const atf::fs::path& p, const atf::fs::file_info& fi,
+                bool erase)
 {
     if (erase && ((fi.get_mode() & S_IRWXU) != S_IRWXU)) {
         (void)impl::set_immutable(p, false);

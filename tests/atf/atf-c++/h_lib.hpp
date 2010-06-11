@@ -176,7 +176,8 @@ check_equal(const char* expected[], const string_vector& actual)
 
 template< class Reader >
 void
-do_parser_test(const char* input, const char* exp_calls[], const char* exp_errors[])
+do_parser_test(const char* input, const char* exp_calls[],
+               const char* exp_errors[])
 {
     const std::pair< h_lib_detail::string_vector, h_lib_detail::string_vector >
         actual = h_lib_detail::do_read< Reader >(input);
