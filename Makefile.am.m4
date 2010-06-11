@@ -80,7 +80,8 @@ $(srcdir)/Makefile.am: $(srcdir)/admin/generate-makefile.sh \
 
 doc_DATA = AUTHORS COPYING NEWS README
 noinst_DATA = INSTALL
-EXTRA_DIST += $(doc_DATA)
+CLEANFILES += AUTHORS COPYING INSTALL NEWS README
+EXTRA_DIST += $(doc_DATA) INSTALL
 
 dist-hook: $(srcdir)/admin/revision-dist.h check-install check-style
 
@@ -107,12 +108,7 @@ AM_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
 # indicated in 'name' based on a generated document pointed to by 'src'.
 m4_define([DISTFILE_DOC], [
 $(srcdir)/$1: $(srcdir)/$2
-	@if cmp -s $(srcdir)/$2 $(srcdir)/$1; then \
-	    :; \
-	else \
-	    echo cp $(srcdir)/$2 $(srcdir)/$1; \
-	    cp $(srcdir)/$2 $(srcdir)/$1; \
-	fi
+	cp $(srcdir)/$2 $(srcdir)/$1
 ])
 
 DISTFILE_DOC([AUTHORS], [doc/text/authors.txt])
@@ -139,7 +135,7 @@ release-test:
 # -------------------------------------------------------------------------
 
 .PHONY: check-install
-check-install:
+check-install: $(srcdir)/INSTALL
 	$(srcdir)/admin/check-install.sh $(srcdir)/INSTALL
 
 .PHONY: check-style
