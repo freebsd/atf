@@ -231,18 +231,20 @@ srcdir_exists_body()
 atf_test_case result_pass
 result_pass_body()
 {
-    :
+    echo "msg"
 }
 
 atf_test_case result_fail
 result_fail_body()
 {
+    echo "msg"
     atf_fail "Failure reason"
 }
 
 atf_test_case result_skip
 result_skip_body()
 {
+    echo "msg"
     atf_skip "Skipped reason"
 }
 

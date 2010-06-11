@@ -35,13 +35,14 @@ result_on_stdout_head()
 }
 result_on_stdout_body()
 {
+    srcdir="$(atf_get_srcdir)"
     for h in $(get_helpers); do
-        atf_check -s eq:0 -o inline:"passed\n" \
-            -e empty "${h}" -s "$(atf_get_srcdir)" result_pass
-        atf_check -s eq:1 -o inline:"failed: Failure reason\n" \
-            -e empty "${h}" -s "$(atf_get_srcdir)" result_fail
-        atf_check -s eq:0 -o inline:"skipped: Skipped reason\n" \
-            -e empty "${h}" -s "$(atf_get_srcdir)" result_skip
+        atf_check -s eq:0 -o match:"passed" -o match:"msg" \
+            -e empty "${h}" -s "${srcdir}" result_pass
+        atf_check -s eq:1 -o match:"failed: Failure reason" -o match:"msg" \
+            -e empty "${h}" -s "${srcdir}" result_fail
+        atf_check -s eq:0 -o match:"skipped: Skipped reason" -o match:"msg" \
+            -e empty "${h}" -s "${srcdir}" result_skip
     done
 }
 
@@ -54,16 +55,17 @@ result_to_file_head()
 }
 result_to_file_body()
 {
+    srcdir="$(atf_get_srcdir)"
     for h in $(get_helpers); do
-        atf_check -s eq:0 -o empty -e empty "${h}" -s "$(atf_get_srcdir)" \
+        atf_check -s eq:0 -o inline:"msg\n" -e empty "${h}" -s "${srcdir}" \
             -r resfile result_pass
         atf_check -o inline:"passed\n" cat resfile
 
-        atf_check -s eq:1 -o empty -e empty "${h}" -s "$(atf_get_srcdir)" \
+        atf_check -s eq:1 -o inline:"msg\n" -e empty "${h}" -s "${srcdir}" \
             -r resfile result_fail
         atf_check -o inline:"failed: Failure reason\n" cat resfile
 
-        atf_check -s eq:0 -o empty -e empty "${h}" -s "$(atf_get_srcdir)" \
+        atf_check -s eq:0 -o inline:"msg\n" -e empty "${h}" -s "${srcdir}" \
             -r resfile result_skip
         atf_check -o inline:"skipped: Skipped reason\n" cat resfile
     done

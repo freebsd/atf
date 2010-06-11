@@ -143,12 +143,14 @@ ATF_TEST_CASE(result_pass);
 ATF_TEST_CASE_HEAD(result_pass) { }
 ATF_TEST_CASE_BODY(result_pass)
 {
+    std::cout << "msg\n";
 }
 
 ATF_TEST_CASE(result_fail);
 ATF_TEST_CASE_HEAD(result_fail) { }
 ATF_TEST_CASE_BODY(result_fail)
 {
+    std::cout << "msg\n";
     ATF_FAIL("Failure reason");
 }
 
@@ -156,6 +158,7 @@ ATF_TEST_CASE(result_skip);
 ATF_TEST_CASE_HEAD(result_skip) { }
 ATF_TEST_CASE_BODY(result_skip)
 {
+    std::cout << "msg\n";
     ATF_SKIP("Skipped reason");
 }
 

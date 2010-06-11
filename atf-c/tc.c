@@ -428,13 +428,18 @@ create_resfile(const atf_fs_path_t *resfile, const char *result,
     atf_error_t err;
     FILE *file;
 
-    file = fopen(atf_fs_path_cstring(resfile), "w");
-    if (file == NULL) {
-        err = atf_libc_error(errno, "Cannot create results file `%s'",
-                             atf_fs_path_cstring(resfile));
-        goto out;
-    } else
+    if (strcmp("/dev/stdout", atf_fs_path_cstring(resfile)) == 0) {
+        file = stdout;
         err = atf_no_error();
+    } else {
+        file = fopen(atf_fs_path_cstring(resfile), "w");
+        if (file == NULL) {
+            err = atf_libc_error(errno, "Cannot create results file `%s'",
+                                 atf_fs_path_cstring(resfile));
+            goto out;
+        } else
+            err = atf_no_error();
+    }
 
     if (reason) {
         atf_dynstr_t formatted;
@@ -445,7 +450,8 @@ create_resfile(const atf_fs_path_t *resfile, const char *result,
     } else
         fprintf(file, "%s\n", result);
 
-    fclose(file);
+    if (file != stdout)
+        fclose(file);
 out:
     return err;
 }

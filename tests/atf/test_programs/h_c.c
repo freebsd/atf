@@ -335,12 +335,14 @@ ATF_TC(result_pass);
 ATF_TC_HEAD(result_pass, tc) { }
 ATF_TC_BODY(result_pass, tc)
 {
+    printf("msg\n");
 }
 
 ATF_TC(result_fail);
 ATF_TC_HEAD(result_fail, tc) { }
 ATF_TC_BODY(result_fail, tc)
 {
+    printf("msg\n");
     atf_tc_fail("Failure reason");
 }
 
@@ -348,6 +350,7 @@ ATF_TC(result_skip);
 ATF_TC_HEAD(result_skip, tc) { }
 ATF_TC_BODY(result_skip, tc)
 {
+    printf("msg\n");
     atf_tc_skip("Skipped reason");
 }
 
