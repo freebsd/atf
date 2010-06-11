@@ -49,6 +49,7 @@ create_helper()
 
 create_helper_stdin()
 {
+    # TODO: This really, really, really must use real test programs.
     cat >${1} <<EOF
 #! $(atf-config -t atf_shell)
 while [ \${#} -gt 0 ]; do
@@ -57,12 +58,11 @@ while [ \${#} -gt 0 ]; do
             echo 'Content-Type: application/X-atf-tp; version="1"'
             echo
 EOF
-    cnt=${2}
-    while [ ${cnt} -gt 0 ]; do
+    cnt=1
+    while [ ${cnt} -le ${2} ]; do
         echo "echo 'ident: tc${cnt}'" >>${1}
-        cnt=$((${cnt} - 1))
-
-        [ ${cnt} -gt 0 ] && echo
+        [ ${cnt} -lt ${2} ] && echo "echo" >>${1}
+        cnt=$((${cnt} + 1))
     done
 cat >>${1} <<EOF
             exit 0
@@ -71,10 +71,52 @@ cat >>${1} <<EOF
             resfile=\$(echo \${1} | cut -d r -f 2-)
             ;;
     esac
+    testcase=\$(echo \${1} | cut -d : -f 1)
     shift
 done
 EOF
     cat >>${1}
+}
+
+create_mount_helper()
+{
+    cat >${1} <<EOF
+#! /usr/bin/env atf-sh
+
+do_mount() {
+    platform=\$(uname)
+    case \${platform} in
+    Linux|NetBSD)
+        mount -t tmpfs tmpfs \${1} || atf_fail "Mount failed"
+        ;;
+    FreeBSD)
+        mdmfs -s 16m md \${1} || atf_fail "Mount failed"
+        ;;
+    SunOS)
+        mount -F tmpfs tmpfs \$(pwd)/\${1} || atf_fail "Mount failed"
+        ;;
+    *)
+        atf_fail "create_mount_helper called for an unsupported platform."
+        ;;
+    esac
+}
+
+atf_test_case main
+main_head() {
+    atf_set "use.fs" "true"
+    atf_set "require.user" "root"
+}
+main_body() {
+EOF
+    cat >>${1}
+    cat >>${1} <<EOF
+}
+
+atf_init_test_cases()
+{
+    atf_add_test_case main
+}
+EOF
 }
 
 atf_test_case config
@@ -396,24 +438,23 @@ atf_test_case signaled
 signaled_head()
 {
     atf_set "descr" "Ensures that atf-run reports test program's crashes" \
-                    "correctly"
+                    "correctly regardless of their actual results"
     atf_set "use.fs" "true"
 }
 signaled_body()
 {
-    create_helper_stdin helper 1 <<EOF
-echo 'Content-Type: application/X-atf-tcs; version="1"' 1>&9
-echo 1>&9
-echo "tcs-count: 1" 1>&9
-echo "tc-start: tc1" 1>&9
-echo "tc-end: tc1, failed, Will fail" 1>&9
-kill -9 \$\$
+    create_helper_stdin helper 2 <<EOF
+echo "passed" >\${resfile}
+case \${testcase} in
+    tc1) ;;
+    tc2) echo "Killing myself!" ; kill -9 \$\$ ;;
+esac
 EOF
     chmod +x helper
 
     create_atffile helper
 
-    atf_check -s eq:1 -o match:'^tc-end: tc1,.*received signal 9' \
+    atf_check -s eq:1 -o match:'^tc-end: tc2,.*received signal 9' \
         -e empty atf-run
 }
 
@@ -640,6 +681,87 @@ cleanup_signal_head()
 cleanup_signal_body()
 {
     : # TODO: Write this.
+}
+
+atf_test_case cleanup_mount
+cleanup_mount_head()
+{
+    atf_set "descr" "Tests that the removal algorithm does not cross" \
+                    "mount points"
+    atf_set "require.user" "root"
+    atf_set "use.fs" "true"
+}
+cleanup_mount_body()
+{
+    ROOT="$(pwd)/root"; export ROOT
+
+    create_mount_helper helper <<EOF
+echo \$(pwd) >\${ROOT}
+mkdir foo
+mkdir foo/bar
+mkdir foo/bar/mnt
+do_mount foo/bar/mnt
+mkdir foo/baz
+do_mount foo/baz
+mkdir foo/baz/foo
+mkdir foo/baz/foo/bar
+do_mount foo/baz/foo/bar
+EOF
+    create_atffile helper
+    chmod +x helper
+
+    platform=$(uname)
+    case ${platform} in
+    Linux|FreeBSD|NetBSD|SunOS)
+        ;;
+    *)
+        # XXX Possibly specify in meta-data too.
+        atf_skip "Test unimplemented in this platform (${platform})"
+        ;;
+    esac
+
+    atf_check -s eq:0 -o match:"main, passed" -e ignore atf-run helper
+    mount | grep $(cat root) && atf_fail "Some file systems remain mounted"
+    atf_check -s eq:1 -o empty -e empty test -d $(cat root)/foo
+}
+
+atf_test_case cleanup_symlink
+cleanup_symlink_head()
+{
+    atf_set "descr" "Tests that the removal algorithm does not follow" \
+                    "symlinks, which may live in another device and thus" \
+                    "be treated as mount points"
+    atf_set "require.user" "root"
+    atf_set "use.fs" "true"
+}
+cleanup_symlink_body()
+{
+    ROOT="$(pwd)/root"; export ROOT
+
+    create_mount_helper helper <<EOF
+echo \$(pwd) >\${ROOT}
+atf_check -s eq:0 -o empty -e empty mkdir foo
+atf_check -s eq:0 -o empty -e empty mkdir foo/bar
+do_mount foo/bar
+atf_check -s eq:0 -o empty -e empty touch a
+atf_check -s eq:0 -o empty -e empty ln -s "\$(pwd)/a" foo/bar
+EOF
+    create_atffile helper
+    chmod +x helper
+
+    platform=$(uname)
+    case ${platform} in
+    Linux|FreeBSD|NetBSD|SunOS)
+        ;;
+    *)
+        # XXX Possibly specify in meta-data too.
+        atf_skip "Test unimplemented in this platform (${platform})"
+        ;;
+    esac
+
+    atf_check -s eq:0 -o match:"main, passed" -e ignore atf-run helper
+    mount | grep $(cat root) && atf_fail "Some file systems remain mounted"
+    atf_check -s eq:1 -o empty -e empty test -d $(cat root)/foo
 }
 
 atf_test_case require_arch
@@ -896,6 +1018,8 @@ atf_init_test_cases()
     atf_add_test_case cleanup_skip
     atf_add_test_case cleanup_curdir
     atf_add_test_case cleanup_signal
+    atf_add_test_case cleanup_mount
+    atf_add_test_case cleanup_symlink
     atf_add_test_case require_arch
     atf_add_test_case require_config
     atf_add_test_case require_machine

@@ -40,6 +40,30 @@ namespace atf {
 namespace atf_run {
 
 // ------------------------------------------------------------------------
+// The "atf_atffile_reader" class.
+// ------------------------------------------------------------------------
+
+namespace detail {
+
+class atf_atffile_reader {
+    std::istream& m_is;
+
+protected:
+    virtual void got_conf(const std::string&, const std::string &);
+    virtual void got_prop(const std::string&, const std::string &);
+    virtual void got_tp(const std::string&, bool);
+    virtual void got_eof(void);
+
+public:
+    atf_atffile_reader(std::istream&);
+    virtual ~atf_atffile_reader(void);
+
+    void read(void);
+};
+
+} // namespace detail
+
+// ------------------------------------------------------------------------
 // The "atffile" class.
 // ------------------------------------------------------------------------
 

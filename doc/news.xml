@@ -49,7 +49,10 @@ they had become unnecessary after all simplifications introduced in the
 
 <listitem><para>Removed the <literal>application/X-atf-tcr</literal> format
 introduced in 0.8 release.  Tests now print a much simplified format that
-is easy to parse and nicer to read by end users.</para></listitem>
+is easy to parse and nicer to read by end users.  As a side effect, the
+default for test cases is now to print their results to stdout unless
+otherwise stated by providing the <literal>-r</literal>
+flag.</para></listitem>
 
 </itemizedlist>
 

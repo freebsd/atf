@@ -36,10 +36,11 @@
 
 #include "atf-c++/application.hpp"
 #include "atf-c++/fs.hpp"
-#include "atf-c++/formats.hpp"
 #include "atf-c++/sanity.hpp"
 #include "atf-c++/text.hpp"
 #include "atf-c++/ui.hpp"
+
+#include "reader.hpp"
 
 typedef std::auto_ptr< std::ostream > ostream_ptr;
 
@@ -453,7 +454,7 @@ public:
 //! raised by the parser, redirects it to multiple writers so that they
 //! can reformat it according to their output rules.
 //!
-class converter : public atf::formats::atf_tps_reader {
+class converter : public atf::atf_report::atf_tps_reader {
     typedef std::vector< writer* > outs_vector;
     outs_vector m_outs;
 
@@ -531,7 +532,7 @@ class converter : public atf::formats::atf_tps_reader {
 
 public:
     converter(std::istream& is) :
-        atf::formats::atf_tps_reader(is)
+        atf::atf_report::atf_tps_reader(is)
     {
     }
 

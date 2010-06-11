@@ -136,25 +136,45 @@ ATF_TEST_CASE_BODY(srcdir_exists)
 }
 
 // ------------------------------------------------------------------------
-// Helper tests for "t_status".
+// Helper tests for "t_result".
 // ------------------------------------------------------------------------
 
-ATF_TEST_CASE(status_newlines_fail);
-ATF_TEST_CASE_HEAD(status_newlines_fail)
+ATF_TEST_CASE(result_pass);
+ATF_TEST_CASE_HEAD(result_pass) { }
+ATF_TEST_CASE_BODY(result_pass)
 {
-    set_md_var("descr", "Helper test case for the t_status test program");
 }
-ATF_TEST_CASE_BODY(status_newlines_fail)
+
+ATF_TEST_CASE(result_fail);
+ATF_TEST_CASE_HEAD(result_fail) { }
+ATF_TEST_CASE_BODY(result_fail)
+{
+    ATF_FAIL("Failure reason");
+}
+
+ATF_TEST_CASE(result_skip);
+ATF_TEST_CASE_HEAD(result_skip) { }
+ATF_TEST_CASE_BODY(result_skip)
+{
+    ATF_SKIP("Skipped reason");
+}
+
+ATF_TEST_CASE(result_newlines_fail);
+ATF_TEST_CASE_HEAD(result_newlines_fail)
+{
+    set_md_var("descr", "Helper test case for the t_result test program");
+}
+ATF_TEST_CASE_BODY(result_newlines_fail)
 {
     ATF_FAIL("First line\nSecond line");
 }
 
-ATF_TEST_CASE(status_newlines_skip);
-ATF_TEST_CASE_HEAD(status_newlines_skip)
+ATF_TEST_CASE(result_newlines_skip);
+ATF_TEST_CASE_HEAD(result_newlines_skip)
 {
-    set_md_var("descr", "Helper test case for the t_status test program");
+    set_md_var("descr", "Helper test case for the t_result test program");
 }
-ATF_TEST_CASE_BODY(status_newlines_skip)
+ATF_TEST_CASE_BODY(result_newlines_skip)
 {
     ATF_SKIP("First line\nSecond line");
 }
@@ -181,7 +201,10 @@ ATF_INIT_TEST_CASES(tcs)
     // Add helper tests for t_srcdir.
     ATF_ADD_TEST_CASE(tcs, srcdir_exists);
 
-    // Add helper tests for t_status.
-    ATF_ADD_TEST_CASE(tcs, status_newlines_fail);
-    ATF_ADD_TEST_CASE(tcs, status_newlines_skip);
+    // Add helper tests for t_result.
+    ATF_ADD_TEST_CASE(tcs, result_pass);
+    ATF_ADD_TEST_CASE(tcs, result_fail);
+    ATF_ADD_TEST_CASE(tcs, result_skip);
+    ATF_ADD_TEST_CASE(tcs, result_newlines_fail);
+    ATF_ADD_TEST_CASE(tcs, result_newlines_skip);
 }

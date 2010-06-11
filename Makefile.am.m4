@@ -289,8 +289,6 @@ libatf_c___la_SOURCES = atf-c++/application.cpp \
                         atf-c++/exceptions.hpp \
                         atf-c++/expand.cpp \
                         atf-c++/expand.hpp \
-                        atf-c++/formats.cpp \
-                        atf-c++/formats.hpp \
                         atf-c++/fs.cpp \
                         atf-c++/fs.hpp \
                         atf-c++/io.cpp \
@@ -321,7 +319,6 @@ atf_c___HEADERS = atf-c++/application.hpp \
                   atf-c++/env.hpp \
                   atf-c++/exceptions.hpp \
                   atf-c++/expand.hpp \
-                  atf-c++/formats.hpp \
                   atf-c++/fs.hpp \
                   atf-c++/io.hpp \
                   atf-c++/macros.hpp \
@@ -372,7 +369,8 @@ TOOL([libexec], [atf-format])
 # `atf-report' directory.
 # -------------------------------------------------------------------------
 
-TOOL([bin], [atf-report])
+TOOL([bin], [atf-report], [atf-report/reader.cpp \
+                           atf-report/reader.hpp])
 
 cssdir = $(atf_cssdir)
 css_DATA = atf-report/tests-results.css
@@ -729,7 +727,6 @@ CXX_TP([atf/atf-c++], [t_config], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_env], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_exceptions], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_expand], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_formats], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_fs], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_io], [], [tests/atf/atf-c++/libh.la])
 CXX_TP([atf/atf-c++], [t_macros], [], [tests/atf/atf-c++/libh.la])
@@ -764,6 +761,9 @@ CXX_TP([atf/atf-report], [h_fail])
 CXX_TP([atf/atf-report], [h_pass])
 CXX_TP([atf/atf-report], [h_misc])
 SH_TP([atf/atf-report], [t_integration])
+CXX_TP([atf/atf-report], [t_reader], [atf-report/reader.cpp],
+       [tests/atf/atf-c++/libh.la],
+       [-I$(srcdir)/atf-report -I$(srcdir)/tests/atf/atf-c++])
 
 atf_atf_run_DATA = tests/atf/atf-run/Atffile
 atf_atf_rundir = $(pkgtestsdir)/atf-run
@@ -775,16 +775,19 @@ C_TP([atf/atf-run], [h_zero_tcs])
 CXX_TP([atf/atf-run], [h_fail])
 CXX_TP([atf/atf-run], [h_pass])
 CXX_TP([atf/atf-run], [h_misc])
-CXX_TP([atf/atf-run], [t_atffile], [atf-run/atffile.cpp], [],
-       [-I$(srcdir)/atf-run])
-CXX_TP([atf/atf-run], [t_config], [atf-run/config.cpp], [],
-       [-I$(srcdir)/atf-run])
+CXX_TP([atf/atf-run], [t_atffile], [atf-run/atffile.cpp],
+       [tests/atf/atf-c++/libh.la],
+       [-I$(srcdir)/atf-run -I$(srcdir)/tests/atf/atf-c++])
+CXX_TP([atf/atf-run], [t_config], [atf-run/config.cpp],
+       [tests/atf/atf-c++/libh.la],
+       [-I$(srcdir)/atf-run -I$(srcdir)/tests/atf/atf-c++])
 CXX_TP([atf/atf-run], [t_fs], [atf-run/fs.cpp], [], [-I$(srcdir)/atf-run])
 CXX_TP([atf/atf-run], [t_requirements], [atf-run/requirements.cpp], [],
        [-I$(srcdir)/atf-run])
 CXX_TP([atf/atf-run], [t_test_program],
-       [atf-run/fs.cpp atf-run/test-program.cpp atf-run/timer.cpp], [],
-       [-I$(srcdir)/atf-run])
+       [atf-run/fs.cpp atf-run/test-program.cpp atf-run/timer.cpp],
+       [tests/atf/atf-c++/libh.la],
+       [-I$(srcdir)/atf-run -I$(srcdir)/tests/atf/atf-c++])
 SH_TP([atf/atf-run], [t_integration])
 
 atf_atf_sh_DATA = tests/atf/atf-sh/Atffile
@@ -798,164 +801,6 @@ SH_TP([atf/atf-sh], [t_integration])
 SH_TP([atf/atf-sh], [t_normalize])
 SH_TP([atf/atf-sh], [t_tc])
 SH_TP([atf/atf-sh], [t_tp])
-
-atf_formats_DATA = tests/atf/formats/Atffile \
-                   tests/atf/formats/d_atffile_1 \
-                   tests/atf/formats/d_atffile_1.expout \
-                   tests/atf/formats/d_atffile_2 \
-                   tests/atf/formats/d_atffile_2.expout \
-                   tests/atf/formats/d_atffile_3 \
-                   tests/atf/formats/d_atffile_3.expout \
-                   tests/atf/formats/d_atffile_4 \
-                   tests/atf/formats/d_atffile_4.expout \
-                   tests/atf/formats/d_atffile_5 \
-                   tests/atf/formats/d_atffile_5.expout \
-                   tests/atf/formats/d_atffile_50 \
-                   tests/atf/formats/d_atffile_50.experr \
-                   tests/atf/formats/d_atffile_51 \
-                   tests/atf/formats/d_atffile_51.experr \
-                   tests/atf/formats/d_atffile_52 \
-                   tests/atf/formats/d_atffile_52.experr \
-                   tests/atf/formats/d_atffile_53 \
-                   tests/atf/formats/d_atffile_53.experr \
-                   tests/atf/formats/d_atffile_53.expout \
-                   tests/atf/formats/d_atffile_54 \
-                   tests/atf/formats/d_atffile_54.experr \
-                   tests/atf/formats/d_atffile_6 \
-                   tests/atf/formats/d_atffile_6.expout \
-                   tests/atf/formats/d_config_1 \
-                   tests/atf/formats/d_config_1.expout \
-                   tests/atf/formats/d_config_2 \
-                   tests/atf/formats/d_config_2.expout \
-                   tests/atf/formats/d_config_3 \
-                   tests/atf/formats/d_config_3.expout \
-                   tests/atf/formats/d_config_4 \
-                   tests/atf/formats/d_config_4.expout \
-                   tests/atf/formats/d_config_50 \
-                   tests/atf/formats/d_config_50.experr \
-                   tests/atf/formats/d_config_51 \
-                   tests/atf/formats/d_config_51.experr \
-                   tests/atf/formats/d_config_52 \
-                   tests/atf/formats/d_config_52.experr \
-                   tests/atf/formats/d_config_53 \
-                   tests/atf/formats/d_config_53.experr \
-                   tests/atf/formats/d_config_53.expout \
-                   tests/atf/formats/d_config_54 \
-                   tests/atf/formats/d_config_54.experr \
-                   tests/atf/formats/d_headers_1 \
-                   tests/atf/formats/d_headers_1.experr \
-                   tests/atf/formats/d_headers_10 \
-                   tests/atf/formats/d_headers_10.experr \
-                   tests/atf/formats/d_headers_11 \
-                   tests/atf/formats/d_headers_11.experr \
-                   tests/atf/formats/d_headers_12 \
-                   tests/atf/formats/d_headers_12.experr \
-                   tests/atf/formats/d_headers_2 \
-                   tests/atf/formats/d_headers_2.experr \
-                   tests/atf/formats/d_headers_3 \
-                   tests/atf/formats/d_headers_3.experr \
-                   tests/atf/formats/d_headers_4 \
-                   tests/atf/formats/d_headers_4.experr \
-                   tests/atf/formats/d_headers_5 \
-                   tests/atf/formats/d_headers_5.experr \
-                   tests/atf/formats/d_headers_6 \
-                   tests/atf/formats/d_headers_6.experr \
-                   tests/atf/formats/d_headers_7 \
-                   tests/atf/formats/d_headers_7.experr \
-                   tests/atf/formats/d_headers_8 \
-                   tests/atf/formats/d_headers_8.experr \
-                   tests/atf/formats/d_headers_9 \
-                   tests/atf/formats/d_headers_9.experr \
-                   tests/atf/formats/d_tp_1 \
-                   tests/atf/formats/d_tp_1.expout \
-                   tests/atf/formats/d_tp_2 \
-                   tests/atf/formats/d_tp_2.expout \
-                   tests/atf/formats/d_tp_3 \
-                   tests/atf/formats/d_tp_3.expout \
-                   tests/atf/formats/d_tp_4 \
-                   tests/atf/formats/d_tp_4.expout \
-                   tests/atf/formats/d_tp_50 \
-                   tests/atf/formats/d_tp_50.experr \
-                   tests/atf/formats/d_tp_51 \
-                   tests/atf/formats/d_tp_51.experr \
-                   tests/atf/formats/d_tp_52 \
-                   tests/atf/formats/d_tp_52.expout \
-                   tests/atf/formats/d_tp_53 \
-                   tests/atf/formats/d_tp_53.experr \
-                   tests/atf/formats/d_tp_54 \
-                   tests/atf/formats/d_tp_54.experr \
-                   tests/atf/formats/d_tp_55 \
-                   tests/atf/formats/d_tp_55.experr \
-                   tests/atf/formats/d_tp_56 \
-                   tests/atf/formats/d_tp_56.experr \
-                   tests/atf/formats/d_tp_57 \
-                   tests/atf/formats/d_tp_57.experr \
-                   tests/atf/formats/d_tp_58 \
-                   tests/atf/formats/d_tp_58.experr \
-                   tests/atf/formats/d_tp_59 \
-                   tests/atf/formats/d_tp_59.experr \
-                   tests/atf/formats/d_tps_1 \
-                   tests/atf/formats/d_tps_1.expout \
-                   tests/atf/formats/d_tps_2 \
-                   tests/atf/formats/d_tps_2.expout \
-                   tests/atf/formats/d_tps_3 \
-                   tests/atf/formats/d_tps_3.expout \
-                   tests/atf/formats/d_tps_4 \
-                   tests/atf/formats/d_tps_4.expout \
-                   tests/atf/formats/d_tps_5 \
-                   tests/atf/formats/d_tps_5.expout \
-                   tests/atf/formats/d_tps_50 \
-                   tests/atf/formats/d_tps_50.experr \
-                   tests/atf/formats/d_tps_51 \
-                   tests/atf/formats/d_tps_51.experr \
-                   tests/atf/formats/d_tps_52 \
-                   tests/atf/formats/d_tps_52.experr \
-                   tests/atf/formats/d_tps_53 \
-                   tests/atf/formats/d_tps_53.experr \
-                   tests/atf/formats/d_tps_53.expout \
-                   tests/atf/formats/d_tps_54 \
-                   tests/atf/formats/d_tps_54.experr \
-                   tests/atf/formats/d_tps_54.expout \
-                   tests/atf/formats/d_tps_55 \
-                   tests/atf/formats/d_tps_55.experr \
-                   tests/atf/formats/d_tps_55.expout \
-                   tests/atf/formats/d_tps_56 \
-                   tests/atf/formats/d_tps_56.experr \
-                   tests/atf/formats/d_tps_56.expout \
-                   tests/atf/formats/d_tps_57 \
-                   tests/atf/formats/d_tps_57.experr \
-                   tests/atf/formats/d_tps_57.expout \
-                   tests/atf/formats/d_tps_58 \
-                   tests/atf/formats/d_tps_58.experr \
-                   tests/atf/formats/d_tps_58.expout \
-                   tests/atf/formats/d_tps_59 \
-                   tests/atf/formats/d_tps_59.experr \
-                   tests/atf/formats/d_tps_60 \
-                   tests/atf/formats/d_tps_60.experr \
-                   tests/atf/formats/d_tps_61 \
-                   tests/atf/formats/d_tps_61.experr \
-                   tests/atf/formats/d_tps_62 \
-                   tests/atf/formats/d_tps_62.experr \
-                   tests/atf/formats/d_tps_62.expout \
-                   tests/atf/formats/d_tps_63 \
-                   tests/atf/formats/d_tps_63.experr \
-                   tests/atf/formats/d_tps_63.expout \
-                   tests/atf/formats/d_tps_64 \
-                   tests/atf/formats/d_tps_64.experr \
-                   tests/atf/formats/d_tps_64.expout \
-                   tests/atf/formats/d_tps_65 \
-                   tests/atf/formats/d_tps_65.experr \
-                   tests/atf/formats/d_tps_65.expout \
-                   tests/atf/formats/d_tps_66 \
-                   tests/atf/formats/d_tps_66.experr \
-                   tests/atf/formats/d_tps_66.expout
-atf_formatsdir = $(pkgtestsdir)/formats
-EXTRA_DIST += $(atf_formats_DATA)
-
-CXX_TP([atf/formats], [h_parser])
-CXX_TP([atf/formats], [t_writers])
-
-SH_TP([atf/formats], [t_parsers])
 
 atf_test_programs_DATA = tests/atf/test_programs/Atffile
 atf_test_programsdir = $(pkgtestsdir)/test_programs
@@ -972,9 +817,9 @@ SH_TP([atf/test_programs], [t_fork],
       [$(srcdir)/tests/atf/test_programs/common.sh])
 SH_TP([atf/test_programs], [t_meta_data],
       [$(srcdir)/tests/atf/test_programs/common.sh])
-SH_TP([atf/test_programs], [t_srcdir],
+SH_TP([atf/test_programs], [t_result],
       [$(srcdir)/tests/atf/test_programs/common.sh])
-SH_TP([atf/test_programs], [t_status],
+SH_TP([atf/test_programs], [t_srcdir],
       [$(srcdir)/tests/atf/test_programs/common.sh])
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

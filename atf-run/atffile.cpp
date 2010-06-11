@@ -31,18 +31,167 @@
 
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/expand.hpp"
-#include "atf-c++/formats.hpp"
+#include "atf-c++/parser.hpp"
 #include "atf-c++/sanity.hpp"
 
 #include "atffile.hpp"
 
 namespace impl = atf::atf_run;
+namespace detail = atf::atf_run::detail;
+
+// ------------------------------------------------------------------------
+// The "atf_atffile" auxiliary parser.
+// ------------------------------------------------------------------------
+
+namespace atf_atffile {
+
+static const atf::parser::token_type eof_type = 0;
+static const atf::parser::token_type nl_type = 1;
+static const atf::parser::token_type text_type = 2;
+static const atf::parser::token_type colon_type = 3;
+static const atf::parser::token_type conf_type = 4;
+static const atf::parser::token_type dblquote_type = 5;
+static const atf::parser::token_type equal_type = 6;
+static const atf::parser::token_type hash_type = 7;
+static const atf::parser::token_type prop_type = 8;
+static const atf::parser::token_type tp_type = 9;
+static const atf::parser::token_type tp_glob_type = 10;
+
+class tokenizer : public atf::parser::tokenizer< std::istream > {
+public:
+    tokenizer(std::istream& is, size_t curline) :
+        atf::parser::tokenizer< std::istream >
+            (is, true, eof_type, nl_type, text_type, curline)
+    {
+        add_delim(':', colon_type);
+        add_delim('=', equal_type);
+        add_delim('#', hash_type);
+        add_quote('"', dblquote_type);
+        add_keyword("conf", conf_type);
+        add_keyword("prop", prop_type);
+        add_keyword("tp", tp_type);
+        add_keyword("tp-glob", tp_glob_type);
+    }
+};
+
+} // namespace atf_atffile
+
+// ------------------------------------------------------------------------
+// The "atf_atffile_reader" class.
+// ------------------------------------------------------------------------
+
+detail::atf_atffile_reader::atf_atffile_reader(std::istream& is) :
+    m_is(is)
+{
+}
+
+detail::atf_atffile_reader::~atf_atffile_reader(void)
+{
+}
+
+void
+detail::atf_atffile_reader::got_conf(const std::string& name,
+                                     const std::string& val)
+{
+}
+
+void
+detail::atf_atffile_reader::got_prop(const std::string& name,
+                                     const std::string& val)
+{
+}
+
+void
+detail::atf_atffile_reader::got_tp(const std::string& name, bool isglob)
+{
+}
+
+void
+detail::atf_atffile_reader::got_eof(void)
+{
+}
+
+void
+detail::atf_atffile_reader::read(void)
+{
+    using atf::parser::parse_error;
+    using namespace atf_atffile;
+
+    std::pair< size_t, atf::parser::headers_map > hml =
+        atf::parser::read_headers(m_is, 1);
+    atf::parser::validate_content_type(hml.second,
+        "application/X-atf-atffile", 1);
+
+    tokenizer tkz(m_is, hml.first);
+    atf::parser::parser< tokenizer > p(tkz);
+
+    for (;;) {
+        try {
+            atf::parser::token t =
+                p.expect(conf_type, hash_type, prop_type, tp_type,
+                         tp_glob_type, nl_type, eof_type,
+                         "conf, #, prop, tp, tp-glob, a new line or eof");
+            if (t.type() == eof_type)
+                break;
+
+            if (t.type() == conf_type) {
+                t = p.expect(colon_type, "`:'");
+
+                t = p.expect(text_type, "variable name");
+                std::string var = t.text();
+
+                t = p.expect(equal_type, "equal sign");
+
+                t = p.expect(text_type, "word or quoted string");
+                ATF_PARSER_CALLBACK(p, got_conf(var, t.text()));
+            } else if (t.type() == hash_type) {
+                (void)p.rest_of_line();
+            } else if (t.type() == prop_type) {
+                t = p.expect(colon_type, "`:'");
+
+                t = p.expect(text_type, "property name");
+                std::string name = t.text();
+
+                t = p.expect(equal_type, "equale sign");
+
+                t = p.expect(text_type, "word or quoted string");
+                ATF_PARSER_CALLBACK(p, got_prop(name, t.text()));
+            } else if (t.type() == tp_type) {
+                t = p.expect(colon_type, "`:'");
+
+                t = p.expect(text_type, "word or quoted string");
+                ATF_PARSER_CALLBACK(p, got_tp(t.text(), false));
+            } else if (t.type() == tp_glob_type) {
+                t = p.expect(colon_type, "`:'");
+
+                t = p.expect(text_type, "word or quoted string");
+                ATF_PARSER_CALLBACK(p, got_tp(t.text(), true));
+            } else if (t.type() == nl_type) {
+                continue;
+            } else
+                UNREACHABLE;
+
+            t = p.expect(nl_type, hash_type, eof_type,
+                         "new line or comment");
+            if (t.type() == hash_type) {
+                (void)p.rest_of_line();
+                t = p.next();
+            } else if (t.type() == eof_type)
+                break;
+        } catch (const parse_error& pe) {
+            p.add_error(pe);
+            p.reset(nl_type);
+        }
+    }
+
+    ATF_PARSER_CALLBACK(p, got_eof());
+}
 
 // ------------------------------------------------------------------------
 // The "reader" helper class.
 // ------------------------------------------------------------------------
 
-class reader : public atf::formats::atf_atffile_reader {
+class reader : public detail::atf_atffile_reader {
     const atf::fs::directory& m_dir;
     atf::tests::vars_map m_conf, m_props;
     std::vector< std::string > m_tps;
@@ -81,7 +230,7 @@ class reader : public atf::formats::atf_atffile_reader {
 
 public:
     reader(std::istream& is, const atf::fs::directory& dir) :
-        atf::formats::atf_atffile_reader(is),
+        detail::atf_atffile_reader(is),
         m_dir(dir)
     {
     }

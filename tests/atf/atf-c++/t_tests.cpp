@@ -40,11 +40,152 @@ extern "C" {
 
 #include <atf-c++.hpp>
 
-#include "atf-c++/formats.hpp"
 #include "atf-c++/parser.hpp"
 #include "atf-c++/user.hpp"
 
 #include "h_lib.hpp"
+
+// ------------------------------------------------------------------------
+// Tests for the "atf_tp_writer" class.
+// ------------------------------------------------------------------------
+
+static
+void
+print_indented(const std::string& str)
+{
+    std::vector< std::string > ws = atf::text::split(str, "\n");
+    for (std::vector< std::string >::const_iterator iter = ws.begin();
+         iter != ws.end(); iter++)
+        std::cout << ">>" << *iter << "<<" << std::endl;
+}
+
+// XXX Should this string handling and verbosity level be part of the
+// ATF_CHECK_EQUAL macro?  It may be hard to predict sometimes that a
+// string can have newlines in it, and so the error message generated
+// at the moment will be bogus if there are some.
+static
+void
+check_equal(const std::string& str, const std::string& exp)
+{
+    if (str != exp) {
+        std::cout << "String equality check failed." << std::endl
+                  << "Adding >> and << to delimit the string boundaries "
+                     "below." << std::endl;
+        std::cout << "GOT:" << std::endl;
+        print_indented(str);
+        std::cout << "EXPECTED:" << std::endl;
+        print_indented(exp);
+        atf_tc_fail("Constructed string differs from the expected one");
+    }
+}
+
+ATF_TEST_CASE(atf_tp_writer);
+ATF_TEST_CASE_HEAD(atf_tp_writer)
+{
+    set_md_var("descr", "Verifies the application/X-atf-tp writer");
+}
+ATF_TEST_CASE_BODY(atf_tp_writer)
+{
+    std::ostringstream expss;
+    std::ostringstream ss;
+
+#define RESET \
+    expss.str(""); \
+    ss.str("")
+
+#define CHECK \
+    check_equal(ss.str(), expss.str())
+
+    {
+        RESET;
+
+        atf::tests::detail::atf_tp_writer w(ss);
+        expss << "Content-Type: application/X-atf-tp; version=\"1\""
+              << std::endl << std::endl;
+        CHECK;
+    }
+
+    {
+        RESET;
+
+        atf::tests::detail::atf_tp_writer w(ss);
+        expss << "Content-Type: application/X-atf-tp; version=\"1\""
+              << std::endl << std::endl;
+        CHECK;
+
+        w.start_tc("test1");
+        expss << "ident: test1" << std::endl;
+        CHECK;
+
+        w.end_tc();
+        CHECK;
+    }
+
+    {
+        RESET;
+
+        atf::tests::detail::atf_tp_writer w(ss);
+        expss << "Content-Type: application/X-atf-tp; version=\"1\""
+              << std::endl << std::endl;
+        CHECK;
+
+        w.start_tc("test1");
+        expss << "ident: test1" << std::endl;
+        CHECK;
+
+        w.end_tc();
+        CHECK;
+
+        w.start_tc("test2");
+        expss << std::endl << "ident: test2" << std::endl;
+        CHECK;
+
+        w.end_tc();
+        CHECK;
+    }
+
+    {
+        RESET;
+
+        atf::tests::detail::atf_tp_writer w(ss);
+        expss << "Content-Type: application/X-atf-tp; version=\"1\""
+              << std::endl << std::endl;
+        CHECK;
+
+        w.start_tc("test1");
+        expss << "ident: test1" << std::endl;
+        CHECK;
+
+        w.tc_meta_data("descr", "the description");
+        expss << "descr: the description" << std::endl;
+        CHECK;
+
+        w.end_tc();
+        CHECK;
+
+        w.start_tc("test2");
+        expss << std::endl << "ident: test2" << std::endl;
+        CHECK;
+
+        w.tc_meta_data("descr", "second test case");
+        expss << "descr: second test case" << std::endl;
+        CHECK;
+
+        w.tc_meta_data("require.progs", "/bin/cp");
+        expss << "require.progs: /bin/cp" << std::endl;
+        CHECK;
+
+        w.tc_meta_data("X-custom", "foo bar baz");
+        expss << "X-custom: foo bar baz" << std::endl;
+        CHECK;
+
+        w.end_tc();
+        CHECK;
+    }
+
+#undef CHECK
+#undef RESET
+}
 
 // ------------------------------------------------------------------------
 // Tests for the "tcr" class.
@@ -109,6 +250,9 @@ HEADER_TC(include, "atf-c++/tests.hpp");
 
 ATF_INIT_TEST_CASES(tcs)
 {
+    // Add tests for the "atf_tp_writer" class.
+    ATF_ADD_TEST_CASE(tcs, atf_tp_writer);
+
     // Add tests for the "tcr" class.
     ATF_ADD_TEST_CASE(tcs, tcr_ctor_wo_reason);
     ATF_ADD_TEST_CASE(tcs, tcr_ctor_w_reason);

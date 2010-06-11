@@ -51,7 +51,6 @@ extern "C" {
 #include "atf-c++/config.hpp"
 #include "atf-c++/env.hpp"
 #include "atf-c++/exceptions.hpp"
-#include "atf-c++/formats.hpp"
 #include "atf-c++/fs.hpp"
 #include "atf-c++/io.hpp"
 #include "atf-c++/parser.hpp"
@@ -88,17 +87,17 @@ class atf_run : public atf::application::app {
     size_t count_tps(std::vector< std::string >) const;
 
     int run_test(const atf::fs::path&,
-                 atf::formats::atf_tps_writer&,
+                 impl::atf_tps_writer&,
                  const atf::tests::vars_map&,
                  const atf::fs::path&);
     int run_test_directory(const atf::fs::path&,
-                           atf::formats::atf_tps_writer&,
+                           impl::atf_tps_writer&,
                            const atf::fs::path&);
-    int run_test_program(const atf::fs::path&, atf::formats::atf_tps_writer&,
+    int run_test_program(const atf::fs::path&, impl::atf_tps_writer&,
                          const atf::tests::vars_map&,
                          const atf::fs::path&);
 
-    atf::tests::tcr get_tcr(const atf::process::status&,
+    atf::tests::tcr get_tcr(const std::string&, const atf::process::status&,
                             const atf::fs::path&) const;
 
 public:
@@ -168,7 +167,7 @@ atf_run::parse_vflag(const std::string& str)
 
 int
 atf_run::run_test(const atf::fs::path& tp,
-                  atf::formats::atf_tps_writer& w,
+                  impl::atf_tps_writer& w,
                   const atf::tests::vars_map& config,
                   const atf::fs::path& ro_workdir)
 {
@@ -188,7 +187,7 @@ atf_run::run_test(const atf::fs::path& tp,
 
 int
 atf_run::run_test_directory(const atf::fs::path& tp,
-                            atf::formats::atf_tps_writer& w,
+                            impl::atf_tps_writer& w,
                             const atf::fs::path& ro_workdir)
 {
     impl::atffile af = impl::read_atffile(tp / "Atffile");
@@ -213,11 +212,15 @@ atf_run::run_test_directory(const atf::fs::path& tp,
 }
 
 atf::tests::tcr
-atf_run::get_tcr(const atf::process::status& s,
+atf_run::get_tcr(const std::string& broken_reason,
+                 const atf::process::status& s,
                  const atf::fs::path& resfile)
     const
 {
     using atf::tests::tcr;
+
+    if (!broken_reason.empty())
+        return tcr(tcr::failed_state, broken_reason);
 
     if (s.exited()) {
         try {
@@ -238,14 +241,10 @@ atf_run::get_tcr(const atf::process::status& s,
                        std::string(e.what()));
         }
     } else if (s.signaled()) {
-        try {
-            return impl::read_test_case_result(resfile);
-        } catch (...) {
-            return tcr(tcr::failed_state,
-                       "Test program received signal " +
-                       atf::text::to_string(s.termsig()) +
-                       (s.coredump() ? " (core dumped)" : ""));
-        }
+        return tcr(tcr::failed_state,
+                   "Test program received signal " +
+                   atf::text::to_string(s.termsig()) +
+                   (s.coredump() ? " (core dumped)" : ""));
     } else {
         UNREACHABLE;
         throw std::runtime_error("Unknown exit status");
@@ -254,7 +253,7 @@ atf_run::get_tcr(const atf::process::status& s,
 
 int
 atf_run::run_test_program(const atf::fs::path& tp,
-                          atf::formats::atf_tps_writer& w,
+                          impl::atf_tps_writer& w,
                           const atf::tests::vars_map& config,
                           const atf::fs::path& ro_workdir)
 {
@@ -263,7 +262,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
     impl::metadata md;
     try {
         md = impl::get_metadata(tp, config);
-    } catch (const atf::formats::format_error& e) {
+    } catch (const atf::parser::format_error& e) {
         w.start_tp(tp.str(), 0);
         w.end_tp("Invalid format for test case list: " + std::string(e.what()));
         return EXIT_FAILURE;
@@ -305,6 +304,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
             }
 
             const atf::fs::path resfile = resdir.get_path() / "tcr";
+            INV(!atf::fs::exists(resfile));
             try {
                 const bool has_cleanup = atf::text::to_bool(
                     (*tcmd.find("has.cleanup")).second);
@@ -317,7 +317,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
                     impl::temp_dir workdir(atf::fs::path(atf::config::get(
                         "atf_workdir")) / "atf-run.XXXXXX");
 
-                    const atf::process::status body_status =
+                    std::pair< std::string, const atf::process::status > s =
                         impl::run_test_case(tp, tcname, "body", tcmd, config,
                                             resfile, workdir.get_path(), w);
                     if (has_cleanup)
@@ -326,25 +326,28 @@ atf_run::run_test_program(const atf::fs::path& tp,
 
                     // TODO: Force deletion of workdir.
 
-                    tcr = get_tcr(body_status, resfile);
+                    tcr = get_tcr(s.first, s.second, resfile);
                 } else {
-                    const atf::process::status body_status =
+                    std::pair< std::string, const atf::process::status > s =
                         impl::run_test_case(tp, tcname, "body", tcmd, config,
                                             resfile, ro_workdir, w);
                     if (has_cleanup)
                         (void)impl::run_test_case(tp, tcname, "cleanup", tcmd,
                             config, resfile, ro_workdir, w);
 
-                    tcr = get_tcr(body_status, resfile);
+                    tcr = get_tcr(s.first, s.second, resfile);
                 }
-
                 w.end_tc(tcr);
                 if (tcr.get_state() == atf::tests::tcr::failed_state)
                     errcode = EXIT_FAILURE;
             } catch (...) {
-                atf::fs::remove(resfile);
+                if (atf::fs::exists(resfile))
+                    atf::fs::remove(resfile);
                 throw;
             }
+            if (atf::fs::exists(resfile))
+                atf::fs::remove(resfile);
+
         }
         w.end_tp("");
     }
@@ -422,7 +425,7 @@ atf_run::main(void)
         test_suite_vars = impl::read_config_files((*iter).second);
     }
 
-    atf::formats::atf_tps_writer w(std::cout);
+    impl::atf_tps_writer w(std::cout);
     call_hook("atf-run", "info_start_hook");
     w.ntps(count_tps(tps));
 

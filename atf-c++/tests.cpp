@@ -56,9 +56,9 @@ extern "C" {
 #include "atf-c++/application.hpp"
 #include "atf-c++/env.hpp"
 #include "atf-c++/exceptions.hpp"
-#include "atf-c++/formats.hpp"
 #include "atf-c++/fs.hpp"
 #include "atf-c++/io.hpp"
+#include "atf-c++/parser.hpp"
 #include "atf-c++/sanity.hpp"
 #include "atf-c++/tests.hpp"
 #include "atf-c++/text.hpp"
@@ -66,7 +66,48 @@ extern "C" {
 #include "atf-c++/user.hpp"
 
 namespace impl = atf::tests;
+namespace detail = atf::tests::detail;
 #define IMPL_NAME "atf::tests"
+
+// ------------------------------------------------------------------------
+// The "atf_tp_writer" class.
+// ------------------------------------------------------------------------
+
+detail::atf_tp_writer::atf_tp_writer(std::ostream& os) :
+    m_os(os),
+    m_is_first(true)
+{
+    atf::parser::headers_map hm;
+    atf::parser::attrs_map ct_attrs;
+    ct_attrs["version"] = "1";
+    hm["Content-Type"] = atf::parser::header_entry("Content-Type",
+        "application/X-atf-tp", ct_attrs);
+    atf::parser::write_headers(hm, m_os);
+}
+
+void
+detail::atf_tp_writer::start_tc(const std::string& ident)
+{
+    if (!m_is_first)
+        m_os << std::endl;
+    m_os << "ident: " << ident << std::endl;
+    m_os.flush();
+}
+
+void
+detail::atf_tp_writer::end_tc(void)
+{
+    if (m_is_first)
+        m_is_first = false;
+}
+
+void
+detail::atf_tp_writer::tc_meta_data(const std::string& name, const std::string& value)
+{
+    PRE(name != "ident");
+    m_os << name << ": " << value << std::endl;
+    m_os.flush();
+}
 
 // ------------------------------------------------------------------------
 // The "tcr" class.
@@ -362,7 +403,7 @@ const char* tp::m_description =
 tp::tp(void (*add_tcs)(tc_vector&)) :
     app(m_description, "atf-test-program(1)", "atf(7)"),
     m_lflag(false),
-    m_resfile("resfile"), // XXX
+    m_resfile("/dev/stdout"),
     m_srcdir("."),
     m_add_tcs(add_tcs)
 {
@@ -501,7 +542,7 @@ void
 tp::list_tcs(void)
 {
     tc_vector tcs = init_tcs();
-    atf::formats::atf_tp_writer writer(std::cout);
+    detail::atf_tp_writer writer(std::cout);
 
     for (tc_vector::const_iterator iter = tcs.begin();
          iter != tcs.end(); iter++) {

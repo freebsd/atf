@@ -219,7 +219,7 @@ params_init(struct params *p, const char *argv0)
     if (atf_is_error(err))
         return err;
 
-    err = atf_fs_path_init_fmt(&p->m_resfile, "resfile"); /* XXX Bad default */
+    err = atf_fs_path_init_fmt(&p->m_resfile, "/dev/stdout");
     if (atf_is_error(err)) {
         atf_fs_path_fini(&p->m_srcdir);
         return err;
