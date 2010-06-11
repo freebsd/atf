@@ -4,25 +4,25 @@
 
                                     Contents
 
-    1. [1]Changes in version 0.10
+    1. Changes in version 0.10
 
-    2. [2]Changes in version 0.9
+    2. Changes in version 0.9
 
-    3. [3]Changes in version 0.8
+    3. Changes in version 0.8
 
-    4. [4]Changes in version 0.7
+    4. Changes in version 0.7
 
-    5. [5]Changes in version 0.6
+    5. Changes in version 0.6
 
-    6. [6]Changes in version 0.5
+    6. Changes in version 0.5
 
-    7. [7]Changes in version 0.4
+    7. Changes in version 0.4
 
-    8. [8]Changes in version 0.3
+    8. Changes in version 0.3
 
-    9. [9]Changes in version 0.2
+    9. Changes in version 0.2
 
-   10. [10]Changes in version 0.1
+   10. Changes in version 0.1
 
                             Changes in version 0.10
 
@@ -47,6 +47,12 @@
      * Simplifications to the atf-c library: removed the io and tcr modules
        as they had become unnecessary after all simplifications introduced in
        the 0.8 release.
+
+     * Removed the application/X-atf-tcr format introduced in 0.8 release.
+       Tests now print a much simplified format that is easy to parse and
+       nicer to read by end users. As a side effect, the default for test
+       cases is now to print their results to stdout unless otherwise stated
+       by providing the -r flag.
 
                              Changes in version 0.9
 
@@ -308,17 +314,3 @@
 
      * First public version. This was released coinciding with the end of the
        Google Summer of Code 2007 program.
-
-References
-
-   Visible links
-   1. file:///tmp/build-xml.NZbUrY#atf-0-10
-   2. file:///tmp/build-xml.NZbUrY#atf-0-9
-   3. file:///tmp/build-xml.NZbUrY#atf-0-8
-   4. file:///tmp/build-xml.NZbUrY#atf-0-7
-   5. file:///tmp/build-xml.NZbUrY#atf-0-6
-   6. file:///tmp/build-xml.NZbUrY#atf-0-5
-   7. file:///tmp/build-xml.NZbUrY#atf-0-4
-   8. file:///tmp/build-xml.NZbUrY#atf-0-3
-   9. file:///tmp/build-xml.NZbUrY#atf-0-2
-  10. file:///tmp/build-xml.NZbUrY#atf-0-1

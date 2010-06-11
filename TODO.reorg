@@ -1,0 +1,12 @@
+Changes to be done to the reorg branch
+--------------------------------------
+
+* Move the tests/bootstrap directory out of tests.  This kills the tests
+  layout completely!
+
+* Remove d_ and h_ prefixes from files moved into the top-level directories.
+
+* Possibly rename the top-level test-programs directory; it's misleading.
+
+* Split Makefile.am.m4 into one file per directory.  Evaluate if we want to
+  perform inclusions or recursions.  Probably drop M4 altogether; it's sick.

@@ -223,7 +223,7 @@ ATF_TC_BODY(check, tc)
             ATF_REQUIRE(grep_file("result", "^passed"));
         } else {
             ATF_REQUIRE(grep_file("result", "^failed"));
-            ATF_REQUIRE(grep_file("error", "t_macros.c:[0-9]+: "
+            ATF_REQUIRE(grep_file("error", "macros_test.c:[0-9]+: "
                                   "Check failed: %s$", t->msg));
         }
 
@@ -264,7 +264,7 @@ do_check_eq_tests(const struct check_eq_test *tests)
             ATF_REQUIRE(grep_file("result", "^passed"));
         } else {
             ATF_REQUIRE(grep_file("result", "^failed"));
-            ATF_CHECK(grep_file("error", "t_macros.c:[0-9]+: "
+            ATF_CHECK(grep_file("error", "macros_test.c:[0-9]+: "
                                 "Check failed: %s$", t->msg));
         }
 
@@ -412,7 +412,7 @@ ATF_TC_BODY(require, tc)
             ATF_REQUIRE(grep_file("result", "^passed"));
             ATF_REQUIRE(exists("after"));
         } else {
-            ATF_REQUIRE(grep_file("result", "^failed: .*t_macros.c:[0-9]+: "
+            ATF_REQUIRE(grep_file("result", "^failed: .*macros_test.c:[0-9]+: "
                                   "Requirement failed: %s$", t->msg));
             ATF_REQUIRE(!exists("after"));
         }
@@ -453,7 +453,7 @@ do_require_eq_tests(const struct require_eq_test *tests)
             ATF_REQUIRE(grep_file("result", "^passed"));
             ATF_REQUIRE(exists("after"));
         } else {
-            ATF_REQUIRE(grep_file("result", "^failed: .*t_macros.c"
+            ATF_REQUIRE(grep_file("result", "^failed: .*macros_test.c"
                 ":[0-9]+: Requirement failed: %s$", t->msg));
             ATF_REQUIRE(!exists("after"));
         }
@@ -614,12 +614,12 @@ ATF_TC_BODY(msg_embedded_fmt, tc)
 
         if (t->fatal) {
             bool matched =
-                grep_file("result", "^failed: .*t_macros.c:[0-9]+: Requirement "
-                          "failed: %s$", t->msg);
+                grep_file("result", "^failed: .*macros_test.c:[0-9]+: "
+                          "Requirement failed: %s$", t->msg);
             ATF_CHECK_MSG(matched, "couldn't find error string in result");
         } else {
             bool matched =
-                grep_file("error", "t_macros.c:[0-9]+: Check failed: "
+                grep_file("error", "macros_test.c:[0-9]+: Check failed: "
                     "%s$", t->msg);
             ATF_CHECK_MSG(matched, "couldn't find error string in output");
         }

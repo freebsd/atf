@@ -5,7 +5,7 @@ prop: test-suite = atf
 tp: atf-c
 tp: atf-c++
 tp: atf-sh
-tp: test_programs
+tp: test-programs
 tp: atf-check
 tp: atf-config
 tp: atf-report
