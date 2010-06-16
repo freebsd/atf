@@ -143,7 +143,7 @@ ATF_TEST_CASE_BODY(match)
 {
     using atf::text::match;
 
-    ATF_CHECK_THROW(match("", "["), std::runtime_error);
+    ATF_CHECK_THROW(std::runtime_error, match("", "["));
 
     ATF_CHECK(match("", ""));
     ATF_CHECK(!match("foo", ""));
@@ -304,11 +304,11 @@ ATF_TEST_CASE_BODY(to_bool)
     ATF_CHECK(!to_bool("no"));
     ATF_CHECK(!to_bool("NO"));
 
-    ATF_CHECK_THROW(to_bool(""), std::runtime_error);
-    ATF_CHECK_THROW(to_bool("tru"), std::runtime_error);
-    ATF_CHECK_THROW(to_bool("true2"), std::runtime_error);
-    ATF_CHECK_THROW(to_bool("fals"), std::runtime_error);
-    ATF_CHECK_THROW(to_bool("false2"), std::runtime_error);
+    ATF_CHECK_THROW(std::runtime_error, to_bool(""));
+    ATF_CHECK_THROW(std::runtime_error, to_bool("tru"));
+    ATF_CHECK_THROW(std::runtime_error, to_bool("true2"));
+    ATF_CHECK_THROW(std::runtime_error, to_bool("fals"));
+    ATF_CHECK_THROW(std::runtime_error, to_bool("false2"));
 }
 
 ATF_TEST_CASE(to_string);
@@ -336,13 +336,13 @@ ATF_TEST_CASE_BODY(to_type)
 
     ATF_CHECK_EQUAL(to_type< int >("0"), 0);
     ATF_CHECK_EQUAL(to_type< int >("1234"), 1234);
-    ATF_CHECK_THROW(to_type< int >("0 a"), std::runtime_error);
-    ATF_CHECK_THROW(to_type< int >("a"), std::runtime_error);
+    ATF_CHECK_THROW(std::runtime_error, to_type< int >("0 a"));
+    ATF_CHECK_THROW(std::runtime_error, to_type< int >("a"));
 
     ATF_CHECK_EQUAL(to_type< float >("0.5"), 0.5);
     ATF_CHECK_EQUAL(to_type< float >("1234.5"), 1234.5);
-    ATF_CHECK_THROW(to_type< float >("0.5 a"), std::runtime_error);
-    ATF_CHECK_THROW(to_type< float >("a"), std::runtime_error);
+    ATF_CHECK_THROW(std::runtime_error, to_type< float >("0.5 a"));
+    ATF_CHECK_THROW(std::runtime_error, to_type< float >("a"));
 
     ATF_CHECK_EQUAL(to_type< std::string >("a"), "a");
 }

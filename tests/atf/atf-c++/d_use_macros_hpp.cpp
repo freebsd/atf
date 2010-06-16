@@ -64,7 +64,7 @@ atf_check_throw_runtime_error(void)
     // Earlier versions generated a warning because the macro's code also
     // attempted to capture this exception, and thus we had a duplicate
     // catch clause.
-    ATF_CHECK_THROW((void)0, std::runtime_error);
+    ATF_CHECK_THROW(std::runtime_error, (void)0);
 }
 
 void
@@ -74,9 +74,9 @@ atf_check_throw_inside_if(void)
     // that does not have braces.  Earlier versions of it generated an
     // error because a trailing ; after a catch block was not allowed.
     if (true)
-        ATF_CHECK_THROW((void)0, std::runtime_error);
+        ATF_CHECK_THROW(std::runtime_error, (void)0);
     else
-        ATF_CHECK_THROW((void)1, std::runtime_error);
+        ATF_CHECK_THROW(std::runtime_error, (void)1);
 }
 
 // Test case names should not be expanded during instatiation so that they

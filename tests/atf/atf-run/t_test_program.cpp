@@ -735,16 +735,16 @@ ATF_TEST_CASE(get_metadata_bad);
 ATF_TEST_CASE_HEAD(get_metadata_bad) {}
 ATF_TEST_CASE_BODY(get_metadata_bad) {
     const atf::fs::path executable = get_helper(*this, "h_bad_metadata");
-    ATF_CHECK_THROW(impl::get_metadata(executable, vars_map()),
-                    atf::parser::parse_errors);
+    ATF_CHECK_THROW(atf::parser::parse_errors,
+                    impl::get_metadata(executable, vars_map()));
 }
 
 ATF_TEST_CASE(get_metadata_zero_tcs);
 ATF_TEST_CASE_HEAD(get_metadata_zero_tcs) {}
 ATF_TEST_CASE_BODY(get_metadata_zero_tcs) {
     const atf::fs::path executable = get_helper(*this, "h_zero_tcs");
-    ATF_CHECK_THROW(impl::get_metadata(executable, vars_map()),
-                    atf::parser::parse_errors);
+    ATF_CHECK_THROW(atf::parser::parse_errors,
+                    impl::get_metadata(executable, vars_map()));
 }
 
 ATF_TEST_CASE(get_metadata_several_tcs);
@@ -797,8 +797,8 @@ ATF_TEST_CASE_BODY(get_metadata_several_tcs) {
 ATF_TEST_CASE(read_test_case_result_no_file);
 ATF_TEST_CASE_HEAD(read_test_case_result_no_file) {}
 ATF_TEST_CASE_BODY(read_test_case_result_no_file) {
-    ATF_CHECK_THROW(impl::read_test_case_result(atf::fs::path("resfile")),
-                    std::runtime_error);
+    ATF_CHECK_THROW(std::runtime_error,
+                    impl::read_test_case_result(atf::fs::path("resfile")));
 }
 
 ATF_TEST_CASE(read_test_case_result_empty_file);
@@ -807,8 +807,8 @@ ATF_TEST_CASE_HEAD(read_test_case_result_empty_file) {
 }
 ATF_TEST_CASE_BODY(read_test_case_result_empty_file) {
     write_test_case_result("resfile", "");
-    ATF_CHECK_THROW(impl::read_test_case_result(atf::fs::path("resfile")),
-                    std::runtime_error);
+    ATF_CHECK_THROW(std::runtime_error,
+                    impl::read_test_case_result(atf::fs::path("resfile")));
 }
 
 ATF_TEST_CASE(read_test_case_result_invalid);
@@ -817,8 +817,8 @@ ATF_TEST_CASE_HEAD(read_test_case_result_invalid) {
 }
 ATF_TEST_CASE_BODY(read_test_case_result_invalid) {
     write_test_case_result("resfile", "passed: hello\n");
-    ATF_CHECK_THROW(impl::read_test_case_result(atf::fs::path("resfile")),
-                    std::runtime_error);
+    ATF_CHECK_THROW(std::runtime_error,
+                    impl::read_test_case_result(atf::fs::path("resfile")));
 }
 
 ATF_TEST_CASE(read_test_case_result_passed);

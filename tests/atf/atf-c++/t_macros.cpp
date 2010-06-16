@@ -133,14 +133,13 @@ ATF_TEST_CASE_BODY(h_check_throw)
     create_ctl_file(*this, "before");
 
     if (get_config_var("what") == "throw_int")
-        ATF_CHECK_THROW(if (1) throw int(5),
-                        std::runtime_error);
+        ATF_CHECK_THROW(std::runtime_error, if (1) throw int(5));
     else if (get_config_var("what") == "throw_rt")
-        ATF_CHECK_THROW(if (1) throw std::runtime_error("e"),
-                        std::runtime_error);
+        ATF_CHECK_THROW(std::runtime_error,
+                        if (1) throw std::runtime_error("e"));
     else if (get_config_var("what") == "no_throw_rt")
-        ATF_CHECK_THROW(if (0) throw std::runtime_error("e"),
-                        std::runtime_error);
+        ATF_CHECK_THROW(std::runtime_error,
+                        if (0) throw std::runtime_error("e"));
 
     create_ctl_file(*this, "after");
 }

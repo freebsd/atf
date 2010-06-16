@@ -54,6 +54,11 @@ default for test cases is now to print their results to stdout unless
 otherwise stated by providing the <literal>-r</literal>
 flag.</para></listitem>
 
+<listitem><para>Reversed the order of the
+<literal>ATF_CHECK_THROW</literal> macro in the C++ binding to take the
+expected exception as the first argument and the statement to execute as
+the second argument.</para></listitem>
+
 </itemizedlist>
 
 </section>
