@@ -80,7 +80,8 @@ $(srcdir)/Makefile.am: $(srcdir)/admin/generate-makefile.sh \
 
 doc_DATA = AUTHORS COPYING NEWS README
 noinst_DATA = INSTALL
-EXTRA_DIST += $(doc_DATA)
+CLEANFILES += AUTHORS COPYING INSTALL NEWS README
+EXTRA_DIST += $(doc_DATA) INSTALL
 
 dist-hook: $(srcdir)/admin/revision-dist.h check-install check-style
 
@@ -107,12 +108,7 @@ AM_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
 # indicated in 'name' based on a generated document pointed to by 'src'.
 m4_define([DISTFILE_DOC], [
 $(srcdir)/$1: $(srcdir)/$2
-	@if cmp -s $(srcdir)/$2 $(srcdir)/$1; then \
-	    :; \
-	else \
-	    echo cp $(srcdir)/$2 $(srcdir)/$1; \
-	    cp $(srcdir)/$2 $(srcdir)/$1; \
-	fi
+	cp $(srcdir)/$2 $(srcdir)/$1
 ])
 
 DISTFILE_DOC([AUTHORS], [doc/text/authors.txt])
@@ -139,7 +135,7 @@ release-test:
 # -------------------------------------------------------------------------
 
 .PHONY: check-install
-check-install:
+check-install: $(srcdir)/INSTALL
 	$(srcdir)/admin/check-install.sh $(srcdir)/INSTALL
 
 .PHONY: check-style
@@ -500,7 +496,7 @@ XML_DOC([specification])
 ACLOCAL_AMFLAGS = -I m4
 
 # -------------------------------------------------------------------------
-# `tests/bootstrap' directory.
+# `bootstrap' directory.
 # -------------------------------------------------------------------------
 
 # BUILD_SH_TP infile outfile
@@ -511,76 +507,76 @@ m4_define([BUILD_SH_TP], [echo '#! $(bindir)/atf-sh' >$2
 	chmod +x $2
 ])
 
-check_PROGRAMS = tests/bootstrap/h_app_empty
-tests_bootstrap_h_app_empty_SOURCES = tests/bootstrap/h_app_empty.cpp
-tests_bootstrap_h_app_empty_LDADD = libatf-c++.la
+check_PROGRAMS = bootstrap/h_app_empty
+bootstrap_h_app_empty_SOURCES = bootstrap/h_app_empty.cpp
+bootstrap_h_app_empty_LDADD = libatf-c++.la
 
-check_PROGRAMS += tests/bootstrap/h_app_opts_args
-tests_bootstrap_h_app_opts_args_SOURCES = tests/bootstrap/h_app_opts_args.cpp
-tests_bootstrap_h_app_opts_args_LDADD = libatf-c++.la
+check_PROGRAMS += bootstrap/h_app_opts_args
+bootstrap_h_app_opts_args_SOURCES = bootstrap/h_app_opts_args.cpp
+bootstrap_h_app_opts_args_LDADD = libatf-c++.la
 
-check_PROGRAMS += tests/bootstrap/h_tp_basic_c
-tests_bootstrap_h_tp_basic_c_SOURCES = tests/bootstrap/h_tp_basic_c.c
-tests_bootstrap_h_tp_basic_c_LDADD = libatf-c.la
+check_PROGRAMS += bootstrap/h_tp_basic_c
+bootstrap_h_tp_basic_c_SOURCES = bootstrap/h_tp_basic_c.c
+bootstrap_h_tp_basic_c_LDADD = libatf-c.la
 
-check_PROGRAMS += tests/bootstrap/h_tp_basic_cpp
-tests_bootstrap_h_tp_basic_cpp_SOURCES = tests/bootstrap/h_tp_basic_cpp.cpp
-tests_bootstrap_h_tp_basic_cpp_LDADD = libatf-c++.la
+check_PROGRAMS += bootstrap/h_tp_basic_cpp
+bootstrap_h_tp_basic_cpp_SOURCES = bootstrap/h_tp_basic_cpp.cpp
+bootstrap_h_tp_basic_cpp_LDADD = libatf-c++.la
 
-check_SCRIPTS = tests/bootstrap/h_tp_basic_sh
-CLEANFILES += tests/bootstrap/h_tp_basic_sh
-EXTRA_DIST += tests/bootstrap/h_tp_basic_sh.sh
-tests/bootstrap/h_tp_basic_sh: $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh
-	test -d tests/bootstrap || mkdir -p tests/bootstrap
-	BUILD_SH_TP([$(srcdir)/tests/bootstrap/h_tp_basic_sh.sh], [$@])
+check_SCRIPTS = bootstrap/h_tp_basic_sh
+CLEANFILES += bootstrap/h_tp_basic_sh
+EXTRA_DIST += bootstrap/h_tp_basic_sh.sh
+bootstrap/h_tp_basic_sh: $(srcdir)/bootstrap/h_tp_basic_sh.sh
+	test -d bootstrap || mkdir -p bootstrap
+	BUILD_SH_TP([$(srcdir)/bootstrap/h_tp_basic_sh.sh], [$@])
 
-check_SCRIPTS += tests/bootstrap/h_tp_atf_check_sh
-CLEANFILES += tests/bootstrap/h_tp_atf_check_sh
-EXTRA_DIST += tests/bootstrap/h_tp_atf_check_sh.sh
-tests/bootstrap/h_tp_atf_check_sh: \
-		$(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh
-	test -d tests/bootstrap || mkdir -p tests/bootstrap
-	BUILD_SH_TP([$(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh], [$@])
+check_SCRIPTS += bootstrap/h_tp_atf_check_sh
+CLEANFILES += bootstrap/h_tp_atf_check_sh
+EXTRA_DIST += bootstrap/h_tp_atf_check_sh.sh
+bootstrap/h_tp_atf_check_sh: \
+		$(srcdir)/bootstrap/h_tp_atf_check_sh.sh
+	test -d bootstrap || mkdir -p bootstrap
+	BUILD_SH_TP([$(srcdir)/bootstrap/h_tp_atf_check_sh.sh], [$@])
 
-check_SCRIPTS += tests/bootstrap/h_tp_fail
-CLEANFILES += tests/bootstrap/h_tp_fail
-EXTRA_DIST += tests/bootstrap/h_tp_fail.sh
-tests/bootstrap/h_tp_fail: $(srcdir)/tests/bootstrap/h_tp_fail.sh
-	test -d tests/bootstrap || mkdir -p tests/bootstrap
-	BUILD_SH_TP([$(srcdir)/tests/bootstrap/h_tp_fail.sh], [$@])
+check_SCRIPTS += bootstrap/h_tp_fail
+CLEANFILES += bootstrap/h_tp_fail
+EXTRA_DIST += bootstrap/h_tp_fail.sh
+bootstrap/h_tp_fail: $(srcdir)/bootstrap/h_tp_fail.sh
+	test -d bootstrap || mkdir -p bootstrap
+	BUILD_SH_TP([$(srcdir)/bootstrap/h_tp_fail.sh], [$@])
 
-check_SCRIPTS += tests/bootstrap/h_tp_pass
-CLEANFILES += tests/bootstrap/h_tp_pass
-EXTRA_DIST += tests/bootstrap/h_tp_pass.sh
-tests/bootstrap/h_tp_pass: $(srcdir)/tests/bootstrap/h_tp_pass.sh
-	test -d tests/bootstrap || mkdir -p tests/bootstrap
-	BUILD_SH_TP([$(srcdir)/tests/bootstrap/h_tp_pass.sh], [$@])
+check_SCRIPTS += bootstrap/h_tp_pass
+CLEANFILES += bootstrap/h_tp_pass
+EXTRA_DIST += bootstrap/h_tp_pass.sh
+bootstrap/h_tp_pass: $(srcdir)/bootstrap/h_tp_pass.sh
+	test -d bootstrap || mkdir -p bootstrap
+	BUILD_SH_TP([$(srcdir)/bootstrap/h_tp_pass.sh], [$@])
 
 DISTCLEANFILES = \
-		tests/bootstrap/atconfig \
+		bootstrap/atconfig \
 		testsuite.lineno \
 		testsuite.log
 
 distclean-local:
 	-rm -rf testsuite.dir
 
-EXTRA_DIST +=	tests/bootstrap/testsuite \
-		tests/bootstrap/package.m4 \
-		tests/bootstrap/testsuite.at \
+EXTRA_DIST +=	bootstrap/testsuite \
+		bootstrap/package.m4 \
+		bootstrap/testsuite.at \
 		$(testsuite_incs)
 
-testsuite_incs=	$(srcdir)/tests/bootstrap/t_application_help.at \
-		$(srcdir)/tests/bootstrap/t_application_opts_args.at \
-		$(srcdir)/tests/bootstrap/t_atf_config.at \
-		$(srcdir)/tests/bootstrap/t_atf_format.at \
-		$(srcdir)/tests/bootstrap/t_atf_run.at \
-		$(srcdir)/tests/bootstrap/t_subr_atf_check.at \
-		$(srcdir)/tests/bootstrap/t_test_program_compare.at \
-		$(srcdir)/tests/bootstrap/t_test_program_filter.at \
-		$(srcdir)/tests/bootstrap/t_test_program_list.at \
-		$(srcdir)/tests/bootstrap/t_test_program_run.at
+testsuite_incs=	$(srcdir)/bootstrap/t_application_help.at \
+		$(srcdir)/bootstrap/t_application_opts_args.at \
+		$(srcdir)/bootstrap/t_atf_config.at \
+		$(srcdir)/bootstrap/t_atf_format.at \
+		$(srcdir)/bootstrap/t_atf_run.at \
+		$(srcdir)/bootstrap/t_subr_atf_check.at \
+		$(srcdir)/bootstrap/t_test_program_compare.at \
+		$(srcdir)/bootstrap/t_test_program_filter.at \
+		$(srcdir)/bootstrap/t_test_program_list.at \
+		$(srcdir)/bootstrap/t_test_program_run.at
 
-$(srcdir)/tests/bootstrap/package.m4: $(top_srcdir)/configure.ac
+$(srcdir)/bootstrap/package.m4: $(top_srcdir)/configure.ac
 	{ \
 	echo '# Signature of the current package.'; \
 	echo 'm4_[]define(AT_PACKAGE_NAME,      @PACKAGE_NAME@)'; \
@@ -588,14 +584,14 @@ $(srcdir)/tests/bootstrap/package.m4: $(top_srcdir)/configure.ac
 	echo 'm4_[]define(AT_PACKAGE_VERSION,   @PACKAGE_VERSION@)'; \
 	echo 'm4_[]define(AT_PACKAGE_STRING,    @PACKAGE_STRING@)'; \
 	echo 'm4_[]define(AT_PACKAGE_BUGREPORT, @PACKAGE_BUGREPORT@)'; \
-	} >$(srcdir)/tests/bootstrap/package.m4
+	} >$(srcdir)/bootstrap/package.m4
 
-$(srcdir)/tests/bootstrap/testsuite: $(srcdir)/tests/bootstrap/testsuite.at \
+$(srcdir)/bootstrap/testsuite: $(srcdir)/bootstrap/testsuite.at \
                                      $(testsuite_incs) \
-                                     $(srcdir)/tests/bootstrap/package.m4
+                                     $(srcdir)/bootstrap/package.m4
 	autom4te --language=Autotest -I $(srcdir) \
-	    -I $(srcdir)/tests/bootstrap \
-	    $(srcdir)/tests/bootstrap/testsuite.at -o $@.tmp
+	    -I $(srcdir)/bootstrap \
+	    $(srcdir)/bootstrap/testsuite.at -o $@.tmp
 	mv $@.tmp $@
 
 # -------------------------------------------------------------------------
@@ -603,7 +599,7 @@ $(srcdir)/tests/bootstrap/testsuite: $(srcdir)/tests/bootstrap/testsuite.at \
 # -------------------------------------------------------------------------
 
 testsdir = $(exec_prefix)/tests
-pkgtestsdir = $(exec_prefix)/tests/atf
+pkgtestsdir = $(testsdir)/atf
 
 TESTS_ENVIRONMENT = PATH=$(prefix)/bin:$${PATH} \
                     PKG_CONFIG_PATH=$(prefix)/lib/pkgconfig
@@ -613,8 +609,8 @@ installcheck-local: installcheck-bootstrap installcheck-atf
 # TODO: This really needs to be a 'check' target and not 'installcheck', but
 # these bootstrap tests don't currently work without atf being installed.
 .PHONY: installcheck-bootstrap
-installcheck-bootstrap: $(srcdir)/tests/bootstrap/testsuite check
-	$(TESTS_ENVIRONMENT) $(srcdir)/tests/bootstrap/testsuite
+installcheck-bootstrap: $(srcdir)/bootstrap/testsuite check
+	$(TESTS_ENVIRONMENT) $(srcdir)/bootstrap/testsuite
 
 .PHONY: installcheck-atf
 installcheck-atf:
@@ -634,192 +630,181 @@ installcheck-atf:
 	test $${res} -eq 0
 CLEANFILES += installcheck.fifo installcheck.log
 
-pkgtests_DATA = tests/atf/Atffile
+pkgtests_DATA = Atffile
 EXTRA_DIST += $(pkgtests_DATA)
 
-atf_atf_c_DATA = tests/atf/atf-c/Atffile \
-                 tests/atf/atf-c/d_use_macros_h.c
-atf_atf_cdir = $(pkgtestsdir)/atf-c
-EXTRA_DIST += $(atf_atf_c_DATA)
+tests_atf_c_DATA = atf-c/Atffile \
+                   atf-c/d_use_macros_h.c
+tests_atf_cdir = $(pkgtestsdir)/atf-c
+EXTRA_DIST += $(tests_atf_c_DATA)
 
-noinst_LTLIBRARIES = tests/atf/atf-c/libh.la
-tests_atf_atf_c_libh_la_SOURCES = tests/atf/atf-c/h_lib.c \
-                                  tests/atf/atf-c/h_lib.h
+noinst_LTLIBRARIES = atf-c/libh.la
+atf_c_libh_la_SOURCES = atf-c/h_lib.c \
+                        atf-c/h_lib.h
 
 # C_TP subdir progname extradeps extralibs cppflags
 #
-# Generates rules to build a C test program.  The 'subdir' is relative to
-# tests/ and progname is the source file name without .c.
+# Generates rules to build a C test program.  The and progname is the
+# source file name without .c.
 m4_define([C_TP], [
-INIT_VAR(AUTOMAKE_ID([$1])_PROGRAMS)
-AUTOMAKE_ID([$1])_PROGRAMS += tests/$1/$2
-tests_[]AUTOMAKE_ID([$1_$2])_SOURCES = tests/$1/$2.c $3
-tests_[]AUTOMAKE_ID([$1_$2])_CPPFLAGS = $5
-tests_[]AUTOMAKE_ID([$1_$2])_LDADD = $4 libatf-c.la
+INIT_VAR(AUTOMAKE_ID(tests_[$1])_PROGRAMS)
+AUTOMAKE_ID(tests_[$1])_PROGRAMS += $1/$2
+AUTOMAKE_ID([$1_$2])_SOURCES = $1/$2.c $3
+AUTOMAKE_ID([$1_$2])_CPPFLAGS = $5
+AUTOMAKE_ID([$1_$2])_LDADD = $4 libatf-c.la
 ])
 
 # CXX_TP subdir progname extradeps extralibs cppflags
 #
-# Generates rules to build a C++ test program.  The 'subdir' is relative to
-# tests/ and progname is the source file name without .c.
+# Generates rules to build a C++ test program.  The progname is the
+# source file name without .c.
 m4_define([CXX_TP], [
-INIT_VAR(AUTOMAKE_ID([$1])_PROGRAMS)
-AUTOMAKE_ID([$1])_PROGRAMS += tests/$1/$2
-tests_[]AUTOMAKE_ID([$1_$2])_SOURCES = tests/$1/$2.cpp $3
-tests_[]AUTOMAKE_ID([$1_$2])_CPPFLAGS = $5
-tests_[]AUTOMAKE_ID([$1_$2])_LDADD = $4 libatf-c++.la
+INIT_VAR(AUTOMAKE_ID(tests_[$1])_PROGRAMS)
+AUTOMAKE_ID(tests_[$1])_PROGRAMS += $1/$2
+AUTOMAKE_ID([$1_$2])_SOURCES = $1/$2.cpp $3
+AUTOMAKE_ID([$1_$2])_CPPFLAGS = $5
+AUTOMAKE_ID([$1_$2])_LDADD = $4 libatf-c++.la
 ])
 
 # SH_TP subdir progname extradeps
 #
-# Generates rules to build a shell test program.  The 'subdir' is relative to
-# tests/ and progname is the source file name without .c.
+# Generates rules to build a shell test program.  The progname is the
+# source file name without .c.
 m4_define([SH_TP], [
-INIT_VAR(AUTOMAKE_ID([$1])_SCRIPTS)
-AUTOMAKE_ID([$1])_SCRIPTS += tests/$1/$2
-CLEANFILES += tests/$1/$2
-EXTRA_DIST += tests/$1/$2.sh
-tests/$1/$2: $(srcdir)/tests/$1/$2.sh $3
-	test -d tests/$1 || mkdir -p tests/$1
-	BUILD_SH_TP([$(srcdir)/tests/$1/$2.sh $3], [tests/$1/$2])
+INIT_VAR(AUTOMAKE_ID(tests_[$1])_SCRIPTS)
+AUTOMAKE_ID(tests_[$1])_SCRIPTS += $1/$2
+CLEANFILES += $1/$2
+EXTRA_DIST += $1/$2.sh
+$1/$2: $(srcdir)/$1/$2.sh $3
+	test -d $1 || mkdir -p $1
+	BUILD_SH_TP([$(srcdir)/$1/$2.sh $3], [$1/$2])
 ])
 
-C_TP([atf/atf-c], [t_atf_c], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_build], [tests/atf/atf-c/h_build.h],
-     [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_check], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_config], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_dynstr], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_env], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_error], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_fs], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_h_lib], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_list], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_macros], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_map], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_process], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_tc], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_sanity], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_text], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_tp], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_ui], [], [tests/atf/atf-c/libh.la])
-C_TP([atf/atf-c], [t_user], [], [tests/atf/atf-c/libh.la])
-SH_TP([atf/atf-c], [t_pkg_config])
+C_TP([atf-c], [atf_c_test], [], [atf-c/libh.la])
+C_TP([atf-c], [build_test], [atf-c/h_build.h], [atf-c/libh.la])
+C_TP([atf-c], [check_test], [], [atf-c/libh.la])
+C_TP([atf-c], [config_test], [], [atf-c/libh.la])
+C_TP([atf-c], [dynstr_test], [], [atf-c/libh.la])
+C_TP([atf-c], [env_test], [], [atf-c/libh.la])
+C_TP([atf-c], [error_test], [], [atf-c/libh.la])
+C_TP([atf-c], [fs_test], [], [atf-c/libh.la])
+C_TP([atf-c], [h_lib_test], [], [atf-c/libh.la])
+C_TP([atf-c], [list_test], [], [atf-c/libh.la])
+C_TP([atf-c], [macros_test], [], [atf-c/libh.la])
+C_TP([atf-c], [map_test], [], [atf-c/libh.la])
+C_TP([atf-c], [process_test], [], [atf-c/libh.la])
+C_TP([atf-c], [tc_test], [], [atf-c/libh.la])
+C_TP([atf-c], [sanity_test], [], [atf-c/libh.la])
+C_TP([atf-c], [text_test], [], [atf-c/libh.la])
+C_TP([atf-c], [tp_test], [], [atf-c/libh.la])
+C_TP([atf-c], [ui_test], [], [atf-c/libh.la])
+C_TP([atf-c], [user_test], [], [atf-c/libh.la])
+SH_TP([atf-c], [pkg_config_test])
 
-atf_atf_c_PROGRAMS += tests/atf/atf-c/h_processes
-tests_atf_atf_c_h_processes_SOURCES = tests/atf/atf-c/h_processes.c
+tests_atf_c_PROGRAMS += atf-c/h_processes
+atf_c_h_processes_SOURCES = atf-c/h_processes.c
 
-atf_atf_c___DATA = tests/atf/atf-c++/Atffile \
-                   tests/atf/atf-c++/d_use_macros_hpp.cpp
-atf_atf_c__dir = $(pkgtestsdir)/atf-c++
-EXTRA_DIST += $(atf_atf_c___DATA)
+tests_atf_c___DATA = atf-c++/Atffile \
+                   atf-c++/d_use_macros_hpp.cpp
+tests_atf_c__dir = $(pkgtestsdir)/atf-c++
+EXTRA_DIST += $(tests_atf_c___DATA)
 
-noinst_LTLIBRARIES += tests/atf/atf-c++/libh.la
-tests_atf_atf_c___libh_la_SOURCES = tests/atf/atf-c++/h_lib.cpp \
-                                    tests/atf/atf-c++/h_lib.hpp
+noinst_LTLIBRARIES += atf-c++/libh.la
+atf_c___libh_la_SOURCES = atf-c++/h_lib.cpp \
+                          atf-c++/h_lib.hpp
 
-CXX_TP([atf/atf-c++], [t_atf_c++], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_application], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_build], [tests/atf/atf-c/h_build.h],
-       [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_check], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_config], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_env], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_exceptions], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_expand], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_fs], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_io], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_macros], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_parser], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_process], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_sanity], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_signals], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_tests], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_text], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_ui], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_user], [], [tests/atf/atf-c++/libh.la])
-CXX_TP([atf/atf-c++], [t_utils], [], [tests/atf/atf-c++/libh.la])
-SH_TP([atf/atf-c++], [t_pkg_config])
+CXX_TP([atf-c++], [atf_c++_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [application_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [build_test], [atf-c/h_build.h], [atf-c++/libh.la])
+CXX_TP([atf-c++], [check_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [config_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [env_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [exceptions_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [expand_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [fs_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [io_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [macros_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [parser_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [process_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [sanity_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [signals_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [tests_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [text_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [ui_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [user_test], [], [atf-c++/libh.la])
+CXX_TP([atf-c++], [utils_test], [], [atf-c++/libh.la])
+SH_TP([atf-c++], [pkg_config_test])
 
-atf_atf_check_DATA = tests/atf/atf-check/Atffile
-atf_atf_checkdir = $(pkgtestsdir)/atf-check
-EXTRA_DIST += $(atf_atf_check_DATA)
+tests_atf_check_DATA = atf-check/Atffile
+tests_atf_checkdir = $(pkgtestsdir)/atf-check
+EXTRA_DIST += $(tests_atf_check_DATA)
 
-SH_TP([atf/atf-check], [t_integration])
+SH_TP([atf-check], [integration_test])
 
-atf_atf_config_DATA = tests/atf/atf-config/Atffile
-atf_atf_configdir = $(pkgtestsdir)/atf-config
-EXTRA_DIST += $(atf_atf_config_DATA)
+tests_atf_config_DATA = atf-config/Atffile
+tests_atf_configdir = $(pkgtestsdir)/atf-config
+EXTRA_DIST += $(tests_atf_config_DATA)
 
-SH_TP([atf/atf-config], [t_integration])
+SH_TP([atf-config], [integration_test])
 
-atf_atf_report_DATA = tests/atf/atf-report/Atffile
-atf_atf_reportdir = $(pkgtestsdir)/atf-report
-EXTRA_DIST += $(atf_atf_report_DATA)
+tests_atf_report_DATA = atf-report/Atffile
+tests_atf_reportdir = $(pkgtestsdir)/atf-report
+EXTRA_DIST += $(tests_atf_report_DATA)
 
-CXX_TP([atf/atf-report], [h_fail])
-CXX_TP([atf/atf-report], [h_pass])
-CXX_TP([atf/atf-report], [h_misc])
-SH_TP([atf/atf-report], [t_integration])
-CXX_TP([atf/atf-report], [t_reader], [atf-report/reader.cpp],
-       [tests/atf/atf-c++/libh.la],
-       [-I$(srcdir)/atf-report -I$(srcdir)/tests/atf/atf-c++])
+CXX_TP([atf-report], [h_fail])
+CXX_TP([atf-report], [h_pass])
+CXX_TP([atf-report], [h_misc])
+SH_TP([atf-report], [integration_test])
+CXX_TP([atf-report], [reader_test], [atf-report/reader.cpp],
+       [atf-c++/libh.la], [-I$(srcdir)/atf-report -I$(srcdir)/atf-c++])
 
-atf_atf_run_DATA = tests/atf/atf-run/Atffile
-atf_atf_rundir = $(pkgtestsdir)/atf-run
-EXTRA_DIST += $(atf_atf_run_DATA)
+tests_atf_run_DATA = atf-run/Atffile
+tests_atf_rundir = $(pkgtestsdir)/atf-run
+EXTRA_DIST += $(tests_atf_run_DATA)
 
-C_TP([atf/atf-run], [h_bad_metadata])
-C_TP([atf/atf-run], [h_several_tcs])
-C_TP([atf/atf-run], [h_zero_tcs])
-CXX_TP([atf/atf-run], [h_fail])
-CXX_TP([atf/atf-run], [h_pass])
-CXX_TP([atf/atf-run], [h_misc])
-CXX_TP([atf/atf-run], [t_atffile], [atf-run/atffile.cpp],
-       [tests/atf/atf-c++/libh.la],
-       [-I$(srcdir)/atf-run -I$(srcdir)/tests/atf/atf-c++])
-CXX_TP([atf/atf-run], [t_config], [atf-run/config.cpp],
-       [tests/atf/atf-c++/libh.la],
-       [-I$(srcdir)/atf-run -I$(srcdir)/tests/atf/atf-c++])
-CXX_TP([atf/atf-run], [t_fs], [atf-run/fs.cpp], [], [-I$(srcdir)/atf-run])
-CXX_TP([atf/atf-run], [t_requirements], [atf-run/requirements.cpp], [],
+C_TP([atf-run], [h_bad_metadata])
+C_TP([atf-run], [h_several_tcs])
+C_TP([atf-run], [h_zero_tcs])
+CXX_TP([atf-run], [h_fail])
+CXX_TP([atf-run], [h_pass])
+CXX_TP([atf-run], [h_misc])
+CXX_TP([atf-run], [atffile_test], [atf-run/atffile.cpp],
+       [atf-c++/libh.la], [-I$(srcdir)/atf-run -I$(srcdir)/atf-c++])
+CXX_TP([atf-run], [config_test], [atf-run/config.cpp],
+       [atf-c++/libh.la], [-I$(srcdir)/atf-run -I$(srcdir)/atf-c++])
+CXX_TP([atf-run], [fs_test], [atf-run/fs.cpp], [], [-I$(srcdir)/atf-run])
+CXX_TP([atf-run], [requirements_test], [atf-run/requirements.cpp], [],
        [-I$(srcdir)/atf-run])
-CXX_TP([atf/atf-run], [t_test_program],
+CXX_TP([atf-run], [test_program_test],
        [atf-run/fs.cpp atf-run/test-program.cpp atf-run/timer.cpp],
-       [tests/atf/atf-c++/libh.la],
-       [-I$(srcdir)/atf-run -I$(srcdir)/tests/atf/atf-c++])
-SH_TP([atf/atf-run], [t_integration])
+       [atf-c++/libh.la], [-I$(srcdir)/atf-run -I$(srcdir)/atf-c++])
+SH_TP([atf-run], [integration_test])
 
-atf_atf_sh_DATA = tests/atf/atf-sh/Atffile
-atf_atf_shdir = $(pkgtestsdir)/atf-sh
-EXTRA_DIST += $(atf_atf_sh_DATA)
+tests_atf_sh_DATA = atf-sh/Atffile
+tests_atf_shdir = $(pkgtestsdir)/atf-sh
+EXTRA_DIST += $(tests_atf_sh_DATA)
 
-SH_TP([atf/atf-sh], [h_misc])
-SH_TP([atf/atf-sh], [t_atf_check])
-SH_TP([atf/atf-sh], [t_config])
-SH_TP([atf/atf-sh], [t_integration])
-SH_TP([atf/atf-sh], [t_normalize])
-SH_TP([atf/atf-sh], [t_tc])
-SH_TP([atf/atf-sh], [t_tp])
+SH_TP([atf-sh], [h_misc])
+SH_TP([atf-sh], [atf_check_test])
+SH_TP([atf-sh], [config_test])
+SH_TP([atf-sh], [integration_test])
+SH_TP([atf-sh], [normalize_test])
+SH_TP([atf-sh], [tc_test])
+SH_TP([atf-sh], [tp_test])
 
-atf_test_programs_DATA = tests/atf/test_programs/Atffile
-atf_test_programsdir = $(pkgtestsdir)/test_programs
-EXTRA_DIST += $(atf_test_programs_DATA)
+tests_test_programs_DATA = test-programs/Atffile
+tests_test_programsdir = $(pkgtestsdir)/test-programs
+EXTRA_DIST += $(tests_test_programs_DATA)
 
-EXTRA_DIST += tests/atf/test_programs/common.sh
+EXTRA_DIST += test-programs/common.sh
 
-C_TP([atf/test_programs], [h_c], [], [tests/atf/atf-c/libh.la])
-CXX_TP([atf/test_programs], [h_cpp], [], [tests/atf/atf-c++/libh.la])
-SH_TP([atf/test_programs], [h_sh])
-SH_TP([atf/test_programs], [t_config],
-      [$(srcdir)/tests/atf/test_programs/common.sh])
-SH_TP([atf/test_programs], [t_fork],
-      [$(srcdir)/tests/atf/test_programs/common.sh])
-SH_TP([atf/test_programs], [t_meta_data],
-      [$(srcdir)/tests/atf/test_programs/common.sh])
-SH_TP([atf/test_programs], [t_result],
-      [$(srcdir)/tests/atf/test_programs/common.sh])
-SH_TP([atf/test_programs], [t_srcdir],
-      [$(srcdir)/tests/atf/test_programs/common.sh])
+C_TP([test-programs], [h_c], [], [atf-c/libh.la])
+CXX_TP([test-programs], [h_cpp], [], [atf-c++/libh.la])
+SH_TP([test-programs], [h_sh])
+SH_TP([test-programs], [config_test], [$(srcdir)/test-programs/common.sh])
+SH_TP([test-programs], [fork_test], [$(srcdir)/test-programs/common.sh])
+SH_TP([test-programs], [meta_data_test], [$(srcdir)/test-programs/common.sh])
+SH_TP([test-programs], [result_test], [$(srcdir)/test-programs/common.sh])
+SH_TP([test-programs], [srcdir_test], [$(srcdir)/test-programs/common.sh])
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

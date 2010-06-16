@@ -69,9 +69,9 @@ rm -f admin/revision*
 rm -f m4/libtool.m4
 rm -f m4/lt*.m4
 
-# `tests/bootstrap' directory.
-rm -f tests/bootstrap/package.m4
-rm -f tests/bootstrap/testsuite
+# `bootstrap' directory.
+rm -f bootstrap/package.m4
+rm -f bootstrap/testsuite
 
 # Generated documentation.
 rm -f doc/standalone/*.html
