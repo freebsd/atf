@@ -496,7 +496,7 @@ XML_DOC([specification])
 ACLOCAL_AMFLAGS = -I m4
 
 # -------------------------------------------------------------------------
-# `tests/bootstrap' directory.
+# `bootstrap' directory.
 # -------------------------------------------------------------------------
 
 # BUILD_SH_TP infile outfile
@@ -507,76 +507,76 @@ m4_define([BUILD_SH_TP], [echo '#! $(bindir)/atf-sh' >$2
 	chmod +x $2
 ])
 
-check_PROGRAMS = tests/bootstrap/h_app_empty
-tests_bootstrap_h_app_empty_SOURCES = tests/bootstrap/h_app_empty.cpp
-tests_bootstrap_h_app_empty_LDADD = libatf-c++.la
+check_PROGRAMS = bootstrap/h_app_empty
+bootstrap_h_app_empty_SOURCES = bootstrap/h_app_empty.cpp
+bootstrap_h_app_empty_LDADD = libatf-c++.la
 
-check_PROGRAMS += tests/bootstrap/h_app_opts_args
-tests_bootstrap_h_app_opts_args_SOURCES = tests/bootstrap/h_app_opts_args.cpp
-tests_bootstrap_h_app_opts_args_LDADD = libatf-c++.la
+check_PROGRAMS += bootstrap/h_app_opts_args
+bootstrap_h_app_opts_args_SOURCES = bootstrap/h_app_opts_args.cpp
+bootstrap_h_app_opts_args_LDADD = libatf-c++.la
 
-check_PROGRAMS += tests/bootstrap/h_tp_basic_c
-tests_bootstrap_h_tp_basic_c_SOURCES = tests/bootstrap/h_tp_basic_c.c
-tests_bootstrap_h_tp_basic_c_LDADD = libatf-c.la
+check_PROGRAMS += bootstrap/h_tp_basic_c
+bootstrap_h_tp_basic_c_SOURCES = bootstrap/h_tp_basic_c.c
+bootstrap_h_tp_basic_c_LDADD = libatf-c.la
 
-check_PROGRAMS += tests/bootstrap/h_tp_basic_cpp
-tests_bootstrap_h_tp_basic_cpp_SOURCES = tests/bootstrap/h_tp_basic_cpp.cpp
-tests_bootstrap_h_tp_basic_cpp_LDADD = libatf-c++.la
+check_PROGRAMS += bootstrap/h_tp_basic_cpp
+bootstrap_h_tp_basic_cpp_SOURCES = bootstrap/h_tp_basic_cpp.cpp
+bootstrap_h_tp_basic_cpp_LDADD = libatf-c++.la
 
-check_SCRIPTS = tests/bootstrap/h_tp_basic_sh
-CLEANFILES += tests/bootstrap/h_tp_basic_sh
-EXTRA_DIST += tests/bootstrap/h_tp_basic_sh.sh
-tests/bootstrap/h_tp_basic_sh: $(srcdir)/tests/bootstrap/h_tp_basic_sh.sh
-	test -d tests/bootstrap || mkdir -p tests/bootstrap
-	BUILD_SH_TP([$(srcdir)/tests/bootstrap/h_tp_basic_sh.sh], [$@])
+check_SCRIPTS = bootstrap/h_tp_basic_sh
+CLEANFILES += bootstrap/h_tp_basic_sh
+EXTRA_DIST += bootstrap/h_tp_basic_sh.sh
+bootstrap/h_tp_basic_sh: $(srcdir)/bootstrap/h_tp_basic_sh.sh
+	test -d bootstrap || mkdir -p bootstrap
+	BUILD_SH_TP([$(srcdir)/bootstrap/h_tp_basic_sh.sh], [$@])
 
-check_SCRIPTS += tests/bootstrap/h_tp_atf_check_sh
-CLEANFILES += tests/bootstrap/h_tp_atf_check_sh
-EXTRA_DIST += tests/bootstrap/h_tp_atf_check_sh.sh
-tests/bootstrap/h_tp_atf_check_sh: \
-		$(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh
-	test -d tests/bootstrap || mkdir -p tests/bootstrap
-	BUILD_SH_TP([$(srcdir)/tests/bootstrap/h_tp_atf_check_sh.sh], [$@])
+check_SCRIPTS += bootstrap/h_tp_atf_check_sh
+CLEANFILES += bootstrap/h_tp_atf_check_sh
+EXTRA_DIST += bootstrap/h_tp_atf_check_sh.sh
+bootstrap/h_tp_atf_check_sh: \
+		$(srcdir)/bootstrap/h_tp_atf_check_sh.sh
+	test -d bootstrap || mkdir -p bootstrap
+	BUILD_SH_TP([$(srcdir)/bootstrap/h_tp_atf_check_sh.sh], [$@])
 
-check_SCRIPTS += tests/bootstrap/h_tp_fail
-CLEANFILES += tests/bootstrap/h_tp_fail
-EXTRA_DIST += tests/bootstrap/h_tp_fail.sh
-tests/bootstrap/h_tp_fail: $(srcdir)/tests/bootstrap/h_tp_fail.sh
-	test -d tests/bootstrap || mkdir -p tests/bootstrap
-	BUILD_SH_TP([$(srcdir)/tests/bootstrap/h_tp_fail.sh], [$@])
+check_SCRIPTS += bootstrap/h_tp_fail
+CLEANFILES += bootstrap/h_tp_fail
+EXTRA_DIST += bootstrap/h_tp_fail.sh
+bootstrap/h_tp_fail: $(srcdir)/bootstrap/h_tp_fail.sh
+	test -d bootstrap || mkdir -p bootstrap
+	BUILD_SH_TP([$(srcdir)/bootstrap/h_tp_fail.sh], [$@])
 
-check_SCRIPTS += tests/bootstrap/h_tp_pass
-CLEANFILES += tests/bootstrap/h_tp_pass
-EXTRA_DIST += tests/bootstrap/h_tp_pass.sh
-tests/bootstrap/h_tp_pass: $(srcdir)/tests/bootstrap/h_tp_pass.sh
-	test -d tests/bootstrap || mkdir -p tests/bootstrap
-	BUILD_SH_TP([$(srcdir)/tests/bootstrap/h_tp_pass.sh], [$@])
+check_SCRIPTS += bootstrap/h_tp_pass
+CLEANFILES += bootstrap/h_tp_pass
+EXTRA_DIST += bootstrap/h_tp_pass.sh
+bootstrap/h_tp_pass: $(srcdir)/bootstrap/h_tp_pass.sh
+	test -d bootstrap || mkdir -p bootstrap
+	BUILD_SH_TP([$(srcdir)/bootstrap/h_tp_pass.sh], [$@])
 
 DISTCLEANFILES = \
-		tests/bootstrap/atconfig \
+		bootstrap/atconfig \
 		testsuite.lineno \
 		testsuite.log
 
 distclean-local:
 	-rm -rf testsuite.dir
 
-EXTRA_DIST +=	tests/bootstrap/testsuite \
-		tests/bootstrap/package.m4 \
-		tests/bootstrap/testsuite.at \
+EXTRA_DIST +=	bootstrap/testsuite \
+		bootstrap/package.m4 \
+		bootstrap/testsuite.at \
 		$(testsuite_incs)
 
-testsuite_incs=	$(srcdir)/tests/bootstrap/t_application_help.at \
-		$(srcdir)/tests/bootstrap/t_application_opts_args.at \
-		$(srcdir)/tests/bootstrap/t_atf_config.at \
-		$(srcdir)/tests/bootstrap/t_atf_format.at \
-		$(srcdir)/tests/bootstrap/t_atf_run.at \
-		$(srcdir)/tests/bootstrap/t_subr_atf_check.at \
-		$(srcdir)/tests/bootstrap/t_test_program_compare.at \
-		$(srcdir)/tests/bootstrap/t_test_program_filter.at \
-		$(srcdir)/tests/bootstrap/t_test_program_list.at \
-		$(srcdir)/tests/bootstrap/t_test_program_run.at
+testsuite_incs=	$(srcdir)/bootstrap/t_application_help.at \
+		$(srcdir)/bootstrap/t_application_opts_args.at \
+		$(srcdir)/bootstrap/t_atf_config.at \
+		$(srcdir)/bootstrap/t_atf_format.at \
+		$(srcdir)/bootstrap/t_atf_run.at \
+		$(srcdir)/bootstrap/t_subr_atf_check.at \
+		$(srcdir)/bootstrap/t_test_program_compare.at \
+		$(srcdir)/bootstrap/t_test_program_filter.at \
+		$(srcdir)/bootstrap/t_test_program_list.at \
+		$(srcdir)/bootstrap/t_test_program_run.at
 
-$(srcdir)/tests/bootstrap/package.m4: $(top_srcdir)/configure.ac
+$(srcdir)/bootstrap/package.m4: $(top_srcdir)/configure.ac
 	{ \
 	echo '# Signature of the current package.'; \
 	echo 'm4_[]define(AT_PACKAGE_NAME,      @PACKAGE_NAME@)'; \
@@ -584,14 +584,14 @@ $(srcdir)/tests/bootstrap/package.m4: $(top_srcdir)/configure.ac
 	echo 'm4_[]define(AT_PACKAGE_VERSION,   @PACKAGE_VERSION@)'; \
 	echo 'm4_[]define(AT_PACKAGE_STRING,    @PACKAGE_STRING@)'; \
 	echo 'm4_[]define(AT_PACKAGE_BUGREPORT, @PACKAGE_BUGREPORT@)'; \
-	} >$(srcdir)/tests/bootstrap/package.m4
+	} >$(srcdir)/bootstrap/package.m4
 
-$(srcdir)/tests/bootstrap/testsuite: $(srcdir)/tests/bootstrap/testsuite.at \
+$(srcdir)/bootstrap/testsuite: $(srcdir)/bootstrap/testsuite.at \
                                      $(testsuite_incs) \
-                                     $(srcdir)/tests/bootstrap/package.m4
+                                     $(srcdir)/bootstrap/package.m4
 	autom4te --language=Autotest -I $(srcdir) \
-	    -I $(srcdir)/tests/bootstrap \
-	    $(srcdir)/tests/bootstrap/testsuite.at -o $@.tmp
+	    -I $(srcdir)/bootstrap \
+	    $(srcdir)/bootstrap/testsuite.at -o $@.tmp
 	mv $@.tmp $@
 
 # -------------------------------------------------------------------------
@@ -609,8 +609,8 @@ installcheck-local: installcheck-bootstrap installcheck-atf
 # TODO: This really needs to be a 'check' target and not 'installcheck', but
 # these bootstrap tests don't currently work without atf being installed.
 .PHONY: installcheck-bootstrap
-installcheck-bootstrap: $(srcdir)/tests/bootstrap/testsuite check
-	$(TESTS_ENVIRONMENT) $(srcdir)/tests/bootstrap/testsuite
+installcheck-bootstrap: $(srcdir)/bootstrap/testsuite check
+	$(TESTS_ENVIRONMENT) $(srcdir)/bootstrap/testsuite
 
 .PHONY: installcheck-atf
 installcheck-atf:
