@@ -206,8 +206,8 @@ ATF_TEST_CASE_BODY(change_directory)
 
     const atf::fs::path old = get_current_dir();
 
-    ATF_CHECK_THROW(change_directory(atf::fs::path("files/reg")),
-                    atf::system_error);
+    ATF_CHECK_THROW(atf::system_error,
+                    change_directory(atf::fs::path("files/reg")));
     ATF_CHECK(get_current_dir() == old);
 
     atf::fs::path old2 = change_directory(atf::fs::path("files"));

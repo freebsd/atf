@@ -653,7 +653,7 @@ ATF_TEST_CASE_BODY(remove)
     ATF_CHECK(!exists(path("files/reg")));
 
     ATF_CHECK( exists(path("files/dir")));
-    ATF_CHECK_THROW(remove(path("files/dir")), atf::system_error);
+    ATF_CHECK_THROW(atf::system_error, remove(path("files/dir")));
     ATF_CHECK( exists(path("files/dir")));
 }
 

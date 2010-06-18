@@ -101,7 +101,7 @@
         } \
     } while (false)
 
-#define ATF_CHECK_THROW(x, e) \
+#define ATF_CHECK_THROW(e, x) \
     do { \
         try { \
             x; \
