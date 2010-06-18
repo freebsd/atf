@@ -42,7 +42,7 @@ AC_CONFIG_AUX_DIR([admin])
 AC_CONFIG_HEADERS([bconfig.h])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([atf-c.h])
-AC_CONFIG_TESTDIR([tests/bootstrap])
+AC_CONFIG_TESTDIR([bootstrap])
 
 AC_CANONICAL_TARGET
 

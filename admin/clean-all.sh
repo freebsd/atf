@@ -45,7 +45,6 @@ make distclean
 
 # Top-level directory.
 rm -f .gdb_history
-rm -f Makefile.am
 rm -f Makefile.in
 rm -f aclocal.m4
 rm -rf autom4te.cache
@@ -69,9 +68,9 @@ rm -f admin/revision*
 rm -f m4/libtool.m4
 rm -f m4/lt*.m4
 
-# `tests/bootstrap' directory.
-rm -f tests/bootstrap/package.m4
-rm -f tests/bootstrap/testsuite
+# `bootstrap' directory.
+rm -f bootstrap/package.m4
+rm -f bootstrap/testsuite
 
 # Generated documentation.
 rm -f doc/standalone/*.html

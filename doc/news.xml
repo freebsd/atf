@@ -59,6 +59,9 @@ flag.</para></listitem>
 expected exception as the first argument and the statement to execute as
 the second argument.</para></listitem>
 
+<listitem><para>Splitted the <filename>Makefile.am</filename> into smaller
+files for easier maintenance and dropped the use of M4.</para></listitem>
+
 </itemizedlist>
 
 </section>

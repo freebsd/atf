@@ -106,11 +106,12 @@ to generate a distfile), you will also need the following tools:</para>
 
 <para>If you are building ATF from code extracted from the repository, you must
 first regenerate the files used by the build system.  You will also need to
-do this if you modify one of configure.ac or Makefile.am.m4.  To do this,
-simply run:</para>
+do this if you modify <filename>configure.ac</filename>,
+<filename>Makefile.am</filename> or any of the other build system files.  To do
+this, simply run:</para>
 
 <programlisting role="screen">
-$ <userinput>./autogen.sh</userinput>
+$ <userinput>autoreconf -i -s</userinput>
 </programlisting>
 
 <para>For formal releases, no extra steps are needed.</para>
