@@ -106,7 +106,7 @@ atf_init_test_cases() {
 Test cases have an identifier and are composed of three different parts:
 the header, the body and an optional cleanup routine, all of which are
 described in
-.Xr atf-test-case 8 .
+.Xr atf-test-case 4 .
 To define test cases, one can use the
 .Fn atf_test_case
 function, which takes a first parameter specifiying the test case's
@@ -265,5 +265,5 @@ grep foo ls || atf_fail "foo file not found in listing"
 .Sh SEE ALSO
 .Xr atf-sh 1 ,
 .Xr atf-test-program 1 ,
-.Xr atf 7 ,
-.Xr atf-test-case 8
+.Xr atf-test-case 4 ,
+.Xr atf 7

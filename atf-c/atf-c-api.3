@@ -84,8 +84,8 @@
 .Fn ATF_TC_NAME "name"
 .Fn ATF_TC_WITH_CLEANUP "name"
 .Fn ATF_TC_WITHOUT_HEAD "name"
-.Fn ATF_TP_ADD_TC "tp_name"
-.Fn ATF_TP_ADD_TCS "tp_name" "tc_name"
+.Fn ATF_TP_ADD_TC "tp_name" "tc_name"
+.Fn ATF_TP_ADD_TCS "tp_name"
 .Fn atf_no_error
 .Fn atf_tc_fail "reason"
 .Fn atf_tc_fail_nonfatal "reason"
@@ -132,7 +132,7 @@ ATF_TC_BODY(tc3, tc)
 
 .Ns ... additional test cases ...
 
-ATF_TP_ADD_TCS(tp, tcs)
+ATF_TP_ADD_TCS(tp)
 {
     ATF_TP_ADD_TC(tcs, tc1);
     ATF_TP_ADD_TC(tcs, tc2);
@@ -146,7 +146,7 @@ ATF_TP_ADD_TCS(tp, tcs)
 Test cases have an identifier and are composed of three different parts:
 the header, the body and an optional cleanup routine, all of which are
 described in
-.Xr atf-test-case 8 .
+.Xr atf-test-case 4 .
 To define test cases, one can use the
 .Fn ATF_TC ,
 .Fn ATF_TC_WITH_CLEANUP
@@ -362,5 +362,5 @@ ATF_TP_ADD_TCS(tp)
 .Ed
 .Sh SEE ALSO
 .Xr atf-test-program 1 ,
-.Xr atf 7 ,
-.Xr atf-test-case 8
+.Xr atf-test-case 4 ,
+.Xr atf 7
