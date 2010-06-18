@@ -88,7 +88,6 @@ EXTRA_DIST +=	bootstrap/testsuite \
 testsuite_incs=	$(srcdir)/bootstrap/t_application_help.at \
 		$(srcdir)/bootstrap/t_application_opts_args.at \
 		$(srcdir)/bootstrap/t_atf_config.at \
-		$(srcdir)/bootstrap/t_atf_format.at \
 		$(srcdir)/bootstrap/t_atf_run.at \
 		$(srcdir)/bootstrap/t_subr_atf_check.at \
 		$(srcdir)/bootstrap/t_test_program_compare.at \

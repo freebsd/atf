@@ -46,7 +46,6 @@ include atf-c++/Makefile.am.inc
 include atf-c/Makefile.am.inc
 include atf-check/Makefile.am.inc
 include atf-config/Makefile.am.inc
-include atf-format/Makefile.am.inc
 include atf-report/Makefile.am.inc
 include atf-run/Makefile.am.inc
 include atf-sh/Makefile.am.inc

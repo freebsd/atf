@@ -67,6 +67,9 @@ implementation of every binding by a significant amount.  They just now
 refer the user to the appropriate manual page.  And, anyway, test programs
 are not supposed to be run by users directly.</para></listitem>
 
+<listitem><para>Removed the <command>atf-format</command> internal utility,
+which is unused after previous change.</para></listitem>
+
 </itemizedlist>
 
 </section>
