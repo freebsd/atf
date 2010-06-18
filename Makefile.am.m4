@@ -81,7 +81,6 @@ $(srcdir)/Makefile.am: $(srcdir)/$1
 m4_include($1)
 EXTRA_DIST += $1
 ])
-INCLUDE(m4/automake-rules.m4)
 INCLUDE(admin/Makefile.am.inc)
 INCLUDE(atf-c++/Makefile.am.inc)
 INCLUDE(atf-c/Makefile.am.inc)
@@ -127,6 +126,12 @@ CLEANFILES += installcheck.fifo installcheck.log
 
 pkgtests_DATA = Atffile
 EXTRA_DIST += $(pkgtests_DATA)
+
+BUILD_SH_TP = \
+	echo "Creating $${dst}"; \
+	echo "\#! $(bindir)/atf-sh" >$${dst}; \
+	cat $${src} >>$${dst}; \
+	chmod +x $${dst}
 
 #
 # Custom targets.

@@ -48,22 +48,66 @@ tests_atf_run_DATA = atf-run/Atffile
 tests_atf_rundir = $(pkgtestsdir)/atf-run
 EXTRA_DIST += $(tests_atf_run_DATA)
 
-C_TP([atf-run], [h_bad_metadata])
-C_TP([atf-run], [h_several_tcs])
-C_TP([atf-run], [h_zero_tcs])
-CXX_TP([atf-run], [h_fail])
-CXX_TP([atf-run], [h_pass])
-CXX_TP([atf-run], [h_misc])
-CXX_TP([atf-run], [atffile_test], [atf-run/atffile.cpp],
-       [atf-c++/libh.la], [-I$(srcdir)/atf-run -I$(srcdir)/atf-c++])
-CXX_TP([atf-run], [config_test], [atf-run/config.cpp],
-       [atf-c++/libh.la], [-I$(srcdir)/atf-run -I$(srcdir)/atf-c++])
-CXX_TP([atf-run], [fs_test], [atf-run/fs.cpp], [], [-I$(srcdir)/atf-run])
-CXX_TP([atf-run], [requirements_test], [atf-run/requirements.cpp], [],
-       [-I$(srcdir)/atf-run])
-CXX_TP([atf-run], [test_program_test],
-       [atf-run/fs.cpp atf-run/test-program.cpp atf-run/timer.cpp],
-       [atf-c++/libh.la], [-I$(srcdir)/atf-run -I$(srcdir)/atf-c++])
-SH_TP([atf-run], [integration_test])
+tests_atf_run_PROGRAMS = atf-run/h_bad_metadata
+atf_run_h_bad_metadata_SOURCES = atf-run/h_bad_metadata.c
+atf_run_h_bad_metadata_LDADD = libatf-c.la
+
+tests_atf_run_PROGRAMS += atf-run/h_fail
+atf_run_h_fail_SOURCES = atf-run/h_fail.cpp
+atf_run_h_fail_LDADD = libatf-c++.la
+
+tests_atf_run_PROGRAMS += atf-run/h_misc
+atf_run_h_misc_SOURCES = atf-run/h_misc.cpp
+atf_run_h_misc_LDADD = libatf-c++.la
+
+tests_atf_run_PROGRAMS += atf-run/h_pass
+atf_run_h_pass_SOURCES = atf-run/h_pass.cpp
+atf_run_h_pass_LDADD = libatf-c++.la
+
+tests_atf_run_PROGRAMS += atf-run/h_several_tcs
+atf_run_h_several_tcs_SOURCES = atf-run/h_several_tcs.c
+atf_run_h_several_tcs_LDADD = libatf-c.la
+
+tests_atf_run_PROGRAMS += atf-run/h_zero_tcs
+atf_run_h_zero_tcs_SOURCES = atf-run/h_zero_tcs.c
+atf_run_h_zero_tcs_LDADD = libatf-c.la
+
+tests_atf_run_PROGRAMS += atf-run/atffile_test
+atf_run_atffile_test_SOURCES = atf-run/atffile_test.cpp \
+                               atf-run/atffile.cpp
+atf_run_atffile_test_CPPFLAGS = -I$(srcdir)/atf-c++
+atf_run_atffile_test_LDADD = atf-c++/libh.la libatf-c++.la
+
+tests_atf_run_PROGRAMS += atf-run/config_test
+atf_run_config_test_SOURCES = atf-run/config_test.cpp \
+                              atf-run/config.cpp
+atf_run_config_test_CPPFLAGS = -I$(srcdir)/atf-c++
+atf_run_config_test_LDADD = atf-c++/libh.la libatf-c++.la
+
+tests_atf_run_PROGRAMS += atf-run/fs_test
+atf_run_fs_test_SOURCES = atf-run/fs_test.cpp \
+                          atf-run/fs.cpp
+atf_run_fs_test_LDADD = libatf-c++.la
+
+tests_atf_run_PROGRAMS += atf-run/requirements_test
+atf_run_requirements_test_SOURCES = atf-run/requirements_test.cpp \
+                                    atf-run/requirements.cpp
+atf_run_requirements_test_LDADD = libatf-c++.la
+
+tests_atf_run_PROGRAMS += atf-run/test_program_test
+atf_run_test_program_test_SOURCES = atf-run/test_program_test.cpp \
+                                    atf-run/fs.cpp \
+                                    atf-run/test-program.cpp \
+                                    atf-run/timer.cpp
+atf_run_test_program_test_CPPFLAGS = -I$(srcdir)/atf-c++
+atf_run_test_program_test_LDADD = atf-c++/libh.la libatf-c++.la
+
+tests_atf_run_SCRIPTS = atf-run/integration_test
+CLEANFILES += atf-run/integration_test
+EXTRA_DIST += atf-run/integration_test.sh
+atf-run/integration_test: $(srcdir)/atf-run/integration_test.sh
+	test -d atf-run || mkdir -p atf-run
+	@src="$(srcdir)/atf-run/integration_test.sh"; \
+	dst="atf-run/integration_test"; $(BUILD_SH_TP)
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

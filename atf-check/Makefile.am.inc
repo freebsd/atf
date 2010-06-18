@@ -36,6 +36,12 @@ tests_atf_check_DATA = atf-check/Atffile
 tests_atf_checkdir = $(pkgtestsdir)/atf-check
 EXTRA_DIST += $(tests_atf_check_DATA)
 
-SH_TP([atf-check], [integration_test])
+tests_atf_check_SCRIPTS = atf-check/integration_test
+CLEANFILES += atf-check/integration_test
+EXTRA_DIST += atf-check/integration_test.sh
+atf-check/integration_test: $(srcdir)/atf-check/integration_test.sh
+	test -d atf-check || mkdir -p atf-check
+	@src="$(srcdir)/atf-check/integration_test.sh"; \
+	dst="atf-check/integration_test"; $(BUILD_SH_TP)
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

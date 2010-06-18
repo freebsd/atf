@@ -134,28 +134,91 @@ noinst_LTLIBRARIES += atf-c/libh.la
 atf_c_libh_la_SOURCES = atf-c/h_lib.c \
                         atf-c/h_lib.h
 
-C_TP([atf-c], [atf_c_test], [], [atf-c/libh.la])
-C_TP([atf-c], [build_test], [atf-c/h_build.h], [atf-c/libh.la])
-C_TP([atf-c], [check_test], [], [atf-c/libh.la])
-C_TP([atf-c], [config_test], [], [atf-c/libh.la])
-C_TP([atf-c], [dynstr_test], [], [atf-c/libh.la])
-C_TP([atf-c], [env_test], [], [atf-c/libh.la])
-C_TP([atf-c], [error_test], [], [atf-c/libh.la])
-C_TP([atf-c], [fs_test], [], [atf-c/libh.la])
-C_TP([atf-c], [h_lib_test], [], [atf-c/libh.la])
-C_TP([atf-c], [list_test], [], [atf-c/libh.la])
-C_TP([atf-c], [macros_test], [], [atf-c/libh.la])
-C_TP([atf-c], [map_test], [], [atf-c/libh.la])
-C_TP([atf-c], [process_test], [], [atf-c/libh.la])
-C_TP([atf-c], [tc_test], [], [atf-c/libh.la])
-C_TP([atf-c], [sanity_test], [], [atf-c/libh.la])
-C_TP([atf-c], [text_test], [], [atf-c/libh.la])
-C_TP([atf-c], [tp_test], [], [atf-c/libh.la])
-C_TP([atf-c], [ui_test], [], [atf-c/libh.la])
-C_TP([atf-c], [user_test], [], [atf-c/libh.la])
-SH_TP([atf-c], [pkg_config_test])
-
-tests_atf_c_PROGRAMS += atf-c/h_processes
+tests_atf_c_PROGRAMS = atf-c/h_processes
 atf_c_h_processes_SOURCES = atf-c/h_processes.c
+
+tests_atf_c_PROGRAMS += atf-c/atf_c_test
+atf_c_atf_c_test_SOURCES = atf-c/atf_c_test.c
+atf_c_atf_c_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/build_test
+atf_c_build_test_SOURCES = atf-c/build_test.c atf-c/h_build.h
+atf_c_build_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/check_test
+atf_c_check_test_SOURCES = atf-c/check_test.c
+atf_c_check_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/config_test
+atf_c_config_test_SOURCES = atf-c/config_test.c
+atf_c_config_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/dynstr_test
+atf_c_dynstr_test_SOURCES = atf-c/dynstr_test.c
+atf_c_dynstr_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/env_test
+atf_c_env_test_SOURCES = atf-c/env_test.c
+atf_c_env_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/error_test
+atf_c_error_test_SOURCES = atf-c/error_test.c
+atf_c_error_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/fs_test
+atf_c_fs_test_SOURCES = atf-c/fs_test.c
+atf_c_fs_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/h_lib_test
+atf_c_h_lib_test_SOURCES = atf-c/h_lib_test.c
+atf_c_h_lib_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/list_test
+atf_c_list_test_SOURCES = atf-c/list_test.c
+atf_c_list_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/macros_test
+atf_c_macros_test_SOURCES = atf-c/macros_test.c
+atf_c_macros_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/map_test
+atf_c_map_test_SOURCES = atf-c/map_test.c
+atf_c_map_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_SCRIPTS = atf-c/pkg_config_test
+CLEANFILES += atf-c/pkg_config_test
+EXTRA_DIST += atf-c/pkg_config_test.sh
+atf-c/pkg_config_test: $(srcdir)/atf-c/pkg_config_test.sh
+	test -d atf-c || mkdir -p atf-c
+	@src="$(srcdir)/atf-c/pkg_config_test.sh"; \
+	dst="atf-c/pkg_config_test"; $(BUILD_SH_TP)
+
+tests_atf_c_PROGRAMS += atf-c/process_test
+atf_c_process_test_SOURCES = atf-c/process_test.c
+atf_c_process_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/sanity_test
+atf_c_sanity_test_SOURCES = atf-c/sanity_test.c
+atf_c_sanity_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/tc_test
+atf_c_tc_test_SOURCES = atf-c/tc_test.c
+atf_c_tc_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/text_test
+atf_c_text_test_SOURCES = atf-c/text_test.c
+atf_c_text_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/tp_test
+atf_c_tp_test_SOURCES = atf-c/tp_test.c
+atf_c_tp_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/ui_test
+atf_c_ui_test_SOURCES = atf-c/ui_test.c
+atf_c_ui_test_LDADD = atf-c/libh.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/user_test
+atf_c_user_test_SOURCES = atf-c/user_test.c
+atf_c_user_test_LDADD = atf-c/libh.la libatf-c.la
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

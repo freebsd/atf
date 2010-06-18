@@ -42,12 +42,60 @@ tests_atf_sh_DATA = atf-sh/Atffile
 tests_atf_shdir = $(pkgtestsdir)/atf-sh
 EXTRA_DIST += $(tests_atf_sh_DATA)
 
-SH_TP([atf-sh], [h_misc])
-SH_TP([atf-sh], [atf_check_test])
-SH_TP([atf-sh], [config_test])
-SH_TP([atf-sh], [integration_test])
-SH_TP([atf-sh], [normalize_test])
-SH_TP([atf-sh], [tc_test])
-SH_TP([atf-sh], [tp_test])
+tests_atf_sh_SCRIPTS = atf-sh/h_misc
+CLEANFILES += atf-sh/h_misc
+EXTRA_DIST += atf-sh/h_misc.sh
+atf-sh/h_misc: $(srcdir)/atf-sh/h_misc.sh
+	test -d atf-sh || mkdir -p atf-sh
+	@src="$(srcdir)/atf-sh/h_misc.sh"; \
+	dst="atf-sh/h_misc"; $(BUILD_SH_TP)
+
+tests_atf_sh_SCRIPTS += atf-sh/atf_check_test
+CLEANFILES += atf-sh/atf_check_test
+EXTRA_DIST += atf-sh/atf_check_test.sh
+atf-sh/atf_check_test: $(srcdir)/atf-sh/atf_check_test.sh
+	test -d atf-sh || mkdir -p atf-sh
+	@src="$(srcdir)/atf-sh/atf_check_test.sh"; \
+	dst="atf-sh/atf_check_test"; $(BUILD_SH_TP)
+
+tests_atf_sh_SCRIPTS += atf-sh/config_test
+CLEANFILES += atf-sh/config_test
+EXTRA_DIST += atf-sh/config_test.sh
+atf-sh/config_test: $(srcdir)/atf-sh/config_test.sh
+	test -d atf-sh || mkdir -p atf-sh
+	@src="$(srcdir)/atf-sh/config_test.sh"; \
+	dst="atf-sh/config_test"; $(BUILD_SH_TP)
+
+tests_atf_sh_SCRIPTS += atf-sh/integration_test
+CLEANFILES += atf-sh/integration_test
+EXTRA_DIST += atf-sh/integration_test.sh
+atf-sh/integration_test: $(srcdir)/atf-sh/integration_test.sh
+	test -d atf-sh || mkdir -p atf-sh
+	@src="$(srcdir)/atf-sh/integration_test.sh"; \
+	dst="atf-sh/integration_test"; $(BUILD_SH_TP)
+
+tests_atf_sh_SCRIPTS += atf-sh/normalize_test
+CLEANFILES += atf-sh/normalize_test
+EXTRA_DIST += atf-sh/normalize_test.sh
+atf-sh/normalize_test: $(srcdir)/atf-sh/normalize_test.sh
+	test -d atf-sh || mkdir -p atf-sh
+	@src="$(srcdir)/atf-sh/normalize_test.sh"; \
+	dst="atf-sh/normalize_test"; $(BUILD_SH_TP)
+
+tests_atf_sh_SCRIPTS += atf-sh/tc_test
+CLEANFILES += atf-sh/tc_test
+EXTRA_DIST += atf-sh/tc_test.sh
+atf-sh/tc_test: $(srcdir)/atf-sh/tc_test.sh
+	test -d atf-sh || mkdir -p atf-sh
+	@src="$(srcdir)/atf-sh/tc_test.sh"; \
+	dst="atf-sh/tc_test"; $(BUILD_SH_TP)
+
+tests_atf_sh_SCRIPTS += atf-sh/tp_test
+CLEANFILES += atf-sh/tp_test
+EXTRA_DIST += atf-sh/tp_test.sh
+atf-sh/tp_test: $(srcdir)/atf-sh/tp_test.sh
+	test -d atf-sh || mkdir -p atf-sh
+	@src="$(srcdir)/atf-sh/tp_test.sh"; \
+	dst="atf-sh/tp_test"; $(BUILD_SH_TP)
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

@@ -50,11 +50,30 @@ tests_atf_report_DATA = atf-report/Atffile
 tests_atf_reportdir = $(pkgtestsdir)/atf-report
 EXTRA_DIST += $(tests_atf_report_DATA)
 
-CXX_TP([atf-report], [h_fail])
-CXX_TP([atf-report], [h_pass])
-CXX_TP([atf-report], [h_misc])
-SH_TP([atf-report], [integration_test])
-CXX_TP([atf-report], [reader_test], [atf-report/reader.cpp],
-       [atf-c++/libh.la], [-I$(srcdir)/atf-report -I$(srcdir)/atf-c++])
+tests_atf_report_PROGRAMS = atf-report/h_fail
+atf_report_h_fail_SOURCES = atf-report/h_fail.cpp
+atf_report_h_fail_LDADD = libatf-c++.la
+
+tests_atf_report_PROGRAMS += atf-report/h_misc
+atf_report_h_misc_SOURCES = atf-report/h_misc.cpp
+atf_report_h_misc_LDADD = libatf-c++.la
+
+tests_atf_report_PROGRAMS += atf-report/h_pass
+atf_report_h_pass_SOURCES = atf-report/h_pass.cpp
+atf_report_h_pass_LDADD = libatf-c++.la
+
+tests_atf_report_SCRIPTS = atf-report/integration_test
+CLEANFILES += atf-report/integration_test
+EXTRA_DIST += atf-report/integration_test.sh
+atf-report/integration_test: $(srcdir)/atf-report/integration_test.sh
+	test -d atf-report || mkdir -p atf-report
+	@src="$(srcdir)/atf-report/integration_test.sh"; \
+	dst="atf-report/integration_test"; $(BUILD_SH_TP)
+
+tests_atf_report_PROGRAMS += atf-report/reader_test
+atf_report_reader_test_SOURCES = atf-report/reader_test.cpp \
+                                 atf-report/reader.cpp
+atf_report_reader_test_CPPFLAGS = -I$(srcdir)/atf-c++
+atf_report_reader_test_LDADD = atf-c++/libh.la libatf-c++.la
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

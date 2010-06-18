@@ -99,7 +99,6 @@ find_sources() {
               \! -path "*autom4te*" -a \
               -type f -a \
               \! -name "aclocal.m4" \
-              \! -name "automake-rules.m4" \
               \! -name "bconfig.h" \
               \! -name "libtool.m4" \
               \! -name "ltoptions.m4" \
