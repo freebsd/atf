@@ -99,16 +99,16 @@ testsuite_incs=	$(srcdir)/bootstrap/t_application_help.at \
 $(srcdir)/bootstrap/package.m4: $(top_srcdir)/configure.ac
 	{ \
 	echo '# Signature of the current package.'; \
-	echo 'm4_[]define(AT_PACKAGE_NAME,      @PACKAGE_NAME@)'; \
-	echo 'm4_[]define(AT_PACKAGE_TARNAME,   @PACKAGE_TARNAME@)'; \
-	echo 'm4_[]define(AT_PACKAGE_VERSION,   @PACKAGE_VERSION@)'; \
-	echo 'm4_[]define(AT_PACKAGE_STRING,    @PACKAGE_STRING@)'; \
-	echo 'm4_[]define(AT_PACKAGE_BUGREPORT, @PACKAGE_BUGREPORT@)'; \
+	echo 'm4_define(AT_PACKAGE_NAME,      @PACKAGE_NAME@)'; \
+	echo 'm4_define(AT_PACKAGE_TARNAME,   @PACKAGE_TARNAME@)'; \
+	echo 'm4_define(AT_PACKAGE_VERSION,   @PACKAGE_VERSION@)'; \
+	echo 'm4_define(AT_PACKAGE_STRING,    @PACKAGE_STRING@)'; \
+	echo 'm4_define(AT_PACKAGE_BUGREPORT, @PACKAGE_BUGREPORT@)'; \
 	} >$(srcdir)/bootstrap/package.m4
 
 $(srcdir)/bootstrap/testsuite: $(srcdir)/bootstrap/testsuite.at \
-                                     $(testsuite_incs) \
-                                     $(srcdir)/bootstrap/package.m4
+                               $(testsuite_incs) \
+                               $(srcdir)/bootstrap/package.m4
 	autom4te --language=Autotest -I $(srcdir) \
 	    -I $(srcdir)/bootstrap \
 	    $(srcdir)/bootstrap/testsuite.at -o $@.tmp

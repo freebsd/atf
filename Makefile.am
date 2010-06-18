@@ -27,10 +27,6 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-m4_changequote([, ])
-
-ACLOCAL_AMFLAGS = -I m4
-
 BUILT_SOURCES =
 CLEANFILES =
 EXTRA_DIST =
@@ -43,12 +39,28 @@ man_MANS =
 noinst_DATA =
 noinst_LTLIBRARIES =
 
+ACLOCAL_AMFLAGS = -I m4
+
+include admin/Makefile.am.inc
+include atf-c++/Makefile.am.inc
+include atf-c/Makefile.am.inc
+include atf-check/Makefile.am.inc
+include atf-config/Makefile.am.inc
+include atf-format/Makefile.am.inc
+include atf-report/Makefile.am.inc
+include atf-run/Makefile.am.inc
+include atf-sh/Makefile.am.inc
+include atf-version/Makefile.am.inc
+include bootstrap/Makefile.am.inc
+include doc/Makefile.am.inc
+include test-programs/Makefile.am.inc
+
 #
 # Top-level distfile document generation and installation.
 #
 
 doc_DATA = AUTHORS COPYING NEWS README
-noinst_DATA = INSTALL
+noinst_DATA += INSTALL
 CLEANFILES += AUTHORS COPYING INSTALL NEWS README
 EXTRA_DIST += $(doc_DATA) INSTALL
 
@@ -66,35 +78,6 @@ $(srcdir)/NEWS: $(srcdir)/doc/text/news.txt
 
 $(srcdir)/README: $(srcdir)/doc/text/readme.txt
 	cp $(srcdir)/doc/text/readme.txt $(srcdir)/README
-
-#
-# Makefile.am construction.
-#
-
-EXTRA_DIST += Makefile.am.m4
-$(srcdir)/Makefile.am: $(srcdir)/admin/generate-makefile.sh \
-                       $(srcdir)/Makefile.am.m4
-	$(srcdir)/admin/generate-makefile.sh \
-	    $(srcdir)/Makefile.am.m4 $(srcdir)/Makefile.am
-
-m4_define([INCLUDE], [
-$(srcdir)/Makefile.am: $(srcdir)/$1
-m4_include($1)
-EXTRA_DIST += $1
-])
-INCLUDE(admin/Makefile.am.inc)
-INCLUDE(atf-c++/Makefile.am.inc)
-INCLUDE(atf-c/Makefile.am.inc)
-INCLUDE(atf-check/Makefile.am.inc)
-INCLUDE(atf-config/Makefile.am.inc)
-INCLUDE(atf-format/Makefile.am.inc)
-INCLUDE(atf-report/Makefile.am.inc)
-INCLUDE(atf-run/Makefile.am.inc)
-INCLUDE(atf-sh/Makefile.am.inc)
-INCLUDE(atf-version/Makefile.am.inc)
-INCLUDE(bootstrap/Makefile.am.inc)
-INCLUDE(doc/Makefile.am.inc)
-INCLUDE(test-programs/Makefile.am.inc)
 
 #
 # Supporting logic to run our custom testsuite.

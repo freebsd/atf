@@ -45,7 +45,6 @@ make distclean
 
 # Top-level directory.
 rm -f .gdb_history
-rm -f Makefile.am
 rm -f Makefile.in
 rm -f aclocal.m4
 rm -rf autom4te.cache

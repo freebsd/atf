@@ -45,7 +45,6 @@ EXTRA_DIST += admin/check-install.sh \
               admin/check-style-shell.awk \
               admin/check-style.sh \
               admin/choose-revision.sh \
-              admin/generate-makefile.sh \
               admin/generate-revision.sh \
               admin/generate-revision-dist.sh
 
