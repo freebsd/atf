@@ -62,7 +62,6 @@ extern "C" {
 #include "atf-c++/sanity.hpp"
 #include "atf-c++/tests.hpp"
 #include "atf-c++/text.hpp"
-#include "atf-c++/ui.hpp"
 #include "atf-c++/user.hpp"
 
 namespace impl = atf::tests;
@@ -402,7 +401,7 @@ const char* tp::m_description =
     "This is an independent atf test program.";
 
 tp::tp(void (*add_tcs)(tc_vector&)) :
-    app(m_description, "atf-test-program(1)", "atf(7)"),
+    app(m_description, "atf-test-program(1)", "atf(7)", false),
     m_lflag(false),
     m_resfile("/dev/stdout"),
     m_srcdir("."),

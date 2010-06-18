@@ -33,7 +33,6 @@
 
 # Values of configuration variables obtained from atf-config.
 Atf_Arch=$(atf-config -t atf_arch)
-Atf_Format=$(atf-config -t atf_libexecdir)/atf-format
 Atf_Machine=$(atf-config -t atf_machine)
 
 # The list of all test cases defined by the test program.
@@ -339,17 +338,6 @@ _atf_config_set_from_str()
 }
 
 #
-# _atf_echo [-l indent] [-t tag] [msg1 [.. msgN]]
-#
-#   Prints a formatted message using atf-format(1).  See its manual
-#   page for details on the syntax of this function.
-#
-_atf_echo()
-{
-    ${Atf_Format} "${@}"
-}
-
-#
 # _atf_ensure_boolean var
 #
 #   Ensures that the test case defined the variable 'var' to a boolean
@@ -399,7 +387,7 @@ _atf_error()
 {
     _error_code="${1}"; shift
 
-    _atf_echo -r -t "${Prog_Name}: " "ERROR:" "$@" 1>&2
+    echo "${Prog_Name}: ERROR:" "$@" 1>&2
     exit ${_error_code}
 }
 
@@ -630,9 +618,8 @@ _atf_sigterm_handler()
 #
 _atf_syntax_error()
 {
-    _atf_echo -r -t "${Prog_Name}: " "ERROR: ${@}" 1>&2
-    _atf_echo -r -t "${Prog_Name}: " "Type \`${Prog_Name} -h' for more" \
-                                     "details." 1>&2
+    echo "${Prog_Name}: ERROR: ${@}" 1>&2
+    echo "${Prog_Name}: See atf-test-program(1) for usage details." 1>&2
     exit 1
 }
 
@@ -665,31 +652,6 @@ _atf_has_cleanup()
 }
 
 #
-# _atf_usage
-#
-#   Prints usage information and exits the program.
-#
-_atf_usage()
-{
-    _atf_echo -t "Usage: " "${Prog_Name} [options] test_case"
-    echo
-    _atf_echo "This is an independent atf test program."
-    echo
-    _atf_echo "Available options:"
-    _atf_echo -t "    -h              " "Shows this help message"
-    _atf_echo -t "    -l              " "List test cases and their purpose"
-    _atf_echo -t "    -r resfile      " "The file to which the test program " \
-                                        "will write the results of the " \
-                                        "executed test case"
-    _atf_echo -t "    -s srcdir       " "Directory where the test's data" \
-                                        "files are located"
-    _atf_echo -t "    -v var=value    " "Sets the configuration variable" \
-                                        "\`var' to \`value'"
-    echo
-    _atf_echo "For more details please see atf-test-program(1) and atf(7)."
-}
-
-#
 # _atf_warning [msg1 [.. msgN]]
 #
 #   Prints the given warning message (which can be composed of multiple
@@ -700,7 +662,7 @@ _atf_usage()
 #
 _atf_warning()
 {
-    _atf_echo -r -t "${Prog_Name}: " "WARNING:" "$@" 1>&2
+    echo "${Prog_Name}: WARNING:" "$@" 1>&2
 }
 
 #
@@ -712,14 +674,9 @@ main()
 {
     # Process command-line options first.
     _numargs=${#}
-    _hflag=false
     _lflag=false
-    while getopts :hlr:s:v: arg; do
+    while getopts :lr:s:v: arg; do
         case ${arg} in
-        h)
-            _hflag=true
-            ;;
-
         l)
             _lflag=true
             ;;
@@ -743,13 +700,6 @@ main()
         esac
     done
     shift `expr ${OPTIND} - 1`
-
-    if [ ${_hflag} = true ]; then
-        [ ${_numargs} -eq 1 ] || _atf_syntax_error "-h must be given alone."
-        _atf_usage
-        true
-        return
-    fi
 
     # First of all, make sure that the source directory is correct.  It
     # doesn't matter if the user did not change it, because the default

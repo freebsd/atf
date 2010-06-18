@@ -26,7 +26,7 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd June 7, 2010
+.Dd June 18, 2010
 .Dt ATF-TEST-PROGRAM 1
 .Os
 .Sh NAME
@@ -40,8 +40,6 @@
 .Ar test_case
 .Nm
 .Fl l
-.Nm
-.Fl h
 .Sh DESCRIPTION
 Test programs written using the ATF libraries all share a common user
 interface, which is what this manual page describes.
@@ -71,13 +69,8 @@ This list is processed by
 .Xr atf-run 1
 to know how to execute the test cases of a given test program.
 .Pp
-In the third synopsis form, the test program will print information
-about all supported options and their purpose.
-.Pp
 The following options are available:
 .Bl -tag -width XvXvarXvalueXX
-.It Fl h
-Shows a short summary of all available options and their purpose.
 .It Fl l
 Lists available test cases alongside a brief description for each of them.
 .It Fl r Ar resfile

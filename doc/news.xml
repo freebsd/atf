@@ -62,6 +62,11 @@ the second argument.</para></listitem>
 <listitem><para>Splitted the <filename>Makefile.am</filename> into smaller
 files for easier maintenance and dropped the use of M4.</para></listitem>
 
+<listitem><para>Removed usage messages from test programs to simplify the
+implementation of every binding by a significant amount.  They just now
+refer the user to the appropriate manual page.  And, anyway, test programs
+are not supposed to be run by users directly.</para></listitem>
+
 </itemizedlist>
 
 </section>
