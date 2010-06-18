@@ -34,7 +34,6 @@ bin_PROGRAMS =
 dist_man_MANS =
 include_HEADERS =
 lib_LTLIBRARIES =
-libexec_PROGRAMS =
 man_MANS =
 noinst_DATA =
 noinst_LTLIBRARIES =
