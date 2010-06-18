@@ -43,9 +43,9 @@ routine or not; its value is automatically set.  The property is read by
 which significantly speeds up the runtime of test suites.</para></listitem>
 
 <listitem><para>Simplifications to the <literal>atf-c</literal> library:
-removed the <literal>io</literal> and <literal>tcr</literal> modules as
-they had become unnecessary after all simplifications introduced in the
-0.8 release.</para></listitem>
+removed the <literal>io</literal>, <literal>tcr</literal> and
+<literal>ui</literal> modules as they had become unnecessary after all
+simplifications introduced in the 0.8 and this release.</para></listitem>
 
 <listitem><para>Removed the <literal>application/X-atf-tcr</literal> format
 introduced in 0.8 release.  Tests now print a much simplified format that

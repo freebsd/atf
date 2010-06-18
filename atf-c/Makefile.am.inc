@@ -54,8 +54,6 @@ libatf_c_la_SOURCES = atf-c/build.c \
                       atf-c/sanity.h \
                       atf-c/text.c \
                       atf-c/text.h \
-                      atf-c/ui.c \
-                      atf-c/ui.h \
                       atf-c/user.c \
                       atf-c/user.h \
                       atf-c/tc.c \
@@ -105,7 +103,6 @@ atf_c_HEADERS = atf-c/build.h \
                 atf-c/tc.h \
                 atf-c/text.h \
                 atf-c/tp.h \
-                atf-c/ui.h \
                 atf-c/user.h
 atf_cdir = $(includedir)/atf-c
 
@@ -211,10 +208,6 @@ atf_c_text_test_LDADD = atf-c/libh.la libatf-c.la
 tests_atf_c_PROGRAMS += atf-c/tp_test
 atf_c_tp_test_SOURCES = atf-c/tp_test.c
 atf_c_tp_test_LDADD = atf-c/libh.la libatf-c.la
-
-tests_atf_c_PROGRAMS += atf-c/ui_test
-atf_c_ui_test_SOURCES = atf-c/ui_test.c
-atf_c_ui_test_LDADD = atf-c/libh.la libatf-c.la
 
 tests_atf_c_PROGRAMS += atf-c/user_test
 atf_c_user_test_SOURCES = atf-c/user_test.c
