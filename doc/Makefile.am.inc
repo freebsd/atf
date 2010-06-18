@@ -54,32 +54,76 @@ BUILD_XML_ENV = DOC_BUILD=$(DOC_BUILD) \
                 XMLLINT=$(XMLLINT) \
                 XSLTPROC=$(XSLTPROC)
 
-# XML_DOC basename
-#
-# Formats doc/<basename>.xml into HTML and plain text versions.
-m4_define([XML_DOC], [
-EXTRA_DIST += doc/$1.xml
-EXTRA_DIST += doc/standalone/$1.html
-noinst_DATA += doc/standalone/$1.html
-EXTRA_DIST += doc/text/$1.txt
-noinst_DATA += doc/text/$1.txt
-doc/standalone/$1.html: $(srcdir)/doc/$1.xml doc/build-xml.sh \
-                        $(_STANDALONE_XSLT)
+BUILD_HTML = \
 	$(BUILD_XML_ENV) $(ATF_SHELL) doc/build-xml.sh \
-	    $(srcdir)/doc/$1.xml $(srcdir)/$(_STANDALONE_XSLT) \
-	    html:$(srcdir)/doc/standalone/$1.html
-doc/text/$1.txt: $(srcdir)/doc/$1.xml doc/build-xml.sh $(_STANDALONE_XSLT)
+	    $(srcdir)/doc/$${name}.xml $(srcdir)/$(_STANDALONE_XSLT) \
+	    html:$(srcdir)/doc/standalone/$${name}.html
+
+BUILD_TXT = \
 	$(BUILD_XML_ENV) $(ATF_SHELL) doc/build-xml.sh \
-	    $(srcdir)/doc/$1.xml $(srcdir)/$(_STANDALONE_XSLT) \
-	    txt:$(srcdir)/doc/text/$1.txt
-])
+	    $(srcdir)/doc/$${name}.xml $(srcdir)/$(_STANDALONE_XSLT) \
+	    txt:$(srcdir)/doc/text/$${name}.txt
 
-XML_DOC([authors])
-XML_DOC([copying])
-XML_DOC([install])
-XML_DOC([news])
-XML_DOC([readme])
-XML_DOC([specification])
+DOC_DEPS = doc/build-xml.sh $(_STANDALONE_XSLT)
 
+EXTRA_DIST += doc/authors.xml
+EXTRA_DIST += doc/standalone/authors.html
+noinst_DATA += doc/standalone/authors.html
+doc/standalone/authors.html: $(srcdir)/doc/authors.xml $(DOC_DEPS)
+	name=authors; $(BUILD_HTML)
+EXTRA_DIST += doc/text/authors.txt
+noinst_DATA += doc/text/authors.txt
+doc/text/authors.txt: $(srcdir)/doc/authors.xml $(DOC_DEPS)
+	name=authors; $(BUILD_TXT)
+
+EXTRA_DIST += doc/copying.xml
+EXTRA_DIST += doc/standalone/copying.html
+noinst_DATA += doc/standalone/copying.html
+doc/standalone/copying.html: $(srcdir)/doc/copying.xml $(DOC_DEPS)
+	name=copying; $(BUILD_HTML)
+EXTRA_DIST += doc/text/copying.txt
+noinst_DATA += doc/text/copying.txt
+doc/text/copying.txt: $(srcdir)/doc/copying.xml $(DOC_DEPS)
+	name=copying; $(BUILD_TXT)
+
+EXTRA_DIST += doc/install.xml
+EXTRA_DIST += doc/standalone/install.html
+noinst_DATA += doc/standalone/install.html
+doc/standalone/install.html: $(srcdir)/doc/install.xml $(DOC_DEPS)
+	name=install; $(BUILD_HTML)
+EXTRA_DIST += doc/text/install.txt
+noinst_DATA += doc/text/install.txt
+doc/text/install.txt: $(srcdir)/doc/install.xml $(DOC_DEPS)
+	name=install; $(BUILD_TXT)
+
+EXTRA_DIST += doc/news.xml
+EXTRA_DIST += doc/standalone/news.html
+noinst_DATA += doc/standalone/news.html
+doc/standalone/news.html: $(srcdir)/doc/news.xml $(DOC_DEPS)
+	name=news; $(BUILD_HTML)
+EXTRA_DIST += doc/text/news.txt
+noinst_DATA += doc/text/news.txt
+doc/text/news.txt: $(srcdir)/doc/news.xml $(DOC_DEPS)
+	name=news; $(BUILD_TXT)
+
+EXTRA_DIST += doc/readme.xml
+EXTRA_DIST += doc/standalone/readme.html
+noinst_DATA += doc/standalone/readme.html
+doc/standalone/readme.html: $(srcdir)/doc/readme.xml $(DOC_DEPS)
+	name=readme; $(BUILD_HTML)
+EXTRA_DIST += doc/text/readme.txt
+noinst_DATA += doc/text/readme.txt
+doc/text/readme.txt: $(srcdir)/doc/readme.xml $(DOC_DEPS)
+	name=readme; $(BUILD_TXT)
+
+EXTRA_DIST += doc/specification.xml
+EXTRA_DIST += doc/standalone/specification.html
+noinst_DATA += doc/standalone/specification.html
+doc/standalone/specification.html: $(srcdir)/doc/specification.xml $(DOC_DEPS)
+	name=specification; $(BUILD_HTML)
+EXTRA_DIST += doc/text/specification.txt
+noinst_DATA += doc/text/specification.txt
+doc/text/specification.txt: $(srcdir)/doc/specification.xml $(DOC_DEPS)
+	name=specification; $(BUILD_TXT)
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
