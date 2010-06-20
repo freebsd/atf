@@ -70,6 +70,10 @@ are not supposed to be run by users directly.</para></listitem>
 <listitem><para>Removed the <command>atf-format</command> internal utility,
 which is unused after previous change.</para></listitem>
 
+<listitem><para>Added the <literal>ATF_CHECK_ERRNO</literal> and
+<literal>ATF_REQUIRE_ERRNO</literal> to the C library to allow easy checking
+of call failures that update <literal>errno</literal>.</para></listitem>
+
 </itemizedlist>
 
 </section>

@@ -632,3 +632,34 @@ atf_tc_skip(const char *fmt, ...)
 
     exit(EXIT_SUCCESS);
 }
+
+void
+atf_tc_check_errno(const char *file, const int line, const int exp_errno,
+                   const char *expr_str, const bool expr_result)
+{
+    const int actual_errno = errno;
+
+    if (expr_result) {
+        if (exp_errno != actual_errno)
+            atf_tc_fail_check(file, line, "Expected errno %d, got %d, in %s",
+                              exp_errno, actual_errno, expr_str);
+    } else {
+        atf_tc_fail_check(file, line, "Expected true value in %s", expr_str);
+    }
+}
+
+void
+atf_tc_require_errno(const char *file, const int line, const int exp_errno,
+                     const char *expr_str, const bool expr_result)
+{
+    const int actual_errno = errno;
+
+    if (expr_result) {
+        if (exp_errno != actual_errno)
+            atf_tc_fail_requirement(file, line, "Expected errno %d, got %d, "
+                                    "in %s", exp_errno, actual_errno, expr_str);
+    } else {
+        atf_tc_fail_requirement(file, line, "Expected true value in %s",
+                                expr_str);
+    }
+}
