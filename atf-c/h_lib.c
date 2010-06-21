@@ -93,9 +93,9 @@ header_check(const atf_tc_t *tc, const char *hdrname)
 }
 
 void
-get_h_processes_path(const atf_tc_t *tc, atf_fs_path_t *path)
+get_process_helpers_path(const atf_tc_t *tc, atf_fs_path_t *path)
 {
-    RE(atf_fs_path_init_fmt(path, "%s/h_processes",
+    RE(atf_fs_path_init_fmt(path, "%s/process_helpers",
                             atf_tc_get_config_var(tc, "srcdir")));
 }
 

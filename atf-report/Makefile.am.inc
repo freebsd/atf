@@ -50,17 +50,17 @@ tests_atf_report_DATA = atf-report/Atffile
 tests_atf_reportdir = $(pkgtestsdir)/atf-report
 EXTRA_DIST += $(tests_atf_report_DATA)
 
-tests_atf_report_PROGRAMS = atf-report/h_fail
-atf_report_h_fail_SOURCES = atf-report/h_fail.cpp
-atf_report_h_fail_LDADD = libatf-c++.la
+tests_atf_report_PROGRAMS = atf-report/fail_helper
+atf_report_fail_helper_SOURCES = atf-report/fail_helper.cpp
+atf_report_fail_helper_LDADD = libatf-c++.la
 
-tests_atf_report_PROGRAMS += atf-report/h_misc
-atf_report_h_misc_SOURCES = atf-report/h_misc.cpp
-atf_report_h_misc_LDADD = libatf-c++.la
+tests_atf_report_PROGRAMS += atf-report/misc_helpers
+atf_report_misc_helpers_SOURCES = atf-report/misc_helpers.cpp
+atf_report_misc_helpers_LDADD = libatf-c++.la
 
-tests_atf_report_PROGRAMS += atf-report/h_pass
-atf_report_h_pass_SOURCES = atf-report/h_pass.cpp
-atf_report_h_pass_LDADD = libatf-c++.la
+tests_atf_report_PROGRAMS += atf-report/pass_helper
+atf_report_pass_helper_SOURCES = atf-report/pass_helper.cpp
+atf_report_pass_helper_LDADD = libatf-c++.la
 
 tests_atf_report_SCRIPTS = atf-report/integration_test
 CLEANFILES += atf-report/integration_test

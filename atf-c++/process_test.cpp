@@ -60,15 +60,15 @@ array_size(const char* const* array)
 
 static
 atf::process::status
-exec_h_processes(const atf::tests::tc& tc, const char* helper_name)
+exec_process_helpers(const atf::tests::tc& tc, const char* helper_name)
 {
     using atf::process::exec;
 
     std::vector< std::string > argv;
-    argv.push_back(get_h_processes_path(tc).leaf_name());
+    argv.push_back(get_process_helpers_path(tc).leaf_name());
     argv.push_back(helper_name);
 
-    return exec(get_h_processes_path(tc),
+    return exec(get_process_helpers_path(tc),
                 atf::process::argv_array(argv),
                 atf::process::stream_inherit(),
                 atf::process::stream_inherit());
@@ -319,7 +319,7 @@ ATF_TEST_CASE_HEAD(exec_failure)
 }
 ATF_TEST_CASE_BODY(exec_failure)
 {
-    const atf::process::status s = exec_h_processes(*this, "exit-failure");
+    const atf::process::status s = exec_process_helpers(*this, "exit-failure");
     ATF_CHECK(s.exited());
     ATF_CHECK_EQUAL(s.exitstatus(), EXIT_FAILURE);
 }
@@ -331,7 +331,7 @@ ATF_TEST_CASE_HEAD(exec_success)
 }
 ATF_TEST_CASE_BODY(exec_success)
 {
-    const atf::process::status s = exec_h_processes(*this, "exit-success");
+    const atf::process::status s = exec_process_helpers(*this, "exit-success");
     ATF_CHECK(s.exited());
     ATF_CHECK_EQUAL(s.exitstatus(), EXIT_SUCCESS);
 }

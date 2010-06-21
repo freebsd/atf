@@ -30,10 +30,10 @@
 create_helpers()
 {
     mkdir dir1
-    cp $(atf_get_srcdir)/h_pass dir1/tp1
-    cp $(atf_get_srcdir)/h_fail dir1/tp2
-    cp $(atf_get_srcdir)/h_pass tp3
-    cp $(atf_get_srcdir)/h_fail tp4
+    cp $(atf_get_srcdir)/pass_helper dir1/tp1
+    cp $(atf_get_srcdir)/fail_helper dir1/tp2
+    cp $(atf_get_srcdir)/pass_helper tp3
+    cp $(atf_get_srcdir)/fail_helper tp4
 
     cat >tp5 <<EOF
 #! $(atf-config -t atf_shell)
@@ -285,13 +285,13 @@ output_xml_space_head()
 }
 output_xml_space_body()
 {
-    cp $(atf_get_srcdir)/h_misc .
+    cp $(atf_get_srcdir)/misc_helpers .
     cat >Atffile <<EOF
 Content-Type: application/X-atf-atffile; version="1"
 
 prop: test-suite = atf
 
-tp: h_misc
+tp: misc_helpers
 EOF
 
 # NO_CHECK_STYLE_BEGIN
@@ -301,7 +301,7 @@ EOF
 
 <tests-results>
 <info class="startinfo">A value</info>
-<tp id="h_misc">
+<tp id="misc_helpers">
 <tc id="diff">
 <so>--- a	2007-11-04 14:00:41.000000000 +0100</so>
 <so>+++ b	2007-11-04 14:00:48.000000000 +0100</so>

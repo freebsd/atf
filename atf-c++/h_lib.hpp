@@ -75,7 +75,7 @@ class tc;
 
 void header_check(const atf::tests::tc&, const char*);
 void build_check_cxx_o(const atf::tests::tc&, const char*, const char*);
-atf::fs::path get_h_processes_path(const atf::tests::tc&);
+atf::fs::path get_process_helpers_path(const atf::tests::tc&);
 bool grep_file(const char*, const char*);
 bool grep_string(const std::string&, const char*);
 

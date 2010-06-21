@@ -35,7 +35,7 @@ has_head()
 }
 has_body()
 {
-    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
+    h="$(atf_get_srcdir)/misc_helpers -s $(atf_get_srcdir)"
 
     atf_check -s eq:0 -o match:'foo not found' -e empty -x \
               "TEST_VARIABLE=foo ${h} config_has"
@@ -56,7 +56,7 @@ get_head()
 }
 get_body()
 {
-    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
+    h="$(atf_get_srcdir)/misc_helpers -s $(atf_get_srcdir)"
 
     echo "Querying an undefined variable"
     ( atf_config_get "undefined" ) >out 2>err && \

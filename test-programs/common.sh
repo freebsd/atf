@@ -32,7 +32,7 @@ get_helpers()
     srcdir=$(atf_get_srcdir)
 
     if [ ${#} -eq 0 ]; then
-        set -- h_c h_cpp h_sh
+        set -- c_helpers cpp_helpers sh_helpers
     fi
 
     for h_name in "${@}"; do

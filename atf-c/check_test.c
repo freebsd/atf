@@ -50,18 +50,18 @@ static
 void
 do_exec(const atf_tc_t *tc, const char *helper_name, atf_check_result_t *r)
 {
-    atf_fs_path_t h_processes;
+    atf_fs_path_t process_helpers;
     const char *argv[3];
 
-    get_h_processes_path(tc, &h_processes);
+    get_process_helpers_path(tc, &process_helpers);
 
-    argv[0] = atf_fs_path_cstring(&h_processes);
+    argv[0] = atf_fs_path_cstring(&process_helpers);
     argv[1] = helper_name;
     argv[2] = NULL;
     printf("Executing %s %s\n", argv[0], argv[1]);
     RE(atf_check_exec_array(argv, r));
 
-    atf_fs_path_fini(&h_processes);
+    atf_fs_path_fini(&process_helpers);
 }
 
 static
@@ -69,19 +69,19 @@ void
 do_exec_with_arg(const atf_tc_t *tc, const char *helper_name, const char *arg,
                  atf_check_result_t *r)
 {
-    atf_fs_path_t h_processes;
+    atf_fs_path_t process_helpers;
     const char *argv[4];
 
-    get_h_processes_path(tc, &h_processes);
+    get_process_helpers_path(tc, &process_helpers);
 
-    argv[0] = atf_fs_path_cstring(&h_processes);
+    argv[0] = atf_fs_path_cstring(&process_helpers);
     argv[1] = helper_name;
     argv[2] = arg;
     argv[3] = NULL;
     printf("Executing %s %s %s\n", argv[0], argv[1], argv[2]);
     RE(atf_check_exec_array(argv, r));
 
-    atf_fs_path_fini(&h_processes);
+    atf_fs_path_fini(&process_helpers);
 }
 
 static
@@ -313,20 +313,20 @@ ATF_TC_HEAD(exec_argv, tc)
 }
 ATF_TC_BODY(exec_argv, tc)
 {
-    atf_fs_path_t h_processes;
+    atf_fs_path_t process_helpers;
     atf_check_result_t result;
 
-    get_h_processes_path(tc, &h_processes);
+    get_process_helpers_path(tc, &process_helpers);
     do_exec(tc, "exit-success", &result);
 
     const atf_list_t *argv = atf_check_result_argv(&result);
     ATF_REQUIRE_EQ(atf_list_size(argv), 2);
     ATF_CHECK_STREQ((const char *)atf_list_index_c(argv, 0),
-                    atf_fs_path_cstring(&h_processes));
+                    atf_fs_path_cstring(&process_helpers));
     ATF_CHECK_STREQ((const char *)atf_list_index_c(argv, 1), "exit-success");
 
     atf_check_result_fini(&result);
-    atf_fs_path_fini(&h_processes);
+    atf_fs_path_fini(&process_helpers);
 }
 
 ATF_TC(exec_cleanup);
@@ -398,14 +398,14 @@ ATF_TC_HEAD(exec_list, tc)
 }
 ATF_TC_BODY(exec_list, tc)
 {
-    atf_fs_path_t h_processes;
+    atf_fs_path_t process_helpers;
     atf_list_t argv;
     atf_check_result_t result;
 
     RE(atf_list_init(&argv));
 
-    get_h_processes_path(tc, &h_processes);
-    atf_list_append(&argv, strdup(atf_fs_path_cstring(&h_processes)), true);
+    get_process_helpers_path(tc, &process_helpers);
+    atf_list_append(&argv, strdup(atf_fs_path_cstring(&process_helpers)), true);
     atf_list_append(&argv, strdup("echo"), true);
     atf_list_append(&argv, strdup("test-message"), true);
     RE(atf_check_exec_list(&argv, &result));
@@ -423,7 +423,7 @@ ATF_TC_BODY(exec_list, tc)
     }
 
     atf_check_result_fini(&result);
-    atf_fs_path_fini(&h_processes);
+    atf_fs_path_fini(&process_helpers);
 }
 
 ATF_TC(exec_stdout_stderr);
@@ -502,11 +502,11 @@ ATF_TC_HEAD(exec_umask, tc)
 ATF_TC_BODY(exec_umask, tc)
 {
     atf_check_result_t result;
-    atf_fs_path_t h_processes;
+    atf_fs_path_t process_helpers;
     const char *argv[3];
 
-    get_h_processes_path(tc, &h_processes);
-    argv[0] = atf_fs_path_cstring(&h_processes);
+    get_process_helpers_path(tc, &process_helpers);
+    argv[0] = atf_fs_path_cstring(&process_helpers);
     argv[1] = "exit-success";
     argv[2] = NULL;
 
@@ -516,7 +516,7 @@ ATF_TC_BODY(exec_umask, tc)
     ATF_CHECK(atf_error_is(err, "invalid_umask"));
     atf_error_free(err);
 
-    atf_fs_path_fini(&h_processes);
+    atf_fs_path_fini(&process_helpers);
 }
 
 ATF_TC(exec_unknown);

@@ -864,18 +864,18 @@ static
 void
 do_exec(const atf_tc_t *tc, const char *helper_name, atf_process_status_t *s)
 {
-    atf_fs_path_t h_processes;
+    atf_fs_path_t process_helpers;
     const char *argv[3];
 
-    get_h_processes_path(tc, &h_processes);
+    get_process_helpers_path(tc, &process_helpers);
 
-    argv[0] = atf_fs_path_cstring(&h_processes);
+    argv[0] = atf_fs_path_cstring(&process_helpers);
     argv[1] = helper_name;
     argv[2] = NULL;
     printf("Executing %s %s\n", argv[0], argv[1]);
 
-    RE(atf_process_exec_array(s, &h_processes, argv, NULL, NULL));
-    atf_fs_path_fini(&h_processes);
+    RE(atf_process_exec_array(s, &process_helpers, argv, NULL, NULL));
+    atf_fs_path_fini(&process_helpers);
 }
 
 static
@@ -917,14 +917,14 @@ ATF_TC_HEAD(exec_list, tc)
 }
 ATF_TC_BODY(exec_list, tc)
 {
-    atf_fs_path_t h_processes;
+    atf_fs_path_t process_helpers;
     atf_list_t argv;
     atf_process_status_t status;
 
     RE(atf_list_init(&argv));
 
-    get_h_processes_path(tc, &h_processes);
-    atf_list_append(&argv, strdup(atf_fs_path_cstring(&h_processes)), true);
+    get_process_helpers_path(tc, &process_helpers);
+    atf_list_append(&argv, strdup(atf_fs_path_cstring(&process_helpers)), true);
     atf_list_append(&argv, strdup("echo"), true);
     atf_list_append(&argv, strdup("test-message"), true);
     {
@@ -933,7 +933,8 @@ ATF_TC_BODY(exec_list, tc)
 
         RE(atf_fs_path_init_fmt(&outpath, "stdout"));
         RE(atf_process_stream_init_redirect_path(&outsb, &outpath));
-        RE(atf_process_exec_list(&status, &h_processes, &argv, &outsb, NULL));
+        RE(atf_process_exec_list(&status, &process_helpers, &argv, &outsb,
+                                 NULL));
         atf_process_stream_fini(&outsb);
         atf_fs_path_fini(&outpath);
     }
@@ -950,7 +951,7 @@ ATF_TC_BODY(exec_list, tc)
     }
 
     atf_process_status_fini(&status);
-    atf_fs_path_fini(&h_processes);
+    atf_fs_path_fini(&process_helpers);
 }
 
 ATF_TC(exec_success);

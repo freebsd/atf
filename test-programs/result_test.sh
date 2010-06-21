@@ -82,7 +82,7 @@ reason_newlines_body()
 {
     for h in $(get_helpers); do
         case ${h} in
-            *h_sh*)
+            *sh_helpers*)
                 # XXX Not implemented.
                 continue
                 ;;

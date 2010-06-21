@@ -734,7 +734,7 @@ ATF_TEST_CASE_BODY(atf_tps_writer)
 ATF_TEST_CASE(get_metadata_bad);
 ATF_TEST_CASE_HEAD(get_metadata_bad) {}
 ATF_TEST_CASE_BODY(get_metadata_bad) {
-    const atf::fs::path executable = get_helper(*this, "h_bad_metadata");
+    const atf::fs::path executable = get_helper(*this, "bad_metadata_helper");
     ATF_CHECK_THROW(atf::parser::parse_errors,
                     impl::get_metadata(executable, vars_map()));
 }
@@ -742,7 +742,7 @@ ATF_TEST_CASE_BODY(get_metadata_bad) {
 ATF_TEST_CASE(get_metadata_zero_tcs);
 ATF_TEST_CASE_HEAD(get_metadata_zero_tcs) {}
 ATF_TEST_CASE_BODY(get_metadata_zero_tcs) {
-    const atf::fs::path executable = get_helper(*this, "h_zero_tcs");
+    const atf::fs::path executable = get_helper(*this, "zero_tcs_helper");
     ATF_CHECK_THROW(atf::parser::parse_errors,
                     impl::get_metadata(executable, vars_map()));
 }
@@ -750,7 +750,7 @@ ATF_TEST_CASE_BODY(get_metadata_zero_tcs) {
 ATF_TEST_CASE(get_metadata_several_tcs);
 ATF_TEST_CASE_HEAD(get_metadata_several_tcs) {}
 ATF_TEST_CASE_BODY(get_metadata_several_tcs) {
-    const atf::fs::path executable = get_helper(*this, "h_several_tcs");
+    const atf::fs::path executable = get_helper(*this, "several_tcs_helper");
     const impl::metadata md = impl::get_metadata(executable, vars_map());
     ATF_CHECK_EQUAL(3, md.test_cases.size());
 

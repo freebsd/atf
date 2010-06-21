@@ -757,10 +757,10 @@ ATF_TC_BODY(msg_embedded_fmt, tc)
  * --------------------------------------------------------------------- */
 
 HEADER_TC(include, "atf-c/macros.h");
-BUILD_TC(use, "d_use_macros_h.c",
+BUILD_TC(use, "macros_h_test.c",
          "Tests that the macros provided by the atf-c/macros.h file "
          "do not cause syntax errors when used",
-         "Build of d_use_macros_h.c failed; some macros in atf-c/macros.h "
+         "Build of macros_h_test.c failed; some macros in atf-c/macros.h "
          "are broken");
 
 /* ---------------------------------------------------------------------

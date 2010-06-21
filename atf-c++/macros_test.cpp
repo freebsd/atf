@@ -489,10 +489,10 @@ ATF_TEST_CASE_BODY(require_errno)
 // ------------------------------------------------------------------------
 
 HEADER_TC(include, "atf-c++/macros.hpp");
-BUILD_TC(use, "d_use_macros_hpp.cpp",
+BUILD_TC(use, "macros_hpp_test.cpp",
          "Tests that the macros provided by the atf-c++/macros.hpp file "
          "do not cause syntax errors when used",
-         "Build of d_use_macros_hpp.cpp failed; some macros in "
+         "Build of macros_hpp_test.cpp failed; some macros in "
          "atf-c++/macros.hpp are broken");
 
 // ------------------------------------------------------------------------

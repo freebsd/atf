@@ -37,7 +37,7 @@ srcdir_head()
 srcdir_body()
 {
     mkdir work
-    atf_check -s eq:0 -o empty -e empty cp "$(atf_get_srcdir)/h_misc" work
+    atf_check -s eq:0 -o empty -e empty cp "$(atf_get_srcdir)/misc_helpers" work
     cat >work/subrs <<EOF
 helper_subr() {
     echo "This is a helper subroutine"
@@ -45,7 +45,7 @@ helper_subr() {
 EOF
 
     atf_check -s eq:0 -o match:'Calling helper' \
-        -o match:'This is a helper subroutine' -e empty ./work/h_misc \
+        -o match:'This is a helper subroutine' -e empty ./work/misc_helpers \
         -s "$(pwd)"/work tp_srcdir
 }
 

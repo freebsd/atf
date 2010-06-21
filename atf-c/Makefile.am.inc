@@ -122,7 +122,7 @@ atf-c/atf-c.pc: $(srcdir)/atf-c/atf-c.pc.in
 	mv atf-c/atf-c.pc.tmp atf-c/atf-c.pc
 
 tests_atf_c_DATA = atf-c/Atffile \
-                   atf-c/d_use_macros_h.c
+                   atf-c/macros_h_test.c
 tests_atf_cdir = $(pkgtestsdir)/atf-c
 EXTRA_DIST += $(tests_atf_c_DATA)
 
@@ -130,10 +130,7 @@ noinst_LTLIBRARIES += atf-c/libh.la
 atf_c_libh_la_SOURCES = atf-c/h_lib.c \
                         atf-c/h_lib.h
 
-tests_atf_c_PROGRAMS = atf-c/h_processes
-atf_c_h_processes_SOURCES = atf-c/h_processes.c
-
-tests_atf_c_PROGRAMS += atf-c/atf_c_test
+tests_atf_c_PROGRAMS = atf-c/atf_c_test
 atf_c_atf_c_test_SOURCES = atf-c/atf_c_test.c
 atf_c_atf_c_test_LDADD = atf-c/libh.la libatf-c.la
 
@@ -188,6 +185,9 @@ atf-c/pkg_config_test: $(srcdir)/atf-c/pkg_config_test.sh
 	test -d atf-c || mkdir -p atf-c
 	@src="$(srcdir)/atf-c/pkg_config_test.sh"; \
 	dst="atf-c/pkg_config_test"; $(BUILD_SH_TP)
+
+tests_atf_c_PROGRAMS += atf-c/process_helpers
+atf_c_process_helpers_SOURCES = atf-c/process_helpers.c
 
 tests_atf_c_PROGRAMS += atf-c/process_test
 atf_c_process_test_SOURCES = atf-c/process_test.c

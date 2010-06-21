@@ -31,24 +31,24 @@ tests_test_programs_DATA = test-programs/Atffile
 tests_test_programsdir = $(pkgtestsdir)/test-programs
 EXTRA_DIST += $(tests_test_programs_DATA)
 
-tests_test_programs_PROGRAMS = test-programs/h_c
-test_programs_h_c_SOURCES = test-programs/h_c.c
-test_programs_h_c_LDADD = libatf-c.la
+tests_test_programs_PROGRAMS = test-programs/c_helpers
+test_programs_c_helpers_SOURCES = test-programs/c_helpers.c
+test_programs_c_helpers_LDADD = libatf-c.la
 
-tests_test_programs_PROGRAMS += test-programs/h_cpp
-test_programs_h_cpp_SOURCES = test-programs/h_cpp.cpp
-test_programs_h_cpp_LDADD = libatf-c++.la
+tests_test_programs_PROGRAMS += test-programs/cpp_helpers
+test_programs_cpp_helpers_SOURCES = test-programs/cpp_helpers.cpp
+test_programs_cpp_helpers_LDADD = libatf-c++.la
 
 common_sh = $(srcdir)/test-programs/common.sh
 EXTRA_DIST += test-programs/common.sh
 
-tests_test_programs_SCRIPTS = test-programs/h_sh
-CLEANFILES += test-programs/h_sh
-EXTRA_DIST += test-programs/h_sh.sh
-test-programs/h_sh: $(srcdir)/test-programs/h_sh.sh
+tests_test_programs_SCRIPTS = test-programs/sh_helpers
+CLEANFILES += test-programs/sh_helpers
+EXTRA_DIST += test-programs/sh_helpers.sh
+test-programs/sh_helpers: $(srcdir)/test-programs/sh_helpers.sh
 	test -d test-programs || mkdir -p test-programs
-	@src="$(srcdir)/test-programs/h_sh.sh $(common_sh)"; \
-	dst="test-programs/h_sh"; $(BUILD_SH_TP)
+	@src="$(srcdir)/test-programs/sh_helpers.sh $(common_sh)"; \
+	dst="test-programs/sh_helpers"; $(BUILD_SH_TP)
 
 tests_test_programs_SCRIPTS += test-programs/config_test
 CLEANFILES += test-programs/config_test
