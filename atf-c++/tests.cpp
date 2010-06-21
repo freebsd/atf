@@ -350,6 +350,20 @@ impl::tc::skip(const std::string& reason)
     atf_tc_skip("%s", reason.c_str());
 }
 
+void
+impl::tc::check_errno(const char* file, const int line, const int exp_errno,
+                      const char* expr_str, const bool result)
+{
+    atf_tc_check_errno(file, line, exp_errno, expr_str, result);
+}
+
+void
+impl::tc::require_errno(const char* file, const int line, const int exp_errno,
+                        const char* expr_str, const bool result)
+{
+    atf_tc_require_errno(file, line, exp_errno, expr_str, result);
+}
+
 // ------------------------------------------------------------------------
 // The "tp" class.
 // ------------------------------------------------------------------------

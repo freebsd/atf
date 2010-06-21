@@ -32,6 +32,7 @@ extern "C" {
 #include <unistd.h>
 }
 
+#include <cerrno>
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
@@ -39,6 +40,7 @@ extern "C" {
 #include "atf-c++/fs.hpp"
 #include "atf-c++/macros.hpp"
 #include "atf-c++/process.hpp"
+#include "atf-c++/sanity.hpp"
 #include "atf-c++/text.hpp"
 
 #include "h_lib.hpp"
@@ -140,6 +142,61 @@ ATF_TEST_CASE_BODY(h_check_throw)
     else if (get_config_var("what") == "no_throw_rt")
         ATF_CHECK_THROW(std::runtime_error,
                         if (0) throw std::runtime_error("e"));
+
+    create_ctl_file(*this, "after");
+}
+
+static int
+errno_fail_stub(const int raised_errno)
+{
+    errno = raised_errno;
+    return -1;
+}
+
+static int
+errno_ok_stub(void)
+{
+    return 0;
+}
+
+ATF_TEST_CASE(h_check_errno);
+ATF_TEST_CASE_HEAD(h_check_errno)
+{
+    set_md_var("descr", "Helper test case");
+}
+ATF_TEST_CASE_BODY(h_check_errno)
+{
+    create_ctl_file(*this, "before");
+
+    if (get_config_var("what") == "no_error")
+        ATF_CHECK_ERRNO(-1, errno_ok_stub() == -1);
+    else if (get_config_var("what") == "errno_ok")
+        ATF_CHECK_ERRNO(2, errno_fail_stub(2) == -1);
+    else if (get_config_var("what") == "errno_fail")
+        ATF_CHECK_ERRNO(3, errno_fail_stub(4) == -1);
+    else
+        UNREACHABLE;
+
+    create_ctl_file(*this, "after");
+}
+
+ATF_TEST_CASE(h_require_errno);
+ATF_TEST_CASE_HEAD(h_require_errno)
+{
+    set_md_var("descr", "Helper test case");
+}
+ATF_TEST_CASE_BODY(h_require_errno)
+{
+    create_ctl_file(*this, "before");
+
+    if (get_config_var("what") == "no_error")
+        ATF_REQUIRE_ERRNO(-1, errno_ok_stub() == -1);
+    else if (get_config_var("what") == "errno_ok")
+        ATF_REQUIRE_ERRNO(2, errno_fail_stub(2) == -1);
+    else if (get_config_var("what") == "errno_fail")
+        ATF_REQUIRE_ERRNO(3, errno_fail_stub(4) == -1);
+    else
+        UNREACHABLE;
 
     create_ctl_file(*this, "after");
 }
@@ -331,6 +388,102 @@ ATF_TEST_CASE_BODY(check_throw)
     }
 }
 
+ATF_TEST_CASE(check_errno);
+ATF_TEST_CASE_HEAD(check_errno)
+{
+    set_md_var("descr", "Tests the ATF_CHECK_ERRNO macro");
+    set_md_var("use.fs", "true");
+}
+ATF_TEST_CASE_BODY(check_errno)
+{
+    struct test {
+        const char *what;
+        bool ok;
+        const char *msg;
+    } *t, tests[] = {
+        { "no_error", false,
+          "Expected true value in errno_ok_stub\\(\\) == -1" },
+        { "errno_ok", true, NULL },
+        { "errno_fail", false,
+          "Expected errno 3, got 4, in errno_fail_stub\\(4\\) == -1" },
+        { NULL, false, NULL }
+    };
+
+    const atf::fs::path before("before");
+    const atf::fs::path after("after");
+
+    for (t = &tests[0]; t->what != NULL; t++) {
+        atf::tests::vars_map config;
+        config["what"] = t->what;
+
+        run_h_tc< ATF_TEST_CASE_NAME(h_check_errno) >(config);
+
+        ATF_CHECK(atf::fs::exists(before));
+        ATF_CHECK(atf::fs::exists(after));
+
+        if (t->ok) {
+            ATF_CHECK(grep_file("result", "^passed"));
+        } else {
+            ATF_CHECK(grep_file("result", "^failed"));
+
+            std::string exp_result = "macros_test.cpp:[0-9]+: Check failed: " +
+                std::string(t->msg) + "$";
+            ATF_CHECK(grep_file("stderr", exp_result.c_str()));
+        }
+
+        atf::fs::remove(before);
+        atf::fs::remove(after);
+    }
+}
+
+ATF_TEST_CASE(require_errno);
+ATF_TEST_CASE_HEAD(require_errno)
+{
+    set_md_var("descr", "Tests the ATF_REQUIRE_ERRNO macro");
+    set_md_var("use.fs", "true");
+}
+ATF_TEST_CASE_BODY(require_errno)
+{
+    struct test {
+        const char *what;
+        bool ok;
+        const char *msg;
+    } *t, tests[] = {
+        { "no_error", false,
+          "Expected true value in errno_ok_stub\\(\\) == -1" },
+        { "errno_ok", true, NULL },
+        { "errno_fail", false,
+          "Expected errno 3, got 4, in errno_fail_stub\\(4\\) == -1" },
+        { NULL, false, NULL }
+    };
+
+    const atf::fs::path before("before");
+    const atf::fs::path after("after");
+
+    for (t = &tests[0]; t->what != NULL; t++) {
+        atf::tests::vars_map config;
+        config["what"] = t->what;
+
+        run_h_tc< ATF_TEST_CASE_NAME(h_require_errno) >(config);
+
+        ATF_CHECK(atf::fs::exists(before));
+        if (t->ok) {
+            ATF_CHECK(grep_file("result", "^passed"));
+            ATF_CHECK(atf::fs::exists(after));
+        } else {
+            std::string exp_result = "^failed: .*macros_test.cpp:[0-9]+: "
+                "Requirement failed: " + std::string(t->msg) + "$";
+            ATF_CHECK(grep_file("result", exp_result.c_str()));
+
+            ATF_CHECK(!atf::fs::exists(after));
+        }
+
+        atf::fs::remove(before);
+        if (t->ok)
+            atf::fs::remove(after);
+    }
+}
+
 // ------------------------------------------------------------------------
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
@@ -355,6 +508,8 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, check);
     ATF_ADD_TEST_CASE(tcs, check_equal);
     ATF_ADD_TEST_CASE(tcs, check_throw);
+    ATF_ADD_TEST_CASE(tcs, check_errno);
+    ATF_ADD_TEST_CASE(tcs, require_errno);
 
     // Add the test cases for the header file.
     ATF_ADD_TEST_CASE(tcs, include);

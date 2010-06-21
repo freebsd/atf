@@ -123,6 +123,14 @@
         } \
     } while (false)
 
+#define ATF_CHECK_ERRNO(exp_errno, bool_expr) \
+    atf::tests::tc::check_errno(__FILE__, __LINE__, exp_errno, #bool_expr, \
+                                bool_expr)
+
+#define ATF_REQUIRE_ERRNO(exp_errno, bool_expr) \
+    atf::tests::tc::require_errno(__FILE__, __LINE__, exp_errno, #bool_expr, \
+                                  bool_expr)
+
 #define ATF_INIT_TEST_CASES(tcs) \
     namespace atf { \
         namespace tests { \

@@ -26,17 +26,19 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd June 16, 2010
+.Dd June 21, 2010
 .Dt ATF-C++-API 3
 .Os
 .Sh NAME
 .Nm ATF_ADD_TEST_CASE ,
 .Nm ATF_CHECK ,
 .Nm ATF_CHECK_EQUAL ,
+.Nm ATF_CHECK_ERRNO ,
 .Nm ATF_CHECK_THROW ,
 .Nm ATF_FAIL ,
 .Nm ATF_INIT_TEST_CASES ,
 .Nm ATF_PASS ,
+.Nm ATF_REQUIRE_ERRNO ,
 .Nm ATF_SKIP ,
 .Nm ATF_TEST_CASE ,
 .Nm ATF_TEST_CASE_BODY ,
@@ -50,10 +52,12 @@
 .Fn ATF_ADD_TEST_CASE "tcs" "name"
 .Fn ATF_CHECK "expression"
 .Fn ATF_CHECK_EQUAL "expression_1" "expression_2"
+.Fn ATF_CHECK_ERRNO "exp_errno" "bool_expression"
 .Fn ATF_CHECK_THROW "expected_exception" "statement"
 .Fn ATF_FAIL "reason"
 .Fn ATF_INIT_TEST_CASES "tcs"
 .Fn ATF_PASS
+.Fn ATF_REQUIRE_ERRNO "exp_errno" "bool_expression"
 .Fn ATF_SKIP "reason"
 .Fn ATF_TEST_CASE "name"
 .Fn ATF_TEST_CASE_BODY "name"
@@ -245,6 +249,16 @@ the same exact value.
 .Fn ATF_CHECK_THROW
 takes the name of an exception and a statement and raises a failure if
 the statement does not throw the specified exception.
+.Pp
+.Fn ATF_CHECK_ERRNO
+and
+.Fn ATF_REQUIRE_ERRNO
+take, first, the error code that the check is expecting to find in the
+.Va errno
+variable and, second, a boolean expression that, if evaluates to true,
+means that a call failed and
+.Va errno
+has to be checked against the first value.
 .Sh EXAMPLES
 The following shows a complete test program with a single test case that
 validates the addition operator:
@@ -267,9 +281,20 @@ ATF_TEST_CASE_BODY(addition)
     ATF_CHECK_EQUAL(100 + 200, 300);
 }
 
+ATF_TEST_CASE(open_failure);
+ATF_TEST_CASE_HEAD(open_failure)
+{
+    set("descr", "Sample tests for the open function");
+}
+ATF_TEST_CASE_BODY(open_failure)
+{
+    ATF_CHECK_ERRNO(ENOENT, open("non-existent", O_RDONLY) == -1);
+}
+
 ATF_INIT_TEST_CASES(tcs)
 {
     ATF_ADD_TEST_CASE(tcs, addition);
+    ATF_ADD_TEST_CASE(tcs, open_failure);
 }
 .Ed
 .Sh SEE ALSO

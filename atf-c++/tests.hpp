@@ -145,6 +145,10 @@ public:
     static void pass(void);
     static void fail(const std::string&);
     static void skip(const std::string&);
+    static void check_errno(const char*, const int, const int, const char*,
+                            const bool);
+    static void require_errno(const char*, const int, const int, const char*,
+                              const bool);
 };
 
 } // namespace tests
