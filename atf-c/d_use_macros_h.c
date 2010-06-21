@@ -31,6 +31,8 @@
 
 void atf_require_inside_if(void);
 void atf_require_equal_inside_if(void);
+void atf_check_errno_semicolons(void);
+void atf_require_errno_semicolons(void);
 
 void
 atf_require_inside_if(void)
@@ -56,6 +58,24 @@ atf_require_equal_inside_if(void)
         ATF_REQUIRE_EQ(true, true);
     else
         ATF_REQUIRE_EQ(true, true);
+}
+
+void
+atf_check_errno_semicolons(void)
+{
+    /* Check that ATF_CHECK_ERRNO does not contain a semicolon that would
+     * cause an empty-statement that confuses some compilers. */
+    ATF_CHECK_ERRNO(1, 1 == 1);
+    ATF_CHECK_ERRNO(2, 2 == 2);
+}
+
+void
+atf_require_errno_semicolons(void)
+{
+    /* Check that ATF_REQUIRE_ERRNO does not contain a semicolon that would
+     * cause an empty-statement that confuses some compilers. */
+    ATF_REQUIRE_ERRNO(1, 1 == 1);
+    ATF_REQUIRE_ERRNO(2, 2 == 2);
 }
 
 /* Test case names should not be expanded during instatiation so that they

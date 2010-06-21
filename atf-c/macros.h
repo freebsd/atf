@@ -173,10 +173,9 @@
                     #x, #y, x, y, ##__VA_ARGS__)
 
 #define ATF_CHECK_ERRNO(exp_errno, bool_expr) \
-    atf_tc_check_errno(__FILE__, __LINE__, exp_errno, #bool_expr, bool_expr); \
+    atf_tc_check_errno(__FILE__, __LINE__, exp_errno, #bool_expr, bool_expr)
 
 #define ATF_REQUIRE_ERRNO(exp_errno, bool_expr) \
-    atf_tc_require_errno(__FILE__, __LINE__, exp_errno, #bool_expr, \
-                         bool_expr); \
+    atf_tc_require_errno(__FILE__, __LINE__, exp_errno, #bool_expr, bool_expr)
 
 #endif /* !defined(ATF_C_MACROS_H) */
