@@ -374,7 +374,7 @@ ATF_TC_HEAD(open_failure, tc)
 }
 ATF_TC_BODY(open_failure, tc)
 {
-    ATF_CHECK(ENOENT, open("non-existent", O_RDONLY) == -1);
+    ATF_CHECK_ERRNO(ENOENT, open("non-existent", O_RDONLY) == -1);
 }
 
 ATF_TP_ADD_TCS(tp)
