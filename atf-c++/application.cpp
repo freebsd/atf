@@ -315,10 +315,8 @@ impl::app::run(int argc, char* const* argv)
         errcode = EXIT_FAILURE;
     } catch (const std::exception& e) {
         if (m_use_ui) {
-            std::cerr << ui::format_error(m_prog_name,
-                                          std::string("Caught unexpected error: ")
-                                          + e.what() + "\n" + bug)
-                      << std::endl;
+            std::cerr << ui::format_error(m_prog_name, std::string("Caught "
+                "unexpected error: ") + e.what() + "\n" + bug) << std::endl;
         } else {
             std::cerr << m_prog_name << ": ERROR: Caught unexpected error: "
                       << e.what() << "\n";
@@ -326,10 +324,8 @@ impl::app::run(int argc, char* const* argv)
         errcode = EXIT_FAILURE;
     } catch (...) {
         if (m_use_ui) {
-            std::cerr << ui::format_error(m_prog_name,
-                                          std::string("Caught unknown error\n") +
-                                          bug)
-                      << std::endl;
+            std::cerr << ui::format_error(m_prog_name, std::string("Caught "
+                "unknown error\n") + bug) << std::endl;
         } else {
             std::cerr << m_prog_name << ": ERROR: Caught unknown error\n";
         }
