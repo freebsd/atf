@@ -69,61 +69,73 @@ DOC_DEPS = doc/build-xml.sh $(_STANDALONE_XSLT)
 EXTRA_DIST += doc/authors.xml
 EXTRA_DIST += doc/standalone/authors.html
 noinst_DATA += doc/standalone/authors.html
-doc/standalone/authors.html: $(srcdir)/doc/authors.xml $(DOC_DEPS)
+@target_srcdir@doc/standalone/authors.html: $(DOC_DEPS) \
+                                            $(srcdir)/doc/authors.xml
 	name=authors; $(BUILD_HTML)
 EXTRA_DIST += doc/text/authors.txt
 noinst_DATA += doc/text/authors.txt
-doc/text/authors.txt: $(srcdir)/doc/authors.xml $(DOC_DEPS)
+@target_srcdir@doc/text/authors.txt: $(DOC_DEPS) \
+                                     $(srcdir)/doc/authors.xml
 	name=authors; $(BUILD_TXT)
 
 EXTRA_DIST += doc/copying.xml
 EXTRA_DIST += doc/standalone/copying.html
 noinst_DATA += doc/standalone/copying.html
-doc/standalone/copying.html: $(srcdir)/doc/copying.xml $(DOC_DEPS)
+@target_srcdir@doc/standalone/copying.html: $(DOC_DEPS) \
+                                            $(srcdir)/doc/copying.xml
 	name=copying; $(BUILD_HTML)
 EXTRA_DIST += doc/text/copying.txt
 noinst_DATA += doc/text/copying.txt
-doc/text/copying.txt: $(srcdir)/doc/copying.xml $(DOC_DEPS)
+@target_srcdir@doc/text/copying.txt: $(DOC_DEPS) \
+                                     $(srcdir)/doc/copying.xml
 	name=copying; $(BUILD_TXT)
 
 EXTRA_DIST += doc/install.xml
 EXTRA_DIST += doc/standalone/install.html
 noinst_DATA += doc/standalone/install.html
-doc/standalone/install.html: $(srcdir)/doc/install.xml $(DOC_DEPS)
+@target_srcdir@doc/standalone/install.html: $(DOC_DEPS) \
+                                            $(srcdir)/doc/install.xml
 	name=install; $(BUILD_HTML)
 EXTRA_DIST += doc/text/install.txt
 noinst_DATA += doc/text/install.txt
-doc/text/install.txt: $(srcdir)/doc/install.xml $(DOC_DEPS)
+@target_srcdir@doc/text/install.txt: $(DOC_DEPS) \
+                                     $(srcdir)/doc/install.xml
 	name=install; $(BUILD_TXT)
 
 EXTRA_DIST += doc/news.xml
 EXTRA_DIST += doc/standalone/news.html
 noinst_DATA += doc/standalone/news.html
-doc/standalone/news.html: $(srcdir)/doc/news.xml $(DOC_DEPS)
+@target_srcdir@doc/standalone/news.html: $(DOC_DEPS) \
+                                         $(srcdir)/doc/news.xml
 	name=news; $(BUILD_HTML)
 EXTRA_DIST += doc/text/news.txt
 noinst_DATA += doc/text/news.txt
-doc/text/news.txt: $(srcdir)/doc/news.xml $(DOC_DEPS)
+@target_srcdir@doc/text/news.txt: $(DOC_DEPS) \
+                                  $(srcdir)/doc/news.xml
 	name=news; $(BUILD_TXT)
 
 EXTRA_DIST += doc/readme.xml
 EXTRA_DIST += doc/standalone/readme.html
 noinst_DATA += doc/standalone/readme.html
-doc/standalone/readme.html: $(srcdir)/doc/readme.xml $(DOC_DEPS)
+@target_srcdir@doc/standalone/readme.html: $(DOC_DEPS) \
+                                           $(srcdir)/doc/readme.xml
 	name=readme; $(BUILD_HTML)
 EXTRA_DIST += doc/text/readme.txt
 noinst_DATA += doc/text/readme.txt
-doc/text/readme.txt: $(srcdir)/doc/readme.xml $(DOC_DEPS)
+@target_srcdir@doc/text/readme.txt: $(DOC_DEPS) \
+                                    $(srcdir)/doc/readme.xml
 	name=readme; $(BUILD_TXT)
 
 EXTRA_DIST += doc/specification.xml
 EXTRA_DIST += doc/standalone/specification.html
 noinst_DATA += doc/standalone/specification.html
-doc/standalone/specification.html: $(srcdir)/doc/specification.xml $(DOC_DEPS)
+@target_srcdir@doc/standalone/specification.html: $(DOC_DEPS) \
+    $(srcdir)/doc/specification.xml
 	name=specification; $(BUILD_HTML)
 EXTRA_DIST += doc/text/specification.txt
 noinst_DATA += doc/text/specification.txt
-doc/text/specification.txt: $(srcdir)/doc/specification.xml $(DOC_DEPS)
+@target_srcdir@doc/text/specification.txt: $(DOC_DEPS) \
+                                           $(srcdir)/doc/specification.xml
 	name=specification; $(BUILD_TXT)
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

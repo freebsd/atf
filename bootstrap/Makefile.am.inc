@@ -95,7 +95,7 @@ testsuite_incs=	$(srcdir)/bootstrap/t_application_help.at \
 		$(srcdir)/bootstrap/t_test_program_list.at \
 		$(srcdir)/bootstrap/t_test_program_run.at
 
-$(srcdir)/bootstrap/package.m4: $(top_srcdir)/configure.ac
+@target_srcdir@bootstrap/package.m4: $(top_srcdir)/configure.ac
 	{ \
 	echo '# Signature of the current package.'; \
 	echo 'm4_define(AT_PACKAGE_NAME,      @PACKAGE_NAME@)'; \
@@ -105,9 +105,9 @@ $(srcdir)/bootstrap/package.m4: $(top_srcdir)/configure.ac
 	echo 'm4_define(AT_PACKAGE_BUGREPORT, @PACKAGE_BUGREPORT@)'; \
 	} >$(srcdir)/bootstrap/package.m4
 
-$(srcdir)/bootstrap/testsuite: $(srcdir)/bootstrap/testsuite.at \
-                               $(testsuite_incs) \
-                               $(srcdir)/bootstrap/package.m4
+@target_srcdir@bootstrap/testsuite: $(srcdir)/bootstrap/testsuite.at \
+                                    $(testsuite_incs) \
+                                    @target_srcdir@bootstrap/package.m4
 	autom4te --language=Autotest -I $(srcdir) \
 	    -I $(srcdir)/bootstrap \
 	    $(srcdir)/bootstrap/testsuite.at -o $@.tmp

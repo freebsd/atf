@@ -105,6 +105,16 @@ dnl -----------------------------------------------------------------------
 
 ATF_DOC_BUILD
 
+dnl BSD make(1) doesn't deal with targets specified as './foo' well: they
+dnl need to be specified as 'foo'.  The following hack is to workaround this
+dnl issue.
+if test "${srcdir}" = .; then
+    target_srcdir=
+else
+    target_srcdir="${srcdir}/"
+fi
+AC_SUBST([target_srcdir])
+
 dnl -----------------------------------------------------------------------
 dnl Architecture and machine checks.
 dnl -----------------------------------------------------------------------

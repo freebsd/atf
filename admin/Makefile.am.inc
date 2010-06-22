@@ -57,11 +57,11 @@ admin/revision.h:
 BUILT_SOURCES += admin/revision.h
 CLEANFILES += admin/revision.h
 
-dist-hook: $(srcdir)/admin/revision-dist.h
-$(srcdir)/admin/revision-dist.h: admin/revision.h
+dist-hook: @target_srcdir@admin/revision-dist.h
+@target_srcdir@admin/revision-dist.h: admin/revision.h
 	@$(top_srcdir)/admin/generate-revision-dist.sh \
 	    -f h -i admin/revision.h -o $(srcdir)/admin/revision-dist.h
-BUILT_SOURCES += $(srcdir)/admin/revision-dist.h
+BUILT_SOURCES += @target_srcdir@admin/revision-dist.h
 EXTRA_DIST += admin/revision-dist.h
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
