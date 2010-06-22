@@ -74,6 +74,12 @@ which is unused after previous change.</para></listitem>
 <literal>ATF_REQUIRE_ERRNO</literal> to the C library to allow easy checking
 of call failures that update <literal>errno</literal>.</para></listitem>
 
+<listitem><para>Intermixed tests with the source files in the source tree
+to provide them more visibility and easier access.  The
+<literal>tests</literal> directory is gone from the source tree and tests
+are now suffixed by <literal>_test</literal>, not prefixed by
+<literal>t_</literal>.</para></listitem>
+
 </itemizedlist>
 
 </section>
