@@ -32,7 +32,7 @@
 
 #include <atf-c.h>
 
-#include "h_lib.h"
+#include "test_helpers.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary test cases.

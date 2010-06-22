@@ -32,7 +32,7 @@
 #include "atf-c++/expand.hpp"
 #include "atf-c++/macros.hpp"
 
-#include "h_lib.hpp"
+#include "test_helpers.hpp"
 
 // XXX Many of the tests here are duplicated in atf-c/t_expand.  Should
 // find a way to easily share them, or maybe remove the ones here.

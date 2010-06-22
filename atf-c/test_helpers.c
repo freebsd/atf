@@ -41,7 +41,7 @@
 #include "atf-c/fs.h"
 #include "atf-c/macros.h"
 
-#include "h_lib.h"
+#include "test_helpers.h"
 
 static
 void

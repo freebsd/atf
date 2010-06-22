@@ -27,10 +27,10 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if defined(TESTS_ATF_ATF_C_H_LIB_H)
-#   error "Cannot include h_lib.h more than once."
+#if defined(TESTS_ATF_ATF_C_TEST_HELPERS_H)
+#   error "Cannot include test_helpers.h more than once."
 #else
-#   define TESTS_ATF_ATF_C_H_LIB_H
+#   define TESTS_ATF_ATF_C_TEST_HELPERS_H
 #endif
 
 #include <stdbool.h>

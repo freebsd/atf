@@ -34,7 +34,7 @@
 
 #include "atf-c++/process.hpp"
 
-#include "h_lib.hpp"
+#include "test_helpers.hpp"
 
 // TODO: Testing the fork function is a huge task and I'm afraid of
 // copy/pasting tons of stuff from the C version.  I'd rather not do that

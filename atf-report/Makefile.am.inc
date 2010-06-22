@@ -74,6 +74,6 @@ tests_atf_report_PROGRAMS += atf-report/reader_test
 atf_report_reader_test_SOURCES = atf-report/reader_test.cpp \
                                  atf-report/reader.cpp
 atf_report_reader_test_CPPFLAGS = -I$(srcdir)/atf-c++
-atf_report_reader_test_LDADD = atf-c++/libh.la libatf-c++.la
+atf_report_reader_test_LDADD = atf-c++/libtest_helpers.la libatf-c++.la
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

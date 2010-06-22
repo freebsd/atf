@@ -27,10 +27,10 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if defined(TESTS_ATF_ATF_CXX_HPP_LIB_H)
-#   error "Cannot include h_lib.hpp more than once."
+#if defined(TESTS_ATF_ATF_CXX_TEST_HELPERS_H)
+#   error "Cannot include test_helpers.hpp more than once."
 #else
-#   define TESTS_ATF_ATF_CXX_HPP_LIB_H
+#   define TESTS_ATF_ATF_CXX_TEST_HELPERS_H
 #endif
 
 #include <cstdlib>
@@ -112,7 +112,7 @@ run_h_tc(atf::tests::vars_map config = atf::tests::vars_map())
     ATF_CHECK(s.exited());
 }
 
-namespace h_lib_detail {
+namespace test_helpers_detail {
 
 typedef std::vector< std::string > string_vector;
 
@@ -172,15 +172,16 @@ check_equal(const char* expected[], const string_vector& actual)
     }
 }
 
-} // namespace h_lib_detail
+} // namespace test_helpers_detail
 
 template< class Reader >
 void
 do_parser_test(const char* input, const char* exp_calls[],
                const char* exp_errors[])
 {
-    const std::pair< h_lib_detail::string_vector, h_lib_detail::string_vector >
-        actual = h_lib_detail::do_read< Reader >(input);
-    h_lib_detail::check_equal(exp_calls, actual.first);
-    h_lib_detail::check_equal(exp_errors, actual.second);
+    const std::pair< test_helpers_detail::string_vector,
+                     test_helpers_detail::string_vector >
+        actual = test_helpers_detail::do_read< Reader >(input);
+    test_helpers_detail::check_equal(exp_calls, actual.first);
+    test_helpers_detail::check_equal(exp_errors, actual.second);
 }

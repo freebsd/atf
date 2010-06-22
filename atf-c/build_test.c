@@ -38,7 +38,7 @@
 #include "atf-c/env.h"
 
 #include "h_build.h"
-#include "h_lib.h"
+#include "test_helpers.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

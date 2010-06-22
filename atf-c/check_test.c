@@ -40,7 +40,7 @@
 #include "atf-c/fs.h"
 #include "atf-c/process.h"
 
-#include "h_lib.h"
+#include "test_helpers.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

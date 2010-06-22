@@ -46,7 +46,7 @@
 #include "atf-c/process.h"
 #include "atf-c/sanity.h"
 
-#include "h_lib.h"
+#include "test_helpers.h"
 
 atf_error_t atf_process_status_init(atf_process_status_t *, int);
 

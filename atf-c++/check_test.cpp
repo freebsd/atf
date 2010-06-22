@@ -49,7 +49,7 @@ extern "C" {
 #include "atf-c++/text.hpp"
 #include "atf-c++/utils.hpp"
 
-#include "h_lib.hpp"
+#include "test_helpers.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.

@@ -44,7 +44,7 @@ extern "C" {
 #include "atf-c++/io.hpp"
 #include "atf-c++/macros.hpp"
 
-#include "h_lib.hpp"
+#include "test_helpers.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.

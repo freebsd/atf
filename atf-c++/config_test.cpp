@@ -35,7 +35,7 @@
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/macros.hpp"
 
-#include "h_lib.hpp"
+#include "test_helpers.hpp"
 
 static const char *test_value = "env-value";
 

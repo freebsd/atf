@@ -31,7 +31,7 @@
 
 #include "config.hpp"
 
-#include "h_lib.hpp"
+#include "test_helpers.hpp"
 
 namespace impl = atf::atf_run;
 namespace detail = atf::atf_run::detail;

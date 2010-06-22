@@ -43,7 +43,7 @@ extern "C" {
 #include "atf-c++/parser.hpp"
 #include "atf-c++/user.hpp"
 
-#include "h_lib.hpp"
+#include "test_helpers.hpp"
 
 // ------------------------------------------------------------------------
 // Tests for the "atf_tp_writer" class.

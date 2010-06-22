@@ -42,7 +42,7 @@ extern "C" {
 #include "atf-c++/macros.hpp"
 #include "atf-c++/process.hpp"
 
-#include "h_lib.hpp"
+#include "test_helpers.hpp"
 
 void
 build_check_cxx_o_aux(const atf::fs::path& sfile, const char* failmsg)

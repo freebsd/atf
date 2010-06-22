@@ -44,7 +44,7 @@
 #include "atf-c/fs.h"
 #include "atf-c/text.h"
 
-#include "../atf-c/h_lib.h"
+#include "atf-c/test_helpers.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

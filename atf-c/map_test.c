@@ -34,7 +34,7 @@
 
 #include "atf-c/map.h"
 
-#include "h_lib.h"
+#include "test_helpers.h"
 
 /* ---------------------------------------------------------------------
  * Tests for the "atf_map" type.
