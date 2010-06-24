@@ -115,7 +115,7 @@ testsuite_incs=	$(srcdir)/bootstrap/t_application_help.at \
 
 installcheck-local: installcheck-bootstrap
 .PHONY: installcheck-bootstrap
-installcheck-bootstrap: $(srcdir)/bootstrap/testsuite check
+installcheck-bootstrap: @target_srcdir@bootstrap/testsuite check
 	$(TESTS_ENVIRONMENT) $(srcdir)/bootstrap/testsuite
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
