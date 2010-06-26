@@ -426,7 +426,7 @@ ATF_TEST_CASE_BODY(check_errno)
         } else {
             ATF_CHECK(grep_file("result", "^failed"));
 
-            std::string exp_result = "macros_test.cpp:[0-9]+: Check failed: " +
+            std::string exp_result = "macros_test.cpp:[0-9]+: " +
                 std::string(t->msg) + "$";
             ATF_CHECK(grep_file("stderr", exp_result.c_str()));
         }
@@ -471,8 +471,8 @@ ATF_TEST_CASE_BODY(require_errno)
             ATF_CHECK(grep_file("result", "^passed"));
             ATF_CHECK(atf::fs::exists(after));
         } else {
-            std::string exp_result = "^failed: .*macros_test.cpp:[0-9]+: "
-                "Requirement failed: " + std::string(t->msg) + "$";
+            std::string exp_result = "^failed: .*macros_test.cpp:[0-9]+: " +
+                std::string(t->msg) + "$";
             ATF_CHECK(grep_file("result", exp_result.c_str()));
 
             ATF_CHECK(!atf::fs::exists(after));

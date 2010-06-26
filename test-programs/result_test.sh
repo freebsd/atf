@@ -71,49 +71,10 @@ result_to_file_body()
     done
 }
 
-atf_test_case reason_newlines
-reason_newlines_head()
-{
-    atf_set "descr" "Tests that newlines provided as part of status'" \
-                    "reasons are handled properly"
-    atf_set "use.fs" "true"
-}
-reason_newlines_body()
-{
-    for h in $(get_helpers); do
-        case ${h} in
-            *sh_helpers*)
-                # XXX Not implemented.
-                continue
-                ;;
-        esac
-
-        # NO_CHECK_STYLE_BEGIN
-        cat >resexp <<EOF
-failed: BOGUS REASON (THE ORIGINAL HAD NEWLINES): First line<<NEWLINE>>Second line
-EOF
-        # NO_CHECK_STYLE_END
-        atf_check -s eq:1 -o empty -e empty "${h}" -r resfile \
-            -s "$(atf_get_srcdir)" result_newlines_fail
-        atf_check -s eq:0 diff -u resexp resfile
-
-        # NO_CHECK_STYLE_BEGIN
-        cat >resexp <<EOF
-skipped: BOGUS REASON (THE ORIGINAL HAD NEWLINES): First line<<NEWLINE>>Second line
-EOF
-        # NO_CHECK_STYLE_END
-        atf_check -s eq:0 -o empty -e empty "${h}" -r resfile \
-            -s "$(atf_get_srcdir)" result_newlines_skip
-        atf_check -s eq:0 diff -u resexp resfile
-    done
-}
-
 atf_init_test_cases()
 {
     atf_add_test_case result_on_stdout
     atf_add_test_case result_to_file
-
-    atf_add_test_case reason_newlines
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

@@ -27,14 +27,7 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-
 #include <errno.h>
-#include <fcntl.h>
-#include <limits.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -42,32 +35,321 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "atf-c/config.h"
-#include "atf-c/defs.h"
 #include "atf-c/env.h"
 #include "atf-c/error.h"
 #include "atf-c/fs.h"
-#include "atf-c/process.h"
 #include "atf-c/sanity.h"
 #include "atf-c/tc.h"
 #include "atf-c/text.h"
-#include "atf-c/user.h"
 
 /* ---------------------------------------------------------------------
- * Auxiliary types and functions.
+ * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
-static atf_error_t check_prog(const char *, void *);
-static atf_error_t check_prog_in_dir(const char *, void *);
-static atf_error_t create_resfile(const atf_fs_path_t *, const char *,
-                                  const char *, va_list);
-static void fail_internal(const char *, int, const char *, const char *,
-                          const char *, va_list,
-                          void (*)(atf_dynstr_t *),
-                          void (*)(const char *, ...));
-static atf_error_t format_reason(atf_dynstr_t *, const char *, va_list);
-static void tc_fail(atf_dynstr_t *) ATF_DEFS_ATTRIBUTE_NORETURN;
-static void tc_fail_nonfatal(atf_dynstr_t *);
+struct context {
+    const atf_tc_t *tc;
+    const atf_fs_path_t *resfile;
+    size_t fail_count;
+};
+
+static void
+context_init(struct context *ctx, const atf_tc_t *tc,
+             const atf_fs_path_t *resfile)
+{
+    ctx->tc = tc;
+    ctx->resfile = resfile;
+    ctx->fail_count = 0;
+}
+
+static void
+check_fatal_error(atf_error_t err)
+{
+    if (atf_is_error(err)) {
+        char buf[1024];
+        atf_error_format(err, buf, sizeof(buf));
+        fprintf(stderr, "FATAL ERROR: %s\n", buf);
+        atf_error_free(err);
+        abort();
+    }
+}
+
+static void
+report_fatal_error(const char *msg, ...)
+{
+    va_list ap;
+    fprintf(stderr, "FATAL ERROR: ");
+
+    va_start(ap, msg);
+    vfprintf(stderr, msg, ap);
+    va_end(ap);
+
+    fprintf(stderr, "\n");
+    abort();
+}
+
+/** Writes to a results file.
+ *
+ * The results file is supposed to be already open.
+ *
+ * This function returns an error code instead of exiting in case of error
+ * because the caller needs to clean up the reason object before terminating.
+ */
+static atf_error_t
+write_resfile(FILE *file, const char *result, const atf_dynstr_t *reason)
+{
+    if (reason == NULL) {
+        if (fprintf(file, "%s\n", result) <= 0)
+            goto err;
+    } else {
+        if (fprintf(file, "%s: %s\n", result, atf_dynstr_cstring(reason)) <= 0)
+            goto err;
+    }
+    return atf_no_error();
+
+err:
+    return atf_libc_error(errno, "Failed to write results file; result %s, "
+        "reason %s", result,
+        reason == NULL ? "null" : atf_dynstr_cstring(reason));
+}
+
+/** Creates a results file.
+ *
+ * The input reason is released in all cases.
+ *
+ * An error in this function is considered to be fatal, hence why it does
+ * not return any error code.
+ */
+static void
+create_resfile(const atf_fs_path_t *resfile, const char *result,
+               atf_dynstr_t *reason)
+{
+    atf_error_t err;
+
+    if (strcmp("/dev/stdout", atf_fs_path_cstring(resfile)) == 0) {
+        err = write_resfile(stdout, result, reason);
+    } else if (strcmp("/dev/stderr", atf_fs_path_cstring(resfile)) == 0) {
+        err = write_resfile(stderr, result, reason);
+    } else {
+        FILE *file = fopen(atf_fs_path_cstring(resfile), "w");
+        if (file == NULL) {
+            err = atf_libc_error(errno, "Cannot create results file '%s'",
+                                 atf_fs_path_cstring(resfile));
+        } else {
+            err = write_resfile(file, result, reason);
+            fclose(file);
+        }
+    }
+
+    if (reason != NULL)
+        atf_dynstr_fini(reason);
+
+    check_fatal_error(err);
+}
+
+static void
+fail_requirement(struct context *ctx, atf_dynstr_t *reason)
+{
+    create_resfile(ctx->resfile, "failed", reason);
+    exit(EXIT_FAILURE);
+}
+
+static void
+fail_check(struct context *ctx, atf_dynstr_t *reason)
+{
+    fprintf(stderr, "*** Check failed: %s\n", atf_dynstr_cstring(reason));
+    atf_dynstr_fini(reason);
+
+    ctx->fail_count++;
+}
+
+static void
+pass(struct context *ctx)
+{
+    create_resfile(ctx->resfile, "passed", NULL);
+    exit(EXIT_SUCCESS);
+}
+
+static void
+skip(struct context *ctx, atf_dynstr_t *reason)
+{
+    create_resfile(ctx->resfile, "skipped", reason);
+    exit(EXIT_SUCCESS);
+}
+
+/** Formats a failure/skip reason message.
+ *
+ * The formatted reason is stored in out_reason.  out_reason is initialized
+ * in this function and is supposed to be released by the caller.  In general,
+ * the reason will eventually be fed to create_resfile, which will release
+ * it.
+ *
+ * Errors in this function are fatal.  Rationale being: reasons are used to
+ * create results files; if we can't format the reason correctly, the result
+ * of the test program will be bogus.  So it's better to just exit with a
+ * fatal error.
+ */
+static void
+format_reason_ap(atf_dynstr_t *out_reason,
+                 const char *source_file, const size_t source_line,
+                 const char *reason, va_list ap)
+{
+    atf_error_t err;
+
+    if (source_file != NULL) {
+        err = atf_dynstr_init_fmt(out_reason, "%s:%zd: ", source_file,
+                                  source_line);
+    } else {
+        PRE(source_line == 0);
+        err = atf_dynstr_init(out_reason);
+    }
+
+    if (!atf_is_error(err)) {
+        va_list ap2;
+        va_copy(ap2, ap);
+        err = atf_dynstr_append_ap(out_reason, reason, ap2);
+        va_end(ap2);
+    }
+
+    check_fatal_error(err);
+}
+
+static void
+format_reason_fmt(atf_dynstr_t *out_reason,
+                  const char *source_file, const size_t source_line,
+                  const char *reason, ...)
+{
+    va_list ap;
+
+    va_start(ap, reason);
+    format_reason_ap(out_reason, source_file, source_line, reason, ap);
+    va_end(ap);
+}
+
+static void
+errno_test(struct context *ctx, const char *file, const size_t line,
+           const int exp_errno, const char *expr_str,
+           const bool expr_result,
+           void (*fail_func)(struct context *ctx, atf_dynstr_t *))
+{
+    const int actual_errno = errno;
+
+    if (expr_result) {
+        if (exp_errno != actual_errno) {
+            atf_dynstr_t reason;
+
+            format_reason_fmt(&reason, file, line, "Expected errno %d, got %d, "
+                "in %s", exp_errno, actual_errno, expr_str);
+            fail_func(ctx, &reason);
+        }
+    } else {
+        atf_dynstr_t reason;
+
+        format_reason_fmt(&reason, file, line, "Expected true value in %s",
+            expr_str);
+        fail_func(ctx, &reason);
+    }
+}
+
+struct prog_found_pair {
+    const char *prog;
+    bool found;
+};
+
+static atf_error_t
+check_prog_in_dir(const char *dir, void *data)
+{
+    struct prog_found_pair *pf = data;
+    atf_error_t err;
+
+    if (pf->found)
+        err = atf_no_error();
+    else {
+        atf_fs_path_t p;
+
+        err = atf_fs_path_init_fmt(&p, "%s/%s", dir, pf->prog);
+        if (atf_is_error(err))
+            goto out_p;
+
+        err = atf_fs_eaccess(&p, atf_fs_access_x);
+        if (!atf_is_error(err))
+            pf->found = true;
+        else {
+            atf_error_free(err);
+            INV(!pf->found);
+            err = atf_no_error();
+        }
+
+out_p:
+        atf_fs_path_fini(&p);
+    }
+
+    return err;
+}
+
+static atf_error_t
+check_prog(struct context *ctx, const char *prog, void *data)
+{
+    atf_error_t err;
+    atf_fs_path_t p;
+
+    err = atf_fs_path_init_fmt(&p, "%s", prog);
+    if (atf_is_error(err))
+        goto out;
+
+    if (atf_fs_path_is_absolute(&p)) {
+        err = atf_fs_eaccess(&p, atf_fs_access_x);
+        if (atf_is_error(err)) {
+            atf_dynstr_t reason;
+
+            atf_error_free(err);
+            atf_fs_path_fini(&p);
+            format_reason_fmt(&reason, NULL, 0, "The required program %s could "
+                "not be found", prog);
+            skip(ctx, &reason);
+        }
+    } else {
+        const char *path = atf_env_get("PATH");
+        struct prog_found_pair pf;
+        atf_fs_path_t bp;
+
+        err = atf_fs_path_branch_path(&p, &bp);
+        if (atf_is_error(err))
+            goto out_p;
+
+        if (strcmp(atf_fs_path_cstring(&bp), ".") != 0) {
+            atf_fs_path_fini(&bp);
+            atf_fs_path_fini(&p);
+
+            report_fatal_error("Relative paths are not allowed when searching "
+                "for a program (%s)", prog);
+            UNREACHABLE;
+        }
+
+        pf.prog = prog;
+        pf.found = false;
+        err = atf_text_for_each_word(path, ":", check_prog_in_dir, &pf);
+        if (atf_is_error(err))
+            goto out_bp;
+
+        if (!pf.found) {
+            atf_dynstr_t reason;
+
+            atf_fs_path_fini(&bp);
+            atf_fs_path_fini(&p);
+            format_reason_fmt(&reason, NULL, 0, "The required program %s could "
+                "not be found in the PATH", prog);
+            fail_requirement(ctx, &reason);
+        }
+
+out_bp:
+        atf_fs_path_fini(&bp);
+    }
+
+out_p:
+    atf_fs_path_fini(&p);
+out:
+    return err;
+}
 
 /* ---------------------------------------------------------------------
  * The "atf_tc" type.
@@ -108,9 +390,11 @@ atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
     if (tc->m_head != NULL)
         tc->m_head(tc);
 
-    if (strcmp(atf_tc_get_md_var(tc, "ident"), ident) != 0)
-        atf_tc_fail("Test case head modified the read-only 'ident' "
-                    "property");
+    if (strcmp(atf_tc_get_md_var(tc, "ident"), ident) != 0) {
+        report_fatal_error("Test case head modified the read-only 'ident' "
+            "property");
+        UNREACHABLE;
+    }
 
     INV(!atf_is_error(err));
     return err;
@@ -244,31 +528,130 @@ atf_tc_set_md_var(atf_tc_t *tc, const char *name, const char *fmt, ...)
 }
 
 /* ---------------------------------------------------------------------
+ * Free functions, as they should be publicly but they can't.
+ * --------------------------------------------------------------------- */
+
+static void
+_atf_tc_fail(struct context *ctx, const char *fmt, va_list ap)
+{
+    va_list ap2;
+    atf_dynstr_t reason;
+
+    va_copy(ap2, ap);
+    format_reason_ap(&reason, NULL, 0, fmt, ap2);
+    va_end(ap2);
+
+    fail_requirement(ctx, &reason);
+    UNREACHABLE;
+}
+
+static void
+_atf_tc_fail_nonfatal(struct context *ctx, const char *fmt, va_list ap)
+{
+    va_list ap2;
+    atf_dynstr_t reason;
+
+    va_copy(ap2, ap);
+    format_reason_ap(&reason, NULL, 0, fmt, ap2);
+    va_end(ap2);
+
+    fail_check(ctx, &reason);
+}
+
+static void
+_atf_tc_fail_check(struct context *ctx, const char *file, const size_t line,
+                   const char *fmt, va_list ap)
+{
+    va_list ap2;
+    atf_dynstr_t reason;
+
+    va_copy(ap2, ap);
+    format_reason_ap(&reason, file, line, fmt, ap2);
+    va_end(ap2);
+
+    fail_check(ctx, &reason);
+}
+
+static void
+_atf_tc_fail_requirement(struct context *ctx, const char *file,
+                         const size_t line, const char *fmt, va_list ap)
+{
+    va_list ap2;
+    atf_dynstr_t reason;
+
+    va_copy(ap2, ap);
+    format_reason_ap(&reason, file, line, fmt, ap2);
+    va_end(ap2);
+
+    fail_requirement(ctx, &reason);
+    UNREACHABLE;
+}
+
+static void
+_atf_tc_pass(struct context *ctx)
+{
+    pass(ctx);
+    UNREACHABLE;
+}
+
+static void
+_atf_tc_require_prog(struct context *ctx, const char *prog)
+{
+    check_fatal_error(check_prog(ctx, prog, NULL));
+}
+
+static void
+_atf_tc_skip(struct context *ctx, const char *fmt, va_list ap)
+{
+    atf_dynstr_t reason;
+    va_list ap2;
+
+    va_copy(ap2, ap);
+    format_reason_ap(&reason, NULL, 0, fmt, ap2);
+    va_end(ap2);
+
+    skip(ctx, &reason);
+}
+
+static void
+_atf_tc_check_errno(struct context *ctx, const char *file, const size_t line,
+                    const int exp_errno, const char *expr_str,
+                    const bool expr_result)
+{
+    errno_test(ctx, file, line, exp_errno, expr_str, expr_result, fail_check);
+}
+
+static void
+_atf_tc_require_errno(struct context *ctx, const char *file, const size_t line,
+                      const int exp_errno, const char *expr_str,
+                      const bool expr_result)
+{
+    errno_test(ctx, file, line, exp_errno, expr_str, expr_result,
+        fail_requirement);
+}
+
+/* ---------------------------------------------------------------------
  * Free functions.
  * --------------------------------------------------------------------- */
 
-static const atf_tc_t *current_tc = NULL;
-static const atf_fs_path_t *current_resfile = NULL;
-static size_t current_tc_fail_count = 0;
+static struct context Current;
 
 atf_error_t
 atf_tc_run(const atf_tc_t *tc, const atf_fs_path_t *resfile)
 {
-    current_tc = tc;
-    current_resfile = resfile;
-    current_tc_fail_count = 0;
+    context_init(&Current, tc, resfile);
 
     tc->m_body(tc);
 
-    if (current_tc_fail_count == 0)
-        atf_tc_pass();
-    else
-        atf_tc_fail("%d checks failed; see output for more details",
-                    current_tc_fail_count);
+    if (Current.fail_count == 0) {
+        pass(&Current);
+    } else {
+        atf_dynstr_t reason;
 
-    current_tc = NULL;
-    current_resfile = NULL;
-    current_tc_fail_count = 0;
+        format_reason_fmt(&reason, NULL, 0, "%d checks failed; see output for "
+            "more details", Current.fail_count);
+        fail_requirement(&Current, &reason);
+    }
 
     return atf_no_error();
 }
@@ -281,239 +664,31 @@ atf_tc_cleanup(const atf_tc_t *tc)
     return atf_no_error(); /* XXX */
 }
 
-struct prog_found_pair {
-    const char *prog;
-    bool found;
-};
+/* ---------------------------------------------------------------------
+ * Free functions that depend on Current.
+ * --------------------------------------------------------------------- */
 
-static
-atf_error_t
-check_prog(const char *prog, void *data)
-{
-    atf_error_t err;
-    atf_fs_path_t p;
-
-    err = atf_fs_path_init_fmt(&p, "%s", prog);
-    if (atf_is_error(err))
-        goto out;
-
-    if (atf_fs_path_is_absolute(&p)) {
-        err = atf_fs_eaccess(&p, atf_fs_access_x);
-        if (atf_is_error(err)) {
-            atf_error_free(err);
-            atf_fs_path_fini(&p);
-            atf_tc_skip("The required program %s could not be found", prog);
-        }
-    } else {
-        const char *path = atf_env_get("PATH");
-        struct prog_found_pair pf;
-        atf_fs_path_t bp;
-
-        err = atf_fs_path_branch_path(&p, &bp);
-        if (atf_is_error(err))
-            goto out_p;
-
-        if (strcmp(atf_fs_path_cstring(&bp), ".") != 0) {
-            atf_fs_path_fini(&bp);
-            atf_fs_path_fini(&p);
-            atf_tc_fail("Relative paths are not allowed when searching for "
-                        "a program (%s)", prog);
-        }
-
-        pf.prog = prog;
-        pf.found = false;
-        err = atf_text_for_each_word(path, ":", check_prog_in_dir, &pf);
-        if (atf_is_error(err))
-            goto out_bp;
-
-        if (!pf.found) {
-            atf_fs_path_fini(&bp);
-            atf_fs_path_fini(&p);
-            atf_tc_skip("The required program %s could not be found in "
-                        "the PATH", prog);
-        }
-
-out_bp:
-        atf_fs_path_fini(&bp);
-    }
-
-out_p:
-    atf_fs_path_fini(&p);
-out:
-    return err;
-}
-
-static
-atf_error_t
-check_prog_in_dir(const char *dir, void *data)
-{
-    struct prog_found_pair *pf = data;
-    atf_error_t err;
-
-    if (pf->found)
-        err = atf_no_error();
-    else {
-        atf_fs_path_t p;
-
-        err = atf_fs_path_init_fmt(&p, "%s/%s", dir, pf->prog);
-        if (atf_is_error(err))
-            goto out_p;
-
-        err = atf_fs_eaccess(&p, atf_fs_access_x);
-        if (!atf_is_error(err))
-            pf->found = true;
-        else {
-            atf_error_free(err);
-            INV(!pf->found);
-            err = atf_no_error();
-        }
-
-out_p:
-        atf_fs_path_fini(&p);
-    }
-
-    return err;
-}
-
-static
-atf_error_t
-format_reason(atf_dynstr_t *reason, const char *fmt, va_list ap)
-{
-    atf_error_t err;
-    atf_dynstr_t tmp;
-    va_list ap2;
-
-    va_copy(ap2, ap);
-    err = atf_dynstr_init_ap(&tmp, fmt, ap2);
-    va_end(ap2);
-    if (atf_is_error(err))
-        goto out;
-
-    /* There is no reason for calling rfind instead of find other than
-     * find is not implemented. */
-    if (atf_dynstr_rfind_ch(&tmp, '\n') == atf_dynstr_npos) {
-        err = atf_dynstr_copy(reason, &tmp);
-    } else {
-        const char *iter;
-
-        err = atf_dynstr_init_fmt(reason, "BOGUS REASON (THE ORIGINAL "
-                                  "HAD NEWLINES): ");
-        if (atf_is_error(err))
-            goto out_tmp;
-
-        for (iter = atf_dynstr_cstring(&tmp); *iter != '\0'; iter++) {
-            if (*iter == '\n')
-                err = atf_dynstr_append_fmt(reason, "<<NEWLINE>>");
-            else
-                err = atf_dynstr_append_fmt(reason, "%c", *iter);
-
-            if (atf_is_error(err)) {
-                atf_dynstr_fini(reason);
-                break;
-            }
-        }
-    }
-
-out_tmp:
-    atf_dynstr_fini(&tmp);
-out:
-    return err;
-}
-
-static
-atf_error_t
-create_resfile(const atf_fs_path_t *resfile, const char *result,
-               const char *reason, va_list ap)
-{
-    atf_error_t err;
-    FILE *file;
-
-    if (strcmp("/dev/stdout", atf_fs_path_cstring(resfile)) == 0) {
-        file = stdout;
-        err = atf_no_error();
-    } else {
-        file = fopen(atf_fs_path_cstring(resfile), "w");
-        if (file == NULL) {
-            err = atf_libc_error(errno, "Cannot create results file `%s'",
-                                 atf_fs_path_cstring(resfile));
-            goto out;
-        } else
-            err = atf_no_error();
-    }
-
-    if (reason) {
-        atf_dynstr_t formatted;
-
-        err = format_reason(&formatted, reason, ap);
-        if (!atf_is_error(err))
-            fprintf(file, "%s: %s\n", result, atf_dynstr_cstring(&formatted));
-    } else
-        fprintf(file, "%s\n", result);
-
-    if (file != stdout)
-        fclose(file);
-out:
-    return err;
-}
-
-static
-atf_error_t
-create_resfile_fmt(const atf_fs_path_t *resfile, const char *result,
-                   const char *reason, ...)
-{
-    atf_error_t err;
-    va_list ap;
-
-    va_start(ap, reason);
-    err = create_resfile(resfile, result, reason, ap);
-    va_end(ap);
-    if (atf_is_error(err))
-        abort();
-
-    return err;
-}
-
-static
-void
-tc_fail(atf_dynstr_t *msg)
-{
-    atf_error_t err;
-
-    PRE(current_tc != NULL);
-
-    err = create_resfile_fmt(current_resfile, "failed", "%s",
-                             atf_dynstr_cstring(msg));
-    if (atf_is_error(err))
-        abort();
-
-    exit(EXIT_FAILURE);
-}
-
-static
-void
-tc_fail_nonfatal(atf_dynstr_t *msg)
-{
-    fprintf(stderr, "%s\n", atf_dynstr_cstring(msg));
-    atf_dynstr_fini(msg);
-
-    current_tc_fail_count++;
-}
+/*
+ * All the functions below provide delegates to other internal functions
+ * (prefixed by _) that take the current test case as an argument to
+ * prevent them from accessing global state.  This is to keep the side-
+ * effects of the internal functions clearer and easier to understand.
+ *
+ * The public API should never have hid the fact that it needs access to
+ * the current test case (other than maybe in the macros), but changing it
+ * is hard.  TODO: Revisit in the future.
+ */
 
 void
 atf_tc_fail(const char *fmt, ...)
 {
-    atf_error_t err;
     va_list ap;
 
-    PRE(current_tc != NULL);
+    PRE(Current.tc != NULL);
 
     va_start(ap, fmt);
-    err = create_resfile(current_resfile, "failed", fmt, ap);
+    _atf_tc_fail(&Current, fmt, ap);
     va_end(ap);
-    if (atf_is_error(err))
-        abort();
-
-    exit(EXIT_FAILURE);
 }
 
 void
@@ -521,145 +696,82 @@ atf_tc_fail_nonfatal(const char *fmt, ...)
 {
     va_list ap;
 
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-    fprintf(stderr, "\n");
+    PRE(Current.tc != NULL);
 
-    current_tc_fail_count++;
+    va_start(ap, fmt);
+    _atf_tc_fail_nonfatal(&Current, fmt, ap);
+    va_end(ap);
 }
 
 void
-atf_tc_fail_check(const char *file, int line, const char *fmt, ...)
+atf_tc_fail_check(const char *file, const size_t line, const char *fmt, ...)
 {
     va_list ap;
 
+    PRE(Current.tc != NULL);
+
     va_start(ap, fmt);
-    fail_internal(file, line, "Check failed", "*** ", fmt, ap,
-                  tc_fail_nonfatal, atf_tc_fail_nonfatal);
+    _atf_tc_fail_check(&Current, file, line, fmt, ap);
     va_end(ap);
 }
 
 void
-atf_tc_fail_requirement(const char *file, int line, const char *fmt, ...)
+atf_tc_fail_requirement(const char *file, const size_t line,
+                        const char *fmt, ...)
 {
     va_list ap;
 
+    PRE(Current.tc != NULL);
+
     va_start(ap, fmt);
-    fail_internal(file, line, "Requirement failed", "", fmt, ap,
-                  tc_fail, atf_tc_fail);
+    _atf_tc_fail_requirement(&Current, file, line, fmt, ap);
     va_end(ap);
-
-    UNREACHABLE;
-    abort();
-}
-
-static
-void
-fail_internal(const char *file, int line, const char *reason,
-              const char *prefix, const char *fmt, va_list ap,
-              void (*failfunc)(atf_dynstr_t *),
-              void (*backupfunc)(const char *, ...))
-{
-    va_list ap2;
-    atf_error_t err;
-    atf_dynstr_t msg;
-
-    err = atf_dynstr_init_fmt(&msg, "%s%s:%d: %s: ", prefix, file, line,
-                              reason);
-    if (atf_is_error(err))
-        goto backup;
-
-    va_copy(ap2, ap);
-    err = atf_dynstr_append_ap(&msg, fmt, ap2);
-    va_end(ap2);
-    if (atf_is_error(err)) {
-        atf_dynstr_fini(&msg);
-        goto backup;
-    }
-
-    va_copy(ap2, ap);
-    failfunc(&msg);
-    return;
-
-backup:
-    atf_error_free(err);
-    va_copy(ap2, ap);
-    backupfunc(fmt, ap2);
-    va_end(ap2);
 }
 
 void
 atf_tc_pass(void)
 {
-    atf_error_t err;
-    va_list dummy_ap;
+    PRE(Current.tc != NULL);
 
-    PRE(current_tc != NULL);
-
-    err = create_resfile(current_resfile, "passed", NULL, dummy_ap);
-    if (atf_is_error(err))
-        abort();
-
-    exit(EXIT_SUCCESS);
+    _atf_tc_pass(&Current);
 }
 
 void
 atf_tc_require_prog(const char *prog)
 {
-    atf_error_t err;
+    PRE(Current.tc != NULL);
 
-    err = check_prog(prog, NULL);
-    if (atf_is_error(err)) {
-        atf_error_free(err);
-        atf_tc_fail("atf_tc_require_prog failed"); /* XXX Correct? */
-    }
+    _atf_tc_require_prog(&Current, prog);
 }
 
 void
 atf_tc_skip(const char *fmt, ...)
 {
-    atf_error_t err;
     va_list ap;
 
-    PRE(current_tc != NULL);
+    PRE(Current.tc != NULL);
 
     va_start(ap, fmt);
-    err = create_resfile(current_resfile, "skipped", fmt, ap);
-    if (atf_is_error(err))
-        abort();
+    _atf_tc_skip(&Current, fmt, ap);
     va_end(ap);
-
-    exit(EXIT_SUCCESS);
 }
 
 void
-atf_tc_check_errno(const char *file, const int line, const int exp_errno,
+atf_tc_check_errno(const char *file, const size_t line, const int exp_errno,
                    const char *expr_str, const bool expr_result)
 {
-    const int actual_errno = errno;
+    PRE(Current.tc != NULL);
 
-    if (expr_result) {
-        if (exp_errno != actual_errno)
-            atf_tc_fail_check(file, line, "Expected errno %d, got %d, in %s",
-                              exp_errno, actual_errno, expr_str);
-    } else {
-        atf_tc_fail_check(file, line, "Expected true value in %s", expr_str);
-    }
+    _atf_tc_check_errno(&Current, file, line, exp_errno, expr_str,
+                        expr_result);
 }
 
 void
-atf_tc_require_errno(const char *file, const int line, const int exp_errno,
+atf_tc_require_errno(const char *file, const size_t line, const int exp_errno,
                      const char *expr_str, const bool expr_result)
 {
-    const int actual_errno = errno;
+    PRE(Current.tc != NULL);
 
-    if (expr_result) {
-        if (exp_errno != actual_errno)
-            atf_tc_fail_requirement(file, line, "Expected errno %d, got %d, "
-                                    "in %s", exp_errno, actual_errno, expr_str);
-    } else {
-        atf_tc_fail_requirement(file, line, "Expected true value in %s",
-                                expr_str);
-    }
+    _atf_tc_require_errno(&Current, file, line, exp_errno, expr_str,
+                          expr_result);
 }
