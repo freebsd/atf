@@ -345,6 +345,12 @@ impl::tc::fail(const std::string& reason)
 }
 
 void
+impl::tc::fail_nonfatal(const std::string& reason)
+{
+    atf_tc_fail_nonfatal("%s", reason.c_str());
+}
+
+void
 impl::tc::skip(const std::string& reason)
 {
     atf_tc_skip("%s", reason.c_str());
@@ -362,6 +368,18 @@ impl::tc::require_errno(const char* file, const int line, const int exp_errno,
                         const char* expr_str, const bool result)
 {
     atf_tc_require_errno(file, line, exp_errno, expr_str, result);
+}
+
+void
+impl::tc::expect_pass(void)
+{
+    atf_tc_expect_pass();
+}
+
+void
+impl::tc::expect_fail(const std::string& reason)
+{
+    atf_tc_expect_fail("%s", reason.c_str());
 }
 
 // ------------------------------------------------------------------------

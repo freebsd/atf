@@ -257,6 +257,66 @@ ATF_TC_BODY(config_multi_value, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Helper tests for "t_expect".
+ * --------------------------------------------------------------------- */
+
+ATF_TC_WITHOUT_HEAD(expect_pass_and_pass);
+ATF_TC_BODY(expect_pass_and_pass, tc)
+{
+    atf_tc_expect_pass();
+
+}
+
+ATF_TC_WITHOUT_HEAD(expect_pass_but_fail_requirement);
+ATF_TC_BODY(expect_pass_but_fail_requirement, tc)
+{
+    atf_tc_expect_pass();
+    atf_tc_fail("Some reason");
+}
+
+ATF_TC_WITHOUT_HEAD(expect_pass_but_fail_check);
+ATF_TC_BODY(expect_pass_but_fail_check, tc)
+{
+    atf_tc_expect_pass();
+    atf_tc_fail_nonfatal("Some reason");
+}
+
+ATF_TC_WITHOUT_HEAD(expect_fail_and_fail_requirement);
+ATF_TC_BODY(expect_fail_and_fail_requirement, tc)
+{
+    atf_tc_expect_fail("Fail %s", "reason");
+    atf_tc_fail("The failure");
+    atf_tc_expect_pass();
+}
+
+ATF_TC_WITHOUT_HEAD(expect_fail_and_fail_check);
+ATF_TC_BODY(expect_fail_and_fail_check, tc)
+{
+    atf_tc_expect_fail("Fail first");
+    atf_tc_fail_nonfatal("abc");
+    atf_tc_expect_pass();
+
+    atf_tc_expect_fail("And fail again");
+    atf_tc_fail_nonfatal("def");
+    atf_tc_expect_pass();
+}
+
+ATF_TC_WITHOUT_HEAD(expect_fail_but_pass);
+ATF_TC_BODY(expect_fail_but_pass, tc)
+{
+    atf_tc_expect_fail("Fail first");
+    atf_tc_fail_nonfatal("abc");
+    atf_tc_expect_pass();
+
+    atf_tc_expect_fail("Will not fail");
+    atf_tc_expect_pass();
+
+    atf_tc_expect_fail("And fail again");
+    atf_tc_fail_nonfatal("def");
+    atf_tc_expect_pass();
+}
+
+/* ---------------------------------------------------------------------
  * Helper tests for "t_fork".
  * --------------------------------------------------------------------- */
 
@@ -395,6 +455,14 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, config_empty);
     ATF_TP_ADD_TC(tp, config_value);
     ATF_TP_ADD_TC(tp, config_multi_value);
+
+    /* Add helper tests for t_expect. */
+    ATF_TP_ADD_TC(tp, expect_pass_and_pass);
+    ATF_TP_ADD_TC(tp, expect_pass_but_fail_requirement);
+    ATF_TP_ADD_TC(tp, expect_pass_but_fail_check);
+    ATF_TP_ADD_TC(tp, expect_fail_and_fail_requirement);
+    ATF_TP_ADD_TC(tp, expect_fail_and_fail_check);
+    ATF_TP_ADD_TC(tp, expect_fail_but_pass);
 
     /* Add helper tests for t_fork. */
     ATF_TP_ADD_TC(tp, fork_stop);

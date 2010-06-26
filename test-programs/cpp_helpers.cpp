@@ -82,6 +82,66 @@ ATF_TEST_CASE_BODY(config_multi_value)
 }
 
 // ------------------------------------------------------------------------
+// Helper tests for "t_expect".
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE_WITHOUT_HEAD(expect_pass_and_pass);
+ATF_TEST_CASE_BODY(expect_pass_and_pass)
+{
+    expect_pass();
+
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(expect_pass_but_fail_requirement);
+ATF_TEST_CASE_BODY(expect_pass_but_fail_requirement)
+{
+    expect_pass();
+    fail("Some reason");
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(expect_pass_but_fail_check);
+ATF_TEST_CASE_BODY(expect_pass_but_fail_check)
+{
+    expect_pass();
+    fail_nonfatal("Some reason");
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(expect_fail_and_fail_requirement);
+ATF_TEST_CASE_BODY(expect_fail_and_fail_requirement)
+{
+    expect_fail("Fail reason");
+    fail("The failure");
+    expect_pass();
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(expect_fail_and_fail_check);
+ATF_TEST_CASE_BODY(expect_fail_and_fail_check)
+{
+    expect_fail("Fail first");
+    fail_nonfatal("abc");
+    expect_pass();
+
+    expect_fail("And fail again");
+    fail_nonfatal("def");
+    expect_pass();
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(expect_fail_but_pass);
+ATF_TEST_CASE_BODY(expect_fail_but_pass)
+{
+    expect_fail("Fail first");
+    fail_nonfatal("abc");
+    expect_pass();
+
+    expect_fail("Will not fail");
+    expect_pass();
+
+    expect_fail("And fail again");
+    fail_nonfatal("def");
+    expect_pass();
+}
+
+// ------------------------------------------------------------------------
 // Helper tests for "t_fork".
 // ------------------------------------------------------------------------
 
@@ -193,6 +253,14 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, config_empty);
     ATF_ADD_TEST_CASE(tcs, config_value);
     ATF_ADD_TEST_CASE(tcs, config_multi_value);
+
+    // Add helper tests for t_expect.
+    ATF_ADD_TEST_CASE(tcs, expect_pass_and_pass);
+    ATF_ADD_TEST_CASE(tcs, expect_pass_but_fail_requirement);
+    ATF_ADD_TEST_CASE(tcs, expect_pass_but_fail_check);
+    ATF_ADD_TEST_CASE(tcs, expect_fail_and_fail_requirement);
+    ATF_ADD_TEST_CASE(tcs, expect_fail_and_fail_check);
+    ATF_ADD_TEST_CASE(tcs, expect_fail_but_pass);
 
     // Add helper tests for t_fork.
     ATF_ADD_TEST_CASE(tcs, fork_stop);
