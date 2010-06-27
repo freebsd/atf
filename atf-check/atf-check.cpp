@@ -30,6 +30,9 @@
 extern "C" {
 #include <sys/types.h>
 #include <sys/wait.h>
+
+#include <limits.h>
+#include <signal.h>
 }
 
 #include <cerrno>
@@ -58,6 +61,26 @@ extern "C" {
 
 namespace {
 
+enum status_check_t {
+    sc_exit,
+    sc_ignore,
+    sc_signal,
+};
+
+struct status_check {
+    status_check_t type;
+    bool negated;
+    int value;
+
+    status_check(const status_check_t& p_type, const bool p_negated,
+                 const int p_value) :
+        type(p_type),
+        negated(p_negated),
+        value(p_value)
+    {
+    }
+};
+
 enum output_check_t {
     oc_ignore,
     oc_inline,
@@ -82,6 +105,117 @@ struct output_check {
 };
 
 } // anonymous namespace
+
+static int
+parse_exit_code(const std::string& str)
+{
+    try {
+        const int value = atf::text::to_type< int >(str);
+        if (value < 0 || value > 255)
+            throw std::runtime_error("Unused reason");
+        return value;
+    } catch (const std::runtime_error& e) {
+        throw atf::application::usage_error("Invalid exit code for -s option; "
+            "must be an integer in range 0-255");
+    }
+}
+
+static struct name_number {
+    const char *name;
+    int signo;
+} signal_names_to_numbers[] = {
+    { "hup", SIGHUP },
+    { "int", SIGINT },
+    { "quit", SIGQUIT },
+    { "trap", SIGTRAP },
+    { "kill", SIGKILL },
+    { "segv", SIGSEGV },
+    { "pipe", SIGPIPE },
+    { "alrm", SIGALRM },
+    { "term", SIGTERM },
+    { "usr1", SIGUSR1 },
+    { "usr2", SIGUSR2 },
+    { NULL, INT_MIN },
+};
+
+static int
+signal_name_to_number(const std::string& str)
+{
+    struct name_number* iter = signal_names_to_numbers;
+    int signo = INT_MIN;
+    while (signo == INT_MIN && iter->name != NULL) {
+        if (str == iter->name || str == std::string("sig") + iter->name)
+            signo = iter->signo;
+        else
+            iter++;
+    }
+    return signo;
+}
+
+static int
+parse_signal(const std::string& str)
+{
+    const int signo = signal_name_to_number(str);
+    if (signo == INT_MIN) {
+        try {
+            return atf::text::to_type< int >(str);
+        } catch (std::runtime_error) {
+            throw atf::application::usage_error("Invalid signal name or number "
+                "in -s option");
+        }
+    }
+    INV(signo != INT_MIN);
+    return signo;
+}
+
+static status_check
+parse_status_check_arg(const std::string& arg)
+{
+    const std::string::size_type delimiter = arg.find(':');
+    bool negated = (arg.compare(0, 4, "not-") == 0);
+    const std::string action_str = arg.substr(0, delimiter);
+    const std::string action = negated ? action_str.substr(4) : action_str;
+    const std::string value_str = (
+        delimiter == std::string::npos ? "" : arg.substr(delimiter + 1));
+    int value;
+
+    status_check_t type;
+    if (action == "eq") {
+        // Deprecated; use exit instead.  TODO: Remove after 0.10.
+        type = sc_exit;
+        if (negated)
+            throw atf::application::usage_error("Cannot negate eq checker");
+        negated = false;
+        value = parse_exit_code(value_str);
+    } else if (action == "exit") {
+        type = sc_exit;
+        if (value_str.empty())
+            value = INT_MIN;
+        else
+            value = parse_exit_code(value_str);
+    } else if (action == "ignore") {
+        if (negated)
+            throw atf::application::usage_error("Cannot negate ignore checker");
+        type = sc_ignore;
+        value = INT_MIN;
+    } else if (action == "ne") {
+        // Deprecated; use not-exit instead.  TODO: Remove after 0.10.
+        type = sc_exit;
+        if (negated)
+            throw atf::application::usage_error("Cannot negate ne checker");
+        negated = true;
+        value = parse_exit_code(value_str);
+    } else if (action == "signal") {
+        type = sc_signal;
+        if (value_str.empty())
+            value = INT_MIN;
+        else
+            value = parse_signal(value_str);
+    } else
+        throw atf::application::usage_error("Invalid output checker");
+
+    return status_check(type, negated, value);
+}
 
 static
 output_check
@@ -169,9 +303,10 @@ cat_file(const atf::fs::path& path)
     if (!stream)
         throw std::runtime_error("Failed to open " + path.str());
 
-    std::string line;
-    while (std::getline(stream, line).good())
-        std::cout << line << std::endl;
+    stream >> std::noskipws;
+    std::istream_iterator< char > begin(stream), end;
+    std::ostream_iterator< char > out(std::cerr);
+    std::copy(begin, end, out);
 
     stream.close();
 }
@@ -226,17 +361,6 @@ print_diff(const atf::fs::path& p1, const atf::fs::path& p2)
 }
 
 static
-void
-print_file(const atf::fs::path& p)
-{
-    std::ifstream f(p.c_str());
-    f >> std::noskipws;
-    std::istream_iterator< char > begin(f), end;
-    std::ostream_iterator< char > out(std::cerr);
-    std::copy(begin, end, out);
-}
-
-static
 std::string
 decode(const std::string& s)
 {
@@ -279,6 +403,91 @@ decode(const std::string& s)
     }
 
     return res;
+}
+
+static
+bool
+run_status_check(const status_check& sc, const atf::check::check_result& cr)
+{
+    bool result;
+
+    if (sc.type == sc_exit) {
+        if (cr.exited() && sc.value != INT_MIN) {
+            const int status = cr.exitcode();
+
+            if (!sc.negated && sc.value != status) {
+                std::cerr << "Fail: incorrect exit status: "
+                          << status << ", expected: "
+                          << sc.value << std::endl;
+                result = false;
+            } else if (sc.negated && sc.value == status) {
+                std::cerr << "Fail: incorrect exit status: "
+                          << status << ", expected: "
+                          << "anything else" << std::endl;
+                result = false;
+            } else
+                result = true;
+        } else if (cr.exited() && sc.value == INT_MIN) {
+            result = true;
+        } else {
+            std::cerr << "Fail: program did not exit cleanly" << std::endl;
+            result = false;
+        }
+    } else if (sc.type == sc_ignore) {
+        result = true;
+    } else if (sc.type == sc_signal) {
+        if (cr.signaled() && sc.value != INT_MIN) {
+            const int status = cr.termsig();
+
+            if (!sc.negated && sc.value != status) {
+                std::cerr << "Fail: incorrect signal received: "
+                          << status << ", expected: "
+                          << sc.value << std::endl;
+                result = false;
+            } else if (sc.negated && sc.value == status) {
+                std::cerr << "Fail: incorrect signal received: "
+                          << status << ", expected: "
+                          << "anything else" << std::endl;
+                result = false;
+            } else
+                result = true;
+        } else if (cr.signaled() && sc.value == INT_MIN) {
+            result = true;
+        } else {
+            std::cerr << "Fail: program did not receive a signal" << std::endl;
+            result = false;
+        }
+    } else {
+        UNREACHABLE;
+        result = false;
+    }
+
+    if (result == false) {
+        std::cerr << "stdout:" << std::endl;
+        cat_file(cr.stdout_path());
+        std::cerr << std::endl;
+
+        std::cerr << "stderr:" << std::endl;
+        cat_file(cr.stderr_path());
+        std::cerr << std::endl;
+    }
+
+    return result;
+}
+
+static
+bool
+run_status_checks(const std::vector< status_check >& checks,
+                  const atf::check::check_result& result)
+{
+    bool ok = false;
+
+    for (std::vector< status_check >::const_iterator iter = checks.begin();
+         !ok && iter != checks.end(); iter++) {
+         ok |= run_status_check(*iter, result);
+    }
+
+    return ok;
 }
 
 static
@@ -389,23 +598,14 @@ run_output_checks(const std::vector< output_check >& checks,
 // ------------------------------------------------------------------------
 
 class atf_check : public atf::application::app {
-    enum status_check_t {
-        sc_equal,
-        sc_not_equal,
-        sc_ignore
-    };
-
     bool m_xflag;
 
+    std::vector< status_check > m_status_checks;
     std::vector< output_check > m_stdout_checks;
     std::vector< output_check > m_stderr_checks;
 
-    status_check_t m_status_check;
-    int m_status_arg;
-
     static const char* m_description;
 
-    bool run_status_check(const atf::check::check_result&) const;
     bool run_output_checks(const atf::check::check_result&,
                            const std::string&) const;
 
@@ -424,52 +624,8 @@ const char* atf_check::m_description =
 
 atf_check::atf_check(void) :
     app(m_description, "atf-check(1)", "atf(7)"),
-    m_xflag(false),
-    m_status_check(sc_equal),
-    m_status_arg(0)
+    m_xflag(false)
 {
-}
-
-bool
-atf_check::run_status_check(const atf::check::check_result& r)
-    const
-{
-    bool retval = true;
-
-    if (!r.exited()) {
-        std::cerr << "Fail: program did not exit cleanly" << std::endl;
-        retval = false;
-    } else {
-        const int& status = r.exitcode();
-
-        if (m_status_check == sc_equal) {
-            if (m_status_arg != status) {
-                std::cerr << "Fail: incorrect exit status: "
-                          << status << ", expected: "
-                          << m_status_arg << std::endl;
-                retval = false;
-            }
-        } else if (m_status_check == sc_not_equal) {
-            if (m_status_arg == status) {
-                std::cerr << "Fail: incorrect exit status: "
-                          << status << ", expected: "
-                          << "anything other" << std::endl;
-                retval = false;
-            }
-        }
-    }
-
-    if (retval == false) {
-        std::cerr << "stdout:" << std::endl;
-        print_file(r.stdout_path());
-        std::cerr << std::endl;
-
-        std::cerr << "stderr:" << std::endl;
-        print_file(r.stderr_path());
-        std::cerr << std::endl;
-    }
-
-    return retval;
 }
 
 bool
@@ -502,7 +658,7 @@ atf_check::specific_options(void)
     options_set opts;
 
     opts.insert(option('s', "qual:value", "Handle status. Qualifier "
-                "must be one of: ignore eq:<num> ne:<num>"));
+                "must be one of: ignore exit:<num> signal:<name|num>"));
     opts.insert(option('o', "action:arg", "Handle stdout. Action must be "
                 "one of: empty ignore file:<path> inline:<val> match:regexp "
                 "save:<path>"));
@@ -515,46 +671,11 @@ atf_check::specific_options(void)
 }
 
 void
-atf_check::process_option_s(const std::string& arg)
-{
-    using atf::application::usage_error;
-
-    if (arg == "ignore") {
-        m_status_check = sc_ignore;
-        return;
-    }
-
-    std::string::size_type pos = arg.find(':');
-    std::string action = arg.substr(0, pos);
-
-    if (action == "eq")
-        m_status_check = sc_equal;
-    else if (action == "ne")
-        m_status_check = sc_not_equal;
-    else
-        throw usage_error("Invalid value for -s option");
-
-    std::string value = arg.substr(pos + 1);
-
-    try {
-        m_status_arg = atf::text::to_type< unsigned int >(value);
-    } catch (std::runtime_error) {
-        throw usage_error("Invalid value for -s option; must be an "
-                          "integer in range 0-255");
-    }
-
-    if ((m_status_arg < 0) || (m_status_arg > 255))
-        throw usage_error("Invalid value for -s option; must be an "
-                          "integer in range 0-255");
-
-}
-
-void
 atf_check::process_option(int ch, const char* arg)
 {
     switch (ch) {
     case 's':
-        process_option_s(arg);
+        m_status_checks.push_back(parse_status_check_arg(arg));
         break;
 
     case 'o':
@@ -585,12 +706,19 @@ atf_check::main(void)
     atf::check::check_result r =
         m_xflag ? execute_with_shell(m_argv) : execute(m_argv);
 
+    if (m_status_checks.empty())
+        m_status_checks.push_back(status_check(sc_exit, false, EXIT_SUCCESS));
+    else if (m_status_checks.size() > 1) {
+        // TODO: Remove this restriction.
+        throw atf::application::usage_error("Cannot specify -s more than once");
+    }
+
     if (m_stdout_checks.empty())
         m_stdout_checks.push_back(output_check(oc_empty, false, ""));
     if (m_stderr_checks.empty())
         m_stderr_checks.push_back(output_check(oc_empty, false, ""));
 
-    if ((run_status_check(r) == false) ||
+    if ((run_status_checks(m_status_checks, r) == false) ||
         (run_output_checks(r, "stderr") == false) ||
         (run_output_checks(r, "stdout") == false))
         status = EXIT_FAILURE;
