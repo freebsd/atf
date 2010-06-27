@@ -59,6 +59,30 @@ public:
 
 } // namespace detail
 
+struct test_case_result {
+    std::string m_state;
+    std::string m_reason;
+
+public:
+    test_case_result(const std::string& p_state, const std::string& p_reason) :
+        m_state(p_state),
+        m_reason(p_reason)
+    {
+    }
+
+    const std::string&
+    state(void) const
+    {
+        return m_state;
+    }
+
+    const std::string&
+    reason(void) const
+    {
+        return m_reason;
+    }
+};
+
 class atf_tps_writer {
     std::ostream& m_os;
 
@@ -76,7 +100,7 @@ public:
     void start_tc(const std::string&);
     void stdout_tc(const std::string&);
     void stderr_tc(const std::string&);
-    void end_tc(const atf::tests::tcr&);
+    void end_tc(const std::string&, const std::string&);
 };
 
 typedef std::map< std::string, atf::tests::vars_map > test_cases_map;
@@ -97,7 +121,7 @@ struct metadata {
 class atf_tps_writer;
 
 metadata get_metadata(const atf::fs::path&, const atf::tests::vars_map&);
-atf::tests::tcr read_test_case_result(const atf::fs::path&);
+test_case_result read_test_case_result(const atf::fs::path&);
 std::pair< std::string, atf::process::status > run_test_case(
     const atf::fs::path&, const std::string&, const std::string&,
     const atf::tests::vars_map&, const atf::tests::vars_map&,

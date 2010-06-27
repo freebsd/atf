@@ -97,8 +97,8 @@ class atf_run : public atf::application::app {
                          const atf::tests::vars_map&,
                          const atf::fs::path&);
 
-    atf::tests::tcr get_tcr(const std::string&, const atf::process::status&,
-                            const atf::fs::path&) const;
+    impl::test_case_result get_test_case_result(const std::string&,
+        const atf::process::status&, const atf::fs::path&) const;
 
 public:
     atf_run(void);
@@ -211,40 +211,38 @@ atf_run::run_test_directory(const atf::fs::path& tp,
     return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-atf::tests::tcr
-atf_run::get_tcr(const std::string& broken_reason,
-                 const atf::process::status& s,
-                 const atf::fs::path& resfile)
+impl::test_case_result
+atf_run::get_test_case_result(const std::string& broken_reason,
+                              const atf::process::status& s,
+                              const atf::fs::path& resfile)
     const
 {
-    using atf::tests::tcr;
-
     if (!broken_reason.empty())
-        return tcr(tcr::failed_state, broken_reason);
+        return impl::test_case_result("failed", broken_reason);
 
     if (s.exited()) {
         try {
-            const tcr ret = impl::read_test_case_result(resfile);
-            if (ret.get_state() == tcr::failed_state) {
+            const impl::test_case_result tcr = impl::read_test_case_result(
+                resfile);
+            if (tcr.state() == "failed") {
                 if (s.exitstatus() == EXIT_SUCCESS)
-                    return tcr(tcr::failed_state, "Test case exited "
-                               "successfully but reported failure");
+                    return impl::test_case_result("failed", "Test case "
+                        "exited successfully but reported failure");
             } else {
                 if (s.exitstatus() != EXIT_SUCCESS)
-                    return tcr(tcr::failed_state, "Test case exited "
-                               "with error but reported success");
+                    return impl::test_case_result("failed", "Test case "
+                        "exited with error but reported success");
             }
-            return ret;
+            return tcr;
         } catch (const std::runtime_error& e) {
-            return tcr(tcr::failed_state, "Test case exited normally but "
-                       "failed to create the results file: " +
-                       std::string(e.what()));
+            return impl::test_case_result("failed", "Test case exited "
+                "normally but failed to create the results file: " +
+                std::string(e.what()));
         }
     } else if (s.signaled()) {
-        return tcr(tcr::failed_state,
-                   "Test program received signal " +
-                   atf::text::to_string(s.termsig()) +
-                   (s.coredump() ? " (core dumped)" : ""));
+        return impl::test_case_result("failed", "Test program received "
+            "signal " + atf::text::to_string(s.termsig()) +
+            (s.coredump() ? " (core dumped)" : ""));
     } else {
         UNREACHABLE;
         throw std::runtime_error("Unknown exit status");
@@ -292,13 +290,11 @@ atf_run::run_test_program(const atf::fs::path& tp,
                 const std::string& reqfail = impl::check_requirements(
                     tcmd, config);
                 if (!reqfail.empty()) {
-                    w.end_tc(atf::tests::tcr(atf::tests::tcr::skipped_state,
-                                             reqfail));
+                    w.end_tc("skipped", reqfail);
                     continue;
                 }
             } catch (const std::runtime_error& e) {
-                w.end_tc(atf::tests::tcr(atf::tests::tcr::failed_state,
-                                         e.what()));
+                w.end_tc("failed", e.what());
                 errcode = EXIT_FAILURE;
                 continue;
             }
@@ -311,7 +307,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
                 const bool use_fs = atf::text::to_bool(
                     (*tcmd.find("use.fs")).second);
 
-                atf::tests::tcr tcr(atf::tests::tcr::passed_state);
+                impl::test_case_result tcr("passed", "");
 
                 if (use_fs) {
                     impl::temp_dir workdir(atf::fs::path(atf::config::get(
@@ -326,7 +322,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
 
                     // TODO: Force deletion of workdir.
 
-                    tcr = get_tcr(s.first, s.second, resfile);
+                    tcr = get_test_case_result(s.first, s.second, resfile);
                 } else {
                     std::pair< std::string, const atf::process::status > s =
                         impl::run_test_case(tp, tcname, "body", tcmd, config,
@@ -335,10 +331,10 @@ atf_run::run_test_program(const atf::fs::path& tp,
                         (void)impl::run_test_case(tp, tcname, "cleanup", tcmd,
                             config, resfile, ro_workdir, w);
 
-                    tcr = get_tcr(s.first, s.second, resfile);
+                    tcr = get_test_case_result(s.first, s.second, resfile);
                 }
-                w.end_tc(tcr);
-                if (tcr.get_state() == atf::tests::tcr::failed_state)
+                w.end_tc(tcr.state(), tcr.reason());
+                if (tcr.state() == "failed")
                     errcode = EXIT_FAILURE;
             } catch (...) {
                 if (atf::fs::exists(resfile))

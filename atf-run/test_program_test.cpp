@@ -626,7 +626,7 @@ ATF_TEST_CASE_BODY(atf_tps_writer)
         expss << "tc-start: passtc" << std::endl;
         CHECK;
 
-        w.end_tc(atf::tests::tcr(atf::tests::tcr::passed_state));
+        w.end_tc("passed", "");
         expss << "tc-end: passtc, passed" << std::endl;
         CHECK;
 
@@ -634,8 +634,7 @@ ATF_TEST_CASE_BODY(atf_tps_writer)
         expss << "tc-start: failtc" << std::endl;
         CHECK;
 
-        w.end_tc(atf::tests::tcr(atf::tests::tcr::failed_state,
-                                 "The reason"));
+        w.end_tc("failed", "The reason");
         expss << "tc-end: failtc, failed, The reason" << std::endl;
         CHECK;
 
@@ -643,8 +642,7 @@ ATF_TEST_CASE_BODY(atf_tps_writer)
         expss << "tc-start: skiptc" << std::endl;
         CHECK;
 
-        w.end_tc(atf::tests::tcr(atf::tests::tcr::skipped_state,
-                                 "The reason"));
+        w.end_tc("skipped", "The reason");
         expss << "tc-end: skiptc, skipped, The reason" << std::endl;
         CHECK;
 
@@ -685,7 +683,7 @@ ATF_TEST_CASE_BODY(atf_tps_writer)
         expss << "tc-se:an error message" << std::endl;
         CHECK;
 
-        w.end_tc(atf::tests::tcr(atf::tests::tcr::passed_state));
+        w.end_tc("passed", "");
         expss << "tc-end: thetc, passed" << std::endl;
         CHECK;
 
@@ -827,9 +825,9 @@ ATF_TEST_CASE_HEAD(read_test_case_result_passed) {
 }
 ATF_TEST_CASE_BODY(read_test_case_result_passed) {
     write_test_case_result("resfile", "passed\n");
-    const atf::tests::tcr tcr = impl::read_test_case_result(atf::fs::path(
-        "resfile"));
-    ATF_CHECK_EQUAL(atf::tests::tcr::passed_state, tcr.get_state());
+    const impl::test_case_result tcr = impl::read_test_case_result(
+        atf::fs::path("resfile"));
+    ATF_CHECK_EQUAL("passed", tcr.state());
 }
 
 ATF_TEST_CASE(read_test_case_result_failed);
@@ -838,10 +836,10 @@ ATF_TEST_CASE_HEAD(read_test_case_result_failed) {
 }
 ATF_TEST_CASE_BODY(read_test_case_result_failed) {
     write_test_case_result("resfile", "failed: foo bar\n");
-    const atf::tests::tcr tcr = impl::read_test_case_result(atf::fs::path(
-        "resfile"));
-    ATF_CHECK_EQUAL(atf::tests::tcr::failed_state, tcr.get_state());
-    ATF_CHECK_EQUAL("foo bar", tcr.get_reason());
+    const impl::test_case_result tcr = impl::read_test_case_result(
+        atf::fs::path("resfile"));
+    ATF_CHECK_EQUAL("failed", tcr.state());
+    ATF_CHECK_EQUAL("foo bar", tcr.reason());
 }
 
 ATF_TEST_CASE(read_test_case_result_skipped);
@@ -850,10 +848,10 @@ ATF_TEST_CASE_HEAD(read_test_case_result_skipped) {
 }
 ATF_TEST_CASE_BODY(read_test_case_result_skipped) {
     write_test_case_result("resfile", "skipped: baz bar\n");
-    const atf::tests::tcr tcr = impl::read_test_case_result(atf::fs::path(
-        "resfile"));
-    ATF_CHECK_EQUAL(atf::tests::tcr::skipped_state, tcr.get_state());
-    ATF_CHECK_EQUAL("baz bar", tcr.get_reason());
+    const impl::test_case_result tcr = impl::read_test_case_result(
+        atf::fs::path("resfile"));
+    ATF_CHECK_EQUAL("skipped", tcr.state());
+    ATF_CHECK_EQUAL("baz bar", tcr.reason());
 }
 
 ATF_TEST_CASE(read_test_case_result_multiline);
@@ -862,10 +860,10 @@ ATF_TEST_CASE_HEAD(read_test_case_result_multiline) {
 }
 ATF_TEST_CASE_BODY(read_test_case_result_multiline) {
     write_test_case_result("resfile", "skipped: foo\nbar\n");
-    const atf::tests::tcr tcr = impl::read_test_case_result(atf::fs::path(
-        "resfile"));
-    ATF_CHECK_EQUAL(atf::tests::tcr::skipped_state, tcr.get_state());
-    ATF_CHECK_EQUAL("foo<<NEWLINE UNEXPECTED>>bar", tcr.get_reason());
+    const impl::test_case_result tcr = impl::read_test_case_result(
+        atf::fs::path("resfile"));
+    ATF_CHECK_EQUAL("skipped", tcr.state());
+    ATF_CHECK_EQUAL("foo<<NEWLINE UNEXPECTED>>bar", tcr.reason());
 }
 
 // -------------------------------------------------------------------------

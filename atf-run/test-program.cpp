@@ -487,17 +487,12 @@ impl::atf_tps_writer::stderr_tc(const std::string& line)
 }
 
 void
-impl::atf_tps_writer::end_tc(const atf::tests::tcr& tcr)
+impl::atf_tps_writer::end_tc(const std::string& state,
+                             const std::string& reason)
 {
-    std::string str = "tc-end: " + m_tcname + ", ";
-    if (tcr.get_state() == atf::tests::tcr::passed_state)
-        str += "passed";
-    else if (tcr.get_state() == atf::tests::tcr::skipped_state)
-        str += "skipped, " + tcr.get_reason();
-    else if (tcr.get_state() == atf::tests::tcr::failed_state)
-        str += "failed, " + tcr.get_reason();
-    else
-        UNREACHABLE;
+    std::string str = "tc-end: " + m_tcname + ", " + state;
+    if (!reason.empty())
+        str += ", " + reason;
     m_os << str << std::endl;
     m_os.flush();
 }
@@ -527,7 +522,7 @@ impl::get_metadata(const atf::fs::path& executable,
     return metadata(parser.get_tcs());
 }
 
-atf::tests::tcr
+impl::test_case_result
 impl::read_test_case_result(const atf::fs::path& results_path)
 {
     std::ifstream results_file(results_path.c_str());
@@ -545,11 +540,11 @@ impl::read_test_case_result(const atf::fs::path& results_path)
     results_file.close();
 
     if (line == "passed")
-        return atf::tests::tcr(atf::tests::tcr::passed_state);
+        return test_case_result("passed", "");
     else if (line.compare(0, 8, "failed: ") == 0)
-        return atf::tests::tcr(atf::tests::tcr::failed_state, line.substr(8));
+        return test_case_result("failed", line.substr(8));
     else if (line.compare(0, 9, "skipped: ") == 0)
-        return atf::tests::tcr(atf::tests::tcr::skipped_state, line.substr(9));
+        return test_case_result("skipped", line.substr(9));
     else
         throw std::runtime_error("Invalid results file, contents: " + line);
 }
