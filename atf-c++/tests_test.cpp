@@ -188,57 +188,6 @@ ATF_TEST_CASE_BODY(atf_tp_writer)
 }
 
 // ------------------------------------------------------------------------
-// Tests for the "tcr" class.
-// ------------------------------------------------------------------------
-
-ATF_TEST_CASE(tcr_ctor_wo_reason);
-ATF_TEST_CASE_HEAD(tcr_ctor_wo_reason)
-{
-    set_md_var("descr", "Tests that the passed pseudo-constructor works.");
-}
-ATF_TEST_CASE_BODY(tcr_ctor_wo_reason)
-{
-    using atf::tests::tcr;
-
-    tcr tcr(tcr::passed_state);
-    ATF_CHECK(tcr.get_state() == tcr::passed_state);
-}
-
-ATF_TEST_CASE(tcr_ctor_w_reason);
-ATF_TEST_CASE_HEAD(tcr_ctor_w_reason)
-{
-    set_md_var("descr", "Tests that the skipped pseudo-constructor works.");
-}
-ATF_TEST_CASE_BODY(tcr_ctor_w_reason)
-{
-    using atf::tests::tcr;
-
-    {
-        tcr t(tcr::skipped_state, "Reason 1");
-        ATF_CHECK(t.get_state() == tcr::skipped_state);
-        ATF_CHECK_EQUAL(t.get_reason(), "Reason 1");
-    }
-
-    {
-        tcr t(tcr::skipped_state, "Reason 2");
-        ATF_CHECK(t.get_state() == tcr::skipped_state);
-        ATF_CHECK_EQUAL(t.get_reason(), "Reason 2");
-    }
-
-    {
-        tcr t(tcr::failed_state, "Reason 1");
-        ATF_CHECK(t.get_state() == tcr::failed_state);
-        ATF_CHECK_EQUAL(t.get_reason(), "Reason 1");
-    }
-
-    {
-        tcr t(tcr::failed_state, "Reason 2");
-        ATF_CHECK(t.get_state() == tcr::failed_state);
-        ATF_CHECK_EQUAL(t.get_reason(), "Reason 2");
-    }
-}
-
-// ------------------------------------------------------------------------
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
@@ -252,10 +201,6 @@ ATF_INIT_TEST_CASES(tcs)
 {
     // Add tests for the "atf_tp_writer" class.
     ATF_ADD_TEST_CASE(tcs, atf_tp_writer);
-
-    // Add tests for the "tcr" class.
-    ATF_ADD_TEST_CASE(tcs, tcr_ctor_wo_reason);
-    ATF_ADD_TEST_CASE(tcs, tcr_ctor_w_reason);
 
     // Add the test cases for the header file.
     ATF_ADD_TEST_CASE(tcs, include);

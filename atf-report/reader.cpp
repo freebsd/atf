@@ -247,7 +247,6 @@ impl::atf_tps_reader::read_tc(void* pptr)
 {
     using atf::parser::parse_error;
     using namespace atf_tps;
-    using atf::tests::tcr;
 
     atf::parser::parser< tokenizer >& p =
         *reinterpret_cast< atf::parser::parser< tokenizer >* >

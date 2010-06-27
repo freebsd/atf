@@ -110,55 +110,6 @@ detail::atf_tp_writer::tc_meta_data(const std::string& name,
 }
 
 // ------------------------------------------------------------------------
-// The "tcr" class.
-// ------------------------------------------------------------------------
-
-const impl::tcr::state impl::tcr::passed_state = 0;
-const impl::tcr::state impl::tcr::failed_state = 1;
-const impl::tcr::state impl::tcr::skipped_state = 2;
-
-static
-bool
-state_allows_reason(impl::tcr::state state)
-{
-    return state == impl::tcr::failed_state ||
-           state == impl::tcr::skipped_state;
-}
-
-impl::tcr::tcr(state s) :
-    m_state(s)
-{
-    PRE(s == passed_state);
-}
-
-impl::tcr::tcr(state s, const std::string& r) :
-    m_state(s),
-    m_reason(r)
-{
-    PRE(s == failed_state || s == skipped_state);
-    PRE(!r.empty());
-}
-
-impl::tcr::~tcr(void)
-{
-}
-
-impl::tcr::state
-impl::tcr::get_state(void)
-    const
-{
-    return m_state;
-}
-
-const std::string&
-impl::tcr::get_reason(void)
-    const
-{
-    PRE(state_allows_reason(m_state));
-    return m_reason;
-}
-
-// ------------------------------------------------------------------------
 // The "tc" class.
 // ------------------------------------------------------------------------
 

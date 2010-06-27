@@ -67,42 +67,6 @@ public:
 typedef std::map< std::string, std::string > vars_map;
 
 // ------------------------------------------------------------------------
-// The "tcr" class.
-// ------------------------------------------------------------------------
-
-//!
-//! \brief Holds the results of a test case's execution.
-//!
-//! The tcr class holds the information that describes the results of a
-//! test case's execution.  This is composed of an exit code and a reason
-//! for that exit code.
-//!
-//! TODO: Complete documentation for this class.  Not done yet because it
-//! is worth to investigate if this class could be rewritten as several
-//! different classes, one for each status.
-//!
-class tcr {
-public:
-    typedef int state;
-
-private:
-    state m_state;
-    std::string m_reason;
-
-public:
-    static const state passed_state;
-    static const state failed_state;
-    static const state skipped_state;
-
-    tcr(state);
-    tcr(state, const std::string&);
-    ~tcr(void);
-
-    state get_state(void) const;
-    const std::string& get_reason(void) const;
-};
-
-// ------------------------------------------------------------------------
 // The "tc" class.
 // ------------------------------------------------------------------------
 
