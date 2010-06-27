@@ -108,6 +108,8 @@ void atf_tc_fail_nonfatal(const char *, ...);
 void atf_tc_pass(void) ATF_DEFS_ATTRIBUTE_NORETURN;
 void atf_tc_require_prog(const char *);
 void atf_tc_skip(const char *, ...) ATF_DEFS_ATTRIBUTE_NORETURN;
+void atf_tc_expect_pass(void);
+void atf_tc_expect_fail(const char *, ...);
 
 /* To be run from test case bodies only; internal to macros.h. */
 void atf_tc_fail_check(const char *, const size_t, const char *, ...);

@@ -46,11 +46,45 @@
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
+enum expect_type {
+    EXPECT_PASS,
+    EXPECT_FAIL,
+};
+
 struct context {
     const atf_tc_t *tc;
     const atf_fs_path_t *resfile;
     size_t fail_count;
+
+    enum expect_type expect;
+    atf_dynstr_t expect_reason;
+    size_t expect_previous_fail_count;
+    size_t expect_fail_count;
 };
+
+static void context_init(struct context *, const atf_tc_t *,
+                         const atf_fs_path_t *);
+static void check_fatal_error(atf_error_t);
+static void report_fatal_error(const char *, ...);
+static atf_error_t write_resfile(FILE *, const char *, const atf_dynstr_t *);
+static void create_resfile(const atf_fs_path_t *, const char *,
+                           atf_dynstr_t *);
+static void error_in_expect(struct context *, const char *, ...);
+static void validate_expect(struct context *);
+static void expected_failure(struct context *, atf_dynstr_t *);
+static void fail_requirement(struct context *, atf_dynstr_t *);
+static void fail_check(struct context *, atf_dynstr_t *);
+static void pass(struct context *);
+static void skip(struct context *, atf_dynstr_t *);
+static void format_reason_ap(atf_dynstr_t *, const char *, const size_t,
+                             const char *, va_list);
+static void format_reason_fmt(atf_dynstr_t *, const char *, const size_t,
+                              const char *, ...);
+static void errno_test(struct context *, const char *, const size_t,
+                       const int, const char *, const bool,
+                       void (*)(struct context *, atf_dynstr_t *));
+static atf_error_t check_prog_in_dir(const char *, void *);
+static atf_error_t check_prog(struct context *, const char *, void *);
 
 static void
 context_init(struct context *ctx, const atf_tc_t *tc,
@@ -59,6 +93,10 @@ context_init(struct context *ctx, const atf_tc_t *tc,
     ctx->tc = tc;
     ctx->resfile = resfile;
     ctx->fail_count = 0;
+    ctx->expect = EXPECT_PASS;
+    check_fatal_error(atf_dynstr_init(&ctx->expect_reason));
+    ctx->expect_previous_fail_count = 0;
+    ctx->expect_fail_count = 0;
 }
 
 static void
@@ -146,34 +184,110 @@ create_resfile(const atf_fs_path_t *resfile, const char *result,
     check_fatal_error(err);
 }
 
+/** Fails a test case if validate_expect fails. */
+static void
+error_in_expect(struct context *ctx, const char *fmt, ...)
+{
+    atf_dynstr_t reason;
+    va_list ap;
+
+    va_start(ap, fmt);
+    format_reason_ap(&reason, NULL, 0, fmt, ap);
+    va_end(ap);
+
+    ctx->expect = EXPECT_PASS;  /* Ensure fail_requirement really fails. */
+    fail_requirement(ctx, &reason);
+}
+
+/** Ensures that the "expect" state is correct.
+ *
+ * Call this function before modifying the current value of expect.
+ */
+static void
+validate_expect(struct context *ctx)
+{
+    if (ctx->expect == EXPECT_FAIL) {
+        if (ctx->expect_fail_count == ctx->expect_previous_fail_count)
+            error_in_expect(ctx, "Test case was expecting a failure but none "
+                "were raised");
+        else
+            INV(ctx->expect_fail_count > ctx->expect_previous_fail_count);
+    } else if (ctx->expect == EXPECT_PASS) {
+        /* Nothing to validate. */
+    } else
+        UNREACHABLE;
+}
+
+static void
+expected_failure(struct context *ctx, atf_dynstr_t *reason)
+{
+    check_fatal_error(atf_dynstr_prepend_fmt(reason, "%s: ",
+        atf_dynstr_cstring(&ctx->expect_reason)));
+    create_resfile(ctx->resfile, "expected_failure", reason);
+    exit(EXIT_SUCCESS);
+}
+
 static void
 fail_requirement(struct context *ctx, atf_dynstr_t *reason)
 {
-    create_resfile(ctx->resfile, "failed", reason);
-    exit(EXIT_FAILURE);
+    if (ctx->expect == EXPECT_FAIL) {
+        expected_failure(ctx, reason);
+    } else if (ctx->expect == EXPECT_PASS) {
+        create_resfile(ctx->resfile, "failed", reason);
+        exit(EXIT_FAILURE);
+    } else {
+        error_in_expect(ctx, "Test case raised a failure but was not "
+            "expecting one; reason was %s", atf_dynstr_cstring(reason));
+    }
+    UNREACHABLE;
 }
 
 static void
 fail_check(struct context *ctx, atf_dynstr_t *reason)
 {
-    fprintf(stderr, "*** Check failed: %s\n", atf_dynstr_cstring(reason));
-    atf_dynstr_fini(reason);
+    if (ctx->expect == EXPECT_FAIL) {
+        fprintf(stderr, "*** Expected check failure: %s: %s\n",
+            atf_dynstr_cstring(&ctx->expect_reason),
+            atf_dynstr_cstring(reason));
+        ctx->expect_fail_count++;
+    } else if (ctx->expect == EXPECT_PASS) {
+        fprintf(stderr, "*** Check failed: %s\n", atf_dynstr_cstring(reason));
+        ctx->fail_count++;
+    } else {
+        error_in_expect(ctx, "Test case raised a failure but was not "
+            "expecting one; reason was %s", atf_dynstr_cstring(reason));
+    }
 
-    ctx->fail_count++;
+    atf_dynstr_fini(reason);
 }
 
 static void
 pass(struct context *ctx)
 {
-    create_resfile(ctx->resfile, "passed", NULL);
-    exit(EXIT_SUCCESS);
+    if (ctx->expect == EXPECT_FAIL) {
+        error_in_expect(ctx, "Test case was expecting a failure but got "
+            "a pass instead");
+    } else if (ctx->expect == EXPECT_PASS) {
+        create_resfile(ctx->resfile, "passed", NULL);
+        exit(EXIT_SUCCESS);
+    } else {
+        error_in_expect(ctx, "Test case asked to explicitly pass but was "
+            "not expecting such condition");
+    }
+    UNREACHABLE;
 }
 
 static void
 skip(struct context *ctx, atf_dynstr_t *reason)
 {
-    create_resfile(ctx->resfile, "skipped", reason);
-    exit(EXIT_SUCCESS);
+    if (ctx->expect == EXPECT_PASS) {
+        create_resfile(ctx->resfile, "skipped", reason);
+        exit(EXIT_SUCCESS);
+    } else {
+        error_in_expect(ctx, "Can only skip a test case when running in "
+            "expect pass mode");
+    }
+    UNREACHABLE;
 }
 
 /** Formats a failure/skip reason message.
@@ -229,7 +343,7 @@ static void
 errno_test(struct context *ctx, const char *file, const size_t line,
            const int exp_errno, const char *expr_str,
            const bool expr_result,
-           void (*fail_func)(struct context *ctx, atf_dynstr_t *))
+           void (*fail_func)(struct context *, atf_dynstr_t *))
 {
     const int actual_errno = errno;
 
@@ -630,6 +744,29 @@ _atf_tc_require_errno(struct context *ctx, const char *file, const size_t line,
         fail_requirement);
 }
 
+static void
+_atf_tc_expect_pass(struct context *ctx)
+{
+    validate_expect(ctx);
+
+    ctx->expect = EXPECT_PASS;
+}
+
+static void
+_atf_tc_expect_fail(struct context *ctx, const char *reason, va_list ap)
+{
+    va_list ap2;
+
+    validate_expect(ctx);
+
+    ctx->expect = EXPECT_FAIL;
+    atf_dynstr_fini(&ctx->expect_reason);
+    va_copy(ap2, ap);
+    check_fatal_error(atf_dynstr_init_ap(&ctx->expect_reason, reason, ap2));
+    va_end(ap2);
+    ctx->expect_previous_fail_count = ctx->expect_fail_count;
+}
+
 /* ---------------------------------------------------------------------
  * Free functions.
  * --------------------------------------------------------------------- */
@@ -643,16 +780,24 @@ atf_tc_run(const atf_tc_t *tc, const atf_fs_path_t *resfile)
 
     tc->m_body(tc);
 
-    if (Current.fail_count == 0) {
-        pass(&Current);
-    } else {
+    validate_expect(&Current);
+
+    if (Current.fail_count > 0) {
         atf_dynstr_t reason;
 
         format_reason_fmt(&reason, NULL, 0, "%d checks failed; see output for "
             "more details", Current.fail_count);
         fail_requirement(&Current, &reason);
-    }
+    } else if (Current.expect_fail_count > 0) {
+        atf_dynstr_t reason;
 
+        format_reason_fmt(&reason, NULL, 0, "%d checks failed as expected; "
+            "see output for more details", Current.expect_fail_count);
+        expected_failure(&Current, &reason);
+    } else {
+        pass(&Current);
+    }
+    UNREACHABLE;
     return atf_no_error();
 }
 
@@ -774,4 +919,24 @@ atf_tc_require_errno(const char *file, const size_t line, const int exp_errno,
 
     _atf_tc_require_errno(&Current, file, line, exp_errno, expr_str,
                           expr_result);
+}
+
+void
+atf_tc_expect_pass(void)
+{
+    PRE(Current.tc != NULL);
+
+    _atf_tc_expect_pass(&Current);
+}
+
+void
+atf_tc_expect_fail(const char *reason, ...)
+{
+    va_list ap;
+
+    PRE(Current.tc != NULL);
+
+    va_start(ap, reason);
+    _atf_tc_expect_fail(&Current, reason, ap);
+    va_end(ap);
 }
