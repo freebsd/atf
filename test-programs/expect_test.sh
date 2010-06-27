@@ -91,10 +91,64 @@ expect_fail_body() {
     done
 }
 
+atf_test_case expect_exit
+expect_exit_head() {
+    atf_set "use.fs" "true"
+}
+expect_exit_body() {
+    for h in $(get_helpers); do
+        atf_check -s eq:0 "${h}" -r result expect_exit_any_and_exit
+        check_result result "expected_exit: Call will exit"
+
+        atf_check -s eq:123 "${h}" -r result expect_exit_code_and_exit
+        check_result result "expected_exit\(123\): Call will exit"
+
+        atf_check -s eq:1 "${h}" -r result expect_exit_but_pass
+        check_result result "failed: .*expected to exit"
+    done
+}
+
+atf_test_case expect_signal
+expect_signal_head() {
+    atf_set "use.fs" "true"
+}
+expect_signal_body() {
+    for h in $(get_helpers); do
+        atf_check -s signal:9 "${h}" -r result expect_signal_any_and_signal
+        check_result result "expected_signal: Call will signal"
+
+        atf_check -s signal:hup "${h}" -r result expect_signal_no_and_signal
+        check_result result "expected_signal\(1\): Call will signal"
+
+        atf_check -s eq:1 "${h}" -r result expect_signal_but_pass
+        check_result result "failed: .*termination signal"
+    done
+}
+
+atf_test_case expect_death
+expect_death_head() {
+    atf_set "use.fs" "true"
+}
+expect_death_body() {
+    for h in $(get_helpers); do
+        atf_check -s eq:123 "${h}" -r result expect_death_and_exit
+        check_result result "expected_death: Exit case"
+
+        atf_check -s signal:kill "${h}" -r result expect_death_and_signal
+        check_result result "expected_death: Signal case"
+
+        atf_check -s eq:1 "${h}" -r result expect_death_but_pass
+        check_result result "failed: .*terminate abruptly"
+    done
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case expect_pass
     atf_add_test_case expect_fail
+    atf_add_test_case expect_exit
+    atf_add_test_case expect_signal
+    atf_add_test_case expect_death
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

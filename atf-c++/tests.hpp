@@ -152,6 +152,9 @@ public:
                               const bool);
     static void expect_pass(void);
     static void expect_fail(const std::string&);
+    static void expect_exit(const int, const std::string&);
+    static void expect_signal(const int, const std::string&);
+    static void expect_death(const std::string&);
 };
 
 } // namespace tests

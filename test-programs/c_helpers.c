@@ -316,6 +316,66 @@ ATF_TC_BODY(expect_fail_but_pass, tc)
     atf_tc_expect_pass();
 }
 
+ATF_TC_WITHOUT_HEAD(expect_exit_any_and_exit);
+ATF_TC_BODY(expect_exit_any_and_exit, tc)
+{
+    atf_tc_expect_exit(-1, "Call will exit");
+    exit(EXIT_SUCCESS);
+}
+
+ATF_TC_WITHOUT_HEAD(expect_exit_code_and_exit);
+ATF_TC_BODY(expect_exit_code_and_exit, tc)
+{
+    atf_tc_expect_exit(123, "Call will exit");
+    exit(123);
+}
+
+ATF_TC_WITHOUT_HEAD(expect_exit_but_pass);
+ATF_TC_BODY(expect_exit_but_pass, tc)
+{
+    atf_tc_expect_exit(-1, "Call won't exit");
+}
+
+ATF_TC_WITHOUT_HEAD(expect_signal_any_and_signal);
+ATF_TC_BODY(expect_signal_any_and_signal, tc)
+{
+    atf_tc_expect_signal(-1, "Call will signal");
+    kill(getpid(), SIGKILL);
+}
+
+ATF_TC_WITHOUT_HEAD(expect_signal_no_and_signal);
+ATF_TC_BODY(expect_signal_no_and_signal, tc)
+{
+    atf_tc_expect_signal(SIGHUP, "Call will signal");
+    kill(getpid(), SIGHUP);
+}
+
+ATF_TC_WITHOUT_HEAD(expect_signal_but_pass);
+ATF_TC_BODY(expect_signal_but_pass, tc)
+{
+    atf_tc_expect_signal(-1, "Call won't signal");
+}
+
+ATF_TC_WITHOUT_HEAD(expect_death_and_exit);
+ATF_TC_BODY(expect_death_and_exit, tc)
+{
+    atf_tc_expect_death("Exit case");
+    exit(123);
+}
+
+ATF_TC_WITHOUT_HEAD(expect_death_and_signal);
+ATF_TC_BODY(expect_death_and_signal, tc)
+{
+    atf_tc_expect_death("Signal case");
+    kill(getpid(), SIGKILL);
+}
+
+ATF_TC_WITHOUT_HEAD(expect_death_but_pass);
+ATF_TC_BODY(expect_death_but_pass, tc)
+{
+    atf_tc_expect_death("Call won't die");
+}
+
 /* ---------------------------------------------------------------------
  * Helper tests for "t_fork".
  * --------------------------------------------------------------------- */
@@ -463,6 +523,15 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, expect_fail_and_fail_requirement);
     ATF_TP_ADD_TC(tp, expect_fail_and_fail_check);
     ATF_TP_ADD_TC(tp, expect_fail_but_pass);
+    ATF_TP_ADD_TC(tp, expect_exit_any_and_exit);
+    ATF_TP_ADD_TC(tp, expect_exit_code_and_exit);
+    ATF_TP_ADD_TC(tp, expect_exit_but_pass);
+    ATF_TP_ADD_TC(tp, expect_signal_any_and_signal);
+    ATF_TP_ADD_TC(tp, expect_signal_no_and_signal);
+    ATF_TP_ADD_TC(tp, expect_signal_but_pass);
+    ATF_TP_ADD_TC(tp, expect_death_and_exit);
+    ATF_TP_ADD_TC(tp, expect_death_and_signal);
+    ATF_TP_ADD_TC(tp, expect_death_but_pass);
 
     /* Add helper tests for t_fork. */
     ATF_TP_ADD_TC(tp, fork_stop);

@@ -150,6 +150,34 @@ atf_config_has()
 }
 
 #
+# atf_expect_death reason
+#
+#   Sets the expectations to 'death'.
+#
+atf_expect_death()
+{
+    _atf_validate_expect
+
+    Expect=death
+    _atf_create_resfile expected_death -1 "${@}"
+}
+
+#
+# atf_expect_exit exitcode reason
+#
+#   Sets the expectations to 'exit'.
+#
+atf_expect_exit()
+{
+    _exitcode="${1}"; shift
+
+    _atf_validate_expect
+
+    Expect=exit
+    _atf_create_resfile expected_exit "${_exitcode}" "${@}"
+}
+
+#
 # atf_expect_fail reason
 #
 #   Sets the expectations to 'fail'.
@@ -176,6 +204,21 @@ atf_expect_pass()
 }
 
 #
+# atf_expect_signal signo reason
+#
+#   Sets the expectations to 'signal'.
+#
+atf_expect_signal()
+{
+    _signo="${1}"; shift
+
+    _atf_validate_expect
+
+    Expect=signal
+    _atf_create_resfile expected_signal "${_signo}" "${@}"
+}
+
+#
 # atf_expected_failure msg1 [.. msgN]
 #
 #   Makes the test case report an expected failure with the given error
@@ -184,7 +227,7 @@ atf_expect_pass()
 #
 atf_expected_failure()
 {
-    _atf_create_resfile expected_failure "${Expect_Reason}:" "${@}"
+    _atf_create_resfile expected_failure -1 "${Expect_Reason}:" "${@}"
     exit 0
 }
 
@@ -202,7 +245,7 @@ atf_fail()
             atf_expected_failure "${@}"
             ;;
         pass)
-            _atf_create_resfile failed "${@}"
+            _atf_create_resfile failed -1 "${@}"
             exit 1
             ;;
         *)
@@ -258,7 +301,7 @@ atf_pass()
             atf_fail "Test case was expecting a failure but got a pass instead"
             ;;
         pass)
-            _atf_create_resfile passed
+            _atf_create_resfile passed -1
             exit 0
             ;;
         *)
@@ -323,7 +366,7 @@ atf_set()
 #
 atf_skip()
 {
-    _atf_create_resfile skipped "${@}"
+    _atf_create_resfile skipped -1 "${@}"
     exit 0
 }
 
@@ -386,13 +429,20 @@ _atf_config_set_from_str()
 }
 
 #
-# _atf_create_resfile result [reason ...]
+# _atf_create_resfile result arg [reason ...]
 #
 #   Creates the results file.
 #
 _atf_create_resfile()
 {
     _result="${1}"; shift
+    if [ "${1}" -eq -1 ]; then
+        _arg=""
+        shift
+    else
+        _arg="(${1})"
+        shift
+    fi
     if [ ${#} -gt 0 ]; then
         _reason=": ${*}"
     else
@@ -400,10 +450,10 @@ _atf_create_resfile()
     fi
 
     if [ -n "${Results_File}" ]; then
-        echo "${_result}${_reason}" >"${Results_File}" || \
+        echo "${_result}${_arg}${_reason}" >"${Results_File}" || \
             _atf_error 128 "Cannot create results file '${Results_File}'"
     else
-        echo "${_result}${_reason}"
+        echo "${_result}${_arg}${_reason}"
     fi
 }
 
@@ -631,12 +681,8 @@ _atf_run_tc()
         case ${_tcpart} in
         body)
             ${_tcname}_body
-            if [ "${Expect}" != pass ]; then
-                Expect=pass
-                atf_fail "Test case was expecting a failure but got a pass" \
-                    "instead"
-            fi
-            _atf_create_resfile passed
+            _atf_validate_expect
+            _atf_create_resfile passed -1
             ;;
         cleanup)
             if _atf_has_cleanup "${_tcname}"; then
@@ -735,11 +781,26 @@ _atf_has_cleanup()
 _atf_validate_expect()
 {
     case "${Expect}" in
+        death)
+            Expect=pass
+            atf_fail "Test case was expected to terminate abruptly but it" \
+                "continued execution"
+            ;;
+        exit)
+            Expect=pass
+            atf_fail "Test case was expected to exit cleanly but it continued" \
+                "execution"
+            ;;
         fail)
             Expect=pass
             atf_fail "Test case was expecting a failure but none were raised"
             ;;
         pass)
+            ;;
+        signal)
+            Expect=pass
+            atf_fail "Test case was expected to receive a termination signal" \
+                "but it continued execution"
             ;;
         *)
             _atf_error 128 "Unreachable"

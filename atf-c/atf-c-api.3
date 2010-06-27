@@ -57,8 +57,11 @@
 .Nm ATF_TP_ADD_TC ,
 .Nm ATF_TP_ADD_TCS ,
 .Nm atf_no_error ,
+.Nm atf_tc_expect_death ,
+.Nm atf_tc_expect_exit ,
 .Nm atf_tc_expect_fail ,
 .Nm atf_tc_expect_pass ,
+.Nm atf_tc_expect_signal ,
 .Nm atf_tc_fail ,
 .Nm atf_tc_fail_nonfatal ,
 .Nm atf_tc_pass ,
@@ -93,8 +96,11 @@
 .Fn ATF_TP_ADD_TC "tp_name" "tc_name"
 .Fn ATF_TP_ADD_TCS "tp_name"
 .Fn atf_no_error
-.Fn atf_tc_expect_fail "reason"
+.Fn atf_tc_expect_death "reason" "..."
+.Fn atf_tc_expect_exit "exitcode" "reason" "..."
+.Fn atf_tc_expect_fail "reason" "..."
 .Fn atf_tc_expect_pass
+.Fn atf_tc_expect_signal "signo" "reason" "..."
 .Fn atf_tc_fail "reason"
 .Fn atf_tc_fail_nonfatal "reason"
 .Fn atf_tc_pass
@@ -279,12 +285,20 @@ Each test case has an internal state called
 that describes what the test case expectations are at any point in time.
 The value of this property can change during execution by any of:
 .Bl -tag -width indent
-.It Fn atf_tc_expect_pass
-This is the normal mode of execution.
-In this mode, any failure is reported as such to the user and the test case
-is marked as
-.Sq failed .
-.It Fn atf_tc_expect_fail "reason"
+.It Fn atf_tc_expect_death "reason" "..."
+Expects the test case to exit prematurely regardless of the nature of the
+exit.
+.It Fn atf_tc_expect_exit "exitcode" "reason" "..."
+Expects the test case to exit cleanly.
+If
+.Va exitcode
+is not
+.Sq -1 ,
+.Xr atf-run 1
+will validate that the exit code of the test case matches the one provided
+in this call.
+Otherwise, the exact value will be ignored.
+.It Fn atf_tc_expect_fail "reason" "..."
 Any failure (be it fatal or non-fatal) raised in this mode is recorded.
 However, such failures do not report the test case as failed; instead, the
 test case finalizes cleanly and is reported as
@@ -303,6 +317,21 @@ adjusted to the new conditions.
 In this situation, it is useful, for example, to set
 .Fa reason
 as the bug number for tracking purposes.
+.It Fn atf_tc_expect_pass
+This is the normal mode of execution.
+In this mode, any failure is reported as such to the user and the test case
+is marked as
+.Sq failed .
+.It Fn atf_tc_expect_signal "signo" "reason" "..."
+Expects the test case to terminate due to the reception of a signal.
+If
+.Va signo
+is not
+.Sq -1 ,
+.Xr atf-run 1
+will validate that the signal that terminated the test case matches the one
+provided in this call.
+Otherwise, the exact value will be ignored.
 .El
 .Ss Helper macros for common checks
 The library provides several macros that are very handy in multiple

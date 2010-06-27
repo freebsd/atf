@@ -239,11 +239,19 @@ Each test case has an internal state called
 that describes what the test case expectations are at any point in time.
 The value of this property can change during execution by any of:
 .Bl -tag -width indent
-.It Fn expect_pass
-This is the normal mode of execution.
-In this mode, any failure is reported as such to the user and the test case
-is marked as
-.Sq failed .
+.It Fn expect_death "reason"
+Expects the test case to exit prematurely regardless of the nature of the
+exit.
+.It Fn expect_exit "exitcode" "reason"
+Expects the test case to exit cleanly.
+If
+.Va exitcode
+is not
+.Sq -1 ,
+.Xr atf-run 1
+will validate that the exit code of the test case matches the one provided
+in this call.
+Otherwise, the exact value will be ignored.
 .It Fn expect_fail "reason"
 Any failure (be it fatal or non-fatal) raised in this mode is recorded.
 However, such failures do not report the test case as failed; instead, the
@@ -263,6 +271,21 @@ adjusted to the new conditions.
 In this situation, it is useful, for example, to set
 .Fa reason
 as the bug number for tracking purposes.
+.It Fn expect_pass
+This is the normal mode of execution.
+In this mode, any failure is reported as such to the user and the test case
+is marked as
+.Sq failed .
+.It Fn expect_signal "signo" "reason"
+Expects the test case to terminate due to the reception of a signal.
+If
+.Va signo
+is not
+.Sq -1 ,
+.Xr atf-run 1
+will validate that the signal that terminated the test case matches the one
+provided in this call.
+Otherwise, the exact value will be ignored.
 .El
 .Ss Helper macros for common checks
 The library provides several macros that are very handy in multiple

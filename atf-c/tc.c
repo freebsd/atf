@@ -49,6 +49,9 @@
 enum expect_type {
     EXPECT_PASS,
     EXPECT_FAIL,
+    EXPECT_EXIT,
+    EXPECT_SIGNAL,
+    EXPECT_DEATH,
 };
 
 struct context {
@@ -60,14 +63,17 @@ struct context {
     atf_dynstr_t expect_reason;
     size_t expect_previous_fail_count;
     size_t expect_fail_count;
+    int expect_exitcode;
+    int expect_signo;
 };
 
 static void context_init(struct context *, const atf_tc_t *,
                          const atf_fs_path_t *);
 static void check_fatal_error(atf_error_t);
 static void report_fatal_error(const char *, ...);
-static atf_error_t write_resfile(FILE *, const char *, const atf_dynstr_t *);
-static void create_resfile(const atf_fs_path_t *, const char *,
+static atf_error_t write_resfile(FILE *, const char *, const int,
+                                 const atf_dynstr_t *);
+static void create_resfile(const atf_fs_path_t *, const char *, const int,
                            atf_dynstr_t *);
 static void error_in_expect(struct context *, const char *, ...);
 static void validate_expect(struct context *);
@@ -97,6 +103,8 @@ context_init(struct context *ctx, const atf_tc_t *tc,
     check_fatal_error(atf_dynstr_init(&ctx->expect_reason));
     ctx->expect_previous_fail_count = 0;
     ctx->expect_fail_count = 0;
+    ctx->expect_exitcode = 0;
+    ctx->expect_signo = 0;
 }
 
 static void
@@ -133,15 +141,22 @@ report_fatal_error(const char *msg, ...)
  * because the caller needs to clean up the reason object before terminating.
  */
 static atf_error_t
-write_resfile(FILE *file, const char *result, const atf_dynstr_t *reason)
+write_resfile(FILE *file, const char *result, const int arg,
+              const atf_dynstr_t *reason)
 {
-    if (reason == NULL) {
+    if (arg == -1 && reason == NULL) {
         if (fprintf(file, "%s\n", result) <= 0)
             goto err;
-    } else {
+    } else if (arg == -1 && reason != NULL) {
         if (fprintf(file, "%s: %s\n", result, atf_dynstr_cstring(reason)) <= 0)
             goto err;
-    }
+    } else if (arg != -1 && reason != NULL) {
+        if (fprintf(file, "%s(%d): %s\n", result, arg,
+                    atf_dynstr_cstring(reason)) <= 0)
+            goto err;
+    } else
+        UNREACHABLE;
+
     return atf_no_error();
 
 err:
@@ -158,22 +173,22 @@ err:
  * not return any error code.
  */
 static void
-create_resfile(const atf_fs_path_t *resfile, const char *result,
+create_resfile(const atf_fs_path_t *resfile, const char *result, const int arg,
                atf_dynstr_t *reason)
 {
     atf_error_t err;
 
     if (strcmp("/dev/stdout", atf_fs_path_cstring(resfile)) == 0) {
-        err = write_resfile(stdout, result, reason);
+        err = write_resfile(stdout, result, arg, reason);
     } else if (strcmp("/dev/stderr", atf_fs_path_cstring(resfile)) == 0) {
-        err = write_resfile(stderr, result, reason);
+        err = write_resfile(stderr, result, arg, reason);
     } else {
         FILE *file = fopen(atf_fs_path_cstring(resfile), "w");
         if (file == NULL) {
             err = atf_libc_error(errno, "Cannot create results file '%s'",
                                  atf_fs_path_cstring(resfile));
         } else {
-            err = write_resfile(file, result, reason);
+            err = write_resfile(file, result, arg, reason);
             fclose(file);
         }
     }
@@ -206,7 +221,13 @@ error_in_expect(struct context *ctx, const char *fmt, ...)
 static void
 validate_expect(struct context *ctx)
 {
-    if (ctx->expect == EXPECT_FAIL) {
+    if (ctx->expect == EXPECT_DEATH) {
+        error_in_expect(ctx, "Test case was expected to terminate abruptly "
+            "but it continued execution");
+    } else if (ctx->expect == EXPECT_EXIT) {
+        error_in_expect(ctx, "Test case was expected to exit cleanly but it "
+            "continued execution");
+    } else if (ctx->expect == EXPECT_FAIL) {
         if (ctx->expect_fail_count == ctx->expect_previous_fail_count)
             error_in_expect(ctx, "Test case was expecting a failure but none "
                 "were raised");
@@ -214,6 +235,9 @@ validate_expect(struct context *ctx)
             INV(ctx->expect_fail_count > ctx->expect_previous_fail_count);
     } else if (ctx->expect == EXPECT_PASS) {
         /* Nothing to validate. */
+    } else if (ctx->expect == EXPECT_SIGNAL) {
+        error_in_expect(ctx, "Test case was expected to receive a termination "
+            "signal but it continued execution");
     } else
         UNREACHABLE;
 }
@@ -223,7 +247,7 @@ expected_failure(struct context *ctx, atf_dynstr_t *reason)
 {
     check_fatal_error(atf_dynstr_prepend_fmt(reason, "%s: ",
         atf_dynstr_cstring(&ctx->expect_reason)));
-    create_resfile(ctx->resfile, "expected_failure", reason);
+    create_resfile(ctx->resfile, "expected_failure", -1, reason);
     exit(EXIT_SUCCESS);
 }
 
@@ -233,7 +257,7 @@ fail_requirement(struct context *ctx, atf_dynstr_t *reason)
     if (ctx->expect == EXPECT_FAIL) {
         expected_failure(ctx, reason);
     } else if (ctx->expect == EXPECT_PASS) {
-        create_resfile(ctx->resfile, "failed", reason);
+        create_resfile(ctx->resfile, "failed", -1, reason);
         exit(EXIT_FAILURE);
     } else {
         error_in_expect(ctx, "Test case raised a failure but was not "
@@ -268,7 +292,7 @@ pass(struct context *ctx)
         error_in_expect(ctx, "Test case was expecting a failure but got "
             "a pass instead");
     } else if (ctx->expect == EXPECT_PASS) {
-        create_resfile(ctx->resfile, "passed", NULL);
+        create_resfile(ctx->resfile, "passed", -1, NULL);
         exit(EXIT_SUCCESS);
     } else {
         error_in_expect(ctx, "Test case asked to explicitly pass but was "
@@ -281,7 +305,7 @@ static void
 skip(struct context *ctx, atf_dynstr_t *reason)
 {
     if (ctx->expect == EXPECT_PASS) {
-        create_resfile(ctx->resfile, "skipped", reason);
+        create_resfile(ctx->resfile, "skipped", -1, reason);
         exit(EXIT_SUCCESS);
     } else {
         error_in_expect(ctx, "Can only skip a test case when running in "
@@ -767,6 +791,56 @@ _atf_tc_expect_fail(struct context *ctx, const char *reason, va_list ap)
     ctx->expect_previous_fail_count = ctx->expect_fail_count;
 }
 
+static void
+_atf_tc_expect_exit(struct context *ctx, const int exitcode, const char *reason,
+                    va_list ap)
+{
+    va_list ap2;
+    atf_dynstr_t formatted;
+
+    validate_expect(ctx);
+
+    ctx->expect = EXPECT_EXIT;
+    va_copy(ap2, ap);
+    check_fatal_error(atf_dynstr_init_ap(&formatted, reason, ap2));
+    va_end(ap2);
+
+    create_resfile(ctx->resfile, "expected_exit", exitcode, &formatted);
+}
+
+static void
+_atf_tc_expect_signal(struct context *ctx, const int signo, const char *reason,
+                      va_list ap)
+{
+    va_list ap2;
+    atf_dynstr_t formatted;
+
+    validate_expect(ctx);
+
+    ctx->expect = EXPECT_SIGNAL;
+    va_copy(ap2, ap);
+    check_fatal_error(atf_dynstr_init_ap(&formatted, reason, ap2));
+    va_end(ap2);
+
+    create_resfile(ctx->resfile, "expected_signal", signo, &formatted);
+}
+
+static void
+_atf_tc_expect_death(struct context *ctx, const char *reason, va_list ap)
+{
+    va_list ap2;
+    atf_dynstr_t formatted;
+
+    validate_expect(ctx);
+
+    ctx->expect = EXPECT_DEATH;
+    va_copy(ap2, ap);
+    check_fatal_error(atf_dynstr_init_ap(&formatted, reason, ap2));
+    va_end(ap2);
+
+    create_resfile(ctx->resfile, "expected_death", -1, &formatted);
+}
+
 /* ---------------------------------------------------------------------
  * Free functions.
  * --------------------------------------------------------------------- */
@@ -938,5 +1012,41 @@ atf_tc_expect_fail(const char *reason, ...)
 
     va_start(ap, reason);
     _atf_tc_expect_fail(&Current, reason, ap);
+    va_end(ap);
+}
+
+void
+atf_tc_expect_exit(const int exitcode, const char *reason, ...)
+{
+    va_list ap;
+
+    PRE(Current.tc != NULL);
+
+    va_start(ap, reason);
+    _atf_tc_expect_exit(&Current, exitcode, reason, ap);
+    va_end(ap);
+}
+
+void
+atf_tc_expect_signal(const int signo, const char *reason, ...)
+{
+    va_list ap;
+
+    PRE(Current.tc != NULL);
+
+    va_start(ap, reason);
+    _atf_tc_expect_signal(&Current, signo, reason, ap);
+    va_end(ap);
+}
+
+void
+atf_tc_expect_death(const char *reason, ...)
+{
+    va_list ap;
+
+    PRE(Current.tc != NULL);
+
+    va_start(ap, reason);
+    _atf_tc_expect_death(&Current, reason, ap);
     va_end(ap);
 }

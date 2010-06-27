@@ -28,6 +28,7 @@
 //
 
 extern "C" {
+#include <signal.h>
 #include <unistd.h>
 }
 
@@ -139,6 +140,66 @@ ATF_TEST_CASE_BODY(expect_fail_but_pass)
     expect_fail("And fail again");
     fail_nonfatal("def");
     expect_pass();
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(expect_exit_any_and_exit);
+ATF_TEST_CASE_BODY(expect_exit_any_and_exit)
+{
+    expect_exit(-1, "Call will exit");
+    exit(EXIT_SUCCESS);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(expect_exit_code_and_exit);
+ATF_TEST_CASE_BODY(expect_exit_code_and_exit)
+{
+    expect_exit(123, "Call will exit");
+    exit(123);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(expect_exit_but_pass);
+ATF_TEST_CASE_BODY(expect_exit_but_pass)
+{
+    expect_exit(-1, "Call won't exit");
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(expect_signal_any_and_signal);
+ATF_TEST_CASE_BODY(expect_signal_any_and_signal)
+{
+    expect_signal(-1, "Call will signal");
+    kill(getpid(), SIGKILL);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(expect_signal_no_and_signal);
+ATF_TEST_CASE_BODY(expect_signal_no_and_signal)
+{
+    expect_signal(SIGHUP, "Call will signal");
+    kill(getpid(), SIGHUP);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(expect_signal_but_pass);
+ATF_TEST_CASE_BODY(expect_signal_but_pass)
+{
+    expect_signal(-1, "Call won't signal");
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(expect_death_and_exit);
+ATF_TEST_CASE_BODY(expect_death_and_exit)
+{
+    expect_death("Exit case");
+    exit(123);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(expect_death_and_signal);
+ATF_TEST_CASE_BODY(expect_death_and_signal)
+{
+    expect_death("Signal case");
+    kill(getpid(), SIGKILL);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(expect_death_but_pass);
+ATF_TEST_CASE_BODY(expect_death_but_pass)
+{
+    expect_death("Call won't die");
 }
 
 // ------------------------------------------------------------------------
@@ -261,6 +322,15 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, expect_fail_and_fail_requirement);
     ATF_ADD_TEST_CASE(tcs, expect_fail_and_fail_check);
     ATF_ADD_TEST_CASE(tcs, expect_fail_but_pass);
+    ATF_ADD_TEST_CASE(tcs, expect_exit_any_and_exit);
+    ATF_ADD_TEST_CASE(tcs, expect_exit_code_and_exit);
+    ATF_ADD_TEST_CASE(tcs, expect_exit_but_pass);
+    ATF_ADD_TEST_CASE(tcs, expect_signal_any_and_signal);
+    ATF_ADD_TEST_CASE(tcs, expect_signal_no_and_signal);
+    ATF_ADD_TEST_CASE(tcs, expect_signal_but_pass);
+    ATF_ADD_TEST_CASE(tcs, expect_death_and_exit);
+    ATF_ADD_TEST_CASE(tcs, expect_death_and_signal);
+    ATF_ADD_TEST_CASE(tcs, expect_death_but_pass);
 
     // Add helper tests for t_fork.
     ATF_ADD_TEST_CASE(tcs, fork_stop);

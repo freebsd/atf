@@ -382,6 +382,24 @@ impl::tc::expect_fail(const std::string& reason)
     atf_tc_expect_fail("%s", reason.c_str());
 }
 
+void
+impl::tc::expect_exit(const int exitcode, const std::string& reason)
+{
+    atf_tc_expect_exit(exitcode, "%s", reason.c_str());
+}
+
+void
+impl::tc::expect_signal(const int signo, const std::string& reason)
+{
+    atf_tc_expect_signal(signo, "%s", reason.c_str());
+}
+
+void
+impl::tc::expect_death(const std::string& reason)
+{
+    atf_tc_expect_death("%s", reason.c_str());
+}
+
 // ------------------------------------------------------------------------
 // The "tp" class.
 // ------------------------------------------------------------------------
