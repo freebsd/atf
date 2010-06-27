@@ -251,9 +251,15 @@ void
 impl::tc::run(const fs::path& resfile)
     const
 {
-    atf_error_t err = atf_tc_run(&m_tc, resfile.c_path());
-    if (atf_is_error(err))
-        throw_atf_error(err);
+    try {
+        atf_error_t err = atf_tc_run(&m_tc, resfile.c_path());
+        if (atf_is_error(err))
+            throw_atf_error(err);
+    } catch (const std::exception& e) {
+        fail("Caught unhandled exception: " + std::string(e.what()));
+    } catch (...) {
+        fail("Caught unknown exception");
+    }
 }
 
 void
@@ -622,7 +628,7 @@ tp::run_tc(const std::string& tcarg)
         }
         return EXIT_SUCCESS;
     } catch (const std::runtime_error& e) {
-        // TODO: Handle error.
+        std::cerr << "ERROR: " << e.what() << "\n";
         return EXIT_FAILURE;
     }
 }

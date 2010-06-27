@@ -303,6 +303,13 @@ ATF_TEST_CASE_BODY(result_newlines_skip)
     ATF_SKIP("First line\nSecond line");
 }
 
+ATF_TEST_CASE(result_exception);
+ATF_TEST_CASE_HEAD(result_exception) { }
+ATF_TEST_CASE_BODY(result_exception)
+{
+    throw std::runtime_error("This is unhandled");
+}
+
 // ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
@@ -348,4 +355,5 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, result_skip);
     ATF_ADD_TEST_CASE(tcs, result_newlines_fail);
     ATF_ADD_TEST_CASE(tcs, result_newlines_skip);
+    ATF_ADD_TEST_CASE(tcs, result_exception);
 }

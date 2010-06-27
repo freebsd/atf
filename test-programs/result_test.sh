@@ -98,11 +98,26 @@ result_to_file_fail_body()
     done
 }
 
+atf_test_case result_exception
+result_exception_head()
+{
+    atf_set "descr" "Tests that an unhandled exception is correctly captured"
+    atf_set "use.fs" "true"
+}
+result_exception_body()
+{
+    for h in $(get_helpers cpp_helpers); do
+        atf_check -s exit:1 -o match:'failed: .*This is unhandled' \
+            "${h}" -s "${srcdir}" result_exception
+    done
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case result_on_stdout
     atf_add_test_case result_to_file
     atf_add_test_case result_to_file_fail
+    atf_add_test_case result_exception
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
