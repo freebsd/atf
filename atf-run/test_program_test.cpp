@@ -63,6 +63,15 @@ check_property(const vars_map& props, const char* name, const char* value)
     ATF_CHECK_EQUAL(value, (*iter).second);
 }
 
+static void
+check_result(const char* exp_state, const int exp_value, const char* exp_reason,
+             const impl::test_case_result& tcr)
+{
+    ATF_CHECK_EQUAL(exp_state, tcr.state());
+    ATF_CHECK_EQUAL(exp_value, tcr.value());
+    ATF_CHECK_EQUAL(exp_reason, tcr.reason());
+}
+
 static
 void
 write_test_case_result(const char *results_path, const std::string& contents)
@@ -792,6 +801,126 @@ ATF_TEST_CASE_BODY(get_metadata_several_tcs) {
     }
 }
 
+ATF_TEST_CASE_WITHOUT_HEAD(parse_test_case_result_expected_death);
+ATF_TEST_CASE_BODY(parse_test_case_result_expected_death) {
+    check_result("expected_death", -1, "foo bar",
+                 detail::parse_test_case_result("expected_death: foo bar"));
+
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("expected_death"));
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("expected_death(3): foo"));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(parse_test_case_result_expected_exit);
+ATF_TEST_CASE_BODY(parse_test_case_result_expected_exit) {
+    check_result("expected_exit", -1, "foo bar",
+                 detail::parse_test_case_result("expected_exit: foo bar"));
+    check_result("expected_exit", -1, "foo bar",
+                 detail::parse_test_case_result("expected_exit(): foo bar"));
+    check_result("expected_exit", 5, "foo bar",
+                 detail::parse_test_case_result("expected_exit(5): foo bar"));
+
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("expected_exit"));
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("expected_exit("));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(parse_test_case_result_expected_failure);
+ATF_TEST_CASE_BODY(parse_test_case_result_expected_failure) {
+    check_result("expected_failure", -1, "foo bar",
+                 detail::parse_test_case_result("expected_failure: foo bar"));
+
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("expected_failure"));
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("expected_failure(3): foo"));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(parse_test_case_result_expected_signal);
+ATF_TEST_CASE_BODY(parse_test_case_result_expected_signal) {
+    check_result("expected_signal", -1, "foo bar",
+                 detail::parse_test_case_result("expected_signal: foo bar"));
+    check_result("expected_signal", -1, "foo bar",
+                 detail::parse_test_case_result("expected_signal(): foo bar"));
+    check_result("expected_signal", 5, "foo bar",
+                 detail::parse_test_case_result("expected_signal(5): foo bar"));
+
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("expected_signal"));
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("expected_signal("));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(parse_test_case_result_failed);
+ATF_TEST_CASE_BODY(parse_test_case_result_failed) {
+    check_result("failed", -1, "foo bar",
+                 detail::parse_test_case_result("failed: foo bar"));
+
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("failed"));
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("failed(3): foo"));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(parse_test_case_result_passed);
+ATF_TEST_CASE_BODY(parse_test_case_result_passed) {
+    check_result("passed", -1, "",
+                 detail::parse_test_case_result("passed"));
+
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("passed: foo"));
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("passed(3): foo"));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(parse_test_case_result_skipped);
+ATF_TEST_CASE_BODY(parse_test_case_result_skipped) {
+    check_result("skipped", -1, "foo bar",
+                 detail::parse_test_case_result("skipped: foo bar"));
+
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("skipped"));
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("skipped(3): foo"));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(parse_test_case_result_unknown);
+ATF_TEST_CASE_BODY(parse_test_case_result_unknown) {
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("foo"));
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("bar: foo"));
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("baz: foo"));
+}
+
+ATF_TEST_CASE(read_test_case_result_failed);
+ATF_TEST_CASE_HEAD(read_test_case_result_failed) {
+    set_md_var("use.fs", "true");
+}
+ATF_TEST_CASE_BODY(read_test_case_result_failed) {
+    write_test_case_result("resfile", "failed: foo bar\n");
+    const impl::test_case_result tcr = impl::read_test_case_result(
+        atf::fs::path("resfile"));
+    ATF_CHECK_EQUAL("failed", tcr.state());
+    ATF_CHECK_EQUAL("foo bar", tcr.reason());
+}
+
+ATF_TEST_CASE(read_test_case_result_skipped);
+ATF_TEST_CASE_HEAD(read_test_case_result_skipped) {
+    set_md_var("use.fs", "true");
+}
+ATF_TEST_CASE_BODY(read_test_case_result_skipped) {
+    write_test_case_result("resfile", "skipped: baz bar\n");
+    const impl::test_case_result tcr = impl::read_test_case_result(
+        atf::fs::path("resfile"));
+    ATF_CHECK_EQUAL("skipped", tcr.state());
+    ATF_CHECK_EQUAL("baz bar", tcr.reason());
+}
+
+
 ATF_TEST_CASE(read_test_case_result_no_file);
 ATF_TEST_CASE_HEAD(read_test_case_result_no_file) {}
 ATF_TEST_CASE_BODY(read_test_case_result_no_file) {
@@ -817,41 +946,6 @@ ATF_TEST_CASE_BODY(read_test_case_result_invalid) {
     write_test_case_result("resfile", "passed: hello\n");
     ATF_CHECK_THROW(std::runtime_error,
                     impl::read_test_case_result(atf::fs::path("resfile")));
-}
-
-ATF_TEST_CASE(read_test_case_result_passed);
-ATF_TEST_CASE_HEAD(read_test_case_result_passed) {
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(read_test_case_result_passed) {
-    write_test_case_result("resfile", "passed\n");
-    const impl::test_case_result tcr = impl::read_test_case_result(
-        atf::fs::path("resfile"));
-    ATF_CHECK_EQUAL("passed", tcr.state());
-}
-
-ATF_TEST_CASE(read_test_case_result_failed);
-ATF_TEST_CASE_HEAD(read_test_case_result_failed) {
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(read_test_case_result_failed) {
-    write_test_case_result("resfile", "failed: foo bar\n");
-    const impl::test_case_result tcr = impl::read_test_case_result(
-        atf::fs::path("resfile"));
-    ATF_CHECK_EQUAL("failed", tcr.state());
-    ATF_CHECK_EQUAL("foo bar", tcr.reason());
-}
-
-ATF_TEST_CASE(read_test_case_result_skipped);
-ATF_TEST_CASE_HEAD(read_test_case_result_skipped) {
-    set_md_var("use.fs", "true");
-}
-ATF_TEST_CASE_BODY(read_test_case_result_skipped) {
-    write_test_case_result("resfile", "skipped: baz bar\n");
-    const impl::test_case_result tcr = impl::read_test_case_result(
-        atf::fs::path("resfile"));
-    ATF_CHECK_EQUAL("skipped", tcr.state());
-    ATF_CHECK_EQUAL("baz bar", tcr.reason());
 }
 
 ATF_TEST_CASE(read_test_case_result_multiline);
@@ -893,13 +987,19 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, get_metadata_zero_tcs);
     ATF_ADD_TEST_CASE(tcs, get_metadata_several_tcs);
 
+    ATF_ADD_TEST_CASE(tcs, parse_test_case_result_expected_death);
+    ATF_ADD_TEST_CASE(tcs, parse_test_case_result_expected_exit);
+    ATF_ADD_TEST_CASE(tcs, parse_test_case_result_expected_failure);
+    ATF_ADD_TEST_CASE(tcs, parse_test_case_result_expected_signal);
+    ATF_ADD_TEST_CASE(tcs, parse_test_case_result_failed);
+    ATF_ADD_TEST_CASE(tcs, parse_test_case_result_passed);
+    ATF_ADD_TEST_CASE(tcs, parse_test_case_result_skipped);
+    ATF_ADD_TEST_CASE(tcs, parse_test_case_result_unknown);
+
     ATF_ADD_TEST_CASE(tcs, read_test_case_result_no_file);
     ATF_ADD_TEST_CASE(tcs, read_test_case_result_empty_file);
     ATF_ADD_TEST_CASE(tcs, read_test_case_result_multiline);
     ATF_ADD_TEST_CASE(tcs, read_test_case_result_invalid);
-    ATF_ADD_TEST_CASE(tcs, read_test_case_result_passed);
-    ATF_ADD_TEST_CASE(tcs, read_test_case_result_failed);
-    ATF_ADD_TEST_CASE(tcs, read_test_case_result_skipped);
 
     // TODO: Add tests for run_test_case once all the missing functionality
     // is implemented.

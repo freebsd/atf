@@ -310,6 +310,37 @@ fds_body()
         -e empty atf-run
 }
 
+atf_test_case expect
+expect_head()
+{
+    atf_set "descr" "Tests the processing of test case results and the" \
+        "expect features"
+    atf_set "use.fs" "true"
+}
+expect_body()
+{
+    ln -s "$(atf_get_srcdir)/expect_helpers" .
+    create_atffile expect_helpers
+
+    atf_check -s eq:1 \
+        -o match:'death_and_exit, expected_death' \
+        -o match:'death_and_signal, expected_death' \
+        -o match:'death_but_pass, failed' \
+        -o match:'exit_any_and_exit, expected_exit' \
+        -o match:'exit_but_pass, failed' \
+        -o match:'exit_code_and_exit, expected_exit' \
+        -o match:'fail_and_fail_check, expected_failure' \
+        -o match:'fail_and_fail_requirement, expected_failure' \
+        -o match:'fail_but_pass, failed' \
+        -o match:'pass_and_pass, passed' \
+        -o match:'pass_but_fail_check, failed' \
+        -o match:'pass_but_fail_requirement, failed' \
+        -o match:'signal_any_and_signal, expected_signal' \
+        -o match:'signal_but_pass, failed' \
+        -o match:'signal_no_and_signal, expected_signal' \
+        -e empty atf-run
+}
+
 atf_test_case missing_results
 missing_results_head()
 {
@@ -1001,6 +1032,7 @@ atf_init_test_cases()
     atf_add_test_case vflag
     atf_add_test_case atffile
     atf_add_test_case atffile_recursive
+    atf_add_test_case expect
     atf_add_test_case fds
     atf_add_test_case missing_results
     atf_add_test_case broken_results

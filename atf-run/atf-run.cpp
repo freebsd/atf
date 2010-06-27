@@ -217,36 +217,90 @@ atf_run::get_test_case_result(const std::string& broken_reason,
                               const atf::fs::path& resfile)
     const
 {
+    using atf::text::to_string;
+    using impl::read_test_case_result;
+    using impl::test_case_result;
+
     if (!broken_reason.empty())
-        return impl::test_case_result("failed", broken_reason);
+        return test_case_result("failed", -1, broken_reason);
 
     if (s.exited()) {
+        test_case_result tcr;
+
         try {
-            const impl::test_case_result tcr = impl::read_test_case_result(
-                resfile);
-            if (tcr.state() == "failed") {
-                if (s.exitstatus() == EXIT_SUCCESS)
-                    return impl::test_case_result("failed", "Test case "
-                        "exited successfully but reported failure");
-            } else {
-                if (s.exitstatus() != EXIT_SUCCESS)
-                    return impl::test_case_result("failed", "Test case "
-                        "exited with error but reported success");
-            }
-            return tcr;
+            tcr = read_test_case_result(resfile);
         } catch (const std::runtime_error& e) {
-            return impl::test_case_result("failed", "Test case exited "
+            return test_case_result("failed", -1, "Test case exited "
                 "normally but failed to create the results file: " +
                 std::string(e.what()));
         }
+
+        if (tcr.state() == "expected_death") {
+            return tcr;
+        } else if (tcr.state() == "expected_exit") {
+            if (tcr.value() == -1 || s.exitstatus() == tcr.value())
+                return tcr;
+            else
+                return test_case_result("failed", -1, "Test case was "
+                    "expected to exit with a " + to_string(tcr.value()) +
+                    " error code but returned " + to_string(s.exitstatus()));
+        } else if (tcr.state() == "expected_failure") {
+            if (s.exitstatus() == EXIT_SUCCESS)
+                return tcr;
+            else
+                return test_case_result("failed", -1, "Test case returned an "
+                    "error in expected_failure mode but it should not have");
+        } else if (tcr.state() == "expected_signal") {
+            return test_case_result("failed", -1, "Test case exited cleanly "
+                "but was expected to receive a signal");
+        } else if (tcr.state() == "failed") {
+            if (s.exitstatus() == EXIT_SUCCESS)
+                return test_case_result("failed", -1, "Test case "
+                    "exited successfully but reported failure");
+            else
+                return tcr;
+        } else if (tcr.state() == "passed") {
+            if (s.exitstatus() == EXIT_SUCCESS)
+                return tcr;
+            else
+                return test_case_result("failed", -1, "Test case exited as "
+                    "passed but reported an error");
+        } else if (tcr.state() == "skipped") {
+            if (s.exitstatus() == EXIT_SUCCESS)
+                return tcr;
+            else
+                return test_case_result("failed", -1, "Test case exited as "
+                    "skipped but reported an error");
+        }
     } else if (s.signaled()) {
-        return impl::test_case_result("failed", "Test program received "
-            "signal " + atf::text::to_string(s.termsig()) +
-            (s.coredump() ? " (core dumped)" : ""));
-    } else {
-        UNREACHABLE;
-        throw std::runtime_error("Unknown exit status");
+        test_case_result tcr;
+
+        try {
+            tcr = read_test_case_result(resfile);
+        } catch (const std::runtime_error& e) {
+            return test_case_result("failed", -1, "Test program received "
+                "signal " + atf::text::to_string(s.termsig()) +
+                (s.coredump() ? " (core dumped)" : ""));
+        }
+
+        if (tcr.state() == "expected_death") {
+            return tcr;
+        } else if (tcr.state() == "expected_signal") {
+            if (tcr.value() == -1 || s.termsig() == tcr.value())
+                return tcr;
+            else
+                return test_case_result("failed", -1, "Test case was "
+                    "expected to exit due to a " + to_string(tcr.value()) +
+                    " signal but got " + to_string(s.termsig()));
+        } else {
+            return test_case_result("failed", -1, "Test program received "
+                "signal " + atf::text::to_string(s.termsig()) +
+                (s.coredump() ? " (core dumped)" : "") + " and created a "
+                "bogus results file");
+        }
     }
+    UNREACHABLE;
+    return test_case_result();
 }
 
 int
@@ -307,7 +361,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
                 const bool use_fs = atf::text::to_bool(
                     (*tcmd.find("use.fs")).second);
 
-                impl::test_case_result tcr("passed", "");
+                impl::test_case_result tcr;
 
                 if (use_fs) {
                     impl::temp_dir workdir(atf::fs::path(atf::config::get(

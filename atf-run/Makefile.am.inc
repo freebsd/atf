@@ -64,6 +64,10 @@ atf_run_config_test_SOURCES = atf-run/config_test.cpp \
 atf_run_config_test_CPPFLAGS = -I$(srcdir)/atf-c++
 atf_run_config_test_LDADD = atf-c++/libtest_helpers.la libatf-c++.la
 
+tests_atf_run_PROGRAMS += atf-run/expect_helpers
+atf_run_expect_helpers_SOURCES = atf-run/expect_helpers.c
+atf_run_expect_helpers_LDADD = libatf-c.la
+
 tests_atf_run_PROGRAMS += atf-run/fs_test
 atf_run_fs_test_SOURCES = atf-run/fs_test.cpp \
                           atf-run/fs.cpp

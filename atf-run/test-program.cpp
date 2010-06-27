@@ -291,6 +291,84 @@ run_test_case_child(void* raw_params)
     exec_or_exit(absolute_executable, argv);
 }
 
+static void
+tokenize_result(const std::string& line, std::string& out_state,
+                std::string& out_arg, std::string& out_reason)
+{
+    const std::string::size_type pos = line.find_first_of(":(");
+    if (pos == std::string::npos) {
+        out_state = line;
+        out_arg = "";
+        out_reason = "";
+    } else if (line[pos] == ':') {
+        out_state = line.substr(0, pos);
+        out_arg = "";
+        out_reason = atf::text::trim(line.substr(pos + 1));
+    } else if (line[pos] == '(') {
+        const std::string::size_type pos2 = line.find("):", pos);
+        if (pos2 == std::string::npos)
+            throw std::runtime_error("Invalid test case result '" + line +
+                "': unclosed optional argument");
+        out_state = line.substr(0, pos);
+        out_arg = line.substr(pos + 1, pos2 - pos - 1);
+        out_reason = atf::text::trim(line.substr(pos2 + 2));
+    } else
+        UNREACHABLE;
+}
+
+static impl::test_case_result
+handle_result(const std::string& state, const std::string& arg,
+              const std::string& reason)
+{
+    PRE(state == "passed");
+
+    if (!arg.empty() || !reason.empty())
+        throw std::runtime_error("The test case result '" + state + "' cannot "
+            "be accompanied by a reason nor an expected value");
+
+    return impl::test_case_result(state, -1, reason);
+}
+
+static impl::test_case_result
+handle_result_with_reason(const std::string& state, const std::string& arg,
+                          const std::string& reason)
+{
+    PRE(state == "expected_death" || state == "expected_failure" ||
+        state == "failed" || state == "skipped");
+
+    if (!arg.empty() || reason.empty())
+        throw std::runtime_error("The test case result '" + state + "' must "
+            "be accompanied by a reason but not by an expected value");
+
+    return impl::test_case_result(state, -1, reason);
+}
+
+static impl::test_case_result
+handle_result_with_reason_and_arg(const std::string& state,
+                                  const std::string& arg,
+                                  const std::string& reason)
+{
+    PRE(state == "expected_exit" || state == "expected_signal");
+
+    if (reason.empty())
+        throw std::runtime_error("The test case result '" + state + "' must "
+            "be accompanied by a reason");
+
+    int value;
+    if (arg.empty()) {
+        value = -1;
+    } else {
+        try {
+            value = atf::text::to_type< int >(arg);
+        } catch (const std::runtime_error& e) {
+            throw std::runtime_error("The value '" + arg + "' passed to the '" +
+                state + "' state must be an integer");
+        }
+    }
+
+    return impl::test_case_result(state, value, reason);
+}
+
 } // anonymous namespace
 
 detail::atf_tp_reader::atf_tp_reader(std::istream& is) :
@@ -419,6 +497,30 @@ detail::atf_tp_reader::read(void)
     }
 }
 
+impl::test_case_result
+detail::parse_test_case_result(const std::string& line)
+{
+    std::string state, arg, reason;
+    tokenize_result(line, state, arg, reason);
+
+    if (state == "expected_death")
+        return handle_result_with_reason(state, arg, reason);
+    else if (state.compare(0, 13, "expected_exit") == 0)
+        return handle_result_with_reason_and_arg(state, arg, reason);
+    else if (state.compare(0, 16, "expected_failure") == 0)
+        return handle_result_with_reason(state, arg, reason);
+    else if (state.compare(0, 15, "expected_signal") == 0)
+        return handle_result_with_reason_and_arg(state, arg, reason);
+    else if (state == "failed")
+        return handle_result_with_reason(state, arg, reason);
+    else if (state == "passed")
+        return handle_result(state, arg, reason);
+    else if (state == "skipped")
+        return handle_result_with_reason(state, arg, reason);
+    else
+        throw std::runtime_error("Unknown test case result type in: " + line);
+}
+
 impl::atf_tps_writer::atf_tps_writer(std::ostream& os) :
     m_os(os)
 {
@@ -539,14 +641,7 @@ impl::read_test_case_result(const atf::fs::path& results_path)
 
     results_file.close();
 
-    if (line == "passed")
-        return test_case_result("passed", "");
-    else if (line.compare(0, 8, "failed: ") == 0)
-        return test_case_result("failed", line.substr(8));
-    else if (line.compare(0, 9, "skipped: ") == 0)
-        return test_case_result("skipped", line.substr(9));
-    else
-        throw std::runtime_error("Invalid results file, contents: " + line);
+    return detail::parse_test_case_result(line);
 }
 
 std::pair< std::string, atf::process::status >

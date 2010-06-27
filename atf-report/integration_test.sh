@@ -100,6 +100,50 @@ default_body()
         -o match:'Summary for' -e empty -x 'atf-report <tps.out'
 }
 
+# XXX The test for all expect_ values should be intermixed with the other
+# tests.  However, to do that, we need to migrate to using C helpers for
+# simplicity in raising signals...
+atf_test_case expect
+expect_head()
+{
+    atf_set "use.fs" "true"
+}
+expect_body()
+{
+    ln -s "$(atf_get_srcdir)/../atf-run/expect_helpers" .
+    cat >Atffile <<EOF
+Content-Type: application/X-atf-atffile; version="1"
+
+prop: test-suite = atf
+
+tp: expect_helpers
+EOF
+    run_helpers
+
+# NO_CHECK_STYLE_BEGIN
+    cat >expout <<EOF
+tc, expect_helpers, death_and_exit, expected_death, Exit case
+tc, expect_helpers, death_and_signal, expected_death, Signal case
+tc, expect_helpers, death_but_pass, failed, Test case was expected to terminate abruptly but it continued execution
+tc, expect_helpers, exit_any_and_exit, expected_exit, Call will exit
+tc, expect_helpers, exit_but_pass, failed, Test case was expected to exit cleanly but it continued execution
+tc, expect_helpers, exit_code_and_exit, expected_exit, Call will exit
+tc, expect_helpers, fail_and_fail_check, expected_failure, And fail again: 2 checks failed as expected; see output for more details
+tc, expect_helpers, fail_and_fail_requirement, expected_failure, Fail reason: The failure
+tc, expect_helpers, fail_but_pass, failed, Test case was expecting a failure but none were raised
+tc, expect_helpers, pass_and_pass, passed
+tc, expect_helpers, pass_but_fail_check, failed, 1 checks failed; see output for more details
+tc, expect_helpers, pass_but_fail_requirement, failed, Some reason
+tc, expect_helpers, signal_any_and_signal, expected_signal, Call will signal
+tc, expect_helpers, signal_but_pass, failed, Test case was expected to receive a termination signal but it continued execution
+tc, expect_helpers, signal_no_and_signal, expected_signal, Call will signal
+tp, expect_helpers, failed
+EOF
+# NO_CHECK_STYLE_END
+
+    cat tps.out | atf_check -s eq:0 -o file:expout -e empty atf-report -o csv:-
+}
+
 atf_test_case oflag
 oflag_head()
 {
@@ -219,6 +263,7 @@ Failed test cases:
 Summary for 5 test programs:
     2 passed test cases.
     2 failed test cases.
+    0 expected failed test cases.
     0 skipped test cases.
 EOF
 
@@ -330,6 +375,7 @@ EOF
 atf_init_test_cases()
 {
     atf_add_test_case default
+    atf_add_test_case expect
     atf_add_test_case oflag
     atf_add_test_case output_csv
     atf_add_test_case output_ticker

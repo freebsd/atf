@@ -171,7 +171,7 @@ class ticker_writer : public writer {
     ostream_ptr m_os;
 
     size_t m_curtp, m_ntps;
-    size_t m_tcs_passed, m_tcs_failed, m_tcs_skipped;
+    size_t m_tcs_passed, m_tcs_failed, m_tcs_skipped, m_tcs_expected_failures;
     std::string m_tcname, m_tpname;
     std::vector< std::string > m_failed_tcs;
     std::vector< std::string > m_failed_tps;
@@ -192,6 +192,7 @@ class ticker_writer : public writer {
         m_tcs_passed = 0;
         m_tcs_failed = 0;
         m_tcs_skipped = 0;
+        m_tcs_expected_failures = 0;
         m_ntps = ntps;
     }
 
@@ -245,13 +246,17 @@ class ticker_writer : public writer {
     {
         std::string str;
 
-        if (state == "passed") {
-            str = "Passed.";
-            m_tcs_passed++;
+        if (state == "expected_death" || state == "expected_exit" ||
+            state == "expected_failure" || state == "expected_signal") {
+            str = "Expected failure: " + reason;
+            m_tcs_expected_failures++;
         } else if (state == "failed") {
             str = "Failed: " + reason;
             m_tcs_failed++;
             m_failed_tcs.push_back(m_tpname + ":" + m_tcname);
+        } else if (state == "passed") {
+            str = "Passed.";
+            m_tcs_passed++;
         } else if (state == "skipped") {
             str = "Skipped: " + reason;
             m_tcs_skipped++;
@@ -300,6 +305,10 @@ class ticker_writer : public writer {
                                         " failed test cases.",
                                         "    ", false)
                 << std::endl;
+        (*m_os) << format_text_with_tag(to_string(m_tcs_expected_failures) +
+                                        " expected failed test cases.",
+                                        "    ", false)
+                << std::endl;
         (*m_os) << format_text_with_tag(to_string(m_tcs_skipped) +
                                         " skipped test cases.",
                                         "    ", false)
@@ -328,7 +337,6 @@ class xml_writer : public writer {
     ostream_ptr m_os;
 
     size_t m_curtp, m_ntps;
-    size_t m_tcs_passed, m_tcs_failed, m_tcs_skipped;
     std::string m_tcname, m_tpname;
     std::vector< std::string > m_failed_tcs;
     std::vector< std::string > m_failed_tps;

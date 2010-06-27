@@ -392,6 +392,63 @@ ATF_TEST_CASE_BODY(tps_5)
     do_parser_test< tps_reader >(input, exp_calls, exp_errors);
 }
 
+ATF_TEST_CASE_WITHOUT_HEAD(tps_6);
+ATF_TEST_CASE_BODY(tps_6)
+{
+    const char* input =
+        "Content-Type: application/X-atf-tps; version=\"2\"\n"
+        "\n"
+        "tps-count: 1\n"
+        "tp-start: the-prog, 7\n"
+        "tc-start: one\n"
+        "tc-end: one, expected_death, The reason\n"
+        "tc-start: two\n"
+        "tc-end: two, expected_exit, This would be an exit\n"
+        "tc-start: three\n"
+        "tc-end: three, expected_failure, And this a failure\n"
+        "tc-start: four\n"
+        "tc-end: four, expected_signal, And this a signal\n"
+        "tc-start: five\n"
+        "tc-end: five, failed, Another reason\n"
+        "tc-start: six\n"
+        "tc-end: six, passed\n"
+        "tc-start: seven\n"
+        "tc-end: seven, skipped, Skipping it\n"
+        "tp-end: the-prog\n"
+    ;
+
+    // NO_CHECK_STYLE_BEGIN
+    const char* exp_calls[] = {
+        "got_ntps(1)",
+        "got_tp_start(the-prog, 7)",
+        "got_tc_start(one)",
+        "got_tc_end(expected_death, The reason)",
+        "got_tc_start(two)",
+        "got_tc_end(expected_exit, This would be an exit)",
+        "got_tc_start(three)",
+        "got_tc_end(expected_failure, And this a failure)",
+        "got_tc_start(four)",
+        "got_tc_end(expected_signal, And this a signal)",
+        "got_tc_start(five)",
+        "got_tc_end(failed, Another reason)",
+        "got_tc_start(six)",
+        "got_tc_end(passed)",
+        "got_tc_start(seven)",
+        "got_tc_end(skipped, Skipping it)",
+        "got_tp_end()",
+        "got_eof()",
+        NULL
+    };
+    // NO_CHECK_STYLE_END
+
+    const char* exp_errors[] = {
+        NULL
+    };
+
+    do_parser_test< tps_reader >(input, exp_calls, exp_errors);
+}
+
+
 ATF_TEST_CASE_WITHOUT_HEAD(tps_50);
 ATF_TEST_CASE_BODY(tps_50)
 {
@@ -566,7 +623,7 @@ ATF_TEST_CASE_BODY(tps_55)
         "13: Unexpected token `<<NEWLINE>>'; expected test case name",
         "15: Test case name used in terminator does not match opening",
         "17: Unexpected token `<<NEWLINE>>'; expected `,'",
-        "19: Unexpected token `<<NEWLINE>>'; expected passed, failed or skipped",
+        "19: Unexpected token `<<NEWLINE>>'; expected expected_{death,exit,failure,signal}, failed, passed or skipped",
         "20: Unexpected token `tp-end'; expected start of test case",
         NULL
     };
@@ -605,8 +662,9 @@ ATF_TEST_CASE_BODY(tps_56)
         NULL
     };
 
+    // NO_CHECK_STYLE_BEGIN
     const char* exp_errors[] = {
-        "6: Unexpected token `passe'; expected passed, failed or skipped",
+        "6: Unexpected token `passe'; expected expected_{death,exit,failure,signal}, failed, passed or skipped",
         "8: Unexpected token `,'; expected new line",
         "10: Unexpected token `<<NEWLINE>>'; expected `,'",
         "12: Empty reason for failed test case result",
@@ -615,6 +673,7 @@ ATF_TEST_CASE_BODY(tps_56)
         "17: Unexpected token `tp-end'; expected start of test case",
         NULL
     };
+    // NO_CHECK_STYLE_END
 
     do_parser_test< tps_reader >(input, exp_calls, exp_errors);
 }
@@ -858,6 +917,7 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, tps_3);
     ATF_ADD_TEST_CASE(tcs, tps_4);
     ATF_ADD_TEST_CASE(tcs, tps_5);
+    ATF_ADD_TEST_CASE(tcs, tps_6);
     ATF_ADD_TEST_CASE(tcs, tps_50);
     ATF_ADD_TEST_CASE(tcs, tps_51);
     ATF_ADD_TEST_CASE(tcs, tps_52);

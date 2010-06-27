@@ -77,6 +77,10 @@ static const atf::parser::token_type& passed_type = 12;
 static const atf::parser::token_type& failed_type = 13;
 static const atf::parser::token_type& skipped_type = 14;
 static const atf::parser::token_type& info_type = 16;
+static const atf::parser::token_type& expected_death_type = 17;
+static const atf::parser::token_type& expected_exit_type = 18;
+static const atf::parser::token_type& expected_failure_type = 19;
+static const atf::parser::token_type& expected_signal_type = 20;
 
 class tokenizer : public atf::parser::tokenizer< std::istream > {
 public:
@@ -97,6 +101,10 @@ public:
         add_keyword("failed", failed_type);
         add_keyword("skipped", skipped_type);
         add_keyword("info", info_type);
+        add_keyword("expected_death", expected_death_type);
+        add_keyword("expected_exit", expected_exit_type);
+        add_keyword("expected_failure", expected_failure_type);
+        add_keyword("expected_signal", expected_signal_type);
     }
 };
 
@@ -295,13 +303,18 @@ impl::atf_tps_reader::read_tc(void* pptr)
 
     t = p.expect(comma_type, "`,'");
 
-    t = p.expect(passed_type, failed_type, skipped_type,
-                 "passed, failed or skipped");
+    t = p.expect(expected_death_type, expected_exit_type, expected_failure_type,
+        expected_signal_type, passed_type, failed_type, skipped_type,
+        "expected_{death,exit,failure,signal}, failed, passed or skipped");
     if (t.type() == passed_type) {
         ATF_PARSER_CALLBACK(p, got_tc_end("passed", ""));
-    } else if (t.type() == failed_type || t.type() == skipped_type) {
+    } else {
         std::string state;
-        if (t.type() == failed_type) state = "failed";
+        if (t.type() == expected_death_type) state = "expected_death";
+        else if (t.type() == expected_exit_type) state = "expected_exit";
+        else if (t.type() == expected_failure_type) state = "expected_failure";
+        else if (t.type() == expected_signal_type) state = "expected_signal";
+        else if (t.type() == failed_type) state = "failed";
         else if (t.type() == skipped_type) state = "skipped";
         else UNREACHABLE;
 
@@ -311,8 +324,7 @@ impl::atf_tps_reader::read_tc(void* pptr)
             throw parse_error(t.lineno(), "Empty reason for " + state +
                 " test case result");
         ATF_PARSER_CALLBACK(p, got_tc_end(state, reason));
-    } else
-        UNREACHABLE;
+    }
 
     t = p.expect(nl_type, "new line");
 }

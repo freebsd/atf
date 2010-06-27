@@ -36,6 +36,46 @@
 namespace atf {
 namespace atf_run {
 
+struct test_case_result {
+    std::string m_state;
+    int m_value;
+    std::string m_reason;
+
+public:
+    test_case_result(void) :
+        m_state("UNINITIALIZED"),
+        m_value(-1),
+        m_reason("")
+    {
+    }
+
+    test_case_result(const std::string& p_state, const int p_value,
+                     const std::string& p_reason) :
+        m_state(p_state),
+        m_value(p_value),
+        m_reason(p_reason)
+    {
+    }
+
+    const std::string&
+    state(void) const
+    {
+        return m_state;
+    }
+
+    const int
+    value(void) const
+    {
+        return m_value;
+    }
+
+    const std::string&
+    reason(void) const
+    {
+        return m_reason;
+    }
+};
+
 namespace detail {
 
 class atf_tp_reader {
@@ -57,31 +97,9 @@ public:
     void read(void);
 };
 
+test_case_result parse_test_case_result(const std::string&);
+
 } // namespace detail
-
-struct test_case_result {
-    std::string m_state;
-    std::string m_reason;
-
-public:
-    test_case_result(const std::string& p_state, const std::string& p_reason) :
-        m_state(p_state),
-        m_reason(p_reason)
-    {
-    }
-
-    const std::string&
-    state(void) const
-    {
-        return m_state;
-    }
-
-    const std::string&
-    reason(void) const
-    {
-        return m_reason;
-    }
-};
 
 class atf_tps_writer {
     std::ostream& m_os;
