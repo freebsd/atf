@@ -32,6 +32,9 @@ and stderr of commands.</para></listitem>
 multiple checkers for stdout and stderr, not only one, and to allow negating
 the checks by prefixing them by <literal>not-</literal>.</para></listitem>
 
+<listitem><para>Modified the exit checks in <literal>atf-check</literal> to
+support checking for the reception of signals.</para></listitem>
+
 <listitem><para>Removed the <literal>atf-cleanup</literal> tool.  It has
 been unused since the test case isolation was moved to
 <literal>atf-run</literal> in 0.8</para></listitem>
@@ -69,6 +72,16 @@ are not supposed to be run by users directly.</para></listitem>
 
 <listitem><para>Removed the <command>atf-format</command> internal utility,
 which is unused after previous change.</para></listitem>
+
+<listitem><para>Added the <literal>ATF_CHECK_ERRNO</literal> and
+<literal>ATF_REQUIRE_ERRNO</literal> to the C library to allow easy checking
+of call failures that update <literal>errno</literal>.</para></listitem>
+
+<listitem><para>Intermixed tests with the source files in the source tree
+to provide them more visibility and easier access.  The
+<literal>tests</literal> directory is gone from the source tree and tests
+are now suffixed by <literal>_test</literal>, not prefixed by
+<literal>t_</literal>.</para></listitem>
 
 </itemizedlist>
 

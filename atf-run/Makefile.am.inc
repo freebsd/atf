@@ -48,46 +48,38 @@ tests_atf_run_DATA = atf-run/Atffile
 tests_atf_rundir = $(pkgtestsdir)/atf-run
 EXTRA_DIST += $(tests_atf_run_DATA)
 
-tests_atf_run_PROGRAMS = atf-run/h_bad_metadata
-atf_run_h_bad_metadata_SOURCES = atf-run/h_bad_metadata.c
-atf_run_h_bad_metadata_LDADD = libatf-c.la
-
-tests_atf_run_PROGRAMS += atf-run/h_fail
-atf_run_h_fail_SOURCES = atf-run/h_fail.cpp
-atf_run_h_fail_LDADD = libatf-c++.la
-
-tests_atf_run_PROGRAMS += atf-run/h_misc
-atf_run_h_misc_SOURCES = atf-run/h_misc.cpp
-atf_run_h_misc_LDADD = libatf-c++.la
-
-tests_atf_run_PROGRAMS += atf-run/h_pass
-atf_run_h_pass_SOURCES = atf-run/h_pass.cpp
-atf_run_h_pass_LDADD = libatf-c++.la
-
-tests_atf_run_PROGRAMS += atf-run/h_several_tcs
-atf_run_h_several_tcs_SOURCES = atf-run/h_several_tcs.c
-atf_run_h_several_tcs_LDADD = libatf-c.la
-
-tests_atf_run_PROGRAMS += atf-run/h_zero_tcs
-atf_run_h_zero_tcs_SOURCES = atf-run/h_zero_tcs.c
-atf_run_h_zero_tcs_LDADD = libatf-c.la
-
-tests_atf_run_PROGRAMS += atf-run/atffile_test
+tests_atf_run_PROGRAMS = atf-run/atffile_test
 atf_run_atffile_test_SOURCES = atf-run/atffile_test.cpp \
                                atf-run/atffile.cpp
 atf_run_atffile_test_CPPFLAGS = -I$(srcdir)/atf-c++
-atf_run_atffile_test_LDADD = atf-c++/libh.la libatf-c++.la
+atf_run_atffile_test_LDADD = atf-c++/libtest_helpers.la libatf-c++.la
+
+tests_atf_run_PROGRAMS += atf-run/bad_metadata_helper
+atf_run_bad_metadata_helper_SOURCES = atf-run/bad_metadata_helper.c
+atf_run_bad_metadata_helper_LDADD = libatf-c.la
 
 tests_atf_run_PROGRAMS += atf-run/config_test
 atf_run_config_test_SOURCES = atf-run/config_test.cpp \
                               atf-run/config.cpp
 atf_run_config_test_CPPFLAGS = -I$(srcdir)/atf-c++
-atf_run_config_test_LDADD = atf-c++/libh.la libatf-c++.la
+atf_run_config_test_LDADD = atf-c++/libtest_helpers.la libatf-c++.la
 
 tests_atf_run_PROGRAMS += atf-run/fs_test
 atf_run_fs_test_SOURCES = atf-run/fs_test.cpp \
                           atf-run/fs.cpp
 atf_run_fs_test_LDADD = libatf-c++.la
+
+tests_atf_run_PROGRAMS += atf-run/misc_helpers
+atf_run_misc_helpers_SOURCES = atf-run/misc_helpers.cpp
+atf_run_misc_helpers_LDADD = libatf-c++.la
+
+tests_atf_run_PROGRAMS += atf-run/pass_helper
+atf_run_pass_helper_SOURCES = atf-run/pass_helper.cpp
+atf_run_pass_helper_LDADD = libatf-c++.la
+
+tests_atf_run_PROGRAMS += atf-run/several_tcs_helper
+atf_run_several_tcs_helper_SOURCES = atf-run/several_tcs_helper.c
+atf_run_several_tcs_helper_LDADD = libatf-c.la
 
 tests_atf_run_PROGRAMS += atf-run/requirements_test
 atf_run_requirements_test_SOURCES = atf-run/requirements_test.cpp \
@@ -100,7 +92,11 @@ atf_run_test_program_test_SOURCES = atf-run/test_program_test.cpp \
                                     atf-run/test-program.cpp \
                                     atf-run/timer.cpp
 atf_run_test_program_test_CPPFLAGS = -I$(srcdir)/atf-c++
-atf_run_test_program_test_LDADD = atf-c++/libh.la libatf-c++.la
+atf_run_test_program_test_LDADD = atf-c++/libtest_helpers.la libatf-c++.la
+
+tests_atf_run_PROGRAMS += atf-run/zero_tcs_helper
+atf_run_zero_tcs_helper_SOURCES = atf-run/zero_tcs_helper.c
+atf_run_zero_tcs_helper_LDADD = libatf-c.la
 
 tests_atf_run_SCRIPTS = atf-run/integration_test
 CLEANFILES += atf-run/integration_test

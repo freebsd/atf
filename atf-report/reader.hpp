@@ -38,6 +38,22 @@
 namespace atf {
 namespace atf_report {
 
+struct test_case_result {
+    enum state_enum {
+        PASSED,
+        FAILED,
+        SKIPPED,
+    };
+    const state_enum state;
+    const std::string& reason;
+
+    test_case_result(const state_enum p_state, const std::string& p_reason) :
+        state(p_state),
+        reason(p_reason)
+    {
+    }
+};
+
 class atf_tps_reader {
     std::istream& m_is;
 
@@ -54,7 +70,7 @@ protected:
     virtual void got_tc_start(const std::string&);
     virtual void got_tc_stdout_line(const std::string&);
     virtual void got_tc_stderr_line(const std::string&);
-    virtual void got_tc_end(const atf::tests::tcr&);
+    virtual void got_tc_end(const std::string&, const std::string&);
     virtual void got_eof(void);
 
 public:

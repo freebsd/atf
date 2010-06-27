@@ -33,7 +33,7 @@
 #include "atf-c++/macros.hpp"
 #include "atf-c++/ui.hpp"
 
-#include "h_lib.hpp"
+#include "test_helpers.hpp"
 
 // ------------------------------------------------------------------------
 // Test cases for the free functions.

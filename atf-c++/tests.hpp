@@ -144,7 +144,17 @@ public:
     // To be called from the child process only.
     static void pass(void);
     static void fail(const std::string&);
+    static void fail_nonfatal(const std::string&);
     static void skip(const std::string&);
+    static void check_errno(const char*, const int, const int, const char*,
+                            const bool);
+    static void require_errno(const char*, const int, const int, const char*,
+                              const bool);
+    static void expect_pass(void);
+    static void expect_fail(const std::string&);
+    static void expect_exit(const int, const std::string&);
+    static void expect_signal(const int, const std::string&);
+    static void expect_death(const std::string&);
 };
 
 } // namespace tests

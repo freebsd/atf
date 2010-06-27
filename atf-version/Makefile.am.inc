@@ -34,7 +34,7 @@ atf_version_atf_version_LDADD = libatf-c++.la
 dist_man_MANS += atf-version/atf-version.1
 
 BUILT_SOURCES += atf-version/revision.h
-atf-version/revision.h: admin/revision.h $(srcdir)/admin/revision-dist.h
+atf-version/revision.h: admin/revision.h @target_srcdir@admin/revision-dist.h
 	@$(top_srcdir)/admin/choose-revision.sh \
 	    admin/revision.h $(srcdir)/admin/revision-dist.h \
 	    atf-version/revision.h

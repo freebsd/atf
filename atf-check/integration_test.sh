@@ -63,13 +63,13 @@ EOF
     fi
 }
 
-atf_test_case sflag
-sflag_head()
+atf_test_case sflag_eq_ne
+sflag_eq_ne_head()
 {
-    atf_set "descr" "Tests for the -s option"
+    atf_set "descr" "Tests for the -s option using the 'eq' and 'ne' qualifiers"
     atf_set "use.fs" "true"
 }
-sflag_body()
+sflag_eq_ne_body()
 {
     h_pass "true" -s eq:0
     h_pass "false" -s ne:0
@@ -80,6 +80,64 @@ sflag_body()
     h_fail "exit -1" -s eq:-1
     h_fail "true" -s ne:256
     h_fail "true" -s ne:-1
+}
+
+atf_test_case sflag_exit
+sflag_exit_head()
+{
+    atf_set "descr" "Tests for the -s option using the 'exit' qualifier"
+    atf_set "use.fs" "true"
+}
+sflag_exit_body()
+{
+    h_pass 'true' -s exit:0
+    h_pass 'false' -s not-exit:0
+    h_pass 'exit 255' -s exit:255
+    h_pass 'exit 0' -s not-exit:255
+
+    h_fail 'exit 256' -s exit:256
+    h_fail 'exit -1' -s exit:-1
+    h_fail 'true' -s not-exit:256
+    h_fail 'true' -s not-exit:-1
+
+    h_pass 'true' -s exit
+    h_pass 'false' -s exit
+    atf-check -s exit -x 'kill $$' && atf_fail "Signal detected as clean exit"
+}
+
+atf_test_case sflag_ignore
+sflag_ignore_head()
+{
+    atf_set "descr" "Tests for the -s option using the 'ignore' qualifier"
+    atf_set "use.fs" "true"
+}
+sflag_ignore_body()
+{
+    h_pass 'true' -s ignore
+    h_pass 'false' -s ignore
+    atf-check -s ignored -x 'kill $$' && atf_fail "Signal not ignored"
+}
+
+atf_test_case sflag_signal
+sflag_signal_head()
+{
+    atf_set "descr" "Tests for the -s option using the 'signal' qualifier"
+    atf_set "use.fs" "true"
+}
+sflag_signal_body()
+{
+    atf-check -s signal:hup -x 'kill -1 $$' || atf_fail "Signal not detected"
+    atf-check -s signal:sighup -x 'kill -1 $$' || atf_fail "Signal not detected"
+    atf-check -s signal:1 -x 'kill -1 $$' || atf_fail "Signal not detected"
+    atf-check -s signal -x 'kill -1 $$' || atf_fail "Signal not detected"
+
+    atf-check -s not-signal:kill -x 'kill -9 $$' && \
+        atf_fail "not-signal:kill matched kill -9"
+    atf-check -s not-signal:kill -x 'kill -1 $$' || \
+        atf_fail "not-signal:kill did not match kill -1"
+
+    h_fail 'true' -s signal
+    h_fail 'false' -s signal
 }
 
 atf_test_case xflag
@@ -373,7 +431,11 @@ invalid_umask_body()
 
 atf_init_test_cases()
 {
-    atf_add_test_case sflag
+    atf_add_test_case sflag_eq_ne
+    atf_add_test_case sflag_exit
+    atf_add_test_case sflag_ignore
+    atf_add_test_case sflag_signal
+
     atf_add_test_case xflag
 
     atf_add_test_case oflag_empty

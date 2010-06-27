@@ -152,7 +152,8 @@ impl::atf_tps_reader::got_tc_stderr_line(const std::string& line)
 }
 
 void
-impl::atf_tps_reader::got_tc_end(const atf::tests::tcr& tcr)
+impl::atf_tps_reader::got_tc_end(const std::string& state,
+                                 const std::string& reason)
 {
 }
 
@@ -298,21 +299,19 @@ impl::atf_tps_reader::read_tc(void* pptr)
     t = p.expect(passed_type, failed_type, skipped_type,
                  "passed, failed or skipped");
     if (t.type() == passed_type) {
-        ATF_PARSER_CALLBACK(p, got_tc_end(tcr(tcr::passed_state)));
-    } else if (t.type() == failed_type) {
+        ATF_PARSER_CALLBACK(p, got_tc_end("passed", ""));
+    } else if (t.type() == failed_type || t.type() == skipped_type) {
+        std::string state;
+        if (t.type() == failed_type) state = "failed";
+        else if (t.type() == skipped_type) state = "skipped";
+        else UNREACHABLE;
+
         t = p.expect(comma_type, "`,'");
         std::string reason = text::trim(p.rest_of_line());
         if (reason.empty())
-            throw parse_error(t.lineno(),
-                              "Empty reason for failed test case result");
-        ATF_PARSER_CALLBACK(p, got_tc_end(tcr(tcr::failed_state, reason)));
-    } else if (t.type() == skipped_type) {
-        t = p.expect(comma_type, "`,'");
-        std::string reason = text::trim(p.rest_of_line());
-        if (reason.empty())
-            throw parse_error(t.lineno(),
-                              "Empty reason for skipped test case result");
-        ATF_PARSER_CALLBACK(p, got_tc_end(tcr(tcr::skipped_state, reason)));
+            throw parse_error(t.lineno(), "Empty reason for " + state +
+                " test case result");
+        ATF_PARSER_CALLBACK(p, got_tc_end(state, reason));
     } else
         UNREACHABLE;
 

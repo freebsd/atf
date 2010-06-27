@@ -26,7 +26,7 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd June 6, 2010
+.Dd June 27, 2010
 .Dt ATF-SH-API 3
 .Os
 .Sh NAME
@@ -35,6 +35,11 @@
 .Nm atf_check_equal ,
 .Nm atf_config_get ,
 .Nm atf_config_has ,
+.Nm atf_expect_death ,
+.Nm atf_expect_exit ,
+.Nm atf_expect_fail ,
+.Nm atf_expect_pass ,
+.Nm atf_expect_signal ,
 .Nm atf_fail ,
 .Nm atf_get ,
 .Nm atf_get_srcdir ,
@@ -50,6 +55,11 @@
 .Fn atf_check_equal "expr1" "expr2"
 .Fn atf_config_get "var_name"
 .Fn atf_config_has "var_name"
+.Fn atf_expect_death "reason" "..."
+.Fn atf_expect_exit "exitcode" "reason" "..."
+.Fn atf_expect_fail "reason" "..."
+.Fn atf_expect_pass
+.Fn atf_expect_signal "signo" "reason" "..."
 .Fn atf_fail "reason"
 .Fn atf_get "var_name"
 .Fn atf_get_srcdir
@@ -194,6 +204,63 @@ take a single string parameter that describes why the test case failed or
 was skipped, respectively.
 It is very important to provide a clear error message in both cases so that
 the user can quickly know why the test did not pass.
+.Ss Expectations
+Everything explained in the previous section changes when the test case
+expectations are redefined by the programmer.
+.Pp
+Each test case has an internal state called
+.Sq expect
+that describes what the test case expectations are at any point in time.
+The value of this property can change during execution by any of:
+.Bl -tag -width indent
+.It Fn atf_expect_death "reason" "..."
+Expects the test case to exit prematurely regardless of the nature of the
+exit.
+.It Fn atf_expect_exit "exitcode" "reason" "..."
+Expects the test case to exit cleanly.
+If
+.Va exitcode
+is not
+.Sq -1 ,
+.Xr atf-run 1
+will validate that the exit code of the test case matches the one provided
+in this call.
+Otherwise, the exact value will be ignored.
+.It Fn atf_expect_fail "reason"
+Any failure raised in this mode is recorded, but such failures do not report
+the test case as failed; instead, the test case finalizes cleanly and is
+reported as
+.Sq expected failure ;
+this report includes the provided
+.Fa reason
+as part of it.
+If no error is raised while running in this mode, then the test case is
+reported as
+.Sq failed .
+.Pp
+This mode is useful to reproduce actual known bugs in tests.
+Whenever the developer fixes the bug later on, the test case will start
+reporting a failure, signaling the developer that the test case must be
+adjusted to the new conditions.
+In this situation, it is useful, for example, to set
+.Fa reason
+as the bug number for tracking purposes.
+.It Fn atf_expect_pass
+This is the normal mode of execution.
+In this mode, any failure is reported as such to the user and the test case
+is marked as
+.Sq failed .
+.It Fn atf_expect_signal "signo" "reason" "..."
+Expects the test case to terminate due to the reception of a signal.
+If
+.Va signo
+is not
+.Sq -1 ,
+.Xr atf-run 1
+will validate that the signal that terminated the test case matches the one
+provided in this call.
+Otherwise, the exact value will be ignored.
+.El
 .Ss Helper functions for common checks
 .Fn atf_check [options] command [args]
 .Pp

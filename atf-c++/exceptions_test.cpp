@@ -37,7 +37,7 @@ extern "C" {
 #include "atf-c++/macros.hpp"
 #include "atf-c++/sanity.hpp"
 
-#include "h_lib.hpp"
+#include "test_helpers.hpp"
 
 // ------------------------------------------------------------------------
 // The "test" error.

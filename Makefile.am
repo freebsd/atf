@@ -59,22 +59,21 @@ include test-programs/Makefile.am.inc
 
 doc_DATA = AUTHORS COPYING NEWS README
 noinst_DATA += INSTALL
-CLEANFILES += AUTHORS COPYING INSTALL NEWS README
 EXTRA_DIST += $(doc_DATA) INSTALL
 
-$(srcdir)/AUTHORS: $(srcdir)/doc/text/authors.txt
+@target_srcdir@AUTHORS: @target_srcdir@doc/text/authors.txt
 	cp $(srcdir)/doc/text/authors.txt $(srcdir)/AUTHORS
 
-$(srcdir)/COPYING: $(srcdir)/doc/text/copying.txt
+@target_srcdir@COPYING: @target_srcdir@doc/text/copying.txt
 	cp $(srcdir)/doc/text/copying.txt $(srcdir)/COPYING
 
-$(srcdir)/INSTALL: $(srcdir)/doc/text/install.txt
+@target_srcdir@INSTALL: @target_srcdir@doc/text/install.txt
 	cp $(srcdir)/doc/text/install.txt $(srcdir)/INSTALL
 
-$(srcdir)/NEWS: $(srcdir)/doc/text/news.txt
+@target_srcdir@NEWS: @target_srcdir@doc/text/news.txt
 	cp $(srcdir)/doc/text/news.txt $(srcdir)/NEWS
 
-$(srcdir)/README: $(srcdir)/doc/text/readme.txt
+@target_srcdir@README: @target_srcdir@doc/text/readme.txt
 	cp $(srcdir)/doc/text/readme.txt $(srcdir)/README
 
 #

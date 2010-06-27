@@ -67,7 +67,7 @@ libtool_body()
     create_files
     mkdir tmp/.libs
 
-    for hp in $(get_helpers h_c h_cpp); do
+    for hp in $(get_helpers c_helpers cpp_helpers); do
         h=${hp##*/}
         cp ${hp} tmp
         cp ${hp} tmp/.libs
@@ -77,7 +77,7 @@ libtool_body()
         atf_check -s eq:0 -o ignore -e empty grep "Cannot find datafile" res
     done
 
-    for hp in $(get_helpers h_c h_cpp); do
+    for hp in $(get_helpers c_helpers cpp_helpers); do
         h=${hp##*/}
         cp ${hp} tmp
         cp ${hp} tmp/.libs/lt-${h}

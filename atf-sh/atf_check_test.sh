@@ -38,7 +38,7 @@ info_ok_head()
 }
 info_ok_body()
 {
-    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
+    h="$(atf_get_srcdir)/misc_helpers -s $(atf_get_srcdir)"
 
     atf_check -s eq:0 -o save:stdout -e save:stderr -x \
               "${h} atf_check_info_ok"
@@ -61,7 +61,7 @@ expout_mismatch_head()
 }
 expout_mismatch_body()
 {
-    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
+    h="$(atf_get_srcdir)/misc_helpers -s $(atf_get_srcdir)"
 
     atf_check -s eq:1 -o save:stdout -e save:stderr -x \
               "${h} atf_check_expout_mismatch"
@@ -87,7 +87,7 @@ experr_mismatch_head()
 }
 experr_mismatch_body()
 {
-    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
+    h="$(atf_get_srcdir)/misc_helpers -s $(atf_get_srcdir)"
 
     atf_check -s eq:1 -o save:stdout -e save:stderr -x \
               "${h} atf_check_experr_mismatch"
@@ -112,7 +112,7 @@ null_stdout_head()
 }
 null_stdout_body()
 {
-    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
+    h="$(atf_get_srcdir)/misc_helpers -s $(atf_get_srcdir)"
 
     atf_check -s eq:1 -o save:stdout -e save:stderr -x \
               "${h} atf_check_null_stdout"
@@ -135,7 +135,7 @@ null_stderr_head()
 }
 null_stderr_body()
 {
-    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
+    h="$(atf_get_srcdir)/misc_helpers -s $(atf_get_srcdir)"
 
     atf_check -s eq:1 -o save:stdout -e save:stderr -x \
               "${h} atf_check_null_stderr"
@@ -157,7 +157,7 @@ equal_head()
 }
 equal_body()
 {
-    h="$(atf_get_srcdir)/h_misc -s $(atf_get_srcdir)"
+    h="$(atf_get_srcdir)/misc_helpers -s $(atf_get_srcdir)"
 
     atf_check -s eq:0 -o ignore -e ignore -x "${h} atf_check_equal_ok"
 

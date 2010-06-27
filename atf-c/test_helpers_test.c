@@ -35,7 +35,7 @@
 
 #include "atf-c/dynstr.h"
 
-#include "h_lib.h"
+#include "test_helpers.h"
 
 /* ---------------------------------------------------------------------
  * Test cases for the free functions.

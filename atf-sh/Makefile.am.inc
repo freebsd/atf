@@ -42,13 +42,13 @@ tests_atf_sh_DATA = atf-sh/Atffile
 tests_atf_shdir = $(pkgtestsdir)/atf-sh
 EXTRA_DIST += $(tests_atf_sh_DATA)
 
-tests_atf_sh_SCRIPTS = atf-sh/h_misc
-CLEANFILES += atf-sh/h_misc
-EXTRA_DIST += atf-sh/h_misc.sh
-atf-sh/h_misc: $(srcdir)/atf-sh/h_misc.sh
+tests_atf_sh_SCRIPTS = atf-sh/misc_helpers
+CLEANFILES += atf-sh/misc_helpers
+EXTRA_DIST += atf-sh/misc_helpers.sh
+atf-sh/misc_helpers: $(srcdir)/atf-sh/misc_helpers.sh
 	test -d atf-sh || mkdir -p atf-sh
-	@src="$(srcdir)/atf-sh/h_misc.sh"; \
-	dst="atf-sh/h_misc"; $(BUILD_SH_TP)
+	@src="$(srcdir)/atf-sh/misc_helpers.sh"; \
+	dst="atf-sh/misc_helpers"; $(BUILD_SH_TP)
 
 tests_atf_sh_SCRIPTS += atf-sh/atf_check_test
 CLEANFILES += atf-sh/atf_check_test

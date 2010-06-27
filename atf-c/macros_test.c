@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#include <errno.h>
 #include <fcntl.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -44,7 +45,7 @@
 #include "atf-c/process.h"
 #include "atf-c/text.h"
 
-#include "h_lib.h"
+#include "test_helpers.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -141,6 +142,11 @@ init_and_run_h_tc(const char *name, void (*head)(atf_tc_t *),
 #define H_CHECK_STREQ_MSG(id, v1, v2, msg) \
     H_DEF(check_streq_msg_ ## id, ATF_CHECK_STREQ_MSG(v1, v2, msg))
 
+#define H_CHECK_ERRNO_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_check_errno_ ## id)
+#define H_CHECK_ERRNO_BODY_NAME(id) ATF_TC_BODY_NAME(h_check_errno_ ## id)
+#define H_CHECK_ERRNO(id, exp_errno, bool_expr) \
+    H_DEF(check_errno_ ## id, ATF_CHECK_ERRNO(exp_errno, bool_expr))
+
 #define H_REQUIRE_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_require_ ## id)
 #define H_REQUIRE_BODY_NAME(id) ATF_TC_BODY_NAME(h_require_ ## id)
 #define H_REQUIRE(id, condition) \
@@ -174,6 +180,126 @@ init_and_run_h_tc(const char *name, void (*head)(atf_tc_t *),
     ATF_TC_BODY_NAME(h_require_streq_msg_ ## id)
 #define H_REQUIRE_STREQ_MSG(id, v1, v2, msg) \
     H_DEF(require_streq_msg_ ## id, ATF_REQUIRE_STREQ_MSG(v1, v2, msg))
+
+#define H_REQUIRE_ERRNO_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_require_errno_ ## id)
+#define H_REQUIRE_ERRNO_BODY_NAME(id) ATF_TC_BODY_NAME(h_require_errno_ ## id)
+#define H_REQUIRE_ERRNO(id, exp_errno, bool_expr) \
+    H_DEF(require_errno_ ## id, ATF_REQUIRE_ERRNO(exp_errno, bool_expr))
+
+/* ---------------------------------------------------------------------
+ * Test cases for the ATF_{CHECK,REQUIRE}_ERRNO macros.
+ * --------------------------------------------------------------------- */
+
+static int
+errno_fail_stub(const int raised_errno)
+{
+    errno = raised_errno;
+    return -1;
+}
+
+static int
+errno_ok_stub(void)
+{
+    return 0;
+}
+
+H_CHECK_ERRNO(no_error, -1, errno_ok_stub() == -1);
+H_CHECK_ERRNO(errno_ok, 2, errno_fail_stub(2) == -1);
+H_CHECK_ERRNO(errno_fail, 3, errno_fail_stub(4) == -1);
+
+H_REQUIRE_ERRNO(no_error, -1, errno_ok_stub() == -1);
+H_REQUIRE_ERRNO(errno_ok, 2, errno_fail_stub(2) == -1);
+H_REQUIRE_ERRNO(errno_fail, 3, errno_fail_stub(4) == -1);
+
+ATF_TC(check_errno);
+ATF_TC_HEAD(check_errno, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the ATF_CHECK_ERRNO macro");
+    atf_tc_set_md_var(tc, "use.fs", "true");
+}
+ATF_TC_BODY(check_errno, tc)
+{
+    struct test {
+        void (*head)(atf_tc_t *);
+        void (*body)(const atf_tc_t *);
+        bool ok;
+        const char *exp_regex;
+    } *t, tests[] = {
+        { H_CHECK_ERRNO_HEAD_NAME(no_error),
+          H_CHECK_ERRNO_BODY_NAME(no_error),
+          false, "Expected true value in errno_ok_stub\\(\\) == -1" },
+        { H_CHECK_ERRNO_HEAD_NAME(errno_ok),
+          H_CHECK_ERRNO_BODY_NAME(errno_ok),
+          true, NULL },
+        { H_CHECK_ERRNO_HEAD_NAME(errno_fail),
+          H_CHECK_ERRNO_BODY_NAME(errno_fail),
+          false, "Expected errno 3, got 4, in errno_fail_stub\\(4\\) == -1" },
+        { NULL, NULL, false, NULL }
+    };
+
+    for (t = &tests[0]; t->head != NULL; t++) {
+        init_and_run_h_tc("h_check_errno", t->head, t->body);
+
+        ATF_REQUIRE(exists("before"));
+        ATF_REQUIRE(exists("after"));
+
+        if (t->ok) {
+            ATF_REQUIRE(grep_file("result", "^passed"));
+        } else {
+            ATF_REQUIRE(grep_file("result", "^failed"));
+            ATF_REQUIRE(grep_file("error", "macros_test.c:[0-9]+: %s$",
+                t->exp_regex));
+        }
+
+        ATF_REQUIRE(unlink("before") != -1);
+        ATF_REQUIRE(unlink("after") != -1);
+    }
+}
+
+ATF_TC(require_errno);
+ATF_TC_HEAD(require_errno, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the ATF_REQUIRE_ERRNO macro");
+    atf_tc_set_md_var(tc, "use.fs", "true");
+}
+ATF_TC_BODY(require_errno, tc)
+{
+    struct test {
+        void (*head)(atf_tc_t *);
+        void (*body)(const atf_tc_t *);
+        bool ok;
+        const char *exp_regex;
+    } *t, tests[] = {
+        { H_REQUIRE_ERRNO_HEAD_NAME(no_error),
+          H_REQUIRE_ERRNO_BODY_NAME(no_error),
+          false, "Expected true value in errno_ok_stub\\(\\) == -1" },
+        { H_REQUIRE_ERRNO_HEAD_NAME(errno_ok),
+          H_REQUIRE_ERRNO_BODY_NAME(errno_ok),
+          true, NULL },
+        { H_REQUIRE_ERRNO_HEAD_NAME(errno_fail),
+          H_REQUIRE_ERRNO_BODY_NAME(errno_fail),
+          false, "Expected errno 3, got 4, in errno_fail_stub\\(4\\) == -1" },
+        { NULL, NULL, false, NULL }
+    };
+
+    for (t = &tests[0]; t->head != NULL; t++) {
+        init_and_run_h_tc("h_require_errno", t->head, t->body);
+
+        ATF_REQUIRE(exists("before"));
+        if (t->ok) {
+            ATF_REQUIRE(grep_file("result", "^passed"));
+            ATF_REQUIRE(exists("after"));
+        } else {
+            ATF_REQUIRE(grep_file("result", "^failed: .*macros_test.c:[0-9]+: "
+                "%s$", t->exp_regex));
+            ATF_REQUIRE(!exists("after"));
+        }
+
+        ATF_REQUIRE(unlink("before") != -1);
+        if (t->ok)
+            ATF_REQUIRE(unlink("after") != -1);
+    }
+}
 
 /* ---------------------------------------------------------------------
  * Test cases for the ATF_CHECK and ATF_CHECK_MSG macros.
@@ -223,8 +349,8 @@ ATF_TC_BODY(check, tc)
             ATF_REQUIRE(grep_file("result", "^passed"));
         } else {
             ATF_REQUIRE(grep_file("result", "^failed"));
-            ATF_REQUIRE(grep_file("error", "macros_test.c:[0-9]+: "
-                                  "Check failed: %s$", t->msg));
+            ATF_REQUIRE(grep_file("error", "Check failed: .*"
+                "macros_test.c:[0-9]+: %s$", t->msg));
         }
 
         ATF_REQUIRE(unlink("before") != -1);
@@ -264,8 +390,8 @@ do_check_eq_tests(const struct check_eq_test *tests)
             ATF_REQUIRE(grep_file("result", "^passed"));
         } else {
             ATF_REQUIRE(grep_file("result", "^failed"));
-            ATF_CHECK(grep_file("error", "macros_test.c:[0-9]+: "
-                                "Check failed: %s$", t->msg));
+            ATF_CHECK(grep_file("error", "Check failed: .*"
+                "macros_test.c:[0-9]+: %s$", t->msg));
         }
 
         ATF_CHECK(unlink("before") != -1);
@@ -413,7 +539,7 @@ ATF_TC_BODY(require, tc)
             ATF_REQUIRE(exists("after"));
         } else {
             ATF_REQUIRE(grep_file("result", "^failed: .*macros_test.c:[0-9]+: "
-                                  "Requirement failed: %s$", t->msg));
+                                  "%s$", t->msg));
             ATF_REQUIRE(!exists("after"));
         }
 
@@ -454,7 +580,7 @@ do_require_eq_tests(const struct require_eq_test *tests)
             ATF_REQUIRE(exists("after"));
         } else {
             ATF_REQUIRE(grep_file("result", "^failed: .*macros_test.c"
-                ":[0-9]+: Requirement failed: %s$", t->msg));
+                ":[0-9]+: %s$", t->msg));
             ATF_REQUIRE(!exists("after"));
         }
 
@@ -615,12 +741,11 @@ ATF_TC_BODY(msg_embedded_fmt, tc)
         if (t->fatal) {
             bool matched =
                 grep_file("result", "^failed: .*macros_test.c:[0-9]+: "
-                          "Requirement failed: %s$", t->msg);
+                          "%s$", t->msg);
             ATF_CHECK_MSG(matched, "couldn't find error string in result");
         } else {
-            bool matched =
-                grep_file("error", "macros_test.c:[0-9]+: Check failed: "
-                    "%s$", t->msg);
+            bool matched = grep_file("error", "Check failed: .*"
+                "macros_test.c:[0-9]+: %s$", t->msg);
             ATF_CHECK_MSG(matched, "couldn't find error string in output");
         }
     }
@@ -631,10 +756,10 @@ ATF_TC_BODY(msg_embedded_fmt, tc)
  * --------------------------------------------------------------------- */
 
 HEADER_TC(include, "atf-c/macros.h");
-BUILD_TC(use, "d_use_macros_h.c",
+BUILD_TC(use, "macros_h_test.c",
          "Tests that the macros provided by the atf-c/macros.h file "
          "do not cause syntax errors when used",
-         "Build of d_use_macros_h.c failed; some macros in atf-c/macros.h "
+         "Build of macros_h_test.c failed; some macros in atf-c/macros.h "
          "are broken");
 
 /* ---------------------------------------------------------------------
@@ -646,10 +771,12 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, check);
     ATF_TP_ADD_TC(tp, check_eq);
     ATF_TP_ADD_TC(tp, check_streq);
+    ATF_TP_ADD_TC(tp, check_errno);
 
     ATF_TP_ADD_TC(tp, require);
     ATF_TP_ADD_TC(tp, require_eq);
     ATF_TP_ADD_TC(tp, require_streq);
+    ATF_TP_ADD_TC(tp, require_errno);
 
     ATF_TP_ADD_TC(tp, msg_embedded_fmt);
 

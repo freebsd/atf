@@ -79,6 +79,24 @@ atf_check_throw_inside_if(void)
         ATF_CHECK_THROW(std::runtime_error, (void)1);
 }
 
+void
+atf_check_errno_semicolons(void)
+{
+    // Check that ATF_CHECK_ERRNO does not contain a semicolon that would
+    // cause an empty-statement that confuses some compilers.
+    ATF_CHECK_ERRNO(1, 1 == 1);
+    ATF_CHECK_ERRNO(2, 2 == 2);
+}
+
+void
+atf_require_errno_semicolons(void)
+{
+    // Check that ATF_REQUIRE_ERRNO does not contain a semicolon that would
+    // cause an empty-statement that confuses some compilers.
+    ATF_REQUIRE_ERRNO(1, 1 == 1);
+    ATF_REQUIRE_ERRNO(2, 2 == 2);
+}
+
 // Test case names should not be expanded during instatiation so that they
 // can have the exact same name as macros.
 #define TEST_MACRO_1 invalid + name

@@ -132,7 +132,7 @@ CHECK_TPS_TCR(tc_5, passed, stdout)
 AT_CHECK([grep 'tc-so:ignore-me' stdout], [0], [ignore], [])
 AT_CHECK([grep 'tc-se:ignore-me' stdout], [0], [ignore], [])
 
-dnl Make sure globs do not match non-executatble nor hidden files.
+dnl Make sure globs do not match non-executable nor hidden files.
 dnl XXX This is not really part of the bootstrap test suite.  Move to
 dnl tests/atf/tools/t_atf_run.sh when it exists.
 AT_CHECK([rm -rf top], [0], [], [])

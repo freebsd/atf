@@ -345,9 +345,59 @@ impl::tc::fail(const std::string& reason)
 }
 
 void
+impl::tc::fail_nonfatal(const std::string& reason)
+{
+    atf_tc_fail_nonfatal("%s", reason.c_str());
+}
+
+void
 impl::tc::skip(const std::string& reason)
 {
     atf_tc_skip("%s", reason.c_str());
+}
+
+void
+impl::tc::check_errno(const char* file, const int line, const int exp_errno,
+                      const char* expr_str, const bool result)
+{
+    atf_tc_check_errno(file, line, exp_errno, expr_str, result);
+}
+
+void
+impl::tc::require_errno(const char* file, const int line, const int exp_errno,
+                        const char* expr_str, const bool result)
+{
+    atf_tc_require_errno(file, line, exp_errno, expr_str, result);
+}
+
+void
+impl::tc::expect_pass(void)
+{
+    atf_tc_expect_pass();
+}
+
+void
+impl::tc::expect_fail(const std::string& reason)
+{
+    atf_tc_expect_fail("%s", reason.c_str());
+}
+
+void
+impl::tc::expect_exit(const int exitcode, const std::string& reason)
+{
+    atf_tc_expect_exit(exitcode, "%s", reason.c_str());
+}
+
+void
+impl::tc::expect_signal(const int signo, const std::string& reason)
+{
+    atf_tc_expect_signal(signo, "%s", reason.c_str());
+}
+
+void
+impl::tc::expect_death(const std::string& reason)
+{
+    atf_tc_expect_death("%s", reason.c_str());
 }
 
 // ------------------------------------------------------------------------

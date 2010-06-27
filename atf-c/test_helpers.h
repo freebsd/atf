@@ -27,10 +27,10 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if defined(TESTS_ATF_ATF_C_H_LIB_H)
-#   error "Cannot include h_lib.h more than once."
+#if defined(TESTS_ATF_ATF_C_TEST_HELPERS_H)
+#   error "Cannot include test_helpers.h more than once."
 #else
-#   define TESTS_ATF_ATF_C_H_LIB_H
+#   define TESTS_ATF_ATF_C_TEST_HELPERS_H
 #endif
 
 #include <stdbool.h>
@@ -70,7 +70,7 @@ struct atf_fs_path;
 
 void build_check_c_o(const atf_tc_t *, const char *, const char *);
 void header_check(const atf_tc_t *, const char *);
-void get_h_processes_path(const atf_tc_t *, struct atf_fs_path *);
+void get_process_helpers_path(const atf_tc_t *, struct atf_fs_path *);
 bool grep_string(const struct atf_dynstr *, const char *);
 bool grep_file(const char *, const char *, ...);
 bool read_line(int, struct atf_dynstr *);

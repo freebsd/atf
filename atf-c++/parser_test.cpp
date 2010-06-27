@@ -32,7 +32,7 @@
 #include "atf-c++/macros.hpp"
 #include "atf-c++/parser.hpp"
 
-#include "h_lib.hpp"
+#include "test_helpers.hpp"
 
 // ------------------------------------------------------------------------
 // Tests for the "parse_error" class.

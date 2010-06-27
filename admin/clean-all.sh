@@ -44,6 +44,7 @@ fi
 make distclean
 
 # Top-level directory.
+rm -f AUTHORS COPYING INSTALL NEWS README
 rm -f .gdb_history
 rm -f Makefile.in
 rm -f aclocal.m4

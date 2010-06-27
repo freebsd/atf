@@ -41,7 +41,7 @@ extern "C" {
 #include "atf-c++/process.hpp"
 #include "atf-c++/signals.hpp"
 
-#include "h_lib.hpp"
+#include "test_helpers.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.

@@ -41,7 +41,7 @@ extern "C" {
 
 #include "atffile.hpp"
 
-#include "h_lib.hpp"
+#include "test_helpers.hpp"
 
 namespace detail = atf::atf_run::detail;
 
