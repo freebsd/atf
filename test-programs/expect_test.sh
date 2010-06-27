@@ -39,12 +39,16 @@ expect_pass_head() {
     atf_set "use.fs" "true"
 }
 expect_pass_body() {
-    for h in $(get_helpers c_helpers cpp_helpers); do
+    for h in $(get_helpers); do
         atf_check -s eq:0 "${h}" -r result expect_pass_and_pass
         check_result result "passed"
 
         atf_check -s eq:1 "${h}" -r result expect_pass_but_fail_requirement
         check_result result "failed: Some reason"
+
+        # atf-sh does not support non-fatal failures yet; skip checks for
+        # such conditions.
+        case "${h}" in *sh_helpers*) continue ;; esac
 
         atf_check -s eq:1 -o empty -e match:"Some reason" \
             "${h}" -r result expect_pass_but_fail_check
@@ -61,14 +65,28 @@ expect_fail_body() {
         atf_check -s eq:0 "${h}" -r result expect_fail_and_fail_requirement
         check_result result "expected_failure: Fail reason: The failure"
 
+        atf_check -s eq:1 -e match:"Expected check failure: Fail first: abc" \
+            -e not-match:"And fail again" "${h}" -r result expect_fail_but_pass
+        check_result result "failed: .*expecting a failure"
+
+        # atf-sh does not support non-fatal failures yet; skip checks for
+        # such conditions.
+        case "${h}" in *sh_helpers*) continue ;; esac
+
         atf_check -s eq:0 -e match:"Expected check failure: Fail first: abc" \
             -e match:"Expected check failure: And fail again: def" \
             "${h}" -r result expect_fail_and_fail_check
         check_result result "expected_failure: And fail again: 2 checks" \
             "failed as expected"
+    done
 
-        atf_check -s eq:1 -e match:"Expected check failure: Fail first: abc" \
-            -e not-match:"And fail again" "${h}" -r result expect_fail_but_pass
+    # atf-sh does not support non-fatal failures yet; skip checks for
+    # such conditions.
+    for h in $(get_helpers sh_helpers); do
+        atf_check -s eq:0 "${h}" -r result expect_fail_and_fail_requirement
+        check_result result "expected_failure: Fail reason: The failure"
+
+        atf_check -s eq:1 "${h}" -r result expect_fail_but_pass
         check_result result "failed: .*expecting a failure"
     done
 }

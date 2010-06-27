@@ -191,6 +191,50 @@ fork_stop_body()
 }
 
 # -------------------------------------------------------------------------
+# Helper tests for "t_expect".
+# -------------------------------------------------------------------------
+
+atf_test_case expect_pass_and_pass
+expect_pass_and_pass_body()
+{
+    atf_expect_pass
+}
+
+atf_test_case expect_pass_but_fail_requirement
+expect_pass_but_fail_requirement_body()
+{
+    atf_expect_pass
+    atf_fail "Some reason"
+}
+
+atf_test_case expect_pass_but_fail_check
+expect_pass_but_fail_check_body()
+{
+    atf_fail "Non-fatal failures not implemented"
+}
+
+atf_test_case expect_fail_and_fail_requirement
+expect_fail_and_fail_requirement_body()
+{
+    atf_expect_fail "Fail reason"
+    atf_fail "The failure"
+    atf_expect_pass
+}
+
+atf_test_case expect_fail_and_fail_check
+expect_fail_and_fail_check_body()
+{
+    atf_fail "Non-fatal failures not implemented"
+}
+
+atf_test_case expect_fail_but_pass
+expect_fail_but_pass_body()
+{
+    atf_expect_fail "Fail first"
+    atf_expect_pass
+}
+
+# -------------------------------------------------------------------------
 # Helper tests for "t_meta_data".
 # -------------------------------------------------------------------------
 
@@ -267,6 +311,14 @@ atf_init_test_cases()
     atf_add_test_case config_empty
     atf_add_test_case config_value
     atf_add_test_case config_multi_value
+
+    # Add helper tests for t_expect.
+    atf_add_test_case expect_pass_and_pass
+    atf_add_test_case expect_pass_but_fail_requirement
+    atf_add_test_case expect_pass_but_fail_check
+    atf_add_test_case expect_fail_and_fail_requirement
+    atf_add_test_case expect_fail_and_fail_check
+    atf_add_test_case expect_fail_but_pass
 
     # Add helper tests for t_fork.
     atf_add_test_case fork_stop
