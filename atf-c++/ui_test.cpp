@@ -27,6 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cstring>
+
 #include "atf-c++/env.hpp"
 #include "atf-c++/macros.hpp"
 #include "atf-c++/ui.hpp"
