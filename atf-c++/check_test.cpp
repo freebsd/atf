@@ -29,6 +29,7 @@
 
 extern "C" {
 #include <fcntl.h>
+#include <signal.h>
 #include <unistd.h>
 }
 
@@ -291,18 +292,22 @@ ATF_TEST_CASE_BODY(exec_exitstatus)
     {
         atf::check::check_result r = do_exec(this, "exit-success");
         ATF_CHECK(r.exited());
+        ATF_CHECK(!r.signaled());
         ATF_CHECK_EQUAL(r.exitcode(), EXIT_SUCCESS);
     }
 
     {
         atf::check::check_result r = do_exec(this, "exit-failure");
         ATF_CHECK(r.exited());
+        ATF_CHECK(!r.signaled());
         ATF_CHECK_EQUAL(r.exitcode(), EXIT_FAILURE);
     }
 
     {
         atf::check::check_result r = do_exec(this, "exit-signal");
         ATF_CHECK(!r.exited());
+        ATF_CHECK(r.signaled());
+        ATF_CHECK_EQUAL(r.termsig(), SIGKILL);
     }
 }
 

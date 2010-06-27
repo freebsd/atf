@@ -28,6 +28,7 @@
  */
 
 #include <fcntl.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -368,6 +369,7 @@ ATF_TC_BODY(exec_exitstatus, tc)
         atf_check_result_t result;
         do_exec(tc, "exit-success", &result);
         ATF_CHECK(atf_check_result_exited(&result));
+        ATF_CHECK(!atf_check_result_signaled(&result));
         ATF_CHECK(atf_check_result_exitcode(&result) == EXIT_SUCCESS);
         atf_check_result_fini(&result);
     }
@@ -376,6 +378,7 @@ ATF_TC_BODY(exec_exitstatus, tc)
         atf_check_result_t result;
         do_exec(tc, "exit-failure", &result);
         ATF_CHECK(atf_check_result_exited(&result));
+        ATF_CHECK(!atf_check_result_signaled(&result));
         ATF_CHECK(atf_check_result_exitcode(&result) == EXIT_FAILURE);
         atf_check_result_fini(&result);
     }
@@ -384,6 +387,8 @@ ATF_TC_BODY(exec_exitstatus, tc)
         atf_check_result_t result;
         do_exec(tc, "exit-signal", &result);
         ATF_CHECK(!atf_check_result_exited(&result));
+        ATF_CHECK(atf_check_result_signaled(&result));
+        ATF_CHECK(atf_check_result_termsig(&result) == SIGKILL);
         atf_check_result_fini(&result);
     }
 }

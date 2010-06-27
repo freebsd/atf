@@ -154,11 +154,7 @@ atf_config_has()
 #
 atf_fail()
 {
-    if [ -n "${Results_File}" ]; then
-        echo 'failed:' "${@}" >${Results_File}
-    else
-        echo 'failed:' "${@}"
-    fi
+    _atf_create_resfile failed "${@}"
     exit 1
 }
 
@@ -208,11 +204,7 @@ atf_pass()
 }
 
 _create_pass_file() {
-    if [ -n "${Results_File}" ]; then
-        echo 'passed' >${Results_File}
-    else
-        echo 'passed'
-    fi
+    _atf_create_resfile passed
 }
 
 #
@@ -271,11 +263,7 @@ atf_set()
 #
 atf_skip()
 {
-    if [ -n "${Results_File}" ]; then
-        echo 'skipped:' "${@}" >${Results_File}
-    else
-        echo 'skipped:' "${@}"
-    fi
+    _atf_create_resfile skipped "${@}"
     exit 0
 }
 
@@ -335,6 +323,28 @@ _atf_config_set_from_str()
     _val="${@}"
     IFS=${_oldifs}
     _atf_config_set "${_var}" "${_val}"
+}
+
+#
+# _atf_create_resfile result [reason ...]
+#
+#   Creates the results file.
+#
+_atf_create_resfile()
+{
+    _result="${1}"; shift
+    if [ ${#} -gt 0 ]; then
+        _reason=": ${*}"
+    else
+        _reason=""
+    fi
+
+    if [ -n "${Results_File}" ]; then
+        echo "${_result}${_reason}" >"${Results_File}" || \
+            _atf_error 128 "Cannot create results file '${Results_File}'"
+    else
+        echo "${_result}${_reason}"
+    fi
 }
 
 #

@@ -32,6 +32,9 @@ and stderr of commands.</para></listitem>
 multiple checkers for stdout and stderr, not only one, and to allow negating
 the checks by prefixing them by <literal>not-</literal>.</para></listitem>
 
+<listitem><para>Modified the exit checks in <literal>atf-check</literal> to
+support checking for the reception of signals.</para></listitem>
+
 <listitem><para>Removed the <literal>atf-cleanup</literal> tool.  It has
 been unused since the test case isolation was moved to
 <literal>atf-run</literal> in 0.8</para></listitem>

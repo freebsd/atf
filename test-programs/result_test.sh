@@ -71,10 +71,38 @@ result_to_file_body()
     done
 }
 
+atf_test_case result_to_file_fail
+result_to_file_fail_head()
+{
+    atf_set "descr" "Tests controlled failure if the test program fails to" \
+        "create the results file"
+    atf_set "use.fs" "true"
+}
+result_to_file_fail_body()
+{
+    mkdir dir
+    chmod 444 dir
+
+    srcdir="$(atf_get_srcdir)"
+
+    for h in $(get_helpers c_helpers cpp_helpers); do
+        atf_check -s signal -o ignore \
+            -e match:"FATAL ERROR: Cannot create.*'dir/resfile'" \
+            "${h}" -s "${srcdir}" -r dir/resfile result_pass
+    done
+
+    for h in $(get_helpers sh_helpers); do
+        atf_check -s exit -o ignore \
+            -e match:"ERROR: Cannot create.*'dir/resfile'" \
+            "${h}" -s "${srcdir}" -r dir/resfile result_pass
+    done
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case result_on_stdout
     atf_add_test_case result_to_file
+    atf_add_test_case result_to_file_fail
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
