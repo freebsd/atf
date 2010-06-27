@@ -77,18 +77,9 @@ class tps_reader : protected impl::atf_tps_reader {
     }
 
     void
-    got_tc_end(const atf::tests::tcr& tcr)
+    got_tc_end(const std::string& state, const std::string& reason)
     {
-        std::string r;
-        if (tcr.get_state() == atf::tests::tcr::passed_state)
-            r = "passed";
-        else if (tcr.get_state() == atf::tests::tcr::failed_state)
-            r = "failed, " + tcr.get_reason();
-        else if (tcr.get_state() == atf::tests::tcr::skipped_state)
-            r = "skipped, " + tcr.get_reason();
-        else
-            UNREACHABLE;
-
+        const std::string r = state + (reason.empty() ? "" : ", " + reason);
         m_calls.push_back("got_tc_end(" + r + ")");
     }
 

@@ -84,7 +84,7 @@ public:
     virtual void write_tc_start(const std::string&) {}
     virtual void write_tc_stdout_line(const std::string&) {}
     virtual void write_tc_stderr_line(const std::string&) {}
-    virtual void write_tc_end(const atf::tests::tcr&) {}
+    virtual void write_tc_end(const std::string&, const std::string&) {}
     virtual void write_eof(void) {}
 };
 
@@ -143,21 +143,15 @@ public:
 
     virtual
     void
-    write_tc_end(const atf::tests::tcr& tcr)
+    write_tc_end(const std::string& state, const std::string& reason)
     {
-        std::string str = "tc, ";
-        if (tcr.get_state() == atf::tests::tcr::passed_state) {
-            str += m_tpname + ", " + m_tcname + ", passed";
-        } else if (tcr.get_state() == atf::tests::tcr::failed_state) {
-            str += m_tpname + ", " + m_tcname + ", failed, " +
-                   tcr.get_reason();
-            m_failed = true;
-        } else if (tcr.get_state() == atf::tests::tcr::skipped_state) {
-            str += m_tpname + ", " + m_tcname + ", skipped, " +
-                   tcr.get_reason();
-        } else
-            UNREACHABLE;
+        std::string str = "tc, " + m_tpname + ", " + m_tcname + ", " + state;
+        if (!reason.empty())
+            str += ", " + reason;
         (*m_os) << str << std::endl;
+
+        if (state == "failed")
+            m_failed = true;
     }
 };
 
@@ -247,20 +241,19 @@ class ticker_writer : public writer {
     }
 
     void
-    write_tc_end(const atf::tests::tcr& tcr)
+    write_tc_end(const std::string& state, const std::string& reason)
     {
         std::string str;
 
-        atf::tests::tcr::state s = tcr.get_state();
-        if (s == atf::tests::tcr::passed_state) {
+        if (state == "passed") {
             str = "Passed.";
             m_tcs_passed++;
-        } else if (s == atf::tests::tcr::failed_state) {
-            str = "Failed: " + tcr.get_reason();
+        } else if (state == "failed") {
+            str = "Failed: " + reason;
             m_tcs_failed++;
             m_failed_tcs.push_back(m_tpname + ":" + m_tcname);
-        } else if (s == atf::tests::tcr::skipped_state) {
-            str = "Skipped: " + tcr.get_reason();
+        } else if (state == "skipped") {
+            str = "Skipped: " + reason;
             m_tcs_skipped++;
         } else
             UNREACHABLE;
@@ -405,18 +398,17 @@ class xml_writer : public writer {
     }
 
     void
-    write_tc_end(const atf::tests::tcr& tcr)
+    write_tc_end(const std::string& state, const std::string& reason)
     {
         std::string str;
 
-        atf::tests::tcr::state s = tcr.get_state();
-        if (s == atf::tests::tcr::passed_state) {
+        if (state == "passed") {
             (*m_os) << "<passed />" << std::endl;
-        } else if (s == atf::tests::tcr::failed_state) {
-            (*m_os) << "<failed>" << elemval(tcr.get_reason())
+        } else if (state == "failed") {
+            (*m_os) << "<failed>" << elemval(reason)
                     << "</failed>" << std::endl;
-        } else if (s == atf::tests::tcr::skipped_state) {
-            (*m_os) << "<skipped>" << elemval(tcr.get_reason())
+        } else if (state == "skipped") {
+            (*m_os) << "<skipped>" << elemval(reason)
                     << "</skipped>" << std::endl;
         } else
             UNREACHABLE;
@@ -515,11 +507,11 @@ class converter : public atf::atf_report::atf_tps_reader {
     }
 
     void
-    got_tc_end(const atf::tests::tcr& tcr)
+    got_tc_end(const std::string& state, const std::string& reason)
     {
         for (outs_vector::iterator iter = m_outs.begin();
              iter != m_outs.end(); iter++)
-            (*iter)->write_tc_end(tcr);
+            (*iter)->write_tc_end(state, reason);
     }
 
     void
