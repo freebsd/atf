@@ -202,6 +202,27 @@ ATF_TEST_CASE_BODY(expect_death_but_pass)
     expect_death("Call won't die");
 }
 
+ATF_TEST_CASE(expect_timeout_and_hang);
+ATF_TEST_CASE_HEAD(expect_timeout_and_hang)
+{
+    set_md_var("timeout", "1");
+}
+ATF_TEST_CASE_BODY(expect_timeout_and_hang)
+{
+    expect_timeout("Will overrun");
+    ::sleep(5);
+}
+
+ATF_TEST_CASE(expect_timeout_but_pass);
+ATF_TEST_CASE_HEAD(expect_timeout_but_pass)
+{
+    set_md_var("timeout", "1");
+}
+ATF_TEST_CASE_BODY(expect_timeout_but_pass)
+{
+    expect_timeout("Will just exit");
+}
+
 // ------------------------------------------------------------------------
 // Helper tests for "t_fork".
 // ------------------------------------------------------------------------
@@ -338,6 +359,8 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, expect_death_and_exit);
     ATF_ADD_TEST_CASE(tcs, expect_death_and_signal);
     ATF_ADD_TEST_CASE(tcs, expect_death_but_pass);
+    ATF_ADD_TEST_CASE(tcs, expect_timeout_and_hang);
+    ATF_ADD_TEST_CASE(tcs, expect_timeout_but_pass);
 
     // Add helper tests for t_fork.
     ATF_ADD_TEST_CASE(tcs, fork_stop);

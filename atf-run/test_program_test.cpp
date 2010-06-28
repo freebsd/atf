@@ -853,6 +853,17 @@ ATF_TEST_CASE_BODY(parse_test_case_result_expected_signal) {
                     detail::parse_test_case_result("expected_signal("));
 }
 
+ATF_TEST_CASE_WITHOUT_HEAD(parse_test_case_result_expected_timeout);
+ATF_TEST_CASE_BODY(parse_test_case_result_expected_timeout) {
+    check_result("expected_timeout", -1, "foo bar",
+                 detail::parse_test_case_result("expected_timeout: foo bar"));
+
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("expected_timeout"));
+    ATF_CHECK_THROW(std::runtime_error,
+                    detail::parse_test_case_result("expected_timeout(3): foo"));
+}
+
 ATF_TEST_CASE_WITHOUT_HEAD(parse_test_case_result_failed);
 ATF_TEST_CASE_BODY(parse_test_case_result_failed) {
     check_result("failed", -1, "foo bar",
@@ -991,6 +1002,7 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, parse_test_case_result_expected_exit);
     ATF_ADD_TEST_CASE(tcs, parse_test_case_result_expected_failure);
     ATF_ADD_TEST_CASE(tcs, parse_test_case_result_expected_signal);
+    ATF_ADD_TEST_CASE(tcs, parse_test_case_result_expected_timeout);
     ATF_ADD_TEST_CASE(tcs, parse_test_case_result_failed);
     ATF_ADD_TEST_CASE(tcs, parse_test_case_result_passed);
     ATF_ADD_TEST_CASE(tcs, parse_test_case_result_skipped);

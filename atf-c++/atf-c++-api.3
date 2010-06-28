@@ -26,7 +26,7 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd June 27, 2010
+.Dd June 28, 2010
 .Dt ATF-C++-API 3
 .Os
 .Sh NAME
@@ -286,6 +286,8 @@ is not
 will validate that the signal that terminated the test case matches the one
 provided in this call.
 Otherwise, the exact value will be ignored.
+.It Fn expect_timeout "reason"
+Expects the test case to execute for longer than its timeout.
 .El
 .Ss Helper macros for common checks
 The library provides several macros that are very handy in multiple

@@ -376,6 +376,27 @@ ATF_TC_BODY(expect_death_but_pass, tc)
     atf_tc_expect_death("Call won't die");
 }
 
+ATF_TC(expect_timeout_and_hang);
+ATF_TC_HEAD(expect_timeout_and_hang, tc)
+{
+    atf_tc_set_md_var(tc, "timeout", "1");
+}
+ATF_TC_BODY(expect_timeout_and_hang, tc)
+{
+    atf_tc_expect_timeout("Will overrun");
+    sleep(5);
+}
+
+ATF_TC(expect_timeout_but_pass);
+ATF_TC_HEAD(expect_timeout_but_pass, tc)
+{
+    atf_tc_set_md_var(tc, "timeout", "1");
+}
+ATF_TC_BODY(expect_timeout_but_pass, tc)
+{
+    atf_tc_expect_timeout("Will just exit");
+}
+
 /* ---------------------------------------------------------------------
  * Helper tests for "t_fork".
  * --------------------------------------------------------------------- */
@@ -532,6 +553,8 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, expect_death_and_exit);
     ATF_TP_ADD_TC(tp, expect_death_and_signal);
     ATF_TP_ADD_TC(tp, expect_death_but_pass);
+    ATF_TP_ADD_TC(tp, expect_timeout_and_hang);
+    ATF_TP_ADD_TC(tp, expect_timeout_but_pass);
 
     /* Add helper tests for t_fork. */
     ATF_TP_ADD_TC(tp, fork_stop);

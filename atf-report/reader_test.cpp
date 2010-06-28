@@ -399,7 +399,7 @@ ATF_TEST_CASE_BODY(tps_6)
         "Content-Type: application/X-atf-tps; version=\"2\"\n"
         "\n"
         "tps-count: 1\n"
-        "tp-start: the-prog, 7\n"
+        "tp-start: the-prog, 8\n"
         "tc-start: one\n"
         "tc-end: one, expected_death, The reason\n"
         "tc-start: two\n"
@@ -414,13 +414,15 @@ ATF_TEST_CASE_BODY(tps_6)
         "tc-end: six, passed\n"
         "tc-start: seven\n"
         "tc-end: seven, skipped, Skipping it\n"
+        "tc-start: eight\n"
+        "tc-end: eight, expected_timeout, Some hang reason\n"
         "tp-end: the-prog\n"
     ;
 
     // NO_CHECK_STYLE_BEGIN
     const char* exp_calls[] = {
         "got_ntps(1)",
-        "got_tp_start(the-prog, 7)",
+        "got_tp_start(the-prog, 8)",
         "got_tc_start(one)",
         "got_tc_end(expected_death, The reason)",
         "got_tc_start(two)",
@@ -435,6 +437,8 @@ ATF_TEST_CASE_BODY(tps_6)
         "got_tc_end(passed)",
         "got_tc_start(seven)",
         "got_tc_end(skipped, Skipping it)",
+        "got_tc_start(eight)",
+        "got_tc_end(expected_timeout, Some hang reason)",
         "got_tp_end()",
         "got_eof()",
         NULL
@@ -623,7 +627,7 @@ ATF_TEST_CASE_BODY(tps_55)
         "13: Unexpected token `<<NEWLINE>>'; expected test case name",
         "15: Test case name used in terminator does not match opening",
         "17: Unexpected token `<<NEWLINE>>'; expected `,'",
-        "19: Unexpected token `<<NEWLINE>>'; expected expected_{death,exit,failure,signal}, failed, passed or skipped",
+        "19: Unexpected token `<<NEWLINE>>'; expected expected_{death,exit,failure,signal,timeout}, failed, passed or skipped",
         "20: Unexpected token `tp-end'; expected start of test case",
         NULL
     };
@@ -664,7 +668,7 @@ ATF_TEST_CASE_BODY(tps_56)
 
     // NO_CHECK_STYLE_BEGIN
     const char* exp_errors[] = {
-        "6: Unexpected token `passe'; expected expected_{death,exit,failure,signal}, failed, passed or skipped",
+        "6: Unexpected token `passe'; expected expected_{death,exit,failure,signal,timeout}, failed, passed or skipped",
         "8: Unexpected token `,'; expected new line",
         "10: Unexpected token `<<NEWLINE>>'; expected `,'",
         "12: Empty reason for failed test case result",

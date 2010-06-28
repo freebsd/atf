@@ -334,7 +334,7 @@ handle_result_with_reason(const std::string& state, const std::string& arg,
                           const std::string& reason)
 {
     PRE(state == "expected_death" || state == "expected_failure" ||
-        state == "failed" || state == "skipped");
+        state == "expected_timeout" || state == "failed" || state == "skipped");
 
     if (!arg.empty() || reason.empty())
         throw std::runtime_error("The test case result '" + state + "' must "
@@ -511,6 +511,8 @@ detail::parse_test_case_result(const std::string& line)
         return handle_result_with_reason(state, arg, reason);
     else if (state.compare(0, 15, "expected_signal") == 0)
         return handle_result_with_reason_and_arg(state, arg, reason);
+    else if (state.compare(0, 16, "expected_timeout") == 0)
+        return handle_result_with_reason(state, arg, reason);
     else if (state == "failed")
         return handle_result_with_reason(state, arg, reason);
     else if (state == "passed")

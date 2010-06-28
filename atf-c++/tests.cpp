@@ -357,6 +357,12 @@ impl::tc::expect_death(const std::string& reason)
     atf_tc_expect_death("%s", reason.c_str());
 }
 
+void
+impl::tc::expect_timeout(const std::string& reason)
+{
+    atf_tc_expect_timeout("%s", reason.c_str());
+}
+
 // ------------------------------------------------------------------------
 // The "tp" class.
 // ------------------------------------------------------------------------

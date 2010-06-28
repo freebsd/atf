@@ -163,6 +163,19 @@ atf_expect_death()
 }
 
 #
+# atf_expect_timeout reason
+#
+#   Sets the expectations to 'timeout'.
+#
+atf_expect_timeout()
+{
+    _atf_validate_expect
+
+    Expect=timeout
+    _atf_create_resfile expected_timeout -1 "${@}"
+}
+
+#
 # atf_expect_exit exitcode reason
 #
 #   Sets the expectations to 'exit'.
@@ -801,6 +814,10 @@ _atf_validate_expect()
             Expect=pass
             atf_fail "Test case was expected to receive a termination signal" \
                 "but it continued execution"
+            ;;
+        timeout)
+            Expect=pass
+            atf_fail "Test case was expected to hang but it continued execution"
             ;;
         *)
             _atf_error 128 "Unreachable"

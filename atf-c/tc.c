@@ -53,6 +53,7 @@ enum expect_type {
     EXPECT_EXIT,
     EXPECT_SIGNAL,
     EXPECT_DEATH,
+    EXPECT_TIMEOUT,
 };
 
 struct context {
@@ -245,6 +246,9 @@ validate_expect(struct context *ctx)
     } else if (ctx->expect == EXPECT_SIGNAL) {
         error_in_expect(ctx, "Test case was expected to receive a termination "
             "signal but it continued execution");
+    } else if (ctx->expect == EXPECT_TIMEOUT) {
+        error_in_expect(ctx, "Test case was expected to hang but it continued "
+            "execution");
     } else
         UNREACHABLE;
 }
@@ -872,6 +876,22 @@ _atf_tc_expect_death(struct context *ctx, const char *reason, va_list ap)
     create_resfile(ctx->resfile, "expected_death", -1, &formatted);
 }
 
+static void
+_atf_tc_expect_timeout(struct context *ctx, const char *reason, va_list ap)
+{
+    va_list ap2;
+    atf_dynstr_t formatted;
+
+    validate_expect(ctx);
+
+    ctx->expect = EXPECT_TIMEOUT;
+    va_copy(ap2, ap);
+    check_fatal_error(atf_dynstr_init_ap(&formatted, reason, ap2));
+    va_end(ap2);
+
+    create_resfile(ctx->resfile, "expected_timeout", -1, &formatted);
+}
+
 /* ---------------------------------------------------------------------
  * Free functions.
  * --------------------------------------------------------------------- */
@@ -1079,5 +1099,17 @@ atf_tc_expect_death(const char *reason, ...)
 
     va_start(ap, reason);
     _atf_tc_expect_death(&Current, reason, ap);
+    va_end(ap);
+}
+
+void
+atf_tc_expect_timeout(const char *reason, ...)
+{
+    va_list ap;
+
+    PRE(Current.tc != NULL);
+
+    va_start(ap, reason);
+    _atf_tc_expect_timeout(&Current, reason, ap);
     va_end(ap);
 }

@@ -113,6 +113,7 @@ void atf_tc_expect_fail(const char *, ...);
 void atf_tc_expect_exit(const int, const char *, ...);
 void atf_tc_expect_signal(const int, const char *, ...);
 void atf_tc_expect_death(const char *, ...);
+void atf_tc_expect_timeout(const char *, ...);
 
 /* To be run from test case bodies only; internal to macros.h. */
 void atf_tc_fail_check(const char *, const size_t, const char *, ...);

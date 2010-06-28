@@ -137,6 +137,8 @@ tc, expect_helpers, pass_but_fail_requirement, failed, Some reason
 tc, expect_helpers, signal_any_and_signal, expected_signal, Call will signal
 tc, expect_helpers, signal_but_pass, failed, Test case was expected to receive a termination signal but it continued execution
 tc, expect_helpers, signal_no_and_signal, expected_signal, Call will signal
+tc, expect_helpers, timeout_and_hang, expected_timeout, Will overrun
+tc, expect_helpers, timeout_but_pass, failed, Test case was expected to hang but it continued execution
 tp, expect_helpers, failed
 EOF
 # NO_CHECK_STYLE_END
