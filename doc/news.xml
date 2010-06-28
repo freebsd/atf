@@ -24,6 +24,13 @@
 
 <itemizedlist>
 
+<listitem><para>Added <emphasis>expected failures</emphasis> support to test
+cases and <literal>atf-run</literal>.  These include, for example, expected
+clean exits, expected reception of fatal signals, expected timeouts and
+expected errors in condition checks.  These statuses can be used to denote
+test cases that are known to fail due to a bug in the code they are
+testing.</para></listitem>
+
 <listitem><para>Added the <literal>match</literal> output checker to
 <literal>atf-check</literal> to look for regular expressions in the stdout
 and stderr of commands.</para></listitem>
