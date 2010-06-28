@@ -35,6 +35,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "atf-c/defs.h"
 #include "atf-c/env.h"
 #include "atf-c/error.h"
 #include "atf-c/fs.h"
@@ -70,18 +71,24 @@ struct context {
 static void context_init(struct context *, const atf_tc_t *,
                          const atf_fs_path_t *);
 static void check_fatal_error(atf_error_t);
-static void report_fatal_error(const char *, ...);
+static void report_fatal_error(const char *, ...)
+    ATF_DEFS_ATTRIBUTE_NORETURN;
 static atf_error_t write_resfile(FILE *, const char *, const int,
                                  const atf_dynstr_t *);
 static void create_resfile(const atf_fs_path_t *, const char *, const int,
                            atf_dynstr_t *);
-static void error_in_expect(struct context *, const char *, ...);
+static void error_in_expect(struct context *, const char *, ...)
+    ATF_DEFS_ATTRIBUTE_NORETURN;
 static void validate_expect(struct context *);
-static void expected_failure(struct context *, atf_dynstr_t *);
-static void fail_requirement(struct context *, atf_dynstr_t *);
+static void expected_failure(struct context *, atf_dynstr_t *)
+    ATF_DEFS_ATTRIBUTE_NORETURN;
+static void fail_requirement(struct context *, atf_dynstr_t *)
+    ATF_DEFS_ATTRIBUTE_NORETURN;
 static void fail_check(struct context *, atf_dynstr_t *);
-static void pass(struct context *);
-static void skip(struct context *, atf_dynstr_t *);
+static void pass(struct context *)
+    ATF_DEFS_ATTRIBUTE_NORETURN;
+static void skip(struct context *, atf_dynstr_t *)
+    ATF_DEFS_ATTRIBUTE_NORETURN;
 static void format_reason_ap(atf_dynstr_t *, const char *, const size_t,
                              const char *, va_list);
 static void format_reason_fmt(atf_dynstr_t *, const char *, const size_t,
@@ -668,6 +675,30 @@ atf_tc_set_md_var(atf_tc_t *tc, const char *name, const char *fmt, ...)
 /* ---------------------------------------------------------------------
  * Free functions, as they should be publicly but they can't.
  * --------------------------------------------------------------------- */
+
+static void _atf_tc_fail(struct context *, const char *, va_list)
+    ATF_DEFS_ATTRIBUTE_NORETURN;
+static void _atf_tc_fail_nonfatal(struct context *, const char *, va_list);
+static void _atf_tc_fail_check(struct context *, const char *, const size_t,
+    const char *, va_list);
+static void _atf_tc_fail_requirement(struct context *, const char *,
+    const size_t, const char *, va_list) ATF_DEFS_ATTRIBUTE_NORETURN;
+static void _atf_tc_pass(struct context *) ATF_DEFS_ATTRIBUTE_NORETURN;
+static void _atf_tc_require_prog(struct context *, const char *);
+static void _atf_tc_skip(struct context *, const char *, va_list)
+    ATF_DEFS_ATTRIBUTE_NORETURN;
+static void _atf_tc_check_errno(struct context *, const char *, const size_t,
+    const int, const char *, const bool);
+static void _atf_tc_require_errno(struct context *, const char *, const size_t,
+    const int, const char *, const bool);
+static void _atf_tc_expect_pass(struct context *);
+static void _atf_tc_expect_fail(struct context *, const char *, va_list);
+static void _atf_tc_expect_exit(struct context *, const int, const char *,
+    va_list);
+static void _atf_tc_expect_signal(struct context *, const int, const char *,
+    va_list);
+static void _atf_tc_expect_death(struct context *, const char *,
+    va_list);
 
 static void
 _atf_tc_fail(struct context *ctx, const char *fmt, va_list ap)
