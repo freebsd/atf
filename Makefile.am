@@ -41,8 +41,8 @@ noinst_LTLIBRARIES =
 ACLOCAL_AMFLAGS = -I m4
 
 include admin/Makefile.am.inc
-include atf-c++/Makefile.am.inc
 include atf-c/Makefile.am.inc
+include atf-c++/Makefile.am.inc
 include atf-check/Makefile.am.inc
 include atf-config/Makefile.am.inc
 include atf-report/Makefile.am.inc
