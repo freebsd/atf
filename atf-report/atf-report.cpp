@@ -174,6 +174,7 @@ class ticker_writer : public writer {
     size_t m_tcs_passed, m_tcs_failed, m_tcs_skipped, m_tcs_expected_failures;
     std::string m_tcname, m_tpname;
     std::vector< std::string > m_failed_tcs;
+    std::vector< std::string > m_expected_failures_tcs;
     std::vector< std::string > m_failed_tps;
 
     void
@@ -247,9 +248,11 @@ class ticker_writer : public writer {
         std::string str;
 
         if (state == "expected_death" || state == "expected_exit" ||
-            state == "expected_failure" || state == "expected_signal") {
+            state == "expected_failure" || state == "expected_signal" ||
+            state == "expected_timeout") {
             str = "Expected failure: " + reason;
             m_tcs_expected_failures++;
+            m_expected_failures_tcs.push_back(m_tpname + ":" + m_tcname);
         } else if (state == "failed") {
             str = "Failed: " + reason;
             m_tcs_failed++;
@@ -283,6 +286,13 @@ class ticker_writer : public writer {
             (*m_os) << format_text("Failed (bogus) test programs:")
                     << std::endl;
             (*m_os) << format_text_with_tag(join(m_failed_tps, ", "),
+                                            "    ", false) << std::endl
+                    << std::endl;
+        }
+
+        if (!m_expected_failures_tcs.empty()) {
+            (*m_os) << format_text("Test cases for known bugs:") << std::endl;
+            (*m_os) << format_text_with_tag(join(m_expected_failures_tcs, ", "),
                                             "    ", false) << std::endl
                     << std::endl;
         }
@@ -338,8 +348,6 @@ class xml_writer : public writer {
 
     size_t m_curtp, m_ntps;
     std::string m_tcname, m_tpname;
-    std::vector< std::string > m_failed_tcs;
-    std::vector< std::string > m_failed_tps;
 
     static
     std::string
@@ -410,7 +418,12 @@ class xml_writer : public writer {
     {
         std::string str;
 
-        if (state == "passed") {
+        if (state == "expected_death" || state == "expected_exit" ||
+            state == "expected_failure" || state == "expected_signal" ||
+            state == "expected_timeout") {
+            (*m_os) << "<" << state << ">" << elemval(reason)
+                    << "</" << state << ">" << std::endl;
+        } else if (state == "passed") {
             (*m_os) << "<passed />" << std::endl;
         } else if (state == "failed") {
             (*m_os) << "<failed>" << elemval(reason)
