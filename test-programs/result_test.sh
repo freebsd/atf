@@ -76,6 +76,7 @@ result_to_file_fail_head()
 {
     atf_set "descr" "Tests controlled failure if the test program fails to" \
         "create the results file"
+    atf_set "require.user" "unprivileged"
     atf_set "use.fs" "true"
 }
 result_to_file_fail_body()
