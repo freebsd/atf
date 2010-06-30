@@ -22,40 +22,94 @@
 
 <para>STILL UNDER DEVELOPMENT; NOT RELEASED YET.</para>
 
+<section id="atf-0-10-tests">
+<title>Miscellaneous features</title>
+
 <itemizedlist>
 
-<listitem><para>Added <emphasis>expected failures</emphasis> support to test
-cases and <literal>atf-run</literal>.  These include, for example, expected
-clean exits, expected reception of fatal signals, expected timeouts and
-expected errors in condition checks.  These statuses can be used to denote
-test cases that are known to fail due to a bug in the code they are
-testing.</para></listitem>
+<listitem><para>Added <emphasis>expected failures</emphasis> support to
+test cases and <literal>atf-run</literal>.  These include, for example,
+expected clean exits, expected reception of fatal signals, expected
+timeouts and expected errors in condition checks.  These statuses can be
+used to denote test cases that are known to fail due to a bug in the code
+they are testing.  <literal>atf-report</literal> reports these tests
+separately but they do not count towards the failed test cases
+amount.</para></listitem>
+
+<listitem><para>Added the <literal>ATF_CHECK_ERRNO</literal> and
+<literal>ATF_REQUIRE_ERRNO</literal> to the C library to allow easy checking
+of call failures that update <literal>errno</literal>.</para></listitem>
+
+<listitem><para>Added the <literal>has.cleanup</literal> meta-data property
+to test caes that specifies whether the test case has a cleanup routine or
+not; its value is automatically set.  This property is read by
+<literal>atf-run</literal> to know if it has to run the cleanup routine;
+skipping this run for every test case significantly speeds up the run time
+of test suites.</para></listitem>
+
+<listitem><para>Reversed the order of the
+<literal>ATF_CHECK_THROW</literal> macro in the C++ binding to take the
+expected exception as the first argument and the statement to execute as
+the second argument.</para></listitem>
+
+</itemizedlist>
+
+</section>
+
+<section id="atf-0-10-atf-check">
+<title>Changes in atf-check</title>
+
+<itemizedlist>
+
+<listitem><para>Changed <literal>atf-check</literal> to support negating
+the status and output checks by prefixing them with <literal>not-</literal>
+and added support to specify multiple checkers for stdout and stderr, not
+only one.</para></listitem>
 
 <listitem><para>Added the <literal>match</literal> output checker to
 <literal>atf-check</literal> to look for regular expressions in the stdout
 and stderr of commands.</para></listitem>
 
-<listitem><para>Changed <literal>atf-check</literal> to support specifying
-multiple checkers for stdout and stderr, not only one, and to allow negating
-the checks by prefixing them by <literal>not-</literal>.</para></listitem>
-
 <listitem><para>Modified the exit checks in <literal>atf-check</literal> to
 support checking for the reception of signals.</para></listitem>
 
-<listitem><para>Removed the <literal>atf-cleanup</literal> tool.  It has
-been unused since the test case isolation was moved to
+</itemizedlist>
+
+</section>
+
+<section id="atf-0-10-cleanups">
+<title>Code simplifications and cleanups</title>
+
+<itemizedlist>
+
+<listitem><para>Removed usage messages from test programs to simplify the
+implementation of every binding by a significant amount.  They just now
+refer the user to the appropriate manual page and do not attempt to wrap
+lines on terminal boundaries.  Test programs are not supposed to be run by
+users directly so this minor interface regression is not
+important.</para></listitem>
+
+<listitem><para>Removed the <literal>atf-format</literal> internal utility,
+which is unused after the change documented above.</para></listitem>
+
+<listitem><para>Removed the <literal>atf-cleanup</literal> internal
+utility.  It has been unused since the test case isolation was moved to
 <literal>atf-run</literal> in 0.8</para></listitem>
 
-<listitem><para>Test cases now export a <literal>has.cleanup</literal>
-meta-data property that specifies whether the test case has a cleanup
-routine or not; its value is automatically set.  The property is read by
-<literal>atf-run</literal> to know if it has to run the cleanup routine,
-which significantly speeds up the runtime of test suites.</para></listitem>
+<listitem><para>Splitted the <filename>Makefile.am</filename> into smaller
+files for easier maintenance and dropped the use of M4.  Only affects users
+building from the repository sources.</para></listitem>
+
+<listitem><para>Intermixed tests with the source files in the source tree
+to provide them more visibility and easier access.  The
+<literal>tests</literal> directory is gone from the source tree and tests
+are now suffixed by <literal>_test</literal>, not prefixed by
+<literal>t_</literal>.</para></listitem>
 
 <listitem><para>Simplifications to the <literal>atf-c</literal> library:
 removed the <literal>io</literal>, <literal>tcr</literal> and
 <literal>ui</literal> modules as they had become unnecessary after all
-simplifications introduced in the 0.8 and this release.</para></listitem>
+simplifications introduced since the 0.8 release.</para></listitem>
 
 <listitem><para>Removed the <literal>application/X-atf-tcr</literal> format
 introduced in 0.8 release.  Tests now print a much simplified format that
@@ -64,33 +118,9 @@ default for test cases is now to print their results to stdout unless
 otherwise stated by providing the <literal>-r</literal>
 flag.</para></listitem>
 
-<listitem><para>Reversed the order of the
-<literal>ATF_CHECK_THROW</literal> macro in the C++ binding to take the
-expected exception as the first argument and the statement to execute as
-the second argument.</para></listitem>
-
-<listitem><para>Splitted the <filename>Makefile.am</filename> into smaller
-files for easier maintenance and dropped the use of M4.</para></listitem>
-
-<listitem><para>Removed usage messages from test programs to simplify the
-implementation of every binding by a significant amount.  They just now
-refer the user to the appropriate manual page.  And, anyway, test programs
-are not supposed to be run by users directly.</para></listitem>
-
-<listitem><para>Removed the <command>atf-format</command> internal utility,
-which is unused after previous change.</para></listitem>
-
-<listitem><para>Added the <literal>ATF_CHECK_ERRNO</literal> and
-<literal>ATF_REQUIRE_ERRNO</literal> to the C library to allow easy checking
-of call failures that update <literal>errno</literal>.</para></listitem>
-
-<listitem><para>Intermixed tests with the source files in the source tree
-to provide them more visibility and easier access.  The
-<literal>tests</literal> directory is gone from the source tree and tests
-are now suffixed by <literal>_test</literal>, not prefixed by
-<literal>t_</literal>.</para></listitem>
-
 </itemizedlist>
+
+</section>
 
 </section>
 
