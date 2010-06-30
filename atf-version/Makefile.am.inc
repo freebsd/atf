@@ -33,12 +33,22 @@ atf_version_atf_version_SOURCES = atf-version/atf-version.cpp \
 atf_version_atf_version_LDADD = libatf-c++.la
 dist_man_MANS += atf-version/atf-version.1
 
+EXTRA_DIST += atf-version/generate-revision.sh
+
 BUILT_SOURCES += atf-version/revision.h
-atf-version/revision.h: admin/revision.h @target_srcdir@admin/revision-dist.h
-	@$(top_srcdir)/admin/choose-revision.sh \
-	    admin/revision.h $(srcdir)/admin/revision-dist.h \
-	    atf-version/revision.h
 CLEANFILES += atf-version/revision.h
+atf-version/revision.h: atf-version/revision.h.stamp
+	@test -d atf-version || mkdir -p atf-version
+	@cmp -s atf-version/revision.h atf-version/revision.h.stamp || \
+	    cp -p atf-version/revision.h.stamp atf-version/revision.h
+
+CLEANFILES += atf-version/revision.h.stamp
+.PHONY: atf-version/revision.h.stamp
+atf-version/revision.h.stamp:
+	@test -d atf-version || mkdir -p atf-version
+	@$(top_srcdir)/atf-version/generate-revision.sh \
+	    -m "$(MTN)" -r $(top_srcdir) -o atf-version/revision.h.stamp \
+	    -v $(PACKAGE_VERSION)
 
 hooksdir = $(pkgdatadir)
 hooks_DATA = atf-run/share/atf-run.hooks

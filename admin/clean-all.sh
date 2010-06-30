@@ -62,7 +62,6 @@ rm -f admin/depcomp
 rm -f admin/install-sh
 rm -f admin/ltmain.sh
 rm -f admin/missing
-rm -f admin/revision*
 
 # `m4' directory.
 rm -f m4/libtool.m4

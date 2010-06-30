@@ -2,7 +2,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -58,9 +58,26 @@ call_mtn() {
 # extract_certs rev
 #
 extract_certs() {
-    # TODO: Improve 'mtn automate' so that we don't need this awk dance
-    # to extract the correct values.
-    call_mtn automate certs ${1} | awk -f ${ROOT}/admin/extract-certs.awk
+    call_mtn automate certs ${1} | awk '
+BEGIN {
+    current_cert = ""
+}
+
+/^[ \t]*name "([^"]*)"[ \t]*$/ {
+    current_cert = substr($2, 2, length($2) - 2)
+    next
+}
+
+/^[ \t]*value "([^"]*)"[ \t]*$/ {
+    value = substr($2, 2, length($2) - 2)
+    if (current_cert == "branch") {
+        print "rev_branch=\"" value "\""
+    } else if (current_cert == "date") {
+        print "rev_date=\"" value "\""
+    }
+    next
+}
+'
 }
 
 #
@@ -68,7 +85,9 @@ extract_certs() {
 #
 # Sets the following variables to describe the current revision of the tree:
 #    rev_base_id: The base revision identifier.
+#    rev_branch: The branch name.
 #    rev_modified: true if the tree has been locally modified.
+#    rev_date: The date of the revision.
 #
 get_rev_info_into_vars() {
     rev_base_id=$(call_mtn automate get_base_revision_id)
@@ -84,14 +103,28 @@ get_rev_info_into_vars() {
 }
 
 #
-# generate_h revfile
+# generate_from_dist revfile version
 #
-generate_h() {
+generate_from_dist() {
+    revfile=${1}; shift
+    version=${1}; shift
+
+    >${revfile}
+
+    echo "#define PACKAGE_REVISION_TYPE_DIST" >>${revfile}
+}
+
+#
+# generate_from_mtn revfile
+#
+generate_from_mtn() {
     revfile=${1}
 
     get_rev_info_into_vars
 
     >${revfile}
+
+    echo "#define PACKAGE_REVISION_TYPE_MTN" >>${revfile}
 
     echo "#define PACKAGE_REVISION_BRANCH \"${rev_branch}\"" >>${revfile}
     echo "#define PACKAGE_REVISION_BASE \"${rev_base_id}\"" >>${revfile}
@@ -101,7 +134,6 @@ generate_h() {
     fi
 
     echo "#define PACKAGE_REVISION_DATE \"${rev_date}\"" >>${revfile}
-    echo "#define PACKAGE_REVISION_TIME \"${rev_time}\"" >>${revfile}
 }
 
 #
@@ -110,14 +142,10 @@ generate_h() {
 # Entry point.
 #
 main() {
-    fmt=
     outfile=
     version=
-    while getopts :f:m:r:o:v: arg; do
+    while getopts :m:r:o:v: arg; do
         case ${arg} in
-            f)
-                fmt=${OPTARG}
-                ;;
             m)
                 MTN=${OPTARG}
                 ;;
@@ -137,27 +165,15 @@ main() {
     done
     [ -n "${ROOT}" ] || \
         err "Must specify the top-level source directory with -r"
-    [ -n "${fmt}" ] || \
-        err "Must specify an output format with -f"
     [ -n "${outfile}" ] || \
         err "Must specify an output file with -o"
     [ -n "${version}" ] || \
         err "Must specify a version number with -v"
 
     if [ -n "${MTN}" -a -d ${ROOT}/_MTN ]; then
-        case ${fmt} in
-            h)
-                tmp=$(mktemp -t generate-revision.XXXXXX)
-                generate_${fmt} ${tmp} ${version}
-                cmp -s ${tmp} ${outfile} || cp -p ${tmp} ${outfile}
-                rm -f ${tmp}
-                ;;
-            *)
-                err "Unknown format ${fmt}"
-                ;;
-        esac
+        generate_from_mtn ${outfile}
     else
-        rm -f ${outfile}
+        generate_from_dist ${outfile} ${version}
     fi
 }
 

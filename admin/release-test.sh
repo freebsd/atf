@@ -78,10 +78,10 @@ run_test() {
         echo "ERROR: atf-version reports modified sources"
         return 1
     fi
-    if grep 'data cached' version.txt >/dev/null; then
+    if grep 'no revision information' version.txt >/dev/null; then
         :
     else
-        echo "ERROR: atf-version does not report cached data"
+        echo "ERROR: atf-version does not report dist-only data"
         return 1
     fi
 
