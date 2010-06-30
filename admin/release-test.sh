@@ -34,8 +34,6 @@
 
 set -e
 
-: ${XML_CATALOG_FILE:-/etc/xml/catalog}
-
 Prog_Name=${0##*/}
 
 # err message
@@ -183,15 +181,7 @@ main() {
             count=$((count + 1))
             logfile="${logdir}/${count}.log"
             one_test "${logfile}" "${distpath}" "${make}" "${parallelism}" \
-                ATF_SHELL=/bin/sh \
-                --disable-doc-build || failed=yes
-
-            count=$((count + 1))
-            logfile="${logdir}/${count}.log"
-            one_test "${logfile}" "${distpath}" "${make}" "${parallelism}" \
-                ATF_SHELL=/bin/sh \
-                XML_CATALOG_FILE="${XML_CATALOG_FILE}" \
-                --enable-doc-build || failed=yes
+                ATF_SHELL=/bin/sh || failed=yes
         done
     done
 

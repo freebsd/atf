@@ -46,7 +46,7 @@ AC_CONFIG_TESTDIR([bootstrap])
 
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE([1.9 check-news foreign subdir-objects -Wall])
+AM_INIT_AUTOMAKE([1.9 check-news subdir-objects -Wall])
 
 dnl This is just a hack to reverse the meaning of the --enable-shared
 dnl flag provided by libtool.  We want it to default to building static
@@ -100,10 +100,8 @@ ATF_RUNTIME_TOOL([ATF_BUILD_CXXFLAGS],
                  [C++ compiler flags to use at runtime], [${CXXFLAGS}])
 
 dnl -----------------------------------------------------------------------
-dnl Documentation building.
+dnl Generation of files in srcdir.
 dnl -----------------------------------------------------------------------
-
-ATF_DOC_BUILD
 
 dnl BSD make(1) doesn't deal with targets specified as './foo' well: they
 dnl need to be specified as 'foo'.  The following hack is to workaround this
