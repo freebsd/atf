@@ -153,13 +153,8 @@ main() {
     *) distpath="$(pwd)/${distfile}" ;;
     esac
 
-    require_package docbook-simple
-    require_package libxml2
-    require_package libxslt
-    require_package links
     require_package pkg-config
     require_package sudo
-    require_package tidy
 
     validate_sudo
 
