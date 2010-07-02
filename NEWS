@@ -74,6 +74,14 @@ Code simplifications and cleanups
   now to print their results to stdout unless otherwise stated by providing
   the -r flag.
 
+* Removed XML distribution documents and replaced them with plain-text
+  documents.  They provided little value and introduced a lot of complexity
+  to the build system.
+
+* Simplified the output of atf-version by not attempting to print a
+  revision number when building form a distfile.  Makes the build system
+  easier to maintain.
+
 
 Changes in version 0.9
 **********************
