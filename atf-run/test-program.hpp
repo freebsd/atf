@@ -63,7 +63,7 @@ public:
         return m_state;
     }
 
-    const int
+    int
     value(void) const
     {
         return m_value;

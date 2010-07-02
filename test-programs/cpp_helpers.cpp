@@ -32,6 +32,7 @@ extern "C" {
 #include <unistd.h>
 }
 
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 
@@ -90,7 +91,6 @@ ATF_TEST_CASE_WITHOUT_HEAD(expect_pass_and_pass);
 ATF_TEST_CASE_BODY(expect_pass_and_pass)
 {
     expect_pass();
-
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(expect_pass_but_fail_requirement);
@@ -146,14 +146,14 @@ ATF_TEST_CASE_WITHOUT_HEAD(expect_exit_any_and_exit);
 ATF_TEST_CASE_BODY(expect_exit_any_and_exit)
 {
     expect_exit(-1, "Call will exit");
-    exit(EXIT_SUCCESS);
+    std::exit(EXIT_SUCCESS);
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(expect_exit_code_and_exit);
 ATF_TEST_CASE_BODY(expect_exit_code_and_exit)
 {
     expect_exit(123, "Call will exit");
-    exit(123);
+    std::exit(123);
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(expect_exit_but_pass);
@@ -166,14 +166,14 @@ ATF_TEST_CASE_WITHOUT_HEAD(expect_signal_any_and_signal);
 ATF_TEST_CASE_BODY(expect_signal_any_and_signal)
 {
     expect_signal(-1, "Call will signal");
-    kill(getpid(), SIGKILL);
+    ::kill(getpid(), SIGKILL);
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(expect_signal_no_and_signal);
 ATF_TEST_CASE_BODY(expect_signal_no_and_signal)
 {
     expect_signal(SIGHUP, "Call will signal");
-    kill(getpid(), SIGHUP);
+    ::kill(getpid(), SIGHUP);
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(expect_signal_but_pass);
@@ -186,7 +186,7 @@ ATF_TEST_CASE_WITHOUT_HEAD(expect_death_and_exit);
 ATF_TEST_CASE_BODY(expect_death_and_exit)
 {
     expect_death("Exit case");
-    exit(123);
+    std::exit(123);
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(expect_death_and_signal);
