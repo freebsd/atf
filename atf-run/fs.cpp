@@ -134,8 +134,8 @@ do_unmount(const atf::fs::path& in_path)
     // satf::fser to just leave the system-specific umount(8) tool deal
     // with it, at least for now.
 
-    const atf::fs::path prog("unmount");
-    atf::process::argv_array argv("unmount", abs_path.c_str(), NULL);
+    const atf::fs::path prog("umount");
+    atf::process::argv_array argv("umount", abs_path.c_str(), NULL);
 
     atf::process::status s = atf::process::exec(prog, argv,
         atf::process::stream_inherit(), atf::process::stream_inherit());
