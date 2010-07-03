@@ -73,9 +73,21 @@ dnl -----------------------------------------------------------------------
 AC_LANG(C)
 AC_PROG_CC
 AM_PROG_CC_C_O
+dnl The C compiler check automatically aborts if the compiler does not work.
+dnl Nothing to do here.
 
 AC_LANG(C++)
 AC_PROG_CXX
+AC_CACHE_CHECK([whether the C++ compiler works],
+               [atf_cv_prog_cxx_works],
+               [AC_LANG_PUSH([C++])
+                AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])],
+                               [atf_cv_prog_cxx_works=yes],
+                               [atf_cv_prog_cxx_works=no])
+                AC_LANG_POP])
+if test "${atf_cv_prog_cxx_works}" = no; then
+    AC_MSG_ERROR([C++ compiler cannot create executables])
+fi
 
 ATF_DEVELOPER_MODE
 
