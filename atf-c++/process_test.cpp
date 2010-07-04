@@ -90,25 +90,25 @@ ATF_TEST_CASE_BODY(argv_array_init_carray)
         const char* const carray[] = { NULL };
         atf::process::argv_array argv(carray);
 
-        ATF_CHECK_EQUAL(argv.size(), 0);
+        ATF_REQUIRE_EQ(argv.size(), 0);
     }
 
     {
         const char* const carray[] = { "arg0", NULL };
         atf::process::argv_array argv(carray);
 
-        ATF_CHECK_EQUAL(argv.size(), 1);
-        ATF_CHECK(std::strcmp(argv[0], carray[0]) == 0);
+        ATF_REQUIRE_EQ(argv.size(), 1);
+        ATF_REQUIRE(std::strcmp(argv[0], carray[0]) == 0);
     }
 
     {
         const char* const carray[] = { "arg0", "arg1", "arg2", NULL };
         atf::process::argv_array argv(carray);
 
-        ATF_CHECK_EQUAL(argv.size(), 3);
-        ATF_CHECK(std::strcmp(argv[0], carray[0]) == 0);
-        ATF_CHECK(std::strcmp(argv[1], carray[1]) == 0);
-        ATF_CHECK(std::strcmp(argv[2], carray[2]) == 0);
+        ATF_REQUIRE_EQ(argv.size(), 3);
+        ATF_REQUIRE(std::strcmp(argv[0], carray[0]) == 0);
+        ATF_REQUIRE(std::strcmp(argv[1], carray[1]) == 0);
+        ATF_REQUIRE(std::strcmp(argv[2], carray[2]) == 0);
     }
 }
 
@@ -124,7 +124,7 @@ ATF_TEST_CASE_BODY(argv_array_init_col)
         std::vector< std::string > col;
         atf::process::argv_array argv(col);
 
-        ATF_CHECK_EQUAL(argv.size(), 0);
+        ATF_REQUIRE_EQ(argv.size(), 0);
     }
 
     {
@@ -132,8 +132,8 @@ ATF_TEST_CASE_BODY(argv_array_init_col)
         col.push_back("arg0");
         atf::process::argv_array argv(col);
 
-        ATF_CHECK_EQUAL(argv.size(), 1);
-        ATF_CHECK_EQUAL(argv[0], col[0]);
+        ATF_REQUIRE_EQ(argv.size(), 1);
+        ATF_REQUIRE_EQ(argv[0], col[0]);
     }
 
     {
@@ -143,10 +143,10 @@ ATF_TEST_CASE_BODY(argv_array_init_col)
         col.push_back("arg2");
         atf::process::argv_array argv(col);
 
-        ATF_CHECK_EQUAL(argv.size(), 3);
-        ATF_CHECK_EQUAL(argv[0], col[0]);
-        ATF_CHECK_EQUAL(argv[1], col[1]);
-        ATF_CHECK_EQUAL(argv[2], col[2]);
+        ATF_REQUIRE_EQ(argv.size(), 3);
+        ATF_REQUIRE_EQ(argv[0], col[0]);
+        ATF_REQUIRE_EQ(argv[1], col[1]);
+        ATF_REQUIRE_EQ(argv[2], col[2]);
     }
 }
 
@@ -160,7 +160,7 @@ ATF_TEST_CASE_BODY(argv_array_init_empty)
 {
     atf::process::argv_array argv;
 
-    ATF_CHECK_EQUAL(argv.size(), 0);
+    ATF_REQUIRE_EQ(argv.size(), 0);
 }
 
 ATF_TEST_CASE(argv_array_init_varargs);
@@ -174,17 +174,17 @@ ATF_TEST_CASE_BODY(argv_array_init_varargs)
     {
         atf::process::argv_array argv("arg0", NULL);
 
-        ATF_CHECK_EQUAL(argv.size(), 1);
-        ATF_CHECK_EQUAL(argv[0], std::string("arg0"));
+        ATF_REQUIRE_EQ(argv.size(), 1);
+        ATF_REQUIRE_EQ(argv[0], std::string("arg0"));
     }
 
     {
         atf::process::argv_array argv("arg0", "arg1", "arg2", NULL);
 
-        ATF_CHECK_EQUAL(argv.size(), 3);
-        ATF_CHECK_EQUAL(argv[0], std::string("arg0"));
-        ATF_CHECK_EQUAL(argv[1], std::string("arg1"));
-        ATF_CHECK_EQUAL(argv[2], std::string("arg2"));
+        ATF_REQUIRE_EQ(argv.size(), 3);
+        ATF_REQUIRE_EQ(argv[0], std::string("arg0"));
+        ATF_REQUIRE_EQ(argv[1], std::string("arg1"));
+        ATF_REQUIRE_EQ(argv[2], std::string("arg2"));
     }
 }
 
@@ -204,15 +204,15 @@ ATF_TEST_CASE_BODY(argv_array_assign)
     std::auto_ptr< argv_array > argv2(new argv_array(carray2));
 
     *argv2 = *argv1;
-    ATF_CHECK_EQUAL(argv2->size(), argv1->size());
-    ATF_CHECK(std::strcmp((*argv2)[0], (*argv1)[0]) == 0);
+    ATF_REQUIRE_EQ(argv2->size(), argv1->size());
+    ATF_REQUIRE(std::strcmp((*argv2)[0], (*argv1)[0]) == 0);
 
-    ATF_CHECK(argv2->exec_argv() != argv1->exec_argv());
+    ATF_REQUIRE(argv2->exec_argv() != argv1->exec_argv());
     argv1.release();
     {
         const char* const* eargv2 = argv2->exec_argv();
-        ATF_CHECK(std::strcmp(eargv2[0], carray1[0]) == 0);
-        ATF_CHECK_EQUAL(eargv2[1], static_cast< const char* >(NULL));
+        ATF_REQUIRE(std::strcmp(eargv2[0], carray1[0]) == 0);
+        ATF_REQUIRE_EQ(eargv2[1], static_cast< const char* >(NULL));
     }
 
     argv2.release();
@@ -233,15 +233,15 @@ ATF_TEST_CASE_BODY(argv_array_copy)
     std::auto_ptr< argv_array > argv1(new argv_array(carray));
     std::auto_ptr< argv_array > argv2(new argv_array(*argv1));
 
-    ATF_CHECK_EQUAL(argv2->size(), argv1->size());
-    ATF_CHECK(std::strcmp((*argv2)[0], (*argv1)[0]) == 0);
+    ATF_REQUIRE_EQ(argv2->size(), argv1->size());
+    ATF_REQUIRE(std::strcmp((*argv2)[0], (*argv1)[0]) == 0);
 
-    ATF_CHECK(argv2->exec_argv() != argv1->exec_argv());
+    ATF_REQUIRE(argv2->exec_argv() != argv1->exec_argv());
     argv1.release();
     {
         const char* const* eargv2 = argv2->exec_argv();
-        ATF_CHECK(std::strcmp(eargv2[0], carray[0]) == 0);
-        ATF_CHECK_EQUAL(eargv2[1], static_cast< const char* >(NULL));
+        ATF_REQUIRE(std::strcmp(eargv2[0], carray[0]) == 0);
+        ATF_REQUIRE_EQ(eargv2[1], static_cast< const char* >(NULL));
     }
 
     argv2.release();
@@ -260,17 +260,17 @@ ATF_TEST_CASE_BODY(argv_array_exec_argv)
     {
         argv_array argv;
         const char* const* eargv = argv.exec_argv();
-        ATF_CHECK_EQUAL(array_size(eargv), 0);
-        ATF_CHECK_EQUAL(eargv[0], static_cast< const char* >(NULL));
+        ATF_REQUIRE_EQ(array_size(eargv), 0);
+        ATF_REQUIRE_EQ(eargv[0], static_cast< const char* >(NULL));
     }
 
     {
         const char* const carray[] = { "arg0", NULL };
         argv_array argv(carray);
         const char* const* eargv = argv.exec_argv();
-        ATF_CHECK_EQUAL(array_size(eargv), 1);
-        ATF_CHECK(std::strcmp(eargv[0], "arg0") == 0);
-        ATF_CHECK_EQUAL(eargv[1], static_cast< const char* >(NULL));
+        ATF_REQUIRE_EQ(array_size(eargv), 1);
+        ATF_REQUIRE(std::strcmp(eargv[0], "arg0") == 0);
+        ATF_REQUIRE_EQ(eargv[1], static_cast< const char* >(NULL));
     }
 
     {
@@ -278,9 +278,9 @@ ATF_TEST_CASE_BODY(argv_array_exec_argv)
         col.push_back("arg0");
         argv_array argv(col);
         const char* const* eargv = argv.exec_argv();
-        ATF_CHECK_EQUAL(array_size(eargv), 1);
-        ATF_CHECK(std::strcmp(eargv[0], "arg0") == 0);
-        ATF_CHECK_EQUAL(eargv[1], static_cast< const char* >(NULL));
+        ATF_REQUIRE_EQ(array_size(eargv), 1);
+        ATF_REQUIRE(std::strcmp(eargv[0], "arg0") == 0);
+        ATF_REQUIRE_EQ(eargv[1], static_cast< const char* >(NULL));
     }
 }
 
@@ -299,11 +299,11 @@ ATF_TEST_CASE_BODY(argv_array_iter)
     vector.push_back("arg2");
 
     argv_array argv(vector);
-    ATF_CHECK_EQUAL(argv.size(), 3);
+    ATF_REQUIRE_EQ(argv.size(), 3);
     std::vector< std::string >::size_type pos = 0;
     for (argv_array::const_iterator iter = argv.begin(); iter != argv.end();
          iter++) {
-        ATF_CHECK_EQUAL(*iter, vector[pos]);
+        ATF_REQUIRE_EQ(*iter, vector[pos]);
         pos++;
     }
 }
@@ -320,8 +320,8 @@ ATF_TEST_CASE_HEAD(exec_failure)
 ATF_TEST_CASE_BODY(exec_failure)
 {
     const atf::process::status s = exec_process_helpers(*this, "exit-failure");
-    ATF_CHECK(s.exited());
-    ATF_CHECK_EQUAL(s.exitstatus(), EXIT_FAILURE);
+    ATF_REQUIRE(s.exited());
+    ATF_REQUIRE_EQ(s.exitstatus(), EXIT_FAILURE);
 }
 
 ATF_TEST_CASE(exec_success);
@@ -332,8 +332,8 @@ ATF_TEST_CASE_HEAD(exec_success)
 ATF_TEST_CASE_BODY(exec_success)
 {
     const atf::process::status s = exec_process_helpers(*this, "exit-success");
-    ATF_CHECK(s.exited());
-    ATF_CHECK_EQUAL(s.exitstatus(), EXIT_SUCCESS);
+    ATF_REQUIRE(s.exited());
+    ATF_REQUIRE_EQ(s.exitstatus(), EXIT_SUCCESS);
 }
 
 // ------------------------------------------------------------------------

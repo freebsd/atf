@@ -99,7 +99,7 @@ ATF_TEST_CASE_BODY(h_build_c_o_ok)
     sfile << "#include <stdio.h>\n";
     sfile.close();
 
-    ATF_CHECK(atf::check::build_c_o(atf::fs::path("test.c"),
+    ATF_REQUIRE(atf::check::build_c_o(atf::fs::path("test.c"),
                                     atf::fs::path("test.o"),
                                     atf::process::argv_array()));
 }
@@ -115,7 +115,7 @@ ATF_TEST_CASE_BODY(h_build_c_o_fail)
     sfile << "void foo(void) { int a = UNDEFINED_SYMBOL; }\n";
     sfile.close();
 
-    ATF_CHECK(!atf::check::build_c_o(atf::fs::path("test.c"),
+    ATF_REQUIRE(!atf::check::build_c_o(atf::fs::path("test.c"),
                                      atf::fs::path("test.o"),
                                      atf::process::argv_array()));
 }
@@ -133,7 +133,7 @@ ATF_TEST_CASE_BODY(h_build_cpp_ok)
     sfile << "A B\n";
     sfile.close();
 
-    ATF_CHECK(atf::check::build_cpp(atf::fs::path("test.c"),
+    ATF_REQUIRE(atf::check::build_cpp(atf::fs::path("test.c"),
                                     atf::fs::path("test.p"),
                                     atf::process::argv_array()));
 }
@@ -149,7 +149,7 @@ ATF_TEST_CASE_BODY(h_build_cpp_fail)
     sfile << "#include \"./non-existent.h\"\n";
     sfile.close();
 
-    ATF_CHECK(!atf::check::build_cpp(atf::fs::path("test.c"),
+    ATF_REQUIRE(!atf::check::build_cpp(atf::fs::path("test.c"),
                                      atf::fs::path("test.p"),
                                      atf::process::argv_array()));
 }
@@ -165,7 +165,7 @@ ATF_TEST_CASE_BODY(h_build_cxx_o_ok)
     sfile << "#include <iostream>\n";
     sfile.close();
 
-    ATF_CHECK(atf::check::build_cxx_o(atf::fs::path("test.cpp"),
+    ATF_REQUIRE(atf::check::build_cxx_o(atf::fs::path("test.cpp"),
                                       atf::fs::path("test.o"),
                                       atf::process::argv_array()));
 }
@@ -181,7 +181,7 @@ ATF_TEST_CASE_BODY(h_build_cxx_o_fail)
     sfile << "void foo(void) { int a = UNDEFINED_SYMBOL; }\n";
     sfile.close();
 
-    ATF_CHECK(!atf::check::build_cxx_o(atf::fs::path("test.cpp"),
+    ATF_REQUIRE(!atf::check::build_cxx_o(atf::fs::path("test.cpp"),
                                        atf::fs::path("test.o"),
                                        atf::process::argv_array()));
 }
@@ -198,14 +198,14 @@ ATF_TEST_CASE_HEAD(build_c_o)
 ATF_TEST_CASE_BODY(build_c_o)
 {
     run_h_tc< ATF_TEST_CASE_NAME(h_build_c_o_ok) >();
-    ATF_CHECK(grep_file("stdout", "-o test.o"));
-    ATF_CHECK(grep_file("stdout", "-c test.c"));
+    ATF_REQUIRE(grep_file("stdout", "-o test.o"));
+    ATF_REQUIRE(grep_file("stdout", "-c test.c"));
 
     run_h_tc< ATF_TEST_CASE_NAME(h_build_c_o_fail) >();
-    ATF_CHECK(grep_file("stdout", "-o test.o"));
-    ATF_CHECK(grep_file("stdout", "-c test.c"));
-    ATF_CHECK(grep_file("stderr", "test.c"));
-    ATF_CHECK(grep_file("stderr", "UNDEFINED_SYMBOL"));
+    ATF_REQUIRE(grep_file("stdout", "-o test.o"));
+    ATF_REQUIRE(grep_file("stdout", "-c test.c"));
+    ATF_REQUIRE(grep_file("stderr", "test.c"));
+    ATF_REQUIRE(grep_file("stderr", "UNDEFINED_SYMBOL"));
 }
 
 ATF_TEST_CASE(build_cpp);
@@ -216,15 +216,15 @@ ATF_TEST_CASE_HEAD(build_cpp)
 ATF_TEST_CASE_BODY(build_cpp)
 {
     run_h_tc< ATF_TEST_CASE_NAME(h_build_cpp_ok) >();
-    ATF_CHECK(grep_file("stdout", "-o.*test.p"));
-    ATF_CHECK(grep_file("stdout", "test.c"));
-    ATF_CHECK(grep_file("test.p", "foo bar"));
+    ATF_REQUIRE(grep_file("stdout", "-o.*test.p"));
+    ATF_REQUIRE(grep_file("stdout", "test.c"));
+    ATF_REQUIRE(grep_file("test.p", "foo bar"));
 
     run_h_tc< ATF_TEST_CASE_NAME(h_build_cpp_fail) >();
-    ATF_CHECK(grep_file("stdout", "-o test.p"));
-    ATF_CHECK(grep_file("stdout", "test.c"));
-    ATF_CHECK(grep_file("stderr", "test.c"));
-    ATF_CHECK(grep_file("stderr", "non-existent.h"));
+    ATF_REQUIRE(grep_file("stdout", "-o test.p"));
+    ATF_REQUIRE(grep_file("stdout", "test.c"));
+    ATF_REQUIRE(grep_file("stderr", "test.c"));
+    ATF_REQUIRE(grep_file("stderr", "non-existent.h"));
 }
 
 ATF_TEST_CASE(build_cxx_o);
@@ -235,14 +235,14 @@ ATF_TEST_CASE_HEAD(build_cxx_o)
 ATF_TEST_CASE_BODY(build_cxx_o)
 {
     run_h_tc< ATF_TEST_CASE_NAME(h_build_cxx_o_ok) >();
-    ATF_CHECK(grep_file("stdout", "-o test.o"));
-    ATF_CHECK(grep_file("stdout", "-c test.cpp"));
+    ATF_REQUIRE(grep_file("stdout", "-o test.o"));
+    ATF_REQUIRE(grep_file("stdout", "-c test.cpp"));
 
     run_h_tc< ATF_TEST_CASE_NAME(h_build_cxx_o_fail) >();
-    ATF_CHECK(grep_file("stdout", "-o test.o"));
-    ATF_CHECK(grep_file("stdout", "-c test.cpp"));
-    ATF_CHECK(grep_file("stderr", "test.cpp"));
-    ATF_CHECK(grep_file("stderr", "UNDEFINED_SYMBOL"));
+    ATF_REQUIRE(grep_file("stdout", "-o test.o"));
+    ATF_REQUIRE(grep_file("stdout", "-c test.cpp"));
+    ATF_REQUIRE(grep_file("stderr", "test.cpp"));
+    ATF_REQUIRE(grep_file("stderr", "UNDEFINED_SYMBOL"));
 }
 
 ATF_TEST_CASE(exec_argv);
@@ -253,10 +253,10 @@ ATF_TEST_CASE_HEAD(exec_argv)
 ATF_TEST_CASE_BODY(exec_argv)
 {
     const atf::check::check_result r = do_exec(this, "exit-success");
-    ATF_CHECK_EQUAL(r.argv().size(), 2);
-    ATF_CHECK_EQUAL(r.argv()[0],
+    ATF_REQUIRE_EQ(r.argv().size(), 2);
+    ATF_REQUIRE_EQ(r.argv()[0],
                     get_config_var("srcdir") + "/../atf-c/h_check");
-    ATF_CHECK_EQUAL(r.argv()[1], "exit-success");
+    ATF_REQUIRE_EQ(r.argv()[1], "exit-success");
 }
 
 ATF_TEST_CASE(exec_cleanup);
@@ -274,11 +274,11 @@ ATF_TEST_CASE_BODY(exec_cleanup)
         const atf::check::check_result r = do_exec(this, "exit-success");
         out.reset(new atf::fs::path(r.stdout_path()));
         err.reset(new atf::fs::path(r.stderr_path()));
-        ATF_CHECK(atf::fs::exists(*out.get()));
-        ATF_CHECK(atf::fs::exists(*err.get()));
+        ATF_REQUIRE(atf::fs::exists(*out.get()));
+        ATF_REQUIRE(atf::fs::exists(*err.get()));
     }
-    ATF_CHECK(!atf::fs::exists(*out.get()));
-    ATF_CHECK(!atf::fs::exists(*err.get()));
+    ATF_REQUIRE(!atf::fs::exists(*out.get()));
+    ATF_REQUIRE(!atf::fs::exists(*err.get()));
 }
 
 ATF_TEST_CASE(exec_exitstatus);
@@ -291,23 +291,23 @@ ATF_TEST_CASE_BODY(exec_exitstatus)
 {
     {
         atf::check::check_result r = do_exec(this, "exit-success");
-        ATF_CHECK(r.exited());
-        ATF_CHECK(!r.signaled());
-        ATF_CHECK_EQUAL(r.exitcode(), EXIT_SUCCESS);
+        ATF_REQUIRE(r.exited());
+        ATF_REQUIRE(!r.signaled());
+        ATF_REQUIRE_EQ(r.exitcode(), EXIT_SUCCESS);
     }
 
     {
         atf::check::check_result r = do_exec(this, "exit-failure");
-        ATF_CHECK(r.exited());
-        ATF_CHECK(!r.signaled());
-        ATF_CHECK_EQUAL(r.exitcode(), EXIT_FAILURE);
+        ATF_REQUIRE(r.exited());
+        ATF_REQUIRE(!r.signaled());
+        ATF_REQUIRE_EQ(r.exitcode(), EXIT_FAILURE);
     }
 
     {
         atf::check::check_result r = do_exec(this, "exit-signal");
-        ATF_CHECK(!r.exited());
-        ATF_CHECK(r.signaled());
-        ATF_CHECK_EQUAL(r.termsig(), SIGKILL);
+        ATF_REQUIRE(!r.exited());
+        ATF_REQUIRE(r.signaled());
+        ATF_REQUIRE_EQ(r.termsig(), SIGKILL);
     }
 }
 
@@ -317,14 +317,14 @@ check_lines(const atf::fs::path& path, const char* outname,
             const char* resname)
 {
     std::ifstream f(path.c_str());
-    ATF_CHECK(f);
+    ATF_REQUIRE(f);
 
     std::string line;
     std::getline(f, line);
-    ATF_CHECK_EQUAL(line, std::string("Line 1 to ") + outname + " for " +
+    ATF_REQUIRE_EQ(line, std::string("Line 1 to ") + outname + " for " +
                     resname);
     std::getline(f, line);
-    ATF_CHECK_EQUAL(line, std::string("Line 2 to ") + outname + " for " +
+    ATF_REQUIRE_EQ(line, std::string("Line 2 to ") + outname + " for " +
                     resname);
 }
 
@@ -338,36 +338,36 @@ ATF_TEST_CASE_BODY(exec_stdout_stderr)
 {
     const atf::check::check_result r1 = do_exec(this, "stdout-stderr",
                                                 "result1");
-    ATF_CHECK(r1.exited());
-    ATF_CHECK_EQUAL(r1.exitcode(), EXIT_SUCCESS);
+    ATF_REQUIRE(r1.exited());
+    ATF_REQUIRE_EQ(r1.exitcode(), EXIT_SUCCESS);
 
     const atf::check::check_result r2 = do_exec(this, "stdout-stderr",
                                                 "result2");
-    ATF_CHECK(r2.exited());
-    ATF_CHECK_EQUAL(r2.exitcode(), EXIT_SUCCESS);
+    ATF_REQUIRE(r2.exited());
+    ATF_REQUIRE_EQ(r2.exitcode(), EXIT_SUCCESS);
 
     const atf::fs::path& out1 = r1.stdout_path();
     const atf::fs::path& out2 = r2.stdout_path();
     const atf::fs::path& err1 = r1.stderr_path();
     const atf::fs::path& err2 = r2.stderr_path();
 
-    ATF_CHECK(out1.str().find("check.XXXXXX") == std::string::npos);
-    ATF_CHECK(out2.str().find("check.XXXXXX") == std::string::npos);
-    ATF_CHECK(err1.str().find("check.XXXXXX") == std::string::npos);
-    ATF_CHECK(err2.str().find("check.XXXXXX") == std::string::npos);
+    ATF_REQUIRE(out1.str().find("check.XXXXXX") == std::string::npos);
+    ATF_REQUIRE(out2.str().find("check.XXXXXX") == std::string::npos);
+    ATF_REQUIRE(err1.str().find("check.XXXXXX") == std::string::npos);
+    ATF_REQUIRE(err2.str().find("check.XXXXXX") == std::string::npos);
 
-    ATF_CHECK(out1.str().find("/check") != std::string::npos);
-    ATF_CHECK(out2.str().find("/check") != std::string::npos);
-    ATF_CHECK(err1.str().find("/check") != std::string::npos);
-    ATF_CHECK(err2.str().find("/check") != std::string::npos);
+    ATF_REQUIRE(out1.str().find("/check") != std::string::npos);
+    ATF_REQUIRE(out2.str().find("/check") != std::string::npos);
+    ATF_REQUIRE(err1.str().find("/check") != std::string::npos);
+    ATF_REQUIRE(err2.str().find("/check") != std::string::npos);
 
-    ATF_CHECK(out1.str().find("/stdout") != std::string::npos);
-    ATF_CHECK(out2.str().find("/stdout") != std::string::npos);
-    ATF_CHECK(err1.str().find("/stderr") != std::string::npos);
-    ATF_CHECK(err2.str().find("/stderr") != std::string::npos);
+    ATF_REQUIRE(out1.str().find("/stdout") != std::string::npos);
+    ATF_REQUIRE(out2.str().find("/stdout") != std::string::npos);
+    ATF_REQUIRE(err1.str().find("/stderr") != std::string::npos);
+    ATF_REQUIRE(err2.str().find("/stderr") != std::string::npos);
 
-    ATF_CHECK(out1 != out2);
-    ATF_CHECK(err1 != err2);
+    ATF_REQUIRE(out1 != out2);
+    ATF_REQUIRE(err1 != err2);
 
     check_lines(out1, "stdout", "result1");
     check_lines(out2, "stdout", "result2");
@@ -388,8 +388,8 @@ ATF_TEST_CASE_BODY(exec_unknown)
 
     atf::process::argv_array argva(argv);
     const atf::check::check_result r = atf::check::exec(argva);
-    ATF_CHECK(r.exited());
-    ATF_CHECK_EQUAL(r.exitcode(), 127);
+    ATF_REQUIRE(r.exited());
+    ATF_REQUIRE_EQ(r.exitcode(), 127);
 }
 
 // ------------------------------------------------------------------------

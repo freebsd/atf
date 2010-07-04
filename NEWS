@@ -7,6 +7,9 @@ Changes in version 0.11
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET
 
+* The ATF_CHECK* macros in atf-c++ were renamed to ATF_REQUIRE* to match
+  their counterparts in atf-c.
+
 
 Changes in version 0.10
 ***********************

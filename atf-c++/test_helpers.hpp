@@ -109,7 +109,7 @@ run_h_tc(atf::tests::vars_map config = atf::tests::vars_map())
         atf::process::stream_redirect_path(atf::fs::path("stderr")),
         &data);
     const atf::process::status s = c.wait();
-    ATF_CHECK(s.exited());
+    ATF_REQUIRE(s.exited());
 }
 
 namespace test_helpers_detail {

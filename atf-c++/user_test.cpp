@@ -56,7 +56,7 @@ ATF_TEST_CASE_BODY(euid)
 {
     using atf::user::euid;
 
-    ATF_CHECK_EQUAL(euid(), ::geteuid());
+    ATF_REQUIRE_EQ(euid(), ::geteuid());
 }
 
 ATF_TEST_CASE(is_member_of_group);
@@ -88,10 +88,10 @@ ATF_TEST_CASE_BODY(is_member_of_group)
         if (groups.find(g) == groups.end()) {
             std::cout << "Checking if user does not belong to group "
                       << g << "\n";
-            ATF_CHECK(!is_member_of_group(g));
+            ATF_REQUIRE(!is_member_of_group(g));
         } else {
             std::cout << "Checking if user belongs to group " << g << "\n";
-            ATF_CHECK(is_member_of_group(g));
+            ATF_REQUIRE(is_member_of_group(g));
         }
     }
 }
@@ -106,9 +106,9 @@ ATF_TEST_CASE_BODY(is_root)
     using atf::user::is_root;
 
     if (::geteuid() == 0) {
-        ATF_CHECK(is_root());
+        ATF_REQUIRE(is_root());
     } else {
-        ATF_CHECK(!is_root());
+        ATF_REQUIRE(!is_root());
     }
 }
 
@@ -122,9 +122,9 @@ ATF_TEST_CASE_BODY(is_unprivileged)
     using atf::user::is_unprivileged;
 
     if (::geteuid() != 0) {
-        ATF_CHECK(is_unprivileged());
+        ATF_REQUIRE(is_unprivileged());
     } else {
-        ATF_CHECK(!is_unprivileged());
+        ATF_REQUIRE(!is_unprivileged());
     }
 }
 

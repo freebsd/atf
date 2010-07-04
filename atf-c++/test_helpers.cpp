@@ -68,7 +68,7 @@ void
 header_check(const atf::tests::tc& tc, const char *hdrname)
 {
     std::ofstream srcfile("test.c");
-    ATF_CHECK(srcfile);
+    ATF_REQUIRE(srcfile);
     srcfile << "#include <" << hdrname << ">\n";
     srcfile.close();
 
@@ -88,7 +88,7 @@ bool
 grep_file(const char* name, const char* regex)
 {
     std::ifstream is(name);
-    ATF_CHECK(is);
+    ATF_REQUIRE(is);
 
     bool found = false;
 
@@ -111,10 +111,10 @@ grep_string(const std::string& str, const char* regex)
     regex_t preg;
 
     std::cout << "Looking for '" << regex << "' in '" << str << "'\n";
-    ATF_CHECK(::regcomp(&preg, regex, REG_EXTENDED) == 0);
+    ATF_REQUIRE(::regcomp(&preg, regex, REG_EXTENDED) == 0);
 
     res = ::regexec(&preg, str.c_str(), 0, NULL, 0);
-    ATF_CHECK(res == 0 || res == REG_NOMATCH);
+    ATF_REQUIRE(res == 0 || res == REG_NOMATCH);
 
     ::regfree(&preg);
 

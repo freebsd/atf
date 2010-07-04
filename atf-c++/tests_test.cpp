@@ -60,7 +60,7 @@ print_indented(const std::string& str)
 }
 
 // XXX Should this string handling and verbosity level be part of the
-// ATF_CHECK_EQUAL macro?  It may be hard to predict sometimes that a
+// ATF_REQUIRE_EQ macro?  It may be hard to predict sometimes that a
 // string can have newlines in it, and so the error message generated
 // at the moment will be bogus if there are some.
 static

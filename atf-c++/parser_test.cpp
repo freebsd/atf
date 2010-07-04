@@ -48,7 +48,7 @@ ATF_TEST_CASE_BODY(parse_error_to_string)
     using atf::parser::parse_error;
 
     const parse_error e(123, "This is the message");
-    ATF_CHECK_EQUAL("123: This is the message", std::string(e));
+    ATF_REQUIRE_EQ("123: This is the message", std::string(e));
 }
 
 // ------------------------------------------------------------------------
@@ -69,7 +69,7 @@ ATF_TEST_CASE_BODY(parse_errors_what)
     es.push_back(parse_error(2, "Second error"));
     es.push_back(parse_error(1, "First error"));
 
-    ATF_CHECK_EQUAL("2: Second error\n1: First error", std::string(es.what()));
+    ATF_REQUIRE_EQ("2: Second error\n1: First error", std::string(es.what()));
 }
 
 // ------------------------------------------------------------------------
@@ -87,30 +87,30 @@ ATF_TEST_CASE_BODY(token_getters)
 
     {
         token t(10, 0);
-        ATF_CHECK_EQUAL(t.lineno(), 10);
-        ATF_CHECK_EQUAL(t.type(), 0);
-        ATF_CHECK(t.text().empty());
+        ATF_REQUIRE_EQ(t.lineno(), 10);
+        ATF_REQUIRE_EQ(t.type(), 0);
+        ATF_REQUIRE(t.text().empty());
     }
 
     {
         token t(10, 0, "foo");
-        ATF_CHECK_EQUAL(t.lineno(), 10);
-        ATF_CHECK_EQUAL(t.type(), 0);
-        ATF_CHECK_EQUAL(t.text(), "foo");
+        ATF_REQUIRE_EQ(t.lineno(), 10);
+        ATF_REQUIRE_EQ(t.type(), 0);
+        ATF_REQUIRE_EQ(t.text(), "foo");
     }
 
     {
         token t(20, 1);
-        ATF_CHECK_EQUAL(t.lineno(), 20);
-        ATF_CHECK_EQUAL(t.type(), 1);
-        ATF_CHECK(t.text().empty());
+        ATF_REQUIRE_EQ(t.lineno(), 20);
+        ATF_REQUIRE_EQ(t.type(), 1);
+        ATF_REQUIRE(t.text().empty());
     }
 
     {
         token t(20, 1, "bar");
-        ATF_CHECK_EQUAL(t.lineno(), 20);
-        ATF_CHECK_EQUAL(t.type(), 1);
-        ATF_CHECK_EQUAL(t.text(), "bar");
+        ATF_REQUIRE_EQ(t.lineno(), 20);
+        ATF_REQUIRE_EQ(t.type(), 1);
+        ATF_REQUIRE_EQ(t.text(), "bar");
     }
 }
 
@@ -121,8 +121,8 @@ ATF_TEST_CASE_BODY(token_getters)
 #define EXPECT(tkz, ttype, ttext) \
     do { \
         atf::parser::token t = tkz.next(); \
-        ATF_CHECK(t.type() == ttype); \
-        ATF_CHECK_EQUAL(t.text(), ttext); \
+        ATF_REQUIRE(t.type() == ttype); \
+        ATF_REQUIRE_EQ(t.text(), ttext); \
     } while (false);
 
 namespace minimal {

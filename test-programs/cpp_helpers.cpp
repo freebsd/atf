@@ -50,7 +50,7 @@ ATF_TEST_CASE_HEAD(config_unset)
 }
 ATF_TEST_CASE_BODY(config_unset)
 {
-    ATF_CHECK(!has_config_var("test"));
+    ATF_REQUIRE(!has_config_var("test"));
 }
 
 ATF_TEST_CASE(config_empty);
@@ -60,7 +60,7 @@ ATF_TEST_CASE_HEAD(config_empty)
 }
 ATF_TEST_CASE_BODY(config_empty)
 {
-    ATF_CHECK_EQUAL(get_config_var("test"), "");
+    ATF_REQUIRE_EQ(get_config_var("test"), "");
 }
 
 ATF_TEST_CASE(config_value);
@@ -70,7 +70,7 @@ ATF_TEST_CASE_HEAD(config_value)
 }
 ATF_TEST_CASE_BODY(config_value)
 {
-    ATF_CHECK_EQUAL(get_config_var("test"), "foo");
+    ATF_REQUIRE_EQ(get_config_var("test"), "foo");
 }
 
 ATF_TEST_CASE(config_multi_value);
@@ -80,7 +80,7 @@ ATF_TEST_CASE_HEAD(config_multi_value)
 }
 ATF_TEST_CASE_BODY(config_multi_value)
 {
-    ATF_CHECK_EQUAL(get_config_var("test"), "foo bar");
+    ATF_REQUIRE_EQ(get_config_var("test"), "foo bar");
 }
 
 // ------------------------------------------------------------------------

@@ -57,14 +57,14 @@ systembuf_check_data(std::istream& is, std::size_t length)
     char ch = 'A', chr;
     std::size_t cnt = 0;
     while (is >> chr) {
-        ATF_CHECK_EQUAL(ch, chr);
+        ATF_REQUIRE_EQ(ch, chr);
         if (ch == 'Z')
             ch = 'A';
         else
             ch++;
         cnt++;
     }
-    ATF_CHECK_EQUAL(cnt, length);
+    ATF_REQUIRE_EQ(cnt, length);
 }
 
 static
@@ -93,7 +93,7 @@ systembuf_test_read(std::size_t length, std::size_t bufsize)
     f.close();
 
     int fd = ::open("test_read.txt", O_RDONLY);
-    ATF_CHECK(fd != -1);
+    ATF_REQUIRE(fd != -1);
     systembuf sb(fd, bufsize);
     std::istream is(&sb);
     systembuf_check_data(is, length);
@@ -109,7 +109,7 @@ systembuf_test_write(std::size_t length, std::size_t bufsize)
 
     int fd = ::open("test_write.txt", O_WRONLY | O_CREAT | O_TRUNC,
                     S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    ATF_CHECK(fd != -1);
+    ATF_REQUIRE(fd != -1);
     systembuf sb(fd, bufsize);
     std::ostream os(&sb);
     systembuf_write_data(os, length);
@@ -135,10 +135,10 @@ ATF_TEST_CASE_BODY(file_handle_ctor)
     using atf::io::file_handle;
 
     file_handle fh1;
-    ATF_CHECK(!fh1.is_valid());
+    ATF_REQUIRE(!fh1.is_valid());
 
     file_handle fh2(STDOUT_FILENO);
-    ATF_CHECK(fh2.is_valid());
+    ATF_REQUIRE(fh2.is_valid());
     fh2.disown();
 }
 
@@ -155,12 +155,12 @@ ATF_TEST_CASE_BODY(file_handle_copy)
     file_handle fh2(STDOUT_FILENO);
 
     file_handle fh3(fh2);
-    ATF_CHECK(!fh2.is_valid());
-    ATF_CHECK(fh3.is_valid());
+    ATF_REQUIRE(!fh2.is_valid());
+    ATF_REQUIRE(fh3.is_valid());
 
     fh1 = fh3;
-    ATF_CHECK(!fh3.is_valid());
-    ATF_CHECK(fh1.is_valid());
+    ATF_REQUIRE(!fh3.is_valid());
+    ATF_REQUIRE(fh1.is_valid());
 
     fh1.disown();
 }
@@ -175,7 +175,7 @@ ATF_TEST_CASE_BODY(file_handle_get)
     using atf::io::file_handle;
 
     file_handle fh1(STDOUT_FILENO);
-    ATF_CHECK_EQUAL(fh1.get(), STDOUT_FILENO);
+    ATF_REQUIRE_EQ(fh1.get(), STDOUT_FILENO);
 }
 
 ATF_TEST_CASE(file_handle_posix_remap);
@@ -189,33 +189,33 @@ ATF_TEST_CASE_BODY(file_handle_posix_remap)
 
     int pfd[2];
 
-    ATF_CHECK(::pipe(pfd) != -1);
+    ATF_REQUIRE(::pipe(pfd) != -1);
     file_handle rend(pfd[0]);
     file_handle wend(pfd[1]);
 
-    ATF_CHECK(rend.get() != 10);
-    ATF_CHECK(wend.get() != 10);
+    ATF_REQUIRE(rend.get() != 10);
+    ATF_REQUIRE(wend.get() != 10);
     wend.posix_remap(10);
-    ATF_CHECK_EQUAL(wend.get(), 10);
-    ATF_CHECK(::write(wend.get(), "test-posix-remap", 16) != -1);
+    ATF_REQUIRE_EQ(wend.get(), 10);
+    ATF_REQUIRE(::write(wend.get(), "test-posix-remap", 16) != -1);
     {
         char buf[17];
-        ATF_CHECK_EQUAL(::read(rend.get(), buf, sizeof(buf)), 16);
+        ATF_REQUIRE_EQ(::read(rend.get(), buf, sizeof(buf)), 16);
         buf[16] = '\0';
-        ATF_CHECK(std::strcmp(buf, "test-posix-remap") == 0);
+        ATF_REQUIRE(std::strcmp(buf, "test-posix-remap") == 0);
     }
 
     // Redo previous to ensure that remapping over the same descriptor
     // has no side-effects.
-    ATF_CHECK_EQUAL(wend.get(), 10);
+    ATF_REQUIRE_EQ(wend.get(), 10);
     wend.posix_remap(10);
-    ATF_CHECK_EQUAL(wend.get(), 10);
-    ATF_CHECK(::write(wend.get(), "test-posix-remap", 16) != -1);
+    ATF_REQUIRE_EQ(wend.get(), 10);
+    ATF_REQUIRE(::write(wend.get(), "test-posix-remap", 16) != -1);
     {
         char buf[17];
-        ATF_CHECK_EQUAL(::read(rend.get(), buf, sizeof(buf)), 16);
+        ATF_REQUIRE_EQ(::read(rend.get(), buf, sizeof(buf)), 16);
         buf[16] = '\0';
-        ATF_CHECK(std::strcmp(buf, "test-posix-remap") == 0);
+        ATF_REQUIRE(std::strcmp(buf, "test-posix-remap") == 0);
     }
 }
 
@@ -297,9 +297,9 @@ ATF_TEST_CASE_BODY(pipe_read_and_write)
     wend.flush();
     std::string tmp;
     rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "1Test");
+    ATF_REQUIRE_EQ(tmp, "1Test");
     rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "1message");
+    ATF_REQUIRE_EQ(tmp, "1message");
 }
 
 ATF_TEST_CASE(pipe_remap_read);
@@ -323,9 +323,9 @@ ATF_TEST_CASE_BODY(pipe_remap_read)
     wend.flush();
     std::string tmp;
     std::cin >> tmp;
-    ATF_CHECK_EQUAL(tmp, "2Test");
+    ATF_REQUIRE_EQ(tmp, "2Test");
     std::cin >> tmp;
-    ATF_CHECK_EQUAL(tmp, "2message");
+    ATF_REQUIRE_EQ(tmp, "2message");
 }
 
 ATF_TEST_CASE(pipe_remap_write);
@@ -355,9 +355,9 @@ ATF_TEST_CASE_BODY(pipe_remap_write)
     std::cout.flush();
     std::string tmp;
     rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "3Test");
+    ATF_REQUIRE_EQ(tmp, "3Test");
     rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "3message");
+    ATF_REQUIRE_EQ(tmp, "3message");
 }
 
 // ------------------------------------------------------------------------
@@ -378,7 +378,7 @@ ATF_TEST_CASE_BODY(pistream)
     pipe p;
     int fh = p.rend().get();
     pistream rend(p.rend());
-    ATF_CHECK_EQUAL(fh, rend.handle().get());
+    ATF_REQUIRE_EQ(fh, rend.handle().get());
     systembuf wbuf(p.wend().get());
     std::ostream wend(&wbuf);
 
@@ -388,9 +388,9 @@ ATF_TEST_CASE_BODY(pistream)
     wend.flush();
     std::string tmp;
     rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "1Test");
+    ATF_REQUIRE_EQ(tmp, "1Test");
     rend >> tmp;
-    ATF_CHECK_EQUAL(tmp, "1message");
+    ATF_REQUIRE_EQ(tmp, "1message");
 }
 
 // ------------------------------------------------------------------------
@@ -411,7 +411,7 @@ ATF_TEST_CASE_BODY(postream)
     pipe p;
     int fh = p.wend().get();
     postream wend(p.wend());
-    ATF_CHECK_EQUAL(fh, wend.handle().get());
+    ATF_REQUIRE_EQ(fh, wend.handle().get());
 
     // The following block is to ensure that the read end is closed
     // before the write one.  Otherwise we get a SIGPIPE, at least
@@ -426,9 +426,9 @@ ATF_TEST_CASE_BODY(postream)
         wend.flush();
         std::string tmp;
         rend >> tmp;
-        ATF_CHECK_EQUAL(tmp, "1Test");
+        ATF_REQUIRE_EQ(tmp, "1Test");
         rend >> tmp;
-        ATF_CHECK_EQUAL(tmp, "1message");
+        ATF_REQUIRE_EQ(tmp, "1message");
     }
 }
 
@@ -450,21 +450,21 @@ private:
     void
     got_stdout_line(const std::string& line)
     {
-        ATF_CHECK(!m_eof);
+        ATF_REQUIRE(!m_eof);
         m_stdout_lines.push_back(line);
     }
 
     void
     got_stderr_line(const std::string& line)
     {
-        ATF_CHECK(!m_eof);
+        ATF_REQUIRE(!m_eof);
         m_stderr_lines.push_back(line);
     }
 
     void
     got_eof(void)
     {
-        ATF_CHECK(!m_eof);
+        ATF_REQUIRE(!m_eof);
         m_eof = true;
     }
 };
@@ -475,18 +475,18 @@ create_file(const char* name, const std::vector< std::string >& lines)
 {
     const int wrfd = ::open(name, O_CREAT | O_WRONLY | O_TRUNC,
                             S_IRUSR | S_IWUSR);
-    ATF_CHECK(wrfd != -1);
+    ATF_REQUIRE(wrfd != -1);
 
     for (std::vector< std::string >::const_iterator iter = lines.begin();
          iter != lines.end(); iter++) {
         const std::string line = *iter + "\n";
-        ATF_CHECK(::write(wrfd, line.c_str(), line.size()) != -1);
+        ATF_REQUIRE(::write(wrfd, line.c_str(), line.size()) != -1);
     }
 
     ::close(wrfd);
 
     const int rdfd = ::open(name, O_RDONLY);
-    ATF_CHECK(rdfd != -1);
+    ATF_REQUIRE(rdfd != -1);
     return rdfd;
 }
 
@@ -508,9 +508,9 @@ ATF_TEST_CASE_BODY(std_muxer_empty)
 
     test_std_muxer m;
     m.read(outs, errs);
-    ATF_CHECK(m.m_eof);
-    ATF_CHECK(m.m_stdout_lines.empty());
-    ATF_CHECK(m.m_stderr_lines.empty());
+    ATF_REQUIRE(m.m_eof);
+    ATF_REQUIRE(m.m_stdout_lines.empty());
+    ATF_REQUIRE(m.m_stderr_lines.empty());
 }
 
 ATF_TEST_CASE(std_muxer_lines);
@@ -536,14 +536,14 @@ ATF_TEST_CASE_BODY(std_muxer_lines)
 
     test_std_muxer m;
     m.read(outs, errs);
-    ATF_CHECK(m.m_eof);
-    ATF_CHECK_EQUAL(3, m.m_stdout_lines.size());
-    ATF_CHECK_EQUAL("stdout line 1", m.m_stdout_lines[0]);
-    ATF_CHECK_EQUAL("stdout line 2", m.m_stdout_lines[1]);
-    ATF_CHECK_EQUAL("stdout line 3", m.m_stdout_lines[2]);
-    ATF_CHECK_EQUAL(2, m.m_stderr_lines.size());
-    ATF_CHECK_EQUAL("stderr line a", m.m_stderr_lines[0]);
-    ATF_CHECK_EQUAL("stderr line b", m.m_stderr_lines[1]);
+    ATF_REQUIRE(m.m_eof);
+    ATF_REQUIRE_EQ(3, m.m_stdout_lines.size());
+    ATF_REQUIRE_EQ("stdout line 1", m.m_stdout_lines[0]);
+    ATF_REQUIRE_EQ("stdout line 2", m.m_stdout_lines[1]);
+    ATF_REQUIRE_EQ("stdout line 3", m.m_stdout_lines[2]);
+    ATF_REQUIRE_EQ(2, m.m_stderr_lines.size());
+    ATF_REQUIRE_EQ("stderr line a", m.m_stderr_lines[0]);
+    ATF_REQUIRE_EQ("stderr line b", m.m_stderr_lines[1]);
 }
 
 // ------------------------------------------------------------------------

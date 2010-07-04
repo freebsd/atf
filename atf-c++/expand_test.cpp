@@ -50,19 +50,19 @@ ATF_TEST_CASE_BODY(is_glob)
 {
     using atf::expand::is_glob;
 
-    ATF_CHECK(!is_glob(""));
-    ATF_CHECK(!is_glob("a"));
-    ATF_CHECK(!is_glob("foo"));
+    ATF_REQUIRE(!is_glob(""));
+    ATF_REQUIRE(!is_glob("a"));
+    ATF_REQUIRE(!is_glob("foo"));
 
-    ATF_CHECK( is_glob("*"));
-    ATF_CHECK( is_glob("a*"));
-    ATF_CHECK( is_glob("*a"));
-    ATF_CHECK( is_glob("a*b"));
+    ATF_REQUIRE( is_glob("*"));
+    ATF_REQUIRE( is_glob("a*"));
+    ATF_REQUIRE( is_glob("*a"));
+    ATF_REQUIRE( is_glob("a*b"));
 
-    ATF_CHECK( is_glob("?"));
-    ATF_CHECK( is_glob("a?"));
-    ATF_CHECK( is_glob("?a"));
-    ATF_CHECK( is_glob("a?b"));
+    ATF_REQUIRE( is_glob("?"));
+    ATF_REQUIRE( is_glob("a?"));
+    ATF_REQUIRE( is_glob("?a"));
+    ATF_REQUIRE( is_glob("a?b"));
 }
 
 ATF_TEST_CASE(matches_glob_plain);
@@ -75,13 +75,13 @@ ATF_TEST_CASE_BODY(matches_glob_plain)
 {
     using atf::expand::matches_glob;
 
-    ATF_CHECK( matches_glob("", ""));
-    ATF_CHECK(!matches_glob("a", ""));
-    ATF_CHECK(!matches_glob("", "a"));
+    ATF_REQUIRE( matches_glob("", ""));
+    ATF_REQUIRE(!matches_glob("a", ""));
+    ATF_REQUIRE(!matches_glob("", "a"));
 
-    ATF_CHECK( matches_glob("ab", "ab"));
-    ATF_CHECK(!matches_glob("abc", "ab"));
-    ATF_CHECK(!matches_glob("ab", "abc"));
+    ATF_REQUIRE( matches_glob("ab", "ab"));
+    ATF_REQUIRE(!matches_glob("abc", "ab"));
+    ATF_REQUIRE(!matches_glob("ab", "abc"));
 }
 
 ATF_TEST_CASE(matches_glob_star);
@@ -94,34 +94,34 @@ ATF_TEST_CASE_BODY(matches_glob_star)
 {
     using atf::expand::matches_glob;
 
-    ATF_CHECK( matches_glob("*", ""));
-    ATF_CHECK( matches_glob("*", "a"));
-    ATF_CHECK( matches_glob("*", "ab"));
+    ATF_REQUIRE( matches_glob("*", ""));
+    ATF_REQUIRE( matches_glob("*", "a"));
+    ATF_REQUIRE( matches_glob("*", "ab"));
 
-    ATF_CHECK(!matches_glob("a*", ""));
-    ATF_CHECK( matches_glob("a*", "a"));
-    ATF_CHECK( matches_glob("a*", "aa"));
-    ATF_CHECK( matches_glob("a*", "ab"));
-    ATF_CHECK( matches_glob("a*", "abc"));
-    ATF_CHECK(!matches_glob("a*", "ba"));
+    ATF_REQUIRE(!matches_glob("a*", ""));
+    ATF_REQUIRE( matches_glob("a*", "a"));
+    ATF_REQUIRE( matches_glob("a*", "aa"));
+    ATF_REQUIRE( matches_glob("a*", "ab"));
+    ATF_REQUIRE( matches_glob("a*", "abc"));
+    ATF_REQUIRE(!matches_glob("a*", "ba"));
 
-    ATF_CHECK( matches_glob("*a", "a"));
-    ATF_CHECK( matches_glob("*a", "ba"));
-    ATF_CHECK(!matches_glob("*a", "bc"));
-    ATF_CHECK(!matches_glob("*a", "bac"));
+    ATF_REQUIRE( matches_glob("*a", "a"));
+    ATF_REQUIRE( matches_glob("*a", "ba"));
+    ATF_REQUIRE(!matches_glob("*a", "bc"));
+    ATF_REQUIRE(!matches_glob("*a", "bac"));
 
-    ATF_CHECK( matches_glob("*ab", "ab"));
-    ATF_CHECK( matches_glob("*ab", "aab"));
-    ATF_CHECK( matches_glob("*ab", "aaab"));
-    ATF_CHECK( matches_glob("*ab", "bab"));
-    ATF_CHECK(!matches_glob("*ab", "bcb"));
-    ATF_CHECK(!matches_glob("*ab", "bacb"));
+    ATF_REQUIRE( matches_glob("*ab", "ab"));
+    ATF_REQUIRE( matches_glob("*ab", "aab"));
+    ATF_REQUIRE( matches_glob("*ab", "aaab"));
+    ATF_REQUIRE( matches_glob("*ab", "bab"));
+    ATF_REQUIRE(!matches_glob("*ab", "bcb"));
+    ATF_REQUIRE(!matches_glob("*ab", "bacb"));
 
-    ATF_CHECK( matches_glob("a*b", "ab"));
-    ATF_CHECK( matches_glob("a*b", "acb"));
-    ATF_CHECK( matches_glob("a*b", "acdeb"));
-    ATF_CHECK(!matches_glob("a*b", "acdebz"));
-    ATF_CHECK(!matches_glob("a*b", "zacdeb"));
+    ATF_REQUIRE( matches_glob("a*b", "ab"));
+    ATF_REQUIRE( matches_glob("a*b", "acb"));
+    ATF_REQUIRE( matches_glob("a*b", "acdeb"));
+    ATF_REQUIRE(!matches_glob("a*b", "acdebz"));
+    ATF_REQUIRE(!matches_glob("a*b", "zacdeb"));
 }
 
 ATF_TEST_CASE(matches_glob_question);
@@ -134,22 +134,22 @@ ATF_TEST_CASE_BODY(matches_glob_question)
 {
     using atf::expand::matches_glob;
 
-    ATF_CHECK(!matches_glob("?", ""));
-    ATF_CHECK( matches_glob("?", "a"));
-    ATF_CHECK(!matches_glob("?", "ab"));
+    ATF_REQUIRE(!matches_glob("?", ""));
+    ATF_REQUIRE( matches_glob("?", "a"));
+    ATF_REQUIRE(!matches_glob("?", "ab"));
 
-    ATF_CHECK( matches_glob("?", "b"));
-    ATF_CHECK( matches_glob("?", "c"));
+    ATF_REQUIRE( matches_glob("?", "b"));
+    ATF_REQUIRE( matches_glob("?", "c"));
 
-    ATF_CHECK( matches_glob("a?", "ab"));
-    ATF_CHECK( matches_glob("a?", "ac"));
-    ATF_CHECK(!matches_glob("a?", "ca"));
+    ATF_REQUIRE( matches_glob("a?", "ab"));
+    ATF_REQUIRE( matches_glob("a?", "ac"));
+    ATF_REQUIRE(!matches_glob("a?", "ca"));
 
-    ATF_CHECK( matches_glob("???", "abc"));
-    ATF_CHECK( matches_glob("???", "def"));
-    ATF_CHECK(!matches_glob("???", "a"));
-    ATF_CHECK(!matches_glob("???", "ab"));
-    ATF_CHECK(!matches_glob("???", "abcd"));
+    ATF_REQUIRE( matches_glob("???", "abc"));
+    ATF_REQUIRE( matches_glob("???", "def"));
+    ATF_REQUIRE(!matches_glob("???", "a"));
+    ATF_REQUIRE(!matches_glob("???", "ab"));
+    ATF_REQUIRE(!matches_glob("???", "abcd"));
 }
 
 ATF_TEST_CASE(expand_glob_base);
@@ -173,50 +173,50 @@ ATF_TEST_CASE_BODY(expand_glob_base)
     std::vector< std::string > exps;
 
     exps = expand_glob("foo", candidates);
-    ATF_CHECK_EQUAL(exps.size(), 1);
-    ATF_CHECK(exps[0] == "foo");
+    ATF_REQUIRE_EQ(exps.size(), 1);
+    ATF_REQUIRE(exps[0] == "foo");
 
     exps = expand_glob("bar", candidates);
-    ATF_CHECK_EQUAL(exps.size(), 1);
-    ATF_CHECK(exps[0] == "bar");
+    ATF_REQUIRE_EQ(exps.size(), 1);
+    ATF_REQUIRE(exps[0] == "bar");
 
     exps = expand_glob("foo*", candidates);
-    ATF_CHECK_EQUAL(exps.size(), 4);
-    ATF_CHECK(exps[0] == "foo");
-    ATF_CHECK(exps[1] == "foobar");
-    ATF_CHECK(exps[2] == "foobarbaz");
-    ATF_CHECK(exps[3] == "foobarbazfoo");
+    ATF_REQUIRE_EQ(exps.size(), 4);
+    ATF_REQUIRE(exps[0] == "foo");
+    ATF_REQUIRE(exps[1] == "foobar");
+    ATF_REQUIRE(exps[2] == "foobarbaz");
+    ATF_REQUIRE(exps[3] == "foobarbazfoo");
 
     exps = expand_glob("*foo", candidates);
-    ATF_CHECK_EQUAL(exps.size(), 2);
-    ATF_CHECK(exps[0] == "foo");
-    ATF_CHECK(exps[1] == "foobarbazfoo");
+    ATF_REQUIRE_EQ(exps.size(), 2);
+    ATF_REQUIRE(exps[0] == "foo");
+    ATF_REQUIRE(exps[1] == "foobarbazfoo");
 
     exps = expand_glob("*foo*", candidates);
-    ATF_CHECK_EQUAL(exps.size(), 4);
-    ATF_CHECK(exps[0] == "foo");
-    ATF_CHECK(exps[1] == "foobar");
-    ATF_CHECK(exps[2] == "foobarbaz");
-    ATF_CHECK(exps[3] == "foobarbazfoo");
+    ATF_REQUIRE_EQ(exps.size(), 4);
+    ATF_REQUIRE(exps[0] == "foo");
+    ATF_REQUIRE(exps[1] == "foobar");
+    ATF_REQUIRE(exps[2] == "foobarbaz");
+    ATF_REQUIRE(exps[3] == "foobarbazfoo");
 
     exps = expand_glob("ba", candidates);
-    ATF_CHECK_EQUAL(exps.size(), 0);
+    ATF_REQUIRE_EQ(exps.size(), 0);
 
     exps = expand_glob("ba*", candidates);
-    ATF_CHECK_EQUAL(exps.size(), 2);
-    ATF_CHECK(exps[0] == "bar");
-    ATF_CHECK(exps[1] == "baz");
+    ATF_REQUIRE_EQ(exps.size(), 2);
+    ATF_REQUIRE(exps[0] == "bar");
+    ATF_REQUIRE(exps[1] == "baz");
 
     exps = expand_glob("*ba", candidates);
-    ATF_CHECK_EQUAL(exps.size(), 0);
+    ATF_REQUIRE_EQ(exps.size(), 0);
 
     exps = expand_glob("*ba*", candidates);
-    ATF_CHECK_EQUAL(exps.size(), 5);
-    ATF_CHECK(exps[0] == "bar");
-    ATF_CHECK(exps[1] == "baz");
-    ATF_CHECK(exps[2] == "foobar");
-    ATF_CHECK(exps[3] == "foobarbaz");
-    ATF_CHECK(exps[4] == "foobarbazfoo");
+    ATF_REQUIRE_EQ(exps.size(), 5);
+    ATF_REQUIRE(exps[0] == "bar");
+    ATF_REQUIRE(exps[1] == "baz");
+    ATF_REQUIRE(exps[2] == "foobar");
+    ATF_REQUIRE(exps[3] == "foobarbaz");
+    ATF_REQUIRE(exps[4] == "foobarbazfoo");
 }
 
 ATF_TEST_CASE(expand_glob_tps);
@@ -245,16 +245,16 @@ ATF_TEST_CASE_BODY(expand_glob_tps)
     std::vector< std::string > exps;
 
     exps = expand_glob("t_*", candidates);
-    ATF_CHECK_EQUAL(exps.size(), 3);
-    ATF_CHECK(exps[0] == "t_foo");
-    ATF_CHECK(exps[1] == "t_bar");
-    ATF_CHECK(exps[2] == "t_baz");
+    ATF_REQUIRE_EQ(exps.size(), 3);
+    ATF_REQUIRE(exps[0] == "t_foo");
+    ATF_REQUIRE(exps[1] == "t_bar");
+    ATF_REQUIRE(exps[2] == "t_baz");
 
     exps = expand_glob("*_test", candidates);
-    ATF_CHECK_EQUAL(exps.size(), 3);
-    ATF_CHECK(exps[0] == "foo_test");
-    ATF_CHECK(exps[1] == "bar_test");
-    ATF_CHECK(exps[2] == "baz_test");
+    ATF_REQUIRE_EQ(exps.size(), 3);
+    ATF_REQUIRE(exps[0] == "foo_test");
+    ATF_REQUIRE(exps[1] == "bar_test");
+    ATF_REQUIRE(exps[2] == "baz_test");
 }
 
 // ------------------------------------------------------------------------

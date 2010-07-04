@@ -52,12 +52,12 @@ ATF_TEST_CASE_BODY(duplicate)
     const char* orig = "foo";
 
     char* copy = duplicate(orig);
-    ATF_CHECK_EQUAL(std::strlen(copy), 3);
-    ATF_CHECK(std::strcmp(copy, "foo") == 0);
+    ATF_REQUIRE_EQ(std::strlen(copy), 3);
+    ATF_REQUIRE(std::strcmp(copy, "foo") == 0);
 
     std::strcpy(copy, "bar");
-    ATF_CHECK(std::strcmp(copy, "bar") == 0);
-    ATF_CHECK(std::strcmp(orig, "foo") == 0);
+    ATF_REQUIRE(std::strcmp(copy, "bar") == 0);
+    ATF_REQUIRE(std::strcmp(orig, "foo") == 0);
 }
 
 ATF_TEST_CASE(join);
@@ -76,32 +76,32 @@ ATF_TEST_CASE_BODY(join)
 
         words.clear();
         str = join(words, ",");
-        ATF_CHECK_EQUAL(str, "");
+        ATF_REQUIRE_EQ(str, "");
 
         words.clear();
         words.push_back("");
         str = join(words, ",");
-        ATF_CHECK_EQUAL(str, "");
+        ATF_REQUIRE_EQ(str, "");
 
         words.clear();
         words.push_back("");
         words.push_back("");
         str = join(words, ",");
-        ATF_CHECK_EQUAL(str, ",");
+        ATF_REQUIRE_EQ(str, ",");
 
         words.clear();
         words.push_back("foo");
         words.push_back("");
         words.push_back("baz");
         str = join(words, ",");
-        ATF_CHECK_EQUAL(str, "foo,,baz");
+        ATF_REQUIRE_EQ(str, "foo,,baz");
 
         words.clear();
         words.push_back("foo");
         words.push_back("bar");
         words.push_back("baz");
         str = join(words, ",");
-        ATF_CHECK_EQUAL(str, "foo,bar,baz");
+        ATF_REQUIRE_EQ(str, "foo,bar,baz");
     }
 
     // Second set of tests using a sorted collection, std::set.
@@ -111,26 +111,26 @@ ATF_TEST_CASE_BODY(join)
 
         words.clear();
         str = join(words, ",");
-        ATF_CHECK_EQUAL(str, "");
+        ATF_REQUIRE_EQ(str, "");
 
         words.clear();
         words.insert("");
         str = join(words, ",");
-        ATF_CHECK_EQUAL(str, "");
+        ATF_REQUIRE_EQ(str, "");
 
         words.clear();
         words.insert("foo");
         words.insert("");
         words.insert("baz");
         str = join(words, ",");
-        ATF_CHECK_EQUAL(str, ",baz,foo");
+        ATF_REQUIRE_EQ(str, ",baz,foo");
 
         words.clear();
         words.insert("foo");
         words.insert("bar");
         words.insert("baz");
         str = join(words, ",");
-        ATF_CHECK_EQUAL(str, "bar,baz,foo");
+        ATF_REQUIRE_EQ(str, "bar,baz,foo");
     }
 }
 
@@ -143,21 +143,21 @@ ATF_TEST_CASE_BODY(match)
 {
     using atf::text::match;
 
-    ATF_CHECK_THROW(std::runtime_error, match("", "["));
+    ATF_REQUIRE_THROW(std::runtime_error, match("", "["));
 
-    ATF_CHECK(match("", ""));
-    ATF_CHECK(!match("foo", ""));
+    ATF_REQUIRE(match("", ""));
+    ATF_REQUIRE(!match("foo", ""));
 
-    ATF_CHECK(match("", ".*"));
-    ATF_CHECK(match("", "[a-z]*"));
+    ATF_REQUIRE(match("", ".*"));
+    ATF_REQUIRE(match("", "[a-z]*"));
 
-    ATF_CHECK(match("hello", "hello"));
-    ATF_CHECK(match("hello", "[a-z]+"));
-    ATF_CHECK(match("hello", "^[a-z]+$"));
+    ATF_REQUIRE(match("hello", "hello"));
+    ATF_REQUIRE(match("hello", "[a-z]+"));
+    ATF_REQUIRE(match("hello", "^[a-z]+$"));
 
-    ATF_CHECK(!match("hello", "helooo"));
-    ATF_CHECK(!match("hello", "[a-z]+5"));
-    ATF_CHECK(!match("hello", "^ [a-z]+$"));
+    ATF_REQUIRE(!match("hello", "helooo"));
+    ATF_REQUIRE(!match("hello", "[a-z]+5"));
+    ATF_REQUIRE(!match("hello", "^ [a-z]+$"));
 }
 
 ATF_TEST_CASE(split);
@@ -172,57 +172,57 @@ ATF_TEST_CASE_BODY(split)
     std::vector< std::string > words;
 
     words = split("", " ");
-    ATF_CHECK_EQUAL(words.size(), 0);
+    ATF_REQUIRE_EQ(words.size(), 0);
 
     words = split(" ", " ");
-    ATF_CHECK_EQUAL(words.size(), 0);
+    ATF_REQUIRE_EQ(words.size(), 0);
 
     words = split("    ", " ");
-    ATF_CHECK_EQUAL(words.size(), 0);
+    ATF_REQUIRE_EQ(words.size(), 0);
 
     words = split("a b", " ");
-    ATF_CHECK_EQUAL(words.size(), 2);
-    ATF_CHECK_EQUAL(words[0], "a");
-    ATF_CHECK_EQUAL(words[1], "b");
+    ATF_REQUIRE_EQ(words.size(), 2);
+    ATF_REQUIRE_EQ(words[0], "a");
+    ATF_REQUIRE_EQ(words[1], "b");
 
     words = split("a b c d", " ");
-    ATF_CHECK_EQUAL(words.size(), 4);
-    ATF_CHECK_EQUAL(words[0], "a");
-    ATF_CHECK_EQUAL(words[1], "b");
-    ATF_CHECK_EQUAL(words[2], "c");
-    ATF_CHECK_EQUAL(words[3], "d");
+    ATF_REQUIRE_EQ(words.size(), 4);
+    ATF_REQUIRE_EQ(words[0], "a");
+    ATF_REQUIRE_EQ(words[1], "b");
+    ATF_REQUIRE_EQ(words[2], "c");
+    ATF_REQUIRE_EQ(words[3], "d");
 
     words = split("foo bar", " ");
-    ATF_CHECK_EQUAL(words.size(), 2);
-    ATF_CHECK_EQUAL(words[0], "foo");
-    ATF_CHECK_EQUAL(words[1], "bar");
+    ATF_REQUIRE_EQ(words.size(), 2);
+    ATF_REQUIRE_EQ(words[0], "foo");
+    ATF_REQUIRE_EQ(words[1], "bar");
 
     words = split("foo bar baz foobar", " ");
-    ATF_CHECK_EQUAL(words.size(), 4);
-    ATF_CHECK_EQUAL(words[0], "foo");
-    ATF_CHECK_EQUAL(words[1], "bar");
-    ATF_CHECK_EQUAL(words[2], "baz");
-    ATF_CHECK_EQUAL(words[3], "foobar");
+    ATF_REQUIRE_EQ(words.size(), 4);
+    ATF_REQUIRE_EQ(words[0], "foo");
+    ATF_REQUIRE_EQ(words[1], "bar");
+    ATF_REQUIRE_EQ(words[2], "baz");
+    ATF_REQUIRE_EQ(words[3], "foobar");
 
     words = split(" foo bar", " ");
-    ATF_CHECK_EQUAL(words.size(), 2);
-    ATF_CHECK_EQUAL(words[0], "foo");
-    ATF_CHECK_EQUAL(words[1], "bar");
+    ATF_REQUIRE_EQ(words.size(), 2);
+    ATF_REQUIRE_EQ(words[0], "foo");
+    ATF_REQUIRE_EQ(words[1], "bar");
 
     words = split("foo  bar", " ");
-    ATF_CHECK_EQUAL(words.size(), 2);
-    ATF_CHECK_EQUAL(words[0], "foo");
-    ATF_CHECK_EQUAL(words[1], "bar");
+    ATF_REQUIRE_EQ(words.size(), 2);
+    ATF_REQUIRE_EQ(words[0], "foo");
+    ATF_REQUIRE_EQ(words[1], "bar");
 
     words = split("foo bar ", " ");
-    ATF_CHECK_EQUAL(words.size(), 2);
-    ATF_CHECK_EQUAL(words[0], "foo");
-    ATF_CHECK_EQUAL(words[1], "bar");
+    ATF_REQUIRE_EQ(words.size(), 2);
+    ATF_REQUIRE_EQ(words[0], "foo");
+    ATF_REQUIRE_EQ(words[1], "bar");
 
     words = split("  foo  bar  ", " ");
-    ATF_CHECK_EQUAL(words.size(), 2);
-    ATF_CHECK_EQUAL(words[0], "foo");
-    ATF_CHECK_EQUAL(words[1], "bar");
+    ATF_REQUIRE_EQ(words.size(), 2);
+    ATF_REQUIRE_EQ(words[0], "foo");
+    ATF_REQUIRE_EQ(words[1], "bar");
 }
 
 ATF_TEST_CASE(split_delims);
@@ -237,26 +237,26 @@ ATF_TEST_CASE_BODY(split_delims)
     std::vector< std::string > words;
 
     words = split("", "/");
-    ATF_CHECK_EQUAL(words.size(), 0);
+    ATF_REQUIRE_EQ(words.size(), 0);
 
     words = split(" ", "/");
-    ATF_CHECK_EQUAL(words.size(), 1);
-    ATF_CHECK_EQUAL(words[0], " ");
+    ATF_REQUIRE_EQ(words.size(), 1);
+    ATF_REQUIRE_EQ(words[0], " ");
 
     words = split("    ", "/");
-    ATF_CHECK_EQUAL(words.size(), 1);
-    ATF_CHECK_EQUAL(words[0], "    ");
+    ATF_REQUIRE_EQ(words.size(), 1);
+    ATF_REQUIRE_EQ(words[0], "    ");
 
     words = split("a/b", "/");
-    ATF_CHECK_EQUAL(words.size(), 2);
-    ATF_CHECK_EQUAL(words[0], "a");
-    ATF_CHECK_EQUAL(words[1], "b");
+    ATF_REQUIRE_EQ(words.size(), 2);
+    ATF_REQUIRE_EQ(words[0], "a");
+    ATF_REQUIRE_EQ(words[1], "b");
 
     words = split("aLONGDELIMbcdLONGDELIMef", "LONGDELIM");
-    ATF_CHECK_EQUAL(words.size(), 3);
-    ATF_CHECK_EQUAL(words[0], "a");
-    ATF_CHECK_EQUAL(words[1], "bcd");
-    ATF_CHECK_EQUAL(words[2], "ef");
+    ATF_REQUIRE_EQ(words.size(), 3);
+    ATF_REQUIRE_EQ(words[0], "a");
+    ATF_REQUIRE_EQ(words[1], "bcd");
+    ATF_REQUIRE_EQ(words[2], "ef");
 }
 
 ATF_TEST_CASE(trim);
@@ -268,21 +268,21 @@ ATF_TEST_CASE_BODY(trim)
 {
     using atf::text::trim;
 
-    ATF_CHECK_EQUAL(trim(""), "");
-    ATF_CHECK_EQUAL(trim(" "), "");
-    ATF_CHECK_EQUAL(trim("\t"), "");
+    ATF_REQUIRE_EQ(trim(""), "");
+    ATF_REQUIRE_EQ(trim(" "), "");
+    ATF_REQUIRE_EQ(trim("\t"), "");
 
-    ATF_CHECK_EQUAL(trim(" foo"), "foo");
-    ATF_CHECK_EQUAL(trim("\t foo"), "foo");
-    ATF_CHECK_EQUAL(trim(" \tfoo"), "foo");
-    ATF_CHECK_EQUAL(trim("foo\t "), "foo");
-    ATF_CHECK_EQUAL(trim("foo \t"), "foo");
+    ATF_REQUIRE_EQ(trim(" foo"), "foo");
+    ATF_REQUIRE_EQ(trim("\t foo"), "foo");
+    ATF_REQUIRE_EQ(trim(" \tfoo"), "foo");
+    ATF_REQUIRE_EQ(trim("foo\t "), "foo");
+    ATF_REQUIRE_EQ(trim("foo \t"), "foo");
 
-    ATF_CHECK_EQUAL(trim("foo bar"), "foo bar");
-    ATF_CHECK_EQUAL(trim("\t foo bar"), "foo bar");
-    ATF_CHECK_EQUAL(trim(" \tfoo bar"), "foo bar");
-    ATF_CHECK_EQUAL(trim("foo bar\t "), "foo bar");
-    ATF_CHECK_EQUAL(trim("foo bar \t"), "foo bar");
+    ATF_REQUIRE_EQ(trim("foo bar"), "foo bar");
+    ATF_REQUIRE_EQ(trim("\t foo bar"), "foo bar");
+    ATF_REQUIRE_EQ(trim(" \tfoo bar"), "foo bar");
+    ATF_REQUIRE_EQ(trim("foo bar\t "), "foo bar");
+    ATF_REQUIRE_EQ(trim("foo bar \t"), "foo bar");
 }
 
 ATF_TEST_CASE(to_bool);
@@ -294,21 +294,21 @@ ATF_TEST_CASE_BODY(to_bool)
 {
     using atf::text::to_bool;
 
-    ATF_CHECK(to_bool("true"));
-    ATF_CHECK(to_bool("TRUE"));
-    ATF_CHECK(to_bool("yes"));
-    ATF_CHECK(to_bool("YES"));
+    ATF_REQUIRE(to_bool("true"));
+    ATF_REQUIRE(to_bool("TRUE"));
+    ATF_REQUIRE(to_bool("yes"));
+    ATF_REQUIRE(to_bool("YES"));
 
-    ATF_CHECK(!to_bool("false"));
-    ATF_CHECK(!to_bool("FALSE"));
-    ATF_CHECK(!to_bool("no"));
-    ATF_CHECK(!to_bool("NO"));
+    ATF_REQUIRE(!to_bool("false"));
+    ATF_REQUIRE(!to_bool("FALSE"));
+    ATF_REQUIRE(!to_bool("no"));
+    ATF_REQUIRE(!to_bool("NO"));
 
-    ATF_CHECK_THROW(std::runtime_error, to_bool(""));
-    ATF_CHECK_THROW(std::runtime_error, to_bool("tru"));
-    ATF_CHECK_THROW(std::runtime_error, to_bool("true2"));
-    ATF_CHECK_THROW(std::runtime_error, to_bool("fals"));
-    ATF_CHECK_THROW(std::runtime_error, to_bool("false2"));
+    ATF_REQUIRE_THROW(std::runtime_error, to_bool(""));
+    ATF_REQUIRE_THROW(std::runtime_error, to_bool("tru"));
+    ATF_REQUIRE_THROW(std::runtime_error, to_bool("true2"));
+    ATF_REQUIRE_THROW(std::runtime_error, to_bool("fals"));
+    ATF_REQUIRE_THROW(std::runtime_error, to_bool("false2"));
 }
 
 ATF_TEST_CASE(to_string);
@@ -320,9 +320,9 @@ ATF_TEST_CASE_BODY(to_string)
 {
     using atf::text::to_string;
 
-    ATF_CHECK_EQUAL(to_string('a'), "a");
-    ATF_CHECK_EQUAL(to_string("a"), "a");
-    ATF_CHECK_EQUAL(to_string(5), "5");
+    ATF_REQUIRE_EQ(to_string('a'), "a");
+    ATF_REQUIRE_EQ(to_string("a"), "a");
+    ATF_REQUIRE_EQ(to_string(5), "5");
 }
 
 ATF_TEST_CASE(to_type);
@@ -334,17 +334,17 @@ ATF_TEST_CASE_BODY(to_type)
 {
     using atf::text::to_type;
 
-    ATF_CHECK_EQUAL(to_type< int >("0"), 0);
-    ATF_CHECK_EQUAL(to_type< int >("1234"), 1234);
-    ATF_CHECK_THROW(std::runtime_error, to_type< int >("0 a"));
-    ATF_CHECK_THROW(std::runtime_error, to_type< int >("a"));
+    ATF_REQUIRE_EQ(to_type< int >("0"), 0);
+    ATF_REQUIRE_EQ(to_type< int >("1234"), 1234);
+    ATF_REQUIRE_THROW(std::runtime_error, to_type< int >("0 a"));
+    ATF_REQUIRE_THROW(std::runtime_error, to_type< int >("a"));
 
-    ATF_CHECK_EQUAL(to_type< float >("0.5"), 0.5);
-    ATF_CHECK_EQUAL(to_type< float >("1234.5"), 1234.5);
-    ATF_CHECK_THROW(std::runtime_error, to_type< float >("0.5 a"));
-    ATF_CHECK_THROW(std::runtime_error, to_type< float >("a"));
+    ATF_REQUIRE_EQ(to_type< float >("0.5"), 0.5);
+    ATF_REQUIRE_EQ(to_type< float >("1234.5"), 1234.5);
+    ATF_REQUIRE_THROW(std::runtime_error, to_type< float >("0.5 a"));
+    ATF_REQUIRE_THROW(std::runtime_error, to_type< float >("a"));
 
-    ATF_CHECK_EQUAL(to_type< std::string >("a"), "a");
+    ATF_REQUIRE_EQ(to_type< std::string >("a"), "a");
 }
 
 // ------------------------------------------------------------------------

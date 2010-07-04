@@ -112,8 +112,8 @@ ATF_TEST_CASE_BODY(env_list)
                            atf::process::argv_array("env", NULL),
                            atf::process::stream_inherit(),
                            atf::process::stream_inherit());
-    ATF_CHECK(s.exited());
-    ATF_CHECK(s.exitstatus() == EXIT_SUCCESS);
+    ATF_REQUIRE(s.exited());
+    ATF_REQUIRE(s.exitstatus() == EXIT_SUCCESS);
 }
 
 ATF_TEST_CASE(env_home);
@@ -123,12 +123,12 @@ ATF_TEST_CASE_HEAD(env_home)
 }
 ATF_TEST_CASE_BODY(env_home)
 {
-    ATF_CHECK(atf::env::has("HOME"));
+    ATF_REQUIRE(atf::env::has("HOME"));
     atf::fs::path p(atf::env::get("HOME"));
     atf::fs::file_info fi1(p);
     atf::fs::file_info fi2(atf::fs::path("."));
-    ATF_CHECK_EQUAL(fi1.get_device(), fi2.get_device());
-    ATF_CHECK_EQUAL(fi1.get_inode(), fi2.get_inode());
+    ATF_REQUIRE_EQ(fi1.get_device(), fi2.get_device());
+    ATF_REQUIRE_EQ(fi1.get_inode(), fi2.get_inode());
 }
 
 ATF_TEST_CASE(umask);
