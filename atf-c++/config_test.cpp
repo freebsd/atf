@@ -117,8 +117,7 @@ static
 void
 compare_one(const char* var, const char* expvalue)
 {
-    std::cout << "Checking that " << var << " is set to " << expvalue
-              << std::endl;
+    std::cout << "Checking that " << var << " is set to " << expvalue << "\n";
 
     for (const struct varnames* v = all_vars; v->lc != NULL; v++) {
         if (std::strcmp(v->lc, var) == 0)

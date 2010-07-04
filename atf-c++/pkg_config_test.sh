@@ -96,7 +96,7 @@ ATF_TEST_CASE_HEAD(tc) {
     set_md_var("descr", "A test case");
 }
 ATF_TEST_CASE_BODY(tc) {
-    std::cout << "Running" << std::endl;
+    std::cout << "Running\n";
 }
 
 ATF_INIT_TEST_CASES(tcs) {

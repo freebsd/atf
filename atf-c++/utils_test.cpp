@@ -61,7 +61,7 @@ public:
     {
         m_nblocks++;
         void* mem = ::operator new(size);
-        std::cout << "Allocated 'test_array' object " << mem << std::endl;
+        std::cout << "Allocated 'test_array' object " << mem << "\n";
         return mem;
     }
 
@@ -72,7 +72,7 @@ public:
 
     void operator delete[](void* mem)
     {
-        std::cout << "Releasing 'test_array' object " << mem << std::endl;
+        std::cout << "Releasing 'test_array' object " << mem << "\n";
         if (m_nblocks == 0)
             ATF_FAIL("Unbalanced delete[]");
         m_nblocks--;

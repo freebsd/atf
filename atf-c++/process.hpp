@@ -223,6 +223,10 @@ public:
 // Free functions.
 // ------------------------------------------------------------------------
 
+namespace detail {
+void flush_streams(void);
+} // namespace detail
+
 // TODO: The void* cookie can probably be templatized, thus also allowing
 // const data structures.
 template< class OutStream, class ErrStream >
@@ -232,6 +236,7 @@ fork(void (*start)(void*), const OutStream& outsb,
 {
     atf_process_child_t c;
 
+    detail::flush_streams();
     atf_error_t err = atf_process_fork(&c, start, outsb.get_sb(),
                                        errsb.get_sb(), v);
     if (atf_is_error(err))
@@ -247,6 +252,7 @@ exec(const atf::fs::path& prog, const argv_array& argv,
 {
     atf_process_status_t s;
 
+    detail::flush_streams();
     atf_error_t err = atf_process_exec_array(&s, prog.c_path(),
                                              argv.exec_argv(),
                                              outsb.get_sb(),

@@ -231,7 +231,7 @@ reset_child(void *v)
     kill(::getpid(), SIGUSR1);
 
     if (sigusr1::happened) {
-        std::cerr << "Signal was not resetted correctly" << std::endl;
+        std::cerr << "Signal was not resetted correctly\n";
         abort();
     } else {
         exit(EXIT_SUCCESS);

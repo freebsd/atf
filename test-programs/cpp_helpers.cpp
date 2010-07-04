@@ -235,13 +235,13 @@ ATF_TEST_CASE_HEAD(fork_stop)
 ATF_TEST_CASE_BODY(fork_stop)
 {
     std::ofstream os(get_config_var("pidfile").c_str());
-    os << ::getpid() << std::endl;
+    os << ::getpid() << "\n";
     os.close();
-    std::cout << "Wrote pid file" << std::endl;
-    std::cout << "Waiting for done file" << std::endl;
+    std::cout << "Wrote pid file\n";
+    std::cout << "Waiting for done file\n";
     while (::access(get_config_var("donefile").c_str(), F_OK) != 0)
         ::usleep(10000);
-    std::cout << "Exiting" << std::endl;
+    std::cout << "Exiting\n";
 }
 
 // ------------------------------------------------------------------------

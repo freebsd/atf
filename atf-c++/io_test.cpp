@@ -293,7 +293,8 @@ ATF_TEST_CASE_BODY(pipe_read_and_write)
 
     // XXX This assumes that the pipe's buffer is big enough to accept
     // the data written without blocking!
-    wend << "1Test 1message" << std::endl;
+    wend << "1Test 1message\n";
+    wend.flush();
     std::string tmp;
     rend >> tmp;
     ATF_CHECK_EQUAL(tmp, "1Test");
@@ -318,7 +319,8 @@ ATF_TEST_CASE_BODY(pipe_remap_read)
 
     // XXX This assumes that the pipe's buffer is big enough to accept
     // the data written without blocking!
-    wend << "2Test 2message" << std::endl;
+    wend << "2Test 2message\n";
+    wend.flush();
     std::string tmp;
     std::cin >> tmp;
     ATF_CHECK_EQUAL(tmp, "2Test");
@@ -349,7 +351,8 @@ ATF_TEST_CASE_BODY(pipe_remap_write)
 
     // XXX This assumes that the pipe's buffer is big enough to accept
     // the data written without blocking!
-    std::cout << "3Test 3message" << std::endl;
+    std::cout << "3Test 3message\n";
+    std::cout.flush();
     std::string tmp;
     rend >> tmp;
     ATF_CHECK_EQUAL(tmp, "3Test");
@@ -381,7 +384,8 @@ ATF_TEST_CASE_BODY(pistream)
 
     // XXX This assumes that the pipe's buffer is big enough to accept
     // the data written without blocking!
-    wend << "1Test 1message" << std::endl;
+    wend << "1Test 1message\n";
+    wend.flush();
     std::string tmp;
     rend >> tmp;
     ATF_CHECK_EQUAL(tmp, "1Test");
@@ -418,7 +422,8 @@ ATF_TEST_CASE_BODY(postream)
 
         // XXX This assumes that the pipe's buffer is big enough to accept
         // the data written without blocking!
-        wend << "1Test 1message" << std::endl;
+        wend << "1Test 1message\n";
+        wend.flush();
         std::string tmp;
         rend >> tmp;
         ATF_CHECK_EQUAL(tmp, "1Test");

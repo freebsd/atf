@@ -34,10 +34,13 @@ extern "C" {
 #include "atf-c/process.h"
 }
 
+#include <iostream>
+
 #include "atf-c++/exceptions.hpp"
 #include "atf-c++/process.hpp"
 #include "atf-c++/sanity.hpp"
 
+namespace detail = atf::process::detail;
 namespace impl = atf::process;
 #define IMPL_NAME "atf::process"
 
@@ -328,4 +331,24 @@ atf::io::file_handle
 impl::child::stderr_fd(void)
 {
     return io::file_handle(atf_process_child_stderr(&m_child));
+}
+
+// ------------------------------------------------------------------------
+// Free functions.
+// ------------------------------------------------------------------------
+
+void
+detail::flush_streams(void)
+{
+    // This is a weird hack to ensure that the output of the parent process
+    // is flushed before executing a child which prevents, for example, the
+    // output of the atf-run hooks to appear before the output of atf-run
+    // itself.
+    //
+    // TODO: This should only be executed when inheriting the stdout or
+    // stderr file descriptors.  However, the flushing is specific to the
+    // iostreams, so we cannot do it from the C library where all the process
+    // logic is performed.  Come up with a better design.
+    std::cout.flush();
+    std::cerr.flush();
 }

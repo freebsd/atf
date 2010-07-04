@@ -80,18 +80,17 @@ ATF_TEST_CASE_BODY(is_member_of_group)
             if (gids[i] > maxgid)
                 maxgid = gids[i];
         }
-        std::cout << "User belongs to " << ngids << " groups" << std::endl;
-        std::cout << "Last GID is " << maxgid << std::endl;
+        std::cout << "User belongs to " << ngids << " groups\n";
+        std::cout << "Last GID is " << maxgid << "\n";
     }
 
     for (gid_t g = 0; g <= maxgid; g++) {
         if (groups.find(g) == groups.end()) {
             std::cout << "Checking if user does not belong to group "
-                      << g << std::endl;
+                      << g << "\n";
             ATF_CHECK(!is_member_of_group(g));
         } else {
-            std::cout << "Checking if user belongs to group "
-                      << g << std::endl;
+            std::cout << "Checking if user belongs to group " << g << "\n";
             ATF_CHECK(is_member_of_group(g));
         }
     }

@@ -271,7 +271,7 @@ ATF_TEST_CASE_BODY(check)
         atf::tests::vars_map config;
         config["condition"] = t->cond;
 
-        std::cout << "Checking with a " << t->cond << " value" << std::endl;
+        std::cout << "Checking with a " << t->cond << " value\n";
 
         run_h_tc< ATF_TEST_CASE_NAME(h_check) >(config);
 
@@ -320,7 +320,7 @@ ATF_TEST_CASE_BODY(check_equal)
 
         std::cout << "Checking with " << t->v1 << ", " << t->v2
                   << " and expecting " << (t->ok ? "true" : "false")
-                  << std::endl;
+                  << "\n";
 
         run_h_tc< ATF_TEST_CASE_NAME(h_check_equal) >(config);
 
@@ -366,7 +366,7 @@ ATF_TEST_CASE_BODY(check_throw)
         config["what"] = t->what;
 
         std::cout << "Checking with " << t->what << " and expecting "
-                  << (t->ok ? "true" : "false") << std::endl;
+                  << (t->ok ? "true" : "false") << "\n";
 
         run_h_tc< ATF_TEST_CASE_NAME(h_check_throw) >(config);
 
@@ -376,7 +376,7 @@ ATF_TEST_CASE_BODY(check_throw)
             ATF_CHECK(atf::fs::exists(after));
         } else {
             std::cout << "Checking that message contains '" << t->msg
-                      << "'" << std::endl;
+                      << "'\n";
             std::string exp_result = std::string("^failed: .*") + t->msg;
             ATF_CHECK(grep_file("result", exp_result.c_str()));
             ATF_CHECK(!atf::fs::exists(after));

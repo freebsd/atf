@@ -69,10 +69,10 @@ ATF_TEST_CASE_HEAD(config)
 }
 ATF_TEST_CASE_BODY(config)
 {
-    std::cout << "1st: " << get_config_var("1st") << std::endl;
-    std::cout << "2nd: " << get_config_var("2nd") << std::endl;
-    std::cout << "3rd: " << get_config_var("3rd") << std::endl;
-    std::cout << "4th: " << get_config_var("4th") << std::endl;
+    std::cout << "1st: " << get_config_var("1st") << "\n";
+    std::cout << "2nd: " << get_config_var("2nd") << "\n";
+    std::cout << "3rd: " << get_config_var("3rd") << "\n";
+    std::cout << "4th: " << get_config_var("4th") << "\n";
 }
 
 ATF_TEST_CASE(fds);
@@ -82,10 +82,10 @@ ATF_TEST_CASE_HEAD(fds)
 }
 ATF_TEST_CASE_BODY(fds)
 {
-    std::cout << "msg1 to stdout" << std::endl;
-    std::cout << "msg2 to stdout" << std::endl;
-    std::cerr << "msg1 to stderr" << std::endl;
-    std::cerr << "msg2 to stderr" << std::endl;
+    std::cout << "msg1 to stdout" << "\n";
+    std::cout << "msg2 to stdout" << "\n";
+    std::cerr << "msg1 to stderr" << "\n";
+    std::cerr << "msg2 to stderr" << "\n";
 }
 
 ATF_TEST_CASE(testvar);
@@ -97,7 +97,7 @@ ATF_TEST_CASE_BODY(testvar)
 {
     if (!has_config_var("testvar"))
         atf_tc_fail("testvar variable not defined");
-    std::cout << "testvar: " << get_config_var("testvar") << std::endl;
+    std::cout << "testvar: " << get_config_var("testvar") << "\n";
 }
 
 ATF_TEST_CASE(env_list);
@@ -140,7 +140,7 @@ ATF_TEST_CASE_BODY(umask)
 {
     mode_t m = ::umask(0);
     std::cout << "umask: " << std::setw(4) << std::setfill('0')
-              << std::oct << m << std::endl;
+              << std::oct << m << "\n";
     (void)::umask(m);
 }
 
@@ -184,7 +184,7 @@ ATF_TEST_CASE_CLEANUP(cleanup_curdir)
     if (is) {
         int i;
         is >> i;
-        std::cout << "Old value: " << i << std::endl;
+        std::cout << "Old value: " << i << "\n";
         is.close();
     }
 }
@@ -207,8 +207,8 @@ ATF_TEST_CASE_HEAD(require_config)
 }
 ATF_TEST_CASE_BODY(require_config)
 {
-    std::cout << "var1: " << get_config_var("var1") << std::endl;
-    std::cout << "var2: " << get_config_var("var2") << std::endl;
+    std::cout << "var1: " << get_config_var("var1") << "\n";
+    std::cout << "var2: " << get_config_var("var2") << "\n";
 }
 
 ATF_TEST_CASE(require_machine);

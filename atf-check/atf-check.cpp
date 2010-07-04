@@ -275,7 +275,7 @@ execute(const char* const* argv)
     std::cout << "Executing command [ ";
     for (int i = 0; argv[i] != NULL; ++i)
         std::cout << argv[i] << " ";
-    std::cout << "]" << std::endl;
+    std::cout << "]\n";
 
     atf::process::argv_array argva(argv);
     return atf::check::exec(argva);
@@ -354,10 +354,10 @@ print_diff(const atf::fs::path& p1, const atf::fs::path& p2)
                            atf::process::stream_inherit());
 
     if (!s.exited())
-        std::cerr << "Failed to run diff(3)" << std::endl;
+        std::cerr << "Failed to run diff(3)\n";
 
     if (s.exitstatus() != 1)
-        std::cerr << "Error while running diff(3)" << std::endl;
+        std::cerr << "Error while running diff(3)\n";
 }
 
 static
@@ -418,19 +418,19 @@ run_status_check(const status_check& sc, const atf::check::check_result& cr)
             if (!sc.negated && sc.value != status) {
                 std::cerr << "Fail: incorrect exit status: "
                           << status << ", expected: "
-                          << sc.value << std::endl;
+                          << sc.value << "\n";
                 result = false;
             } else if (sc.negated && sc.value == status) {
                 std::cerr << "Fail: incorrect exit status: "
                           << status << ", expected: "
-                          << "anything else" << std::endl;
+                          << "anything else\n";
                 result = false;
             } else
                 result = true;
         } else if (cr.exited() && sc.value == INT_MIN) {
             result = true;
         } else {
-            std::cerr << "Fail: program did not exit cleanly" << std::endl;
+            std::cerr << "Fail: program did not exit cleanly\n";
             result = false;
         }
     } else if (sc.type == sc_ignore) {
@@ -441,20 +441,19 @@ run_status_check(const status_check& sc, const atf::check::check_result& cr)
 
             if (!sc.negated && sc.value != status) {
                 std::cerr << "Fail: incorrect signal received: "
-                          << status << ", expected: "
-                          << sc.value << std::endl;
+                          << status << ", expected: " << sc.value << "\n";
                 result = false;
             } else if (sc.negated && sc.value == status) {
                 std::cerr << "Fail: incorrect signal received: "
                           << status << ", expected: "
-                          << "anything else" << std::endl;
+                          << "anything else\n";
                 result = false;
             } else
                 result = true;
         } else if (cr.signaled() && sc.value == INT_MIN) {
             result = true;
         } else {
-            std::cerr << "Fail: program did not receive a signal" << std::endl;
+            std::cerr << "Fail: program did not receive a signal\n";
             result = false;
         }
     } else {
@@ -463,13 +462,13 @@ run_status_check(const status_check& sc, const atf::check::check_result& cr)
     }
 
     if (result == false) {
-        std::cerr << "stdout:" << std::endl;
+        std::cerr << "stdout:\n";
         cat_file(cr.stdout_path());
-        std::cerr << std::endl;
+        std::cerr << "\n";
 
-        std::cerr << "stderr:" << std::endl;
+        std::cerr << "stderr:\n";
         cat_file(cr.stderr_path());
-        std::cerr << std::endl;
+        std::cerr << "\n";
     }
 
     return result;
@@ -500,24 +499,23 @@ run_output_check(const output_check oc, const atf::fs::path& path,
     if (oc.type == oc_empty) {
         const bool is_empty = file_empty(path);
         if (!oc.negated && !is_empty) {
-            std::cerr << "Fail: " << stdxxx << " not empty" << std::endl;
+            std::cerr << "Fail: " << stdxxx << " not empty\n";
             print_diff(atf::fs::path("/dev/null"), path);
             result = false;
         } else if (oc.negated && is_empty) {
-            std::cerr << "Fail: " << stdxxx << " is empty" << std::endl;
+            std::cerr << "Fail: " << stdxxx << " is empty\n";
             result = false;
         } else
             result = true;
     } else if (oc.type == oc_file) {
         const bool equals = atf::io::cmp(path, atf::fs::path(oc.value));
         if (!oc.negated && !equals) {
-            std::cerr << "Fail: " << stdxxx << " does not match golden output"
-                      << std::endl;
+            std::cerr << "Fail: " << stdxxx << " does not match golden "
+                "output\n";
             print_diff(atf::fs::path(oc.value), path);
             result = false;
         } else if (oc.negated && equals) {
-            std::cerr << "Fail: " << stdxxx << " matches golden output"
-                      << std::endl;
+            std::cerr << "Fail: " << stdxxx << " matches golden output\n";
             cat_file(atf::fs::path(oc.value));
             result = false;
         } else
@@ -533,13 +531,12 @@ run_output_check(const output_check oc, const atf::fs::path& path,
 
         const bool equals = atf::io::cmp(path, temp.get_path());
         if (!oc.negated && !equals) {
-            std::cerr << "Fail: " << stdxxx << " does not match expected value"
-                      << std::endl;
+            std::cerr << "Fail: " << stdxxx << " does not match expected "
+                "value\n";
             print_diff(temp.get_path(), path);
             result = false;
         } else if (oc.negated && equals) {
-            std::cerr << "Fail: " << stdxxx << " matches expected value"
-                      << std::endl;
+            std::cerr << "Fail: " << stdxxx << " matches expected value\n";
             cat_file(temp.get_path());
             result = false;
         } else
@@ -548,12 +545,12 @@ run_output_check(const output_check oc, const atf::fs::path& path,
         const bool matches = grep_file(path, oc.value);
         if (!oc.negated && !matches) {
             std::cerr << "Fail: regexp " + oc.value + " not in " << stdxxx
-                      << std::endl;
+                      << "\n";
             cat_file(path);
             result = false;
         } else if (oc.negated && matches) {
             std::cerr << "Fail: regexp " + oc.value + " is in " << stdxxx
-                      << std::endl;
+                      << "\n";
             cat_file(path);
             result = false;
         } else
