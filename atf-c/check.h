@@ -33,18 +33,14 @@
 #include <atf-c/error_fwd.h>
 #include <atf-c/fs.h>
 #include <atf-c/list.h>
-#include <atf-c/process.h>
 
 /* ---------------------------------------------------------------------
  * The "atf_check_result" type.
  * --------------------------------------------------------------------- */
 
+struct atf_check_result_impl;
 struct atf_check_result {
-    atf_list_t m_argv;
-    atf_fs_path_t m_dir;
-    atf_fs_path_t m_stdout;
-    atf_fs_path_t m_stderr;
-    atf_process_status_t m_status;
+    struct atf_check_result_impl *pimpl;
 };
 typedef struct atf_check_result atf_check_result_t;
 

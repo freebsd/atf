@@ -30,11 +30,12 @@
 #if !defined(ATF_C_TC_H)
 #define ATF_C_TC_H
 
+#include <stddef.h>
+
 #include <atf-c/defs.h>
 #include <atf-c/error_fwd.h>
 #include <atf-c/map.h>
 
-struct atf_dynstr;
 struct atf_fs_path;
 struct atf_tc;
 
@@ -62,15 +63,9 @@ typedef const struct atf_tc_pack atf_tc_pack_t;
  * The "atf_tc" type.
  * --------------------------------------------------------------------- */
 
+struct atf_tc_impl;
 struct atf_tc {
-    const char *m_ident;
-
-    atf_map_t m_vars;
-    const atf_map_t *m_config;
-
-    atf_tc_head_t m_head;
-    atf_tc_body_t m_body;
-    atf_tc_cleanup_t m_cleanup;
+    struct atf_tc_impl *pimpl;
 };
 typedef struct atf_tc atf_tc_t;
 

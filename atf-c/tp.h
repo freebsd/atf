@@ -36,15 +36,14 @@
 struct atf_fs_path;
 struct atf_map;
 struct atf_tc;
-struct atf_tcr;
 
 /* ---------------------------------------------------------------------
  * The "atf_tp" type.
  * --------------------------------------------------------------------- */
 
+struct atf_tp_impl;
 struct atf_tp {
-    atf_list_t m_tcs;
-    const struct atf_map *m_config;
+    struct atf_tp_impl *pimpl;
 };
 typedef struct atf_tp atf_tp_t;
 

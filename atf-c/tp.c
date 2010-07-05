@@ -28,6 +28,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -36,6 +37,11 @@
 #include "atf-c/sanity.h"
 #include "atf-c/tc.h"
 #include "atf-c/tp.h"
+
+struct atf_tp_impl {
+    atf_list_t m_tcs;
+    const struct atf_map *m_config;
+};
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -49,10 +55,10 @@ find_tc(const atf_tp_t *tp, const char *ident)
     atf_list_citer_t iter;
 
     tc = NULL;
-    atf_list_for_each_c(iter, &tp->m_tcs) {
+    atf_list_for_each_c(iter, &tp->pimpl->m_tcs) {
         const atf_tc_t *tc2;
         tc2 = atf_list_citer_data(iter);
-        if (strcmp(tc2->m_ident, ident) == 0) {
+        if (strcmp(atf_tc_get_ident(tc2), ident) == 0) {
             tc = tc2;
             break;
         }
@@ -75,11 +81,15 @@ atf_tp_init(atf_tp_t *tp, struct atf_map *config)
 
     PRE(config != NULL);
 
-    err = atf_list_init(&tp->m_tcs);
+    tp->pimpl = malloc(sizeof(struct atf_tp_impl));
+    if (tp->pimpl == NULL)
+        return atf_no_memory_error();
+
+    err = atf_list_init(&tp->pimpl->m_tcs);
     if (atf_is_error(err))
         goto out;
 
-    tp->m_config = config;
+    tp->pimpl->m_config = config;
 
     INV(!atf_is_error(err));
 out:
@@ -91,11 +101,13 @@ atf_tp_fini(atf_tp_t *tp)
 {
     atf_list_iter_t iter;
 
-    atf_list_for_each(iter, &tp->m_tcs) {
+    atf_list_for_each(iter, &tp->pimpl->m_tcs) {
         atf_tc_t *tc = atf_list_iter_data(iter);
         atf_tc_fini(tc);
     }
-    atf_list_fini(&tp->m_tcs);
+    atf_list_fini(&tp->pimpl->m_tcs);
+
+    free(tp->pimpl);
 }
 
 /*
@@ -105,7 +117,7 @@ atf_tp_fini(atf_tp_t *tp)
 const struct atf_map *
 atf_tp_get_config(const atf_tp_t *tp)
 {
-    return tp->m_config;
+    return tp->pimpl->m_config;
 }
 
 bool
@@ -126,7 +138,7 @@ atf_tp_get_tc(const atf_tp_t *tp, const char *id)
 const atf_list_t *
 atf_tp_get_tcs(const atf_tp_t *tp)
 {
-    return &tp->m_tcs;
+    return &tp->pimpl->m_tcs;
 }
 
 /*
@@ -138,11 +150,11 @@ atf_tp_add_tc(atf_tp_t *tp, atf_tc_t *tc)
 {
     atf_error_t err;
 
-    PRE(find_tc(tp, tc->m_ident) == NULL);
+    PRE(find_tc(tp, atf_tc_get_ident(tc)) == NULL);
 
-    err = atf_list_append(&tp->m_tcs, tc, false);
+    err = atf_list_append(&tp->pimpl->m_tcs, tc, false);
 
-    POST(find_tc(tp, tc->m_ident) != NULL);
+    POST(find_tc(tp, atf_tc_get_ident(tc)) != NULL);
 
     return err;
 }

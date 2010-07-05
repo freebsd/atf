@@ -504,6 +504,17 @@ out:
  * The "atf_tc" type.
  * --------------------------------------------------------------------- */
 
+struct atf_tc_impl {
+    const char *m_ident;
+
+    atf_map_t m_vars;
+    const atf_map_t *m_config;
+
+    atf_tc_head_t m_head;
+    atf_tc_body_t m_body;
+    atf_tc_cleanup_t m_cleanup;
+};
+
 /*
  * Constructors/destructors.
  */
@@ -515,13 +526,19 @@ atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
 {
     atf_error_t err;
 
-    tc->m_ident = ident;
-    tc->m_head = head;
-    tc->m_body = body;
-    tc->m_cleanup = cleanup;
-    tc->m_config = config;
+    tc->pimpl = malloc(sizeof(struct atf_tc_impl));
+    if (tc->pimpl == NULL) {
+        err = atf_no_memory_error();
+        goto err;
+    }
 
-    err = atf_map_init(&tc->m_vars);
+    tc->pimpl->m_ident = ident;
+    tc->pimpl->m_head = head;
+    tc->pimpl->m_body = body;
+    tc->pimpl->m_cleanup = cleanup;
+    tc->pimpl->m_config = config;
+
+    err = atf_map_init(&tc->pimpl->m_vars);
     if (atf_is_error(err))
         goto err;
 
@@ -536,8 +553,8 @@ atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
     }
 
     /* XXX Should the head be able to return error codes? */
-    if (tc->m_head != NULL)
-        tc->m_head(tc);
+    if (tc->pimpl->m_head != NULL)
+        tc->pimpl->m_head(tc);
 
     if (strcmp(atf_tc_get_md_var(tc, "ident"), ident) != 0) {
         report_fatal_error("Test case head modified the read-only 'ident' "
@@ -549,7 +566,7 @@ atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
     return err;
 
 err_map:
-    atf_map_fini(&tc->m_vars);
+    atf_map_fini(&tc->pimpl->m_vars);
 err:
     return err;
 }
@@ -565,7 +582,8 @@ atf_tc_init_pack(atf_tc_t *tc, const atf_tc_pack_t *pack,
 void
 atf_tc_fini(atf_tc_t *tc)
 {
-    atf_map_fini(&tc->m_vars);
+    atf_map_fini(&tc->pimpl->m_vars);
+    free(tc->pimpl);
 }
 
 /*
@@ -575,7 +593,7 @@ atf_tc_fini(atf_tc_t *tc)
 const char *
 atf_tc_get_ident(const atf_tc_t *tc)
 {
-    return tc->m_ident;
+    return tc->pimpl->m_ident;
 }
 
 const char *
@@ -585,7 +603,7 @@ atf_tc_get_config_var(const atf_tc_t *tc, const char *name)
     atf_map_citer_t iter;
 
     PRE(atf_tc_has_config_var(tc, name));
-    iter = atf_map_find_c(tc->m_config, name);
+    iter = atf_map_find_c(tc->pimpl->m_config, name);
     val = atf_map_citer_data(iter);
     INV(val != NULL);
 
@@ -613,7 +631,7 @@ atf_tc_get_md_var(const atf_tc_t *tc, const char *name)
     atf_map_citer_t iter;
 
     PRE(atf_tc_has_md_var(tc, name));
-    iter = atf_map_find_c(&tc->m_vars, name);
+    iter = atf_map_find_c(&tc->pimpl->m_vars, name);
     val = atf_map_citer_data(iter);
     INV(val != NULL);
 
@@ -623,7 +641,7 @@ atf_tc_get_md_var(const atf_tc_t *tc, const char *name)
 const atf_map_t *
 atf_tc_get_md_vars(const atf_tc_t *tc)
 {
-    return &tc->m_vars;
+    return &tc->pimpl->m_vars;
 }
 
 bool
@@ -632,11 +650,11 @@ atf_tc_has_config_var(const atf_tc_t *tc, const char *name)
     bool found;
     atf_map_citer_t end, iter;
 
-    if (tc->m_config == NULL)
+    if (tc->pimpl->m_config == NULL)
         found = false;
     else {
-        iter = atf_map_find_c(tc->m_config, name);
-        end = atf_map_end_c(tc->m_config);
+        iter = atf_map_find_c(tc->pimpl->m_config, name);
+        end = atf_map_end_c(tc->pimpl->m_config);
         found = !atf_equal_map_citer_map_citer(iter, end);
     }
 
@@ -648,8 +666,8 @@ atf_tc_has_md_var(const atf_tc_t *tc, const char *name)
 {
     atf_map_citer_t end, iter;
 
-    iter = atf_map_find_c(&tc->m_vars, name);
-    end = atf_map_end_c(&tc->m_vars);
+    iter = atf_map_find_c(&tc->pimpl->m_vars, name);
+    end = atf_map_end_c(&tc->pimpl->m_vars);
     return !atf_equal_map_citer_map_citer(iter, end);
 }
 
@@ -669,7 +687,7 @@ atf_tc_set_md_var(atf_tc_t *tc, const char *name, const char *fmt, ...)
     va_end(ap);
 
     if (!atf_is_error(err))
-        err = atf_map_insert(&tc->m_vars, name, value, true);
+        err = atf_map_insert(&tc->pimpl->m_vars, name, value, true);
     else
         free(value);
 
@@ -903,7 +921,7 @@ atf_tc_run(const atf_tc_t *tc, const atf_fs_path_t *resfile)
 {
     context_init(&Current, tc, resfile);
 
-    tc->m_body(tc);
+    tc->pimpl->m_body(tc);
 
     validate_expect(&Current);
 
@@ -929,8 +947,8 @@ atf_tc_run(const atf_tc_t *tc, const atf_fs_path_t *resfile)
 atf_error_t
 atf_tc_cleanup(const atf_tc_t *tc)
 {
-    if (tc->m_cleanup != NULL)
-        tc->m_cleanup(tc);
+    if (tc->pimpl->m_cleanup != NULL)
+        tc->pimpl->m_cleanup(tc);
     return atf_no_error(); /* XXX */
 }
 

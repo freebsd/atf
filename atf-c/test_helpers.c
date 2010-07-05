@@ -40,6 +40,7 @@
 #include "atf-c/error.h"
 #include "atf-c/fs.h"
 #include "atf-c/macros.h"
+#include "atf-c/process.h"
 
 #include "test_helpers.h"
 
