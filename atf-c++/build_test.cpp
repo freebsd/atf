@@ -125,28 +125,28 @@ ATF_TEST_CASE_BODY(equal_argvs)
         const char* const array[] = { NULL };
         const char* const argv[] = { NULL };
 
-        ATF_CHECK(equal_argvs(atf::process::argv_array(argv), array));
+        ATF_REQUIRE(equal_argvs(atf::process::argv_array(argv), array));
     }
 
     {
         const char* const array[] = { NULL };
         const char* const argv[] = { "foo", NULL };
 
-        ATF_CHECK(!equal_argvs(atf::process::argv_array(argv), array));
+        ATF_REQUIRE(!equal_argvs(atf::process::argv_array(argv), array));
     }
 
     {
         const char* const array[] = { "foo", NULL };
         const char* const argv[] = { NULL };
 
-        ATF_CHECK(!equal_argvs(atf::process::argv_array(argv), array));
+        ATF_REQUIRE(!equal_argvs(atf::process::argv_array(argv), array));
     }
 
     {
         const char* const array[] = { "foo", NULL };
         const char* const argv[] = { "foo", NULL };
 
-        ATF_CHECK(equal_argvs(atf::process::argv_array(argv), array));
+        ATF_REQUIRE(equal_argvs(atf::process::argv_array(argv), array));
     }
 }
 

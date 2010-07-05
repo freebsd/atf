@@ -377,7 +377,7 @@ run_tests(const char *tc)
             std::string result = atf::ui::format_text_with_tag(t->fmt, t->tag,
                 t->repeat, t->col);
             std::cout << "Output         : >>>" << result << "<<<\n";
-            ATF_CHECK_EQUAL(t->result, result);
+            ATF_REQUIRE_EQ(t->result, result);
         }
     }
 }

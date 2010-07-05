@@ -32,6 +32,7 @@ extern "C" {
 #include <unistd.h>
 }
 
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 
@@ -49,7 +50,7 @@ ATF_TEST_CASE_HEAD(config_unset)
 }
 ATF_TEST_CASE_BODY(config_unset)
 {
-    ATF_CHECK(!has_config_var("test"));
+    ATF_REQUIRE(!has_config_var("test"));
 }
 
 ATF_TEST_CASE(config_empty);
@@ -59,7 +60,7 @@ ATF_TEST_CASE_HEAD(config_empty)
 }
 ATF_TEST_CASE_BODY(config_empty)
 {
-    ATF_CHECK_EQUAL(get_config_var("test"), "");
+    ATF_REQUIRE_EQ(get_config_var("test"), "");
 }
 
 ATF_TEST_CASE(config_value);
@@ -69,7 +70,7 @@ ATF_TEST_CASE_HEAD(config_value)
 }
 ATF_TEST_CASE_BODY(config_value)
 {
-    ATF_CHECK_EQUAL(get_config_var("test"), "foo");
+    ATF_REQUIRE_EQ(get_config_var("test"), "foo");
 }
 
 ATF_TEST_CASE(config_multi_value);
@@ -79,7 +80,7 @@ ATF_TEST_CASE_HEAD(config_multi_value)
 }
 ATF_TEST_CASE_BODY(config_multi_value)
 {
-    ATF_CHECK_EQUAL(get_config_var("test"), "foo bar");
+    ATF_REQUIRE_EQ(get_config_var("test"), "foo bar");
 }
 
 // ------------------------------------------------------------------------
@@ -90,7 +91,6 @@ ATF_TEST_CASE_WITHOUT_HEAD(expect_pass_and_pass);
 ATF_TEST_CASE_BODY(expect_pass_and_pass)
 {
     expect_pass();
-
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(expect_pass_but_fail_requirement);
@@ -146,14 +146,14 @@ ATF_TEST_CASE_WITHOUT_HEAD(expect_exit_any_and_exit);
 ATF_TEST_CASE_BODY(expect_exit_any_and_exit)
 {
     expect_exit(-1, "Call will exit");
-    exit(EXIT_SUCCESS);
+    std::exit(EXIT_SUCCESS);
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(expect_exit_code_and_exit);
 ATF_TEST_CASE_BODY(expect_exit_code_and_exit)
 {
     expect_exit(123, "Call will exit");
-    exit(123);
+    std::exit(123);
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(expect_exit_but_pass);
@@ -166,14 +166,14 @@ ATF_TEST_CASE_WITHOUT_HEAD(expect_signal_any_and_signal);
 ATF_TEST_CASE_BODY(expect_signal_any_and_signal)
 {
     expect_signal(-1, "Call will signal");
-    kill(getpid(), SIGKILL);
+    ::kill(getpid(), SIGKILL);
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(expect_signal_no_and_signal);
 ATF_TEST_CASE_BODY(expect_signal_no_and_signal)
 {
     expect_signal(SIGHUP, "Call will signal");
-    kill(getpid(), SIGHUP);
+    ::kill(getpid(), SIGHUP);
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(expect_signal_but_pass);
@@ -186,7 +186,7 @@ ATF_TEST_CASE_WITHOUT_HEAD(expect_death_and_exit);
 ATF_TEST_CASE_BODY(expect_death_and_exit)
 {
     expect_death("Exit case");
-    exit(123);
+    std::exit(123);
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(expect_death_and_signal);
@@ -235,13 +235,13 @@ ATF_TEST_CASE_HEAD(fork_stop)
 ATF_TEST_CASE_BODY(fork_stop)
 {
     std::ofstream os(get_config_var("pidfile").c_str());
-    os << ::getpid() << std::endl;
+    os << ::getpid() << "\n";
     os.close();
-    std::cout << "Wrote pid file" << std::endl;
-    std::cout << "Waiting for done file" << std::endl;
+    std::cout << "Wrote pid file\n";
+    std::cout << "Waiting for done file\n";
     while (::access(get_config_var("donefile").c_str(), F_OK) != 0)
         ::usleep(10000);
-    std::cout << "Exiting" << std::endl;
+    std::cout << "Exiting\n";
 }
 
 // ------------------------------------------------------------------------

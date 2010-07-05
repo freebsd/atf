@@ -100,7 +100,7 @@ ATF_TEST_CASE_BODY(signal_holder_preserve)
 
     sigusr1::happened = false;
     ::kill(::getpid(), SIGUSR1);
-    ATF_CHECK(sigusr1::happened);
+    ATF_REQUIRE(sigusr1::happened);
 
     {
         signal_holder hld(SIGUSR1);
@@ -109,7 +109,7 @@ ATF_TEST_CASE_BODY(signal_holder_preserve)
 
     sigusr1::happened = false;
     ::kill(::getpid(), SIGUSR1);
-    ATF_CHECK(sigusr1::happened);
+    ATF_REQUIRE(sigusr1::happened);
 }
 
 ATF_TEST_CASE(signal_holder_destructor);
@@ -126,16 +126,16 @@ ATF_TEST_CASE_BODY(signal_holder_destructor)
 
     sigusr1::happened = false;
     ::kill(::getpid(), SIGUSR1);
-    ATF_CHECK(sigusr1::happened);
+    ATF_REQUIRE(sigusr1::happened);
 
     {
         signal_holder hld(SIGUSR1);
 
         sigusr1::happened = false;
         ::kill(::getpid(), SIGUSR1);
-        ATF_CHECK(!sigusr1::happened);
+        ATF_REQUIRE(!sigusr1::happened);
     }
-    ATF_CHECK(sigusr1::happened);
+    ATF_REQUIRE(sigusr1::happened);
 }
 
 ATF_TEST_CASE(signal_holder_process);
@@ -152,21 +152,21 @@ ATF_TEST_CASE_BODY(signal_holder_process)
 
     sigusr1::happened = false;
     ::kill(::getpid(), SIGUSR1);
-    ATF_CHECK(sigusr1::happened);
+    ATF_REQUIRE(sigusr1::happened);
 
     {
         signal_holder hld(SIGUSR1);
 
         sigusr1::happened = false;
         ::kill(::getpid(), SIGUSR1);
-        ATF_CHECK(!sigusr1::happened);
+        ATF_REQUIRE(!sigusr1::happened);
 
         hld.process();
-        ATF_CHECK(sigusr1::happened);
+        ATF_REQUIRE(sigusr1::happened);
 
         sigusr1::happened = false;
     }
-    ATF_CHECK(!sigusr1::happened);
+    ATF_REQUIRE(!sigusr1::happened);
 }
 
 // ------------------------------------------------------------------------
@@ -187,7 +187,7 @@ ATF_TEST_CASE_BODY(signal_programmer_program)
 
     sigusr1_2::happened = false;
     ::kill(::getpid(), SIGUSR1);
-    ATF_CHECK(sigusr1_2::happened);
+    ATF_REQUIRE(sigusr1_2::happened);
 }
 
 ATF_TEST_CASE(signal_programmer_preserve);
@@ -208,12 +208,12 @@ ATF_TEST_CASE_BODY(signal_programmer_preserve)
 
         sigusr1_2::happened = false;
         ::kill(::getpid(), SIGUSR1);
-        ATF_CHECK(sigusr1_2::happened);
+        ATF_REQUIRE(sigusr1_2::happened);
     }
 
-    ATF_CHECK(!sigusr1::happened);
+    ATF_REQUIRE(!sigusr1::happened);
     ::kill(::getpid(), SIGUSR1);
-    ATF_CHECK(sigusr1::happened);
+    ATF_REQUIRE(sigusr1::happened);
 }
 
 // ------------------------------------------------------------------------
@@ -231,7 +231,7 @@ reset_child(void *v)
     kill(::getpid(), SIGUSR1);
 
     if (sigusr1::happened) {
-        std::cerr << "Signal was not resetted correctly" << std::endl;
+        std::cerr << "Signal was not resetted correctly\n";
         abort();
     } else {
         exit(EXIT_SUCCESS);
@@ -250,8 +250,8 @@ ATF_TEST_CASE_BODY(reset)
                            atf::process::stream_inherit(), NULL);
 
     const atf::process::status s = c.wait();
-    ATF_CHECK(s.exited() || s.signaled());
-    ATF_CHECK(!s.signaled() || s.termsig() == SIGUSR1);
+    ATF_REQUIRE(s.exited() || s.signaled());
+    ATF_REQUIRE(!s.signaled() || s.termsig() == SIGUSR1);
 }
 
 // ------------------------------------------------------------------------

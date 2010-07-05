@@ -72,6 +72,10 @@ BEGIN {
     warn("Do not include assert.h nor cassert");
 }
 
+/std::endl/ {
+    warn("Use \\n instead of std::endl");
+}
+
 /\/\*/ {
     warn("Do not use C-style comments");
 }

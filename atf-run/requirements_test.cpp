@@ -201,7 +201,7 @@ ATF_TEST_CASE_HEAD(require_progs_one_fail) {}
 ATF_TEST_CASE_BODY(require_progs_one_fail) {
     atf::tests::vars_map metadata;
     metadata["require.progs"] = "bin/cp";
-    ATF_CHECK_THROW(std::runtime_error,
+    ATF_REQUIRE_THROW(std::runtime_error,
                     impl::check_requirements(metadata, no_config));
 }
 
@@ -226,7 +226,7 @@ ATF_TEST_CASE_HEAD(require_progs_many_fail) {}
 ATF_TEST_CASE_BODY(require_progs_many_fail) {
     atf::tests::vars_map metadata;
     metadata["require.progs"] = "ls cp ../bin/cp";
-    ATF_CHECK_THROW(std::runtime_error,
+    ATF_REQUIRE_THROW(std::runtime_error,
                     impl::check_requirements(metadata, no_config));
 }
 
@@ -261,7 +261,7 @@ ATF_TEST_CASE_HEAD(require_user_fail) {}
 ATF_TEST_CASE_BODY(require_user_fail) {
     atf::tests::vars_map metadata;
     metadata["require.user"] = "nobody";
-    ATF_CHECK_THROW(std::runtime_error,
+    ATF_REQUIRE_THROW(std::runtime_error,
                     impl::check_requirements(metadata, no_config));
 }
 

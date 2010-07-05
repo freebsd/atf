@@ -82,7 +82,7 @@
 
 #define ATF_PASS() atf::tests::tc::pass()
 
-#define ATF_CHECK(x) \
+#define ATF_REQUIRE(x) \
     do { \
         if (!(x)) { \
             std::ostringstream atfu_ss; \
@@ -91,7 +91,7 @@
         } \
     } while (false)
 
-#define ATF_CHECK_EQUAL(x, y) \
+#define ATF_REQUIRE_EQ(x, y) \
     do { \
         if ((x) != (y)) { \
             std::ostringstream atfu_ss; \
@@ -101,7 +101,7 @@
         } \
     } while (false)
 
-#define ATF_CHECK_THROW(e, x) \
+#define ATF_REQUIRE_THROW(e, x) \
     do { \
         try { \
             x; \

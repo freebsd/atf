@@ -78,11 +78,11 @@ h_app_opts_args::process_option(int ch, const char* arg)
 {
     switch (ch) {
     case 'd':
-        std::cout << "-d given" << std::endl;
+        std::cout << "-d given\n";
         break;
 
     case 'v':
-        std::cout << "-v given with argument " << arg << std::endl;
+        std::cout << "-v given with argument " << arg << "\n";
         break;
 
     default:

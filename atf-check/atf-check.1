@@ -137,8 +137,8 @@ atf-check -s not-exit:0 'false'
 
 # Checking stdout/stderr
 echo foobar >expout
-atf-check -o file:expout -e inline:"xx\\tyy\\n" \\
-    'echo foobar ; printf "xx\\tyy\\n" >&2'
+atf-check -o file:expout -e inline:"xx\etyy\en" \e
+    'echo foobar ; printf "xx\etyy\en" >&2'
 
 # Checking for a crash
 atf-check -s signal:sigsegv my_program

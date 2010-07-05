@@ -93,8 +93,8 @@ ATF_TEST_CASE_BODY(throw_atf_error_libc)
     try {
         atf::throw_atf_error(atf_libc_error(1, "System error 1"));
     } catch (const atf::system_error& e) {
-        ATF_CHECK(e.code() == 1);
-        ATF_CHECK(std::string(e.what()).find("System error 1") !=
+        ATF_REQUIRE(e.code() == 1);
+        ATF_REQUIRE(std::string(e.what()).find("System error 1") !=
                   std::string::npos);
     } catch (const std::exception& e) {
         ATF_FAIL(std::string("Got unexpected exception: ") + e.what());
@@ -129,7 +129,7 @@ ATF_TEST_CASE_BODY(throw_atf_error_unknown)
         atf::throw_atf_error(test_error("The message"));
     } catch (const std::runtime_error& e) {
         const std::string msg = e.what();
-        ATF_CHECK(msg.find("The message") != std::string::npos);
+        ATF_REQUIRE(msg.find("The message") != std::string::npos);
     } catch (const std::exception& e) {
         ATF_FAIL(std::string("Got unexpected exception: ") + e.what());
     }
