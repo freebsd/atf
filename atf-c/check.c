@@ -271,8 +271,8 @@ list_to_array(const atf_list_t *l, const char ***ap)
         *aiter = NULL;
 
         err = atf_no_error();
-        *ap = a;
     }
+    *ap = a; /* Shut up warnings in the caller about uninitialized *ap. */
 
     return err;
 }
@@ -403,22 +403,16 @@ atf_check_result_fini(atf_check_result_t *r)
     free(r->pimpl);
 }
 
-const atf_list_t *
-atf_check_result_argv(const atf_check_result_t *r)
-{
-    return &r->pimpl->m_argv;
-}
-
-const atf_fs_path_t *
+const char *
 atf_check_result_stdout(const atf_check_result_t *r)
 {
-    return &r->pimpl->m_stdout;
+    return atf_fs_path_cstring(&r->pimpl->m_stdout);
 }
 
-const atf_fs_path_t *
+const char *
 atf_check_result_stderr(const atf_check_result_t *r)
 {
-    return &r->pimpl->m_stderr;
+    return atf_fs_path_cstring(&r->pimpl->m_stderr);
 }
 
 bool
@@ -543,24 +537,6 @@ err_dir:
     }
 out_dir:
     atf_fs_path_fini(&dir);
-out:
-    return err;
-}
-
-atf_error_t
-atf_check_exec_list(const atf_list_t *argv, atf_check_result_t *r)
-{
-    atf_error_t err;
-    const char **argv2;
-
-    argv2 = NULL; /* Silence GCC warning. */
-    err = list_to_array(argv, &argv2);
-    if (atf_is_error(err))
-        goto out;
-
-    err = atf_check_exec_array(argv2, r);
-
-    free(argv2);
 out:
     return err;
 }

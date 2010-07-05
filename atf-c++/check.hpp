@@ -66,12 +66,8 @@ class check_result {
     //!
     //! \brief Internal representation of a result.
     //!
+    // XXX: This is non-copyable!  The class must define it as such.
     atf_check_result_t m_result;
-
-    //!
-    //! \brief Copy of m_result.m_argv but in a C++ collection.
-    //!
-    std::vector< std::string > m_argv;
 
     //!
     //! \brief Constructs a results object and grabs ownership of the
@@ -87,12 +83,6 @@ public:
     //! \brief Destroys object and removes all managed files.
     //!
     ~check_result(void);
-
-    //!
-    //! \brief Returns the argument list used by the command that caused
-    //! this result.
-    //!
-    const std::vector< std::string >& argv(void) const;
 
     //!
     //! \brief Returns whether the command exited correctly or not.
@@ -117,12 +107,12 @@ public:
     //!
     //! \brief Returns the path to file contaning command's stdout.
     //!
-    const atf::fs::path stdout_path(void) const;
+    const std::string stdout_path(void) const;
 
     //!
     //! \brief Returns the path to file contaning command's stderr.
     //!
-    const atf::fs::path stderr_path(void) const;
+    const std::string stderr_path(void) const;
 };
 
 // ------------------------------------------------------------------------

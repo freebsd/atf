@@ -49,22 +49,11 @@ namespace impl = atf::check;
 impl::check_result::check_result(const atf_check_result_t* result)
 {
     std::memcpy(&m_result, result, sizeof(m_result));
-
-    atf_list_citer_t iter;
-    atf_list_for_each_c(iter, atf_check_result_argv(&m_result))
-        m_argv.push_back((const char *)atf_list_citer_data(iter));
 }
 
 impl::check_result::~check_result(void)
 {
     atf_check_result_fini(&m_result);
-}
-
-const std::vector< std::string >&
-impl::check_result::argv(void)
-    const
-{
-    return m_argv;
 }
 
 bool
@@ -97,16 +86,14 @@ impl::check_result::termsig(void)
     return atf_check_result_termsig(&m_result);
 }
 
-const atf::fs::path
-impl::check_result::stdout_path(void)
-    const
+const std::string
+impl::check_result::stdout_path(void) const
 {
     return atf_check_result_stdout(&m_result);
 }
 
-const atf::fs::path
-impl::check_result::stderr_path(void)
-        const
+const std::string
+impl::check_result::stderr_path(void) const
 {
     return atf_check_result_stderr(&m_result);
 }

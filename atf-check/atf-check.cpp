@@ -463,11 +463,11 @@ run_status_check(const status_check& sc, const atf::check::check_result& cr)
 
     if (result == false) {
         std::cerr << "stdout:\n";
-        cat_file(cr.stdout_path());
+        cat_file(atf::fs::path(cr.stdout_path()));
         std::cerr << "\n";
 
         std::cerr << "stderr:\n";
-        cat_file(cr.stderr_path());
+        cat_file(atf::fs::path(cr.stderr_path()));
         std::cerr << "\n";
     }
 
@@ -631,9 +631,11 @@ atf_check::run_output_checks(const atf::check::check_result& r,
     const
 {
     if (stdxxx == "stdout") {
-        return ::run_output_checks(m_stdout_checks, r.stdout_path(), "stdout");
+        return ::run_output_checks(m_stdout_checks,
+            atf::fs::path(r.stdout_path()), "stdout");
     } else if (stdxxx == "stderr") {
-        return ::run_output_checks(m_stderr_checks, r.stderr_path(), "stderr");
+        return ::run_output_checks(m_stderr_checks,
+            atf::fs::path(r.stderr_path()), "stderr");
     } else {
         UNREACHABLE;
         return false;

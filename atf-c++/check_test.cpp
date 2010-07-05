@@ -245,20 +245,6 @@ ATF_TEST_CASE_BODY(build_cxx_o)
     ATF_REQUIRE(grep_file("stderr", "UNDEFINED_SYMBOL"));
 }
 
-ATF_TEST_CASE(exec_argv);
-ATF_TEST_CASE_HEAD(exec_argv)
-{
-    set_md_var("descr", "Tests that exec preserves the provided argv");
-}
-ATF_TEST_CASE_BODY(exec_argv)
-{
-    const atf::check::check_result r = do_exec(this, "exit-success");
-    ATF_REQUIRE_EQ(r.argv().size(), 2);
-    ATF_REQUIRE_EQ(r.argv()[0],
-                    get_config_var("srcdir") + "/../atf-c/h_check");
-    ATF_REQUIRE_EQ(r.argv()[1], "exit-success");
-}
-
 ATF_TEST_CASE(exec_cleanup);
 ATF_TEST_CASE_HEAD(exec_cleanup)
 {
@@ -313,7 +299,7 @@ ATF_TEST_CASE_BODY(exec_exitstatus)
 
 static
 void
-check_lines(const atf::fs::path& path, const char* outname,
+check_lines(const std::string& path, const char* outname,
             const char* resname)
 {
     std::ifstream f(path.c_str());
@@ -346,25 +332,25 @@ ATF_TEST_CASE_BODY(exec_stdout_stderr)
     ATF_REQUIRE(r2.exited());
     ATF_REQUIRE_EQ(r2.exitcode(), EXIT_SUCCESS);
 
-    const atf::fs::path& out1 = r1.stdout_path();
-    const atf::fs::path& out2 = r2.stdout_path();
-    const atf::fs::path& err1 = r1.stderr_path();
-    const atf::fs::path& err2 = r2.stderr_path();
+    const std::string out1 = r1.stdout_path();
+    const std::string out2 = r2.stdout_path();
+    const std::string err1 = r1.stderr_path();
+    const std::string err2 = r2.stderr_path();
 
-    ATF_REQUIRE(out1.str().find("check.XXXXXX") == std::string::npos);
-    ATF_REQUIRE(out2.str().find("check.XXXXXX") == std::string::npos);
-    ATF_REQUIRE(err1.str().find("check.XXXXXX") == std::string::npos);
-    ATF_REQUIRE(err2.str().find("check.XXXXXX") == std::string::npos);
+    ATF_REQUIRE(out1.find("check.XXXXXX") == std::string::npos);
+    ATF_REQUIRE(out2.find("check.XXXXXX") == std::string::npos);
+    ATF_REQUIRE(err1.find("check.XXXXXX") == std::string::npos);
+    ATF_REQUIRE(err2.find("check.XXXXXX") == std::string::npos);
 
-    ATF_REQUIRE(out1.str().find("/check") != std::string::npos);
-    ATF_REQUIRE(out2.str().find("/check") != std::string::npos);
-    ATF_REQUIRE(err1.str().find("/check") != std::string::npos);
-    ATF_REQUIRE(err2.str().find("/check") != std::string::npos);
+    ATF_REQUIRE(out1.find("/check") != std::string::npos);
+    ATF_REQUIRE(out2.find("/check") != std::string::npos);
+    ATF_REQUIRE(err1.find("/check") != std::string::npos);
+    ATF_REQUIRE(err2.find("/check") != std::string::npos);
 
-    ATF_REQUIRE(out1.str().find("/stdout") != std::string::npos);
-    ATF_REQUIRE(out2.str().find("/stdout") != std::string::npos);
-    ATF_REQUIRE(err1.str().find("/stderr") != std::string::npos);
-    ATF_REQUIRE(err2.str().find("/stderr") != std::string::npos);
+    ATF_REQUIRE(out1.find("/stdout") != std::string::npos);
+    ATF_REQUIRE(out2.find("/stdout") != std::string::npos);
+    ATF_REQUIRE(err1.find("/stderr") != std::string::npos);
+    ATF_REQUIRE(err2.find("/stderr") != std::string::npos);
 
     ATF_REQUIRE(out1 != out2);
     ATF_REQUIRE(err1 != err2);
@@ -408,7 +394,6 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, build_c_o);
     ATF_ADD_TEST_CASE(tcs, build_cpp);
     ATF_ADD_TEST_CASE(tcs, build_cxx_o);
-    ATF_ADD_TEST_CASE(tcs, exec_argv);
     ATF_ADD_TEST_CASE(tcs, exec_cleanup);
     ATF_ADD_TEST_CASE(tcs, exec_exitstatus);
     ATF_ADD_TEST_CASE(tcs, exec_stdout_stderr);
