@@ -28,10 +28,12 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "atf-c/error.h"
 #include "atf-c/list.h"
 #include "atf-c/sanity.h"
+#include "atf-c/utils.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -314,6 +316,34 @@ size_t
 atf_list_size(const atf_list_t *l)
 {
     return l->m_size;
+}
+
+char **
+atf_list_to_charpp(const atf_list_t *l)
+{
+    char **array;
+    atf_list_citer_t iter;
+    size_t i;
+
+    array = malloc(sizeof(char *) * (atf_list_size(l) + 1));
+    if (array == NULL)
+        goto out;
+
+    i = 0;
+    atf_list_for_each_c(iter, l) {
+        array[i] = strdup((const char *)atf_list_citer_data(iter));
+        if (array[i] == NULL) {
+            atf_utils_free_charpp(array);
+            array = NULL;
+            goto out;
+        }
+
+        i++;
+    }
+    array[i] = NULL;
+
+out:
+    return array;
 }
 
 /*

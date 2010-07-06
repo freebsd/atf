@@ -27,12 +27,14 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "atf-c/error.h"
 #include "atf-c/map.h"
 #include "atf-c/sanity.h"
+#include "atf-c/utils.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -167,6 +169,36 @@ atf_map_init(atf_map_t *m)
     return atf_list_init(&m->m_list);
 }
 
+atf_error_t
+atf_map_init_charpp(atf_map_t *m, const char *const *array)
+{
+    atf_error_t err;
+    const char *const *ptr = array;
+
+    err = atf_map_init(m);
+    while (!atf_is_error(err) && *ptr != NULL) {
+        const char *key, *value;
+
+        key = *ptr;
+        INV(key != NULL);
+        ptr++;
+
+        if ((value = *ptr) == NULL) {
+            err = atf_libc_error(EINVAL, "List too short; no value for "
+                "key '%s' provided", key);  /* XXX: Not really libc_error */
+            break;
+        }
+        ptr++;
+
+        err = atf_map_insert(m, key, strdup(value), true);
+    }
+
+    if (atf_is_error(err))
+        atf_map_fini(m);
+
+    return err;
+}
+
 void
 atf_map_fini(atf_map_t *m)
 {
@@ -271,6 +303,41 @@ size_t
 atf_map_size(const atf_map_t *m)
 {
     return atf_list_size(&m->m_list);
+}
+
+char **
+atf_map_to_charpp(const atf_map_t *l)
+{
+    char **array;
+    atf_map_citer_t iter;
+    size_t i;
+
+    array = malloc(sizeof(char *) * (atf_map_size(l) * 2 + 1));
+    if (array == NULL)
+        goto out;
+
+    i = 0;
+    atf_map_for_each_c(iter, l) {
+        array[i] = strdup(atf_map_citer_key(iter));
+        if (array[i] == NULL) {
+            atf_utils_free_charpp(array);
+            array = NULL;
+            goto out;
+        }
+
+        array[i + 1] = strdup((const char *)atf_map_citer_data(iter));
+        if (array[i + 1] == NULL) {
+            atf_utils_free_charpp(array);
+            array = NULL;
+            goto out;
+        }
+
+        i += 2;
+    }
+    array[i] = NULL;
+
+out:
+    return array;
 }
 
 /*

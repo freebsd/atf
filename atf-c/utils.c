@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2009 The NetBSD Foundation, Inc.
+ * Copyright (c) 2010 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,16 +27,17 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_BUILD_H)
-#define ATF_C_BUILD_H
+#include <stdlib.h>
 
-#include <atf-c/error_fwd.h>
+#include "atf-c/utils.h"
 
-atf_error_t atf_build_c_o(const char *, const char *, const char *const [],
-                          char ***);
-atf_error_t atf_build_cpp(const char *, const char *, const char *const [],
-                          char ***);
-atf_error_t atf_build_cxx_o(const char *, const char *, const char *const [],
-                            char ***);
+void
+atf_utils_free_charpp(char **argv)
+{
+    char **ptr;
 
-#endif /* ATF_C_BUILD_H */
+    for (ptr = argv; *ptr != NULL; ptr++)
+        free(*ptr);
+
+    free(argv);
+}

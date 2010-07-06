@@ -36,6 +36,7 @@
 #include "atf-c/build.h"
 #include "atf-c/config.h"
 #include "atf-c/env.h"
+#include "atf-c/utils.h"
 
 #include "h_build.h"
 #include "test_helpers.h"
@@ -176,7 +177,7 @@ ATF_TC_BODY(c_o, tc)
             else
                 RE(atf_build_c_o(test->sfile, test->ofile, NULL, &argv));
             check_equal_array(test->expargv, argv);
-            atf_build_free_argv(argv);
+            atf_utils_free_charpp(argv);
         }
     }
 }
@@ -205,7 +206,7 @@ ATF_TC_BODY(cpp, tc)
             else
                 RE(atf_build_cpp(test->sfile, test->ofile, NULL, &argv));
             check_equal_array(test->expargv, argv);
-            atf_build_free_argv(argv);
+            atf_utils_free_charpp(argv);
         }
     }
 }
@@ -235,7 +236,7 @@ ATF_TC_BODY(cxx_o, tc)
             else
                 RE(atf_build_cxx_o(test->sfile, test->ofile, NULL, &argv));
             check_equal_array(test->expargv, argv);
-            atf_build_free_argv(argv);
+            atf_utils_free_charpp(argv);
         }
     }
 }

@@ -96,6 +96,7 @@ atf_list_citer_t atf_list_end_c(const atf_list_t *);
 void *atf_list_index(atf_list_t *, const size_t);
 const void *atf_list_index_c(const atf_list_t *, const size_t);
 size_t atf_list_size(const atf_list_t *);
+char **atf_list_to_charpp(const atf_list_t *);
 
 /* Modifiers. */
 atf_error_t atf_list_append(atf_list_t *, void *, bool);

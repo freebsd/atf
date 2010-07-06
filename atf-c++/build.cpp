@@ -30,6 +30,7 @@
 extern "C" {
 #include "atf-c/build.h"
 #include "atf-c/error.h"
+#include "atf-c/utils.h"
 }
 
 #include "atf-c++/build.hpp"
@@ -62,10 +63,10 @@ cargv_to_argv_and_free(char** l)
 {
     try {
         atf::process::argv_array argv((const char* const*)l);
-        atf_build_free_argv(l);
+        atf_utils_free_charpp(l);
         return argv;
     } catch (...) {
-        atf_build_free_argv(l);
+        atf_utils_free_charpp(l);
         throw;
     }
 }

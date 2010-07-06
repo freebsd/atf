@@ -60,7 +60,9 @@ libatf_c_la_SOURCES = atf-c/build.c \
                       atf-c/tc.h \
                       atf-c/tp.c \
                       atf-c/tp.h \
-                      atf-c/tp_main.c
+                      atf-c/tp_main.c \
+                      atf-c/utils.c \
+                      atf-c/utils.h
 nodist_libatf_c_la_SOURCES = atf-c/defs.h
 libatf_c_la_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
                        "-DATF_BUILD_CC=\"$(ATF_BUILD_CC)\"" \
@@ -103,7 +105,8 @@ atf_c_HEADERS = atf-c/build.h \
                 atf-c/tc.h \
                 atf-c/text.h \
                 atf-c/tp.h \
-                atf-c/user.h
+                atf-c/user.h \
+                atf-c/utils.h
 atf_cdir = $(includedir)/atf-c
 
 dist_man_MANS += atf-c/atf-c-api.3
@@ -212,5 +215,9 @@ atf_c_tp_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
 tests_atf_c_PROGRAMS += atf-c/user_test
 atf_c_user_test_SOURCES = atf-c/user_test.c
 atf_c_user_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
+
+tests_atf_c_PROGRAMS += atf-c/utils_test
+atf_c_utils_test_SOURCES = atf-c/utils_test.c atf-c/h_build.h
+atf_c_utils_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

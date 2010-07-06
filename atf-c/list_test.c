@@ -28,10 +28,12 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 #include <atf-c.h>
 
 #include "atf-c/list.h"
+#include "atf-c/utils.h"
 
 #include "test_helpers.h"
 
@@ -107,6 +109,44 @@ ATF_TC_BODY(list_index_c, tc)
     ATF_CHECK_EQ(*(const int *)atf_list_index_c(&list, 2), 9);
 
     atf_list_fini(&list);
+}
+
+ATF_TC_WITHOUT_HEAD(list_to_charpp_empty);
+ATF_TC_BODY(list_to_charpp_empty, tc)
+{
+    atf_list_t list;
+    char **array;
+
+    RE(atf_list_init(&list));
+    ATF_REQUIRE((array = atf_list_to_charpp(&list)) != NULL);
+    atf_list_fini(&list);
+
+    ATF_CHECK_EQ(NULL, array[0]);
+    atf_utils_free_charpp(array);
+}
+
+ATF_TC_WITHOUT_HEAD(list_to_charpp_some);
+ATF_TC_BODY(list_to_charpp_some, tc)
+{
+    atf_list_t list;
+    char **array;
+
+    char s1[] = "one";
+    char s2[] = "two";
+    char s3[] = "three";
+
+    RE(atf_list_init(&list));
+    RE(atf_list_append(&list, s1, false));
+    RE(atf_list_append(&list, s2, false));
+    RE(atf_list_append(&list, s3, false));
+    ATF_REQUIRE((array = atf_list_to_charpp(&list)) != NULL);
+    atf_list_fini(&list);
+
+    ATF_CHECK_STREQ("one", array[0]);
+    ATF_CHECK_STREQ("two", array[1]);
+    ATF_CHECK_STREQ("three", array[2]);
+    ATF_CHECK_EQ(NULL, array[3]);
+    atf_utils_free_charpp(array);
 }
 
 /*
@@ -320,6 +360,8 @@ ATF_TP_ADD_TCS(tp)
     /* Getters. */
     ATF_TP_ADD_TC(tp, list_index);
     ATF_TP_ADD_TC(tp, list_index_c);
+    ATF_TP_ADD_TC(tp, list_to_charpp_empty);
+    ATF_TP_ADD_TC(tp, list_to_charpp_some);
 
     /* Modifiers. */
     ATF_TP_ADD_TC(tp, list_append);

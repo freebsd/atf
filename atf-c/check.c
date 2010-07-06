@@ -46,6 +46,7 @@
 #include "atf-c/list.h"
 #include "atf-c/process.h"
 #include "atf-c/sanity.h"
+#include "atf-c/utils.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -412,7 +413,7 @@ atf_check_build_c_o(const char *sfile,
 
     err = check_build_run((const char **)argv, success);
 
-    atf_build_free_argv(argv);
+    atf_utils_free_charpp(argv);
 out:
     return err;
 }
@@ -432,7 +433,7 @@ atf_check_build_cpp(const char *sfile,
 
     err = check_build_run((const char **)argv, success);
 
-    atf_build_free_argv(argv);
+    atf_utils_free_charpp(argv);
 out:
     return err;
 }
@@ -452,7 +453,7 @@ atf_check_build_cxx_o(const char *sfile,
 
     err = check_build_run((const char **)argv, success);
 
-    atf_build_free_argv(argv);
+    atf_utils_free_charpp(argv);
 out:
     return err;
 }

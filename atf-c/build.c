@@ -144,17 +144,6 @@ list_to_array(const atf_list_t *l, char ***ap)
  * Free functions.
  * --------------------------------------------------------------------- */
 
-void
-atf_build_free_argv(char **argv)
-{
-    char **ptr;
-
-    for (ptr = argv; *ptr != NULL; ptr++)
-        free(*ptr);
-
-    free(argv);
-}
-
 atf_error_t
 atf_build_c_o(const char *sfile,
               const char *ofile,

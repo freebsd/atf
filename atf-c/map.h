@@ -89,6 +89,7 @@ typedef struct atf_map atf_map_t;
 
 /* Constructors and destructors */
 atf_error_t atf_map_init(atf_map_t *);
+atf_error_t atf_map_init_charpp(atf_map_t *, const char *const *);
 void atf_map_fini(atf_map_t *);
 
 /* Getters. */
@@ -99,6 +100,7 @@ atf_map_citer_t atf_map_end_c(const atf_map_t *);
 atf_map_iter_t atf_map_find(atf_map_t *, const char *);
 atf_map_citer_t atf_map_find_c(const atf_map_t *, const char *);
 size_t atf_map_size(const atf_map_t *);
+char **atf_map_to_charpp(const atf_map_t *);
 
 /* Modifiers. */
 atf_error_t atf_map_insert(atf_map_t *, const char *, void *, bool);

@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2009 The NetBSD Foundation, Inc.
+ * Copyright (c) 2010 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,16 +27,43 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_BUILD_H)
-#define ATF_C_BUILD_H
+#include <stdlib.h>
+#include <string.h>
 
-#include <atf-c/error_fwd.h>
+#include <atf-c.h>
 
-atf_error_t atf_build_c_o(const char *, const char *, const char *const [],
-                          char ***);
-atf_error_t atf_build_cpp(const char *, const char *, const char *const [],
-                          char ***);
-atf_error_t atf_build_cxx_o(const char *, const char *, const char *const [],
-                            char ***);
+#include "atf-c/utils.h"
+#include "test_helpers.h"
 
-#endif /* ATF_C_BUILD_H */
+ATF_TC_WITHOUT_HEAD(free_charpp_empty);
+ATF_TC_BODY(free_charpp_empty, tc)
+{
+    char **array = malloc(sizeof(char *) * 1);
+    array[0] = NULL;
+
+    atf_utils_free_charpp(array);
+}
+
+ATF_TC_WITHOUT_HEAD(free_charpp_some);
+ATF_TC_BODY(free_charpp_some, tc)
+{
+    char **array = malloc(sizeof(char *) * 4);
+    array[0] = strdup("first");
+    array[1] = strdup("second");
+    array[2] = strdup("third");
+    array[3] = NULL;
+
+    atf_utils_free_charpp(array);
+}
+
+HEADER_TC(include, "atf-c/utils.h");
+
+ATF_TP_ADD_TCS(tp)
+{
+    ATF_TP_ADD_TC(tp, free_charpp_empty);
+    ATF_TP_ADD_TC(tp, free_charpp_some);
+
+    ATF_TP_ADD_TC(tp, include);
+
+    return atf_no_error();
+}

@@ -33,6 +33,7 @@
 #include <atf-c.h>
 
 #include "atf-c/map.h"
+#include "atf-c/utils.h"
 
 #include "test_helpers.h"
 
@@ -56,6 +57,51 @@ ATF_TC_BODY(map_init, tc)
     RE(atf_map_init(&map));
     ATF_REQUIRE_EQ(atf_map_size(&map), 0);
     atf_map_fini(&map);
+}
+
+ATF_TC_WITHOUT_HEAD(map_init_charpp_empty);
+ATF_TC_BODY(map_init_charpp_empty, tc)
+{
+    const char *const array[] = { NULL };
+    atf_map_t map;
+
+    RE(atf_map_init_charpp(&map, array));
+    ATF_REQUIRE_EQ(atf_map_size(&map), 0);
+    atf_map_fini(&map);
+}
+
+ATF_TC_WITHOUT_HEAD(map_init_charpp_some);
+ATF_TC_BODY(map_init_charpp_some, tc)
+{
+    const char *const array[] = { "K1", "V1", "K2", "V2", NULL };
+    atf_map_t map;
+    atf_map_citer_t iter;
+
+    RE(atf_map_init_charpp(&map, array));
+    ATF_REQUIRE_EQ(atf_map_size(&map), 2);
+
+    iter = atf_map_find_c(&map, "K1");
+    ATF_REQUIRE(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
+    ATF_REQUIRE(strcmp(atf_map_citer_key(iter), "K1") == 0);
+    ATF_REQUIRE(strcmp(atf_map_citer_data(iter), "V1") == 0);
+
+    iter = atf_map_find_c(&map, "K2");
+    ATF_REQUIRE(!atf_equal_map_citer_map_citer(iter, atf_map_end_c(&map)));
+    ATF_REQUIRE(strcmp(atf_map_citer_key(iter), "K2") == 0);
+    ATF_REQUIRE(strcmp(atf_map_citer_data(iter), "V2") == 0);
+
+    atf_map_fini(&map);
+}
+
+ATF_TC_WITHOUT_HEAD(map_init_charpp_short);
+ATF_TC_BODY(map_init_charpp_short, tc)
+{
+    const char *const array[] = { "K1", "V1", "K2", NULL };
+    atf_map_t map;
+
+    atf_error_t err = atf_map_init_charpp(&map, array);
+    ATF_REQUIRE(atf_is_error(err));
+    ATF_REQUIRE(atf_error_is(err, "libc"));
 }
 
 /*
@@ -130,6 +176,47 @@ ATF_TC_BODY(find_c, tc)
     ATF_REQUIRE(strcmp(atf_map_citer_data(iter), "V2") == 0);
 
     atf_map_fini(&map);
+}
+
+ATF_TC_WITHOUT_HEAD(to_charpp_empty);
+ATF_TC_BODY(to_charpp_empty, tc)
+{
+    atf_map_t map;
+    char **array;
+
+    RE(atf_map_init(&map));
+    ATF_REQUIRE((array = atf_map_to_charpp(&map)) != NULL);
+    atf_map_fini(&map);
+
+    ATF_CHECK_EQ(NULL, array[0]);
+    atf_utils_free_charpp(array);
+}
+
+ATF_TC_WITHOUT_HEAD(to_charpp_some);
+ATF_TC_BODY(to_charpp_some, tc)
+{
+    atf_map_t map;
+    char **array;
+
+    char s1[] = "one";
+    char s2[] = "two";
+    char s3[] = "three";
+
+    RE(atf_map_init(&map));
+    RE(atf_map_insert(&map, "K1", s1, false));
+    RE(atf_map_insert(&map, "K2", s2, false));
+    RE(atf_map_insert(&map, "K3", s3, false));
+    ATF_REQUIRE((array = atf_map_to_charpp(&map)) != NULL);
+    atf_map_fini(&map);
+
+    ATF_CHECK_STREQ("K1", array[0]);
+    ATF_CHECK_STREQ("one", array[1]);
+    ATF_CHECK_STREQ("K2", array[2]);
+    ATF_CHECK_STREQ("two", array[3]);
+    ATF_CHECK_STREQ("K3", array[4]);
+    ATF_CHECK_STREQ("three", array[5]);
+    ATF_CHECK_EQ(NULL, array[6]);
+    atf_utils_free_charpp(array);
 }
 
 /*
@@ -309,10 +396,15 @@ ATF_TP_ADD_TCS(tp)
 {
     /* Constructors and destructors. */
     ATF_TP_ADD_TC(tp, map_init);
+    ATF_TP_ADD_TC(tp, map_init_charpp_empty);
+    ATF_TP_ADD_TC(tp, map_init_charpp_some);
+    ATF_TP_ADD_TC(tp, map_init_charpp_short);
 
     /* Getters. */
     ATF_TP_ADD_TC(tp, find);
     ATF_TP_ADD_TC(tp, find_c);
+    ATF_TP_ADD_TC(tp, to_charpp_empty);
+    ATF_TP_ADD_TC(tp, to_charpp_some);
 
     /* Modifiers. */
     ATF_TP_ADD_TC(tp, map_insert);
