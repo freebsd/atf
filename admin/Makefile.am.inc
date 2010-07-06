@@ -43,25 +43,6 @@ EXTRA_DIST += admin/check-install.sh \
               admin/check-style-cpp.awk \
               admin/check-style-man.awk \
               admin/check-style-shell.awk \
-              admin/check-style.sh \
-              admin/choose-revision.sh \
-              admin/generate-revision.sh \
-              admin/generate-revision-dist.sh
-
-.PHONY: admin/revision.h
-admin/revision.h:
-	@test -d admin || mkdir -p admin
-	@$(top_srcdir)/admin/generate-revision.sh \
-	    -f h -m "$(MTN)" -r $(top_srcdir) -o admin/revision.h \
-	    -v $(PACKAGE_VERSION)
-BUILT_SOURCES += admin/revision.h
-CLEANFILES += admin/revision.h
-
-dist-hook: @target_srcdir@admin/revision-dist.h
-@target_srcdir@admin/revision-dist.h: admin/revision.h
-	@$(top_srcdir)/admin/generate-revision-dist.sh \
-	    -f h -i admin/revision.h -o $(srcdir)/admin/revision-dist.h
-BUILT_SOURCES += @target_srcdir@admin/revision-dist.h
-EXTRA_DIST += admin/revision-dist.h
+              admin/check-style.sh
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

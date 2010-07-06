@@ -69,10 +69,10 @@ ATF_TEST_CASE_HEAD(config)
 }
 ATF_TEST_CASE_BODY(config)
 {
-    std::cout << "1st: " << get_config_var("1st") << std::endl;
-    std::cout << "2nd: " << get_config_var("2nd") << std::endl;
-    std::cout << "3rd: " << get_config_var("3rd") << std::endl;
-    std::cout << "4th: " << get_config_var("4th") << std::endl;
+    std::cout << "1st: " << get_config_var("1st") << "\n";
+    std::cout << "2nd: " << get_config_var("2nd") << "\n";
+    std::cout << "3rd: " << get_config_var("3rd") << "\n";
+    std::cout << "4th: " << get_config_var("4th") << "\n";
 }
 
 ATF_TEST_CASE(fds);
@@ -82,10 +82,10 @@ ATF_TEST_CASE_HEAD(fds)
 }
 ATF_TEST_CASE_BODY(fds)
 {
-    std::cout << "msg1 to stdout" << std::endl;
-    std::cout << "msg2 to stdout" << std::endl;
-    std::cerr << "msg1 to stderr" << std::endl;
-    std::cerr << "msg2 to stderr" << std::endl;
+    std::cout << "msg1 to stdout" << "\n";
+    std::cout << "msg2 to stdout" << "\n";
+    std::cerr << "msg1 to stderr" << "\n";
+    std::cerr << "msg2 to stderr" << "\n";
 }
 
 ATF_TEST_CASE(testvar);
@@ -97,7 +97,7 @@ ATF_TEST_CASE_BODY(testvar)
 {
     if (!has_config_var("testvar"))
         atf_tc_fail("testvar variable not defined");
-    std::cout << "testvar: " << get_config_var("testvar") << std::endl;
+    std::cout << "testvar: " << get_config_var("testvar") << "\n";
 }
 
 ATF_TEST_CASE(env_list);
@@ -112,8 +112,8 @@ ATF_TEST_CASE_BODY(env_list)
                            atf::process::argv_array("env", NULL),
                            atf::process::stream_inherit(),
                            atf::process::stream_inherit());
-    ATF_CHECK(s.exited());
-    ATF_CHECK(s.exitstatus() == EXIT_SUCCESS);
+    ATF_REQUIRE(s.exited());
+    ATF_REQUIRE(s.exitstatus() == EXIT_SUCCESS);
 }
 
 ATF_TEST_CASE(env_home);
@@ -123,12 +123,12 @@ ATF_TEST_CASE_HEAD(env_home)
 }
 ATF_TEST_CASE_BODY(env_home)
 {
-    ATF_CHECK(atf::env::has("HOME"));
+    ATF_REQUIRE(atf::env::has("HOME"));
     atf::fs::path p(atf::env::get("HOME"));
     atf::fs::file_info fi1(p);
     atf::fs::file_info fi2(atf::fs::path("."));
-    ATF_CHECK_EQUAL(fi1.get_device(), fi2.get_device());
-    ATF_CHECK_EQUAL(fi1.get_inode(), fi2.get_inode());
+    ATF_REQUIRE_EQ(fi1.get_device(), fi2.get_device());
+    ATF_REQUIRE_EQ(fi1.get_inode(), fi2.get_inode());
 }
 
 ATF_TEST_CASE(umask);
@@ -140,7 +140,7 @@ ATF_TEST_CASE_BODY(umask)
 {
     mode_t m = ::umask(0);
     std::cout << "umask: " << std::setw(4) << std::setfill('0')
-              << std::oct << m << std::endl;
+              << std::oct << m << "\n";
     (void)::umask(m);
 }
 
@@ -184,7 +184,7 @@ ATF_TEST_CASE_CLEANUP(cleanup_curdir)
     if (is) {
         int i;
         is >> i;
-        std::cout << "Old value: " << i << std::endl;
+        std::cout << "Old value: " << i << "\n";
         is.close();
     }
 }
@@ -207,8 +207,8 @@ ATF_TEST_CASE_HEAD(require_config)
 }
 ATF_TEST_CASE_BODY(require_config)
 {
-    std::cout << "var1: " << get_config_var("var1") << std::endl;
-    std::cout << "var2: " << get_config_var("var2") << std::endl;
+    std::cout << "var1: " << get_config_var("var1") << "\n";
+    std::cout << "var2: " << get_config_var("var2") << "\n";
 }
 
 ATF_TEST_CASE(require_machine);

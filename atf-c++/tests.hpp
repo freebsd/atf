@@ -119,6 +119,7 @@ public:
     static void expect_exit(const int, const std::string&);
     static void expect_signal(const int, const std::string&);
     static void expect_death(const std::string&);
+    static void expect_timeout(const std::string&);
 };
 
 } // namespace tests

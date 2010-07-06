@@ -43,10 +43,10 @@ ATF_TEST_CASE_HEAD(has_get)
 }
 ATF_TEST_CASE_BODY(has_get)
 {
-    ATF_CHECK(atf::env::has("PATH"));
-    ATF_CHECK(!atf::env::get("PATH").empty());
+    ATF_REQUIRE(atf::env::has("PATH"));
+    ATF_REQUIRE(!atf::env::get("PATH").empty());
 
-    ATF_CHECK(!atf::env::has("_UNDEFINED_VARIABLE_"));
+    ATF_REQUIRE(!atf::env::has("_UNDEFINED_VARIABLE_"));
 }
 
 ATF_TEST_CASE(set);
@@ -56,15 +56,15 @@ ATF_TEST_CASE_HEAD(set)
 }
 ATF_TEST_CASE_BODY(set)
 {
-    ATF_CHECK(atf::env::has("PATH"));
+    ATF_REQUIRE(atf::env::has("PATH"));
     const std::string& oldval = atf::env::get("PATH");
     atf::env::set("PATH", "foo-bar");
-    ATF_CHECK(atf::env::get("PATH") != oldval);
-    ATF_CHECK_EQUAL(atf::env::get("PATH"), "foo-bar");
+    ATF_REQUIRE(atf::env::get("PATH") != oldval);
+    ATF_REQUIRE_EQ(atf::env::get("PATH"), "foo-bar");
 
-    ATF_CHECK(!atf::env::has("_UNDEFINED_VARIABLE_"));
+    ATF_REQUIRE(!atf::env::has("_UNDEFINED_VARIABLE_"));
     atf::env::set("_UNDEFINED_VARIABLE_", "foo2-bar2");
-    ATF_CHECK_EQUAL(atf::env::get("_UNDEFINED_VARIABLE_"), "foo2-bar2");
+    ATF_REQUIRE_EQ(atf::env::get("_UNDEFINED_VARIABLE_"), "foo2-bar2");
 }
 
 ATF_TEST_CASE(unset);
@@ -74,9 +74,9 @@ ATF_TEST_CASE_HEAD(unset)
 }
 ATF_TEST_CASE_BODY(unset)
 {
-    ATF_CHECK(atf::env::has("PATH"));
+    ATF_REQUIRE(atf::env::has("PATH"));
     atf::env::unset("PATH");
-    ATF_CHECK(!atf::env::has("PATH"));
+    ATF_REQUIRE(!atf::env::has("PATH"));
 }
 
 // ------------------------------------------------------------------------

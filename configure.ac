@@ -31,7 +31,7 @@ dnl -----------------------------------------------------------------------
 dnl Initialize the GNU build system.
 dnl -----------------------------------------------------------------------
 
-AC_INIT([Automated Testing Framework], [0.10], [atf-devel@NetBSD.org], [atf],
+AC_INIT([Automated Testing Framework], [0.11], [atf-devel@NetBSD.org], [atf],
         [http://www.NetBSD.org/~jmmv/atf/])
 AC_PREREQ([2.65])
 AC_COPYRIGHT([Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.])
@@ -73,9 +73,21 @@ dnl -----------------------------------------------------------------------
 AC_LANG(C)
 AC_PROG_CC
 AM_PROG_CC_C_O
+dnl The C compiler check automatically aborts if the compiler does not work.
+dnl Nothing to do here.
 
 AC_LANG(C++)
 AC_PROG_CXX
+AC_CACHE_CHECK([whether the C++ compiler works],
+               [atf_cv_prog_cxx_works],
+               [AC_LANG_PUSH([C++])
+                AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])],
+                               [atf_cv_prog_cxx_works=yes],
+                               [atf_cv_prog_cxx_works=no])
+                AC_LANG_POP])
+if test "${atf_cv_prog_cxx_works}" = no; then
+    AC_MSG_ERROR([C++ compiler cannot create executables])
+fi
 
 ATF_DEVELOPER_MODE
 
@@ -100,10 +112,8 @@ ATF_RUNTIME_TOOL([ATF_BUILD_CXXFLAGS],
                  [C++ compiler flags to use at runtime], [${CXXFLAGS}])
 
 dnl -----------------------------------------------------------------------
-dnl Documentation building.
+dnl Generation of files in srcdir.
 dnl -----------------------------------------------------------------------
-
-ATF_DOC_BUILD
 
 dnl BSD make(1) doesn't deal with targets specified as './foo' well: they
 dnl need to be specified as 'foo'.  The following hack is to workaround this

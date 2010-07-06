@@ -365,6 +365,17 @@ public:
            const token_type&,
            const token_type&,
            const std::string&);
+
+    token
+    expect(const token_type&,
+           const token_type&,
+           const token_type&,
+           const token_type&,
+           const token_type&,
+           const token_type&,
+           const token_type&,
+           const token_type&,
+           const std::string&);
 };
 
 template< class TKZ >
@@ -524,6 +535,30 @@ parser< TKZ >::expect(const token_type& t1,
     if (t.type() != t1 && t.type() != t2 && t.type() != t3 &&
         t.type() != t4 && t.type() != t5 && t.type() != t6 &&
         t.type() != t7)
+        throw parse_error(t.lineno(),
+                          "Unexpected token `" + t.text() +
+                          "'; expected " + textual);
+
+    return t;
+}
+
+template< class TKZ >
+token
+parser< TKZ >::expect(const token_type& t1,
+                      const token_type& t2,
+                      const token_type& t3,
+                      const token_type& t4,
+                      const token_type& t5,
+                      const token_type& t6,
+                      const token_type& t7,
+                      const token_type& t8,
+                      const std::string& textual)
+{
+    token t = next();
+
+    if (t.type() != t1 && t.type() != t2 && t.type() != t3 &&
+        t.type() != t4 && t.type() != t5 && t.type() != t6 &&
+        t.type() != t7 && t.type() != t8)
         throw parse_error(t.lineno(),
                           "Unexpected token `" + t.text() +
                           "'; expected " + textual);

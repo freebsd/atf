@@ -142,6 +142,18 @@ expect_death_body() {
     done
 }
 
+atf_test_case expect_timeout
+expect_timeout_head() {
+    atf_set "use.fs" "true"
+}
+expect_timeout_body() {
+    for h in $(get_helpers); do
+        atf_check -s eq:1 "${h}" -r result expect_timeout_but_pass
+        check_result result "failed: Test case was expected to hang but it" \
+            "continued execution"
+    done
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case expect_pass
@@ -149,6 +161,7 @@ atf_init_test_cases()
     atf_add_test_case expect_exit
     atf_add_test_case expect_signal
     atf_add_test_case expect_death
+    atf_add_test_case expect_timeout
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

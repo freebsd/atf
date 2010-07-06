@@ -41,8 +41,8 @@ noinst_LTLIBRARIES =
 ACLOCAL_AMFLAGS = -I m4
 
 include admin/Makefile.am.inc
-include atf-c++/Makefile.am.inc
 include atf-c/Makefile.am.inc
+include atf-c++/Makefile.am.inc
 include atf-check/Makefile.am.inc
 include atf-config/Makefile.am.inc
 include atf-report/Makefile.am.inc
@@ -54,27 +54,12 @@ include doc/Makefile.am.inc
 include test-programs/Makefile.am.inc
 
 #
-# Top-level distfile document generation and installation.
+# Top-level distfile documents.
 #
 
 doc_DATA = AUTHORS COPYING NEWS README
-noinst_DATA += INSTALL
-EXTRA_DIST += $(doc_DATA) INSTALL
-
-@target_srcdir@AUTHORS: @target_srcdir@doc/text/authors.txt
-	cp $(srcdir)/doc/text/authors.txt $(srcdir)/AUTHORS
-
-@target_srcdir@COPYING: @target_srcdir@doc/text/copying.txt
-	cp $(srcdir)/doc/text/copying.txt $(srcdir)/COPYING
-
-@target_srcdir@INSTALL: @target_srcdir@doc/text/install.txt
-	cp $(srcdir)/doc/text/install.txt $(srcdir)/INSTALL
-
-@target_srcdir@NEWS: @target_srcdir@doc/text/news.txt
-	cp $(srcdir)/doc/text/news.txt $(srcdir)/NEWS
-
-@target_srcdir@README: @target_srcdir@doc/text/readme.txt
-	cp $(srcdir)/doc/text/readme.txt $(srcdir)/README
+noinst_DATA += INSTALL README
+EXTRA_DIST += $(doc_DATA) INSTALL README
 
 #
 # Supporting logic to run our custom testsuite.
@@ -128,7 +113,6 @@ release:
 
 .PHONY: release-test
 release-test:
-	XML_CATALOG_FILE="$(XML_CATALOG_FILE)" $(SH) \
-		$(srcdir)/admin/release-test.sh $(DIST_ARCHIVES)
+	$(SH) $(srcdir)/admin/release-test.sh $(DIST_ARCHIVES)
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

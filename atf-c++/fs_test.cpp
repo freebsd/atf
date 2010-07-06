@@ -77,20 +77,20 @@ ATF_TEST_CASE_BODY(path_normalize)
 {
     using atf::fs::path;
 
-    ATF_CHECK_EQUAL(path(".").str(), ".");
-    ATF_CHECK_EQUAL(path("..").str(), "..");
+    ATF_REQUIRE_EQ(path(".").str(), ".");
+    ATF_REQUIRE_EQ(path("..").str(), "..");
 
-    ATF_CHECK_EQUAL(path("foo").str(), "foo");
-    ATF_CHECK_EQUAL(path("foo/bar").str(), "foo/bar");
-    ATF_CHECK_EQUAL(path("foo/bar/").str(), "foo/bar");
+    ATF_REQUIRE_EQ(path("foo").str(), "foo");
+    ATF_REQUIRE_EQ(path("foo/bar").str(), "foo/bar");
+    ATF_REQUIRE_EQ(path("foo/bar/").str(), "foo/bar");
 
-    ATF_CHECK_EQUAL(path("/foo").str(), "/foo");
-    ATF_CHECK_EQUAL(path("/foo/bar").str(), "/foo/bar");
-    ATF_CHECK_EQUAL(path("/foo/bar/").str(), "/foo/bar");
+    ATF_REQUIRE_EQ(path("/foo").str(), "/foo");
+    ATF_REQUIRE_EQ(path("/foo/bar").str(), "/foo/bar");
+    ATF_REQUIRE_EQ(path("/foo/bar/").str(), "/foo/bar");
 
-    ATF_CHECK_EQUAL(path("///foo").str(), "/foo");
-    ATF_CHECK_EQUAL(path("///foo///bar").str(), "/foo/bar");
-    ATF_CHECK_EQUAL(path("///foo///bar///").str(), "/foo/bar");
+    ATF_REQUIRE_EQ(path("///foo").str(), "/foo");
+    ATF_REQUIRE_EQ(path("///foo///bar").str(), "/foo/bar");
+    ATF_REQUIRE_EQ(path("///foo///bar///").str(), "/foo/bar");
 }
 
 ATF_TEST_CASE(path_is_absolute);
@@ -102,12 +102,12 @@ ATF_TEST_CASE_BODY(path_is_absolute)
 {
     using atf::fs::path;
 
-    ATF_CHECK( path("/").is_absolute());
-    ATF_CHECK( path("////").is_absolute());
-    ATF_CHECK( path("////a").is_absolute());
-    ATF_CHECK( path("//a//").is_absolute());
-    ATF_CHECK(!path("a////").is_absolute());
-    ATF_CHECK(!path("../foo").is_absolute());
+    ATF_REQUIRE( path("/").is_absolute());
+    ATF_REQUIRE( path("////").is_absolute());
+    ATF_REQUIRE( path("////a").is_absolute());
+    ATF_REQUIRE( path("//a//").is_absolute());
+    ATF_REQUIRE(!path("a////").is_absolute());
+    ATF_REQUIRE(!path("../foo").is_absolute());
 }
 
 ATF_TEST_CASE(path_is_root);
@@ -119,12 +119,12 @@ ATF_TEST_CASE_BODY(path_is_root)
 {
     using atf::fs::path;
 
-    ATF_CHECK( path("/").is_root());
-    ATF_CHECK( path("////").is_root());
-    ATF_CHECK(!path("////a").is_root());
-    ATF_CHECK(!path("//a//").is_root());
-    ATF_CHECK(!path("a////").is_root());
-    ATF_CHECK(!path("../foo").is_root());
+    ATF_REQUIRE( path("/").is_root());
+    ATF_REQUIRE( path("////").is_root());
+    ATF_REQUIRE(!path("////a").is_root());
+    ATF_REQUIRE(!path("//a//").is_root());
+    ATF_REQUIRE(!path("a////").is_root());
+    ATF_REQUIRE(!path("../foo").is_root());
 }
 
 ATF_TEST_CASE(path_branch_path);
@@ -136,11 +136,11 @@ ATF_TEST_CASE_BODY(path_branch_path)
 {
     using atf::fs::path;
 
-    ATF_CHECK_EQUAL(path(".").branch_path().str(), ".");
-    ATF_CHECK_EQUAL(path("foo").branch_path().str(), ".");
-    ATF_CHECK_EQUAL(path("foo/bar").branch_path().str(), "foo");
-    ATF_CHECK_EQUAL(path("/foo").branch_path().str(), "/");
-    ATF_CHECK_EQUAL(path("/foo/bar").branch_path().str(), "/foo");
+    ATF_REQUIRE_EQ(path(".").branch_path().str(), ".");
+    ATF_REQUIRE_EQ(path("foo").branch_path().str(), ".");
+    ATF_REQUIRE_EQ(path("foo/bar").branch_path().str(), "foo");
+    ATF_REQUIRE_EQ(path("/foo").branch_path().str(), "/");
+    ATF_REQUIRE_EQ(path("/foo/bar").branch_path().str(), "/foo");
 }
 
 ATF_TEST_CASE(path_leaf_name);
@@ -152,11 +152,11 @@ ATF_TEST_CASE_BODY(path_leaf_name)
 {
     using atf::fs::path;
 
-    ATF_CHECK_EQUAL(path(".").leaf_name(), ".");
-    ATF_CHECK_EQUAL(path("foo").leaf_name(), "foo");
-    ATF_CHECK_EQUAL(path("foo/bar").leaf_name(), "bar");
-    ATF_CHECK_EQUAL(path("/foo").leaf_name(), "foo");
-    ATF_CHECK_EQUAL(path("/foo/bar").leaf_name(), "bar");
+    ATF_REQUIRE_EQ(path(".").leaf_name(), ".");
+    ATF_REQUIRE_EQ(path("foo").leaf_name(), "foo");
+    ATF_REQUIRE_EQ(path("foo/bar").leaf_name(), "bar");
+    ATF_REQUIRE_EQ(path("/foo").leaf_name(), "foo");
+    ATF_REQUIRE_EQ(path("/foo/bar").leaf_name(), "bar");
 }
 
 ATF_TEST_CASE(path_compare_equal);
@@ -168,12 +168,12 @@ ATF_TEST_CASE_BODY(path_compare_equal)
 {
     using atf::fs::path;
 
-    ATF_CHECK(path("/") == path("///"));
-    ATF_CHECK(path("/a") == path("///a"));
-    ATF_CHECK(path("/a") == path("///a///"));
+    ATF_REQUIRE(path("/") == path("///"));
+    ATF_REQUIRE(path("/a") == path("///a"));
+    ATF_REQUIRE(path("/a") == path("///a///"));
 
-    ATF_CHECK(path("a/b/c") == path("a//b//c"));
-    ATF_CHECK(path("a/b/c") == path("a//b//c///"));
+    ATF_REQUIRE(path("a/b/c") == path("a//b//c"));
+    ATF_REQUIRE(path("a/b/c") == path("a//b//c///"));
 }
 
 ATF_TEST_CASE(path_compare_different);
@@ -185,13 +185,13 @@ ATF_TEST_CASE_BODY(path_compare_different)
 {
     using atf::fs::path;
 
-    ATF_CHECK(path("/") != path("//a/"));
-    ATF_CHECK(path("/a") != path("a///"));
+    ATF_REQUIRE(path("/") != path("//a/"));
+    ATF_REQUIRE(path("/a") != path("a///"));
 
-    ATF_CHECK(path("a/b/c") != path("a/b"));
-    ATF_CHECK(path("a/b/c") != path("a//b"));
-    ATF_CHECK(path("a/b/c") != path("/a/b/c"));
-    ATF_CHECK(path("a/b/c") != path("/a//b//c"));
+    ATF_REQUIRE(path("a/b/c") != path("a/b"));
+    ATF_REQUIRE(path("a/b/c") != path("a//b"));
+    ATF_REQUIRE(path("a/b/c") != path("/a/b/c"));
+    ATF_REQUIRE(path("a/b/c") != path("/a//b//c"));
 }
 
 ATF_TEST_CASE(path_concat);
@@ -203,10 +203,10 @@ ATF_TEST_CASE_BODY(path_concat)
 {
     using atf::fs::path;
 
-    ATF_CHECK_EQUAL((path("foo") / "bar").str(), "foo/bar");
-    ATF_CHECK_EQUAL((path("foo/") / "/bar").str(), "foo/bar");
-    ATF_CHECK_EQUAL((path("foo/") / "/bar/baz").str(), "foo/bar/baz");
-    ATF_CHECK_EQUAL((path("foo/") / "///bar///baz").str(), "foo/bar/baz");
+    ATF_REQUIRE_EQ((path("foo") / "bar").str(), "foo/bar");
+    ATF_REQUIRE_EQ((path("foo/") / "/bar").str(), "foo/bar");
+    ATF_REQUIRE_EQ((path("foo/") / "/bar/baz").str(), "foo/bar/baz");
+    ATF_REQUIRE_EQ((path("foo/") / "///bar///baz").str(), "foo/bar/baz");
 }
 
 ATF_TEST_CASE(path_to_absolute);
@@ -226,23 +226,23 @@ ATF_TEST_CASE_BODY(path_to_absolute)
     {
         const path p(".");
         path pa = p.to_absolute();
-        ATF_CHECK(pa.is_absolute());
+        ATF_REQUIRE(pa.is_absolute());
 
         file_info fi(p);
         file_info fia(pa);
-        ATF_CHECK_EQUAL(fi.get_device(), fia.get_device());
-        ATF_CHECK_EQUAL(fi.get_inode(), fia.get_inode());
+        ATF_REQUIRE_EQ(fi.get_device(), fia.get_device());
+        ATF_REQUIRE_EQ(fi.get_inode(), fia.get_inode());
     }
 
     {
         const path p("files/reg");
         path pa = p.to_absolute();
-        ATF_CHECK(pa.is_absolute());
+        ATF_REQUIRE(pa.is_absolute());
 
         file_info fi(p);
         file_info fia(pa);
-        ATF_CHECK_EQUAL(fi.get_device(), fia.get_device());
-        ATF_CHECK_EQUAL(fi.get_inode(), fia.get_inode());
+        ATF_REQUIRE_EQ(fi.get_device(), fia.get_device());
+        ATF_REQUIRE_EQ(fi.get_inode(), fia.get_inode());
     }
 }
 
@@ -257,10 +257,10 @@ ATF_TEST_CASE_BODY(path_op_less)
 
     create_files();
 
-    ATF_CHECK(!(path("aaa") < path("aaa")));
+    ATF_REQUIRE(!(path("aaa") < path("aaa")));
 
-    ATF_CHECK(  path("aab") < path("abc"));
-    ATF_CHECK(!(path("abc") < path("aab")));
+    ATF_REQUIRE(  path("aab") < path("abc"));
+    ATF_REQUIRE(!(path("abc") < path("aab")));
 }
 
 // ------------------------------------------------------------------------
@@ -282,11 +282,11 @@ ATF_TEST_CASE_BODY(directory_read)
     create_files();
 
     directory d(path("files"));
-    ATF_CHECK_EQUAL(d.size(), 4);
-    ATF_CHECK(d.find(".") != d.end());
-    ATF_CHECK(d.find("..") != d.end());
-    ATF_CHECK(d.find("dir") != d.end());
-    ATF_CHECK(d.find("reg") != d.end());
+    ATF_REQUIRE_EQ(d.size(), 4);
+    ATF_REQUIRE(d.find(".") != d.end());
+    ATF_REQUIRE(d.find("..") != d.end());
+    ATF_REQUIRE(d.find("dir") != d.end());
+    ATF_REQUIRE(d.find("reg") != d.end());
 }
 
 ATF_TEST_CASE(directory_file_info);
@@ -308,16 +308,16 @@ ATF_TEST_CASE_BODY(directory_file_info)
 
     {
         directory::const_iterator iter = d.find("dir");
-        ATF_CHECK(iter != d.end());
+        ATF_REQUIRE(iter != d.end());
         const file_info& fi = (*iter).second;
-        ATF_CHECK(fi.get_type() == file_info::dir_type);
+        ATF_REQUIRE(fi.get_type() == file_info::dir_type);
     }
 
     {
         directory::const_iterator iter = d.find("reg");
-        ATF_CHECK(iter != d.end());
+        ATF_REQUIRE(iter != d.end());
         const file_info& fi = (*iter).second;
-        ATF_CHECK(fi.get_type() == file_info::reg_type);
+        ATF_REQUIRE(fi.get_type() == file_info::reg_type);
     }
 }
 
@@ -336,11 +336,11 @@ ATF_TEST_CASE_BODY(directory_names)
 
     directory d(path("files"));
     std::set< std::string > ns = d.names();
-    ATF_CHECK_EQUAL(ns.size(), 4);
-    ATF_CHECK(ns.find(".") != ns.end());
-    ATF_CHECK(ns.find("..") != ns.end());
-    ATF_CHECK(ns.find("dir") != ns.end());
-    ATF_CHECK(ns.find("reg") != ns.end());
+    ATF_REQUIRE_EQ(ns.size(), 4);
+    ATF_REQUIRE(ns.find(".") != ns.end());
+    ATF_REQUIRE(ns.find("..") != ns.end());
+    ATF_REQUIRE(ns.find("dir") != ns.end());
+    ATF_REQUIRE(ns.find("reg") != ns.end());
 }
 
 // ------------------------------------------------------------------------
@@ -363,13 +363,13 @@ ATF_TEST_CASE_BODY(file_info_stat)
     {
         path p("files/dir");
         file_info fi(p);
-        ATF_CHECK(fi.get_type() == file_info::dir_type);
+        ATF_REQUIRE(fi.get_type() == file_info::dir_type);
     }
 
     {
         path p("files/reg");
         file_info fi(p);
-        ATF_CHECK(fi.get_type() == file_info::reg_type);
+        ATF_REQUIRE(fi.get_type() == file_info::reg_type);
     }
 }
 
@@ -393,15 +393,15 @@ ATF_TEST_CASE_BODY(file_info_perms)
 #define perms(ur, uw, ux, gr, gw, gx, othr, othw, othx) \
     { \
         file_info fi(p); \
-        ATF_CHECK(fi.is_owner_readable() == ur); \
-        ATF_CHECK(fi.is_owner_writable() == uw); \
-        ATF_CHECK(fi.is_owner_executable() == ux); \
-        ATF_CHECK(fi.is_group_readable() == gr); \
-        ATF_CHECK(fi.is_group_writable() == gw); \
-        ATF_CHECK(fi.is_group_executable() == gx); \
-        ATF_CHECK(fi.is_other_readable() == othr); \
-        ATF_CHECK(fi.is_other_writable() == othw); \
-        ATF_CHECK(fi.is_other_executable() == othx); \
+        ATF_REQUIRE(fi.is_owner_readable() == ur); \
+        ATF_REQUIRE(fi.is_owner_writable() == uw); \
+        ATF_REQUIRE(fi.is_owner_executable() == ux); \
+        ATF_REQUIRE(fi.is_group_readable() == gr); \
+        ATF_REQUIRE(fi.is_group_writable() == gw); \
+        ATF_REQUIRE(fi.is_group_executable() == gx); \
+        ATF_REQUIRE(fi.is_other_readable() == othr); \
+        ATF_REQUIRE(fi.is_other_writable() == othw); \
+        ATF_REQUIRE(fi.is_other_executable() == othx); \
     }
 
     ::chmod(p.c_str(), 0000);
@@ -472,40 +472,40 @@ ATF_TEST_CASE_BODY(temp_file_raii)
         temp_file tf2(tmpl);
         t1 = tf1.get_path();
         t2 = tf2.get_path();
-        ATF_CHECK(t1.str().find("XXXXXX") == std::string::npos);
-        ATF_CHECK(t2.str().find("XXXXXX") == std::string::npos);
-        ATF_CHECK(t1 != t2);
-        ATF_CHECK(!exists(tmpl));
-        ATF_CHECK( exists(t1));
-        ATF_CHECK( exists(t2));
+        ATF_REQUIRE(t1.str().find("XXXXXX") == std::string::npos);
+        ATF_REQUIRE(t2.str().find("XXXXXX") == std::string::npos);
+        ATF_REQUIRE(t1 != t2);
+        ATF_REQUIRE(!exists(tmpl));
+        ATF_REQUIRE( exists(t1));
+        ATF_REQUIRE( exists(t2));
 
         file_info fi1(t1);
-        ATF_CHECK( fi1.is_owner_readable());
-        ATF_CHECK( fi1.is_owner_writable());
-        ATF_CHECK(!fi1.is_owner_executable());
-        ATF_CHECK(!fi1.is_group_readable());
-        ATF_CHECK(!fi1.is_group_writable());
-        ATF_CHECK(!fi1.is_group_executable());
-        ATF_CHECK(!fi1.is_other_readable());
-        ATF_CHECK(!fi1.is_other_writable());
-        ATF_CHECK(!fi1.is_other_executable());
+        ATF_REQUIRE( fi1.is_owner_readable());
+        ATF_REQUIRE( fi1.is_owner_writable());
+        ATF_REQUIRE(!fi1.is_owner_executable());
+        ATF_REQUIRE(!fi1.is_group_readable());
+        ATF_REQUIRE(!fi1.is_group_writable());
+        ATF_REQUIRE(!fi1.is_group_executable());
+        ATF_REQUIRE(!fi1.is_other_readable());
+        ATF_REQUIRE(!fi1.is_other_writable());
+        ATF_REQUIRE(!fi1.is_other_executable());
 
         file_info fi2(t2);
-        ATF_CHECK( fi2.is_owner_readable());
-        ATF_CHECK( fi2.is_owner_writable());
-        ATF_CHECK(!fi2.is_owner_executable());
-        ATF_CHECK(!fi2.is_group_readable());
-        ATF_CHECK(!fi2.is_group_writable());
-        ATF_CHECK(!fi2.is_group_executable());
-        ATF_CHECK(!fi2.is_other_readable());
-        ATF_CHECK(!fi2.is_other_writable());
-        ATF_CHECK(!fi2.is_other_executable());
+        ATF_REQUIRE( fi2.is_owner_readable());
+        ATF_REQUIRE( fi2.is_owner_writable());
+        ATF_REQUIRE(!fi2.is_owner_executable());
+        ATF_REQUIRE(!fi2.is_group_readable());
+        ATF_REQUIRE(!fi2.is_group_writable());
+        ATF_REQUIRE(!fi2.is_group_executable());
+        ATF_REQUIRE(!fi2.is_other_readable());
+        ATF_REQUIRE(!fi2.is_other_writable());
+        ATF_REQUIRE(!fi2.is_other_executable());
     }
 
-    ATF_CHECK(t1.str() != "non-existent");
-    ATF_CHECK(!exists(t1));
-    ATF_CHECK(t2.str() != "non-existent");
-    ATF_CHECK(!exists(t2));
+    ATF_REQUIRE(t1.str() != "non-existent");
+    ATF_REQUIRE(!exists(t1));
+    ATF_REQUIRE(t2.str() != "non-existent");
+    ATF_REQUIRE(!exists(t2));
 }
 
 ATF_TEST_CASE(temp_file_stream);
@@ -527,11 +527,11 @@ ATF_TEST_CASE_BODY(temp_file_stream)
         tf.close();
 
         std::ifstream is(tf.get_path().c_str());
-        ATF_CHECK(is);
+        ATF_REQUIRE(is);
 
         std::getline(is, line);
     }
-    ATF_CHECK_EQUAL(line, "A string");
+    ATF_REQUIRE_EQ(line, "A string");
 }
 
 ATF_TEST_CASE(temp_file_fd);
@@ -550,16 +550,16 @@ ATF_TEST_CASE_BODY(temp_file_fd)
 
         path tmpl("tempfile.XXXXXX");
         temp_file tf(tmpl);
-        ATF_CHECK_EQUAL(static_cast< int >(msg.length()),
+        ATF_REQUIRE_EQ(static_cast< int >(msg.length()),
                         ::write(tf.fd(), msg.c_str(), msg.length()));
         tf.close();
 
         std::ifstream is(tf.get_path().c_str());
-        ATF_CHECK(is);
+        ATF_REQUIRE(is);
 
         std::getline(is, line);
     }
-    ATF_CHECK_EQUAL(line, "A string");
+    ATF_REQUIRE_EQ(line, "A string");
 }
 
 ATF_TEST_CASE(temp_file_delete);
@@ -598,15 +598,15 @@ ATF_TEST_CASE_BODY(exists)
 
     create_files();
 
-    ATF_CHECK( exists(path("files")));
-    ATF_CHECK(!exists(path("file")));
-    ATF_CHECK(!exists(path("files2")));
+    ATF_REQUIRE( exists(path("files")));
+    ATF_REQUIRE(!exists(path("file")));
+    ATF_REQUIRE(!exists(path("files2")));
 
-    ATF_CHECK( exists(path("files/.")));
-    ATF_CHECK( exists(path("files/..")));
-    ATF_CHECK( exists(path("files/dir")));
-    ATF_CHECK( exists(path("files/reg")));
-    ATF_CHECK(!exists(path("files/foo")));
+    ATF_REQUIRE( exists(path("files/.")));
+    ATF_REQUIRE( exists(path("files/..")));
+    ATF_REQUIRE( exists(path("files/dir")));
+    ATF_REQUIRE( exists(path("files/reg")));
+    ATF_REQUIRE(!exists(path("files/foo")));
 }
 
 ATF_TEST_CASE(is_executable);
@@ -622,16 +622,16 @@ ATF_TEST_CASE_BODY(is_executable)
 
     create_files();
 
-    ATF_CHECK( is_executable(path("files")));
-    ATF_CHECK( is_executable(path("files/.")));
-    ATF_CHECK( is_executable(path("files/..")));
-    ATF_CHECK( is_executable(path("files/dir")));
+    ATF_REQUIRE( is_executable(path("files")));
+    ATF_REQUIRE( is_executable(path("files/.")));
+    ATF_REQUIRE( is_executable(path("files/..")));
+    ATF_REQUIRE( is_executable(path("files/dir")));
 
-    ATF_CHECK(!is_executable(path("non-existent")));
+    ATF_REQUIRE(!is_executable(path("non-existent")));
 
-    ATF_CHECK(!is_executable(path("files/reg")));
-    ATF_CHECK(::chmod("files/reg", 0755) != -1);
-    ATF_CHECK( is_executable(path("files/reg")));
+    ATF_REQUIRE(!is_executable(path("files/reg")));
+    ATF_REQUIRE(::chmod("files/reg", 0755) != -1);
+    ATF_REQUIRE( is_executable(path("files/reg")));
 }
 
 ATF_TEST_CASE(remove);
@@ -648,13 +648,13 @@ ATF_TEST_CASE_BODY(remove)
 
     create_files();
 
-    ATF_CHECK( exists(path("files/reg")));
+    ATF_REQUIRE( exists(path("files/reg")));
     remove(path("files/reg"));
-    ATF_CHECK(!exists(path("files/reg")));
+    ATF_REQUIRE(!exists(path("files/reg")));
 
-    ATF_CHECK( exists(path("files/dir")));
-    ATF_CHECK_THROW(atf::system_error, remove(path("files/dir")));
-    ATF_CHECK( exists(path("files/dir")));
+    ATF_REQUIRE( exists(path("files/dir")));
+    ATF_REQUIRE_THROW(atf::system_error, remove(path("files/dir")));
+    ATF_REQUIRE( exists(path("files/dir")));
 }
 
 // ------------------------------------------------------------------------

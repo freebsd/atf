@@ -44,7 +44,6 @@ fi
 make distclean
 
 # Top-level directory.
-rm -f AUTHORS COPYING INSTALL NEWS README
 rm -f .gdb_history
 rm -f Makefile.in
 rm -f aclocal.m4
@@ -63,7 +62,6 @@ rm -f admin/depcomp
 rm -f admin/install-sh
 rm -f admin/ltmain.sh
 rm -f admin/missing
-rm -f admin/revision*
 
 # `m4' directory.
 rm -f m4/libtool.m4
@@ -72,10 +70,6 @@ rm -f m4/lt*.m4
 # `bootstrap' directory.
 rm -f bootstrap/package.m4
 rm -f bootstrap/testsuite
-
-# Generated documentation.
-rm -f doc/standalone/*.html
-rm -f doc/text/*.txt
 
 # Files and directories spread all around the tree.
 find . -name '#*' | xargs rm -rf

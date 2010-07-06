@@ -221,8 +221,21 @@ atf_run::get_test_case_result(const std::string& broken_reason,
     using impl::read_test_case_result;
     using impl::test_case_result;
 
-    if (!broken_reason.empty())
-        return test_case_result("failed", -1, broken_reason);
+    if (!broken_reason.empty()) {
+        test_case_result tcr;
+
+        try {
+            tcr = read_test_case_result(resfile);
+
+            if (tcr.state() == "expected_timeout") {
+                return tcr;
+            } else {
+                return test_case_result("failed", -1, broken_reason);
+            }
+        } catch (const std::runtime_error& e) {
+            return test_case_result("failed", -1, broken_reason);
+        }
+    }
 
     if (s.exited()) {
         test_case_result tcr;

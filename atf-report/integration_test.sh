@@ -137,11 +137,60 @@ tc, expect_helpers, pass_but_fail_requirement, failed, Some reason
 tc, expect_helpers, signal_any_and_signal, expected_signal, Call will signal
 tc, expect_helpers, signal_but_pass, failed, Test case was expected to receive a termination signal but it continued execution
 tc, expect_helpers, signal_no_and_signal, expected_signal, Call will signal
+tc, expect_helpers, timeout_and_hang, expected_timeout, Will overrun
+tc, expect_helpers, timeout_but_pass, failed, Test case was expected to hang but it continued execution
 tp, expect_helpers, failed
 EOF
 # NO_CHECK_STYLE_END
+    atf_check -s eq:0 -o file:expout -e empty -x "atf-report -o csv:- <tps.out"
 
-    cat tps.out | atf_check -s eq:0 -o file:expout -e empty atf-report -o csv:-
+# NO_CHECK_STYLE_BEGIN
+    cat >expout <<EOF
+expect_helpers (1/1): 17 test cases
+    death_and_exit: Expected failure: Exit case
+    death_and_signal: Expected failure: Signal case
+    death_but_pass: Failed: Test case was expected to terminate abruptly but it continued execution
+    exit_any_and_exit: Expected failure: Call will exit
+    exit_but_pass: Failed: Test case was expected to exit cleanly but it continued execution
+    exit_code_and_exit: Expected failure: Call will exit
+    fail_and_fail_check: Expected failure: And fail again: 2 checks failed as expected; see output for more details
+    fail_and_fail_requirement: Expected failure: Fail reason: The failure
+    fail_but_pass: Failed: Test case was expecting a failure but none were raised
+    pass_and_pass: Passed.
+    pass_but_fail_check: Failed: 1 checks failed; see output for more details
+    pass_but_fail_requirement: Failed: Some reason
+    signal_any_and_signal: Expected failure: Call will signal
+    signal_but_pass: Failed: Test case was expected to receive a termination signal but it continued execution
+    signal_no_and_signal: Expected failure: Call will signal
+    timeout_and_hang: Expected failure: Will overrun
+    timeout_but_pass: Failed: Test case was expected to hang but it continued execution
+
+Test cases for known bugs:
+    expect_helpers:death_and_exit: Exit case
+    expect_helpers:death_and_signal: Signal case
+    expect_helpers:exit_any_and_exit: Call will exit
+    expect_helpers:exit_code_and_exit: Call will exit
+    expect_helpers:fail_and_fail_check: And fail again: 2 checks failed as expected; see output for more details
+    expect_helpers:fail_and_fail_requirement: Fail reason: The failure
+    expect_helpers:signal_any_and_signal: Call will signal
+    expect_helpers:signal_no_and_signal: Call will signal
+    expect_helpers:timeout_and_hang: Will overrun
+
+Failed test cases:
+    expect_helpers:death_but_pass, expect_helpers:exit_but_pass, expect_helpers:fail_but_pass, expect_helpers:pass_but_fail_check, expect_helpers:pass_but_fail_requirement, expect_helpers:signal_but_pass, expect_helpers:timeout_but_pass
+
+Summary for 1 test programs:
+    1 passed test cases.
+    7 failed test cases.
+    9 expected failed test cases.
+    0 skipped test cases.
+EOF
+# NO_CHECK_STYLE_END
+    atf_check -s eq:0 -o file:expout -e empty -x \
+        "atf-report -o ticker:- <tps.out"
+
+    # Just ensure that this does not crash for now...
+    atf_check -s eq:0 -o ignore -e empty -x "atf-report -o xml:- <tps.out"
 }
 
 atf_test_case oflag

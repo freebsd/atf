@@ -88,8 +88,8 @@ void
 detail::atf_tp_writer::start_tc(const std::string& ident)
 {
     if (!m_is_first)
-        m_os << std::endl;
-    m_os << "ident: " << ident << std::endl;
+        m_os << "\n";
+    m_os << "ident: " << ident << "\n";
     m_os.flush();
 }
 
@@ -105,7 +105,7 @@ detail::atf_tp_writer::tc_meta_data(const std::string& name,
                                     const std::string& value)
 {
     PRE(name != "ident");
-    m_os << name << ": " << value << std::endl;
+    m_os << name << ": " << value << "\n";
     m_os.flush();
 }
 
@@ -371,6 +371,12 @@ void
 impl::tc::expect_death(const std::string& reason)
 {
     atf_tc_expect_death("%s", reason.c_str());
+}
+
+void
+impl::tc::expect_timeout(const std::string& reason)
+{
+    atf_tc_expect_timeout("%s", reason.c_str());
 }
 
 // ------------------------------------------------------------------------

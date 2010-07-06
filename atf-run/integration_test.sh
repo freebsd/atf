@@ -338,6 +338,8 @@ expect_body()
         -o match:'signal_any_and_signal, expected_signal' \
         -o match:'signal_but_pass, failed' \
         -o match:'signal_no_and_signal, expected_signal' \
+        -o match:'timeout_and_hang, expected_timeout' \
+        -o match:'timeout_but_pass, failed' \
         -e empty atf-run
 }
 

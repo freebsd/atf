@@ -148,6 +148,27 @@ ATF_TC_BODY(death_but_pass, tc)
     atf_tc_expect_death("Call won't die");
 }
 
+ATF_TC(timeout_and_hang);
+ATF_TC_HEAD(timeout_and_hang, tc)
+{
+    atf_tc_set_md_var(tc, "timeout", "1");
+}
+ATF_TC_BODY(timeout_and_hang, tc)
+{
+    atf_tc_expect_timeout("Will overrun");
+    sleep(5);
+}
+
+ATF_TC(timeout_but_pass);
+ATF_TC_HEAD(timeout_but_pass, tc)
+{
+    atf_tc_set_md_var(tc, "timeout", "1");
+}
+ATF_TC_BODY(timeout_but_pass, tc)
+{
+    atf_tc_expect_timeout("Will just exit");
+}
+
 ATF_TP_ADD_TCS(tp)
 {
     ATF_TP_ADD_TC(tp, pass_and_pass);
@@ -165,6 +186,8 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, death_and_exit);
     ATF_TP_ADD_TC(tp, death_and_signal);
     ATF_TP_ADD_TC(tp, death_but_pass);
+    ATF_TP_ADD_TC(tp, timeout_and_hang);
+    ATF_TP_ADD_TC(tp, timeout_but_pass);
 
     return atf_no_error();
 }

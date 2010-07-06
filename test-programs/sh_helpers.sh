@@ -294,6 +294,27 @@ expect_death_but_pass_body()
     atf_expect_death "Call won't die"
 }
 
+atf_test_case expect_timeout_and_hang
+expect_timeout_and_hang_head()
+{
+    atf_set "timeout" "1"
+}
+expect_timeout_and_hang_body()
+{
+    atf_expect_timeout "Will overrun"
+    sleep 5
+}
+
+atf_test_case expect_timeout_but_pass
+expect_timeout_but_pass_head()
+{
+    atf_set "timeout" "1"
+}
+expect_timeout_but_pass_body()
+{
+    atf_expect_timeout "Will just exit"
+}
+
 # -------------------------------------------------------------------------
 # Helper tests for "t_meta_data".
 # -------------------------------------------------------------------------
@@ -388,6 +409,8 @@ atf_init_test_cases()
     atf_add_test_case expect_death_and_exit
     atf_add_test_case expect_death_and_signal
     atf_add_test_case expect_death_but_pass
+    atf_add_test_case expect_timeout_and_hang
+    atf_add_test_case expect_timeout_but_pass
 
     # Add helper tests for t_fork.
     atf_add_test_case fork_stop

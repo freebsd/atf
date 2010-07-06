@@ -210,14 +210,12 @@ impl::app::usage(std::ostream& os)
     if (!args.empty())
         args = " " + args;
     os << ui::format_text_with_tag(std::string(m_prog_name) + " [options]" +
-                                   args, "Usage: ", false) << std::endl
-       << std::endl
-       << ui::format_text(m_description) << std::endl
-       << std::endl;
+                                   args, "Usage: ", false) << "\n\n"
+       << ui::format_text(m_description) << "\n\n";
 
     options_set opts = options();
     INV(!opts.empty());
-    os << "Available options:" << std::endl;
+    os << "Available options:\n";
     size_t coldesc = 0;
     for (options_set::const_iterator iter = opts.begin();
          iter != opts.end(); iter++) {
@@ -236,17 +234,16 @@ impl::app::usage(std::ostream& os)
         else
             tag += " " + opt.m_argument + "    ";
         os << ui::format_text_with_tag(opt.m_description, tag, false,
-                                       coldesc + 10)
-           << std::endl;
+                                       coldesc + 10) << "\n";
     }
-    os << std::endl;
+    os << "\n";
 
     std::string gmp;
     if (!m_global_manpage.empty())
         gmp = " and " + m_global_manpage;
     os << ui::format_text("For more details please see " + m_manpage +
                           gmp + ".")
-       << std::endl;
+       << "\n";
 }
 
 int
@@ -295,10 +292,10 @@ impl::app::run(int argc, char* const* argv)
             errcode = main();
     } catch (const usage_error& e) {
         if (m_use_ui) {
-            std::cerr << ui::format_error(m_prog_name, e.what()) << std::endl
+            std::cerr << ui::format_error(m_prog_name, e.what()) << "\n"
                       << ui::format_info(m_prog_name, std::string("Type `") +
                                          m_prog_name + " -h' for more details.")
-                      << std::endl;
+                      << "\n";
         } else {
             std::cerr << m_prog_name << ": ERROR: " << e.what() << "\n";
             std::cerr << m_prog_name << ": See " << m_manpage << " for usage "
@@ -308,7 +305,7 @@ impl::app::run(int argc, char* const* argv)
     } catch (const std::runtime_error& e) {
         if (m_use_ui) {
             std::cerr << ui::format_error(m_prog_name, std::string(e.what()))
-                      << std::endl;
+                      << "\n";
         } else {
             std::cerr << m_prog_name << ": ERROR: " << e.what() << "\n";
         }
@@ -316,7 +313,7 @@ impl::app::run(int argc, char* const* argv)
     } catch (const std::exception& e) {
         if (m_use_ui) {
             std::cerr << ui::format_error(m_prog_name, std::string("Caught "
-                "unexpected error: ") + e.what() + "\n" + bug) << std::endl;
+                "unexpected error: ") + e.what() + "\n" + bug) << "\n";
         } else {
             std::cerr << m_prog_name << ": ERROR: Caught unexpected error: "
                       << e.what() << "\n";
@@ -325,7 +322,7 @@ impl::app::run(int argc, char* const* argv)
     } catch (...) {
         if (m_use_ui) {
             std::cerr << ui::format_error(m_prog_name, std::string("Caught "
-                "unknown error\n") + bug) << std::endl;
+                "unknown error\n") + bug) << "\n";
         } else {
             std::cerr << m_prog_name << ": ERROR: Caught unknown error\n";
         }

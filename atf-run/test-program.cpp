@@ -334,7 +334,7 @@ handle_result_with_reason(const std::string& state, const std::string& arg,
                           const std::string& reason)
 {
     PRE(state == "expected_death" || state == "expected_failure" ||
-        state == "failed" || state == "skipped");
+        state == "expected_timeout" || state == "failed" || state == "skipped");
 
     if (!arg.empty() || reason.empty())
         throw std::runtime_error("The test case result '" + state + "' must "
@@ -511,6 +511,8 @@ detail::parse_test_case_result(const std::string& line)
         return handle_result_with_reason(state, arg, reason);
     else if (state.compare(0, 15, "expected_signal") == 0)
         return handle_result_with_reason_and_arg(state, arg, reason);
+    else if (state.compare(0, 16, "expected_timeout") == 0)
+        return handle_result_with_reason(state, arg, reason);
     else if (state == "failed")
         return handle_result_with_reason(state, arg, reason);
     else if (state == "passed")
@@ -536,14 +538,14 @@ impl::atf_tps_writer::atf_tps_writer(std::ostream& os) :
 void
 impl::atf_tps_writer::info(const std::string& what, const std::string& val)
 {
-    m_os << "info: " << what << ", " << val << std::endl;
+    m_os << "info: " << what << ", " << val << "\n";
     m_os.flush();
 }
 
 void
 impl::atf_tps_writer::ntps(size_t p_ntps)
 {
-    m_os << "tps-count: " << p_ntps << std::endl;
+    m_os << "tps-count: " << p_ntps << "\n";
     m_os.flush();
 }
 
@@ -551,7 +553,7 @@ void
 impl::atf_tps_writer::start_tp(const std::string& tp, size_t ntcs)
 {
     m_tpname = tp;
-    m_os << "tp-start: " << tp << ", " << ntcs << std::endl;
+    m_os << "tp-start: " << tp << ", " << ntcs << "\n";
     m_os.flush();
 }
 
@@ -560,9 +562,9 @@ impl::atf_tps_writer::end_tp(const std::string& reason)
 {
     PRE(reason.find('\n') == std::string::npos);
     if (reason.empty())
-        m_os << "tp-end: " << m_tpname << std::endl;
+        m_os << "tp-end: " << m_tpname << "\n";
     else
-        m_os << "tp-end: " << m_tpname << ", " << reason << std::endl;
+        m_os << "tp-end: " << m_tpname << ", " << reason << "\n";
     m_os.flush();
 }
 
@@ -570,21 +572,21 @@ void
 impl::atf_tps_writer::start_tc(const std::string& tcname)
 {
     m_tcname = tcname;
-    m_os << "tc-start: " << tcname << std::endl;
+    m_os << "tc-start: " << tcname << "\n";
     m_os.flush();
 }
 
 void
 impl::atf_tps_writer::stdout_tc(const std::string& line)
 {
-    m_os << "tc-so:" << line << std::endl;
+    m_os << "tc-so:" << line << "\n";
     m_os.flush();
 }
 
 void
 impl::atf_tps_writer::stderr_tc(const std::string& line)
 {
-    m_os << "tc-se:" << line << std::endl;
+    m_os << "tc-se:" << line << "\n";
     m_os.flush();
 }
 
@@ -595,7 +597,7 @@ impl::atf_tps_writer::end_tc(const std::string& state,
     std::string str = "tc-end: " + m_tcname + ", " + state;
     if (!reason.empty())
         str += ", " + reason;
-    m_os << str << std::endl;
+    m_os << str << "\n";
     m_os.flush();
 }
 

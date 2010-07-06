@@ -34,8 +34,6 @@
 
 set -e
 
-: ${XML_CATALOG_FILE:-/etc/xml/catalog}
-
 Prog_Name=${0##*/}
 
 # err message
@@ -76,14 +74,10 @@ run_test() {
     ${make} install || return 1
 
     $(pwd)/local/bin/atf-version >version.txt || return 1
-    if grep 'locally modified' version.txt >/dev/null; then
-        echo "ERROR: atf-version reports modified sources"
-        return 1
-    fi
-    if grep 'data cached' version.txt >/dev/null; then
+    if grep 'Built from a distribution file' version.txt >/dev/null; then
         :
     else
-        echo "ERROR: atf-version does not report cached data"
+        echo "ERROR: atf-version reports sources from repository"
         return 1
     fi
 
@@ -155,13 +149,8 @@ main() {
     *) distpath="$(pwd)/${distfile}" ;;
     esac
 
-    require_package docbook-simple
-    require_package libxml2
-    require_package libxslt
-    require_package links
     require_package pkg-config
     require_package sudo
-    require_package tidy
 
     validate_sudo
 
@@ -183,15 +172,7 @@ main() {
             count=$((count + 1))
             logfile="${logdir}/${count}.log"
             one_test "${logfile}" "${distpath}" "${make}" "${parallelism}" \
-                ATF_SHELL=/bin/sh \
-                --disable-doc-build || failed=yes
-
-            count=$((count + 1))
-            logfile="${logdir}/${count}.log"
-            one_test "${logfile}" "${distpath}" "${make}" "${parallelism}" \
-                ATF_SHELL=/bin/sh \
-                XML_CATALOG_FILE="${XML_CATALOG_FILE}" \
-                --enable-doc-build || failed=yes
+                ATF_SHELL=/bin/sh || failed=yes
         done
     done
 

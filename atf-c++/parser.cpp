@@ -288,7 +288,7 @@ write(std::ostream& os, const impl::header_entry& he)
         line += "; " + (*iter).first + "=\"" + (*iter).second + "\"";
     }
 
-    os << line << std::endl;
+    os << line << "\n";
 
     return os;
 }
@@ -356,7 +356,7 @@ impl::write_headers(const impl::headers_map& hm, std::ostream& os)
         if ((*iter).first != "Content-Type")
             header::write(os, (*iter).second);
     }
-    os << std::endl;
+    os << "\n";
 }
 
 void
