@@ -45,7 +45,7 @@ namespace impl = atf::build;
 
 inline
 atf::process::argv_array
-clist_to_argv(const atf_list_t* l)
+cargv_to_argv(const atf_list_t* l)
 {
     std::vector< const char* > aux;
 
@@ -58,14 +58,14 @@ clist_to_argv(const atf_list_t* l)
 
 inline
 atf::process::argv_array
-clist_to_argv_and_free(atf_list_t* l)
+cargv_to_argv_and_free(char** l)
 {
     try {
-        atf::process::argv_array argv = clist_to_argv(l);
-        atf_list_fini(l);
+        atf::process::argv_array argv((const char* const*)l);
+        atf_build_free_argv(l);
         return argv;
     } catch (...) {
-        atf_list_fini(l);
+        atf_build_free_argv(l);
         throw;
     }
 }
@@ -78,40 +78,40 @@ atf::process::argv_array
 impl::c_o(const std::string& sfile, const std::string& ofile,
           const process::argv_array& optargs)
 {
-    atf_list_t l;
+    char** l;
 
     atf_error_t err = atf_build_c_o(sfile.c_str(), ofile.c_str(),
                                     optargs.exec_argv(), &l);
     if (atf_is_error(err))
         throw_atf_error(err);
 
-    return clist_to_argv_and_free(&l);
+    return cargv_to_argv_and_free(l);
 }
 
 atf::process::argv_array
 impl::cpp(const std::string& sfile, const std::string& ofile,
           const process::argv_array& optargs)
 {
-    atf_list_t l;
+    char** l;
 
     atf_error_t err = atf_build_cpp(sfile.c_str(), ofile.c_str(),
                                     optargs.exec_argv(), &l);
     if (atf_is_error(err))
         throw_atf_error(err);
 
-    return clist_to_argv_and_free(&l);
+    return cargv_to_argv_and_free(l);
 }
 
 atf::process::argv_array
 impl::cxx_o(const std::string& sfile, const std::string& ofile,
             const process::argv_array& optargs)
 {
-    atf_list_t l;
+    char** l;
 
     atf_error_t err = atf_build_cxx_o(sfile.c_str(), ofile.c_str(),
                                       optargs.exec_argv(), &l);
     if (atf_is_error(err))
         throw_atf_error(err);
 
-    return clist_to_argv_and_free(&l);
+    return cargv_to_argv_and_free(l);
 }
