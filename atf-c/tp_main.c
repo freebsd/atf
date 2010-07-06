@@ -474,7 +474,7 @@ run_tc(const atf_tp_t *tp, struct params *p, int *exitcode)
 
     switch (p->m_tcpart) {
     case BODY:
-        err = atf_tp_run(tp, p->m_tcname, &p->m_resfile);
+        err = atf_tp_run(tp, p->m_tcname, atf_fs_path_cstring(&p->m_resfile));
         if (atf_is_error(err)) {
             /* TODO: Handle error */
             *exitcode = EXIT_FAILURE;

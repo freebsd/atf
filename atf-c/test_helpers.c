@@ -176,11 +176,8 @@ void
 run_h_tc_child(void *v)
 {
     struct run_h_tc_data *data = (struct run_h_tc_data *)v;
-    atf_fs_path_t respath;
 
-    RE(atf_fs_path_init_fmt(&respath, data->m_resname));
-    RE(atf_tc_run(data->m_tc, &respath));
-    atf_fs_path_fini(&respath);
+    RE(atf_tc_run(data->m_tc, data->m_resname));
 }
 
 /* TODO: Investigate if it's worth to add this functionality as part of

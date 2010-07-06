@@ -164,8 +164,7 @@ atf_tp_add_tc(atf_tp_t *tp, atf_tc_t *tc)
  * --------------------------------------------------------------------- */
 
 atf_error_t
-atf_tp_run(const atf_tp_t *tp, const char *tcname,
-           const atf_fs_path_t *resfile)
+atf_tp_run(const atf_tp_t *tp, const char *tcname, const char *resfile)
 {
     const atf_tc_t *tc;
 

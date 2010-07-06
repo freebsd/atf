@@ -36,7 +36,6 @@
 #include <atf-c/error_fwd.h>
 #include <atf-c/map.h>
 
-struct atf_fs_path;
 struct atf_tc;
 
 typedef void (*atf_tc_head_t)(struct atf_tc *);
@@ -94,7 +93,7 @@ atf_error_t atf_tc_set_md_var(atf_tc_t *, const char *, const char *, ...);
  * Free functions.
  * --------------------------------------------------------------------- */
 
-atf_error_t atf_tc_run(const atf_tc_t *, const struct atf_fs_path *);
+atf_error_t atf_tc_run(const atf_tc_t *, const char *);
 atf_error_t atf_tc_cleanup(const atf_tc_t *);
 
 /* To be run from test case bodies only. */

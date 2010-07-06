@@ -252,7 +252,7 @@ impl::tc::run(const fs::path& resfile)
     const
 {
     try {
-        atf_error_t err = atf_tc_run(&m_tc, resfile.c_path());
+        atf_error_t err = atf_tc_run(&m_tc, resfile.c_str());
         if (atf_is_error(err))
             throw_atf_error(err);
     } catch (const std::exception& e) {

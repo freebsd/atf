@@ -58,7 +58,7 @@ enum expect_type {
 
 struct context {
     const atf_tc_t *tc;
-    const atf_fs_path_t *resfile;
+    const char *resfile;
     size_t fail_count;
 
     enum expect_type expect;
@@ -69,14 +69,13 @@ struct context {
     int expect_signo;
 };
 
-static void context_init(struct context *, const atf_tc_t *,
-                         const atf_fs_path_t *);
+static void context_init(struct context *, const atf_tc_t *, const char *);
 static void check_fatal_error(atf_error_t);
 static void report_fatal_error(const char *, ...)
     ATF_DEFS_ATTRIBUTE_NORETURN;
 static atf_error_t write_resfile(FILE *, const char *, const int,
                                  const atf_dynstr_t *);
-static void create_resfile(const atf_fs_path_t *, const char *, const int,
+static void create_resfile(const char *, const char *, const int,
                            atf_dynstr_t *);
 static void error_in_expect(struct context *, const char *, ...)
     ATF_DEFS_ATTRIBUTE_NORETURN;
@@ -101,8 +100,7 @@ static atf_error_t check_prog_in_dir(const char *, void *);
 static atf_error_t check_prog(struct context *, const char *, void *);
 
 static void
-context_init(struct context *ctx, const atf_tc_t *tc,
-             const atf_fs_path_t *resfile)
+context_init(struct context *ctx, const atf_tc_t *tc, const char *resfile)
 {
     ctx->tc = tc;
     ctx->resfile = resfile;
@@ -181,20 +179,20 @@ err:
  * not return any error code.
  */
 static void
-create_resfile(const atf_fs_path_t *resfile, const char *result, const int arg,
+create_resfile(const char *resfile, const char *result, const int arg,
                atf_dynstr_t *reason)
 {
     atf_error_t err;
 
-    if (strcmp("/dev/stdout", atf_fs_path_cstring(resfile)) == 0) {
+    if (strcmp("/dev/stdout", resfile) == 0) {
         err = write_resfile(stdout, result, arg, reason);
-    } else if (strcmp("/dev/stderr", atf_fs_path_cstring(resfile)) == 0) {
+    } else if (strcmp("/dev/stderr", resfile) == 0) {
         err = write_resfile(stderr, result, arg, reason);
     } else {
-        FILE *file = fopen(atf_fs_path_cstring(resfile), "w");
+        FILE *file = fopen(resfile, "w");
         if (file == NULL) {
             err = atf_libc_error(errno, "Cannot create results file '%s'",
-                                 atf_fs_path_cstring(resfile));
+                                 resfile);
         } else {
             err = write_resfile(file, result, arg, reason);
             fclose(file);
@@ -917,7 +915,7 @@ _atf_tc_expect_timeout(struct context *ctx, const char *reason, va_list ap)
 static struct context Current;
 
 atf_error_t
-atf_tc_run(const atf_tc_t *tc, const atf_fs_path_t *resfile)
+atf_tc_run(const atf_tc_t *tc, const char *resfile)
 {
     context_init(&Current, tc, resfile);
 
