@@ -59,6 +59,16 @@ ATF_TC_BODY(map_init, tc)
     atf_map_fini(&map);
 }
 
+ATF_TC_WITHOUT_HEAD(map_init_charpp_null);
+ATF_TC_BODY(map_init_charpp_null, tc)
+{
+    atf_map_t map;
+
+    RE(atf_map_init_charpp(&map, NULL));
+    ATF_REQUIRE_EQ(atf_map_size(&map), 0);
+    atf_map_fini(&map);
+}
+
 ATF_TC_WITHOUT_HEAD(map_init_charpp_empty);
 ATF_TC_BODY(map_init_charpp_empty, tc)
 {
@@ -396,6 +406,7 @@ ATF_TP_ADD_TCS(tp)
 {
     /* Constructors and destructors. */
     ATF_TP_ADD_TC(tp, map_init);
+    ATF_TP_ADD_TC(tp, map_init_charpp_null);
     ATF_TP_ADD_TC(tp, map_init_charpp_empty);
     ATF_TP_ADD_TC(tp, map_init_charpp_some);
     ATF_TP_ADD_TC(tp, map_init_charpp_short);

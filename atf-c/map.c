@@ -176,21 +176,23 @@ atf_map_init_charpp(atf_map_t *m, const char *const *array)
     const char *const *ptr = array;
 
     err = atf_map_init(m);
-    while (!atf_is_error(err) && *ptr != NULL) {
-        const char *key, *value;
+    if (array != NULL) {
+        while (!atf_is_error(err) && *ptr != NULL) {
+            const char *key, *value;
 
-        key = *ptr;
-        INV(key != NULL);
-        ptr++;
+            key = *ptr;
+            INV(key != NULL);
+            ptr++;
 
-        if ((value = *ptr) == NULL) {
-            err = atf_libc_error(EINVAL, "List too short; no value for "
-                "key '%s' provided", key);  /* XXX: Not really libc_error */
-            break;
+            if ((value = *ptr) == NULL) {
+                err = atf_libc_error(EINVAL, "List too short; no value for "
+                    "key '%s' provided", key);  /* XXX: Not really libc_error */
+                break;
+            }
+            ptr++;
+
+            err = atf_map_insert(m, key, strdup(value), true);
         }
-        ptr++;
-
-        err = atf_map_insert(m, key, strdup(value), true);
     }
 
     if (atf_is_error(err))
