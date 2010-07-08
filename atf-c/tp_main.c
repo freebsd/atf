@@ -244,21 +244,21 @@ static
 void
 list_tcs(const atf_tp_t *tp)
 {
-    atf_list_citer_t iter;
-    const atf_list_t *tcs;
+    const atf_tc_t *const *tcs;
+    const atf_tc_t *const *tcsptr;
 
     printf("Content-Type: application/X-atf-tp; version=\"1\"\n\n");
 
     tcs = atf_tp_get_tcs(tp);
-
-    atf_list_for_each_c(iter, tcs) {
-        const atf_tc_t *tc = atf_list_citer_data(iter);
+    INV(tcs != NULL);  /* Should be checked. */
+    for (tcsptr = tcs; *tcsptr != NULL; tcsptr++) {
+        const atf_tc_t *tc = *tcsptr;
         char **vars = atf_tc_get_md_vars(tc);
         char **ptr;
 
         INV(vars != NULL);  /* Should be checked. */
 
-        if (!atf_equal_list_citer_list_citer(iter, atf_list_begin_c(tcs)))
+        if (tcsptr != tcs)  /* Not first. */
             printf("\n");
 
         for (ptr = vars; *ptr != NULL; ptr += 2) {

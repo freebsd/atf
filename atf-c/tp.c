@@ -142,10 +142,33 @@ atf_tp_get_tc(const atf_tp_t *tp, const char *id)
     return tc;
 }
 
-const atf_list_t *
+const atf_tc_t *const *
 atf_tp_get_tcs(const atf_tp_t *tp)
 {
-    return &tp->pimpl->m_tcs;
+    const atf_tc_t **array;
+    atf_list_citer_t iter;
+    size_t i;
+
+    array = malloc(sizeof(atf_tc_t *) *
+                   (atf_list_size(&tp->pimpl->m_tcs) + 1));
+    if (array == NULL)
+        goto out;
+
+    i = 0;
+    atf_list_for_each_c(iter, &tp->pimpl->m_tcs) {
+        array[i] = atf_list_citer_data(iter);
+        if (array[i] == NULL) {
+            free(array);
+            array = NULL;
+            goto out;
+        }
+
+        i++;
+    }
+    array[i] = NULL;
+
+out:
+    return array;
 }
 
 /*
