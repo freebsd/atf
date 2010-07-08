@@ -33,7 +33,6 @@
 #include <atf-c/error_fwd.h>
 #include <atf-c/list.h>
 
-struct atf_map;
 struct atf_tc;
 
 /* ---------------------------------------------------------------------
@@ -47,11 +46,11 @@ struct atf_tp {
 typedef struct atf_tp atf_tp_t;
 
 /* Constructors/destructors. */
-atf_error_t atf_tp_init(atf_tp_t *, struct atf_map *);
+atf_error_t atf_tp_init(atf_tp_t *, const char *const *);
 void atf_tp_fini(atf_tp_t *);
 
 /* Getters. */
-const struct atf_map *atf_tp_get_config(const atf_tp_t *);
+char **atf_tp_get_config(const atf_tp_t *);
 bool atf_tp_has_tc(const atf_tp_t *, const char *);
 const struct atf_tc *atf_tp_get_tc(const atf_tp_t *, const char *);
 const atf_list_t *atf_tp_get_tcs(const atf_tp_t *);

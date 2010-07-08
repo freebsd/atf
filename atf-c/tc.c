@@ -39,6 +39,7 @@
 #include "atf-c/env.h"
 #include "atf-c/error.h"
 #include "atf-c/fs.h"
+#include "atf-c/map.h"
 #include "atf-c/sanity.h"
 #include "atf-c/tc.h"
 #include "atf-c/text.h"
@@ -506,7 +507,7 @@ struct atf_tc_impl {
     const char *m_ident;
 
     atf_map_t m_vars;
-    const atf_map_t *m_config;
+    atf_map_t m_config;
 
     atf_tc_head_t m_head;
     atf_tc_body_t m_body;
@@ -520,7 +521,7 @@ struct atf_tc_impl {
 atf_error_t
 atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
             atf_tc_body_t body, atf_tc_cleanup_t cleanup,
-            const atf_map_t *config)
+            const char *const *config)
 {
     atf_error_t err;
 
@@ -534,11 +535,14 @@ atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
     tc->pimpl->m_head = head;
     tc->pimpl->m_body = body;
     tc->pimpl->m_cleanup = cleanup;
-    tc->pimpl->m_config = config;
+
+    err = atf_map_init_charpp(&tc->pimpl->m_config, config);
+    if (atf_is_error(err))
+        goto err;
 
     err = atf_map_init(&tc->pimpl->m_vars);
     if (atf_is_error(err))
-        goto err;
+        goto err_vars;
 
     err = atf_tc_set_md_var(tc, "ident", ident);
     if (atf_is_error(err))
@@ -565,13 +569,15 @@ atf_tc_init(atf_tc_t *tc, const char *ident, atf_tc_head_t head,
 
 err_map:
     atf_map_fini(&tc->pimpl->m_vars);
+err_vars:
+    atf_map_fini(&tc->pimpl->m_config);
 err:
     return err;
 }
 
 atf_error_t
 atf_tc_init_pack(atf_tc_t *tc, const atf_tc_pack_t *pack,
-                 const atf_map_t *config)
+                 const char *const *config)
 {
     return atf_tc_init(tc, pack->m_ident, pack->m_head, pack->m_body,
                        pack->m_cleanup, config);
@@ -601,7 +607,7 @@ atf_tc_get_config_var(const atf_tc_t *tc, const char *name)
     atf_map_citer_t iter;
 
     PRE(atf_tc_has_config_var(tc, name));
-    iter = atf_map_find_c(tc->pimpl->m_config, name);
+    iter = atf_map_find_c(&tc->pimpl->m_config, name);
     val = atf_map_citer_data(iter);
     INV(val != NULL);
 
@@ -636,27 +642,20 @@ atf_tc_get_md_var(const atf_tc_t *tc, const char *name)
     return val;
 }
 
-const atf_map_t *
+char **
 atf_tc_get_md_vars(const atf_tc_t *tc)
 {
-    return &tc->pimpl->m_vars;
+    return atf_map_to_charpp(&tc->pimpl->m_vars);
 }
 
 bool
 atf_tc_has_config_var(const atf_tc_t *tc, const char *name)
 {
-    bool found;
     atf_map_citer_t end, iter;
 
-    if (tc->pimpl->m_config == NULL)
-        found = false;
-    else {
-        iter = atf_map_find_c(tc->pimpl->m_config, name);
-        end = atf_map_end_c(tc->pimpl->m_config);
-        found = !atf_equal_map_citer_map_citer(iter, end);
-    }
-
-    return found;
+    iter = atf_map_find_c(&tc->pimpl->m_config, name);
+    end = atf_map_end_c(&tc->pimpl->m_config);
+    return !atf_equal_map_citer_map_citer(iter, end);
 }
 
 bool

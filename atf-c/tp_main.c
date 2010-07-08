@@ -45,6 +45,7 @@
 #include "atf-c/sanity.h"
 #include "atf-c/tc.h"
 #include "atf-c/tp.h"
+#include "atf-c/utils.h"
 
 #if defined(HAVE_GNU_GETOPT)
 #   define GETOPT_POSIX "+"
@@ -252,23 +253,28 @@ list_tcs(const atf_tp_t *tp)
 
     atf_list_for_each_c(iter, tcs) {
         const atf_tc_t *tc = atf_list_citer_data(iter);
-        const atf_map_t *vars = atf_tc_get_md_vars(tc);
-        atf_map_citer_t iter2;
+        char **vars = atf_tc_get_md_vars(tc);
+        char **ptr;
+
+        INV(vars != NULL);  /* Should be checked. */
 
         if (!atf_equal_list_citer_list_citer(iter, atf_list_begin_c(tcs)))
             printf("\n");
 
-        iter2 = atf_map_find_c(vars, "ident");
-        printf("ident: %s\n", (const char *)atf_map_citer_data(iter2));
-
-        atf_map_for_each_c(iter2, vars) {
-            const char *key = atf_map_citer_key(iter2);
-
-            if (strcmp(key, "ident") != 0) {
-                const char *value = atf_map_citer_data(iter2);
-                printf("%s: %s\n", key, value);
+        for (ptr = vars; *ptr != NULL; ptr += 2) {
+            if (strcmp(*ptr, "ident") == 0) {
+                printf("ident: %s\n", *(ptr + 1));
+                break;
             }
         }
+
+        for (ptr = vars; *ptr != NULL; ptr += 2) {
+            if (strcmp(*ptr, "ident") != 0) {
+                printf("%s: %s\n", *ptr, *(ptr + 1));
+            }
+        }
+
+        atf_utils_free_charpp(vars);
     }
 }
 
@@ -515,6 +521,7 @@ controlled_main(int argc, char **argv,
     atf_error_t err;
     struct params p;
     atf_tp_t tp;
+    char **raw_config;
 
     err = process_params(argc, argv, &p);
     if (atf_is_error(err))
@@ -524,7 +531,13 @@ controlled_main(int argc, char **argv,
     if (atf_is_error(err))
         goto out_p;
 
-    err = atf_tp_init(&tp, &p.m_config);
+    raw_config = atf_map_to_charpp(&p.m_config);
+    if (raw_config == NULL) {
+        err = atf_no_memory_error();
+        goto out_p;
+    }
+    err = atf_tp_init(&tp, (const char* const*)raw_config);
+    atf_utils_free_charpp(raw_config);
     if (atf_is_error(err))
         goto out_p;
 

@@ -72,7 +72,6 @@ typedef std::map< std::string, std::string > vars_map;
 
 class tc : utils::noncopyable {
     std::string m_ident;
-    atf_map_t m_config;
     atf_tc_t m_tc;
     bool m_has_cleanup;
 

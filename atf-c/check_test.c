@@ -39,6 +39,7 @@
 #include "atf-c/check.h"
 #include "atf-c/config.h"
 #include "atf-c/fs.h"
+#include "atf-c/map.h"
 #include "atf-c/process.h"
 
 #include "test_helpers.h"
@@ -228,15 +229,11 @@ void
 init_and_run_h_tc(atf_tc_t *tc, const atf_tc_pack_t *tcpack,
                   const char *outname, const char *errname)
 {
-    atf_map_t config;
+    const char *const config[] = { NULL };
 
-    RE(atf_map_init(&config));
-
-    RE(atf_tc_init_pack(tc, tcpack, &config));
+    RE(atf_tc_init_pack(tc, tcpack, config));
     run_h_tc(tc, outname, errname, "result");
     atf_tc_fini(tc);
-
-    atf_map_fini(&config);
 }
 
 ATF_TC(build_c_o);

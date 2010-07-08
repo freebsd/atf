@@ -51,6 +51,7 @@ extern "C" {
 
 extern "C" {
 #include "atf-c/error.h"
+#include "atf-c/utils.h"
 }
 
 #include "atf-c++/application.hpp"
@@ -154,7 +155,6 @@ impl::tc::~tc(void)
     wraps.erase(&m_tc);
 
     atf_tc_fini(&m_tc);
-    atf_map_fini(&m_config);
 }
 
 void
@@ -162,31 +162,24 @@ impl::tc::init(const vars_map& config)
 {
     atf_error_t err;
 
-    err = atf_map_init(&m_config);
-    if (atf_is_error(err))
-        throw_atf_error(err);
-
+    utils::auto_array< const char * > array(
+        new const char*[(config.size() * 2) + 1]);
+    const char **ptr = array.get();
     for (vars_map::const_iterator iter = config.begin();
          iter != config.end(); iter++) {
-        const char *var = (*iter).first.c_str();
-        const char *val = (*iter).second.c_str();
-
-        err = atf_map_insert(&m_config, var, ::strdup(val), true);
-        if (atf_is_error(err)) {
-            atf_map_fini(&m_config);
-            throw_atf_error(err);
-        }
+         *ptr = (*iter).first.c_str();
+         *(ptr + 1) = (*iter).second.c_str();
+         ptr += 2;
     }
+    *ptr = NULL;
 
     wraps[&m_tc] = this;
     cwraps[&m_tc] = this;
 
     err = atf_tc_init(&m_tc, m_ident.c_str(), wrap_head, wrap_body,
-                      m_has_cleanup ? wrap_cleanup : NULL, &m_config);
-    if (atf_is_error(err)) {
-        atf_map_fini(&m_config);
+                      m_has_cleanup ? wrap_cleanup : NULL, array.get());
+    if (atf_is_error(err))
         throw_atf_error(err);
-    }
 }
 
 bool
@@ -230,10 +223,14 @@ impl::tc::get_md_vars(void)
 {
     vars_map vars;
 
-    atf_map_citer_t iter;
-    atf_map_for_each_c(iter, atf_tc_get_md_vars(&m_tc)) {
-        vars.insert(vars_map::value_type(atf_map_citer_key(iter),
-                    static_cast< const char * >(atf_map_citer_data(iter))));
+    char **array = atf_tc_get_md_vars(&m_tc);
+    try {
+        char **ptr;
+        for (ptr = array; *ptr != NULL; ptr += 2)
+            vars[*ptr] = *(ptr + 1);
+    } catch (...) {
+        atf_utils_free_charpp(array);
+        throw;
     }
 
     return vars;

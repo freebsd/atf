@@ -34,13 +34,14 @@
 
 #include "atf-c/error.h"
 #include "atf-c/fs.h"
+#include "atf-c/map.h"
 #include "atf-c/sanity.h"
 #include "atf-c/tc.h"
 #include "atf-c/tp.h"
 
 struct atf_tp_impl {
     atf_list_t m_tcs;
-    const struct atf_map *m_config;
+    atf_map_t m_config;
 };
 
 /* ---------------------------------------------------------------------
@@ -75,7 +76,7 @@ find_tc(const atf_tp_t *tp, const char *ident)
  */
 
 atf_error_t
-atf_tp_init(atf_tp_t *tp, struct atf_map *config)
+atf_tp_init(atf_tp_t *tp, const char *const *config)
 {
     atf_error_t err;
 
@@ -89,7 +90,11 @@ atf_tp_init(atf_tp_t *tp, struct atf_map *config)
     if (atf_is_error(err))
         goto out;
 
-    tp->pimpl->m_config = config;
+    err = atf_map_init_charpp(&tp->pimpl->m_config, config);
+    if (atf_is_error(err)) {
+        atf_list_fini(&tp->pimpl->m_tcs);
+        goto out;
+    }
 
     INV(!atf_is_error(err));
 out:
@@ -100,6 +105,8 @@ void
 atf_tp_fini(atf_tp_t *tp)
 {
     atf_list_iter_t iter;
+
+    atf_map_fini(&tp->pimpl->m_config);
 
     atf_list_for_each(iter, &tp->pimpl->m_tcs) {
         atf_tc_t *tc = atf_list_iter_data(iter);
@@ -114,10 +121,10 @@ atf_tp_fini(atf_tp_t *tp)
  * Getters.
  */
 
-const struct atf_map *
+char **
 atf_tp_get_config(const atf_tp_t *tp)
 {
-    return tp->pimpl->m_config;
+    return atf_map_to_charpp(&tp->pimpl->m_config);
 }
 
 bool
