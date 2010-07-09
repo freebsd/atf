@@ -34,10 +34,11 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#include "atf-c/env.h"
 #include "atf-c/error.h"
-#include "atf-c/sanity.h"
-#include "atf-c/text.h"
+
+#include "env.h"
+#include "sanity.h"
+#include "text.h"
 
 const char *
 atf_env_get(const char *name)

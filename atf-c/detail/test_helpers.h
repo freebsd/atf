@@ -70,7 +70,8 @@ struct atf_fs_path;
 
 void build_check_c_o(const atf_tc_t *, const char *, const char *);
 void header_check(const atf_tc_t *, const char *);
-void get_process_helpers_path(const atf_tc_t *, struct atf_fs_path *);
+void get_process_helpers_path(const atf_tc_t *, const bool,
+                              struct atf_fs_path *);
 bool grep_string(const struct atf_dynstr *, const char *);
 bool grep_file(const char *, const char *, ...);
 bool read_line(int, struct atf_dynstr *);

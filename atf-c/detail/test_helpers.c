@@ -36,12 +36,12 @@
 #include "atf-c/build.h"
 #include "atf-c/check.h"
 #include "atf-c/config.h"
-#include "atf-c/dynstr.h"
 #include "atf-c/error.h"
-#include "atf-c/fs.h"
 #include "atf-c/macros.h"
-#include "atf-c/process.h"
 
+#include "dynstr.h"
+#include "fs.h"
+#include "process.h"
 #include "test_helpers.h"
 
 static
@@ -94,10 +94,12 @@ header_check(const atf_tc_t *tc, const char *hdrname)
 }
 
 void
-get_process_helpers_path(const atf_tc_t *tc, atf_fs_path_t *path)
+get_process_helpers_path(const atf_tc_t *tc, const bool is_detail,
+                         atf_fs_path_t *path)
 {
-    RE(atf_fs_path_init_fmt(path, "%s/process_helpers",
-                            atf_tc_get_config_var(tc, "srcdir")));
+    RE(atf_fs_path_init_fmt(path, "%s/%sprocess_helpers",
+                            atf_tc_get_config_var(tc, "srcdir"),
+                            is_detail ? "" : "detail/"));
 }
 
 bool

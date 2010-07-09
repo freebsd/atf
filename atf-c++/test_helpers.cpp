@@ -81,7 +81,7 @@ atf::fs::path
 get_process_helpers_path(const atf::tests::tc& tc)
 {
     return atf::fs::path(tc.get_config_var("srcdir")) /
-           ".." / "atf-c" / "process_helpers";
+           ".." / "atf-c" / "detail" / "process_helpers";
 }
 
 bool

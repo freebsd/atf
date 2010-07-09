@@ -31,9 +31,10 @@
 #include <string.h>
 
 #include "atf-c/error.h"
-#include "atf-c/list.h"
-#include "atf-c/sanity.h"
 #include "atf-c/utils.h"
+
+#include "list.h"
+#include "sanity.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

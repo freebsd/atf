@@ -61,7 +61,7 @@ atf::check::check_result
 do_exec(const atf::tests::tc* tc, const char* helper_name)
 {
     std::vector< std::string > argv;
-    argv.push_back(tc->get_config_var("srcdir") + "/../atf-c/h_check");
+    argv.push_back(get_process_helpers_path(*tc).str());
     argv.push_back(helper_name);
     std::cout << "Executing " << argv[0] << " " << argv[1] << "\n";
 
@@ -74,7 +74,7 @@ atf::check::check_result
 do_exec(const atf::tests::tc* tc, const char* helper_name, const char *carg2)
 {
     std::vector< std::string > argv;
-    argv.push_back(tc->get_config_var("srcdir") + "/../atf-c/h_check");
+    argv.push_back(get_process_helpers_path(*tc).str());
     argv.push_back(helper_name);
     argv.push_back(carg2);
     std::cout << "Executing " << argv[0] << " " << argv[1] << " "
@@ -194,6 +194,7 @@ ATF_TEST_CASE(build_c_o);
 ATF_TEST_CASE_HEAD(build_c_o)
 {
     set_md_var("descr", "Tests the build_c_o function");
+    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(build_c_o)
 {
@@ -212,6 +213,7 @@ ATF_TEST_CASE(build_cpp);
 ATF_TEST_CASE_HEAD(build_cpp)
 {
     set_md_var("descr", "Tests the build_cpp function");
+    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(build_cpp)
 {
@@ -231,6 +233,7 @@ ATF_TEST_CASE(build_cxx_o);
 ATF_TEST_CASE_HEAD(build_cxx_o)
 {
     set_md_var("descr", "Tests the build_cxx_o function");
+    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(build_cxx_o)
 {

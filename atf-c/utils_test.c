@@ -33,7 +33,8 @@
 #include <atf-c.h>
 
 #include "atf-c/utils.h"
-#include "test_helpers.h"
+
+#include "detail/test_helpers.h"
 
 ATF_TC_WITHOUT_HEAD(free_charpp_empty);
 ATF_TC_BODY(free_charpp_empty, tc)

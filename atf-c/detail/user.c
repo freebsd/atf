@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
+ * Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,22 +27,52 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_TEXT_H)
-#define ATF_C_TEXT_H
+#include <sys/param.h>
+#include <sys/types.h>
+#include <limits.h>
+#include <unistd.h>
 
-#include <stdarg.h>
-#include <stdbool.h>
+#include "sanity.h"
+#include "user.h"
 
-#include <atf-c/error_fwd.h>
-#include <atf-c/list.h>
+/* ---------------------------------------------------------------------
+ * Free functions.
+ * --------------------------------------------------------------------- */
 
-atf_error_t atf_text_for_each_word(const char *, const char *,
-                                   atf_error_t (*)(const char *, void *),
-                                   void *);
-atf_error_t atf_text_format(char **, const char *, ...);
-atf_error_t atf_text_format_ap(char **, const char *, va_list);
-atf_error_t atf_text_split(const char *, const char *, atf_list_t *);
-atf_error_t atf_text_to_bool(const char *, bool *);
-atf_error_t atf_text_to_long(const char *, long *);
+uid_t
+atf_user_euid(void)
+{
+    return geteuid();
+}
 
-#endif /* ATF_C_TEXT_H */
+bool
+atf_user_is_member_of_group(gid_t gid)
+{
+    static gid_t groups[NGROUPS_MAX];
+    static int ngroups = -1;
+    bool found;
+    int i;
+
+    if (ngroups == -1) {
+        ngroups = getgroups(NGROUPS_MAX, groups);
+        INV(ngroups >= 0);
+    }
+
+    found = false;
+    for (i = 0; !found && i < ngroups; i++)
+        if (groups[i] == gid)
+            found = true;
+    return found;
+}
+
+bool
+atf_user_is_root(void)
+{
+    return geteuid() == 0;
+}
+
+bool
+atf_user_is_unprivileged(void)
+{
+    return geteuid() != 0;
+}

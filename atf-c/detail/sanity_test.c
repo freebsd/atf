@@ -42,10 +42,9 @@
 
 #include <atf-c.h>
 
-#include "atf-c/dynstr.h"
-#include "atf-c/process.h"
-#include "atf-c/sanity.h"
-
+#include "dynstr.h"
+#include "process.h"
+#include "sanity.h"
 #include "test_helpers.h"
 
 /* ---------------------------------------------------------------------
@@ -240,12 +239,6 @@ ATF_TC_BODY(unreachable, tc)
 }
 
 /* ---------------------------------------------------------------------
- * Tests cases for the header file.
- * --------------------------------------------------------------------- */
-
-HEADER_TC(include, "atf-c/sanity.h");
-
-/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -255,9 +248,6 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, pre);
     ATF_TP_ADD_TC(tp, post);
     ATF_TP_ADD_TC(tp, unreachable);
-
-    /* Add the test cases for the header file. */
-    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

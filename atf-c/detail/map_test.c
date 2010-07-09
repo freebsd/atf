@@ -32,9 +32,9 @@
 
 #include <atf-c.h>
 
-#include "atf-c/map.h"
 #include "atf-c/utils.h"
 
+#include "map.h"
 #include "test_helpers.h"
 
 /* ---------------------------------------------------------------------
@@ -393,12 +393,6 @@ ATF_TC_BODY(stable_keys, tc)
 }
 
 /* ---------------------------------------------------------------------
- * Tests cases for the header file.
- * --------------------------------------------------------------------- */
-
-HEADER_TC(include, "atf-c/map.h");
-
-/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -426,9 +420,6 @@ ATF_TP_ADD_TCS(tp)
 
     /* Other. */
     ATF_TP_ADD_TC(tp, stable_keys);
-
-    /* Add the test cases for the header file. */
-    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

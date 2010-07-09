@@ -34,33 +34,14 @@ libatf_c_la_SOURCES = atf-c/build.c \
                       atf-c/check.h \
                       atf-c/config.c \
                       atf-c/config.h \
-                      atf-c/dynstr.c \
-                      atf-c/dynstr.h \
-                      atf-c/env.c \
-                      atf-c/env.h \
                       atf-c/error.c \
                       atf-c/error.h \
                       atf-c/error_fwd.h \
-                      atf-c/fs.c \
-                      atf-c/fs.h \
-                      atf-c/list.c \
-                      atf-c/list.h \
                       atf-c/macros.h \
-                      atf-c/map.c \
-                      atf-c/map.h \
-                      atf-c/process.c \
-                      atf-c/process.h \
-                      atf-c/sanity.c \
-                      atf-c/sanity.h \
-                      atf-c/text.c \
-                      atf-c/text.h \
-                      atf-c/user.c \
-                      atf-c/user.h \
                       atf-c/tc.c \
                       atf-c/tc.h \
                       atf-c/tp.c \
                       atf-c/tp.h \
-                      atf-c/tp_main.c \
                       atf-c/utils.c \
                       atf-c/utils.h
 nodist_libatf_c_la_SOURCES = atf-c/defs.h
@@ -78,8 +59,8 @@ libatf_c_la_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
                        "-DATF_M4=\"$(ATF_M4)\"" \
                        "-DATF_PKGDATADIR=\"$(pkgdatadir)\"" \
                        "-DATF_SHELL=\"$(ATF_SHELL)\"" \
-                       "-DATF_WORKDIR=\"$(ATF_WORKDIR)\""
-
+                       "-DATF_WORKDIR=\"$(ATF_WORKDIR)\"" \
+                       -I$(srcdir)/atf-c
 
 # XXX For some reason, the nodist line above does not work as expected.
 # Work this problem around.
@@ -92,20 +73,11 @@ atf_c_HEADERS = atf-c/build.h \
                 atf-c/check.h \
                 atf-c/config.h \
                 atf-c/defs.h \
-                atf-c/dynstr.h \
-                atf-c/env.h \
                 atf-c/error.h \
                 atf-c/error_fwd.h \
-                atf-c/fs.h \
-                atf-c/list.h \
                 atf-c/macros.h \
-                atf-c/map.h \
-                atf-c/process.h \
-                atf-c/sanity.h \
                 atf-c/tc.h \
-                atf-c/text.h \
                 atf-c/tp.h \
-                atf-c/user.h \
                 atf-c/utils.h
 atf_cdir = $(includedir)/atf-c
 
@@ -129,57 +101,29 @@ tests_atf_c_DATA = atf-c/Atffile \
 tests_atf_cdir = $(pkgtestsdir)/atf-c
 EXTRA_DIST += $(tests_atf_c_DATA)
 
-noinst_LTLIBRARIES += atf-c/libtest_helpers.la
-atf_c_libtest_helpers_la_SOURCES = atf-c/test_helpers.c \
-                                   atf-c/test_helpers.h
-
 tests_atf_c_PROGRAMS = atf-c/atf_c_test
 atf_c_atf_c_test_SOURCES = atf-c/atf_c_test.c
-atf_c_atf_c_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
+atf_c_atf_c_test_LDADD = atf-c/detail/libtest_helpers.la libatf-c.la
 
 tests_atf_c_PROGRAMS += atf-c/build_test
 atf_c_build_test_SOURCES = atf-c/build_test.c atf-c/h_build.h
-atf_c_build_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
+atf_c_build_test_LDADD = atf-c/detail/libtest_helpers.la libatf-c.la
 
 tests_atf_c_PROGRAMS += atf-c/check_test
 atf_c_check_test_SOURCES = atf-c/check_test.c
-atf_c_check_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
+atf_c_check_test_LDADD = atf-c/detail/libtest_helpers.la libatf-c.la
 
 tests_atf_c_PROGRAMS += atf-c/config_test
 atf_c_config_test_SOURCES = atf-c/config_test.c
-atf_c_config_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
-
-tests_atf_c_PROGRAMS += atf-c/dynstr_test
-atf_c_dynstr_test_SOURCES = atf-c/dynstr_test.c
-atf_c_dynstr_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
-
-tests_atf_c_PROGRAMS += atf-c/env_test
-atf_c_env_test_SOURCES = atf-c/env_test.c
-atf_c_env_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
+atf_c_config_test_LDADD = atf-c/detail/libtest_helpers.la libatf-c.la
 
 tests_atf_c_PROGRAMS += atf-c/error_test
 atf_c_error_test_SOURCES = atf-c/error_test.c
-atf_c_error_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
-
-tests_atf_c_PROGRAMS += atf-c/fs_test
-atf_c_fs_test_SOURCES = atf-c/fs_test.c
-atf_c_fs_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
-
-tests_atf_c_PROGRAMS += atf-c/test_helpers_test
-atf_c_test_helpers_test_SOURCES = atf-c/test_helpers_test.c
-atf_c_test_helpers_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
-
-tests_atf_c_PROGRAMS += atf-c/list_test
-atf_c_list_test_SOURCES = atf-c/list_test.c
-atf_c_list_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
+atf_c_error_test_LDADD = atf-c/detail/libtest_helpers.la libatf-c.la
 
 tests_atf_c_PROGRAMS += atf-c/macros_test
 atf_c_macros_test_SOURCES = atf-c/macros_test.c
-atf_c_macros_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
-
-tests_atf_c_PROGRAMS += atf-c/map_test
-atf_c_map_test_SOURCES = atf-c/map_test.c
-atf_c_map_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
+atf_c_macros_test_LDADD = atf-c/detail/libtest_helpers.la libatf-c.la
 
 tests_atf_c_SCRIPTS = atf-c/pkg_config_test
 CLEANFILES += atf-c/pkg_config_test
@@ -189,35 +133,18 @@ atf-c/pkg_config_test: $(srcdir)/atf-c/pkg_config_test.sh
 	@src="$(srcdir)/atf-c/pkg_config_test.sh"; \
 	dst="atf-c/pkg_config_test"; $(BUILD_SH_TP)
 
-tests_atf_c_PROGRAMS += atf-c/process_helpers
-atf_c_process_helpers_SOURCES = atf-c/process_helpers.c
-
-tests_atf_c_PROGRAMS += atf-c/process_test
-atf_c_process_test_SOURCES = atf-c/process_test.c
-atf_c_process_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
-
-tests_atf_c_PROGRAMS += atf-c/sanity_test
-atf_c_sanity_test_SOURCES = atf-c/sanity_test.c
-atf_c_sanity_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
-
 tests_atf_c_PROGRAMS += atf-c/tc_test
 atf_c_tc_test_SOURCES = atf-c/tc_test.c
-atf_c_tc_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
-
-tests_atf_c_PROGRAMS += atf-c/text_test
-atf_c_text_test_SOURCES = atf-c/text_test.c
-atf_c_text_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
+atf_c_tc_test_LDADD = atf-c/detail/libtest_helpers.la libatf-c.la
 
 tests_atf_c_PROGRAMS += atf-c/tp_test
 atf_c_tp_test_SOURCES = atf-c/tp_test.c
-atf_c_tp_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
-
-tests_atf_c_PROGRAMS += atf-c/user_test
-atf_c_user_test_SOURCES = atf-c/user_test.c
-atf_c_user_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
+atf_c_tp_test_LDADD = atf-c/detail/libtest_helpers.la libatf-c.la
 
 tests_atf_c_PROGRAMS += atf-c/utils_test
 atf_c_utils_test_SOURCES = atf-c/utils_test.c atf-c/h_build.h
-atf_c_utils_test_LDADD = atf-c/libtest_helpers.la libatf-c.la
+atf_c_utils_test_LDADD = atf-c/detail/libtest_helpers.la libatf-c.la
+
+include atf-c/detail/Makefile.am.inc
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,52 +27,23 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if defined(HAVE_CONFIG_H)
-#include "bconfig.h"
-#endif
+#if !defined(ATF_C_TEXT_H)
+#define ATF_C_TEXT_H
 
-#include <err.h>
 #include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdbool.h>
 
-#include "atf-c/sanity.h"
+#include <atf-c/error_fwd.h>
 
-static
-void
-fail(const char *fmt, ...)
-{
-    va_list ap;
-    char buf[4096];
+#include "list.h"
 
-    va_start(ap, fmt);
-    vsnprintf(buf, sizeof(buf), fmt, ap);
-    va_end(ap);
-    warnx("%s", buf);
-    warnx("%s", "");
-    warnx("This is probably a bug in this application or one of the "
-          "libraries it uses.  If you believe this problem is caused "
-          "by, or is related to " PACKAGE_STRING ", please report it "
-          "to " PACKAGE_BUGREPORT " and provide as many detatils as "
-          "possible describing how you got to this condition.");
+atf_error_t atf_text_for_each_word(const char *, const char *,
+                                   atf_error_t (*)(const char *, void *),
+                                   void *);
+atf_error_t atf_text_format(char **, const char *, ...);
+atf_error_t atf_text_format_ap(char **, const char *, va_list);
+atf_error_t atf_text_split(const char *, const char *, atf_list_t *);
+atf_error_t atf_text_to_bool(const char *, bool *);
+atf_error_t atf_text_to_long(const char *, long *);
 
-    abort();
-}
-
-void
-atf_sanity_inv(const char *file, int line, const char *cond)
-{
-    fail("Invariant check failed at %s:%d: %s", file, line, cond);
-}
-
-void
-atf_sanity_pre(const char *file, int line, const char *cond)
-{
-    fail("Precondition check failed at %s:%d: %s", file, line, cond);
-}
-
-void
-atf_sanity_post(const char *file, int line, const char *cond)
-{
-    fail("Postcondition check failed at %s:%d: %s", file, line, cond);
-}
+#endif /* ATF_C_TEXT_H */

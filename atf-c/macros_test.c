@@ -41,11 +41,10 @@
 
 #include <atf-c.h>
 
-#include "atf-c/fs.h"
-#include "atf-c/process.h"
-#include "atf-c/text.h"
-
-#include "test_helpers.h"
+#include "detail/fs.h"
+#include "detail/process.h"
+#include "detail/test_helpers.h"
+#include "detail/text.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

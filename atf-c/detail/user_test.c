@@ -36,9 +36,8 @@
 
 #include <atf-c.h>
 
-#include "atf-c/user.h"
-
 #include "test_helpers.h"
+#include "user.h"
 
 /* ---------------------------------------------------------------------
  * Test cases for the free functions.
@@ -128,12 +127,6 @@ ATF_TC_BODY(is_unprivileged, tc)
 }
 
 /* ---------------------------------------------------------------------
- * Tests cases for the header file.
- * --------------------------------------------------------------------- */
-
-HEADER_TC(include, "atf-c/user.h");
-
-/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -143,9 +136,6 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, is_member_of_group);
     ATF_TP_ADD_TC(tp, is_root);
     ATF_TP_ADD_TC(tp, is_unprivileged);
-
-    /* Add the test cases for the header file. */
-    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

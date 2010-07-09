@@ -39,8 +39,9 @@
 
 #include "atf-c/defs.h"
 #include "atf-c/error.h"
-#include "atf-c/process.h"
-#include "atf-c/sanity.h"
+
+#include "process.h"
+#include "sanity.h"
 
 /* This prototype is not in the header file because this is a private
  * function; however, we need to access it during testing. */

@@ -32,9 +32,10 @@
 #include <string.h>
 
 #include "atf-c/error.h"
-#include "atf-c/map.h"
-#include "atf-c/sanity.h"
 #include "atf-c/utils.h"
+
+#include "map.h"
+#include "sanity.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

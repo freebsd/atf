@@ -35,8 +35,7 @@
 
 #include <atf-c.h>
 
-#include "atf-c/dynstr.h"
-
+#include "dynstr.h"
 #include "test_helpers.h"
 
 /* ---------------------------------------------------------------------
@@ -603,12 +602,6 @@ ATF_TC_BODY(equal_dynstr, tc)
 }
 
 /* ---------------------------------------------------------------------
- * Tests cases for the header file.
- * --------------------------------------------------------------------- */
-
-HEADER_TC(include, "atf-c/dynstr.h");
-
-/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -639,9 +632,6 @@ ATF_TP_ADD_TCS(tp)
     /* Operators. */
     ATF_TP_ADD_TC(tp, equal_cstring);
     ATF_TP_ADD_TC(tp, equal_dynstr);
-
-    /* Add the test cases for the header file. */
-    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

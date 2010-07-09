@@ -36,8 +36,9 @@
 #include <stdarg.h>
 #include <stdbool.h>
 
-#include <atf-c/dynstr.h>
 #include <atf-c/error_fwd.h>
+
+#include "dynstr.h"
 
 /* ---------------------------------------------------------------------
  * The "atf_fs_path" type.

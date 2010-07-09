@@ -38,14 +38,15 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "atf-c/dynstr.h"
 #include "atf-c/error.h"
-#include "atf-c/fs.h"
-#include "atf-c/map.h"
-#include "atf-c/sanity.h"
 #include "atf-c/tc.h"
 #include "atf-c/tp.h"
 #include "atf-c/utils.h"
+
+#include "dynstr.h"
+#include "fs.h"
+#include "map.h"
+#include "sanity.h"
 
 #if defined(HAVE_GNU_GETOPT)
 #   define GETOPT_POSIX "+"

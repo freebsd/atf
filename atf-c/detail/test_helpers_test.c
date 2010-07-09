@@ -33,8 +33,7 @@
 
 #include <atf-c.h>
 
-#include "atf-c/dynstr.h"
-
+#include "dynstr.h"
 #include "test_helpers.h"
 
 /* ---------------------------------------------------------------------

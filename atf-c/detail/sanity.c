@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,52 +27,52 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sys/param.h>
-#include <sys/types.h>
-#include <limits.h>
-#include <unistd.h>
+#if defined(HAVE_CONFIG_H)
+#include "bconfig.h"
+#endif
 
-#include "atf-c/sanity.h"
-#include "atf-c/user.h"
+#include <err.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-/* ---------------------------------------------------------------------
- * Free functions.
- * --------------------------------------------------------------------- */
+#include "sanity.h"
 
-uid_t
-atf_user_euid(void)
+static
+void
+fail(const char *fmt, ...)
 {
-    return geteuid();
+    va_list ap;
+    char buf[4096];
+
+    va_start(ap, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+    warnx("%s", buf);
+    warnx("%s", "");
+    warnx("This is probably a bug in this application or one of the "
+          "libraries it uses.  If you believe this problem is caused "
+          "by, or is related to " PACKAGE_STRING ", please report it "
+          "to " PACKAGE_BUGREPORT " and provide as many detatils as "
+          "possible describing how you got to this condition.");
+
+    abort();
 }
 
-bool
-atf_user_is_member_of_group(gid_t gid)
+void
+atf_sanity_inv(const char *file, int line, const char *cond)
 {
-    static gid_t groups[NGROUPS_MAX];
-    static int ngroups = -1;
-    bool found;
-    int i;
-
-    if (ngroups == -1) {
-        ngroups = getgroups(NGROUPS_MAX, groups);
-        INV(ngroups >= 0);
-    }
-
-    found = false;
-    for (i = 0; !found && i < ngroups; i++)
-        if (groups[i] == gid)
-            found = true;
-    return found;
+    fail("Invariant check failed at %s:%d: %s", file, line, cond);
 }
 
-bool
-atf_user_is_root(void)
+void
+atf_sanity_pre(const char *file, int line, const char *cond)
 {
-    return geteuid() == 0;
+    fail("Precondition check failed at %s:%d: %s", file, line, cond);
 }
 
-bool
-atf_user_is_unprivileged(void)
+void
+atf_sanity_post(const char *file, int line, const char *cond)
 {
-    return geteuid() != 0;
+    fail("Postcondition check failed at %s:%d: %s", file, line, cond);
 }

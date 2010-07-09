@@ -10,6 +10,10 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET
 * The ATF_CHECK* macros in atf-c++ were renamed to ATF_REQUIRE* to match
   their counterparts in atf-c.
 
+* Clearly separated the modules in atf-c that are supposed to be public
+  from those that are implementation details.  The header files for the
+  internal modules are not installed any more.
+
 
 Changes in version 0.10
 ***********************

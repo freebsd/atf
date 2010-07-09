@@ -35,8 +35,9 @@
 #include <stdbool.h>
 
 #include <atf-c/error_fwd.h>
-#include <atf-c/fs.h>
-#include <atf-c/list.h>
+
+#include "fs.h"
+#include "list.h"
 
 /* ---------------------------------------------------------------------
  * The "atf_process_stream" type.

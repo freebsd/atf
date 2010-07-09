@@ -33,8 +33,9 @@
 #include <string.h>
 
 #include "atf-c/config.h"
-#include "atf-c/env.h"
-#include "atf-c/sanity.h"
+
+#include "detail/env.h"
+#include "detail/sanity.h"
 
 static bool initialized = false;
 

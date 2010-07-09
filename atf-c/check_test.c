@@ -38,11 +38,11 @@
 
 #include "atf-c/check.h"
 #include "atf-c/config.h"
-#include "atf-c/fs.h"
-#include "atf-c/map.h"
-#include "atf-c/process.h"
 
-#include "test_helpers.h"
+#include "detail/fs.h"
+#include "detail/map.h"
+#include "detail/process.h"
+#include "detail/test_helpers.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -55,7 +55,7 @@ do_exec(const atf_tc_t *tc, const char *helper_name, atf_check_result_t *r)
     atf_fs_path_t process_helpers;
     const char *argv[3];
 
-    get_process_helpers_path(tc, &process_helpers);
+    get_process_helpers_path(tc, false, &process_helpers);
 
     argv[0] = atf_fs_path_cstring(&process_helpers);
     argv[1] = helper_name;
@@ -74,7 +74,7 @@ do_exec_with_arg(const atf_tc_t *tc, const char *helper_name, const char *arg,
     atf_fs_path_t process_helpers;
     const char *argv[4];
 
-    get_process_helpers_path(tc, &process_helpers);
+    get_process_helpers_path(tc, false, &process_helpers);
 
     argv[0] = atf_fs_path_cstring(&process_helpers);
     argv[1] = helper_name;
@@ -314,7 +314,7 @@ ATF_TC_BODY(exec_array, tc)
     atf_fs_path_t process_helpers;
     atf_check_result_t result;
 
-    get_process_helpers_path(tc, &process_helpers);
+    get_process_helpers_path(tc, false, &process_helpers);
 
     const char *argv[4];
     argv[0] = atf_fs_path_cstring(&process_helpers);
@@ -479,7 +479,7 @@ ATF_TC_BODY(exec_umask, tc)
     atf_fs_path_t process_helpers;
     const char *argv[3];
 
-    get_process_helpers_path(tc, &process_helpers);
+    get_process_helpers_path(tc, false, &process_helpers);
     argv[0] = atf_fs_path_cstring(&process_helpers);
     argv[1] = "exit-success";
     argv[2] = NULL;

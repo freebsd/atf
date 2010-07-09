@@ -32,9 +32,9 @@
 
 #include <atf-c.h>
 
-#include "atf-c/list.h"
 #include "atf-c/utils.h"
 
+#include "list.h"
 #include "test_helpers.h"
 
 /* ---------------------------------------------------------------------
@@ -343,12 +343,6 @@ ATF_TC_BODY(list_for_each_c, tc)
 }
 
 /* ---------------------------------------------------------------------
- * Tests cases for the header file.
- * --------------------------------------------------------------------- */
-
-HEADER_TC(include, "atf-c/list.h");
-
-/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -370,9 +364,6 @@ ATF_TP_ADD_TCS(tp)
     /* Macros. */
     ATF_TP_ADD_TC(tp, list_for_each);
     ATF_TP_ADD_TC(tp, list_for_each_c);
-
-    /* Add the test cases for the header file. */
-    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

@@ -33,10 +33,9 @@
 
 #include <atf-c.h>
 
-#include "atf-c/sanity.h"
-#include "atf-c/text.h"
-
+#include "sanity.h"
 #include "test_helpers.h"
+#include "text.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -408,12 +407,6 @@ ATF_TC_BODY(to_long, tc)
 }
 
 /* ---------------------------------------------------------------------
- * Tests cases for the header file.
- * --------------------------------------------------------------------- */
-
-HEADER_TC(include, "atf-c/text.h");
-
-/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -426,9 +419,6 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, split_delims);
     ATF_TP_ADD_TC(tp, to_bool);
     ATF_TP_ADD_TC(tp, to_long);
-
-    /* Add the test cases for the header file. */
-    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

@@ -33,9 +33,9 @@
 #include <atf-c.h>
 
 #include "atf-c/config.h"
-#include "atf-c/env.h"
 
-#include "test_helpers.h"
+#include "detail/env.h"
+#include "detail/test_helpers.h"
 
 static const char *test_value = "env-value";
 

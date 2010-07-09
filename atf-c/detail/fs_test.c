@@ -39,10 +39,9 @@
 
 #include <atf-c.h>
 
-#include "atf-c/fs.h"
-#include "atf-c/user.h"
-
+#include "fs.h"
 #include "test_helpers.h"
+#include "user.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -1058,12 +1057,6 @@ ATF_TC_BODY(mkstemp_umask, tc)
 }
 
 /* ---------------------------------------------------------------------
- * Tests cases for the header file.
- * --------------------------------------------------------------------- */
-
-HEADER_TC(include, "atf-c/fs.h");
-
-/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -1098,9 +1091,6 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, mkstemp_ok);
     ATF_TP_ADD_TC(tp, mkstemp_err);
     ATF_TP_ADD_TC(tp, mkstemp_umask);
-
-    /* Add the test cases for the header file. */
-    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

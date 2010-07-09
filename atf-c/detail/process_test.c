@@ -43,9 +43,9 @@
 #include <atf-c.h>
 
 #include "atf-c/defs.h"
-#include "atf-c/process.h"
-#include "atf-c/sanity.h"
 
+#include "process.h"
+#include "sanity.h"
 #include "test_helpers.h"
 
 atf_error_t atf_process_status_init(atf_process_status_t *, int);
@@ -867,7 +867,7 @@ do_exec(const atf_tc_t *tc, const char *helper_name, atf_process_status_t *s)
     atf_fs_path_t process_helpers;
     const char *argv[3];
 
-    get_process_helpers_path(tc, &process_helpers);
+    get_process_helpers_path(tc, true, &process_helpers);
 
     argv[0] = atf_fs_path_cstring(&process_helpers);
     argv[1] = helper_name;
@@ -923,7 +923,7 @@ ATF_TC_BODY(exec_list, tc)
 
     RE(atf_list_init(&argv));
 
-    get_process_helpers_path(tc, &process_helpers);
+    get_process_helpers_path(tc, true, &process_helpers);
     atf_list_append(&argv, strdup(atf_fs_path_cstring(&process_helpers)), true);
     atf_list_append(&argv, strdup("echo"), true);
     atf_list_append(&argv, strdup("test-message"), true);
@@ -1083,12 +1083,6 @@ TC_FORK_STREAMS(redirect_path, REDIRECT_PATH, redirect_path, REDIRECT_PATH);
 #undef TC_FORK_STREAMS
 
 /* ---------------------------------------------------------------------
- * Tests cases for the header file.
- * --------------------------------------------------------------------- */
-
-HEADER_TC(include, "atf-c/process.h");
-
-/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -1151,9 +1145,6 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_inherit);
     ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_redirect_fd);
     ATF_TP_ADD_TC(tp, fork_out_redirect_path_err_redirect_path);
-
-    /* Add the test cases for the header file. */
-    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

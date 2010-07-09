@@ -35,11 +35,11 @@
 
 #include "atf-c/build.h"
 #include "atf-c/config.h"
-#include "atf-c/env.h"
 #include "atf-c/utils.h"
 
+#include "detail/env.h"
+#include "detail/test_helpers.h"
 #include "h_build.h"
-#include "test_helpers.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

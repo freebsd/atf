@@ -32,10 +32,9 @@
 
 #include <atf-c.h>
 
-#include "atf-c/env.h"
-#include "atf-c/text.h"
-
+#include "env.h"
 #include "test_helpers.h"
+#include "text.h"
 
 /* ---------------------------------------------------------------------
  * Test cases for the free functions.
@@ -103,12 +102,6 @@ ATF_TC_BODY(unset, tc)
 }
 
 /* ---------------------------------------------------------------------
- * Tests cases for the header file.
- * --------------------------------------------------------------------- */
-
-HEADER_TC(include, "atf-c/env.h");
-
-/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -118,9 +111,6 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, get);
     ATF_TP_ADD_TC(tp, set);
     ATF_TP_ADD_TC(tp, unset);
-
-    /* Add the test cases for the header file. */
-    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

@@ -33,8 +33,9 @@
 #include "atf-c/build.h"
 #include "atf-c/config.h"
 #include "atf-c/error.h"
-#include "atf-c/sanity.h"
-#include "atf-c/text.h"
+
+#include "detail/sanity.h"
+#include "detail/text.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
