@@ -43,7 +43,7 @@ extern "C" {
 #include "atf-c++/sanity.hpp"
 #include "atf-c++/text.hpp"
 
-#include "test_helpers.hpp"
+#include "detail/test_helpers.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.

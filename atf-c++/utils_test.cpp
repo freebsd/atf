@@ -32,7 +32,7 @@
 #include "atf-c++/macros.hpp"
 #include "atf-c++/utils.hpp"
 
-#include "test_helpers.hpp"
+#include "detail/test_helpers.hpp"
 
 // ------------------------------------------------------------------------
 // Tests for the "auto_array" class.

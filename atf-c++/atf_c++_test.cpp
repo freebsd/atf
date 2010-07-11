@@ -29,7 +29,7 @@
 
 #include "atf-c++/macros.hpp"
 
-#include "test_helpers.hpp"
+#include "detail/test_helpers.hpp"
 
 // ------------------------------------------------------------------------
 // Tests cases for the header file.

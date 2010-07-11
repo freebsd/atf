@@ -38,7 +38,7 @@
 
 #include "../atf-c/h_build.h"
 
-#include "test_helpers.hpp"
+#include "detail/test_helpers.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.

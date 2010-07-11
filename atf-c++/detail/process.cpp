@@ -36,9 +36,9 @@ extern "C" {
 
 #include <iostream>
 
-#include "atf-c++/exceptions.hpp"
-#include "atf-c++/process.hpp"
-#include "atf-c++/sanity.hpp"
+#include "atf-c++/detail/exceptions.hpp"
+#include "atf-c++/detail/process.hpp"
+#include "atf-c++/detail/sanity.hpp"
 
 namespace detail = atf::process::detail;
 namespace impl = atf::process;
