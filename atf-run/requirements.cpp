@@ -32,6 +32,7 @@
 #include <stdexcept>
 
 #include "atf-c++/config.hpp"
+#include "atf-c++/fs.hpp"
 #include "atf-c++/env.hpp"
 #include "atf-c++/sanity.hpp"
 #include "atf-c++/text.hpp"

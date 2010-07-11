@@ -51,6 +51,7 @@ extern "C" {
 
 extern "C" {
 #include "atf-c/error.h"
+#include "atf-c/tc.h"
 #include "atf-c/utils.h"
 }
 
@@ -117,44 +118,55 @@ detail::atf_tp_writer::tc_meta_data(const std::string& name,
 static std::map< atf_tc_t*, impl::tc* > wraps;
 static std::map< const atf_tc_t*, const impl::tc* > cwraps;
 
-void
-impl::tc::wrap_head(atf_tc_t *tc)
-{
-    std::map< atf_tc_t*, impl::tc* >::iterator iter = wraps.find(tc);
-    INV(iter != wraps.end());
-    (*iter).second->head();
-}
+struct impl::tc_impl : atf::utils::noncopyable {
+    std::string m_ident;
+    atf_tc_t m_tc;
+    bool m_has_cleanup;
 
-void
-impl::tc::wrap_body(const atf_tc_t *tc)
-{
-    std::map< const atf_tc_t*, const impl::tc* >::const_iterator iter =
-        cwraps.find(tc);
-    INV(iter != cwraps.end());
-    (*iter).second->body();
-}
+    tc_impl(const std::string& ident, const bool has_cleanup) :
+        m_ident(ident),
+        m_has_cleanup(has_cleanup)
+    {
+    }
 
-void
-impl::tc::wrap_cleanup(const atf_tc_t *tc)
-{
-    std::map< const atf_tc_t*, const impl::tc* >::const_iterator iter =
-        cwraps.find(tc);
-    INV(iter != cwraps.end());
-    (*iter).second->cleanup();
-}
+    static void
+    wrap_head(atf_tc_t *tc)
+    {
+        std::map< atf_tc_t*, impl::tc* >::iterator iter = wraps.find(tc);
+        INV(iter != wraps.end());
+        (*iter).second->head();
+    }
+
+    static void
+    wrap_body(const atf_tc_t *tc)
+    {
+        std::map< const atf_tc_t*, const impl::tc* >::const_iterator iter =
+            cwraps.find(tc);
+        INV(iter != cwraps.end());
+        (*iter).second->body();
+    }
+
+    static void
+    wrap_cleanup(const atf_tc_t *tc)
+    {
+        std::map< const atf_tc_t*, const impl::tc* >::const_iterator iter =
+            cwraps.find(tc);
+        INV(iter != cwraps.end());
+        (*iter).second->cleanup();
+    }
+};
 
 impl::tc::tc(const std::string& ident, const bool has_cleanup) :
-    m_ident(ident),
-    m_has_cleanup(has_cleanup)
+    pimpl(new tc_impl(ident, has_cleanup))
 {
 }
 
 impl::tc::~tc(void)
 {
-    cwraps.erase(&m_tc);
-    wraps.erase(&m_tc);
+    cwraps.erase(&pimpl->m_tc);
+    wraps.erase(&pimpl->m_tc);
 
-    atf_tc_fini(&m_tc);
+    atf_tc_fini(&pimpl->m_tc);
 }
 
 void
@@ -173,11 +185,12 @@ impl::tc::init(const vars_map& config)
     }
     *ptr = NULL;
 
-    wraps[&m_tc] = this;
-    cwraps[&m_tc] = this;
+    wraps[&pimpl->m_tc] = this;
+    cwraps[&pimpl->m_tc] = this;
 
-    err = atf_tc_init(&m_tc, m_ident.c_str(), wrap_head, wrap_body,
-                      m_has_cleanup ? wrap_cleanup : NULL, array.get());
+    err = atf_tc_init(&pimpl->m_tc, pimpl->m_ident.c_str(), pimpl->wrap_head,
+        pimpl->wrap_body, pimpl->m_has_cleanup ? pimpl->wrap_cleanup : NULL,
+        array.get());
     if (atf_is_error(err))
         throw_atf_error(err);
 }
@@ -186,35 +199,35 @@ bool
 impl::tc::has_config_var(const std::string& var)
     const
 {
-    return atf_tc_has_config_var(&m_tc, var.c_str());
+    return atf_tc_has_config_var(&pimpl->m_tc, var.c_str());
 }
 
 bool
 impl::tc::has_md_var(const std::string& var)
     const
 {
-    return atf_tc_has_md_var(&m_tc, var.c_str());
+    return atf_tc_has_md_var(&pimpl->m_tc, var.c_str());
 }
 
 const std::string
 impl::tc::get_config_var(const std::string& var)
     const
 {
-    return atf_tc_get_config_var(&m_tc, var.c_str());
+    return atf_tc_get_config_var(&pimpl->m_tc, var.c_str());
 }
 
 const std::string
 impl::tc::get_config_var(const std::string& var, const std::string& defval)
     const
 {
-    return atf_tc_get_config_var_wd(&m_tc, var.c_str(), defval.c_str());
+    return atf_tc_get_config_var_wd(&pimpl->m_tc, var.c_str(), defval.c_str());
 }
 
 const std::string
 impl::tc::get_md_var(const std::string& var)
     const
 {
-    return atf_tc_get_md_var(&m_tc, var.c_str());
+    return atf_tc_get_md_var(&pimpl->m_tc, var.c_str());
 }
 
 const impl::vars_map
@@ -223,7 +236,7 @@ impl::tc::get_md_vars(void)
 {
     vars_map vars;
 
-    char **array = atf_tc_get_md_vars(&m_tc);
+    char **array = atf_tc_get_md_vars(&pimpl->m_tc);
     try {
         char **ptr;
         for (ptr = array; *ptr != NULL; ptr += 2)
@@ -239,17 +252,17 @@ impl::tc::get_md_vars(void)
 void
 impl::tc::set_md_var(const std::string& var, const std::string& val)
 {
-    atf_error_t err = atf_tc_set_md_var(&m_tc, var.c_str(), val.c_str());
+    atf_error_t err = atf_tc_set_md_var(&pimpl->m_tc, var.c_str(), val.c_str());
     if (atf_is_error(err))
         throw_atf_error(err);
 }
 
 void
-impl::tc::run(const fs::path& resfile)
+impl::tc::run(const std::string& resfile)
     const
 {
     try {
-        atf_error_t err = atf_tc_run(&m_tc, resfile.c_str());
+        atf_error_t err = atf_tc_run(&pimpl->m_tc, resfile.c_str());
         if (atf_is_error(err))
             throw_atf_error(err);
     } catch (const std::exception& e) {
@@ -263,7 +276,7 @@ void
 impl::tc::run_cleanup(void)
     const
 {
-    atf_error_t err = atf_tc_cleanup(&m_tc);
+    atf_error_t err = atf_tc_cleanup(&pimpl->m_tc);
     if (atf_is_error(err))
         throw_atf_error(err);
 }
@@ -621,7 +634,7 @@ tp::run_tc(const std::string& tcarg)
     try {
         switch (fields.second) {
         case BODY:
-            tc->run(m_resfile);
+            tc->run(m_resfile.str());
             break;
         case CLEANUP:
             tc->run_cleanup();

@@ -99,9 +99,8 @@ ATF_TEST_CASE_BODY(h_build_c_o_ok)
     sfile << "#include <stdio.h>\n";
     sfile.close();
 
-    ATF_REQUIRE(atf::check::build_c_o(atf::fs::path("test.c"),
-                                    atf::fs::path("test.o"),
-                                    atf::process::argv_array()));
+    ATF_REQUIRE(atf::check::build_c_o("test.c", "test.o",
+                                      atf::process::argv_array()));
 }
 
 ATF_TEST_CASE(h_build_c_o_fail);
@@ -115,9 +114,8 @@ ATF_TEST_CASE_BODY(h_build_c_o_fail)
     sfile << "void foo(void) { int a = UNDEFINED_SYMBOL; }\n";
     sfile.close();
 
-    ATF_REQUIRE(!atf::check::build_c_o(atf::fs::path("test.c"),
-                                     atf::fs::path("test.o"),
-                                     atf::process::argv_array()));
+    ATF_REQUIRE(!atf::check::build_c_o("test.c", "test.o",
+                                       atf::process::argv_array()));
 }
 
 ATF_TEST_CASE(h_build_cpp_ok);
@@ -133,9 +131,8 @@ ATF_TEST_CASE_BODY(h_build_cpp_ok)
     sfile << "A B\n";
     sfile.close();
 
-    ATF_REQUIRE(atf::check::build_cpp(atf::fs::path("test.c"),
-                                    atf::fs::path("test.p"),
-                                    atf::process::argv_array()));
+    ATF_REQUIRE(atf::check::build_cpp("test.c", "test.p",
+                                      atf::process::argv_array()));
 }
 
 ATF_TEST_CASE(h_build_cpp_fail);
@@ -149,9 +146,8 @@ ATF_TEST_CASE_BODY(h_build_cpp_fail)
     sfile << "#include \"./non-existent.h\"\n";
     sfile.close();
 
-    ATF_REQUIRE(!atf::check::build_cpp(atf::fs::path("test.c"),
-                                     atf::fs::path("test.p"),
-                                     atf::process::argv_array()));
+    ATF_REQUIRE(!atf::check::build_cpp("test.c", "test.p",
+                                       atf::process::argv_array()));
 }
 
 ATF_TEST_CASE(h_build_cxx_o_ok);
@@ -165,9 +161,8 @@ ATF_TEST_CASE_BODY(h_build_cxx_o_ok)
     sfile << "#include <iostream>\n";
     sfile.close();
 
-    ATF_REQUIRE(atf::check::build_cxx_o(atf::fs::path("test.cpp"),
-                                      atf::fs::path("test.o"),
-                                      atf::process::argv_array()));
+    ATF_REQUIRE(atf::check::build_cxx_o("test.cpp", "test.o",
+                                        atf::process::argv_array()));
 }
 
 ATF_TEST_CASE(h_build_cxx_o_fail);
@@ -181,9 +176,8 @@ ATF_TEST_CASE_BODY(h_build_cxx_o_fail)
     sfile << "void foo(void) { int a = UNDEFINED_SYMBOL; }\n";
     sfile.close();
 
-    ATF_REQUIRE(!atf::check::build_cxx_o(atf::fs::path("test.cpp"),
-                                       atf::fs::path("test.o"),
-                                       atf::process::argv_array()));
+    ATF_REQUIRE(!atf::check::build_cxx_o("test.cpp", "test.o",
+                                         atf::process::argv_array()));
 }
 
 // ------------------------------------------------------------------------

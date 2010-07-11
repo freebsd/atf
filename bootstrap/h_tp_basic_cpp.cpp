@@ -50,7 +50,7 @@ ATF_TEST_CASE_HEAD(fail)
 
 ATF_TEST_CASE_BODY(fail)
 {
-    atf_tc_fail("On purpose");
+    ATF_FAIL("On purpose");
 }
 
 ATF_TEST_CASE(skip);

@@ -103,7 +103,7 @@ impl::check_result::stderr_path(void) const
 // ------------------------------------------------------------------------
 
 bool
-impl::build_c_o(const atf::fs::path& sfile, const atf::fs::path& ofile,
+impl::build_c_o(const std::string& sfile, const std::string& ofile,
                 const atf::process::argv_array& optargs)
 {
     bool success;
@@ -117,7 +117,7 @@ impl::build_c_o(const atf::fs::path& sfile, const atf::fs::path& ofile,
 }
 
 bool
-impl::build_cpp(const atf::fs::path& sfile, const atf::fs::path& ofile,
+impl::build_cpp(const std::string& sfile, const std::string& ofile,
                 const atf::process::argv_array& optargs)
 {
     bool success;
@@ -131,7 +131,7 @@ impl::build_cpp(const atf::fs::path& sfile, const atf::fs::path& ofile,
 }
 
 bool
-impl::build_cxx_o(const atf::fs::path& sfile, const atf::fs::path& ofile,
+impl::build_cxx_o(const std::string& sfile, const std::string& ofile,
                   const atf::process::argv_array& optargs)
 {
     bool success;

@@ -50,7 +50,7 @@ build_check_cxx_o_aux(const atf::fs::path& sfile, const char* failmsg)
     std::vector< std::string > optargs;
     optargs.push_back("-I" + atf::config::get("atf_includedir"));
 
-    if (!atf::check::build_cxx_o(sfile, atf::fs::path("test.o"),
+    if (!atf::check::build_cxx_o(sfile.str(), "test.o",
                                  atf::process::argv_array(optargs)))
         ATF_FAIL(failmsg);
 }

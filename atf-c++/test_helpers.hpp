@@ -94,7 +94,7 @@ run_h_tc_child(void* v)
 
     TestCase tc;
     tc.init(data->m_config);
-    tc.run(atf::fs::path("result"));
+    tc.run("result");
     std::exit(EXIT_SUCCESS);
 }
 

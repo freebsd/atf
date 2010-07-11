@@ -39,10 +39,6 @@ extern "C" {
 #include <string>
 #include <vector>
 
-#include "atf-c++/fs.hpp"
-#include "atf-c++/text.hpp"
-#include "atf-c++/utils.hpp"
-
 namespace atf {
 
 namespace process {
@@ -119,11 +115,11 @@ public:
 // Free functions.
 // ------------------------------------------------------------------------
 
-bool build_c_o(const atf::fs::path&, const atf::fs::path&,
+bool build_c_o(const std::string&, const std::string&,
                const atf::process::argv_array&);
-bool build_cpp(const atf::fs::path&, const atf::fs::path&,
+bool build_cpp(const std::string&, const std::string&,
                const atf::process::argv_array&);
-bool build_cxx_o(const atf::fs::path&, const atf::fs::path&,
+bool build_cxx_o(const std::string&, const std::string&,
                  const atf::process::argv_array&);
 check_result exec(const atf::process::argv_array&);
 

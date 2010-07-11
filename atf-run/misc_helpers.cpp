@@ -96,7 +96,7 @@ ATF_TEST_CASE_HEAD(testvar)
 ATF_TEST_CASE_BODY(testvar)
 {
     if (!has_config_var("testvar"))
-        atf_tc_fail("testvar variable not defined");
+        fail("testvar variable not defined");
     std::cout << "testvar: " << get_config_var("testvar") << "\n";
 }
 
