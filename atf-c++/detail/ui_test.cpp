@@ -28,12 +28,12 @@
 //
 
 #include <cstring>
+#include <iostream>
 
-#include "atf-c++/env.hpp"
-#include "atf-c++/macros.hpp"
-#include "atf-c++/ui.hpp"
+#include "../macros.hpp"
 
-#include "test_helpers.hpp"
+#include "env.hpp"
+#include "ui.hpp"
 
 // ------------------------------------------------------------------------
 // Test cases for the free functions.
@@ -447,12 +447,6 @@ ATF_TEST_CASE_BODY(paragraphs)
 }
 
 // ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/ui.hpp");
-
-// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -465,7 +459,4 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, w_tag_repeat);
     ATF_ADD_TEST_CASE(tcs, w_tag_col);
     ATF_ADD_TEST_CASE(tcs, paragraphs);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
 }

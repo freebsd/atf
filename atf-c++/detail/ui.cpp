@@ -35,11 +35,11 @@ extern "C" {
 
 #include <sstream>
 
-#include "atf-c++/env.hpp"
-#include "atf-c++/text.hpp"
-#include "atf-c++/sanity.hpp"
-#include "atf-c++/text.hpp"
-#include "atf-c++/ui.hpp"
+#include "env.hpp"
+#include "text.hpp"
+#include "sanity.hpp"
+#include "text.hpp"
+#include "ui.hpp"
 
 namespace impl = atf::ui;
 #define IMPL_NAME "atf::ui"

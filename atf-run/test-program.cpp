@@ -40,12 +40,12 @@ extern "C" {
 #include <cstring>
 #include <fstream>
 
-#include "atf-c++/env.hpp"
-#include "atf-c++/parser.hpp"
-#include "atf-c++/process.hpp"
-#include "atf-c++/sanity.hpp"
-#include "atf-c++/signals.hpp"
-#include "atf-c++/text.hpp"
+#include "atf-c++/detail/env.hpp"
+#include "atf-c++/detail/parser.hpp"
+#include "atf-c++/detail/process.hpp"
+#include "atf-c++/detail/sanity.hpp"
+#include "atf-c++/detail/signals.hpp"
+#include "atf-c++/detail/text.hpp"
 
 #include "config.hpp"
 #include "fs.hpp"

@@ -33,9 +33,10 @@ extern "C" {
 #include "atf-c/config.h"
 }
 
-#include "atf-c++/config.hpp"
-#include "atf-c++/env.hpp"
-#include "atf-c++/sanity.hpp"
+#include "config.hpp"
+
+#include "detail/env.hpp"
+#include "detail/sanity.hpp"
 
 static std::map< std::string, std::string > m_variables;
 

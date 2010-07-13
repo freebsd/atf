@@ -36,11 +36,11 @@
 #include <cstring>
 
 extern "C" {
-#include "atf-c/error.h"
+#include "../../atf-c/error.h"
 };
 
-#include "atf-c++/exceptions.hpp"
-#include "atf-c++/sanity.hpp"
+#include "exceptions.hpp"
+#include "sanity.hpp"
 
 // ------------------------------------------------------------------------
 // The "system_error" type.

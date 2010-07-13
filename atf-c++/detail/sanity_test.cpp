@@ -27,22 +27,15 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "atf-c++/macros.hpp"
+#include "../macros.hpp"
 
-#include "test_helpers.hpp"
-
-// ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/sanity.hpp");
-
-// ------------------------------------------------------------------------
-// Main.
-// ------------------------------------------------------------------------
+ATF_TEST_CASE_WITHOUT_HEAD(nothing);
+ATF_TEST_CASE_BODY(nothing)
+{
+    // TODO
+}
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
+    ATF_ADD_TEST_CASE(tcs, nothing);
 }

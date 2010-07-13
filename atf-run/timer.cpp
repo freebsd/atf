@@ -33,8 +33,8 @@ extern "C" {
 
 #include <cerrno>
 
-#include "atf-c++/exceptions.hpp"
-#include "atf-c++/sanity.hpp"
+#include "atf-c++/detail/exceptions.hpp"
+#include "atf-c++/detail/sanity.hpp"
 
 #include "timer.hpp"
 

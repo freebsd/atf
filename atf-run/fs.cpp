@@ -44,8 +44,8 @@ extern "C" {
 #include <cstdlib>
 #include <cstring>
 
-#include "atf-c++/process.hpp"
-#include "atf-c++/user.hpp"
+#include "atf-c++/detail/process.hpp"
+#include "atf-c++/detail/user.hpp"
 
 #include "fs.hpp"
 

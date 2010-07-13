@@ -36,8 +36,9 @@ extern "C" {
 #include <fstream>
 #include <iostream>
 
-#include "atf-c++/fs.hpp"
 #include "atf-c++/macros.hpp"
+
+#include "atf-c++/detail/fs.hpp"
 
 // ------------------------------------------------------------------------
 // Helper tests for "t_config".

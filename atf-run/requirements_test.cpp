@@ -29,7 +29,8 @@
 
 #include "atf-c++/config.hpp"
 #include "atf-c++/macros.hpp"
-#include "atf-c++/user.hpp"
+
+#include "atf-c++/detail/user.hpp"
 
 #include "requirements.hpp"
 

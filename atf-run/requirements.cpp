@@ -32,11 +32,12 @@
 #include <stdexcept>
 
 #include "atf-c++/config.hpp"
-#include "atf-c++/fs.hpp"
-#include "atf-c++/env.hpp"
-#include "atf-c++/sanity.hpp"
-#include "atf-c++/text.hpp"
-#include "atf-c++/user.hpp"
+
+#include "atf-c++/detail/fs.hpp"
+#include "atf-c++/detail/env.hpp"
+#include "atf-c++/detail/sanity.hpp"
+#include "atf-c++/detail/text.hpp"
+#include "atf-c++/detail/user.hpp"
 
 #include "requirements.hpp"
 

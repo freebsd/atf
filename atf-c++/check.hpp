@@ -31,7 +31,7 @@
 #define _ATF_CXX_CHECK_HPP_
 
 extern "C" {
-#include "atf-c/check.h"
+#include <atf-c/check.h>
 }
 
 #include <cstddef>

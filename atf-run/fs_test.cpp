@@ -35,10 +35,11 @@ extern "C" {
 #include <cerrno>
 #include <fstream>
 
-#include "atf-c++/exceptions.hpp"
-#include "atf-c++/fs.hpp"
 #include "atf-c++/macros.hpp"
-#include "atf-c++/user.hpp"
+
+#include "atf-c++/detail/exceptions.hpp"
+#include "atf-c++/detail/fs.hpp"
+#include "atf-c++/detail/user.hpp"
 
 #include "fs.hpp"
 

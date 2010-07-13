@@ -43,14 +43,14 @@ extern "C" {
 
 #include <atf-c++.hpp>
 
-#include "atf-c++/check.hpp"
-#include "atf-c++/config.hpp"
-#include "atf-c++/fs.hpp"
-#include "atf-c++/process.hpp"
-#include "atf-c++/text.hpp"
-#include "atf-c++/utils.hpp"
+#include "check.hpp"
+#include "config.hpp"
+#include "utils.hpp"
 
+#include "detail/fs.hpp"
+#include "detail/process.hpp"
 #include "detail/test_helpers.hpp"
+#include "detail/text.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.

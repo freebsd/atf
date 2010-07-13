@@ -39,10 +39,11 @@ extern "C" {
 #include <iostream>
 #include <string>
 
-#include "atf-c++/env.hpp"
-#include "atf-c++/fs.hpp"
 #include "atf-c++/macros.hpp"
-#include "atf-c++/process.hpp"
+
+#include "atf-c++/detail/env.hpp"
+#include "atf-c++/detail/fs.hpp"
+#include "atf-c++/detail/process.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.

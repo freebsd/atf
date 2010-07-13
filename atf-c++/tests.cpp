@@ -55,16 +55,17 @@ extern "C" {
 #include "atf-c/utils.h"
 }
 
-#include "atf-c++/application.hpp"
-#include "atf-c++/env.hpp"
-#include "atf-c++/exceptions.hpp"
-#include "atf-c++/fs.hpp"
-#include "atf-c++/io.hpp"
-#include "atf-c++/parser.hpp"
-#include "atf-c++/sanity.hpp"
-#include "atf-c++/tests.hpp"
-#include "atf-c++/text.hpp"
-#include "atf-c++/user.hpp"
+#include "tests.hpp"
+
+#include "detail/application.hpp"
+#include "detail/env.hpp"
+#include "detail/exceptions.hpp"
+#include "detail/fs.hpp"
+#include "detail/io.hpp"
+#include "detail/parser.hpp"
+#include "detail/sanity.hpp"
+#include "detail/text.hpp"
+#include "detail/user.hpp"
 
 namespace impl = atf::tests;
 namespace detail = atf::tests::detail;

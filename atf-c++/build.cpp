@@ -33,9 +33,10 @@ extern "C" {
 #include "atf-c/utils.h"
 }
 
-#include "atf-c++/build.hpp"
-#include "atf-c++/exceptions.hpp"
-#include "atf-c++/process.hpp"
+#include "build.hpp"
+
+#include "detail/exceptions.hpp"
+#include "detail/process.hpp"
 
 namespace impl = atf::build;
 #define IMPL_NAME "atf::build"

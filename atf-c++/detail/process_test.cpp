@@ -30,10 +30,9 @@
 #include <cstdlib>
 #include <cstring>
 
-#include <atf-c++.hpp>
+#include "../macros.hpp"
 
-#include "atf-c++/process.hpp"
-
+#include "process.hpp"
 #include "test_helpers.hpp"
 
 // TODO: Testing the fork function is a huge task and I'm afraid of
@@ -337,12 +336,6 @@ ATF_TEST_CASE_BODY(exec_success)
 }
 
 // ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/process.hpp");
-
-// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -361,7 +354,4 @@ ATF_INIT_TEST_CASES(tcs)
     // Add the test cases for the free functions.
     ATF_ADD_TEST_CASE(tcs, exec_failure);
     ATF_ADD_TEST_CASE(tcs, exec_success);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
 }

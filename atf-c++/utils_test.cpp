@@ -29,8 +29,8 @@
 
 #include <iostream>
 
-#include "atf-c++/macros.hpp"
-#include "atf-c++/utils.hpp"
+#include "macros.hpp"
+#include "utils.hpp"
 
 #include "detail/test_helpers.hpp"
 

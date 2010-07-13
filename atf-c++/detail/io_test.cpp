@@ -41,10 +41,9 @@ extern "C" {
 #include <istream>
 #include <ostream>
 
-#include "atf-c++/io.hpp"
-#include "atf-c++/macros.hpp"
+#include "../macros.hpp"
 
-#include "test_helpers.hpp"
+#include "io.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -547,12 +546,6 @@ ATF_TEST_CASE_BODY(std_muxer_lines)
 }
 
 // ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/io.hpp");
-
-// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -584,7 +577,4 @@ ATF_INIT_TEST_CASES(tcs)
     // Add the tests for the "std_muxer" class.
     ATF_ADD_TEST_CASE(tcs, std_muxer_empty);
     ATF_ADD_TEST_CASE(tcs, std_muxer_lines);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
 }

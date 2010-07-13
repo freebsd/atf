@@ -47,18 +47,19 @@ extern "C" {
 #include <cstring>
 
 extern "C" {
-#include "atf-c/error.h"
+#include "../../atf-c/error.h"
 }
 
-#include "atf-c++/exceptions.hpp"
-#include "atf-c++/env.hpp"
-#include "atf-c++/fs.hpp"
-#include "atf-c++/io.hpp"
-#include "atf-c++/process.hpp"
-#include "atf-c++/sanity.hpp"
-#include "atf-c++/text.hpp"
-#include "atf-c++/user.hpp"
-#include "atf-c++/utils.hpp"
+#include "../utils.hpp"
+
+#include "exceptions.hpp"
+#include "env.hpp"
+#include "fs.hpp"
+#include "io.hpp"
+#include "process.hpp"
+#include "sanity.hpp"
+#include "text.hpp"
+#include "user.hpp"
 
 namespace impl = atf::fs;
 #define IMPL_NAME "atf::fs"

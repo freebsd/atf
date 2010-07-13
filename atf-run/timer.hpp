@@ -37,8 +37,9 @@ extern "C" {
 
 #include <memory>
 
-#include <atf-c++/signals.hpp>
-#include <atf-c++/utils.hpp>
+#include "atf-c++/utils.hpp"
+
+#include "atf-c++/detail/signals.hpp"
 
 namespace atf {
 

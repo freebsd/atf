@@ -37,12 +37,12 @@ extern "C" {
 #include <cstring>
 
 extern "C" {
-#include "atf-c/error.h"
+#include "../../atf-c/error.h"
 }
 
-#include "atf-c++/exceptions.hpp"
-#include "atf-c++/io.hpp"
-#include "atf-c++/sanity.hpp"
+#include "exceptions.hpp"
+#include "io.hpp"
+#include "sanity.hpp"
 
 namespace impl = atf::io;
 #define IMPL_NAME "atf::io"

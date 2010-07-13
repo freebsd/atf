@@ -47,19 +47,20 @@ extern "C" {
 #include <map>
 #include <string>
 
-#include "atf-c++/application.hpp"
+#include "atf-c++/detail/application.hpp"
 #include "atf-c++/config.hpp"
-#include "atf-c++/env.hpp"
-#include "atf-c++/exceptions.hpp"
-#include "atf-c++/fs.hpp"
-#include "atf-c++/io.hpp"
-#include "atf-c++/parser.hpp"
-#include "atf-c++/process.hpp"
-#include "atf-c++/sanity.hpp"
-#include "atf-c++/signals.hpp"
 #include "atf-c++/tests.hpp"
-#include "atf-c++/text.hpp"
-#include "atf-c++/user.hpp"
+
+#include "atf-c++/detail/env.hpp"
+#include "atf-c++/detail/exceptions.hpp"
+#include "atf-c++/detail/fs.hpp"
+#include "atf-c++/detail/io.hpp"
+#include "atf-c++/detail/parser.hpp"
+#include "atf-c++/detail/process.hpp"
+#include "atf-c++/detail/sanity.hpp"
+#include "atf-c++/detail/signals.hpp"
+#include "atf-c++/detail/text.hpp"
+#include "atf-c++/detail/user.hpp"
 
 #include "atffile.hpp"
 #include "config.hpp"

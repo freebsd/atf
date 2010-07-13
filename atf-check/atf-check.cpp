@@ -44,16 +44,17 @@ extern "C" {
 #include <list>
 #include <utility>
 
-#include "atf-c++/application.hpp"
-#include "atf-c++/exceptions.hpp"
 #include "atf-c++/check.hpp"
 #include "atf-c++/config.hpp"
-#include "atf-c++/fs.hpp"
-#include "atf-c++/io.hpp"
-#include "atf-c++/process.hpp"
-#include "atf-c++/sanity.hpp"
-#include "atf-c++/text.hpp"
 #include "atf-c++/utils.hpp"
+
+#include "atf-c++/detail/application.hpp"
+#include "atf-c++/detail/exceptions.hpp"
+#include "atf-c++/detail/fs.hpp"
+#include "atf-c++/detail/io.hpp"
+#include "atf-c++/detail/process.hpp"
+#include "atf-c++/detail/sanity.hpp"
+#include "atf-c++/detail/text.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.

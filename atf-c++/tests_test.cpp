@@ -38,12 +38,11 @@ extern "C" {
 #include <fstream>
 #include <sstream>
 
-#include <atf-c++.hpp>
+#include "macros.hpp"
 
-#include "atf-c++/parser.hpp"
-#include "atf-c++/user.hpp"
-
+#include "detail/parser.hpp"
 #include "detail/test_helpers.hpp"
+#include "detail/user.hpp"
 
 // ------------------------------------------------------------------------
 // Tests for the "atf_tp_writer" class.

@@ -30,11 +30,11 @@
 #include <cstring>
 #include <iostream>
 
-#include "atf-c++/config.hpp"
-#include "atf-c++/env.hpp"
-#include "atf-c++/exceptions.hpp"
-#include "atf-c++/macros.hpp"
+#include "config.hpp"
+#include "macros.hpp"
 
+#include "detail/env.hpp"
+#include "detail/exceptions.hpp"
 #include "detail/test_helpers.hpp"
 
 static const char *test_value = "env-value";

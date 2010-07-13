@@ -28,11 +28,11 @@
 //
 
 extern "C" {
-#include "atf-c/user.h"
+#include "../../atf-c/detail/user.h"
 }
 
-#include "atf-c++/sanity.hpp"
-#include "atf-c++/user.hpp"
+#include "sanity.hpp"
+#include "user.hpp"
 
 namespace impl = atf::user;
 #define IMPL_NAME "atf::user"

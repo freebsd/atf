@@ -38,9 +38,9 @@
 #include <sstream>
 #include <utility>
 
-#include "atf-c++/parser.hpp"
-#include "atf-c++/process.hpp"
-#include "atf-c++/text.hpp"
+#include "parser.hpp"
+#include "process.hpp"
+#include "text.hpp"
 
 #define HEADER_TC(name, hdrname) \
     ATF_TEST_CASE(name); \

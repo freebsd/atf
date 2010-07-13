@@ -29,7 +29,7 @@
 
 #include <cstdlib>
 
-#include "atf-c++/application.hpp"
+#include "atf-c++/detail/application.hpp"
 
 class h_app_empty : public atf::application::app {
     static const char* m_description;

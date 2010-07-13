@@ -36,12 +36,12 @@ extern "C" {
 #include <fstream>
 #include <memory>
 
-#include "atf-c++/exceptions.hpp"
 #include "atf-c++/macros.hpp"
 
-#include "atffile.hpp"
+#include "atf-c++/detail/exceptions.hpp"
+#include "atf-c++/detail/test_helpers.hpp"
 
-#include "test_helpers.hpp"
+#include "atffile.hpp"
 
 namespace detail = atf::atf_run::detail;
 

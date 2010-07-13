@@ -36,12 +36,12 @@ extern "C" {
 #include <string>
 #include <vector>
 
-#include "atf-c++/check.hpp"
-#include "atf-c++/config.hpp"
-#include "atf-c++/fs.hpp"
-#include "atf-c++/macros.hpp"
-#include "atf-c++/process.hpp"
+#include "../check.hpp"
+#include "../config.hpp"
+#include "../macros.hpp"
 
+#include "fs.hpp"
+#include "process.hpp"
 #include "test_helpers.hpp"
 
 void

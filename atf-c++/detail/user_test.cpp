@@ -37,11 +37,10 @@ extern "C" {
 #include <iostream>
 #include <set>
 
-#include "atf-c++/exceptions.hpp"
-#include "atf-c++/macros.hpp"
-#include "atf-c++/user.hpp"
+#include "../macros.hpp"
 
-#include "test_helpers.hpp"
+#include "exceptions.hpp"
+#include "user.hpp"
 
 // ------------------------------------------------------------------------
 // Test cases for the free functions.
@@ -129,12 +128,6 @@ ATF_TEST_CASE_BODY(is_unprivileged)
 }
 
 // ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/user.hpp");
-
-// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -145,7 +138,4 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, is_member_of_group);
     ATF_ADD_TEST_CASE(tcs, is_root);
     ATF_ADD_TEST_CASE(tcs, is_unprivileged);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
 }

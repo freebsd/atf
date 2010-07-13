@@ -27,7 +27,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "atf-c++/macros.hpp"
+#include "macros.hpp"
 
 #include "detail/test_helpers.hpp"
 

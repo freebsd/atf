@@ -36,10 +36,11 @@ extern "C" {
 #include <cstring>
 #include <iostream>
 
-#include "atf-c++/application.hpp"
 #include "atf-c++/config.hpp"
-#include "atf-c++/fs.hpp"
-#include "atf-c++/sanity.hpp"
+
+#include "atf-c++/detail/application.hpp"
+#include "atf-c++/detail/fs.hpp"
+#include "atf-c++/detail/sanity.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.

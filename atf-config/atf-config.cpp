@@ -32,9 +32,10 @@
 #include <map>
 #include <string>
 
-#include "atf-c++/application.hpp"
 #include "atf-c++/config.hpp"
-#include "atf-c++/sanity.hpp"
+
+#include "atf-c++/detail/application.hpp"
+#include "atf-c++/detail/sanity.hpp"
 
 class atf_config : public atf::application::app {
     static const char* m_description;

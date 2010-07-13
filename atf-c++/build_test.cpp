@@ -30,14 +30,14 @@
 #include <cstring>
 #include <iostream>
 
-#include "atf-c++/build.hpp"
-#include "atf-c++/config.hpp"
-#include "atf-c++/env.hpp"
-#include "atf-c++/macros.hpp"
-#include "atf-c++/process.hpp"
-
 #include "../atf-c/h_build.h"
 
+#include "build.hpp"
+#include "config.hpp"
+#include "macros.hpp"
+
+#include "detail/env.hpp"
+#include "detail/process.hpp"
 #include "detail/test_helpers.hpp"
 
 // ------------------------------------------------------------------------

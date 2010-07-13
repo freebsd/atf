@@ -27,10 +27,9 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "atf-c++/env.hpp"
-#include "atf-c++/macros.hpp"
+#include "../macros.hpp"
 
-#include "test_helpers.hpp"
+#include "env.hpp"
 
 // ------------------------------------------------------------------------
 // Test cases for the free functions.
@@ -80,12 +79,6 @@ ATF_TEST_CASE_BODY(unset)
 }
 
 // ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/env.hpp");
-
-// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -95,7 +88,4 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, has_get);
     ATF_ADD_TEST_CASE(tcs, set);
     ATF_ADD_TEST_CASE(tcs, unset);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
 }

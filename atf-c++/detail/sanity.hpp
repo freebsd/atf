@@ -31,7 +31,7 @@
 #define _ATF_CXX_SANITY_HPP_
 
 extern "C" {
-#include <atf-c/sanity.h>
+#include "../../atf-c/detail/sanity.h"
 }
 
 #endif // !defined(_ATF_CXX_SANITY_HPP_)

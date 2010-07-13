@@ -31,10 +31,9 @@
 #include <set>
 #include <vector>
 
-#include "atf-c++/macros.hpp"
-#include "atf-c++/text.hpp"
+#include "../macros.hpp"
 
-#include "test_helpers.hpp"
+#include "text.hpp"
 
 // ------------------------------------------------------------------------
 // Test cases for the free functions.
@@ -348,12 +347,6 @@ ATF_TEST_CASE_BODY(to_type)
 }
 
 // ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/text.hpp");
-
-// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -369,7 +362,4 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, to_bool);
     ATF_ADD_TEST_CASE(tcs, to_string);
     ATF_ADD_TEST_CASE(tcs, to_type);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
 }

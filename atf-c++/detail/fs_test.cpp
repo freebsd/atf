@@ -36,12 +36,11 @@ extern "C" {
 #include <cerrno>
 #include <cstdio>
 
-#include "atf-c++/exceptions.hpp"
-#include "atf-c++/fs.hpp"
-#include "atf-c++/macros.hpp"
-#include "atf-c++/user.hpp"
+#include "../macros.hpp"
 
-#include "test_helpers.hpp"
+#include "exceptions.hpp"
+#include "fs.hpp"
+#include "user.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -658,12 +657,6 @@ ATF_TEST_CASE_BODY(remove)
 }
 
 // ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/fs.hpp");
-
-// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -700,7 +693,4 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, exists);
     ATF_ADD_TEST_CASE(tcs, is_executable);
     ATF_ADD_TEST_CASE(tcs, remove);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
 }

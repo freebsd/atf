@@ -29,9 +29,9 @@
 
 #include <sstream>
 
-#include "atf-c++/macros.hpp"
-#include "atf-c++/parser.hpp"
+#include "../macros.hpp"
 
+#include "parser.hpp"
 #include "test_helpers.hpp"
 
 // ------------------------------------------------------------------------
@@ -1001,12 +1001,6 @@ ATF_TEST_CASE_BODY(headers_12)
 }
 
 // ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/parser.hpp");
-
-// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -1046,5 +1040,4 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, headers_10);
     ATF_ADD_TEST_CASE(tcs, headers_11);
     ATF_ADD_TEST_CASE(tcs, headers_12);
-    ATF_ADD_TEST_CASE(tcs, include);
 }

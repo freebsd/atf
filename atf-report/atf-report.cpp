@@ -34,11 +34,11 @@
 #include <utility>
 #include <vector>
 
-#include "atf-c++/application.hpp"
-#include "atf-c++/fs.hpp"
-#include "atf-c++/sanity.hpp"
-#include "atf-c++/text.hpp"
-#include "atf-c++/ui.hpp"
+#include "atf-c++/detail/application.hpp"
+#include "atf-c++/detail/fs.hpp"
+#include "atf-c++/detail/sanity.hpp"
+#include "atf-c++/detail/text.hpp"
+#include "atf-c++/detail/ui.hpp"
 
 #include "reader.hpp"
 

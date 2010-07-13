@@ -34,9 +34,10 @@
 #include <vector>
 
 #include "atf-c++/macros.hpp"
-#include "atf-c++/parser.hpp"
-#include "atf-c++/sanity.hpp"
-#include "atf-c++/text.hpp"
+
+#include "atf-c++/detail/parser.hpp"
+#include "atf-c++/detail/sanity.hpp"
+#include "atf-c++/detail/text.hpp"
 
 #include "reader.hpp"
 

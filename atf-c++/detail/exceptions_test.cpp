@@ -28,16 +28,15 @@
 //
 
 extern "C" {
-#include "atf-c/error.h"
+#include "../../atf-c/error.h"
 }
 
 #include <cstdio>
 
-#include "atf-c++/exceptions.hpp"
-#include "atf-c++/macros.hpp"
-#include "atf-c++/sanity.hpp"
+#include "../macros.hpp"
 
-#include "test_helpers.hpp"
+#include "exceptions.hpp"
+#include "sanity.hpp"
 
 // ------------------------------------------------------------------------
 // The "test" error.
@@ -136,12 +135,6 @@ ATF_TEST_CASE_BODY(throw_atf_error_unknown)
 }
 
 // ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/exceptions.hpp");
-
-// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -151,7 +144,4 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, throw_atf_error_libc);
     ATF_ADD_TEST_CASE(tcs, throw_atf_error_no_memory);
     ATF_ADD_TEST_CASE(tcs, throw_atf_error_unknown);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
 }

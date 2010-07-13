@@ -34,8 +34,9 @@
 #include <ostream>
 #include <streambuf>
 
-#include <atf-c++/fs.hpp>
-#include <atf-c++/utils.hpp>
+#include "fs.hpp"
+
+#include "../utils.hpp"
 
 namespace atf {
 namespace io {

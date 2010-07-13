@@ -36,12 +36,11 @@ extern "C" {
 #include <cerrno>
 #include <iostream>
 
-#include "atf-c++/exceptions.hpp"
-#include "atf-c++/macros.hpp"
-#include "atf-c++/process.hpp"
-#include "atf-c++/signals.hpp"
+#include "../macros.hpp"
 
-#include "test_helpers.hpp"
+#include "exceptions.hpp"
+#include "process.hpp"
+#include "signals.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -255,12 +254,6 @@ ATF_TEST_CASE_BODY(reset)
 }
 
 // ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/signals.hpp");
-
-// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -277,7 +270,4 @@ ATF_INIT_TEST_CASES(tcs)
 
     // Add the test cases for the free functions.
     ATF_ADD_TEST_CASE(tcs, reset);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
 }

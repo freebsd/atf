@@ -34,10 +34,11 @@ extern "C" {
 #include "atf-c/error.h"
 }
 
-#include "atf-c++/check.hpp"
-#include "atf-c++/exceptions.hpp"
-#include "atf-c++/process.hpp"
-#include "atf-c++/sanity.hpp"
+#include "check.hpp"
+
+#include "detail/exceptions.hpp"
+#include "detail/process.hpp"
+#include "detail/sanity.hpp"
 
 namespace impl = atf::check;
 #define IMPL_NAME "atf::check"

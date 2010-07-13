@@ -41,9 +41,9 @@ extern "C" {
 #include <cstring>
 #include <iostream>
 
-#include "atf-c++/application.hpp"
-#include "atf-c++/sanity.hpp"
-#include "atf-c++/ui.hpp"
+#include "application.hpp"
+#include "sanity.hpp"
+#include "ui.hpp"
 
 #if !defined(HAVE_VSNPRINTF_IN_STD)
 namespace std {

@@ -38,9 +38,9 @@ extern "C" {
 
 #include <cerrno>
 
-#include "atf-c++/exceptions.hpp"
-#include "atf-c++/sanity.hpp"
-#include "atf-c++/signals.hpp"
+#include "exceptions.hpp"
+#include "sanity.hpp"
+#include "signals.hpp"
 
 namespace impl = atf::signals;
 #define IMPL_NAME "atf::signals"

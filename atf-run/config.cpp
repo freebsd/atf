@@ -31,10 +31,11 @@
 #include <vector>
 
 #include "atf-c++/config.hpp"
-#include "atf-c++/env.hpp"
-#include "atf-c++/fs.hpp"
-#include "atf-c++/sanity.hpp"
-#include "atf-c++/parser.hpp"
+
+#include "atf-c++/detail/env.hpp"
+#include "atf-c++/detail/fs.hpp"
+#include "atf-c++/detail/sanity.hpp"
+#include "atf-c++/detail/parser.hpp"
 
 #include "config.hpp"
 
