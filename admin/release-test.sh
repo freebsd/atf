@@ -74,14 +74,10 @@ run_test() {
     ${make} install || return 1
 
     $(pwd)/local/bin/atf-version >version.txt || return 1
-    if grep 'locally modified' version.txt >/dev/null; then
-        echo "ERROR: atf-version reports modified sources"
-        return 1
-    fi
-    if grep 'no revision information' version.txt >/dev/null; then
+    if grep 'Built from a distribution file' version.txt >/dev/null; then
         :
     else
-        echo "ERROR: atf-version does not report dist-only data"
+        echo "ERROR: atf-version reports sources from repository"
         return 1
     fi
 

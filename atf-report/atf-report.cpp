@@ -173,7 +173,7 @@ class ticker_writer : public writer {
     size_t m_tcs_passed, m_tcs_failed, m_tcs_skipped, m_tcs_expected_failures;
     std::string m_tcname, m_tpname;
     std::vector< std::string > m_failed_tcs;
-    std::vector< std::string > m_expected_failures_tcs;
+    std::map< std::string, std::string > m_expected_failures_tcs;
     std::vector< std::string > m_failed_tps;
 
     void
@@ -250,7 +250,7 @@ class ticker_writer : public writer {
             state == "expected_timeout") {
             str = "Expected failure: " + reason;
             m_tcs_expected_failures++;
-            m_expected_failures_tcs.push_back(m_tpname + ":" + m_tcname);
+            m_expected_failures_tcs[m_tpname + ":" + m_tcname] = reason;
         } else if (state == "failed") {
             str = "Failed: " + reason;
             m_tcs_failed++;
@@ -272,6 +272,25 @@ class ticker_writer : public writer {
         m_tcname = "";
     }
 
+    static void
+    write_expected_failures(const std::map< std::string, std::string >& xfails,
+                            std::ostream& os)
+    {
+        using atf::ui::format_text;
+        using atf::ui::format_text_with_tag;
+
+        os << format_text("Test cases for known bugs:") << "\n";
+
+        for (std::map< std::string, std::string >::const_iterator iter =
+             xfails.begin(); iter != xfails.end(); iter++) {
+            const std::string& name = (*iter).first;
+            const std::string& reason = (*iter).second;
+
+            os << format_text_with_tag(reason, "    " + name + ": ", false)
+               << "\n";
+        }
+    }
+
     void
     write_eof(void)
     {
@@ -288,9 +307,8 @@ class ticker_writer : public writer {
         }
 
         if (!m_expected_failures_tcs.empty()) {
-            (*m_os) << format_text("Test cases for known bugs:") << "\n";
-            (*m_os) << format_text_with_tag(join(m_expected_failures_tcs, ", "),
-                                            "    ", false) << "\n\n";
+            write_expected_failures(m_expected_failures_tcs, *m_os);
+            (*m_os) << "\n";
         }
 
         if (!m_failed_tcs.empty()) {
