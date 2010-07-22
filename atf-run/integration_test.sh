@@ -650,7 +650,9 @@ cleanup_pass_body()
     atf_check -s eq:0 -o match:'cleanup_states, passed' -e ignore atf-run \
         -v state=pass -v statedir=$(pwd) helper
     test -f to-stay || atf_fail "Test case body did not run correctly"
-    test -f to-delete && atf_fail "Test case cleanup did not run correctly"
+    if test -f to-delete; then
+        atf_fail "Test case cleanup did not run correctly"
+    fi
 }
 
 atf_test_case cleanup_fail
@@ -668,7 +670,9 @@ cleanup_fail_body()
     atf_check -s eq:1 -o match:'cleanup_states, failed' -e ignore atf-run \
         -v state=fail -v statedir=$(pwd) helper
     test -f to-stay || atf_fail "Test case body did not run correctly"
-    test -f to-delete && atf_fail "Test case cleanup did not run correctly"
+    if test -f to-delete; then
+        atf_fail "Test case cleanup did not run correctly"
+    fi
 }
 
 atf_test_case cleanup_skip
@@ -686,7 +690,9 @@ cleanup_skip_body()
     atf_check -s eq:0 -o match:'cleanup_states, skipped' -e ignore atf-run \
         -v state=skip -v statedir=$(pwd) helper
     test -f to-stay || atf_fail "Test case body did not run correctly"
-    test -f to-delete && atf_fail "Test case cleanup did not run correctly"
+    if test -f to-delete; then
+        atf_fail "Test case cleanup did not run correctly"
+    fi
 }
 
 atf_test_case cleanup_curdir
@@ -1001,7 +1007,9 @@ timeout_body()
     atf_check -s eq:1 \
         -o match:"${TESTCASE}, failed, .*timed out after 1 second" -e ignore \
         atf-run -v statedir=$(pwd) helper
-    test -f finished && atf_fail "Test case was not killed after time out"
+    if test -f finished; then
+        atf_fail "Test case was not killed after time out"
+    fi
 }
 
 atf_test_case use_fs

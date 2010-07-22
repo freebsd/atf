@@ -102,7 +102,9 @@ sflag_exit_body()
 
     h_pass 'true' -s exit
     h_pass 'false' -s exit
-    atf-check -s exit -x 'kill $$' && atf_fail "Signal detected as clean exit"
+    if atf-check -s exit -x 'kill $$'; then
+        atf_fail "Signal detected as clean exit"
+    fi
 }
 
 atf_test_case sflag_ignore
@@ -115,7 +117,9 @@ sflag_ignore_body()
 {
     h_pass 'true' -s ignore
     h_pass 'false' -s ignore
-    atf-check -s ignored -x 'kill $$' && atf_fail "Signal not ignored"
+    if atf-check -s ignored -x 'kill $$'; then
+        atf_fail "Signal not ignored"
+    fi
 }
 
 atf_test_case sflag_signal

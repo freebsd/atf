@@ -27,6 +27,8 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+set -e
+
 # ------------------------------------------------------------------------
 # GLOBAL VARIABLES
 # ------------------------------------------------------------------------
@@ -693,13 +695,23 @@ _atf_run_tc()
 
         case ${_tcpart} in
         body)
-            ${_tcname}_body
-            _atf_validate_expect
-            _atf_create_resfile passed -1
+            if ${_tcname}_body; then
+                _atf_validate_expect
+                _atf_create_resfile passed -1
+            else
+                Expect=pass
+                atf_fail "Test case body returned a non-ok exit code, but" \
+                    "this is not allowed"
+            fi
             ;;
         cleanup)
             if _atf_has_cleanup "${_tcname}"; then
-                ${_tcname}_cleanup
+                if ${_tcname}_cleanup; then
+                    :
+                else
+                    _atf_error 128 "The test case cleanup returned a non-ok" \
+                        "exit code, but this is not allowed"
+                fi
             fi
             ;;
         *)
