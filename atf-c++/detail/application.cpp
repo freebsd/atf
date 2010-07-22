@@ -199,6 +199,10 @@ impl::app::process_options(void)
     }
     m_argc -= ::optind;
     m_argv += ::optind;
+
+    // Clear getopt state just in case the test wants to use it.
+    optind = 1;
+    optreset = 1;
 }
 
 void
