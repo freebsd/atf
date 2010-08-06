@@ -527,10 +527,12 @@ atf_process_fork(atf_process_child_t *c,
     atf_process_stream_t inherit_outsb, inherit_errsb;
     const atf_process_stream_t *real_outsb, *real_errsb;
 
+    real_outsb = NULL;  /* Shut up GCC warning. */
     err = init_stream_w_default(outsb, &inherit_outsb, &real_outsb);
     if (atf_is_error(err))
         goto out;
 
+    real_errsb = NULL;  /* Shut up GCC warning. */
     err = init_stream_w_default(errsb, &inherit_errsb, &real_errsb);
     if (atf_is_error(err))
         goto out_out;
