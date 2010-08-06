@@ -697,8 +697,9 @@ impl::run_test_case(const atf::fs::path& executable,
     std::string reason;
 
     if (timeout_timer.fired()) {
-        INV(status.signaled());
-        INV(status.termsig() == SIGKILL);
+        // Don't assume the child process has been signaled due to the timeout
+        // expiration as older versions did.  The child process may have exited
+        // but we may have timed out due to a subchild process getting stuck.
         reason = "Test case timed out after " + atf::text::to_string(timeout) +
             " " + (timeout == 1 ? "second" : "seconds");
     }

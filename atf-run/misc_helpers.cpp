@@ -30,6 +30,7 @@
 extern "C" {
 #include <sys/stat.h>
 
+#include <signal.h>
 #include <unistd.h>
 }
 
@@ -254,6 +255,53 @@ ATF_TEST_CASE_BODY(timeout)
     touch(get_config_var("statedir") + "/finished");
 }
 
+void
+child_pause(void *data)
+{
+    sigset_t mask;
+
+    ::sigemptyset(&mask);
+
+    std::cout << "Waiting in subprocess\n";
+    std::cout.flush();
+    ::sigsuspend(&mask);
+
+    std::cout << "Subprocess exiting\n";
+    std::cout.flush();
+    exit(EXIT_SUCCESS);
+}
+
+ATF_TEST_CASE(timeout_forkexit);
+ATF_TEST_CASE_HEAD(timeout_forkexit)
+{
+    set_md_var("descr", "Helper test case for the t_integration test program");
+    set_md_var("timeout", "2");
+}
+ATF_TEST_CASE_BODY(timeout_forkexit)
+{
+    pid_t pid = fork();
+    ATF_REQUIRE(pid != -1);
+
+    if (pid == 0) {
+        sigset_t mask;
+        ::sigemptyset(&mask);
+
+        std::cout << "Waiting in subprocess\n";
+        std::cout.flush();
+        ::sigsuspend(&mask);
+
+        touch(get_config_var("statedir") + "/child-finished");
+        std::cout << "Subprocess exiting\n";
+        std::cout.flush();
+        exit(EXIT_SUCCESS);
+    } else {
+        // Don't wait for the child process and let atf-run deal with it.
+        touch(get_config_var("statedir") + "/parent-finished");
+        std::cout << "Parent process exiting\n";
+        ATF_PASS();
+    }
+}
+
 ATF_TEST_CASE(use_fs);
 ATF_TEST_CASE_HEAD(use_fs)
 {
@@ -303,6 +351,8 @@ ATF_INIT_TEST_CASES(tcs)
         ATF_ADD_TEST_CASE(tcs, require_user);
     if (which == "timeout")
         ATF_ADD_TEST_CASE(tcs, timeout);
+    if (which == "timeout_forkexit")
+        ATF_ADD_TEST_CASE(tcs, timeout_forkexit);
     if (which == "use_fs")
         ATF_ADD_TEST_CASE(tcs, use_fs);
 }

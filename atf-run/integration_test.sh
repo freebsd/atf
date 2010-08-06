@@ -1012,6 +1012,26 @@ timeout_body()
     fi
 }
 
+atf_test_case timeout_forkexit
+timeout_forkexit_head()
+{
+    atf_set "descr" "Tests that atf-run deals gracefully with a test program" \
+        "that forks, exits, but the child process hangs"
+    atf_set "use.fs" "true"
+}
+timeout_forkexit_body()
+{
+    create_helper timeout_forkexit
+    create_atffile helper
+
+    atf_check -s eq:1 \
+        -o match:"${TESTCASE}, failed, .*timed out after 2 seconds" -e ignore \
+        atf-run -v statedir=$(pwd) helper
+    test -f parent-finished || atf_fail "Parent did not exit as expected"
+    test -f child-finished && atf_fail "Subprocess exited but it should have" \
+        "been forcibly terminated" || true
+}
+
 atf_test_case use_fs
 use_fs_head()
 {
@@ -1069,6 +1089,7 @@ atf_init_test_cases()
     atf_add_test_case require_user_unprivileged
     atf_add_test_case require_user_bad
     atf_add_test_case timeout
+    atf_add_test_case timeout_forkexit
     atf_add_test_case use_fs
 }
 
