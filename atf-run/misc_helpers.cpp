@@ -260,7 +260,7 @@ child_pause(void *data)
 {
     sigset_t mask;
 
-    ::sigemptyset(&mask);
+    sigemptyset(&mask);
 
     std::cout << "Waiting in subprocess\n";
     std::cout.flush();
@@ -284,7 +284,7 @@ ATF_TEST_CASE_BODY(timeout_forkexit)
 
     if (pid == 0) {
         sigset_t mask;
-        ::sigemptyset(&mask);
+        sigemptyset(&mask);
 
         std::cout << "Waiting in subprocess\n";
         std::cout.flush();
