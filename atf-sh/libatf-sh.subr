@@ -33,10 +33,6 @@ set -e
 # GLOBAL VARIABLES
 # ------------------------------------------------------------------------
 
-# Values of configuration variables obtained from atf-config.
-Atf_Arch=$(atf-config -t atf_arch)
-Atf_Machine=$(atf-config -t atf_machine)
-
 # The list of all test cases defined by the test program.
 Defined_Test_Cases=
 
