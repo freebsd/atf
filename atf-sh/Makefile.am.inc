@@ -27,6 +27,11 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+libexec_PROGRAMS += atf-sh/atf-check
+atf_sh_atf_check_SOURCES = atf-sh/atf-check.cpp
+atf_sh_atf_check_LDADD = libatf-c++.la
+dist_man_MANS += atf-sh/atf-check.1
+
 bin_PROGRAMS += atf-sh/atf-sh
 atf_sh_atf_sh_SOURCES = atf-sh/atf-sh.cpp
 atf_sh_atf_sh_LDADD = libatf-c++.la
@@ -57,6 +62,14 @@ atf-sh/atf_check_test: $(srcdir)/atf-sh/atf_check_test.sh
 	test -d atf-sh || mkdir -p atf-sh
 	@src="$(srcdir)/atf-sh/atf_check_test.sh"; \
 	dst="atf-sh/atf_check_test"; $(BUILD_SH_TP)
+
+tests_atf_sh_SCRIPTS += atf-sh/atf-check_test
+CLEANFILES += atf-sh/atf-check_test
+EXTRA_DIST += atf-sh/atf-check_test.sh
+atf-sh/atf-check_test: $(srcdir)/atf-sh/atf-check_test.sh
+	test -d atf-sh || mkdir -p atf-sh
+	@src="$(srcdir)/atf-sh/atf-check_test.sh"; \
+	dst="atf-sh/atf-check_test"; $(BUILD_SH_TP)
 
 tests_atf_sh_SCRIPTS += atf-sh/config_test
 CLEANFILES += atf-sh/config_test

@@ -63,13 +63,15 @@ static
 std::string*
 construct_script(const char* filename)
 {
-    const std::string datadir = atf::config::get("atf_pkgdatadir");
+    const std::string libexecdir = atf::config::get("atf_libexecdir");
+    const std::string pkgdatadir = atf::config::get("atf_pkgdatadir");
 
     std::string* command = new std::string();
     command->reserve(512);
-    (*command) += ". " + datadir + "/libatf-sh.subr ; " +
-                  ". " + fix_plain_name(filename) + " ; " +
-                  "main \"${@}\"";
+    (*command) += ("Atf_Check='" + libexecdir + "/atf-check' ; " +
+                   ". " + pkgdatadir + "/libatf-sh.subr ; " +
+                   ". " + fix_plain_name(filename) + " ; " +
+                   "main \"${@}\"");
     return command;
 }
 

@@ -27,6 +27,8 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+# The Atf_Check variable is set by atf-sh.
+
 h_pass()
 {
     cmd="$1"; shift
@@ -39,7 +41,7 @@ ${cmd}
 EOF
     chmod +x script.sh
 
-    if ! atf-check "${@}" ./script.sh >tmp; then
+    if ! ${Atf_Check} "${@}" ./script.sh >tmp; then
         cat tmp
         atf_fail "atf-check failed"
     fi
@@ -57,7 +59,7 @@ ${cmd}
 EOF
     chmod +x script.sh
 
-    if atf-check "${@}" ./script.sh 2>tmp; then
+    if ${Atf_Check} "${@}" ./script.sh 2>tmp; then
         cat tmp
         atf_fail "atf-check succeeded but should fail"
     fi
@@ -102,7 +104,7 @@ sflag_exit_body()
 
     h_pass 'true' -s exit
     h_pass 'false' -s exit
-    if atf-check -s exit -x 'kill $$'; then
+    if ${Atf_Check} -s exit -x 'kill $$'; then
         atf_fail "Signal detected as clean exit"
     fi
 }
@@ -117,7 +119,7 @@ sflag_ignore_body()
 {
     h_pass 'true' -s ignore
     h_pass 'false' -s ignore
-    if atf-check -s ignored -x 'kill $$'; then
+    if ${Atf_Check} -s ignored -x 'kill $$'; then
         atf_fail "Signal not ignored"
     fi
 }
@@ -130,14 +132,14 @@ sflag_signal_head()
 }
 sflag_signal_body()
 {
-    atf-check -s signal:hup -x 'kill -1 $$' || atf_fail "Signal not detected"
-    atf-check -s signal:sighup -x 'kill -1 $$' || atf_fail "Signal not detected"
-    atf-check -s signal:1 -x 'kill -1 $$' || atf_fail "Signal not detected"
-    atf-check -s signal -x 'kill -1 $$' || atf_fail "Signal not detected"
+    ${Atf_Check} -s signal:hup -x 'kill -1 $$' || atf_fail "Signal not detected"
+    ${Atf_Check} -s signal:sighup -x 'kill -1 $$' || atf_fail "Signal not detected"
+    ${Atf_Check} -s signal:1 -x 'kill -1 $$' || atf_fail "Signal not detected"
+    ${Atf_Check} -s signal -x 'kill -1 $$' || atf_fail "Signal not detected"
 
-    atf-check -s not-signal:kill -x 'kill -9 $$' && \
+    ${Atf_Check} -s not-signal:kill -x 'kill -9 $$' && \
         atf_fail "not-signal:kill matched kill -9"
-    atf-check -s not-signal:kill -x 'kill -1 $$' || \
+    ${Atf_Check} -s not-signal:kill -x 'kill -1 $$' || \
         atf_fail "not-signal:kill did not match kill -1"
 
     h_fail 'true' -s signal
@@ -151,13 +153,13 @@ xflag_head()
 }
 xflag_body()
 {
-    atf-check -s ne:0 -o ignore -e ignore "echo foo 2>&1" || \
+    ${Atf_Check} -s ne:0 -o ignore -e ignore "echo foo 2>&1" || \
         atf_fail "Shell command succeeded without -x"
 
-    atf-check -e inline:"foo\n" -x "echo foo 1>&2" || \
+    ${Atf_Check} -e inline:"foo\n" -x "echo foo 1>&2" || \
         atf_fail "Cannot run command with -x"
 
-    atf-check -o inline:"foo\n" -x echo foo || \
+    ${Atf_Check} -o inline:"foo\n" -x echo foo || \
         atf_fail "Using -x does not respect all provided arguments"
 }
 
@@ -425,7 +427,7 @@ invalid_umask_head()
 invalid_umask_body()
 {
     umask 0222
-    atf-check false 2>stderr && \
+    ${Atf_Check} false 2>stderr && \
         atf_fail "atf-check returned 0 but it should have failed"
     cat stderr
     grep 'temporary.*current umask.*0222' stderr >/dev/null || \

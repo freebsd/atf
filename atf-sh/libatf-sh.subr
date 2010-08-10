@@ -93,7 +93,7 @@ atf_add_test_case()
 #
 atf_check()
 {
-    atf-check "${@}" || \
+    ${Atf_Check} "${@}" || \
         atf_fail "atf-check failed; see the output of the test for details"
 }
 
