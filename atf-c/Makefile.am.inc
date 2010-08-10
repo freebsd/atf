@@ -74,6 +74,7 @@ libatf_c_la_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
                        "-DATF_CONFDIR=\"$(atf_confdir)\"" \
                        "-DATF_INCLUDEDIR=\"$(includedir)\"" \
                        "-DATF_LIBDIR=\"$(libdir)\"" \
+                       "-DATF_LIBEXECDIR=\"$(libexecdir)\"" \
                        "-DATF_MACHINE=\"$(atf_machine)\"" \
                        "-DATF_M4=\"$(ATF_M4)\"" \
                        "-DATF_PKGDATADIR=\"$(pkgdatadir)\"" \
