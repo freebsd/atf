@@ -40,12 +40,13 @@ all_vars="atf_arch \
           atf_confdir \
           atf_includedir \
           atf_libdir \
+          atf_libexecdir \
           atf_machine \
           atf_m4 \
           atf_pkgdatadir \
           atf_shell \
           atf_workdir"
-all_vars_no=15
+all_vars_no=16
 
 dnl List all variables.
 AT_CHECK([atf-config], [0], [stdout], [])
@@ -65,8 +66,8 @@ for v in ${all_vars}; do
 done
 
 dnl Query several variables.
-AT_CHECK([atf-config atf_includedir atf_pkgdatadir], [0], [stdout], [])
-AT_CHECK([grep 'atf_includedir' stdout], [0], [ignore], [])
+AT_CHECK([atf-config atf_libexecdir atf_pkgdatadir], [0], [stdout], [])
+AT_CHECK([grep 'atf_libexecdir' stdout], [0], [ignore], [])
 AT_CHECK([grep 'atf_pkgdatadir' stdout], [0], [ignore], [])
 AT_CHECK([COUNT_LINES(stdout, 2)], [0], [ignore], [])
 
