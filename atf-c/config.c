@@ -56,7 +56,6 @@ static struct var {
     { "atf_libdir",         ATF_LIBDIR,         NULL, false, },
     { "atf_libexecdir",     ATF_LIBEXECDIR,     NULL, false, },
     { "atf_machine",        ATF_MACHINE,        NULL, false, },
-    { "atf_m4",             ATF_M4,             NULL, false, },
     { "atf_pkgdatadir",     ATF_PKGDATADIR,     NULL, false, },
     { "atf_shell",          ATF_SHELL,          NULL, false, },
     { "atf_workdir",        ATF_WORKDIR,        NULL, false, },

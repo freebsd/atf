@@ -83,7 +83,6 @@ AM_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
               "-DATF_LIBDIR=\"$(libdir)\"" \
               "-DATF_LIBEXECDIR=\"$(libexecdir)\"" \
               "-DATF_MACHINE=\"$(atf_machine)\"" \
-              "-DATF_M4=\"$(ATF_M4)\"" \
               "-DATF_PKGDATADIR=\"$(pkgdatadir)\"" \
               "-DATF_SHELL=\"$(ATF_SHELL)\"" \
               "-DATF_WORKDIR=\"$(ATF_WORKDIR)\""

@@ -39,11 +39,10 @@ all_vars="atf_arch \
           atf_libdir \
           atf_libexecdir \
           atf_machine \
-          atf_m4 \
           atf_pkgdatadir \
           atf_shell \
           atf_workdir"
-all_vars_no=16
+all_vars_no=15
 
 atf_test_case list_all
 list_all_head()
