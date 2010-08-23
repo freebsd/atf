@@ -41,7 +41,7 @@ all_vars="atf_arch \
           atf_pkgdatadir \
           atf_shell \
           atf_workdir"
-all_vars_no=15
+all_vars_no=14
 
 atf_test_case list_all
 list_all_head()
