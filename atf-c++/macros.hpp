@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2010 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -36,12 +36,19 @@
 
 #include <atf-c++/tests.hpp>
 
+#define ATF_TEST_CASE_WITHOUT_HEAD(name) \
+    class atfu_tc_ ## name : public atf::tests::tc { \
+        void body(void) const; \
+    public: \
+        atfu_tc_ ## name(void) : atf::tests::tc(#name, false) {} \
+    };
+
 #define ATF_TEST_CASE(name) \
     class atfu_tc_ ## name : public atf::tests::tc { \
         void head(void); \
         void body(void) const; \
     public: \
-        atfu_tc_ ## name(void) : atf::tests::tc(#name) {} \
+        atfu_tc_ ## name(void) : atf::tests::tc(#name, false) {} \
     };
 
 #define ATF_TEST_CASE_WITH_CLEANUP(name) \
@@ -50,7 +57,7 @@
         void body(void) const; \
         void cleanup(void) const; \
     public: \
-        atfu_tc_ ## name(void) : atf::tests::tc(#name) {} \
+        atfu_tc_ ## name(void) : atf::tests::tc(#name, true) {} \
     };
 
 #define ATF_TEST_CASE_NAME(name) atfu_tc_ ## name
@@ -75,7 +82,7 @@
 
 #define ATF_PASS() atf::tests::tc::pass()
 
-#define ATF_CHECK(x) \
+#define ATF_REQUIRE(x) \
     do { \
         if (!(x)) { \
             std::ostringstream atfu_ss; \
@@ -84,7 +91,7 @@
         } \
     } while (false)
 
-#define ATF_CHECK_EQUAL(x, y) \
+#define ATF_REQUIRE_EQ(x, y) \
     do { \
         if ((x) != (y)) { \
             std::ostringstream atfu_ss; \
@@ -94,7 +101,7 @@
         } \
     } while (false)
 
-#define ATF_CHECK_THROW(x, e) \
+#define ATF_REQUIRE_THROW(e, x) \
     do { \
         try { \
             x; \
@@ -102,7 +109,7 @@
             atfu_ss << "Line " << __LINE__ << ": " #x " did not throw " \
                         #e " as expected"; \
             atf::tests::tc::fail(atfu_ss.str()); \
-        } catch (const e& atfu_eo) { \
+        } catch (const e&) { \
         } catch (const std::exception& atfu_e) { \
             std::ostringstream atfu_ss; \
             atfu_ss << "Line " << __LINE__ << ": " #x " threw an " \
@@ -115,6 +122,14 @@
             atf::tests::tc::fail(atfu_ss.str()); \
         } \
     } while (false)
+
+#define ATF_CHECK_ERRNO(exp_errno, bool_expr) \
+    atf::tests::tc::check_errno(__FILE__, __LINE__, exp_errno, #bool_expr, \
+                                bool_expr)
+
+#define ATF_REQUIRE_ERRNO(exp_errno, bool_expr) \
+    atf::tests::tc::require_errno(__FILE__, __LINE__, exp_errno, #bool_expr, \
+                                  bool_expr)
 
 #define ATF_INIT_TEST_CASES(tcs) \
     namespace atf { \

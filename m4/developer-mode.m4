@@ -51,17 +51,18 @@ AC_DEFUN([ATF_DEVELOPER_MODE], [
                    esac])
 
     if test ${enable_developer} = yes; then
+        try_werror=yes
+
         try_c_cxx_flags="-g \
                          -Wall \
                          -Wcast-qual \
-                         -Werror \
                          -Wextra \
-                         -Wno-sign-compare \
                          -Wno-unused-parameter \
                          -Wpointer-arith \
                          -Wredundant-decls \
                          -Wreturn-type \
                          -Wshadow \
+                         -Wsign-compare \
                          -Wswitch \
                          -Wwrite-strings"
 
@@ -88,9 +89,21 @@ AC_DEFUN([ATF_DEVELOPER_MODE], [
         #                   Mac OS X.  This is due to the way _IOR is defined.
         #
     else
+        try_werror=no
         try_c_cxx_flags="-DNDEBUG"
+        try_c_flags=
+        try_cxx_flags=
     fi
     try_c_cxx_flags="${try_c_cxx_flags} -D_FORTIFY_SOURCE=2"
+
+    # Try and set -Werror first so that tests for other flags are accurate.
+    # Otherwise, compilers such as clang will report the flags as a warning and
+    # we will conclude they are supported... but when they are combined with
+    # -Werror they cause build failures.
+    if test ${try_werror} = yes; then
+        ATF_CC_FLAGS(-Werror, CFLAGS)
+        ATF_CXX_FLAGS(-Werror, CXXFLAGS)
+    fi
 
     ATF_CC_FLAGS(${try_c_cxx_flags} ${try_c_flags}, CFLAGS)
     ATF_CXX_FLAGS(${try_c_cxx_flags} ${try_cxx_flags}, CXXFLAGS)

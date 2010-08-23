@@ -45,7 +45,6 @@ make distclean
 
 # Top-level directory.
 rm -f .gdb_history
-rm -f Makefile.am
 rm -f Makefile.in
 rm -f aclocal.m4
 rm -rf autom4te.cache
@@ -53,6 +52,7 @@ rm -f bconfig.h.in
 rm -f configure
 rm -f mkinstalldirs
 rm -f atf-*.tar.gz
+rm -rf release-test
 
 # `admin' directory.
 rm -f admin/compile
@@ -62,11 +62,14 @@ rm -f admin/depcomp
 rm -f admin/install-sh
 rm -f admin/ltmain.sh
 rm -f admin/missing
-rm -f admin/revision*
 
-# `tests/bootstrap' directory.
-rm -f tests/bootstrap/package.m4
-rm -f tests/bootstrap/testsuite
+# `m4' directory.
+rm -f m4/libtool.m4
+rm -f m4/lt*.m4
+
+# `bootstrap' directory.
+rm -f bootstrap/package.m4
+rm -f bootstrap/testsuite
 
 # Files and directories spread all around the tree.
 find . -name '#*' | xargs rm -rf
@@ -75,5 +78,13 @@ find . -name .deps | xargs rm -rf
 find . -name .gdb_history | xargs rm -rf
 find . -name .libs | xargs rm -rf
 find . -name .tmp | xargs rm -rf
+
+# Show remaining files
+if [ -n "${MTN}" ]; then
+    echo ">>> mtn ls unknown"
+    "${MTN}" ls unknown
+    echo ">>> mtn ls ignored"
+    "${MTN}" ls ignored
+fi
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

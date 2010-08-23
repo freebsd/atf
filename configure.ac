@@ -1,7 +1,7 @@
 dnl
 dnl Automated Testing Framework (atf)
 dnl
-dnl Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
+dnl Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
 dnl All rights reserved.
 dnl
 dnl Redistribution and use in source and binary forms, with or without
@@ -31,17 +31,18 @@ dnl -----------------------------------------------------------------------
 dnl Initialize the GNU build system.
 dnl -----------------------------------------------------------------------
 
-AC_INIT([Automated Testing Framework], [0.7], [atf-devel@NetBSD.org], [atf])
-AC_PREREQ([2.60])
-AC_COPYRIGHT([Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.])
+AC_INIT([Automated Testing Framework], [0.11], [atf-devel@NetBSD.org], [atf],
+        [http://www.NetBSD.org/~jmmv/atf/])
+AC_PREREQ([2.65])
+AC_COPYRIGHT([Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.])
 AC_DEFINE(PACKAGE_COPYRIGHT,
-          ["Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc."],
+          ["Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc."],
           [Define to the copyright string applicable to this package.])
 AC_CONFIG_AUX_DIR([admin])
 AC_CONFIG_HEADERS([bconfig.h])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([atf-c.h])
-AC_CONFIG_TESTDIR([tests/bootstrap])
+AC_CONFIG_TESTDIR([bootstrap])
 
 AC_CANONICAL_TARGET
 
@@ -51,6 +52,9 @@ dnl This is just a hack to reverse the meaning of the --enable-shared
 dnl flag provided by libtool.  We want it to default to building static
 dnl libraries only for now, but these are painful during development.
 dnl It is nice to have an easy way to enable shared library builds.
+dnl
+dnl TODO(1.0): Enable shared libraries by default, and fix their
+dnl -version-info.
 AC_ARG_ENABLE(unstable-shared,
     AS_HELP_STRING([--enable-unstable-shared],
         [Enables the build of shared libraries with unstable ABIs/APIs]),
@@ -69,9 +73,21 @@ dnl -----------------------------------------------------------------------
 AC_LANG(C)
 AC_PROG_CC
 AM_PROG_CC_C_O
+dnl The C compiler check automatically aborts if the compiler does not work.
+dnl Nothing to do here.
 
 AC_LANG(C++)
 AC_PROG_CXX
+AC_CACHE_CHECK([whether the C++ compiler works],
+               [atf_cv_prog_cxx_works],
+               [AC_LANG_PUSH([C++])
+                AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])],
+                               [atf_cv_prog_cxx_works=yes],
+                               [atf_cv_prog_cxx_works=no])
+                AC_LANG_POP])
+if test "${atf_cv_prog_cxx_works}" = no; then
+    AC_MSG_ERROR([C++ compiler cannot create executables])
+fi
 
 ATF_DEVELOPER_MODE
 
@@ -96,10 +112,18 @@ ATF_RUNTIME_TOOL([ATF_BUILD_CXXFLAGS],
                  [C++ compiler flags to use at runtime], [${CXXFLAGS}])
 
 dnl -----------------------------------------------------------------------
-dnl Documentation building.
+dnl Generation of files in srcdir.
 dnl -----------------------------------------------------------------------
 
-ATF_DOC_BUILD
+dnl BSD make(1) doesn't deal with targets specified as './foo' well: they
+dnl need to be specified as 'foo'.  The following hack is to workaround this
+dnl issue.
+if test "${srcdir}" = .; then
+    target_srcdir=
+else
+    target_srcdir="${srcdir}/"
+fi
+AC_SUBST([target_srcdir])
 
 dnl -----------------------------------------------------------------------
 dnl Architecture and machine checks.
@@ -204,7 +228,7 @@ dnl -----------------------------------------------------------------------
 dnl Finally, generate output.
 dnl -----------------------------------------------------------------------
 
-AC_OUTPUT([Makefile atf-c/defs.h doc/build-xml.sh])
+AC_OUTPUT([Makefile atf-c/defs.h])
 
 if test ${enable_shared} = yes; then
     AC_MSG_WARN([Shared libraries with unstable ABIs/APIs have been enabled.])

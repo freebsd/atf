@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008, 2009 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -31,18 +31,30 @@
 #define _ATF_CXX_TESTS_HPP_
 
 #include <map>
+#include <memory>
 #include <string>
 
-extern "C" {
-#include <atf-c/tc.h>
-#include <atf-c/tcr.h>
-}
-
-#include <atf-c++/fs.hpp>
 #include <atf-c++/utils.hpp>
 
 namespace atf {
 namespace tests {
+
+namespace detail {
+
+class atf_tp_writer {
+    std::ostream& m_os;
+
+    bool m_is_first;
+
+public:
+    atf_tp_writer(std::ostream&);
+
+    void start_tc(const std::string&);
+    void end_tc(void);
+    void tc_meta_data(const std::string&, const std::string&);
+};
+
+} // namespace
 
 // ------------------------------------------------------------------------
 // The "vars_map" class.
@@ -51,63 +63,25 @@ namespace tests {
 typedef std::map< std::string, std::string > vars_map;
 
 // ------------------------------------------------------------------------
-// The "tcr" class.
-// ------------------------------------------------------------------------
-
-//!
-//! \brief Holds the results of a test case's execution.
-//!
-//! The tcr class holds the information that describes the results of a
-//! test case's execution.  This is composed of an exit code and a reason
-//! for that exit code.
-//!
-//! TODO: Complete documentation for this class.  Not done yet because it
-//! is worth to investigate if this class could be rewritten as several
-//! different classes, one for each status.
-//!
-class tcr {
-    atf_tcr_t m_tcr;
-
-public:
-    typedef atf_tcr_state_t state;
-
-    static const state passed_state;
-    static const state failed_state;
-    static const state skipped_state;
-
-    tcr(state);
-    tcr(state, const std::string&);
-    tcr(const tcr&);
-    ~tcr(void);
-
-    state get_state(void) const;
-    const std::string get_reason(void) const;
-
-    tcr& operator=(const tcr&);
-};
-
-// ------------------------------------------------------------------------
 // The "tc" class.
 // ------------------------------------------------------------------------
 
+struct tc_impl;
+
 class tc : utils::noncopyable {
-    std::string m_ident;
-    atf_map_t m_config;
-    atf_tc_t m_tc;
+    std::auto_ptr< tc_impl > pimpl;
 
 protected:
-    virtual void head(void) = 0;
+    virtual void head(void);
     virtual void body(void) const = 0;
     virtual void cleanup(void) const;
 
     void require_prog(const std::string&) const;
 
-    static void wrap_head(atf_tc_t *);
-    static void wrap_body(const atf_tc_t *);
-    static void wrap_cleanup(const atf_tc_t *);
+    friend struct tc_impl;
 
 public:
-    tc(const std::string&);
+    tc(const std::string&, const bool);
     virtual ~tc(void);
 
     void init(const vars_map&);
@@ -116,16 +90,29 @@ public:
     const std::string get_config_var(const std::string&, const std::string&)
         const;
     const std::string get_md_var(const std::string&) const;
+    const vars_map get_md_vars(void) const;
     bool has_config_var(const std::string&) const;
     bool has_md_var(const std::string&) const;
     void set_md_var(const std::string&, const std::string&);
 
-    tcr run(int, int, const fs::path&) const;
+    void run(const std::string&) const;
+    void run_cleanup(void) const;
 
     // To be called from the child process only.
     static void pass(void);
     static void fail(const std::string&);
+    static void fail_nonfatal(const std::string&);
     static void skip(const std::string&);
+    static void check_errno(const char*, const int, const int, const char*,
+                            const bool);
+    static void require_errno(const char*, const int, const int, const char*,
+                              const bool);
+    static void expect_pass(void);
+    static void expect_fail(const std::string&);
+    static void expect_exit(const int, const std::string&);
+    static void expect_signal(const int, const std::string&);
+    static void expect_death(const std::string&);
+    static void expect_timeout(const std::string&);
 };
 
 } // namespace tests

@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@ BEGIN {
     warn("Variable should not start with an underline")
 }
 
-/[^\\]\$[^0-9!'"$?@#*{}(|\/]+/ {
+/[^\\]\$[^0-9!'"$?@#*{}(|\/,]+/ {
     warn("Missing braces around variable name")
 }
 
@@ -80,10 +80,6 @@ BEGIN {
 
 /basename[ \t]+/ {
     warn("Use parameter expansion instead of basename");
-}
-
-/dirname[ \t]+/ {
-    warn("Use parameter expansion instead of dirname");
 }
 
 /if[ \t]+(test|![ \t]+test)/ {

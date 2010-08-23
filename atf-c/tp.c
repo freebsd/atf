@@ -1,7 +1,7 @@
 /*
  * Automated Testing Framework (atf)
  *
- * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
+ * Copyright (c) 2008, 2009, 2010 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,16 +28,22 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
 #include "atf-c/error.h"
-#include "atf-c/fs.h"
-#include "atf-c/io.h"
-#include "atf-c/sanity.h"
 #include "atf-c/tc.h"
-#include "atf-c/tcr.h"
 #include "atf-c/tp.h"
+
+#include "detail/fs.h"
+#include "detail/map.h"
+#include "detail/sanity.h"
+
+struct atf_tp_impl {
+    atf_list_t m_tcs;
+    atf_map_t m_config;
+};
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -51,10 +57,10 @@ find_tc(const atf_tp_t *tp, const char *ident)
     atf_list_citer_t iter;
 
     tc = NULL;
-    atf_list_for_each_c(iter, &tp->m_tcs) {
+    atf_list_for_each_c(iter, &tp->pimpl->m_tcs) {
         const atf_tc_t *tc2;
         tc2 = atf_list_citer_data(iter);
-        if (strcmp(tc2->m_ident, ident) == 0) {
+        if (strcmp(atf_tc_get_ident(tc2), ident) == 0) {
             tc = tc2;
             break;
         }
@@ -71,25 +77,28 @@ find_tc(const atf_tp_t *tp, const char *ident)
  */
 
 atf_error_t
-atf_tp_init(atf_tp_t *tp, struct atf_map *config)
+atf_tp_init(atf_tp_t *tp, const char *const *config)
 {
     atf_error_t err;
 
     PRE(config != NULL);
 
-    atf_object_init(&tp->m_object);
+    tp->pimpl = malloc(sizeof(struct atf_tp_impl));
+    if (tp->pimpl == NULL)
+        return atf_no_memory_error();
 
-    err = atf_list_init(&tp->m_tcs);
+    err = atf_list_init(&tp->pimpl->m_tcs);
     if (atf_is_error(err))
-        goto err_object;
+        goto out;
 
-    tp->m_config = config;
+    err = atf_map_init_charpp(&tp->pimpl->m_config, config);
+    if (atf_is_error(err)) {
+        atf_list_fini(&tp->pimpl->m_tcs);
+        goto out;
+    }
 
     INV(!atf_is_error(err));
-    return err;
-
-err_object:
-    atf_object_fini(&tp->m_object);
+out:
     return err;
 }
 
@@ -98,23 +107,32 @@ atf_tp_fini(atf_tp_t *tp)
 {
     atf_list_iter_t iter;
 
-    atf_list_for_each(iter, &tp->m_tcs) {
+    atf_map_fini(&tp->pimpl->m_config);
+
+    atf_list_for_each(iter, &tp->pimpl->m_tcs) {
         atf_tc_t *tc = atf_list_iter_data(iter);
         atf_tc_fini(tc);
     }
-    atf_list_fini(&tp->m_tcs);
+    atf_list_fini(&tp->pimpl->m_tcs);
 
-    atf_object_fini(&tp->m_object);
+    free(tp->pimpl);
 }
 
 /*
  * Getters.
  */
 
-const struct atf_map *
+char **
 atf_tp_get_config(const atf_tp_t *tp)
 {
-    return tp->m_config;
+    return atf_map_to_charpp(&tp->pimpl->m_config);
+}
+
+bool
+atf_tp_has_tc(const atf_tp_t *tp, const char *id)
+{
+    const atf_tc_t *tc = find_tc(tp, id);
+    return tc != NULL;
 }
 
 const atf_tc_t *
@@ -125,10 +143,33 @@ atf_tp_get_tc(const atf_tp_t *tp, const char *id)
     return tc;
 }
 
-const atf_list_t *
+const atf_tc_t *const *
 atf_tp_get_tcs(const atf_tp_t *tp)
 {
-    return &tp->m_tcs;
+    const atf_tc_t **array;
+    atf_list_citer_t iter;
+    size_t i;
+
+    array = malloc(sizeof(atf_tc_t *) *
+                   (atf_list_size(&tp->pimpl->m_tcs) + 1));
+    if (array == NULL)
+        goto out;
+
+    i = 0;
+    atf_list_for_each_c(iter, &tp->pimpl->m_tcs) {
+        array[i] = atf_list_citer_data(iter);
+        if (array[i] == NULL) {
+            free(array);
+            array = NULL;
+            goto out;
+        }
+
+        i++;
+    }
+    array[i] = NULL;
+
+out:
+    return array;
 }
 
 /*
@@ -140,11 +181,11 @@ atf_tp_add_tc(atf_tp_t *tp, atf_tc_t *tc)
 {
     atf_error_t err;
 
-    PRE(find_tc(tp, tc->m_ident) == NULL);
+    PRE(find_tc(tp, atf_tc_get_ident(tc)) == NULL);
 
-    err = atf_list_append(&tp->m_tcs, tc, false);
+    err = atf_list_append(&tp->pimpl->m_tcs, tc, false);
 
-    POST(find_tc(tp, tc->m_ident) != NULL);
+    POST(find_tc(tp, atf_tc_get_ident(tc)) != NULL);
 
     return err;
 }
@@ -154,66 +195,23 @@ atf_tp_add_tc(atf_tp_t *tp, atf_tc_t *tc)
  * --------------------------------------------------------------------- */
 
 atf_error_t
-atf_tp_run(const atf_tp_t *tp, const atf_list_t *ids, int fd,
-           const atf_fs_path_t *workdir, size_t *failcount)
+atf_tp_run(const atf_tp_t *tp, const char *tcname, const char *resfile)
 {
-    atf_error_t err;
-    atf_list_citer_t iter;
-    size_t count;
+    const atf_tc_t *tc;
 
-    err = atf_io_write_fmt(fd, "Content-Type: application/X-atf-tcs; "
-                           "version=\"1\"\n\n");
-    if (atf_is_error(err))
-        goto out;
-    err = atf_io_write_fmt(fd, "tcs-count: %d\n", atf_list_size(ids));
-    if (atf_is_error(err))
-        goto out;
+    tc = find_tc(tp, tcname);
+    PRE(tc != NULL);
 
-    *failcount = count = 0;
-    atf_list_for_each_c(iter, ids) {
-        const char *ident = atf_list_citer_data(iter);
-        const atf_tc_t *tc;
-        atf_tcr_t tcr;
-        int state;
+    return atf_tc_run(tc, resfile);
+}
 
-        err = atf_io_write_fmt(fd, "tc-start: %s\n", ident);
-        if (atf_is_error(err))
-            goto out;
+atf_error_t
+atf_tp_cleanup(const atf_tp_t *tp, const char *tcname)
+{
+    const atf_tc_t *tc;
 
-        tc = find_tc(tp, ident);
-        PRE(tc != NULL);
+    tc = find_tc(tp, tcname);
+    PRE(tc != NULL);
 
-        err = atf_tc_run(tc, &tcr, STDOUT_FILENO, STDERR_FILENO, workdir);
-        if (atf_is_error(err))
-            goto out;
-
-        count++;
-        if (count < atf_list_size(ids)) {
-            fprintf(stdout, "__atf_tc_separator__\n");
-            fprintf(stderr, "__atf_tc_separator__\n");
-        }
-        fflush(stdout);
-        fflush(stderr);
-
-        state = atf_tcr_get_state(&tcr);
-        if (state == atf_tcr_passed_state) {
-            err = atf_io_write_fmt(fd, "tc-end: %s, passed\n", ident);
-        } else if (state == atf_tcr_failed_state) {
-            const atf_dynstr_t *reason = atf_tcr_get_reason(&tcr);
-            err = atf_io_write_fmt(fd, "tc-end: %s, failed, %s\n", ident,
-                                   atf_dynstr_cstring(reason));
-            (*failcount)++;
-        } else if (state == atf_tcr_skipped_state) {
-            const atf_dynstr_t *reason = atf_tcr_get_reason(&tcr);
-            err = atf_io_write_fmt(fd, "tc-end: %s, skipped, %s\n", ident,
-                                   atf_dynstr_cstring(reason));
-        } else
-            UNREACHABLE;
-        atf_tcr_fini(&tcr);
-        if (atf_is_error(err))
-            goto out;
-    }
-
-out:
-    return err;
+    return atf_tc_cleanup(tc);
 }
