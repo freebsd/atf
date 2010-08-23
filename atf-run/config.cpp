@@ -46,12 +46,12 @@ namespace {
 
 namespace atf_config {
 
-static const atf::parser::token_type& eof_type = 0;
-static const atf::parser::token_type& nl_type = 1;
-static const atf::parser::token_type& text_type = 2;
-static const atf::parser::token_type& dblquote_type = 3;
-static const atf::parser::token_type& equal_type = 4;
-static const atf::parser::token_type& hash_type = 5;
+static const atf::parser::token_type eof_type = 0;
+static const atf::parser::token_type nl_type = 1;
+static const atf::parser::token_type text_type = 2;
+static const atf::parser::token_type dblquote_type = 3;
+static const atf::parser::token_type equal_type = 4;
+static const atf::parser::token_type hash_type = 5;
 
 class tokenizer : public atf::parser::tokenizer< std::istream > {
 public:

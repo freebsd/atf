@@ -421,7 +421,7 @@ impl::getline(unbuffered_istream& uis, std::string& str)
 }
 
 int
-impl::cmp(const fs::path& p1, const fs::path& p2)
+impl::cmp(const atf::fs::path& p1, const atf::fs::path& p2)
 {
     bool equal = false;
 

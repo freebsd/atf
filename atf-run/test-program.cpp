@@ -360,7 +360,7 @@ handle_result_with_reason_and_arg(const std::string& state,
     } else {
         try {
             value = atf::text::to_type< int >(arg);
-        } catch (const std::runtime_error& e) {
+        } catch (const std::runtime_error&) {
             throw std::runtime_error("The value '" + arg + "' passed to the '" +
                 state + "' state must be an integer");
         }
@@ -410,7 +410,7 @@ detail::atf_tp_reader::validate_and_insert(const std::string& name,
     } else if (name == "has.cleanup") {
         try {
             (void)atf::text::to_bool(value);
-        } catch (const std::runtime_error& e) {
+        } catch (const std::runtime_error&) {
             throw parse_error(lineno, "The has.cleanup property requires a"
                               " boolean value");
         }
@@ -430,7 +430,7 @@ detail::atf_tp_reader::validate_and_insert(const std::string& name,
     } else if (name == "use.fs") {
         try {
             (void)atf::text::to_bool(value);
-        } catch (const std::runtime_error& e) {
+        } catch (const std::runtime_error&) {
             throw parse_error(lineno, "The use.fs property requires a boolean"
                               " value");
         }

@@ -110,7 +110,7 @@ ATF_TEST_CASE_BODY(throw_atf_error_no_memory)
 {
     try {
         atf::throw_atf_error(atf_no_memory_error());
-    } catch (const std::bad_alloc& e) {
+    } catch (const std::bad_alloc&) {
     } catch (const std::exception& e) {
         ATF_FAIL(std::string("Got unexpected exception: ") + e.what());
     }
