@@ -595,6 +595,8 @@ run_output_checks(const std::vector< output_check >& checks,
 // The "atf_check" application.
 // ------------------------------------------------------------------------
 
+namespace {
+
 class atf_check : public atf::application::app {
     bool m_xflag;
 
@@ -616,6 +618,8 @@ public:
     atf_check(void);
     int main(void);
 };
+
+} // anonymous namespace
 
 const char* atf_check::m_description =
     "atf-check executes given command and analyzes its results.";
