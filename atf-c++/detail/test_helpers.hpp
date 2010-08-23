@@ -138,39 +138,7 @@ do_read(const char* input)
     return std::make_pair(reader.m_calls, errors);
 }
 
-static
-void
-check_equal(const char* expected[], const string_vector& actual)
-{
-    const char** expected_iter = expected;
-    string_vector::const_iterator actual_iter = actual.begin();
-
-    bool equals = true;
-    while (equals && *expected_iter != NULL && actual_iter != actual.end()) {
-        if (*expected_iter != *actual_iter) {
-            equals = false;
-        } else {
-            expected_iter++;
-            actual_iter++;
-        }
-    }
-    if (equals && ((*expected_iter == NULL && actual_iter != actual.end()) ||
-                   (*expected_iter != NULL && actual_iter == actual.end())))
-        equals = false;
-
-    if (!equals) {
-        std::cerr << "EXPECTED:\n";
-        for (expected_iter = expected; *expected_iter != NULL; expected_iter++)
-            std::cerr << *expected_iter << "\n";
-
-        std::cerr << "ACTUAL:\n";
-        for (actual_iter = actual.begin(); actual_iter != actual.end();
-             actual_iter++)
-            std::cerr << *actual_iter << "\n";
-
-        ATF_FAIL("Expected results differ to actual values");
-    }
-}
+void check_equal(const char*[], const string_vector&);
 
 } // namespace test_helpers_detail
 
