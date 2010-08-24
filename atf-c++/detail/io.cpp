@@ -175,7 +175,6 @@ impl::systembuf::systembuf(handle_type h, std::size_t bufsize) :
 
 impl::systembuf::~systembuf(void)
 {
-    sync(); // XXX Unsure if this is correct.  But seems to be needed.
     delete [] m_read_buf;
     delete [] m_write_buf;
 }
