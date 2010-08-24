@@ -109,7 +109,7 @@
             atfu_ss << "Line " << __LINE__ << ": " #x " did not throw " \
                         #e " as expected"; \
             atf::tests::tc::fail(atfu_ss.str()); \
-        } catch (const e& atfu_eo) { \
+        } catch (const e&) { \
         } catch (const std::exception& atfu_e) { \
             std::ostringstream atfu_ss; \
             atfu_ss << "Line " << __LINE__ << ": " #x " threw an " \

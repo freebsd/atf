@@ -127,9 +127,9 @@ ATF_TEST_CASE_BODY(token_getters)
 
 namespace minimal {
 
-    static const atf::parser::token_type& eof_type = 0;
-    static const atf::parser::token_type& nl_type = 1;
-    static const atf::parser::token_type& word_type = 2;
+    static const atf::parser::token_type eof_type = 0;
+    static const atf::parser::token_type nl_type = 1;
+    static const atf::parser::token_type word_type = 2;
 
     class tokenizer : public atf::parser::tokenizer< std::istream > {
     public:
@@ -144,12 +144,12 @@ namespace minimal {
 
 namespace delims {
 
-    static const atf::parser::token_type& eof_type = 0;
-    static const atf::parser::token_type& nl_type = 1;
-    static const atf::parser::token_type& word_type = 2;
-    static const atf::parser::token_type& plus_type = 3;
-    static const atf::parser::token_type& minus_type = 4;
-    static const atf::parser::token_type& equal_type = 5;
+    static const atf::parser::token_type eof_type = 0;
+    static const atf::parser::token_type nl_type = 1;
+    static const atf::parser::token_type word_type = 2;
+    static const atf::parser::token_type plus_type = 3;
+    static const atf::parser::token_type minus_type = 4;
+    static const atf::parser::token_type equal_type = 5;
 
     class tokenizer : public atf::parser::tokenizer< std::istream > {
     public:
@@ -167,12 +167,12 @@ namespace delims {
 
 namespace keywords {
 
-    static const atf::parser::token_type& eof_type = 0;
-    static const atf::parser::token_type& nl_type = 1;
-    static const atf::parser::token_type& word_type = 2;
-    static const atf::parser::token_type& var_type = 3;
-    static const atf::parser::token_type& loop_type = 4;
-    static const atf::parser::token_type& endloop_type = 5;
+    static const atf::parser::token_type eof_type = 0;
+    static const atf::parser::token_type nl_type = 1;
+    static const atf::parser::token_type word_type = 2;
+    static const atf::parser::token_type var_type = 3;
+    static const atf::parser::token_type loop_type = 4;
+    static const atf::parser::token_type endloop_type = 5;
 
     class tokenizer : public atf::parser::tokenizer< std::istream > {
     public:
@@ -190,10 +190,10 @@ namespace keywords {
 
 namespace quotes {
 
-    static const atf::parser::token_type& eof_type = 0;
-    static const atf::parser::token_type& nl_type = 1;
-    static const atf::parser::token_type& word_type = 2;
-    static const atf::parser::token_type& dblquote_type = 3;
+    static const atf::parser::token_type eof_type = 0;
+    static const atf::parser::token_type nl_type = 1;
+    static const atf::parser::token_type word_type = 2;
+    static const atf::parser::token_type dblquote_type = 3;
 
     class tokenizer : public atf::parser::tokenizer< std::istream > {
     public:

@@ -214,13 +214,13 @@ impl::header_entry::get_attr(const std::string& n) const
 
 namespace header {
 
-static const impl::token_type& eof_type = 0;
-static const impl::token_type& nl_type = 1;
-static const impl::token_type& text_type = 2;
-static const impl::token_type& colon_type = 3;
-static const impl::token_type& semicolon_type = 4;
-static const impl::token_type& dblquote_type = 5;
-static const impl::token_type& equal_type = 6;
+static const impl::token_type eof_type = 0;
+static const impl::token_type nl_type = 1;
+static const impl::token_type text_type = 2;
+static const impl::token_type colon_type = 3;
+static const impl::token_type semicolon_type = 4;
+static const impl::token_type dblquote_type = 5;
+static const impl::token_type equal_type = 6;
 
 class tokenizer : public impl::tokenizer< std::istream > {
 public:

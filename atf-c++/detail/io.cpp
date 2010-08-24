@@ -175,7 +175,6 @@ impl::systembuf::systembuf(handle_type h, std::size_t bufsize) :
 
 impl::systembuf::~systembuf(void)
 {
-    sync(); // XXX Unsure if this is correct.  But seems to be needed.
     delete [] m_read_buf;
     delete [] m_write_buf;
 }
@@ -421,7 +420,7 @@ impl::getline(unbuffered_istream& uis, std::string& str)
 }
 
 int
-impl::cmp(const fs::path& p1, const fs::path& p2)
+impl::cmp(const atf::fs::path& p1, const atf::fs::path& p2)
 {
     bool equal = false;
 

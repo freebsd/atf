@@ -78,7 +78,7 @@ cargv_to_argv_and_free(char** l)
 
 atf::process::argv_array
 impl::c_o(const std::string& sfile, const std::string& ofile,
-          const process::argv_array& optargs)
+          const atf::process::argv_array& optargs)
 {
     char** l;
 
@@ -92,7 +92,7 @@ impl::c_o(const std::string& sfile, const std::string& ofile,
 
 atf::process::argv_array
 impl::cpp(const std::string& sfile, const std::string& ofile,
-          const process::argv_array& optargs)
+          const atf::process::argv_array& optargs)
 {
     char** l;
 
@@ -106,7 +106,7 @@ impl::cpp(const std::string& sfile, const std::string& ofile,
 
 atf::process::argv_array
 impl::cxx_o(const std::string& sfile, const std::string& ofile,
-            const process::argv_array& optargs)
+            const atf::process::argv_array& optargs)
 {
     char** l;
 

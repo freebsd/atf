@@ -476,7 +476,7 @@ impl::temp_file::~temp_file(void)
     close();
     try {
         remove(*m_path);
-    } catch (const atf::system_error& e) {
+    } catch (const atf::system_error&) {
         // Ignore deletion errors.
     }
 }

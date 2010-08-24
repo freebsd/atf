@@ -115,7 +115,7 @@ parse_exit_code(const std::string& str)
         if (value < 0 || value > 255)
             throw std::runtime_error("Unused reason");
         return value;
-    } catch (const std::runtime_error& e) {
+    } catch (const std::runtime_error&) {
         throw atf::application::usage_error("Invalid exit code for -s option; "
             "must be an integer in range 0-255");
     }
@@ -595,6 +595,8 @@ run_output_checks(const std::vector< output_check >& checks,
 // The "atf_check" application.
 // ------------------------------------------------------------------------
 
+namespace {
+
 class atf_check : public atf::application::app {
     bool m_xflag;
 
@@ -616,6 +618,8 @@ public:
     atf_check(void);
     int main(void);
 };
+
+} // anonymous namespace
 
 const char* atf_check::m_description =
     "atf-check executes given command and analyzes its results.";

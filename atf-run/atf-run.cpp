@@ -233,7 +233,7 @@ atf_run::get_test_case_result(const std::string& broken_reason,
             } else {
                 return test_case_result("failed", -1, broken_reason);
             }
-        } catch (const std::runtime_error& e) {
+        } catch (const std::runtime_error&) {
             return test_case_result("failed", -1, broken_reason);
         }
     }
@@ -291,7 +291,7 @@ atf_run::get_test_case_result(const std::string& broken_reason,
 
         try {
             tcr = read_test_case_result(resfile);
-        } catch (const std::runtime_error& e) {
+        } catch (const std::runtime_error&) {
             return test_case_result("failed", -1, "Test program received "
                 "signal " + atf::text::to_string(s.termsig()) +
                 (s.coredump() ? " (core dumped)" : ""));
