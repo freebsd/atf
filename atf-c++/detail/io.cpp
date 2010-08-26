@@ -29,7 +29,6 @@
 
 extern "C" {
 #include <fcntl.h>
-#include <poll.h>
 #include <unistd.h>
 }
 
@@ -337,78 +336,6 @@ impl::unbuffered_istream::close(void)
 {
     m_is_good = false;
     m_fh.close();
-}
-
-// ------------------------------------------------------------------------
-// The "std_muxer" class.
-// ------------------------------------------------------------------------
-
-impl::std_muxer::std_muxer(void)
-{
-}
-
-impl::std_muxer::~std_muxer(void)
-{
-}
-
-void
-impl::std_muxer::got_stdout_line(const std::string& line)
-{
-}
-
-void
-impl::std_muxer::got_stderr_line(const std::string& line)
-{
-}
-
-void
-impl::std_muxer::got_eof(void)
-{
-}
-
-void
-impl::std_muxer::read(unbuffered_istream& out, unbuffered_istream& err,
-                      const bool& terminate)
-{
-    struct pollfd fds[2];
-    fds[0].fd = out.get_fh().get();
-    fds[0].events = POLLIN;
-    fds[1].fd = err.get_fh().get();
-    fds[1].events = POLLIN;
-
-    do {
-        fds[0].revents = 0;
-        fds[1].revents = 0;
-
-        int ret;
-        while ((ret = ::poll(fds, 2, 250)) <= 0) {
-            if (terminate || ret == -1) {
-                fds[0].events = 0;
-                fds[1].events = 0;
-                break;
-            }
-        }
-
-        if (fds[0].revents & POLLIN) {
-            std::string line;
-            if (impl::getline(out, line).good())
-                got_stdout_line(line);
-            else
-                fds[0].events &= ~POLLIN;
-        } else if (fds[0].revents & POLLERR || fds[0].revents & POLLHUP)
-            fds[0].events &= ~POLLIN;
-
-        if (fds[1].revents & POLLIN) {
-            std::string line;
-            if (impl::getline(err, line).good())
-                got_stderr_line(line);
-            else
-                fds[1].events &= ~POLLIN;
-        } else if (fds[1].revents & POLLERR || fds[1].revents & POLLHUP)
-            fds[1].events &= ~POLLIN;
-    } while (fds[0].events & POLLIN || fds[1].events & POLLIN);
-
-    got_eof();
 }
 
 // ------------------------------------------------------------------------

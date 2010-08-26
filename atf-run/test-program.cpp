@@ -31,6 +31,7 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <poll.h>
 #include <signal.h>
 #include <unistd.h>
 }
@@ -109,28 +110,6 @@ public:
         const
     {
         return m_tcs;
-    }
-};
-
-class output_muxer : public atf::io::std_muxer {
-    impl::atf_tps_writer& m_writer;
-
-    void
-    got_stdout_line(const std::string& line)
-    {
-        m_writer.stdout_tc(line);
-    }
-
-    void
-    got_stderr_line(const std::string& line)
-    {
-        m_writer.stderr_tc(line);
-    }
-
-public:
-    output_muxer(impl::atf_tps_writer& writer) :
-        m_writer(writer)
-    {
     }
 };
 
@@ -367,6 +346,49 @@ handle_result_with_reason_and_arg(const std::string& state,
     }
 
     return impl::test_case_result(state, value, reason);
+}
+
+static void
+mux_streams(impl::atf_tps_writer& writer, atf::io::unbuffered_istream& out,
+            atf::io::unbuffered_istream& err, const bool& terminate)
+{
+    struct pollfd fds[2];
+    fds[0].fd = out.get_fh().get();
+    fds[0].events = POLLIN;
+    fds[1].fd = err.get_fh().get();
+    fds[1].events = POLLIN;
+
+    do {
+        fds[0].revents = 0;
+        fds[1].revents = 0;
+
+        int ret;
+        while ((ret = ::poll(fds, 2, 250)) <= 0) {
+            if (terminate || ret == -1) {
+                fds[0].events = 0;
+                fds[1].events = 0;
+                break;
+            }
+        }
+
+        if (fds[0].revents & POLLIN) {
+            std::string line;
+            if (atf::io::getline(out, line).good())
+                writer.stdout_tc(line);
+            else
+                fds[0].events &= ~POLLIN;
+        } else if (fds[0].revents & POLLERR || fds[0].revents & POLLHUP)
+            fds[0].events &= ~POLLIN;
+
+        if (fds[1].revents & POLLIN) {
+            std::string line;
+            if (atf::io::getline(err, line).good())
+                writer.stderr_tc(line);
+            else
+                fds[1].events &= ~POLLIN;
+        } else if (fds[1].revents & POLLERR || fds[1].revents & POLLHUP)
+            fds[1].events &= ~POLLIN;
+    } while (fds[0].events & POLLIN || fds[1].events & POLLIN);
 }
 
 } // anonymous namespace
@@ -697,9 +719,8 @@ impl::run_test_case(const atf::fs::path& executable,
     try {
         atf::signals::signal_programmer sigchld(SIGCHLD, sigchld_handler);
 
-        output_muxer muxer(writer);
         sigchld_received = false;
-        muxer.read(outin, errin, sigchld_received);
+        mux_streams(writer, outin, errin, sigchld_received);
         outin.close();
         errin.close();
     } catch (...) {

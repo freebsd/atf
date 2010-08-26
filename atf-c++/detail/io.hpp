@@ -564,25 +564,6 @@ public:
 };
 
 // ------------------------------------------------------------------------
-// The "std_muxer" class.
-// ------------------------------------------------------------------------
-
-class unbuffered_istream;
-
-class std_muxer {
-protected:
-    virtual void got_stdout_line(const std::string&);
-    virtual void got_stderr_line(const std::string&);
-    virtual void got_eof(void);
-
-public:
-    std_muxer(void);
-    virtual ~std_muxer(void);
-
-    void read(unbuffered_istream&, unbuffered_istream&, const bool&);
-};
-
-// ------------------------------------------------------------------------
 // The "unbuffered_istream" class.
 // ------------------------------------------------------------------------
 
