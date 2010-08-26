@@ -271,95 +271,6 @@ ATF_TEST_CASE_BODY(systembuf_long_write)
 }
 
 // ------------------------------------------------------------------------
-// Test cases for the "pipe" class.
-// ------------------------------------------------------------------------
-
-ATF_TEST_CASE(pipe_read_and_write);
-ATF_TEST_CASE_HEAD(pipe_read_and_write)
-{
-    set_md_var("descr", "Tests reading from and writing to a pipe");
-}
-ATF_TEST_CASE_BODY(pipe_read_and_write)
-{
-    using atf::io::pipe;
-    using atf::io::systembuf;
-
-    pipe p;
-    systembuf rbuf(p.rend().get());
-    systembuf wbuf(p.wend().get());
-    std::istream rend(&rbuf);
-    std::ostream wend(&wbuf);
-
-    // XXX This assumes that the pipe's buffer is big enough to accept
-    // the data written without blocking!
-    wend << "1Test 1message\n";
-    wend.flush();
-    std::string tmp;
-    rend >> tmp;
-    ATF_REQUIRE_EQ(tmp, "1Test");
-    rend >> tmp;
-    ATF_REQUIRE_EQ(tmp, "1message");
-}
-
-ATF_TEST_CASE(pipe_remap_read);
-ATF_TEST_CASE_HEAD(pipe_remap_read)
-{
-    set_md_var("descr", "Tests the pipe::remap_read method");
-}
-ATF_TEST_CASE_BODY(pipe_remap_read)
-{
-    using atf::io::pipe;
-    using atf::io::systembuf;
-
-    pipe p;
-    systembuf wbuf(p.wend().get());
-    std::ostream wend(&wbuf);
-    p.rend().posix_remap(STDIN_FILENO);
-
-    // XXX This assumes that the pipe's buffer is big enough to accept
-    // the data written without blocking!
-    wend << "2Test 2message\n";
-    wend.flush();
-    std::string tmp;
-    std::cin >> tmp;
-    ATF_REQUIRE_EQ(tmp, "2Test");
-    std::cin >> tmp;
-    ATF_REQUIRE_EQ(tmp, "2message");
-}
-
-ATF_TEST_CASE(pipe_remap_write);
-ATF_TEST_CASE_HEAD(pipe_remap_write)
-{
-    set_md_var("descr", "Tests the pipe::remap_write method");
-}
-ATF_TEST_CASE_BODY(pipe_remap_write)
-{
-    using atf::io::pipe;
-    using atf::io::systembuf;
-
-    pipe p;
-    if (p.rend().get() == STDOUT_FILENO) {
-        if (p.rend().get() > p.wend().get())
-            p.rend().posix_remap(p.rend().get() + 1);
-        else
-            p.rend().posix_remap(p.wend().get() + 1);
-    }
-    systembuf rbuf(p.rend().get());
-    std::istream rend(&rbuf);
-    p.wend().posix_remap(STDOUT_FILENO);
-
-    // XXX This assumes that the pipe's buffer is big enough to accept
-    // the data written without blocking!
-    std::cout << "3Test 3message\n";
-    std::cout.flush();
-    std::string tmp;
-    rend >> tmp;
-    ATF_REQUIRE_EQ(tmp, "3Test");
-    rend >> tmp;
-    ATF_REQUIRE_EQ(tmp, "3message");
-}
-
-// ------------------------------------------------------------------------
 // Test cases for the "pistream" class.
 // ------------------------------------------------------------------------
 
@@ -370,15 +281,18 @@ ATF_TEST_CASE_HEAD(pistream)
 }
 ATF_TEST_CASE_BODY(pistream)
 {
-    using atf::io::pipe;
+    using atf::io::file_handle;
     using atf::io::pistream;
     using atf::io::systembuf;
 
-    pipe p;
-    int fh = p.rend().get();
-    pistream rend(p.rend());
-    ATF_REQUIRE_EQ(fh, rend.handle().get());
-    systembuf wbuf(p.wend().get());
+    int fds[2];
+    ATF_REQUIRE(::pipe(fds) != -1);
+
+    file_handle in(fds[0]);
+    pistream rend(in);
+    ATF_REQUIRE_EQ(fds[0], rend.handle().get());
+
+    systembuf wbuf(fds[1]);
     std::ostream wend(&wbuf);
 
     // XXX This assumes that the pipe's buffer is big enough to accept
@@ -390,45 +304,6 @@ ATF_TEST_CASE_BODY(pistream)
     ATF_REQUIRE_EQ(tmp, "1Test");
     rend >> tmp;
     ATF_REQUIRE_EQ(tmp, "1message");
-}
-
-// ------------------------------------------------------------------------
-// Test cases for the "postream" class.
-// ------------------------------------------------------------------------
-
-ATF_TEST_CASE(postream);
-ATF_TEST_CASE_HEAD(postream)
-{
-    set_md_var("descr", "Tests the postream class");
-}
-ATF_TEST_CASE_BODY(postream)
-{
-    using atf::io::pipe;
-    using atf::io::postream;
-    using atf::io::systembuf;
-
-    pipe p;
-    int fh = p.wend().get();
-    postream wend(p.wend());
-    ATF_REQUIRE_EQ(fh, wend.handle().get());
-
-    // The following block is to ensure that the read end is closed
-    // before the write one.  Otherwise we get a SIGPIPE, at least
-    // under FreeBSD 6.2.
-    {
-        systembuf rbuf(p.rend().get());
-        std::istream rend(&rbuf);
-
-        // XXX This assumes that the pipe's buffer is big enough to accept
-        // the data written without blocking!
-        wend << "1Test 1message\n";
-        wend.flush();
-        std::string tmp;
-        rend >> tmp;
-        ATF_REQUIRE_EQ(tmp, "1Test");
-        rend >> tmp;
-        ATF_REQUIRE_EQ(tmp, "1message");
-    }
 }
 
 // ------------------------------------------------------------------------
@@ -449,14 +324,6 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, systembuf_short_write);
     ATF_ADD_TEST_CASE(tcs, systembuf_long_write);
 
-    // Add the tests for the "pipe" class.
-    ATF_ADD_TEST_CASE(tcs, pipe_read_and_write);
-    ATF_ADD_TEST_CASE(tcs, pipe_remap_read);
-    ATF_ADD_TEST_CASE(tcs, pipe_remap_write);
-
     // Add the tests for the "pistream" class.
     ATF_ADD_TEST_CASE(tcs, pistream);
-
-    // Add the tests for the "postream" class.
-    ATF_ADD_TEST_CASE(tcs, postream);
 }

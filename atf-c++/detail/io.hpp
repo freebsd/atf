@@ -271,7 +271,7 @@ public:
     //! tuned through the \a bufsize parameter, which defaults to 8192
     //! bytes.
     //!
-    //! \see pistream and postream.
+    //! \see pistream.
     //!
     explicit systembuf(handle_type h, std::size_t bufsize = 8192);
     ~systembuf(void);
@@ -345,81 +345,6 @@ protected:
 };
 
 // ------------------------------------------------------------------------
-// The "pipe" class.
-// ------------------------------------------------------------------------
-
-//!
-//! \brief Simple RAII model for anonymous pipes.
-//!
-//! The pipe class is a simple RAII model for anonymous pipes.  It
-//! provides a portable constructor that allocates a new %pipe and creates
-//! a pipe object that owns the two file handles associated to it: the
-//! read end and the write end.
-//!
-//! These handles can be retrieved for modification according to
-//! file_handle semantics.  Optionally, their ownership can be transferred
-//! to external \a file_handle objects which comes handy when the two
-//! ends need to be used in different places (i.e. after a POSIX fork()
-//! system call).
-//!
-//! Pipes can be copied following the same semantics as file handles.
-//! In other words, copying a %pipe object invalidates the source one.
-//!
-//! \see file_handle
-//!
-class pipe
-{
-    //!
-    //! \brief The %pipe's read end file handle.
-    //!
-    file_handle m_read_end;
-
-    //!
-    //! \brief The %pipe's write end file handle.
-    //!
-    file_handle m_write_end;
-
-public:
-    //!
-    //! \brief Creates a new %pipe.
-    //!
-    //! The default pipe constructor allocates a new anonymous %pipe
-    //! and assigns its ownership to the created pipe object.
-    //!
-    //! \throw system_error If the anonymous %pipe creation fails.
-    //!
-    pipe(void);
-
-    //!
-    //! \brief Returns the %pipe's read end file handle.
-    //!
-    //! Obtains a reference to the %pipe's read end file handle.  Care
-    //! should be taken to not duplicate the returned object if ownership
-    //! shall remain to the %pipe.
-    //!
-    //! Duplicating the returned object invalidates its corresponding file
-    //! handle in the %pipe.
-    //!
-    //! \return A reference to the %pipe's read end file handle.
-    //!
-    file_handle& rend(void);
-
-    //!
-    //! \brief Returns the %pipe's write end file handle.
-    //!
-    //! Obtains a reference to the %pipe's write end file handle.  Care
-    //! should be taken to not duplicate the returned object if ownership
-    //! shall remain to the %pipe.
-    //!
-    //! Duplicating the returned object invalidates its corresponding file
-    //! handle in the %pipe.
-    //!
-    //! \return A reference to the %pipe's write end file handle.
-    //!
-    file_handle& wend(void);
-};
-
-// ------------------------------------------------------------------------
 // The "pistream" class.
 // ------------------------------------------------------------------------
 
@@ -482,78 +407,6 @@ public:
     //! Explicitly closes the file handle managed by this stream.  This
     //! function can be used by the user to tell the child process it's
     //! not willing to receive more data.
-    //!
-    void close(void);
-
-    //!
-    //! \brief Returns the file descriptor attached to this stream.
-    //!
-    file_handle& handle(void);
-};
-
-// ------------------------------------------------------------------------
-// The "postream" class.
-// ------------------------------------------------------------------------
-
-//!
-//! \brief Child process' input stream.
-//!
-//! The postream class represents an input communication channel with the
-//! child process.  The child process reads data from this stream and the
-//! parent process can write to it through the postream object.  In other
-//! words, from the child's point of view, the communication channel is an
-//! input one, but from the parent's point of view it is an output one;
-//! hence the confusing postream name.
-//!
-//! postream objects cannot be copied because they own the file handle
-//! they use to communicate with the child and because they buffer data
-//! that flows through the communication channel.
-//!
-//! A postream object behaves as a std::ostream stream in all senses.
-//! The class is only provided because it must provide a method to let
-//! the caller explicitly close the communication channel.
-//!
-//! \remark <b>Blocking remarks</b>: Functions that write data to this
-//! stream can block if the associated file handle blocks during the write.
-//! As this class is used to communicate with child processes through
-//! anonymous pipes, the most typical blocking condition happens when the
-//! child is not processing the data in the pipe's system buffer.  When
-//! this happens, the buffer eventually fills up and the system blocks
-//! until the reader consumes some data, leaving some new room.
-//!
-class postream :
-    public std::ostream, utils::noncopyable
-{
-    //!
-    //! \brief The file handle managed by this stream.
-    //!
-    file_handle m_handle;
-
-    //!
-    //! \brief The systembuf object used to manage this stream's data.
-    //!
-    systembuf m_systembuf;
-
-public:
-    //!
-    //! \brief Creates a new process' input stream.
-    //!
-    //! Given a file handle, this constructor creates a new postream
-    //! object that owns the given file handle \a fh.  Ownership of
-    //! \a fh is transferred to the created postream object.
-    //!
-    //! \pre \a fh is valid.
-    //! \post \a fh is invalid.
-    //! \post The new postream object owns \a fh.
-    //!
-    explicit postream(file_handle& fh);
-
-    //!
-    //! \brief Closes the file handle managed by this stream.
-    //!
-    //! Explicitly closes the file handle managed by this stream.  This
-    //! function can be used by the user to tell the child process there
-    //! is no more data to send.
     //!
     void close(void);
 

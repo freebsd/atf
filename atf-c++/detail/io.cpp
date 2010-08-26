@@ -222,34 +222,6 @@ impl::systembuf::sync(void)
 }
 
 // ------------------------------------------------------------------------
-// The "pipe" class.
-// ------------------------------------------------------------------------
-
-impl::pipe::pipe(void)
-{
-    file_handle::handle_type hs[2];
-
-    if (::pipe(hs) == -1)
-        throw system_error(IMPL_NAME "::pipe::pipe",
-                           "pipe(2) failed", errno);
-
-    m_read_end = file_handle(hs[0]);
-    m_write_end = file_handle(hs[1]);
-}
-
-impl::file_handle&
-impl::pipe::rend(void)
-{
-    return m_read_end;
-}
-
-impl::file_handle&
-impl::pipe::wend(void)
-{
-    return m_write_end;
-}
-
-// ------------------------------------------------------------------------
 // The "pistream" class.
 // ------------------------------------------------------------------------
 
@@ -274,31 +246,7 @@ impl::pistream::handle(void)
 }
 
 // ------------------------------------------------------------------------
-// The "postream" class.
-// ------------------------------------------------------------------------
-
-impl::postream::postream(impl::file_handle& fh) :
-    std::ostream(NULL),
-    m_handle(fh),
-    m_systembuf(m_handle.get())
-{
-    rdbuf(&m_systembuf);
-}
-
-void
-impl::postream::close(void)
-{
-    m_handle.close();
-}
-
-impl::file_handle&
-impl::postream::handle(void)
-{
-    return m_handle;
-}
-
-// ------------------------------------------------------------------------
-// The "pollable_istream" class.
+// The "unbuffered_istream" class.
 // ------------------------------------------------------------------------
 
 impl::unbuffered_istream::unbuffered_istream(impl::file_handle& fh) :
