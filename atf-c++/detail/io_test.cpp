@@ -506,7 +506,8 @@ ATF_TEST_CASE_BODY(std_muxer_empty)
     atf::io::unbuffered_istream errs(errfh);
 
     test_std_muxer m;
-    m.read(outs, errs);
+    bool terminate = false;
+    m.read(outs, errs, terminate);
     ATF_REQUIRE(m.m_eof);
     ATF_REQUIRE(m.m_stdout_lines.empty());
     ATF_REQUIRE(m.m_stderr_lines.empty());
@@ -534,7 +535,8 @@ ATF_TEST_CASE_BODY(std_muxer_lines)
     atf::io::unbuffered_istream errs(errfh);
 
     test_std_muxer m;
-    m.read(outs, errs);
+    bool terminate = false;
+    m.read(outs, errs, terminate);
     ATF_REQUIRE(m.m_eof);
     ATF_REQUIRE_EQ(3, m.m_stdout_lines.size());
     ATF_REQUIRE_EQ("stdout line 1", m.m_stdout_lines[0]);

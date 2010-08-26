@@ -255,27 +255,10 @@ ATF_TEST_CASE_BODY(timeout)
     touch(get_config_var("statedir") + "/finished");
 }
 
-void
-child_pause(void *data)
-{
-    sigset_t mask;
-
-    sigemptyset(&mask);
-
-    std::cout << "Waiting in subprocess\n";
-    std::cout.flush();
-    ::sigsuspend(&mask);
-
-    std::cout << "Subprocess exiting\n";
-    std::cout.flush();
-    exit(EXIT_SUCCESS);
-}
-
 ATF_TEST_CASE(timeout_forkexit);
 ATF_TEST_CASE_HEAD(timeout_forkexit)
 {
     set_md_var("descr", "Helper test case for the t_integration test program");
-    set_md_var("timeout", "2");
 }
 ATF_TEST_CASE_BODY(timeout_forkexit)
 {

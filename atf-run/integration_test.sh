@@ -1024,9 +1024,8 @@ timeout_forkexit_body()
     create_helper timeout_forkexit
     create_atffile helper
 
-    atf_check -s eq:1 \
-        -o match:"${TESTCASE}, failed, .*timed out after 2 seconds" -e ignore \
-        atf-run -v statedir=$(pwd) helper
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v statedir=$(pwd) helper
     test -f parent-finished || atf_fail "Parent did not exit as expected"
     test -f child-finished && atf_fail "Subprocess exited but it should have" \
         "been forcibly terminated" || true
