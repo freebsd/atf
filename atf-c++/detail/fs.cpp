@@ -55,7 +55,6 @@ extern "C" {
 #include "exceptions.hpp"
 #include "env.hpp"
 #include "fs.hpp"
-#include "io.hpp"
 #include "process.hpp"
 #include "sanity.hpp"
 #include "text.hpp"

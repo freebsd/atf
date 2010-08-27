@@ -43,7 +43,6 @@ extern "C" {
 
 #include "exceptions.hpp"
 #include "fs.hpp"
-#include "io.hpp"
 
 #include "../utils.hpp"
 

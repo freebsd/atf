@@ -37,8 +37,6 @@ libatf_c___la_SOURCES += atf-c++/detail/application.cpp \
                          atf-c++/detail/expand.hpp \
                          atf-c++/detail/fs.cpp \
                          atf-c++/detail/fs.hpp \
-                         atf-c++/detail/io.cpp \
-                         atf-c++/detail/io.hpp \
                          atf-c++/detail/parser.cpp \
                          atf-c++/detail/parser.hpp \
                          atf-c++/detail/process.cpp \
@@ -80,10 +78,6 @@ atf_c___detail_expand_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.
 tests_atf_c___detail_PROGRAMS += atf-c++/detail/fs_test
 atf_c___detail_fs_test_SOURCES = atf-c++/detail/fs_test.cpp
 atf_c___detail_fs_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.la
-
-tests_atf_c___detail_PROGRAMS += atf-c++/detail/io_test
-atf_c___detail_io_test_SOURCES = atf-c++/detail/io_test.cpp
-atf_c___detail_io_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.la
 
 tests_atf_c___detail_PROGRAMS += atf-c++/detail/parser_test
 atf_c___detail_parser_test_SOURCES = atf-c++/detail/parser_test.cpp

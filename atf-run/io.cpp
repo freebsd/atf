@@ -36,15 +36,16 @@ extern "C" {
 #include <cstring>
 
 extern "C" {
-#include "../../atf-c/error.h"
+#include "../atf-c/error.h"
 }
 
-#include "exceptions.hpp"
-#include "io.hpp"
-#include "sanity.hpp"
+#include "../atf-c++/detail/exceptions.hpp"
+#include "../atf-c++/detail/sanity.hpp"
 
-namespace impl = atf::io;
-#define IMPL_NAME "atf::io"
+#include "io.hpp"
+
+namespace impl = atf::atf_run;
+#define IMPL_NAME "atf::atf_run"
 
 // ------------------------------------------------------------------------
 // The "file_handle" class.

@@ -50,6 +50,7 @@ extern "C" {
 
 #include "config.hpp"
 #include "fs.hpp"
+#include "io.hpp"
 #include "test-program.hpp"
 #include "timer.hpp"
 
@@ -349,8 +350,8 @@ handle_result_with_reason_and_arg(const std::string& state,
 }
 
 static void
-mux_streams(impl::atf_tps_writer& writer, atf::io::unbuffered_istream& out,
-            atf::io::unbuffered_istream& err, const bool& terminate)
+mux_streams(impl::atf_tps_writer& writer, impl::unbuffered_istream& out,
+            impl::unbuffered_istream& err, const bool& terminate)
 {
     struct pollfd fds[2];
     fds[0].fd = out.get_fh().get();
@@ -373,7 +374,7 @@ mux_streams(impl::atf_tps_writer& writer, atf::io::unbuffered_istream& out,
 
         if (fds[0].revents & POLLIN) {
             std::string line;
-            if (atf::io::getline(out, line).good())
+            if (impl::getline(out, line).good())
                 writer.stdout_tc(line);
             else
                 fds[0].events &= ~POLLIN;
@@ -382,7 +383,7 @@ mux_streams(impl::atf_tps_writer& writer, atf::io::unbuffered_istream& out,
 
         if (fds[1].revents & POLLIN) {
             std::string line;
-            if (atf::io::getline(err, line).good())
+            if (impl::getline(err, line).good())
                 writer.stderr_tc(line);
             else
                 fds[1].events &= ~POLLIN;
@@ -634,7 +635,7 @@ impl::get_metadata(const atf::fs::path& executable,
                            atf::process::stream_inherit(),
                            static_cast< void * >(&params));
 
-    atf::io::pistream outin(child.stdout_fd());
+    impl::pistream outin(child.stdout_fd());
 
     metadata_reader parser(outin);
     parser.read();
@@ -708,10 +709,10 @@ impl::run_test_case(const atf::fs::path& executable,
     child_timer timeout_timer(timeout, child_pid);
 
     // Get the input stream of stdout and stderr.
-    atf::io::file_handle outfh = child.stdout_fd();
-    atf::io::unbuffered_istream outin(outfh);
-    atf::io::file_handle errfh = child.stderr_fd();
-    atf::io::unbuffered_istream errin(errfh);
+    impl::file_handle outfh = child.stdout_fd();
+    impl::unbuffered_istream outin(outfh);
+    impl::file_handle errfh = child.stderr_fd();
+    impl::unbuffered_istream errin(errfh);
 
     // Process the test case's output and multiplex it into our output
     // stream as we read it.

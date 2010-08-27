@@ -61,7 +61,6 @@ extern "C" {
 #include "detail/env.hpp"
 #include "detail/exceptions.hpp"
 #include "detail/fs.hpp"
-#include "detail/io.hpp"
 #include "detail/parser.hpp"
 #include "detail/sanity.hpp"
 #include "detail/text.hpp"

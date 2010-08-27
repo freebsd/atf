@@ -41,7 +41,7 @@ extern "C" {
 #include <istream>
 #include <ostream>
 
-#include "../macros.hpp"
+#include "../atf-c++/macros.hpp"
 
 #include "io.hpp"
 
@@ -85,7 +85,7 @@ static
 void
 systembuf_test_read(std::size_t length, std::size_t bufsize)
 {
-    using atf::io::systembuf;
+    using atf::atf_run::systembuf;
 
     std::ofstream f("test_read.txt");
     systembuf_write_data(f, length);
@@ -104,7 +104,7 @@ static
 void
 systembuf_test_write(std::size_t length, std::size_t bufsize)
 {
-    using atf::io::systembuf;
+    using atf::atf_run::systembuf;
 
     int fd = ::open("test_write.txt", O_WRONLY | O_CREAT | O_TRUNC,
                     S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
@@ -131,7 +131,7 @@ ATF_TEST_CASE_HEAD(file_handle_ctor)
 }
 ATF_TEST_CASE_BODY(file_handle_ctor)
 {
-    using atf::io::file_handle;
+    using atf::atf_run::file_handle;
 
     file_handle fh1;
     ATF_REQUIRE(!fh1.is_valid());
@@ -148,7 +148,7 @@ ATF_TEST_CASE_HEAD(file_handle_copy)
 }
 ATF_TEST_CASE_BODY(file_handle_copy)
 {
-    using atf::io::file_handle;
+    using atf::atf_run::file_handle;
 
     file_handle fh1;
     file_handle fh2(STDOUT_FILENO);
@@ -171,7 +171,7 @@ ATF_TEST_CASE_HEAD(file_handle_get)
 }
 ATF_TEST_CASE_BODY(file_handle_get)
 {
-    using atf::io::file_handle;
+    using atf::atf_run::file_handle;
 
     file_handle fh1(STDOUT_FILENO);
     ATF_REQUIRE_EQ(fh1.get(), STDOUT_FILENO);
@@ -184,7 +184,7 @@ ATF_TEST_CASE_HEAD(file_handle_posix_remap)
 }
 ATF_TEST_CASE_BODY(file_handle_posix_remap)
 {
-    using atf::io::file_handle;
+    using atf::atf_run::file_handle;
 
     int pfd[2];
 
@@ -281,9 +281,9 @@ ATF_TEST_CASE_HEAD(pistream)
 }
 ATF_TEST_CASE_BODY(pistream)
 {
-    using atf::io::file_handle;
-    using atf::io::pistream;
-    using atf::io::systembuf;
+    using atf::atf_run::file_handle;
+    using atf::atf_run::pistream;
+    using atf::atf_run::systembuf;
 
     int fds[2];
     ATF_REQUIRE(::pipe(fds) != -1);

@@ -27,8 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_IO_HPP_)
-#define _ATF_CXX_IO_HPP_
+#if !defined(_ATF_RUN_IO_HPP_)
+#define _ATF_RUN_IO_HPP_
 
 #include <istream>
 #include <ostream>
@@ -36,10 +36,10 @@
 
 #include "fs.hpp"
 
-#include "../utils.hpp"
+#include "../atf-c++/utils.hpp"
 
 namespace atf {
-namespace io {
+namespace atf_run {
 
 // ------------------------------------------------------------------------
 // The "file_handle" class.
@@ -254,7 +254,7 @@ private:
 //! the on-disk file and the in-memory buffers.
 //!
 class systembuf :
-    public std::streambuf, utils::noncopyable
+    public std::streambuf, atf::utils::noncopyable
 {
 public:
     typedef int handle_type;
@@ -472,7 +472,7 @@ public:
 //!
 unbuffered_istream& getline(unbuffered_istream&, std::string&);
 
-} // namespace io
+} // namespace atf_run
 } // namespace atf
 
-#endif // !defined(_ATF_CXX_IO_HPP_)
+#endif // !defined(_ATF_RUN_IO_HPP_)
