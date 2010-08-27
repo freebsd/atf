@@ -31,10 +31,8 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include <fcntl.h>
 #include <limits.h>
 #include <signal.h>
-#include <unistd.h>
 }
 
 #include <cerrno>
@@ -345,41 +343,39 @@ file_empty(const atf::fs::path& p)
 }
 
 
-static int
+static bool
 compare_files(const atf::fs::path& p1, const atf::fs::path& p2)
 {
     bool equal = false;
 
-    int fd1 = ::open(p1.c_str(), O_RDONLY);
-    if (fd1 == -1)
-        throw atf::system_error("compare_files", "open(2) failed", errno);
-    atf::io::file_handle f1(fd1);
+    std::ifstream f1(p1.c_str());
+    if (!f1)
+        throw std::runtime_error("Failed to open " + p1.str());
 
-    int fd2 = ::open(p2.c_str(), O_RDONLY);
-    if (fd2 == -1)
-        throw atf::system_error("compare_files", "open(2) failed", errno);
-    atf::io::file_handle f2(fd2);
+    std::ifstream f2(p2.c_str());
+    if (!f2)
+        throw std::runtime_error("Failed to open " + p1.str());
 
     for (;;) {
-        ssize_t r1, r2;
         char buf1[512], buf2[512];
 
-        r1 = ::read(fd1, buf1, sizeof(buf1));
-        if (r1 < 0)
-            throw atf::system_error("compare_files", "read(2) failed for " +
-                                    p1.str(), errno);
+        f1.read(buf1, sizeof(buf1));
+        if (f1.bad())
+            throw std::runtime_error("Failed to read from " + p1.str());
 
-        r2 = ::read(fd2, buf2, sizeof(buf2));
-        if (r2 < 0)
-            throw atf::system_error("compare_files", "read(2) failed for " +
-                                    p2.str(), errno);
+        f2.read(buf2, sizeof(buf2));
+        if (f2.bad())
+            throw std::runtime_error("Failed to read from " + p1.str());
 
-        if ((r1 == 0) && (r2 == 0)) {
+        std::cout << "1 read: " << f1.gcount() << "\n";
+        std::cout << "2 read: " << f2.gcount() << "\n";
+        if ((f1.gcount() == 0) && (f2.gcount() == 0)) {
             equal = true;
             break;
         }
 
-        if ((r1 != r2) || (std::memcmp(buf1, buf2, r1) != 0)) {
+        if ((f1.gcount() != f2.gcount()) ||
+            (std::memcmp(buf1, buf2, f1.gcount()) != 0)) {
             break;
         }
     }
