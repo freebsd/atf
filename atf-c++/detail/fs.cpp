@@ -450,62 +450,6 @@ impl::directory::names(void)
 }
 
 // ------------------------------------------------------------------------
-// The "temp_file" class.
-// ------------------------------------------------------------------------
-
-impl::temp_file::temp_file(const path& p) :
-    std::ostream(NULL),
-    m_fd(-1)
-{
-    atf::utils::auto_array< char > buf(new char[p.str().length() + 1]);
-    std::strcpy(buf.get(), p.c_str());
-
-    m_fd = ::mkstemp(buf.get());
-    if (m_fd == -1)
-        throw system_error(IMPL_NAME "::temp_file::temp_file(" +
-                           p.str() + ")", "mkstemp(3) failed",
-                           errno);
-    m_systembuf.reset(new io::systembuf(m_fd));
-    rdbuf(m_systembuf.get());
-
-    m_path.reset(new path(buf.get()));
-}
-
-impl::temp_file::~temp_file(void)
-{
-    close();
-    try {
-        remove(*m_path);
-    } catch (const atf::system_error&) {
-        // Ignore deletion errors.
-    }
-}
-
-const impl::path&
-impl::temp_file::get_path(void)
-    const
-{
-    return *m_path;
-}
-
-void
-impl::temp_file::close(void)
-{
-    if (m_fd != -1) {
-        flush();
-        ::close(m_fd);
-        m_fd = -1;
-    }
-}
-
-int
-impl::temp_file::fd(void)
-{
-    INV(m_fd != -1);
-    return m_fd;
-}
-
-// ------------------------------------------------------------------------
 // Free functions.
 // ------------------------------------------------------------------------
 
