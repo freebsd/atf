@@ -380,7 +380,7 @@ class pistream :
     //!
     //! \brief The file handle managed by this stream.
     //!
-    file_handle m_handle;
+    int m_fd;
 
     //!
     //! \brief The systembuf object used to manage this stream's data.
@@ -399,21 +399,7 @@ public:
     //! \post \a fh is invalid.
     //! \post The new pistream object owns \a fh.
     //!
-    explicit pistream(file_handle& fh);
-
-    //!
-    //! \brief Closes the file handle managed by this stream.
-    //!
-    //! Explicitly closes the file handle managed by this stream.  This
-    //! function can be used by the user to tell the child process it's
-    //! not willing to receive more data.
-    //!
-    void close(void);
-
-    //!
-    //! \brief Returns the file descriptor attached to this stream.
-    //!
-    file_handle& handle(void);
+    explicit pistream(const int);
 };
 
 // ------------------------------------------------------------------------

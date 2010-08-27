@@ -322,16 +322,16 @@ impl::child::pid(void)
     return atf_process_child_pid(&m_child);
 }
 
-atf::io::file_handle
+int
 impl::child::stdout_fd(void)
 {
-    return io::file_handle(atf_process_child_stdout(&m_child));
+    return atf_process_child_stdout(&m_child);
 }
 
-atf::io::file_handle
+int
 impl::child::stderr_fd(void)
 {
-    return io::file_handle(atf_process_child_stderr(&m_child));
+    return atf_process_child_stderr(&m_child);
 }
 
 // ------------------------------------------------------------------------

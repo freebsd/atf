@@ -288,9 +288,7 @@ ATF_TEST_CASE_BODY(pistream)
     int fds[2];
     ATF_REQUIRE(::pipe(fds) != -1);
 
-    file_handle in(fds[0]);
-    pistream rend(in);
-    ATF_REQUIRE_EQ(fds[0], rend.handle().get());
+    pistream rend(fds[0]);
 
     systembuf wbuf(fds[1]);
     std::ostream wend(&wbuf);

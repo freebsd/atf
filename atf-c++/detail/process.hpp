@@ -217,8 +217,8 @@ public:
     status wait(void);
 
     pid_t pid(void) const;
-    io::file_handle stdout_fd(void);
-    io::file_handle stderr_fd(void);
+    int stdout_fd(void);
+    int stderr_fd(void);
 };
 
 // ------------------------------------------------------------------------

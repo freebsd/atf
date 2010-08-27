@@ -225,24 +225,11 @@ impl::systembuf::sync(void)
 // The "pistream" class.
 // ------------------------------------------------------------------------
 
-impl::pistream::pistream(impl::file_handle& fh) :
+impl::pistream::pistream(const int fd) :
     std::istream(NULL),
-    m_handle(fh),
-    m_systembuf(m_handle.get())
+    m_systembuf(fd)
 {
     rdbuf(&m_systembuf);
-}
-
-void
-impl::pistream::close(void)
-{
-    m_handle.close();
-}
-
-impl::file_handle&
-impl::pistream::handle(void)
-{
-    return m_handle;
 }
 
 // ------------------------------------------------------------------------

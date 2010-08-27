@@ -634,8 +634,7 @@ impl::get_metadata(const atf::fs::path& executable,
                            atf::process::stream_inherit(),
                            static_cast< void * >(&params));
 
-    atf::io::file_handle outfh = child.stdout_fd();
-    atf::io::pistream outin(outfh);
+    atf::io::pistream outin(child.stdout_fd());
 
     metadata_reader parser(outin);
     parser.read();
