@@ -133,7 +133,8 @@ sflag_signal_head()
 sflag_signal_body()
 {
     ${Atf_Check} -s signal:hup -x 'kill -1 $$' || atf_fail "Signal not detected"
-    ${Atf_Check} -s signal:sighup -x 'kill -1 $$' || atf_fail "Signal not detected"
+    ${Atf_Check} -s signal:sighup -x 'kill -1 $$' || atf_fail "Signal not" \
+        "detected"
     ${Atf_Check} -s signal:1 -x 'kill -1 $$' || atf_fail "Signal not detected"
     ${Atf_Check} -s signal -x 'kill -1 $$' || atf_fail "Signal not detected"
 
