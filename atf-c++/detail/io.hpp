@@ -486,8 +486,6 @@ public:
 //!
 unbuffered_istream& getline(unbuffered_istream&, std::string&);
 
-int cmp(const fs::path&, const fs::path&);
-
 } // namespace io
 } // namespace atf
 

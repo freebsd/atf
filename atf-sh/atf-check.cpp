@@ -31,8 +31,10 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#include <fcntl.h>
 #include <limits.h>
 #include <signal.h>
+#include <unistd.h>
 }
 
 #include <cerrno>
@@ -342,6 +344,49 @@ file_empty(const atf::fs::path& p)
     return (f.get_size() == 0);
 }
 
+
+static int
+compare_files(const atf::fs::path& p1, const atf::fs::path& p2)
+{
+    bool equal = false;
+
+    int fd1 = ::open(p1.c_str(), O_RDONLY);
+    if (fd1 == -1)
+        throw atf::system_error("compare_files", "open(2) failed", errno);
+    atf::io::file_handle f1(fd1);
+
+    int fd2 = ::open(p2.c_str(), O_RDONLY);
+    if (fd2 == -1)
+        throw atf::system_error("compare_files", "open(2) failed", errno);
+    atf::io::file_handle f2(fd2);
+
+    for (;;) {
+        ssize_t r1, r2;
+        char buf1[512], buf2[512];
+
+        r1 = ::read(fd1, buf1, sizeof(buf1));
+        if (r1 < 0)
+            throw atf::system_error("compare_files", "read(2) failed for " +
+                                    p1.str(), errno);
+
+        r2 = ::read(fd2, buf2, sizeof(buf2));
+        if (r2 < 0)
+            throw atf::system_error("compare_files", "read(2) failed for " +
+                                    p2.str(), errno);
+
+        if ((r1 == 0) && (r2 == 0)) {
+            equal = true;
+            break;
+        }
+
+        if ((r1 != r2) || (std::memcmp(buf1, buf2, r1) != 0)) {
+            break;
+        }
+    }
+
+    return equal;
+}
+
 static
 void
 print_diff(const atf::fs::path& p1, const atf::fs::path& p2)
@@ -509,7 +554,7 @@ run_output_check(const output_check oc, const atf::fs::path& path,
         } else
             result = true;
     } else if (oc.type == oc_file) {
-        const bool equals = atf::io::cmp(path, atf::fs::path(oc.value));
+        const bool equals = compare_files(path, atf::fs::path(oc.value));
         if (!oc.negated && !equals) {
             std::cerr << "Fail: " << stdxxx << " does not match golden "
                 "output\n";
@@ -530,7 +575,7 @@ run_output_check(const output_check oc, const atf::fs::path& path,
         temp << decode(oc.value);
         temp.close();
 
-        const bool equals = atf::io::cmp(path, temp.get_path());
+        const bool equals = compare_files(path, temp.get_path());
         if (!oc.negated && !equals) {
             std::cerr << "Fail: " << stdxxx << " does not match expected "
                 "value\n";
