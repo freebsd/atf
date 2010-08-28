@@ -310,6 +310,22 @@ fds_body()
         -e empty atf-run
 }
 
+atf_test_case mux_streams
+mux_streams_head()
+{
+    atf_set "descr" "Tests for a race condition in stream multiplexing"
+    atf_set "use.fs" "true"
+}
+mux_streams_body()
+{
+    create_helper mux_streams
+
+    for i in 1 2 3 4 5; do
+        echo "Attempt ${i}"
+        atf_check -s eq:0 -o match:'stdout 9999' -o match:'stderr 9999' atf-run
+    done
+}
+
 atf_test_case expect
 expect_head()
 {
@@ -1063,6 +1079,7 @@ atf_init_test_cases()
     atf_add_test_case atffile_recursive
     atf_add_test_case expect
     atf_add_test_case fds
+    atf_add_test_case mux_streams
     atf_add_test_case missing_results
     atf_add_test_case broken_results
     atf_add_test_case broken_tp_list

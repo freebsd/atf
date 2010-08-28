@@ -45,6 +45,7 @@ extern "C" {
 #include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/process.hpp"
+#include "atf-c++/detail/sanity.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -88,6 +89,37 @@ ATF_TEST_CASE_BODY(fds)
     std::cout << "msg2 to stdout" << "\n";
     std::cerr << "msg1 to stderr" << "\n";
     std::cerr << "msg2 to stderr" << "\n";
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(mux_streams);
+ATF_TEST_CASE_BODY(mux_streams)
+{
+    for (size_t i = 0; i < 10000; i++) {
+        switch (i % 5) {
+        case 0:
+            std::cout << "stdout " << i << "\n";
+            break;
+        case 1:
+            std::cerr << "stderr " << i << "\n";
+            break;
+        case 2:
+            std::cout << "stdout " << i << "\n";
+            std::cerr << "stderr " << i << "\n";
+            break;
+        case 3:
+            std::cout << "stdout " << i << "\n";
+            std::cout << "stdout " << i << "\n";
+            std::cerr << "stderr " << i << "\n";
+            break;
+        case 4:
+            std::cout << "stdout " << i << "\n";
+            std::cerr << "stderr " << i << "\n";
+            std::cerr << "stderr " << i << "\n";
+            break;
+        default:
+            UNREACHABLE;
+        }
+    }
 }
 
 ATF_TEST_CASE(testvar);
@@ -310,6 +342,8 @@ ATF_INIT_TEST_CASES(tcs)
         ATF_ADD_TEST_CASE(tcs, config);
     if (which == "fds")
         ATF_ADD_TEST_CASE(tcs, fds);
+    if (which == "mux_streams")
+        ATF_ADD_TEST_CASE(tcs, mux_streams);
     if (which == "testvar")
         ATF_ADD_TEST_CASE(tcs, testvar);
     if (which == "env_list")
