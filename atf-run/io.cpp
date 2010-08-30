@@ -237,47 +237,6 @@ impl::pistream::pistream(const int fd) :
 }
 
 // ------------------------------------------------------------------------
-// The "unbuffered_istream" class.
-// ------------------------------------------------------------------------
-
-impl::unbuffered_istream::unbuffered_istream(impl::file_handle& fh) :
-    m_fh(fh),
-    m_is_good(true)
-{
-}
-
-impl::file_handle&
-impl::unbuffered_istream::get_fh(void)
-{
-    return m_fh;
-}
-
-bool
-impl::unbuffered_istream::good(void)
-    const
-{
-    return m_is_good;
-}
-
-size_t
-impl::unbuffered_istream::read(void* buf, size_t buflen)
-{
-    if (!m_is_good)
-        return 0;
-
-    ssize_t res = ::read(m_fh.get(), buf, buflen);
-    m_is_good = res > 0;
-    return res > 0 ? res : 0;
-}
-
-void
-impl::unbuffered_istream::close(void)
-{
-    m_is_good = false;
-    m_fh.close();
-}
-
-// ------------------------------------------------------------------------
 // The "muxer" class.
 // ------------------------------------------------------------------------
 
@@ -397,20 +356,4 @@ impl::muxer::mux(const int* fds, const size_t nfds, const pid_t pgid,
         if (!buffers[i].empty())
             line_callback(i, buffers[i]);
     }
-}
-
-// ------------------------------------------------------------------------
-// Free functions.
-// ------------------------------------------------------------------------
-
-impl::unbuffered_istream&
-impl::getline(unbuffered_istream& uis, std::string& str)
-{
-    str.clear();
-    char ch;
-    while (uis.read(&ch, sizeof(ch)) == sizeof(ch) && ch != '\n') {
-        if (ch != '\r')
-            str += ch;
-    }
-    return uis;
 }

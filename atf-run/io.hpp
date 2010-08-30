@@ -403,64 +403,6 @@ public:
 };
 
 // ------------------------------------------------------------------------
-// The "unbuffered_istream" class.
-// ------------------------------------------------------------------------
-
-//!
-//! \brief An unbuffered input stream.
-//!
-//! The unbuffered_istream class somewhat mimics the interface of
-//! std::istream, but it provides unbuffered access to its attached
-//! file descriptor.  This is required in those situations where poll(2)
-//! is needed, because buffering data will mangle the events reported by
-//! this system call and break algorithms mysteriously on some platforms.
-//!
-class unbuffered_istream {
-    //!
-    //! \brief The file descriptor attached to this stream.
-    //!
-    file_handle m_fh;
-
-    //!
-    //! \brief Whether the stream is good or not.
-    //!
-    bool m_is_good;
-
-public:
-    //!
-    //! \brief Constructs a new unbuffered input stream.
-    //!
-    //! Given a file handle, constructs a new unbuffered input stream to
-    //! handle it and takes ownership of that handle.
-    //!
-    unbuffered_istream(file_handle& fh);
-
-    //!
-    //! \brief Returns a reference to this stream's file handle.
-    //!
-    file_handle& get_fh(void);
-
-    //!
-    //! \brief Checks whether the stream is good or not for reading.
-    //!
-    bool good(void) const;
-
-    //!
-    //! \brief Reads unformatted data.
-    //!
-    //! Reads data from this stream onto the buffer specified and returns
-    //! the amount of data read.  To detect errors, check for the stream's
-    //! status using the good method after a call to this function.
-    //!
-    size_t read(void*, size_t);
-
-    //!
-    //! \brief Closes the stream.
-    //!
-    void close(void);
-};
-
-// ------------------------------------------------------------------------
 // The "muxer" class.
 // ------------------------------------------------------------------------
 
@@ -478,18 +420,6 @@ public:
 
     void mux(const int*, const size_t, const pid_t, volatile const bool&);
 };
-
-// ------------------------------------------------------------------------
-// Free functions.
-// ------------------------------------------------------------------------
-
-//!
-//! \brief Unbuffered getline implementation.
-//!
-//! Reads a text line from the given stream without buffering any data.
-//! This is inefficient but is the only way to safely use poll(2)...
-//!
-unbuffered_istream& getline(unbuffered_istream&, std::string&);
 
 } // namespace atf_run
 } // namespace atf
