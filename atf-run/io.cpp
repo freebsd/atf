@@ -30,6 +30,7 @@
 extern "C" {
 #include <fcntl.h>
 #include <poll.h>
+#include <signal.h>
 #include <unistd.h>
 }
 
@@ -348,7 +349,7 @@ impl::muxer::read_one(const size_t index, const int fd, std::string& accum)
 }
 
 void
-impl::muxer::mux(const int* fds, const size_t nfds,
+impl::muxer::mux(const int* fds, const size_t nfds, const pid_t pgid,
                  volatile const bool& terminate)
 {
     atf::utils::auto_array< struct pollfd > poll_fds(new struct pollfd[nfds]);
@@ -359,14 +360,22 @@ impl::muxer::mux(const int* fds, const size_t nfds,
 
     atf::utils::auto_array< std::string > buffers(new std::string[nfds]);
     bool done = false;
+    bool signaled = false;
     while (!(done && terminate)) {
         int ret;
         while ((ret = safe_poll(poll_fds.get(), 2, 250)) == 0) {
-            if (terminate) break;
+            if (terminate) {
+                if (!signaled) {
+                    ::killpg(pgid, SIGKILL);
+                    signaled = true;
+                }
+                break;
+            }
         }
 
         for (size_t i = 0; i < nfds; i++) {
-            if (poll_fds[i].revents & (POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI)) {
+            if (poll_fds[i].revents & (POLLIN | POLLRDNORM | POLLRDBAND |
+                                       POLLPRI)) {
                 const size_t count = read_one(i, poll_fds[i].fd, buffers[i]);
                 if (poll_fds[i].revents & POLLHUP && count == 0) {
                     poll_fds[i].events = 0;
@@ -378,7 +387,8 @@ impl::muxer::mux(const int* fds, const size_t nfds,
 
         done = true;
         for (size_t i = 0; i < nfds; i++) {
-            if (poll_fds[i].revents & (POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI))
+            if (poll_fds[i].revents & (POLLIN | POLLRDNORM | POLLRDBAND |
+                                       POLLPRI))
                 done = false;
         }
     }

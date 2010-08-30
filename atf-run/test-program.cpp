@@ -31,7 +31,6 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <poll.h>
 #include <signal.h>
 #include <unistd.h>
 }
@@ -349,49 +348,6 @@ handle_result_with_reason_and_arg(const std::string& state,
     return impl::test_case_result(state, value, reason);
 }
 
-static void
-mux_streams(impl::atf_tps_writer& writer, impl::unbuffered_istream& out,
-            impl::unbuffered_istream& err, const bool& terminate)
-{
-    struct pollfd fds[2];
-    fds[0].fd = out.get_fh().get();
-    fds[0].events = POLLIN;
-    fds[1].fd = err.get_fh().get();
-    fds[1].events = POLLIN;
-
-    do {
-        fds[0].revents = 0;
-        fds[1].revents = 0;
-
-        int ret;
-        while ((ret = ::poll(fds, 2, 250)) <= 0) {
-            if (terminate || ret == -1) {
-                fds[0].events = 0;
-                fds[1].events = 0;
-                break;
-            }
-        }
-
-        if (fds[0].revents & POLLIN) {
-            std::string line;
-            if (impl::getline(out, line).good())
-                writer.stdout_tc(line);
-            else
-                fds[0].events &= ~POLLIN;
-        } else if (fds[0].revents & POLLERR || fds[0].revents & POLLHUP)
-            fds[0].events &= ~POLLIN;
-
-        if (fds[1].revents & POLLIN) {
-            std::string line;
-            if (impl::getline(err, line).good())
-                writer.stderr_tc(line);
-            else
-                fds[1].events &= ~POLLIN;
-        } else if (fds[1].revents & POLLERR || fds[1].revents & POLLHUP)
-            fds[1].events &= ~POLLIN;
-    } while (fds[0].events & POLLIN || fds[1].events & POLLIN);
-}
-
 } // anonymous namespace
 
 detail::atf_tp_reader::atf_tp_reader(std::istream& is) :
@@ -559,6 +515,16 @@ impl::atf_tps_writer::atf_tps_writer(std::ostream& os) :
 }
 
 void
+impl::atf_tps_writer::line_callback(const size_t index, const std::string& line)
+{
+    switch (index) {
+    case 0: stdout_tc(line); break;
+    case 1: stderr_tc(line); break;
+    default: UNREACHABLE;
+    }
+}
+
+void
 impl::atf_tps_writer::info(const std::string& what, const std::string& val)
 {
     m_os << "info: " << what << ", " << val << "\n";
@@ -670,12 +636,12 @@ impl::read_test_case_result(const atf::fs::path& results_path)
 
 namespace {
 
-static bool sigchld_received;
+static bool terminate_poll;
 
 static void
 sigchld_handler(const int signo)
 {
-    sigchld_received = true;
+    terminate_poll = true;
 }
 
 } // anonymous namespace
@@ -701,28 +667,25 @@ impl::run_test_case(const atf::fs::path& executable,
                            atf::process::stream_capture(),
                            static_cast< void * >(&params));
 
+    terminate_poll = false;
+
     const atf::tests::vars_map::const_iterator iter = metadata.find("timeout");
     INV(iter != metadata.end());
     const unsigned int timeout =
         atf::text::to_type< unsigned int >((*iter).second);
     const pid_t child_pid = child.pid();
-    child_timer timeout_timer(timeout, child_pid);
+    child_timer timeout_timer(timeout, child_pid, terminate_poll);
 
     // Get the input stream of stdout and stderr.
     impl::file_handle outfh = child.stdout_fd();
-    impl::unbuffered_istream outin(outfh);
     impl::file_handle errfh = child.stderr_fd();
-    impl::unbuffered_istream errin(errfh);
+    int fds[2] = {outfh.get(), errfh.get()};
 
     // Process the test case's output and multiplex it into our output
     // stream as we read it.
     try {
         atf::signals::signal_programmer sigchld(SIGCHLD, sigchld_handler);
-
-        sigchld_received = false;
-        mux_streams(writer, outin, errin, sigchld_received);
-        outin.close();
-        errin.close();
+        writer.mux(fds, 2, child_pid, terminate_poll);
     } catch (...) {
         UNREACHABLE;
     }

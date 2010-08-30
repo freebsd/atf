@@ -476,7 +476,7 @@ public:
     muxer(const size_t bufsize = 1024);
     virtual ~muxer(void);
 
-    void mux(const int*, const size_t, volatile const bool&);
+    void mux(const int*, const size_t, const pid_t, volatile const bool&);
 };
 
 // ------------------------------------------------------------------------

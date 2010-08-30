@@ -34,6 +34,8 @@
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/process.hpp"
 
+#include "io.hpp"
+
 namespace atf {
 namespace atf_run {
 
@@ -102,10 +104,12 @@ test_case_result parse_test_case_result(const std::string&);
 
 } // namespace detail
 
-class atf_tps_writer {
+class atf_tps_writer : public muxer {
     std::ostream& m_os;
 
     std::string m_tpname, m_tcname;
+
+    void line_callback(const size_t, const std::string&);
 
 public:
     atf_tps_writer(std::ostream&);

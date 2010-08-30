@@ -71,9 +71,10 @@ public:
 
 class child_timer : public timer {
     const pid_t m_pid;
+    volatile bool& m_terminate;
 
 public:
-    child_timer(const unsigned int, const pid_t);
+    child_timer(const unsigned int, const pid_t, volatile bool&);
     virtual ~child_timer(void);
 
     void timeout_callback(void);

@@ -382,7 +382,7 @@ muxer_test(const size_t bufsize, const size_t iterations)
 
     mock_muxer mux(bufsize);
     int fds[2] = {pipeout[0], pipeerr[0]};
-    mux.mux(fds, 2, child_finished);
+    mux.mux(fds, 2, pid, child_finished);
 
     int status;
     ::wait(&status);
