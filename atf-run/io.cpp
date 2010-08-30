@@ -29,6 +29,7 @@
 
 extern "C" {
 #include <fcntl.h>
+#include <poll.h>
 #include <unistd.h>
 }
 
@@ -41,6 +42,7 @@ extern "C" {
 
 #include "../atf-c++/detail/exceptions.hpp"
 #include "../atf-c++/detail/sanity.hpp"
+#include "../atf-c++/utils.hpp"
 
 #include "io.hpp"
 
@@ -272,6 +274,119 @@ impl::unbuffered_istream::close(void)
 {
     m_is_good = false;
     m_fh.close();
+}
+
+// ------------------------------------------------------------------------
+// The "muxer" class.
+// ------------------------------------------------------------------------
+
+static int
+safe_poll(struct pollfd fds[], nfds_t nfds, int timeout)
+{
+    int ret = ::poll(fds, nfds, timeout);
+    if (ret == -1) {
+        if (errno == EINTR)
+            ret = 0;
+        else
+            throw atf::system_error(IMPL_NAME "::safe_poll", "poll(2) failed",
+                                    errno);
+    }
+    INV(ret >= 0);
+    return ret;
+}
+
+static size_t
+safe_read(const int fd, void* buffer, const size_t nbytes)
+{
+    int ret = ::read(fd, buffer, nbytes);
+    if (ret == -1) {
+        if (errno == EINTR)
+            ret = 0;
+        else
+            throw atf::system_error(IMPL_NAME "::safe_read", "read(2) failed",
+                                    errno);
+    }
+    INV(ret >= 0);
+    return static_cast< size_t >(ret);
+}
+
+impl::muxer::muxer(const size_t bufsize) :
+    m_bufsize(bufsize)
+{
+}
+
+impl::muxer::~muxer(void)
+{
+}
+
+size_t
+impl::muxer::read_one(const size_t index, const int fd, std::string& accum)
+{
+    atf::utils::auto_array< char > buffer(new char[m_bufsize]);
+    const size_t nbytes = safe_read(fd, buffer.get(), m_bufsize - 1);
+    INV(nbytes < m_bufsize);
+    buffer[nbytes] = '\0';
+
+    std::string line(accum);
+
+    size_t line_start = 0;
+    for (size_t i = 0; i < nbytes; i++) {
+        if (buffer[i] == '\n') {
+            line_callback(index, line);
+            line.clear();
+            accum.clear();
+            line_start = i + 1;
+        } else if (buffer[i] == '\r') {
+            // Do nothing.
+        } else {
+            line.append(1, buffer[i]);
+        }
+    }
+    accum.append(&buffer[line_start]);
+
+    return nbytes;
+}
+
+void
+impl::muxer::mux(const int* fds, const size_t nfds,
+                 volatile const bool& terminate)
+{
+    atf::utils::auto_array< struct pollfd > poll_fds(new struct pollfd[nfds]);
+    for (size_t i = 0; i < nfds; i++) {
+        poll_fds[i].fd = fds[i];
+        poll_fds[i].events = POLLIN;
+    }
+
+    atf::utils::auto_array< std::string > buffers(new std::string[nfds]);
+    bool done = false;
+    while (!(done && terminate)) {
+        int ret;
+        while ((ret = safe_poll(poll_fds.get(), 2, 250)) == 0) {
+            if (terminate) break;
+        }
+
+        for (size_t i = 0; i < nfds; i++) {
+            if (poll_fds[i].revents & (POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI)) {
+                const size_t count = read_one(i, poll_fds[i].fd, buffers[i]);
+                if (poll_fds[i].revents & POLLHUP && count == 0) {
+                    poll_fds[i].events = 0;
+                }
+            } else if (poll_fds[i].revents & POLLHUP) {
+                poll_fds[i].events = 0;
+            }
+        }
+
+        done = true;
+        for (size_t i = 0; i < nfds; i++) {
+            if (poll_fds[i].revents & (POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI))
+                done = false;
+        }
+    }
+
+    for (size_t i = 0; i < nfds; i++) {
+        if (!buffers[i].empty())
+            line_callback(i, buffers[i]);
+    }
 }
 
 // ------------------------------------------------------------------------

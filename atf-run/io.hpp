@@ -461,6 +461,25 @@ public:
 };
 
 // ------------------------------------------------------------------------
+// The "muxer" class.
+// ------------------------------------------------------------------------
+
+class muxer {
+    size_t m_bufsize;
+
+protected:
+    virtual void line_callback(const size_t, const std::string&) = 0;
+
+    size_t read_one(const size_t, const int, std::string&);
+
+public:
+    muxer(const size_t bufsize = 1024);
+    virtual ~muxer(void);
+
+    void mux(const int*, const size_t, volatile const bool&);
+};
+
+// ------------------------------------------------------------------------
 // Free functions.
 // ------------------------------------------------------------------------
 

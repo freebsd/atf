@@ -29,6 +29,8 @@
 
 extern "C" {
 #include <sys/stat.h>
+#include <sys/wait.h>
+
 #include <fcntl.h>
 #include <unistd.h>
 }
@@ -41,6 +43,8 @@ extern "C" {
 #include <istream>
 #include <ostream>
 
+#include "../atf-c++/detail/sanity.hpp"
+#include "../atf-c++/detail/signals.hpp"
 #include "../atf-c++/macros.hpp"
 
 #include "io.hpp"
@@ -305,6 +309,115 @@ ATF_TEST_CASE_BODY(pistream)
 }
 
 // ------------------------------------------------------------------------
+// Tests for the "muxer" class.
+// ------------------------------------------------------------------------
+
+namespace {
+
+class mock_muxer : public atf::atf_run::muxer {
+    void line_callback(const size_t index, const std::string& line)
+    {
+        std::cout << "line_callback(" << index << ", " << line << ")\n";
+        switch (index) {
+        case 0: lines0.push_back(line); break;
+        case 1: lines1.push_back(line); break;
+        default: ATF_REQUIRE(false);
+        }
+    }
+
+public:
+    mock_muxer(const size_t bufsize) : muxer(bufsize) {}
+
+    std::vector< std::string > lines0;
+    std::vector< std::string > lines1;
+};
+
+static bool child_finished = false;
+static void sigchld_handler(int signo)
+{
+    child_finished = true;
+}
+
+static void
+child_printer(const int pipeout[2], const int pipeerr[2],
+              const size_t iterations)
+{
+    ::close(pipeout[0]);
+    ::close(pipeerr[0]);
+    ATF_REQUIRE(::dup2(pipeout[1], STDOUT_FILENO) != -1);
+    ATF_REQUIRE(::dup2(pipeerr[1], STDERR_FILENO) != -1);
+    ::close(pipeout[1]);
+    ::close(pipeerr[1]);
+
+    for (size_t i = 0; i < iterations; i++) {
+        std::cout << "stdout " << i << "\n";
+        std::cerr << "stderr " << i << "\n";
+    }
+
+    std::cout << "stdout eof\n";
+    std::cerr << "stderr eof\n";
+    std::exit(EXIT_SUCCESS);
+}
+
+static void
+muxer_test(const size_t bufsize, const size_t iterations)
+{
+    int pipeout[2], pipeerr[2];
+    ATF_REQUIRE(pipe(pipeout) != -1);
+    ATF_REQUIRE(pipe(pipeerr) != -1);
+
+    atf::signals::signal_programmer sigchld(SIGCHLD, sigchld_handler);
+
+    std::cout.flush();
+    std::cerr.flush();
+
+    pid_t pid = ::fork();
+    ATF_REQUIRE(pid != -1);
+    if (pid == 0) {
+        child_printer(pipeout, pipeerr, iterations);
+        UNREACHABLE;
+    }
+    ::close(pipeout[1]);
+    ::close(pipeerr[1]);
+
+    mock_muxer mux(bufsize);
+    int fds[2] = {pipeout[0], pipeerr[0]};
+    mux.mux(fds, 2, child_finished);
+
+    int status;
+    ::wait(&status);
+    ATF_REQUIRE(WIFEXITED(status));
+    ATF_REQUIRE(WEXITSTATUS(status) == EXIT_SUCCESS);
+
+    for (size_t i = 0; i < iterations; i++) {
+        std::ostringstream exp0, exp1;
+        exp0 << "stdout " << i;
+        exp1 << "stderr " << i;
+
+        ATF_REQUIRE(mux.lines0.size() > i);
+        ATF_REQUIRE_EQ(exp0.str(), mux.lines0[i]);
+        ATF_REQUIRE(mux.lines1.size() > i);
+        ATF_REQUIRE_EQ(exp1.str(), mux.lines1[i]);
+    }
+    ATF_REQUIRE_EQ("stdout eof", mux.lines0[iterations]);
+    ATF_REQUIRE_EQ("stderr eof", mux.lines1[iterations]);
+}
+
+} // anonymous namespace
+
+ATF_TEST_CASE_WITHOUT_HEAD(muxer_small_buffer);
+ATF_TEST_CASE_BODY(muxer_small_buffer)
+{
+    muxer_test(4, 20000);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(muxer_large_buffer);
+ATF_TEST_CASE_BODY(muxer_large_buffer)
+{
+    muxer_test(1024, 50000);
+}
+
+// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -324,4 +437,8 @@ ATF_INIT_TEST_CASES(tcs)
 
     // Add the tests for the "pistream" class.
     ATF_ADD_TEST_CASE(tcs, pistream);
+
+    // Add the tests for the "muxer" class.
+    ATF_ADD_TEST_CASE(tcs, muxer_small_buffer);
+    ATF_ADD_TEST_CASE(tcs, muxer_large_buffer);
 }
