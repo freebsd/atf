@@ -35,6 +35,7 @@ extern "C" {
 #include <unistd.h>
 }
 
+#include <cerrno>
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
@@ -314,10 +315,21 @@ ATF_TEST_CASE_BODY(pistream)
 
 namespace {
 
+static void
+check_stream(std::ostream& os)
+{
+    // If we receive a signal while writing to the stream, the bad bit gets set.
+    // Things seem to behave fine afterwards if we clear such error condition.
+    // However, I'm not sure if it's safe to query errno at this point.
+    ATF_REQUIRE(os.good() || (os.bad() && errno == EINTR));
+    os.clear();
+}
+
 class mock_muxer : public atf::atf_run::muxer {
     void line_callback(const size_t index, const std::string& line)
     {
         std::cout << "line_callback(" << index << ", " << line << ")\n";
+        check_stream(std::cout);
         switch (index) {
         case 0: lines0.push_back(line); break;
         case 1: lines1.push_back(line); break;
@@ -326,7 +338,8 @@ class mock_muxer : public atf::atf_run::muxer {
     }
 
 public:
-    mock_muxer(const size_t bufsize) : muxer(bufsize) {}
+    mock_muxer(const int* fds, const size_t nfds, const size_t bufsize) :
+        muxer(fds, nfds, bufsize) {}
 
     std::vector< std::string > lines0;
     std::vector< std::string > lines1;
@@ -335,6 +348,7 @@ public:
 static bool child_finished = false;
 static void sigchld_handler(int signo)
 {
+    INV(signo == SIGCHLD);
     child_finished = true;
 }
 
@@ -374,21 +388,31 @@ muxer_test(const size_t bufsize, const size_t iterations)
     pid_t pid = ::fork();
     ATF_REQUIRE(pid != -1);
     if (pid == 0) {
+        sigchld.unprogram();
         child_printer(pipeout, pipeerr, iterations);
         UNREACHABLE;
     }
     ::close(pipeout[1]);
     ::close(pipeerr[1]);
 
-    mock_muxer mux(bufsize);
     int fds[2] = {pipeout[0], pipeerr[0]};
-    mux.mux(fds, 2, pid, child_finished);
+    mock_muxer mux(fds, 2, bufsize);
+
+    mux.mux(child_finished);
+    check_stream(std::cout);
+    std::cout << "mux done\n";
+
+    mux.flush();
+    std::cout << "flush done\n";
+    check_stream(std::cout);
 
     int status;
     ::wait(&status);
     ATF_REQUIRE(WIFEXITED(status));
     ATF_REQUIRE(WEXITSTATUS(status) == EXIT_SUCCESS);
 
+    ATF_REQUIRE(std::cout.good());
+    ATF_REQUIRE(std::cerr.good());
     for (size_t i = 0; i < iterations; i++) {
         std::ostringstream exp0, exp1;
         exp0 << "stdout " << i;
@@ -401,6 +425,7 @@ muxer_test(const size_t bufsize, const size_t iterations)
     }
     ATF_REQUIRE_EQ("stdout eof", mux.lines0[iterations]);
     ATF_REQUIRE_EQ("stderr eof", mux.lines1[iterations]);
+    std::cout << "all done\n";
 }
 
 } // anonymous namespace

@@ -27,7 +27,11 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <errno.h>
+#include <fcntl.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -75,7 +79,7 @@ static void context_init(struct context *, const atf_tc_t *, const char *);
 static void check_fatal_error(atf_error_t);
 static void report_fatal_error(const char *, ...)
     ATF_DEFS_ATTRIBUTE_NORETURN;
-static atf_error_t write_resfile(FILE *, const char *, const int,
+static atf_error_t write_resfile(const int, const char *, const int,
                                  const atf_dynstr_t *);
 static void create_resfile(const char *, const char *, const int,
                            atf_dynstr_t *);
@@ -149,27 +153,35 @@ report_fatal_error(const char *msg, ...)
  * because the caller needs to clean up the reason object before terminating.
  */
 static atf_error_t
-write_resfile(FILE *file, const char *result, const int arg,
+write_resfile(const int fd, const char *result, const int arg,
               const atf_dynstr_t *reason)
 {
+    char buffer[1024];
+    int ret;
+
     if (arg == -1 && reason == NULL) {
-        if (fprintf(file, "%s\n", result) <= 0)
+        if (snprintf(buffer, sizeof(buffer), "%s\n", result) <= 0)
             goto err;
     } else if (arg == -1 && reason != NULL) {
-        if (fprintf(file, "%s: %s\n", result, atf_dynstr_cstring(reason)) <= 0)
+        if (snprintf(buffer, sizeof(buffer), "%s: %s\n", result,
+                     atf_dynstr_cstring(reason)) <= 0)
             goto err;
     } else if (arg != -1 && reason != NULL) {
-        if (fprintf(file, "%s(%d): %s\n", result, arg,
-                    atf_dynstr_cstring(reason)) <= 0)
+        if (snprintf(buffer, sizeof(buffer), "%s(%d): %s\n", result,
+                     arg, atf_dynstr_cstring(reason)) <= 0)
             goto err;
-    } else
+    } else {
         UNREACHABLE;
+    }
 
-    return atf_no_error();
+    while ((ret = write(fd, buffer, strlen(buffer))) == -1 && errno == EINTR)
+        ; /* Retry. */
+    if (ret != -1)
+        return atf_no_error();
 
 err:
-    return atf_libc_error(errno, "Failed to write results file; result %s, "
-        "reason %s", result,
+    return atf_libc_error(
+        errno, "Failed to write results file; result %s, reason %s", result,
         reason == NULL ? "null" : atf_dynstr_cstring(reason));
 }
 
@@ -187,17 +199,18 @@ create_resfile(const char *resfile, const char *result, const int arg,
     atf_error_t err;
 
     if (strcmp("/dev/stdout", resfile) == 0) {
-        err = write_resfile(stdout, result, arg, reason);
+        err = write_resfile(STDOUT_FILENO, result, arg, reason);
     } else if (strcmp("/dev/stderr", resfile) == 0) {
-        err = write_resfile(stderr, result, arg, reason);
+        err = write_resfile(STDERR_FILENO, result, arg, reason);
     } else {
-        FILE *file = fopen(resfile, "w");
-        if (file == NULL) {
+        const int fd = open(resfile, O_WRONLY | O_CREAT | O_TRUNC,
+            S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        if (fd == -1) {
             err = atf_libc_error(errno, "Cannot create results file '%s'",
                                  resfile);
         } else {
-            err = write_resfile(file, result, arg, reason);
-            fclose(file);
+            err = write_resfile(fd, result, arg, reason);
+            close(fd);
         }
     }
 

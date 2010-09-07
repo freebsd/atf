@@ -39,6 +39,7 @@ extern "C" {
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <iostream>
 
 #include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/parser.hpp"
@@ -57,6 +58,20 @@ namespace impl = atf::atf_run;
 namespace detail = atf::atf_run::detail;
 
 namespace {
+
+static void
+check_stream(std::ostream& os)
+{
+    // If we receive a signal while writing to the stream, the bad bit gets set.
+    // Things seem to behave fine afterwards if we clear such error condition.
+    // However, I'm not sure if it's safe to query errno at this point.
+    if (os.bad()) {
+        if (errno == EINTR)
+            os.clear();
+        else
+            throw std::runtime_error("Failed");
+    }
+}
 
 namespace atf_tp {
 
@@ -515,16 +530,6 @@ impl::atf_tps_writer::atf_tps_writer(std::ostream& os) :
 }
 
 void
-impl::atf_tps_writer::line_callback(const size_t index, const std::string& line)
-{
-    switch (index) {
-    case 0: stdout_tc(line); break;
-    case 1: stderr_tc(line); break;
-    default: UNREACHABLE;
-    }
-}
-
-void
 impl::atf_tps_writer::info(const std::string& what, const std::string& val)
 {
     m_os << "info: " << what << ", " << val << "\n";
@@ -569,14 +574,18 @@ void
 impl::atf_tps_writer::stdout_tc(const std::string& line)
 {
     m_os << "tc-so:" << line << "\n";
+    check_stream(m_os);
     m_os.flush();
+    check_stream(m_os);
 }
 
 void
 impl::atf_tps_writer::stderr_tc(const std::string& line)
 {
     m_os << "tc-se:" << line << "\n";
+    check_stream(m_os);
     m_os.flush();
+    check_stream(m_os);
 }
 
 void
@@ -636,13 +645,35 @@ impl::read_test_case_result(const atf::fs::path& results_path)
 
 namespace {
 
-static bool terminate_poll;
+static volatile bool terminate_poll;
 
 static void
 sigchld_handler(const int signo)
 {
     terminate_poll = true;
 }
+
+class child_muxer : public impl::muxer {
+    impl::atf_tps_writer& m_writer;
+
+    void
+    line_callback(const size_t index, const std::string& line)
+    {
+        switch (index) {
+        case 0: m_writer.stdout_tc(line); break;
+        case 1: m_writer.stderr_tc(line); break;
+        default: UNREACHABLE;
+        }
+    }
+
+public:
+    child_muxer(const int* fds, const size_t nfds,
+                impl::atf_tps_writer& writer) :
+        muxer(fds, nfds),
+        m_writer(writer)
+    {
+    }
+};
 
 } // anonymous namespace
 
@@ -674,28 +705,34 @@ impl::run_test_case(const atf::fs::path& executable,
     const unsigned int timeout =
         atf::text::to_type< unsigned int >((*iter).second);
     const pid_t child_pid = child.pid();
-    child_timer timeout_timer(timeout, child_pid, terminate_poll);
 
     // Get the input stream of stdout and stderr.
     impl::file_handle outfh = child.stdout_fd();
     impl::file_handle errfh = child.stderr_fd();
-    int fds[2] = {outfh.get(), errfh.get()};
+
+    bool timed_out = false;
 
     // Process the test case's output and multiplex it into our output
     // stream as we read it.
+    int fds[2] = {outfh.get(), errfh.get()};
+    child_muxer mux(fds, 2, writer);
     try {
+        child_timer timeout_timer(timeout, child_pid, terminate_poll);
         atf::signals::signal_programmer sigchld(SIGCHLD, sigchld_handler);
-        writer.mux(fds, 2, child_pid, terminate_poll);
+        mux.mux(terminate_poll);
+        timed_out = timeout_timer.fired();
     } catch (...) {
         UNREACHABLE;
     }
 
+    ::killpg(child_pid, SIGTERM);
+    mux.flush();
     atf::process::status status = child.wait();
     ::killpg(child_pid, SIGKILL);
 
     std::string reason;
 
-    if (timeout_timer.fired()) {
+    if (timed_out) {
         // Don't assume the child process has been signaled due to the timeout
         // expiration as older versions did.  The child process may have exited
         // but we may have timed out due to a subchild process getting stuck.

@@ -70,11 +70,14 @@ public:
 class signal_programmer {
     const int m_signo;
     const handler m_handler;
+    bool m_programmed;
     struct sigaction m_oldsa;
 
 public:
     signal_programmer(const int, const handler);
     ~signal_programmer(void);
+
+    void unprogram(void);
 };
 
 // ------------------------------------------------------------------------

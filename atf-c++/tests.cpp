@@ -143,7 +143,14 @@ struct impl::tc_impl : atf::utils::noncopyable {
         std::map< const atf_tc_t*, const impl::tc* >::const_iterator iter =
             cwraps.find(tc);
         INV(iter != cwraps.end());
-        (*iter).second->body();
+        try {
+            (*iter).second->body();
+        } catch (const std::exception& e) {
+            (*iter).second->fail("Caught unhandled exception: " + std::string(
+                                     e.what()));
+        } catch (...) {
+            (*iter).second->fail("Caught unknown exception");
+        }
     }
 
     static void
@@ -261,15 +268,9 @@ void
 impl::tc::run(const std::string& resfile)
     const
 {
-    try {
-        atf_error_t err = atf_tc_run(&pimpl->m_tc, resfile.c_str());
-        if (atf_is_error(err))
-            throw_atf_error(err);
-    } catch (const std::exception& e) {
-        fail("Caught unhandled exception: " + std::string(e.what()));
-    } catch (...) {
-        fail("Caught unknown exception");
-    }
+    atf_error_t err = atf_tc_run(&pimpl->m_tc, resfile.c_str());
+    if (atf_is_error(err))
+        throw_atf_error(err);
 }
 
 void

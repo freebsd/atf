@@ -99,7 +99,8 @@ impl::signal_holder::process(void)
 
 impl::signal_programmer::signal_programmer(const int signo, const handler h) :
     m_signo(signo),
-    m_handler(h)
+    m_handler(h),
+    m_programmed(false)
 {
     struct ::sigaction sa;
 
@@ -110,12 +111,22 @@ impl::signal_programmer::signal_programmer(const int signo, const handler h) :
     if (::sigaction(m_signo, &sa, &m_oldsa) == -1)
         throw atf::system_error(IMPL_NAME, "Could not install handler for "
                                 "signal", errno);
+    m_programmed = true;
 }
 
 impl::signal_programmer::~signal_programmer(void)
 {
-    if (::sigaction(m_signo, &m_oldsa, NULL) == -1)
-        UNREACHABLE;
+    unprogram();
+}
+
+void
+impl::signal_programmer::unprogram(void)
+{
+    if (m_programmed) {
+        if (::sigaction(m_signo, &m_oldsa, NULL) == -1)
+            UNREACHABLE;
+        m_programmed = false;
+    }
 }
 
 // ------------------------------------------------------------------------

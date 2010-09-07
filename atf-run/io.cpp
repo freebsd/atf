@@ -256,22 +256,29 @@ safe_poll(struct pollfd fds[], nfds_t nfds, int timeout)
 }
 
 static size_t
-safe_read(const int fd, void* buffer, const size_t nbytes)
+safe_read(const int fd, void* buffer, const size_t nbytes,
+          const bool report_errors)
 {
-    int ret = ::read(fd, buffer, nbytes);
+    int ret;
+    while ((ret = ::read(fd, buffer, nbytes)) == -1 && errno == EINTR) {}
     if (ret == -1) {
-        if (errno == EINTR)
-            ret = 0;
-        else
+        INV(errno != EINTR);
+
+        if (report_errors)
             throw atf::system_error(IMPL_NAME "::safe_read", "read(2) failed",
                                     errno);
+        else
+            ret = 0;
     }
     INV(ret >= 0);
     return static_cast< size_t >(ret);
 }
 
-impl::muxer::muxer(const size_t bufsize) :
-    m_bufsize(bufsize)
+impl::muxer::muxer(const int* fds, const size_t nfds, const size_t bufsize) :
+    m_fds(fds),
+    m_nfds(nfds),
+    m_bufsize(bufsize),
+    m_buffers(new std::string[nfds])
 {
 }
 
@@ -280,10 +287,12 @@ impl::muxer::~muxer(void)
 }
 
 size_t
-impl::muxer::read_one(const size_t index, const int fd, std::string& accum)
+impl::muxer::read_one(const size_t index, const int fd, std::string& accum,
+                      const bool report_errors)
 {
     atf::utils::auto_array< char > buffer(new char[m_bufsize]);
-    const size_t nbytes = safe_read(fd, buffer.get(), m_bufsize - 1);
+    const size_t nbytes = safe_read(fd, buffer.get(), m_bufsize - 1,
+                                    report_errors);
     INV(nbytes < m_bufsize);
     buffer[nbytes] = '\0';
 
@@ -308,52 +317,45 @@ impl::muxer::read_one(const size_t index, const int fd, std::string& accum)
 }
 
 void
-impl::muxer::mux(const int* fds, const size_t nfds, const pid_t pgid,
-                 volatile const bool& terminate)
+impl::muxer::mux(volatile const bool& terminate)
 {
-    atf::utils::auto_array< struct pollfd > poll_fds(new struct pollfd[nfds]);
-    for (size_t i = 0; i < nfds; i++) {
-        poll_fds[i].fd = fds[i];
+    atf::utils::auto_array< struct pollfd > poll_fds(new struct pollfd[m_nfds]);
+    for (size_t i = 0; i < m_nfds; i++) {
+        poll_fds[i].fd = m_fds[i];
         poll_fds[i].events = POLLIN;
     }
 
-    atf::utils::auto_array< std::string > buffers(new std::string[nfds]);
-    bool done = false;
-    bool signaled = false;
-    while (!(done && terminate)) {
+    size_t nactive = m_nfds;
+    while (nactive > 0 && !terminate) {
         int ret;
-        while ((ret = safe_poll(poll_fds.get(), 2, 250)) == 0) {
-            if (terminate) {
-                if (!signaled) {
-                    ::killpg(pgid, SIGKILL);
-                    signaled = true;
-                }
-                break;
-            }
-        }
+        while (!terminate && (ret = safe_poll(poll_fds.get(), 2, 250)) == 0) {}
 
-        for (size_t i = 0; i < nfds; i++) {
-            if (poll_fds[i].revents & (POLLIN | POLLRDNORM | POLLRDBAND |
-                                       POLLPRI)) {
-                const size_t count = read_one(i, poll_fds[i].fd, buffers[i]);
-                if (poll_fds[i].revents & POLLHUP && count == 0) {
-                    poll_fds[i].events = 0;
-                }
-            } else if (poll_fds[i].revents & POLLHUP) {
+        for (size_t i = 0; !terminate && i < m_nfds; i++) {
+            if (poll_fds[i].events == 0)
+                continue;
+
+            if (poll_fds[i].revents & POLLHUP) {
+                // Any data still available at this point will be processed by
+                // a call to the flush method.
                 poll_fds[i].events = 0;
-            }
-        }
 
-        done = true;
-        for (size_t i = 0; i < nfds; i++) {
-            if (poll_fds[i].revents & (POLLIN | POLLRDNORM | POLLRDBAND |
-                                       POLLPRI))
-                done = false;
+                INV(nactive >= 1);
+                nactive--;
+            } else if (poll_fds[i].revents & (POLLIN | POLLRDNORM | POLLRDBAND |
+                                       POLLPRI)) {
+                (void)read_one(i, poll_fds[i].fd, m_buffers[i], true);
+            }
         }
     }
+}
 
-    for (size_t i = 0; i < nfds; i++) {
-        if (!buffers[i].empty())
-            line_callback(i, buffers[i]);
+void
+impl::muxer::flush(void)
+{
+    for (size_t i = 0; i < m_nfds; i++) {
+        while (read_one(i, m_fds[i], m_buffers[i], false) > 0) {}
+
+        if (!m_buffers[i].empty())
+            line_callback(i, m_buffers[i]);
     }
 }

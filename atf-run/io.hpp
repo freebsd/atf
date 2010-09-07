@@ -406,19 +406,24 @@ public:
 // The "muxer" class.
 // ------------------------------------------------------------------------
 
-class muxer {
-    size_t m_bufsize;
+class muxer : utils::noncopyable {
+    const int* m_fds;
+    const size_t m_nfds;
+
+    const size_t m_bufsize;
+    atf::utils::auto_array< std::string > m_buffers;
 
 protected:
     virtual void line_callback(const size_t, const std::string&) = 0;
 
-    size_t read_one(const size_t, const int, std::string&);
+    size_t read_one(const size_t, const int, std::string&, const bool);
 
 public:
-    muxer(const size_t bufsize = 1024);
+    muxer(const int*, const size_t, const size_t bufsize = 1024);
     virtual ~muxer(void);
 
-    void mux(const int*, const size_t, const pid_t, volatile const bool&);
+    void mux(volatile const bool&);
+    void flush(void);
 };
 
 } // namespace atf_run
