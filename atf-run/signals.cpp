@@ -27,66 +27,121 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_SIGNALS_HPP_)
-#define _ATF_CXX_SIGNALS_HPP_
+#if defined(HAVE_CONFIG_H)
+#include "bconfig.h"
+#endif
 
 extern "C" {
 #include <signal.h>
+#include <unistd.h>
 }
 
-namespace atf {
-namespace signals {
+#include <cerrno>
 
-extern const int last_signo;
-typedef void (*handler)(const int);
+#include "atf-c++/detail/exceptions.hpp"
+#include "atf-c++/detail/sanity.hpp"
 
-class signal_programmer;
+#include "signals.hpp"
+
+namespace impl = atf::atf_run;
+#define IMPL_NAME "atf::atf_run"
+
+const int impl::last_signo = LAST_SIGNO;
 
 // ------------------------------------------------------------------------
 // The "signal_holder" class.
 // ------------------------------------------------------------------------
 
-//
-// A RAII model to hold a signal while the object is alive.
-//
-class signal_holder {
-    const int m_signo;
-    signal_programmer* m_sp;
+namespace {
 
-public:
-    signal_holder(const int);
-    ~signal_holder(void);
+static bool happened[LAST_SIGNO + 1];
 
-    void process(void);
-};
+static
+void
+holder_handler(const int signo)
+{
+    happened[signo] = true;
+}
+
+} // anonymous namespace
+
+impl::signal_holder::signal_holder(const int signo) :
+    m_signo(signo),
+    m_sp(NULL)
+{
+    happened[signo] = false;
+    m_sp = new signal_programmer(m_signo, holder_handler);
+}
+
+impl::signal_holder::~signal_holder(void)
+{
+    if (m_sp != NULL)
+        delete m_sp;
+
+    if (happened[m_signo])
+        ::kill(::getpid(), m_signo);
+}
+
+void
+impl::signal_holder::process(void)
+{
+    if (happened[m_signo]) {
+        delete m_sp;
+        m_sp = NULL;
+        happened[m_signo] = false;
+        ::kill(::getpid(), m_signo);
+        m_sp = new signal_programmer(m_signo, holder_handler);
+    }
+}
 
 // ------------------------------------------------------------------------
 // The "signal_programmer" class.
 // ------------------------------------------------------------------------
 
-//
-// A RAII model to program a signal while the object is alive.
-//
-class signal_programmer {
-    const int m_signo;
-    const handler m_handler;
-    bool m_programmed;
-    struct sigaction m_oldsa;
+impl::signal_programmer::signal_programmer(const int signo, const handler h) :
+    m_signo(signo),
+    m_handler(h),
+    m_programmed(false)
+{
+    struct ::sigaction sa;
 
-public:
-    signal_programmer(const int, const handler);
-    ~signal_programmer(void);
+    sa.sa_handler = m_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
 
-    void unprogram(void);
-};
+    if (::sigaction(m_signo, &sa, &m_oldsa) == -1)
+        throw atf::system_error(IMPL_NAME, "Could not install handler for "
+                                "signal", errno);
+    m_programmed = true;
+}
+
+impl::signal_programmer::~signal_programmer(void)
+{
+    unprogram();
+}
+
+void
+impl::signal_programmer::unprogram(void)
+{
+    if (m_programmed) {
+        if (::sigaction(m_signo, &m_oldsa, NULL) == -1)
+            UNREACHABLE;
+        m_programmed = false;
+    }
+}
 
 // ------------------------------------------------------------------------
 // Free functions.
 // ------------------------------------------------------------------------
 
-void reset(const int);
+void
+impl::reset(const int signo)
+{
+    struct ::sigaction sa;
 
-} // namespace signals
-} // namespace atf
+    sa.sa_handler = SIG_DFL;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
 
-#endif // !defined(_ATF_CXX_SIGNALS_HPP_)
+    (void)::sigaction(signo, &sa, NULL);
+}

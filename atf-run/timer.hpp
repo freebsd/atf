@@ -39,15 +39,10 @@ extern "C" {
 
 #include "atf-c++/utils.hpp"
 
-#include "atf-c++/detail/signals.hpp"
-
 namespace atf {
-
-namespace signals {
-class signal_programmer;
-} // namespace signals
-
 namespace atf_run {
+
+class signal_programmer;
 
 // ------------------------------------------------------------------------
 // The "timer" class.
@@ -55,7 +50,7 @@ namespace atf_run {
 
 class timer : utils::noncopyable {
     ::itimerval m_old_timeval;
-    std::auto_ptr< signals::signal_programmer > m_sigalrm;
+    std::auto_ptr< signal_programmer > m_sigalrm;
 
 public:
     timer(const unsigned int);

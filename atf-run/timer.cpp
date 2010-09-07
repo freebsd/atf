@@ -36,6 +36,7 @@ extern "C" {
 #include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/sanity.hpp"
 
+#include "signals.hpp"
 #include "timer.hpp"
 
 namespace impl = atf::atf_run;
@@ -69,7 +70,7 @@ impl::timer::timer(const unsigned int seconds)
 {
     sigalrm::m_fired = false;
     sigalrm::m_timer = this;
-    m_sigalrm.reset(new signals::signal_programmer(SIGALRM, sigalrm::handler));
+    m_sigalrm.reset(new signal_programmer(SIGALRM, sigalrm::handler));
 
     ::itimerval timeval;
     timeval.it_interval.tv_sec = 0;

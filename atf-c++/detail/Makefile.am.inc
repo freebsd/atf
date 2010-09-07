@@ -42,8 +42,6 @@ libatf_c___la_SOURCES += atf-c++/detail/application.cpp \
                          atf-c++/detail/process.cpp \
                          atf-c++/detail/process.hpp \
                          atf-c++/detail/sanity.hpp \
-                         atf-c++/detail/signals.cpp \
-                         atf-c++/detail/signals.hpp \
                          atf-c++/detail/text.cpp \
                          atf-c++/detail/text.hpp \
                          atf-c++/detail/ui.cpp \
@@ -90,10 +88,6 @@ atf_c___detail_process_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++
 tests_atf_c___detail_PROGRAMS += atf-c++/detail/sanity_test
 atf_c___detail_sanity_test_SOURCES = atf-c++/detail/sanity_test.cpp
 atf_c___detail_sanity_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.la
-
-tests_atf_c___detail_PROGRAMS += atf-c++/detail/signals_test
-atf_c___detail_signals_test_SOURCES = atf-c++/detail/signals_test.cpp
-atf_c___detail_signals_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.la
 
 tests_atf_c___detail_PROGRAMS += atf-c++/detail/text_test
 atf_c___detail_text_test_SOURCES = atf-c++/detail/text_test.cpp

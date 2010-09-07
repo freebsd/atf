@@ -45,10 +45,10 @@ extern "C" {
 #include <ostream>
 
 #include "../atf-c++/detail/sanity.hpp"
-#include "../atf-c++/detail/signals.hpp"
 #include "../atf-c++/macros.hpp"
 
 #include "io.hpp"
+#include "signals.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -380,7 +380,7 @@ muxer_test(const size_t bufsize, const size_t iterations)
     ATF_REQUIRE(pipe(pipeout) != -1);
     ATF_REQUIRE(pipe(pipeerr) != -1);
 
-    atf::signals::signal_programmer sigchld(SIGCHLD, sigchld_handler);
+    atf::atf_run::signal_programmer sigchld(SIGCHLD, sigchld_handler);
 
     std::cout.flush();
     std::cerr.flush();

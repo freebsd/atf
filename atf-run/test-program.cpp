@@ -45,12 +45,12 @@ extern "C" {
 #include "atf-c++/detail/parser.hpp"
 #include "atf-c++/detail/process.hpp"
 #include "atf-c++/detail/sanity.hpp"
-#include "atf-c++/detail/signals.hpp"
 #include "atf-c++/detail/text.hpp"
 
 #include "config.hpp"
 #include "fs.hpp"
 #include "io.hpp"
+#include "signals.hpp"
 #include "test-program.hpp"
 #include "timer.hpp"
 
@@ -228,8 +228,8 @@ prepare_child(const atf::fs::path& workdir)
 
     ::umask(S_IWGRP | S_IWOTH);
 
-    for (int i = 1; i <= atf::signals::last_signo; i++)
-        atf::signals::reset(i);
+    for (int i = 1; i <= impl::last_signo; i++)
+        impl::reset(i);
 
     atf::env::set("HOME", workdir.str());
     atf::env::unset("LANG");
@@ -718,7 +718,7 @@ impl::run_test_case(const atf::fs::path& executable,
     child_muxer mux(fds, 2, writer);
     try {
         child_timer timeout_timer(timeout, child_pid, terminate_poll);
-        atf::signals::signal_programmer sigchld(SIGCHLD, sigchld_handler);
+        signal_programmer sigchld(SIGCHLD, sigchld_handler);
         mux.mux(terminate_poll);
         timed_out = timeout_timer.fired();
     } catch (...) {
