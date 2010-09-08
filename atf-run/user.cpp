@@ -28,14 +28,15 @@
 //
 
 extern "C" {
-#include "../../atf-c/detail/user.h"
+#include "../atf-c/detail/user.h"
 }
 
-#include "sanity.hpp"
+#include "../atf-c++/detail/sanity.hpp"
+
 #include "user.hpp"
 
-namespace impl = atf::user;
-#define IMPL_NAME "atf::user"
+namespace impl = atf::atf_run;
+#define IMPL_NAME "atf::atf_run"
 
 uid_t
 impl::euid(void)

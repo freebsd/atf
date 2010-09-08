@@ -40,7 +40,6 @@ extern "C" {
 
 #include "exceptions.hpp"
 #include "fs.hpp"
-#include "user.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.

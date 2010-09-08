@@ -39,9 +39,9 @@ extern "C" {
 
 #include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/fs.hpp"
-#include "atf-c++/detail/user.hpp"
 
 #include "fs.hpp"
+#include "user.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -161,9 +161,9 @@ ATF_TEST_CASE_BODY(cleanup_eacces_on_root)
 
     try {
         cleanup(atf::fs::path("aux/root"));
-        ATF_REQUIRE(atf::user::is_root());
+        ATF_REQUIRE(atf::atf_run::is_root());
     } catch (const atf::system_error& e) {
-        ATF_REQUIRE(!atf::user::is_root());
+        ATF_REQUIRE(!atf::atf_run::is_root());
         ATF_REQUIRE_EQ(EACCES, e.code());
     }
 }

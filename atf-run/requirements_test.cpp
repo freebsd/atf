@@ -30,9 +30,8 @@
 #include "atf-c++/config.hpp"
 #include "atf-c++/macros.hpp"
 
-#include "atf-c++/detail/user.hpp"
-
 #include "requirements.hpp"
+#include "user.hpp"
 
 namespace impl = atf::atf_run;
 
@@ -240,7 +239,7 @@ ATF_TEST_CASE_HEAD(require_user_root) {}
 ATF_TEST_CASE_BODY(require_user_root) {
     atf::tests::vars_map metadata;
     metadata["require.user"] = "root";
-    if (atf::user::is_root())
+    if (atf::atf_run::is_root())
         do_check("", metadata);
     else
         do_check("Requires root privileges", metadata);
@@ -251,7 +250,7 @@ ATF_TEST_CASE_HEAD(require_user_unprivileged) {}
 ATF_TEST_CASE_BODY(require_user_unprivileged) {
     atf::tests::vars_map metadata;
     metadata["require.user"] = "unprivileged";
-    if (atf::user::is_root())
+    if (atf::atf_run::is_root())
         do_check("Requires an unprivileged user", metadata);
     else
         do_check("", metadata);

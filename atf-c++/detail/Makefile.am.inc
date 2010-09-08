@@ -45,9 +45,7 @@ libatf_c___la_SOURCES += atf-c++/detail/application.cpp \
                          atf-c++/detail/text.cpp \
                          atf-c++/detail/text.hpp \
                          atf-c++/detail/ui.cpp \
-                         atf-c++/detail/ui.hpp \
-                         atf-c++/detail/user.cpp \
-                         atf-c++/detail/user.hpp
+                         atf-c++/detail/ui.hpp
 
 tests_atf_c___detail_DATA = atf-c++/detail/Atffile
 tests_atf_c___detaildir = $(pkgtestsdir)/atf-c++/detail
@@ -96,9 +94,5 @@ atf_c___detail_text_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.la
 tests_atf_c___detail_PROGRAMS += atf-c++/detail/ui_test
 atf_c___detail_ui_test_SOURCES = atf-c++/detail/ui_test.cpp
 atf_c___detail_ui_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.la
-
-tests_atf_c___detail_PROGRAMS += atf-c++/detail/user_test
-atf_c___detail_user_test_SOURCES = atf-c++/detail/user_test.cpp
-atf_c___detail_user_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.la
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

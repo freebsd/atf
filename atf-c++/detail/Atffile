@@ -11,4 +11,3 @@ tp: parser_test
 tp: sanity_test
 tp: text_test
 tp: ui_test
-tp: user_test

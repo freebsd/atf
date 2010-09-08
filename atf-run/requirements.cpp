@@ -37,9 +37,9 @@
 #include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
-#include "atf-c++/detail/user.hpp"
 
 #include "requirements.hpp"
+#include "user.hpp"
 
 namespace impl = atf::atf_run;
 
@@ -140,12 +140,12 @@ std::string
 check_user(const std::string& user)
 {
     if (user == "root") {
-        if (!atf::user::is_root())
+        if (!impl::is_root())
             return "Requires root privileges";
         else
             return "";
     } else if (user == "unprivileged") {
-        if (atf::user::is_root())
+        if (impl::is_root())
             return "Requires an unprivileged user";
         else
             return "";

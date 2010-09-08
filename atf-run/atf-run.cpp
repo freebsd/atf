@@ -58,7 +58,6 @@ extern "C" {
 #include "atf-c++/detail/process.hpp"
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
-#include "atf-c++/detail/user.hpp"
 
 #include "atffile.hpp"
 #include "config.hpp"

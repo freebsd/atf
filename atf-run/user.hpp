@@ -27,22 +27,22 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_USER_HPP_)
-#define _ATF_CXX_USER_HPP_
+#if !defined(_ATF_RUN_USER_HPP_)
+#define _ATF_RUN_USER_HPP_
 
 extern "C" {
 #include <sys/types.h>
 }
 
 namespace atf {
-namespace user {
+namespace atf_run {
 
 uid_t euid(void);
 bool is_member_of_group(gid_t);
 bool is_root(void);
 bool is_unprivileged(void);
 
-} // namespace user
+} // namespace atf_run
 } // namespace atf
 
-#endif // !defined(_ATF_CXX_USER_HPP_)
+#endif // !defined(_ATF_RUN_USER_HPP_)

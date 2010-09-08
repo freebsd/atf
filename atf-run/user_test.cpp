@@ -37,9 +37,8 @@ extern "C" {
 #include <iostream>
 #include <set>
 
-#include "../macros.hpp"
+#include "../atf-c++/macros.hpp"
 
-#include "exceptions.hpp"
 #include "user.hpp"
 
 // ------------------------------------------------------------------------
@@ -53,7 +52,7 @@ ATF_TEST_CASE_HEAD(euid)
 }
 ATF_TEST_CASE_BODY(euid)
 {
-    using atf::user::euid;
+    using atf::atf_run::euid;
 
     ATF_REQUIRE_EQ(euid(), ::geteuid());
 }
@@ -65,7 +64,7 @@ ATF_TEST_CASE_HEAD(is_member_of_group)
 }
 ATF_TEST_CASE_BODY(is_member_of_group)
 {
-    using atf::user::is_member_of_group;
+    using atf::atf_run::is_member_of_group;
 
     std::set< gid_t > groups;
     gid_t maxgid = 0;
@@ -102,7 +101,7 @@ ATF_TEST_CASE_HEAD(is_root)
 }
 ATF_TEST_CASE_BODY(is_root)
 {
-    using atf::user::is_root;
+    using atf::atf_run::is_root;
 
     if (::geteuid() == 0) {
         ATF_REQUIRE(is_root());
@@ -118,7 +117,7 @@ ATF_TEST_CASE_HEAD(is_unprivileged)
 }
 ATF_TEST_CASE_BODY(is_unprivileged)
 {
-    using atf::user::is_unprivileged;
+    using atf::atf_run::is_unprivileged;
 
     if (::geteuid() != 0) {
         ATF_REQUIRE(is_unprivileged());

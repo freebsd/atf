@@ -64,7 +64,6 @@ extern "C" {
 #include "detail/parser.hpp"
 #include "detail/sanity.hpp"
 #include "detail/text.hpp"
-#include "detail/user.hpp"
 
 namespace impl = atf::tests;
 namespace detail = atf::tests::detail;

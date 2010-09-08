@@ -58,7 +58,6 @@ extern "C" {
 #include "process.hpp"
 #include "sanity.hpp"
 #include "text.hpp"
-#include "user.hpp"
 
 namespace impl = atf::fs;
 #define IMPL_NAME "atf::fs"

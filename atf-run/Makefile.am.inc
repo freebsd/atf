@@ -44,7 +44,9 @@ atf_run_atf_run_SOURCES = atf-run/atf-run.cpp \
                           atf-run/test-program.cpp \
                           atf-run/test-program.hpp \
                           atf-run/timer.cpp \
-                          atf-run/timer.hpp
+                          atf-run/timer.hpp \
+                          atf-run/user.cpp \
+                          atf-run/user.hpp
 atf_run_atf_run_LDADD = libatf-c++.la
 dist_man_MANS += atf-run/atf-run.1
 
@@ -74,7 +76,8 @@ atf_run_expect_helpers_LDADD = libatf-c.la
 
 tests_atf_run_PROGRAMS += atf-run/fs_test
 atf_run_fs_test_SOURCES = atf-run/fs_test.cpp \
-                          atf-run/fs.cpp
+                          atf-run/fs.cpp \
+                          atf-run/user.cpp
 atf_run_fs_test_LDADD = libatf-c++.la
 
 tests_atf_run_PROGRAMS += atf-run/io_test
@@ -97,7 +100,8 @@ atf_run_several_tcs_helper_LDADD = libatf-c.la
 
 tests_atf_run_PROGRAMS += atf-run/requirements_test
 atf_run_requirements_test_SOURCES = atf-run/requirements_test.cpp \
-                                    atf-run/requirements.cpp
+                                    atf-run/requirements.cpp \
+                                    atf-run/user.cpp
 atf_run_requirements_test_LDADD = libatf-c++.la
 
 tests_atf_run_PROGRAMS += atf-run/signals_test
@@ -113,6 +117,10 @@ atf_run_test_program_test_SOURCES = atf-run/test_program_test.cpp \
                                     atf-run/timer.cpp
 atf_run_test_program_test_CPPFLAGS = -I$(srcdir)/atf-c++/detail
 atf_run_test_program_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.la
+
+tests_atf_run_PROGRAMS += atf-run/user_test
+atf_run_user_test_SOURCES = atf-run/user_test.cpp atf-run/user.cpp
+atf_run_user_test_LDADD = libatf-c++.la
 
 tests_atf_run_PROGRAMS += atf-run/zero_tcs_helper
 atf_run_zero_tcs_helper_SOURCES = atf-run/zero_tcs_helper.c
