@@ -202,7 +202,9 @@ impl::app::process_options(void)
 
     // Clear getopt state just in case the test wants to use it.
     optind = 1;
+#if defined(HAVE_OPTRESET)
     optreset = 1;
+#endif
 }
 
 void

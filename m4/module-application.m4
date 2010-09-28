@@ -74,4 +74,21 @@ main(void)
                [Define to 1 if getopt allows a + sign for POSIX behavior])],
     [getopt_allows_plus=no])
     AC_MSG_RESULT(${getopt_allows_plus})
+
+    AC_MSG_CHECKING(whether getopt has optreset)
+    AC_TRY_COMPILE([
+#include <stdlib.h>
+#include <unistd.h>
+
+int
+main(void)
+{
+    optreset = 1;
+    return EXIT_SUCCESS;
+}
+],
+    [getopt_has_optreset=yes
+     AC_DEFINE([HAVE_OPTRESET], [1], [Define to 1 if getopt has optreset])],
+    [getopt_has_optreset=no])
+    AC_MSG_RESULT(${getopt_has_optreset})
 ])

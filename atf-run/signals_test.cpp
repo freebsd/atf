@@ -34,6 +34,7 @@ extern "C" {
 }
 
 #include <cerrno>
+#include <cstdlib>
 #include <iostream>
 
 #include "atf-c++/macros.hpp"
@@ -232,9 +233,9 @@ reset_child(void *v)
 
     if (sigusr1::happened) {
         std::cerr << "Signal was not resetted correctly\n";
-        abort();
+        std::abort();
     } else {
-        exit(EXIT_SUCCESS);
+        std::exit(EXIT_SUCCESS);
     }
 }
 

@@ -233,7 +233,7 @@ impl::set_immutable(const atf::fs::path& p, bool value)
                                 "chflags(" + p.str() + ") failed", errno);
     return true;
 #elif HAVE_CHATTR
-    if (impl::is_root()) {
+    if (p.is_root()) {
         const atf::fs::path prog(CHATTR);
         const atf::process::argv_array argv("chattr", value ? "+i" : "-i",
             p.c_str(), NULL);

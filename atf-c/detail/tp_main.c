@@ -361,7 +361,9 @@ process_params(int argc, char **argv, struct params *p)
 
     /* Clear getopt state just in case the test wants to use it. */
     optind = 1;
+#if defined(HAVE_OPTRESET)
     optreset = 1;
+#endif
 
     if (!atf_is_error(err)) {
         if (p->m_do_list) {
