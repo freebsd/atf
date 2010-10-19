@@ -18,6 +18,10 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET
   public has the danger of causing confusion.  Also, making it private
   simplifies the public API of atf.
 
+* Changed atf-sh to enable per-command error checking (set -e) by default.
+  This catches many cases in which a test case is broken but it is not
+  reported as such because execution continues.
+
 
 Changes in version 0.10
 ***********************
