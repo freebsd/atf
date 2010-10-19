@@ -38,6 +38,8 @@
 #include <sstream>
 #include <utility>
 
+#include "../macros.hpp"
+#include "../tests.hpp"
 #include "parser.hpp"
 #include "process.hpp"
 #include "text.hpp"
