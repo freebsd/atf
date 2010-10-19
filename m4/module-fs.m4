@@ -30,11 +30,10 @@ dnl
 AC_DEFUN([ATF_MODULE_FS], [
     AC_MSG_CHECKING(whether basename takes a constant pointer)
     AC_COMPILE_IFELSE(
-        [#include <libgen.h>
-         int main(void) {
-             const char* s = "/foo/bar/";
-             (void)::basename(s);
-         }],
+        [AC_LANG_PROGRAM([#include <libgen.h>], [
+         const char* s = "/foo/bar/";
+         (void)::basename(s);
+         ])],
         AC_MSG_RESULT(yes)
         AC_DEFINE([HAVE_CONST_BASENAME], [1],
                   [Define to 1 if basename takes a constant pointer]),
@@ -42,11 +41,10 @@ AC_DEFUN([ATF_MODULE_FS], [
 
     AC_MSG_CHECKING(whether dirname takes a constant pointer)
     AC_COMPILE_IFELSE(
-        [#include <libgen.h>
-         int main(void) {
-             const char* s = "/foo/bar/";
-             (void)::dirname(s);
-         }],
+        [AC_LANG_PROGRAM([#include <libgen.h>], [
+         const char* s = "/foo/bar/";
+         (void)::dirname(s);
+         ])],
         AC_MSG_RESULT(yes)
         AC_DEFINE([HAVE_CONST_DIRNAME], [1],
                   [Define to 1 if dirname takes a constant pointer]),
@@ -54,12 +52,11 @@ AC_DEFUN([ATF_MODULE_FS], [
 
     AC_MSG_CHECKING(whether getcwd(NULL, 0) works)
     AC_RUN_IFELSE(
-        [#include <stdlib.h>
-         #include <unistd.h>
-         int main(void) {
-             char *cwd = getcwd(NULL, 0);
-             return (cwd != NULL) ? EXIT_SUCCESS : EXIT_FAILURE;
-         }],
+        [AC_LANG_PROGRAM([#include <stdlib.h>
+#include <unistd.h>], [
+         char *cwd = getcwd(NULL, 0);
+         return (cwd != NULL) ? EXIT_SUCCESS : EXIT_FAILURE;
+         ])],
         AC_MSG_RESULT(yes)
         AC_DEFINE([HAVE_GETCWD_DYN], [1],
                   [Define to 1 if getcwd(NULL, 0) works]),

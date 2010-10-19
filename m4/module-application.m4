@@ -31,14 +31,9 @@ AC_DEFUN([ATF_MODULE_APPLICATION], [
     ATF_CHECK_STD_VSNPRINTF
 
     AC_MSG_CHECKING(whether getopt allows a + sign for POSIX behavior)
-    AC_TRY_RUN([
-#include <stdlib.h>
+    AC_RUN_IFELSE([AC_LANG_PROGRAM[#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-
-int
-main(void)
-{
+#include <unistd.h>], [
     int argc = 4;
     char* argv@<:@5@:>@ = {
         strdup("conftest"),
@@ -67,8 +62,7 @@ main(void)
     }
 
     return (seen_a && !seen_plus) ? EXIT_SUCCESS : EXIT_FAILURE;
-}
-],
+])],
     [getopt_allows_plus=yes
      AC_DEFINE([HAVE_GNU_GETOPT], [1],
                [Define to 1 if getopt allows a + sign for POSIX behavior])],
@@ -76,19 +70,15 @@ main(void)
     AC_MSG_RESULT(${getopt_allows_plus})
 
     AC_MSG_CHECKING(whether getopt has optreset)
-    AC_TRY_COMPILE([
-#include <stdlib.h>
-#include <unistd.h>
-
-int
-main(void)
-{
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([#include <stdlib.h>
+#include <unistd.h>], [
     optreset = 1;
     return EXIT_SUCCESS;
-}
-],
-    [getopt_has_optreset=yes
-     AC_DEFINE([HAVE_OPTRESET], [1], [Define to 1 if getopt has optreset])],
+])],
+    [getopt_has_optreset=yes],
     [getopt_has_optreset=no])
+    if test x"${getopt_has_optreset}" = yes; then
+        AC_DEFINE([HAVE_OPTRESET], [1], [Define to 1 if getopt has optreset])
+    fi
     AC_MSG_RESULT(${getopt_has_optreset})
 ])

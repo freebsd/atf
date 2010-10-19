@@ -29,17 +29,12 @@ dnl
 
 AC_DEFUN([ATF_MODULE_SIGNALS], [
     AC_MSG_CHECKING(for the last valid signal)
-    AC_TRY_RUN([
-#include <err.h>
+    AC_RUN_IFELSE([AC_LANG_PROGRAM([#include <err.h>
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdio.h>
-#include <stdlib.h>
-
-int
-main(void)
-{
+#include <stdlib.h>], [
     int i;
     FILE *f;
 
@@ -75,8 +70,7 @@ main(void)
     fclose(f);
 
     return EXIT_SUCCESS;
-}
-],
+])],
     [if test ! -f conftest.cnt; then
          last_signo=15
          AC_MSG_RESULT(failed; assuming ${last_signo})

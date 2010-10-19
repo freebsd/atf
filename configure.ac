@@ -35,7 +35,7 @@ AC_INIT([Automated Testing Framework], [0.11], [atf-devel@NetBSD.org], [atf],
         [http://www.NetBSD.org/~jmmv/atf/])
 AC_PREREQ([2.65])
 AC_COPYRIGHT([Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.])
-AC_DEFINE(PACKAGE_COPYRIGHT,
+AC_DEFINE([PACKAGE_COPYRIGHT],
           ["Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc."],
           [Define to the copyright string applicable to this package.])
 AC_CONFIG_AUX_DIR([admin])
@@ -48,6 +48,7 @@ AC_CANONICAL_TARGET
 
 AM_INIT_AUTOMAKE([1.9 check-news foreign subdir-objects -Wall])
 
+LT_INIT([disable-shared])
 dnl This is just a hack to reverse the meaning of the --enable-shared
 dnl flag provided by libtool.  We want it to default to building static
 dnl libraries only for now, but these are painful during development.
@@ -63,8 +64,6 @@ AC_ARG_ENABLE(unstable-shared,
      *) enable_shared=${enableval} ;;
      esac],
     [enable_shared=no])
-
-AC_PROG_LIBTOOL
 
 dnl -----------------------------------------------------------------------
 dnl Check for the C and C++ compilers and required features.

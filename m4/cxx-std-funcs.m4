@@ -30,11 +30,7 @@ dnl
 AC_DEFUN([ATF_CHECK_IN_STD], [
     AC_MSG_CHECKING(whether $1 is in std)
     AC_COMPILE_IFELSE(
-        [$2
-         int main(void) {
-             $3
-             return 0;
-         }],
+        [AC_LANG_PROGRAM([$2], [$3 return 0;])],
         AC_MSG_RESULT(yes)
         AC_DEFINE([HAVE_]translit($1, [a-z], [A-Z])[_IN_STD], [1],
                   [Define to 1 if $1 is in std]),

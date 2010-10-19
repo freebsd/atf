@@ -35,15 +35,13 @@ AC_DEFUN([ATF_MODULE_DEFS], [
     dnl atf-c++/t_pkg_config:cxx_build check.
     AC_MSG_CHECKING(whether __attribute__((noreturn)) is supported)
     AC_RUN_IFELSE(
-        [int main(void)
-{
+        [AC_LANG_PROGRAM([], [
 #if ((__GNUC__ == 2 && __GNUC_MINOR__ >= 5) || __GNUC__ > 2)
     return 0;
 #else
     return 1;
 #endif
-}
-        ],
+])],
         [AC_MSG_RESULT(yes)
          value="__attribute__((noreturn))"],
         [AC_MSG_RESULT(no)

@@ -43,7 +43,7 @@ AC_DEFUN([ATF_CC_FLAG], [
     saved_cflags="${CFLAGS}"
     valid_cflag=no
     CFLAGS="${CFLAGS} $1"
-    AC_LINK_IFELSE([int main(void) { return 0; }],
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([], [return 0;])],
                    AC_MSG_RESULT(yes)
                    valid_cflag=yes,
                    AC_MSG_RESULT(no))
@@ -82,7 +82,7 @@ AC_DEFUN([ATF_CXX_FLAG], [
     saved_cxxflags="${CXXFLAGS}"
     valid_cxxflag=no
     CXXFLAGS="${CXXFLAGS} $1"
-    AC_LINK_IFELSE([int main(void) { return 0; }],
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([], [return 0;])],
                    AC_MSG_RESULT(yes)
                    valid_cxxflag=yes,
                    AC_MSG_RESULT(no))
