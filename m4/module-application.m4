@@ -30,8 +30,9 @@ dnl
 AC_DEFUN([ATF_MODULE_APPLICATION], [
     ATF_CHECK_STD_VSNPRINTF
 
+    AC_LANG_PUSH([C])
     AC_MSG_CHECKING(whether getopt allows a + sign for POSIX behavior)
-    AC_RUN_IFELSE([AC_LANG_PROGRAM[#include <stdlib.h>
+    AC_RUN_IFELSE([AC_LANG_PROGRAM([#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>], [
     int argc = 4;
@@ -68,7 +69,9 @@ AC_DEFUN([ATF_MODULE_APPLICATION], [
                [Define to 1 if getopt allows a + sign for POSIX behavior])],
     [getopt_allows_plus=no])
     AC_MSG_RESULT(${getopt_allows_plus})
+    AC_LANG_POP([C])
 
+    AC_LANG_PUSH([C])
     AC_MSG_CHECKING(whether getopt has optreset)
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([#include <stdlib.h>
 #include <unistd.h>], [
@@ -81,4 +84,5 @@ AC_DEFUN([ATF_MODULE_APPLICATION], [
         AC_DEFINE([HAVE_OPTRESET], [1], [Define to 1 if getopt has optreset])
     fi
     AC_MSG_RESULT(${getopt_has_optreset})
+    AC_LANG_POP([C])
 ])

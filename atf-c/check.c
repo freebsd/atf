@@ -412,7 +412,7 @@ atf_check_build_c_o(const char *sfile,
     if (atf_is_error(err))
         goto out;
 
-    err = check_build_run((const char **)argv, success);
+    err = check_build_run((const char *const *)argv, success);
 
     atf_utils_free_charpp(argv);
 out:
@@ -432,7 +432,7 @@ atf_check_build_cpp(const char *sfile,
     if (atf_is_error(err))
         goto out;
 
-    err = check_build_run((const char **)argv, success);
+    err = check_build_run((const char *const *)argv, success);
 
     atf_utils_free_charpp(argv);
 out:
@@ -452,7 +452,7 @@ atf_check_build_cxx_o(const char *sfile,
     if (atf_is_error(err))
         goto out;
 
-    err = check_build_run((const char **)argv, success);
+    err = check_build_run((const char *const *)argv, success);
 
     atf_utils_free_charpp(argv);
 out:
