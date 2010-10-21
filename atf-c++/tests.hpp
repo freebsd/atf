@@ -54,6 +54,8 @@ public:
     void tc_meta_data(const std::string&, const std::string&);
 };
 
+bool match(const std::string&, const std::string&);
+
 } // namespace
 
 // ------------------------------------------------------------------------

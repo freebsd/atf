@@ -7,7 +7,9 @@ Changes in version 0.12
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET!
 
-* No changes recorded.
+* Added the ATF_REQUIRE_THROW_RE to atf-c++, which is the same as
+  ATF_REQUIRE_THROW but allows checking for the validity of the exception's
+  error message by means of a regular expression.
 
 
 Changes in version 0.11

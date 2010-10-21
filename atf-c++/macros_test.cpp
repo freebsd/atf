@@ -146,6 +146,30 @@ ATF_TEST_CASE_BODY(h_require_throw)
     create_ctl_file(*this, "after");
 }
 
+ATF_TEST_CASE(h_require_throw_re);
+ATF_TEST_CASE_HEAD(h_require_throw_re)
+{
+    set_md_var("descr", "Helper test case");
+}
+ATF_TEST_CASE_BODY(h_require_throw_re)
+{
+    create_ctl_file(*this, "before");
+
+    if (get_config_var("what") == "throw_int")
+        ATF_REQUIRE_THROW_RE(std::runtime_error, "5", if (1) throw int(5));
+    else if (get_config_var("what") == "throw_rt_match")
+        ATF_REQUIRE_THROW_RE(std::runtime_error, "foo.*baz",
+                             if (1) throw std::runtime_error("a foo bar baz"));
+    else if (get_config_var("what") == "throw_rt_no_match")
+        ATF_REQUIRE_THROW_RE(std::runtime_error, "foo.*baz",
+                             if (1) throw std::runtime_error("baz foo bar a"));
+    else if (get_config_var("what") == "no_throw_rt")
+        ATF_REQUIRE_THROW_RE(std::runtime_error, "e",
+                             if (0) throw std::runtime_error("e"));
+
+    create_ctl_file(*this, "after");
+}
+
 static int
 errno_fail_stub(const int raised_errno)
 {
@@ -388,6 +412,57 @@ ATF_TEST_CASE_BODY(require_throw)
     }
 }
 
+ATF_TEST_CASE(require_throw_re);
+ATF_TEST_CASE_HEAD(require_throw_re)
+{
+    set_md_var("descr", "Tests the ATF_REQUIRE_THROW_RE macro");
+    set_md_var("use.fs", "true");
+}
+ATF_TEST_CASE_BODY(require_throw_re)
+{
+    struct test {
+        const char *what;
+        bool ok;
+        const char *msg;
+    } *t, tests[] = {
+        { "throw_int", false, "unexpected error" },
+        { "throw_rt_match", true, NULL },
+        { "throw_rt_no_match", true, "threw.*runtime_error(baz foo bar a).*"
+          "does not match 'a foo bar baz'" },
+        { "no_throw_rt", false, "did not throw" },
+        { NULL, false, NULL }
+    };
+
+    const atf::fs::path before("before");
+    const atf::fs::path after("after");
+
+    for (t = &tests[0]; t->what != NULL; t++) {
+        atf::tests::vars_map config;
+        config["what"] = t->what;
+
+        std::cout << "Checking with " << t->what << " and expecting "
+                  << (t->ok ? "true" : "false") << "\n";
+
+        run_h_tc< ATF_TEST_CASE_NAME(h_require_throw) >(config);
+
+        ATF_REQUIRE(atf::fs::exists(before));
+        if (t->ok) {
+            ATF_REQUIRE(grep_file("result", "^passed"));
+            ATF_REQUIRE(atf::fs::exists(after));
+        } else {
+            std::cout << "Checking that message contains '" << t->msg
+                      << "'\n";
+            std::string exp_result = std::string("^failed: .*") + t->msg;
+            ATF_REQUIRE(grep_file("result", exp_result.c_str()));
+            ATF_REQUIRE(!atf::fs::exists(after));
+        }
+
+        atf::fs::remove(before);
+        if (t->ok)
+            atf::fs::remove(after);
+    }
+}
+
 ATF_TEST_CASE(check_errno);
 ATF_TEST_CASE_HEAD(check_errno)
 {
@@ -509,6 +584,7 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, require);
     ATF_ADD_TEST_CASE(tcs, require_eq);
     ATF_ADD_TEST_CASE(tcs, require_throw);
+    ATF_ADD_TEST_CASE(tcs, require_throw_re);
     ATF_ADD_TEST_CASE(tcs, require_errno);
 
     // Add the test cases for the header file.

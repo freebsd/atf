@@ -123,6 +123,35 @@
         } \
     } while (false)
 
+#define ATF_REQUIRE_THROW_RE(type, regexp, x) \
+    do { \
+        try { \
+            x; \
+            std::ostringstream atfu_ss; \
+            atfu_ss << "Line " << __LINE__ << ": " #x " did not throw " \
+                        #type " as expected"; \
+            atf::tests::tc::fail(atfu_ss.str()); \
+        } catch (const type& e) { \
+            if (!atf::tests::detail::match(e.what(), regexp)) { \
+                std::ostringstream atfu_ss; \
+                atfu_ss << "Line " << __LINE__ << ": " #x " threw " #type "(" \
+                        << e.what() << "), but does not match '" << regexp \
+                        << "'"; \
+                atf::tests::tc::fail(atfu_ss.str()); \
+            } \
+        } catch (const std::exception& atfu_e) { \
+            std::ostringstream atfu_ss; \
+            atfu_ss << "Line " << __LINE__ << ": " #x " threw an " \
+                        "unexpected error (not " #type "): " << atfu_e.what(); \
+            atf::tests::tc::fail(atfu_ss.str()); \
+        } catch (...) { \
+            std::ostringstream atfu_ss; \
+            atfu_ss << "Line " << __LINE__ << ": " #x " threw an " \
+                        "unexpected error (not " #type ")"; \
+            atf::tests::tc::fail(atfu_ss.str()); \
+        } \
+    } while (false)
+
 #define ATF_CHECK_ERRNO(exp_errno, bool_expr) \
     atf::tests::tc::check_errno(__FILE__, __LINE__, exp_errno, #bool_expr, \
                                 bool_expr)
