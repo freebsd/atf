@@ -115,7 +115,7 @@ detail::atf_tp_writer::tc_meta_data(const std::string& name,
 // ------------------------------------------------------------------------
 
 bool
-detail::match(const std::string& str, const std::string& regexp)
+detail::match(const std::string& regexp, const std::string& str)
 {
     return atf::text::match(str, regexp);
 }

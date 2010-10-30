@@ -11,6 +11,9 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET!
   ATF_REQUIRE_THROW but allows checking for the validity of the exception's
   error message by means of a regular expression.
 
+* Added the ATF_REQUIRE_MATCH to atf-c++, which allows checking for a
+  regular expression match in a string.
+
 
 Changes in version 0.11
 ***********************

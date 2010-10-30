@@ -125,6 +125,21 @@ ATF_TEST_CASE_BODY(h_require_eq)
     create_ctl_file(*this, "after");
 }
 
+ATF_TEST_CASE(h_require_match);
+ATF_TEST_CASE_HEAD(h_require_match)
+{
+    set_md_var("descr", "Helper test case");
+}
+ATF_TEST_CASE_BODY(h_require_match)
+{
+    const std::string regexp = get_config_var("regexp");
+    const std::string string = get_config_var("string");
+
+    create_ctl_file(*this, "before");
+    ATF_REQUIRE_MATCH(regexp, string);
+    create_ctl_file(*this, "after");
+}
+
 ATF_TEST_CASE(h_require_throw);
 ATF_TEST_CASE_HEAD(h_require_throw)
 {
@@ -363,6 +378,53 @@ ATF_TEST_CASE_BODY(require_eq)
     }
 }
 
+ATF_TEST_CASE(require_match);
+ATF_TEST_CASE_HEAD(require_match)
+{
+    set_md_var("descr", "Tests the ATF_REQUIRE_MATCH macro");
+    set_md_var("use.fs", "true");
+}
+ATF_TEST_CASE_BODY(require_match)
+{
+    struct test {
+        const char *regexp;
+        const char *string;
+        bool ok;
+    } *t, tests[] = {
+        { "foo.*bar", "this is a foo, bar, baz", true },
+        { "bar.*baz", "this is a baz, bar, foo", false },
+        { NULL, NULL, false }
+    };
+
+    const atf::fs::path before("before");
+    const atf::fs::path after("after");
+
+    for (t = &tests[0]; t->regexp != NULL; t++) {
+        atf::tests::vars_map config;
+        config["regexp"] = t->regexp;
+        config["string"] = t->string;
+
+        std::cout << "Checking with " << t->regexp << ", " << t->string
+                  << " and expecting " << (t->ok ? "true" : "false")
+                  << "\n";
+
+        run_h_tc< ATF_TEST_CASE_NAME(h_require_match) >(config);
+
+        ATF_REQUIRE(atf::fs::exists(before));
+        if (t->ok) {
+            ATF_REQUIRE(grep_file("result", "^passed"));
+            ATF_REQUIRE(atf::fs::exists(after));
+        } else {
+            ATF_REQUIRE(grep_file("result", "^failed: "));
+            ATF_REQUIRE(!atf::fs::exists(after));
+        }
+
+        atf::fs::remove(before);
+        if (t->ok)
+            atf::fs::remove(after);
+    }
+}
+
 ATF_TEST_CASE(require_throw);
 ATF_TEST_CASE_HEAD(require_throw)
 {
@@ -583,6 +645,7 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, check_errno);
     ATF_ADD_TEST_CASE(tcs, require);
     ATF_ADD_TEST_CASE(tcs, require_eq);
+    ATF_ADD_TEST_CASE(tcs, require_match);
     ATF_ADD_TEST_CASE(tcs, require_throw);
     ATF_ADD_TEST_CASE(tcs, require_throw_re);
     ATF_ADD_TEST_CASE(tcs, require_errno);

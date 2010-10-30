@@ -101,6 +101,16 @@
         } \
     } while (false)
 
+#define ATF_REQUIRE_MATCH(regexp, string) \
+    do { \
+        if (!atf::tests::detail::match(regexp, string)) { \
+            std::ostringstream atfu_ss; \
+            atfu_ss << "Line " << __LINE__ << ": '" << string << "' does not " \
+                    << "match regexp '" << regexp << "'"; \
+            atf::tests::tc::fail(atfu_ss.str()); \
+        } \
+    } while (false)
+
 #define ATF_REQUIRE_THROW(e, x) \
     do { \
         try { \
@@ -132,7 +142,7 @@
                         #type " as expected"; \
             atf::tests::tc::fail(atfu_ss.str()); \
         } catch (const type& e) { \
-            if (!atf::tests::detail::match(e.what(), regexp)) { \
+            if (!atf::tests::detail::match(regexp, e.what())) { \
                 std::ostringstream atfu_ss; \
                 atfu_ss << "Line " << __LINE__ << ": " #x " threw " #type "(" \
                         << e.what() << "), but does not match '" << regexp \
