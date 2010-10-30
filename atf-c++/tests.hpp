@@ -34,6 +34,10 @@
 #include <memory>
 #include <string>
 
+extern "C" {
+#include <atf-c/defs.h>
+}
+
 #include <atf-c++/utils.hpp>
 
 namespace atf {
@@ -101,10 +105,10 @@ public:
     void run_cleanup(void) const;
 
     // To be called from the child process only.
-    static void pass(void);
-    static void fail(const std::string&);
+    static void pass(void) ATF_DEFS_ATTRIBUTE_NORETURN;
+    static void fail(const std::string&) ATF_DEFS_ATTRIBUTE_NORETURN;
     static void fail_nonfatal(const std::string&);
-    static void skip(const std::string&);
+    static void skip(const std::string&) ATF_DEFS_ATTRIBUTE_NORETURN;
     static void check_errno(const char*, const int, const int, const char*,
                             const bool);
     static void require_errno(const char*, const int, const int, const char*,
