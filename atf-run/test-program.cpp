@@ -108,7 +108,7 @@ class metadata_reader : public detail::atf_tp_reader {
             m_tcs[ident].insert(std::make_pair("has.cleanup", "false"));
 
         if (m_tcs[ident].find("timeout") == m_tcs[ident].end())
-            m_tcs[ident].insert(std::make_pair("timeout", "300"));
+            m_tcs[ident].insert(std::make_pair("timeout", "30"));
 
         if (m_tcs[ident].find("use.fs") == m_tcs[ident].end())
             m_tcs[ident].insert(std::make_pair("use.fs", "false"));

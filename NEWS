@@ -14,6 +14,11 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET!
 * Added the ATF_REQUIRE_MATCH to atf-c++, which allows checking for a
   regular expression match in a string.
 
+* Changed the default timeout for test cases from 5 minutes to 30 seconds.
+  30 seconds is long enough for virtually all tests to complete, and 5
+  minutes is a way too long pause in a test suite where a single test case
+  stalls.
+
 
 Changes in version 0.11
 ***********************
