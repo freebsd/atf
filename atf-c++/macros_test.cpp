@@ -248,7 +248,6 @@ ATF_TEST_CASE(pass);
 ATF_TEST_CASE_HEAD(pass)
 {
     set_md_var("descr", "Tests the ATF_PASS macro");
-    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(pass)
 {
@@ -262,7 +261,6 @@ ATF_TEST_CASE(fail);
 ATF_TEST_CASE_HEAD(fail)
 {
     set_md_var("descr", "Tests the ATF_FAIL macro");
-    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(fail)
 {
@@ -276,7 +274,6 @@ ATF_TEST_CASE(skip);
 ATF_TEST_CASE_HEAD(skip)
 {
     set_md_var("descr", "Tests the ATF_SKIP macro");
-    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(skip)
 {
@@ -290,7 +287,6 @@ ATF_TEST_CASE(require);
 ATF_TEST_CASE_HEAD(require)
 {
     set_md_var("descr", "Tests the ATF_REQUIRE macro");
-    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(require)
 {
@@ -333,7 +329,6 @@ ATF_TEST_CASE(require_eq);
 ATF_TEST_CASE_HEAD(require_eq)
 {
     set_md_var("descr", "Tests the ATF_REQUIRE_EQ macro");
-    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(require_eq)
 {
@@ -382,7 +377,6 @@ ATF_TEST_CASE(require_match);
 ATF_TEST_CASE_HEAD(require_match)
 {
     set_md_var("descr", "Tests the ATF_REQUIRE_MATCH macro");
-    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(require_match)
 {
@@ -429,7 +423,6 @@ ATF_TEST_CASE(require_throw);
 ATF_TEST_CASE_HEAD(require_throw)
 {
     set_md_var("descr", "Tests the ATF_REQUIRE_THROW macro");
-    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(require_throw)
 {
@@ -478,7 +471,6 @@ ATF_TEST_CASE(require_throw_re);
 ATF_TEST_CASE_HEAD(require_throw_re)
 {
     set_md_var("descr", "Tests the ATF_REQUIRE_THROW_RE macro");
-    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(require_throw_re)
 {
@@ -529,7 +521,6 @@ ATF_TEST_CASE(check_errno);
 ATF_TEST_CASE_HEAD(check_errno)
 {
     set_md_var("descr", "Tests the ATF_CHECK_ERRNO macro");
-    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(check_errno)
 {
@@ -577,7 +568,6 @@ ATF_TEST_CASE(require_errno);
 ATF_TEST_CASE_HEAD(require_errno)
 {
     set_md_var("descr", "Tests the ATF_REQUIRE_ERRNO macro");
-    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(require_errno)
 {

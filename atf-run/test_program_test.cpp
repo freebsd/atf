@@ -758,12 +758,11 @@ ATF_TEST_CASE_BODY(get_metadata_several_tcs) {
             md.test_cases.find("first");
         ATF_REQUIRE(iter != md.test_cases.end());
 
-        ATF_REQUIRE_EQ(5, (*iter).second.size());
+        ATF_REQUIRE_EQ(4, (*iter).second.size());
         check_property((*iter).second, "descr", "Description 1");
         check_property((*iter).second, "has.cleanup", "false");
         check_property((*iter).second, "ident", "first");
         check_property((*iter).second, "timeout", "30");
-        check_property((*iter).second, "use.fs", "false");
     }
 
     {
@@ -771,12 +770,11 @@ ATF_TEST_CASE_BODY(get_metadata_several_tcs) {
             md.test_cases.find("second");
         ATF_REQUIRE(iter != md.test_cases.end());
 
-        ATF_REQUIRE_EQ(6, (*iter).second.size());
+        ATF_REQUIRE_EQ(5, (*iter).second.size());
         check_property((*iter).second, "descr", "Description 2");
         check_property((*iter).second, "has.cleanup", "true");
         check_property((*iter).second, "ident", "second");
         check_property((*iter).second, "timeout", "500");
-        check_property((*iter).second, "use.fs", "true");
         check_property((*iter).second, "X-property", "Custom property");
     }
 
@@ -785,11 +783,10 @@ ATF_TEST_CASE_BODY(get_metadata_several_tcs) {
             md.test_cases.find("third");
         ATF_REQUIRE(iter != md.test_cases.end());
 
-        ATF_REQUIRE_EQ(4, (*iter).second.size());
+        ATF_REQUIRE_EQ(3, (*iter).second.size());
         check_property((*iter).second, "has.cleanup", "false");
         check_property((*iter).second, "ident", "third");
         check_property((*iter).second, "timeout", "30");
-        check_property((*iter).second, "use.fs", "false");
     }
 }
 
@@ -899,10 +896,7 @@ ATF_TEST_CASE_BODY(parse_test_case_result_unknown) {
                     detail::parse_test_case_result("baz: foo"));
 }
 
-ATF_TEST_CASE(read_test_case_result_failed);
-ATF_TEST_CASE_HEAD(read_test_case_result_failed) {
-    set_md_var("use.fs", "true");
-}
+ATF_TEST_CASE_WITHOUT_HEAD(read_test_case_result_failed);
 ATF_TEST_CASE_BODY(read_test_case_result_failed) {
     write_test_case_result("resfile", "failed: foo bar\n");
     const impl::test_case_result tcr = impl::read_test_case_result(
@@ -911,10 +905,7 @@ ATF_TEST_CASE_BODY(read_test_case_result_failed) {
     ATF_REQUIRE_EQ("foo bar", tcr.reason());
 }
 
-ATF_TEST_CASE(read_test_case_result_skipped);
-ATF_TEST_CASE_HEAD(read_test_case_result_skipped) {
-    set_md_var("use.fs", "true");
-}
+ATF_TEST_CASE_WITHOUT_HEAD(read_test_case_result_skipped);
 ATF_TEST_CASE_BODY(read_test_case_result_skipped) {
     write_test_case_result("resfile", "skipped: baz bar\n");
     const impl::test_case_result tcr = impl::read_test_case_result(
@@ -931,30 +922,21 @@ ATF_TEST_CASE_BODY(read_test_case_result_no_file) {
                     impl::read_test_case_result(atf::fs::path("resfile")));
 }
 
-ATF_TEST_CASE(read_test_case_result_empty_file);
-ATF_TEST_CASE_HEAD(read_test_case_result_empty_file) {
-    set_md_var("use.fs", "true");
-}
+ATF_TEST_CASE_WITHOUT_HEAD(read_test_case_result_empty_file);
 ATF_TEST_CASE_BODY(read_test_case_result_empty_file) {
     write_test_case_result("resfile", "");
     ATF_REQUIRE_THROW(std::runtime_error,
                     impl::read_test_case_result(atf::fs::path("resfile")));
 }
 
-ATF_TEST_CASE(read_test_case_result_invalid);
-ATF_TEST_CASE_HEAD(read_test_case_result_invalid) {
-    set_md_var("use.fs", "true");
-}
+ATF_TEST_CASE_WITHOUT_HEAD(read_test_case_result_invalid);
 ATF_TEST_CASE_BODY(read_test_case_result_invalid) {
     write_test_case_result("resfile", "passed: hello\n");
     ATF_REQUIRE_THROW(std::runtime_error,
                     impl::read_test_case_result(atf::fs::path("resfile")));
 }
 
-ATF_TEST_CASE(read_test_case_result_multiline);
-ATF_TEST_CASE_HEAD(read_test_case_result_multiline) {
-    set_md_var("use.fs", "true");
-}
+ATF_TEST_CASE_WITHOUT_HEAD(read_test_case_result_multiline);
 ATF_TEST_CASE_BODY(read_test_case_result_multiline) {
     write_test_case_result("resfile", "skipped: foo\nbar\n");
     const impl::test_case_result tcr = impl::read_test_case_result(

@@ -19,6 +19,14 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET!
   minutes is a way too long pause in a test suite where a single test case
   stalls.
 
+* Deprecated the use.fs property.  While this seemed like a good idea in
+  the first place to impose more control on what test cases can do, it
+  turns out to be bad.  First, use.fs=false prevents bogus test cases
+  from dumping core so after-the-fact debugging is harder.  Second,
+  supporting use.fs adds a lot of unnecessary complexity.  atf-run will
+  now ignore any value provided to use.fs and will allow test cases to
+  freely access the file system if they wish to.
+
 
 Changes in version 0.11
 ***********************

@@ -109,9 +109,6 @@ class metadata_reader : public detail::atf_tp_reader {
 
         if (m_tcs[ident].find("timeout") == m_tcs[ident].end())
             m_tcs[ident].insert(std::make_pair("timeout", "30"));
-
-        if (m_tcs[ident].find("use.fs") == m_tcs[ident].end())
-            m_tcs[ident].insert(std::make_pair("use.fs", "false"));
     }
 
 public:
@@ -422,12 +419,7 @@ detail::atf_tp_reader::validate_and_insert(const std::string& name,
             throw parse_error(lineno, "The timeout property requires an integer"
                               " value");
     } else if (name == "use.fs") {
-        try {
-            (void)atf::text::to_bool(value);
-        } catch (const std::runtime_error&) {
-            throw parse_error(lineno, "The use.fs property requires a boolean"
-                              " value");
-        }
+        // Deprecated; ignore it.
     } else if (name.size() > 2 && name[0] == 'X' && name[1] == '-') {
         // Any non-empty value is valid.
     } else {

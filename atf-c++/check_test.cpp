@@ -188,7 +188,6 @@ ATF_TEST_CASE(build_c_o);
 ATF_TEST_CASE_HEAD(build_c_o)
 {
     set_md_var("descr", "Tests the build_c_o function");
-    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(build_c_o)
 {
@@ -207,7 +206,6 @@ ATF_TEST_CASE(build_cpp);
 ATF_TEST_CASE_HEAD(build_cpp)
 {
     set_md_var("descr", "Tests the build_cpp function");
-    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(build_cpp)
 {
@@ -227,7 +225,6 @@ ATF_TEST_CASE(build_cxx_o);
 ATF_TEST_CASE_HEAD(build_cxx_o)
 {
     set_md_var("descr", "Tests the build_cxx_o function");
-    set_md_var("use.fs", "true");
 }
 ATF_TEST_CASE_BODY(build_cxx_o)
 {
