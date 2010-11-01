@@ -27,6 +27,10 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET!
   now ignore any value provided to use.fs and will allow test cases to
   freely access the file system if they wish to.
 
+* Added the atf_tc_get_config_var_as_{bool,long}{,_wd} functions to the atf-c
+  library.  The 'text' module became private in 0.11 but was being used
+  externally to simplify the parsing of configuration variables.
+
 
 Changes in version 0.11
 ***********************
