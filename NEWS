@@ -31,6 +31,12 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET!
   library.  The 'text' module became private in 0.11 but was being used
   externally to simplify the parsing of configuration variables.
 
+* Made atf-run recognize the 'unprivileged-user' configuration variable
+  and automatically drop root privileges when a test case sets
+  require.user=unprivileged.  Note that this is, by no means, done for
+  security purposes; this is just for user convenience; tests should, in
+  general, not be blindly run as root in the first place.
+
 
 Changes in version 0.11
 ***********************

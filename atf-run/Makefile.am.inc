@@ -112,9 +112,11 @@ tests_atf_run_PROGRAMS += atf-run/test_program_test
 atf_run_test_program_test_SOURCES = atf-run/test_program_test.cpp \
                                     atf-run/fs.cpp \
                                     atf-run/io.cpp \
+                                    atf-run/requirements.cpp \
                                     atf-run/signals.cpp \
                                     atf-run/test-program.cpp \
-                                    atf-run/timer.cpp
+                                    atf-run/timer.cpp \
+                                    atf-run/user.cpp
 atf_run_test_program_test_CPPFLAGS = -I$(srcdir)/atf-c++/detail
 atf_run_test_program_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.la
 

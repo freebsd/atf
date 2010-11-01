@@ -356,7 +356,10 @@ atf_run::run_test_program(const atf::fs::path& tp,
                 continue;
             }
 
-            const atf::fs::path resfile = resdir.get_path() / "tcr";
+            const std::pair< int, int > user = impl::get_required_user(
+                tcmd, config);
+
+            atf::fs::path resfile = resdir.get_path() / "tcr";
             INV(!atf::fs::exists(resfile));
             try {
                 const bool has_cleanup = atf::text::to_bool(
@@ -364,6 +367,11 @@ atf_run::run_test_program(const atf::fs::path& tp,
 
                 impl::temp_dir workdir(atf::fs::path(atf::config::get(
                     "atf_workdir")) / "atf-run.XXXXXX");
+                if (user.first != -1 && user.second != -1) {
+                    ::chown(workdir.get_path().c_str(), user.first,
+                            user.second);
+                    resfile = workdir.get_path() / "tcr";
+                }
 
                 std::pair< std::string, const atf::process::status > s =
                     impl::run_test_case(tp, tcname, "body", tcmd, config,

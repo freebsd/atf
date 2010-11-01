@@ -50,9 +50,11 @@ extern "C" {
 #include "config.hpp"
 #include "fs.hpp"
 #include "io.hpp"
+#include "requirements.hpp"
 #include "signals.hpp"
 #include "test-program.hpp"
 #include "timer.hpp"
+#include "user.hpp"
 
 namespace impl = atf::atf_run;
 namespace detail = atf::atf_run::detail;
@@ -263,6 +265,11 @@ run_test_case_child(void* raw_params)
 {
     const test_case_params* params =
         static_cast< const test_case_params* >(raw_params);
+
+    const std::pair< int, int > user = impl::get_required_user(
+        params->metadata, params->config);
+    if (user.first != -1 && user.second != -1)
+        impl::drop_privileges(user);
 
     // The input 'tp' parameter may be relative and become invalid once
     // we change the current working directory.
