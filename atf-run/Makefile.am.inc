@@ -136,4 +136,13 @@ atf-run/integration_test: $(srcdir)/atf-run/integration_test.sh
 	@src="$(srcdir)/atf-run/integration_test.sh"; \
 	dst="atf-run/integration_test"; $(BUILD_SH_TP)
 
+hooksdir = $(pkgdatadir)
+hooks_DATA = atf-run/share/atf-run.hooks
+EXTRA_DIST += $(hooks_DATA)
+
+egdir = $(atf_egdir)
+eg_DATA = atf-run/sample/atf-run.hooks
+eg_DATA += atf-run/sample/common.conf
+EXTRA_DIST += $(eg_DATA)
+
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

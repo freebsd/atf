@@ -51,12 +51,4 @@ atf-version/revision.h.stamp:
 	    -m "$(MTN)" -r $(top_srcdir) -o atf-version/revision.h.stamp \
 	    -v $(PACKAGE_VERSION)
 
-hooksdir = $(pkgdatadir)
-hooks_DATA = atf-run/share/atf-run.hooks
-EXTRA_DIST += $(hooks_DATA)
-
-egdir = $(atf_egdir)
-eg_DATA = atf-run/sample/atf-run.hooks
-EXTRA_DIST += $(eg_DATA)
-
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
