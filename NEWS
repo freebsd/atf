@@ -5,7 +5,7 @@ Major changes between releases                  Automated Testing Framework
 Changes in version 0.12
 ***********************
 
-STILL UNDER DEVELOPMENT; NOT RELEASED YET!
+Experimental version released on November 7th, 2010.
 
 * Added the ATF_REQUIRE_THROW_RE to atf-c++, which is the same as
   ATF_REQUIRE_THROW but allows checking for the validity of the exception's
