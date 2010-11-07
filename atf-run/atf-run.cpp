@@ -368,8 +368,12 @@ atf_run::run_test_program(const atf::fs::path& tp,
                 impl::temp_dir workdir(atf::fs::path(atf::config::get(
                     "atf_workdir")) / "atf-run.XXXXXX");
                 if (user.first != -1 && user.second != -1) {
-                    ::chown(workdir.get_path().c_str(), user.first,
-                            user.second);
+                    if (::chown(workdir.get_path().c_str(), user.first,
+                                user.second) == -1) {
+                        throw atf::system_error("chmod(" +
+                            workdir.get_path().str() + ")", "chmod(2) failed",
+                            errno);
+                    }
                     resfile = workdir.get_path() / "tcr";
                 }
 
