@@ -7,6 +7,10 @@ Changes in version 0.13
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
+* Reverted default timeout change in previous release and reset its value
+  to 5 minutes.  This was causing several issues, specially when running
+  the existing NetBSD test suite in qemu.
+
 
 Changes in version 0.12
 ***********************
