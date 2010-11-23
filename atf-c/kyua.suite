@@ -1,0 +1,10 @@
+include detail/kyua.suite
+atf_c_test
+build_test
+check_test
+config_test
+error_test
+macros_test
+tc_test
+tp_test
+utils_test

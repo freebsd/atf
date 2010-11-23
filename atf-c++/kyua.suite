@@ -1,0 +1,9 @@
+include detail/kyua.suite
+atf_c++_test
+build_test
+check_test
+config_test
+macros_test
+pkg_config_test
+tests_test
+utils_test
