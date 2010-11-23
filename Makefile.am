@@ -69,7 +69,7 @@ TESTS_ENVIRONMENT = PATH=$(prefix)/bin:$${PATH} \
                     PKG_CONFIG_PATH=$(prefix)/lib/pkgconfig
 
 testsdir = $(exec_prefix)/tests
-pkgtestsdir = $(testsdir)/atf
+pkgtestsdir = $(testsdir)/$(PACKAGE)
 
 installcheck-local: installcheck-atf
 .PHONY: installcheck-atf
