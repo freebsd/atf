@@ -7,6 +7,9 @@ Changes in version 0.13
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
+* Fixed the 'match' output checker in atf-check to properly validate the
+  last line of a file even if it does not have a newline.
+
 
 Changes in version 0.12
 ***********************
