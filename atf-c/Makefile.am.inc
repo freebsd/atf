@@ -98,6 +98,7 @@ atf-c/atf-c.pc: $(srcdir)/atf-c/atf-c.pc.in
 	mv atf-c/atf-c.pc.tmp atf-c/atf-c.pc
 
 tests_atf_c_DATA = atf-c/Atffile \
+                   atf-c/kyua.suite \
                    atf-c/macros_h_test.c
 tests_atf_cdir = $(pkgtestsdir)/atf-c
 EXTRA_DIST += $(tests_atf_c_DATA)

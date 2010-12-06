@@ -1,0 +1,7 @@
+tc_test
+tp_test
+normalize_test
+config_test
+atf-check_test
+atf_check_test
+integration_test

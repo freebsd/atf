@@ -43,7 +43,8 @@ EXTRA_DIST += $(atf_sh_DATA)
 
 dist_man_MANS += atf-sh/atf-sh-api.3
 
-tests_atf_sh_DATA = atf-sh/Atffile
+tests_atf_sh_DATA = atf-sh/Atffile \
+                    atf-sh/kyua.suite
 tests_atf_shdir = $(pkgtestsdir)/atf-sh
 EXTRA_DIST += $(tests_atf_sh_DATA)
 

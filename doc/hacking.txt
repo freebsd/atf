@@ -1,0 +1,63 @@
+= Guidelines for contributing to the source tree =
+
+This document contains multiple items that should be taken into account when contributing to this project.
+
+== The repository ==
+
+The project's code is managed with the Monotone version control system.  This gives you, a potential contributor, a lot of freedom in how to manage the code and your changes on top of it.
+
+Please read http://www.venge.net/mtn-wiki/BestPractices for multiple tips on how to best use monotone.  Of special importance is the daggy fixes work-flow pattern: http://www.venge.net/mtn-wiki/DaggyFixes.
+
+As regards commit messages, we use a "mail-style" formatting approach.  Your message must be composed of a single-line subject sentence that summarizes the whole change, and later be described in detail in subsequent paragraphs.  This is so that visualization tools such as ViewMTN can show useful summary lines for changes.  It also forces you to verify your changes more carefully before committing them.
+
+== Licensing ==
+
+All your changes must be under the same terms of the BSD license that covers the project; see the COPYING file for more details.
+
+Additionally, you must transfer the copyright of your work to The NetBSD Foundation, Inc.  This is required for two reasons:
+
+ * Transferring the copyright ensures that all the code is under the same license terms.  This lessens the trouble caused by the ''advertising'' clause in the BSD license used by the project, as ads mentioning it will only have to include a single copyright notice.  It also makes describing the license to other people a lot easier.
+
+ * Should we ever want to relicense the project under a 3-clause BSD license (as planned), the trouble to do it will be minimal because we will not have to contact many authors to ask for permission for the change.
+
+== Coding style ==
+
+Be consistent with the style of the file you are modifying.  If you have any doubt as to how you should format a specific construction, look for a similar one in that or other files and mimic its style.
+
+Run 'make check-style' after changes to do some basic sanity-checks on the coding style.  Note that it is not possible to create a distribution file (aka 'make dist') unless these check pass.Clearly inconsistent changes will be banned from integration unless fixed.
+
+At last, some very important rules:
+
+ * Indentation is 4 spaces. * Tabs are forbidden.  Everywhere.  (Oh, well, except for Makefile targets, but in that case only the first character on every line can be a tab.)
+
+ * No trailing whitespace.
+
+If any of these rules are not followed, the offending code will be changed without notice to fulfill them.  This will possibly cause merge problems to users who may have branched the code, so please be kind and follow the rules.
+
+Some rules for C++ code:
+
+ * When declaring pointers and references, stick the * and & symbols to the types, not the variable names.  Henceforth, do `char* foo` instead of `char *foo`.
+
+When in doubt, try to find existing code that is similar to what you are writing and follow its style.
+
+== Commit guidelines ==
+
+ * The format of commit messages is: a single-line summary of the purpose of the change, followed by a blank line and followed by a free-form, detailed description that may span multiple paragraphs.  Always follow this format, even if writing the description seems redundant in some cases.
+
+ Rationale: some tools (such as monotone-viz) only show the first line of the message in revision summaries.
+
+ * Commits in monotone are cheap and fast, so abuse them.  Commit often and with a fine granularity.  If you find yourself writing a commit message as a list of items, then you are most likely doing it the wrong way.  Stop the commit (without writing the log message) and split your work in pieces.
+
+ For example, suppose you are adding a new feature to a front-end tool and along the process you need to add a minor function to an existing module.  The first commit would include the changes required to add this minor function and its unit tests, all in one single change set.  The second commit would add your new feature.
+
+ Rationale: small commits are easier to review and to cherry-pick.
+
+ * Branch if needed.  If you are reworking a big part of the code or want to add a major feature without disturbing the development of mainline, create a branch for it.  The branch name should follow the pattern used for the mainline name; i.e. org.NetBSD.atf.src.<yourname>.  Be aware that branch names are global and public in Monotone, so choose the name wisely.  Better to be verbose than cryptic.
+
+ Rationale: do not disturb mainline with work that may not be completed on time for the next release, or with work that may leave mainline broken for a long period of time.
+
+ * Apply fixes in a ''daggy manner''.  Whenever you need to apply a fix to the code, attempt to locate the revision that originally introduced then.  Whenever you have recognized this revision, roll back your working copy to it, apply the fix, make sure it really fixes the bug and commit the change against that revision.  After the commit, merge the two branch heads.
+
+ See !DaggyFixes in the Monotone wiki for more details: http://www.venge.net/mtn-wiki/DaggyFixes
+
+ Rationale: Fixes are kept close to the real code they are fixing in the revision ancestry graph.  Cherry-picking the original code alongside any bug fix against it becomes easier.

@@ -65,7 +65,8 @@ atf-c++/atf-c++.pc: $(srcdir)/atf-c++/atf-c++.pc.in
 	mv atf-c++/atf-c++.pc.tmp atf-c++/atf-c++.pc
 
 tests_atf_c___DATA = atf-c++/Atffile \
-                   atf-c++/macros_hpp_test.cpp
+                     atf-c++/kyua.suite \
+                     atf-c++/macros_hpp_test.cpp
 tests_atf_c__dir = $(pkgtestsdir)/atf-c++
 EXTRA_DIST += $(tests_atf_c___DATA)
 
