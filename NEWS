@@ -14,6 +14,9 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 * Fixed the 'match' output checker in atf-check to properly validate the
   last line of a file even if it does not have a newline.
 
+* Added the ATF_REQUIRE_IN and ATF_REQUIRE_NOT_IN macros to atf-c++ to
+  check for the presence (or lack thereof) of an element in a collection.
+
 
 Changes in version 0.12
 ***********************
