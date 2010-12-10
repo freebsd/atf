@@ -69,7 +69,7 @@ TESTS_ENVIRONMENT = PATH=$(prefix)/bin:$${PATH} \
                     PKG_CONFIG_PATH=$(prefix)/lib/pkgconfig
 
 testsdir = $(exec_prefix)/tests
-pkgtestsdir = $(testsdir)/atf
+pkgtestsdir = $(testsdir)/$(PACKAGE)
 
 installcheck-local: installcheck-atf
 .PHONY: installcheck-atf
@@ -90,7 +90,13 @@ installcheck-atf:
 	test $${res} -eq 0
 CLEANFILES += installcheck.fifo installcheck.log
 
-pkgtests_DATA = Atffile
+if HAVE_KYUA
+.PHONY: installcheck-kyua
+installcheck-kyua:
+	cd $(pkgtestsdir) && $(TESTS_ENVIRONMENT) $(KYUA) test
+endif
+
+pkgtests_DATA = Atffile kyua.suite
 EXTRA_DIST += $(pkgtests_DATA)
 
 BUILD_SH_TP = \

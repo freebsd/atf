@@ -11,6 +11,9 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
   to 5 minutes.  This was causing several issues, specially when running
   the existing NetBSD test suite in qemu.
 
+* Fixed the 'match' output checker in atf-check to properly validate the
+  last line of a file even if it does not have a newline.
+
 
 Changes in version 0.12
 ***********************

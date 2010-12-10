@@ -1,0 +1,7 @@
+include atf-c/kyua.suite
+include atf-c++/kyua.suite
+include atf-sh/kyua.suite
+include test-programs/kyua.suite
+include atf-config/kyua.suite
+include atf-report/kyua.suite
+include atf-run/kyua.suite

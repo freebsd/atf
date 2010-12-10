@@ -1,0 +1,10 @@
+dynstr_test
+env_test
+fs_test
+list_test
+map_test
+process_test
+sanity_test
+test_helpers_test
+text_test
+user_test

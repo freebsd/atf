@@ -32,7 +32,8 @@ atf_config_atf_config_SOURCES = atf-config/atf-config.cpp
 atf_config_atf_config_LDADD = libatf-c++.la
 dist_man_MANS += atf-config/atf-config.1
 
-tests_atf_config_DATA = atf-config/Atffile
+tests_atf_config_DATA = atf-config/Atffile \
+                        atf-config/kyua.suite
 tests_atf_configdir = $(pkgtestsdir)/atf-config
 EXTRA_DIST += $(tests_atf_config_DATA)
 
