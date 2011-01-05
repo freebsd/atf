@@ -17,6 +17,9 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 * Added the ATF_REQUIRE_IN and ATF_REQUIRE_NOT_IN macros to atf-c++ to
   check for the presence (or lack thereof) of an element in a collection.
 
+* PR bin/44301: Fixed the sample XSLT file to report bogus test programs
+  instead of just listing them as having 0 test cases.
+
 
 Changes in version 0.12
 ***********************
