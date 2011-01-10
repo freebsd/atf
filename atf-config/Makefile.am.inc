@@ -33,7 +33,7 @@ atf_config_atf_config_LDADD = libatf-c++.la
 dist_man_MANS += atf-config/atf-config.1
 
 tests_atf_config_DATA = atf-config/Atffile \
-                        atf-config/kyua.suite
+                        atf-config/Kyuafile
 tests_atf_configdir = $(pkgtestsdir)/atf-config
 EXTRA_DIST += $(tests_atf_config_DATA)
 

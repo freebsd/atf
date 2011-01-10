@@ -1,4 +1,4 @@
-include detail/kyua.suite
+include detail/Kyuafile
 atf_c++_test
 build_test
 check_test

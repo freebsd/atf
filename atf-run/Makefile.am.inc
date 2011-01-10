@@ -51,7 +51,7 @@ atf_run_atf_run_LDADD = libatf-c++.la
 dist_man_MANS += atf-run/atf-run.1
 
 tests_atf_run_DATA = atf-run/Atffile \
-                     atf-run/kyua.suite
+                     atf-run/Kyuafile
 tests_atf_rundir = $(pkgtestsdir)/atf-run
 EXTRA_DIST += $(tests_atf_run_DATA)
 

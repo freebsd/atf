@@ -47,7 +47,7 @@ xsl_DATA = atf-report/tests-results.xsl
 EXTRA_DIST += $(xsl_DATA)
 
 tests_atf_report_DATA = atf-report/Atffile \
-                        atf-report/kyua.suite
+                        atf-report/Kyuafile
 tests_atf_reportdir = $(pkgtestsdir)/atf-report
 EXTRA_DIST += $(tests_atf_report_DATA)
 

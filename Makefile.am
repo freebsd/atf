@@ -96,7 +96,7 @@ installcheck-kyua:
 	cd $(pkgtestsdir) && $(TESTS_ENVIRONMENT) $(KYUA) test
 endif
 
-pkgtests_DATA = Atffile kyua.suite
+pkgtests_DATA = Atffile Kyuafile
 EXTRA_DIST += $(pkgtests_DATA)
 
 BUILD_SH_TP = \
