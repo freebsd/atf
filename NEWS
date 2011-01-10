@@ -7,6 +7,25 @@ Changes in version 0.13
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
+This is the first release after the creation of the Kyua project, a more
+modular and reliable replacement for ATF.  From now on, ATF will change to
+accomodate the transition to this new codebase, but ATF will still continue
+to see development in the short/medium term.  Check out the project page at
+http://code.google.com/p/kyua/ for more details.
+
+The changes in this release are:
+
+* Added support to run the tests with the Kyua runtime engine (kyua-cli), a
+  new package that aims to replace atf-run and atf-report.  The ATF tests
+  can be run with the new system by issuing a 'make installcheck-kyua' from
+  the top-level directory of the project (assuming the 'kyua' binary is
+  available during the configuration stage of ATF).
+
+* atf-run and atf-report are now in maintenance mode (but *not* deprecated
+  yet!).  Kyua already implements a new, much more reliable runtime engine
+  that provides similar features to these tools.  That said, it is not
+  complete yet so all development efforts should go towards it.
+
 * Reverted default timeout change in previous release and reset its value
   to 5 minutes.  This was causing several issues, specially when running
   the existing NetBSD test suite in qemu.
