@@ -1,6 +1,8 @@
-config_test
-expect_test
-fork_test
-meta_data_test
-srcdir_test
-result_test
+syntax("kyuafile", 1)
+
+AtfTestProgram {name="config_test"}
+AtfTestProgram {name="expect_test"}
+AtfTestProgram {name="fork_test"}
+AtfTestProgram {name="meta_data_test"}
+AtfTestProgram {name="srcdir_test"}
+AtfTestProgram {name="result_test"}

@@ -1,10 +1,12 @@
-dynstr_test
-env_test
-fs_test
-list_test
-map_test
-process_test
-sanity_test
-test_helpers_test
-text_test
-user_test
+syntax("kyuafile", 1)
+
+AtfTestProgram {name="dynstr_test"}
+AtfTestProgram {name="env_test"}
+AtfTestProgram {name="fs_test"}
+AtfTestProgram {name="list_test"}
+AtfTestProgram {name="map_test"}
+AtfTestProgram {name="process_test"}
+AtfTestProgram {name="sanity_test"}
+AtfTestProgram {name="test_helpers_test"}
+AtfTestProgram {name="text_test"}
+AtfTestProgram {name="user_test"}

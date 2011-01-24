@@ -1,7 +1,9 @@
-tc_test
-tp_test
-normalize_test
-config_test
-atf-check_test
-atf_check_test
-integration_test
+syntax("kyuafile", 1)
+
+AtfTestProgram {name="tc_test"}
+AtfTestProgram {name="tp_test"}
+AtfTestProgram {name="normalize_test"}
+AtfTestProgram {name="config_test"}
+AtfTestProgram {name="atf-check_test"}
+AtfTestProgram {name="atf_check_test"}
+AtfTestProgram {name="integration_test"}

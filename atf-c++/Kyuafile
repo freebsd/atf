@@ -1,9 +1,12 @@
-include detail/Kyuafile
-atf_c++_test
-build_test
-check_test
-config_test
-macros_test
-pkg_config_test
-tests_test
-utils_test
+syntax("kyuafile", 1)
+
+AtfTestProgram {name="atf_c++_test"}
+AtfTestProgram {name="build_test"}
+AtfTestProgram {name="check_test"}
+AtfTestProgram {name="config_test"}
+AtfTestProgram {name="macros_test"}
+AtfTestProgram {name="pkg_config_test"}
+AtfTestProgram {name="tests_test"}
+AtfTestProgram {name="utils_test"}
+
+include("detail/Kyuafile")

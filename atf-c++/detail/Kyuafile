@@ -1,9 +1,11 @@
-application_test
-env_test
-exceptions_test
-expand_test
-fs_test
-parser_test
-sanity_test
-text_test
-ui_test
+syntax("kyuafile", 1)
+
+AtfTestProgram {name="application_test"}
+AtfTestProgram {name="env_test"}
+AtfTestProgram {name="exceptions_test"}
+AtfTestProgram {name="expand_test"}
+AtfTestProgram {name="fs_test"}
+AtfTestProgram {name="parser_test"}
+AtfTestProgram {name="sanity_test"}
+AtfTestProgram {name="text_test"}
+AtfTestProgram {name="ui_test"}

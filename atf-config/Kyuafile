@@ -1,1 +1,3 @@
-integration_test
+syntax("kyuafile", 1)
+
+AtfTestProgram {name="integration_test"}

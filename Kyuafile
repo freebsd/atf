@@ -1,7 +1,9 @@
-include atf-c/Kyuafile
-include atf-c++/Kyuafile
-include atf-sh/Kyuafile
-include test-programs/Kyuafile
-include atf-config/Kyuafile
-include atf-report/Kyuafile
-include atf-run/Kyuafile
+syntax("kyuafile", 1)
+
+include("atf-c/Kyuafile")
+include("atf-c++/Kyuafile")
+include("atf-sh/Kyuafile")
+include("test-programs/Kyuafile")
+include("atf-config/Kyuafile")
+include("atf-report/Kyuafile")
+include("atf-run/Kyuafile")
