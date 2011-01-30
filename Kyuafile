@@ -1,5 +1,7 @@
 syntax("kyuafile", 1)
 
+test_suite("atf")
+
 include("atf-c/Kyuafile")
 include("atf-c++/Kyuafile")
 include("atf-sh/Kyuafile")
