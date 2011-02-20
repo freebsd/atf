@@ -128,19 +128,8 @@ dnl -----------------------------------------------------------------------
 dnl Architecture and machine checks.
 dnl -----------------------------------------------------------------------
 
-machine=${target_cpu}
-
-case ${machine} in
-    i@<:@3-9@:>@86)
-        arch=i386
-        ;;
-    x86_64)
-        arch=amd64
-        ;;
-    *)
-        arch=${machine}
-        ;;
-esac
+atf_arch=`uname -p`
+atf_machine=`uname -m`
 
 AC_MSG_NOTICE([Machine type: ${machine}, architecture: ${arch}])
 AC_SUBST(atf_arch, ${arch})
