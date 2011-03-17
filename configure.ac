@@ -131,9 +131,9 @@ dnl -----------------------------------------------------------------------
 atf_arch=`uname -p`
 atf_machine=`uname -m`
 
-AC_MSG_NOTICE([Machine type: ${machine}, architecture: ${arch}])
-AC_SUBST(atf_arch, ${arch})
-AC_SUBST(atf_machine, ${machine})
+AC_MSG_NOTICE([Machine type: ${atf_machine}, architecture: ${atf_arch}])
+AC_SUBST(atf_arch, ${atf_arch})
+AC_SUBST(atf_machine, ${atf_machine})
 
 dnl -----------------------------------------------------------------------
 dnl User-customizable variables.
