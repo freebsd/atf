@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009, 2010, 2011 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@
 #
 
 bin_PROGRAMS += atf-run/atf-run
+atf_run_atf_run_CPPFLAGS = "-DGDB=\"$(GDB)\""
 atf_run_atf_run_SOURCES = atf-run/atf-run.cpp \
                           atf-run/atffile.cpp \
                           atf-run/atffile.hpp \

@@ -210,6 +210,7 @@ dnl -----------------------------------------------------------------------
 dnl Check for required tools.
 dnl -----------------------------------------------------------------------
 
+AC_PATH_PROG([GDB], [gdb])
 AC_PATH_PROG([KYUA], [kyua])
 AM_CONDITIONAL([HAVE_KYUA], [test -n "${KYUA}"])
 AC_PATH_PROG([MTN], [mtn])

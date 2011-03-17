@@ -26,6 +26,9 @@ The changes in this release are:
   that provides similar features to these tools.  That said, it is not
   complete yet so all development efforts should go towards it.
 
+* If GDB is installed, atf-run dumps the stack trace of crashing test
+  programs in an attempt to aid debugging.  Contributed by Antti Kantee.
+
 * Reverted default timeout change in previous release and reset its value
   to 5 minutes.  This was causing several issues, specially when running
   the existing NetBSD test suite in qemu.

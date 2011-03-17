@@ -186,6 +186,14 @@ script:
   and work directories for test cases.  This is just a default and can be
   overriden at run time.
 
+* GDB
+  Possible values: empty, absolute path to GNU GDB.
+  Default: empty.
+
+  Specifies the path to the GNU GDB binary that atf-run will use to gather
+  a stack trace of a crashing test program.  If empty, the configure script
+  will try to find a suitable binary for you.
+
 The following flags are specific to ATF's 'configure' script:
 
 * --enable-developer
