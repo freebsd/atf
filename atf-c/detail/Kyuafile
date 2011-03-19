@@ -2,13 +2,13 @@ syntax("kyuafile", 1)
 
 test_suite("atf")
 
-AtfTestProgram {name="dynstr_test"}
-AtfTestProgram {name="env_test"}
-AtfTestProgram {name="fs_test"}
-AtfTestProgram {name="list_test"}
-AtfTestProgram {name="map_test"}
-AtfTestProgram {name="process_test"}
-AtfTestProgram {name="sanity_test"}
-AtfTestProgram {name="test_helpers_test"}
-AtfTestProgram {name="text_test"}
-AtfTestProgram {name="user_test"}
+atf_test_program{name="dynstr_test"}
+atf_test_program{name="env_test"}
+atf_test_program{name="fs_test"}
+atf_test_program{name="list_test"}
+atf_test_program{name="map_test"}
+atf_test_program{name="process_test"}
+atf_test_program{name="sanity_test"}
+atf_test_program{name="test_helpers_test"}
+atf_test_program{name="text_test"}
+atf_test_program{name="user_test"}

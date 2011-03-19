@@ -2,13 +2,13 @@ syntax("kyuafile", 1)
 
 test_suite("atf")
 
-AtfTestProgram {name="atf_c++_test"}
-AtfTestProgram {name="build_test"}
-AtfTestProgram {name="check_test"}
-AtfTestProgram {name="config_test"}
-AtfTestProgram {name="macros_test"}
-AtfTestProgram {name="pkg_config_test"}
-AtfTestProgram {name="tests_test"}
-AtfTestProgram {name="utils_test"}
+atf_test_program{name="atf_c++_test"}
+atf_test_program{name="build_test"}
+atf_test_program{name="check_test"}
+atf_test_program{name="config_test"}
+atf_test_program{name="macros_test"}
+atf_test_program{name="pkg_config_test"}
+atf_test_program{name="tests_test"}
+atf_test_program{name="utils_test"}
 
 include("detail/Kyuafile")

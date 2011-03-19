@@ -2,9 +2,9 @@ syntax("kyuafile", 1)
 
 test_suite("atf")
 
-AtfTestProgram {name="config_test"}
-AtfTestProgram {name="expect_test"}
-AtfTestProgram {name="fork_test"}
-AtfTestProgram {name="meta_data_test"}
-AtfTestProgram {name="srcdir_test"}
-AtfTestProgram {name="result_test"}
+atf_test_program{name="config_test"}
+atf_test_program{name="expect_test"}
+atf_test_program{name="fork_test"}
+atf_test_program{name="meta_data_test"}
+atf_test_program{name="srcdir_test"}
+atf_test_program{name="result_test"}

@@ -2,4 +2,4 @@ syntax("kyuafile", 1)
 
 test_suite("atf")
 
-AtfTestProgram {name="integration_test"}
+atf_test_program{name="integration_test"}
