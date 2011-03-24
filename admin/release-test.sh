@@ -129,10 +129,10 @@ validate_sudo() {
     info "Validating sudo settings"
 
     local line="$(sudo -l | grep timestamp_timeout)"
-    [ ${?} -eq 0 ] || err "timestamp_timeout not defined"
+    [ -n "${line}" ] || err "timestamp_timeout not defined"
 
-    local timestamp_timeout=$(echo ${line} | cut -d = -f 2)
-    [ ${timestamp_timeout} -ge 60 ] || \
+    local timestamp_timeout=$(printf '%s' "${line}" | cut -d = -f 2)
+    [ "${timestamp_timeout}" -ge 60 ] || \
         err "timestamp_timeout too low; release process may stop in the middle"
 }
 
