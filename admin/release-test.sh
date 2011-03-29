@@ -158,7 +158,7 @@ main() {
     mkdir -p "${logdir}"
     info "Saving log files in ${logdir}"
 
-    local dir="$(mktemp -d /tmp/atf.XXXXXX)"
+    local dir="$(mktemp -d /var/tmp/atf.XXXXXX)"
     trap "rm -rf '${dir}'" HUP INT QUIT TERM
     cd "${dir}"
 
