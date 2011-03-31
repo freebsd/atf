@@ -5,7 +5,7 @@ Major changes between releases                  Automated Testing Framework
 Changes in version 0.13
 ***********************
 
-STILL UNDER DEVELOPMENT; NOT RELEASED YET.
+Experimental version released on March 31st, 2011.
 
 This is the first release after the creation of the Kyua project, a more
 modular and reliable replacement for ATF.  From now on, ATF will change to
@@ -38,6 +38,11 @@ The changes in this release are:
 
 * Added the ATF_REQUIRE_IN and ATF_REQUIRE_NOT_IN macros to atf-c++ to
   check for the presence (or lack thereof) of an element in a collection.
+
+* PR bin/44176: Fixed a race condition in atf-run that would crash atf-run
+  when the cleanup of a test case triggered asynchronous modifications to
+  its work directory (e.g. killing a daemon process that cleans up a pid
+  file in the work directory).
 
 * PR bin/44301: Fixed the sample XSLT file to report bogus test programs
   instead of just listing them as having 0 test cases.
