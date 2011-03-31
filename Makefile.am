@@ -90,8 +90,8 @@ installcheck-atf:
 	test $${res} -eq 0
 CLEANFILES += installcheck.fifo installcheck.log
 
-if HAVE_KYUA
 .PHONY: installcheck-kyua
+if HAVE_KYUA
 installcheck-kyua:
 	cd $(pkgtestsdir) && $(TESTS_ENVIRONMENT) $(KYUA) test
 endif
