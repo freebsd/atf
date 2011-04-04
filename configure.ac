@@ -180,6 +180,7 @@ else
     esac
 fi
 
+AC_SUBST(atf_aclocaldir, \${datadir}/aclocal)
 AC_SUBST(atf_cssdir, \${datadir}/examples/atf)
 AC_SUBST(atf_dtddir, \${datadir}/xml/atf)
 AC_SUBST(atf_egdir, \${datadir}/examples/atf)

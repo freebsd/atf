@@ -7,7 +7,8 @@ Changes in version 0.14
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
-* Added a pkg-config file for atf-sh.
+* Added a pkg-config file for atf-sh and an aclocal file to ease the
+  detection of atf-sh from autoconf scripts.
 
 
 Changes in version 0.13
