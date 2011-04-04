@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009, 2010, 2011 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,17 @@ atf_shdir = $(pkgdatadir)
 EXTRA_DIST += $(atf_sh_DATA)
 
 dist_man_MANS += atf-sh/atf-sh-api.3
+
+atf_shpkgconfigdir = $(atf_pkgconfigdir)
+atf_shpkgconfig_DATA = atf-sh/atf-sh.pc
+CLEANFILES += atf-sh/atf-sh.pc
+EXTRA_DIST += atf-sh/atf-sh.pc.in
+atf-sh/atf-sh.pc: $(srcdir)/atf-sh/atf-sh.pc.in
+	test -d atf-sh || mkdir -p atf-sh
+	sed -e 's,__ATF_VERSION__,@PACKAGE_VERSION@,g' \
+	    -e 's,__EXEC_PREFIX__,$(exec_prefix),g' \
+	    <$(srcdir)/atf-sh/atf-sh.pc.in >atf-sh/atf-sh.pc.tmp
+	mv atf-sh/atf-sh.pc.tmp atf-sh/atf-sh.pc
 
 tests_atf_sh_DATA = atf-sh/Atffile \
                     atf-sh/Kyuafile
