@@ -10,6 +10,10 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 * Added a pkg-config file for atf-sh and an aclocal file to ease the
   detection of atf-sh from autoconf scripts.
 
+* Made the default test case body defined by atf_sh fail.  This is to
+  ensure that test cases are properly defined in test programs and helps
+  in catching typos in the names of the body functions.
+
 
 Changes in version 0.13
 ***********************
