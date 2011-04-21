@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009, 2010, 2011 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -621,6 +621,18 @@ isolation_home_body()
     atf_check -s eq:0 -o ignore -e ignore env HOME=foo atf-run helper
 }
 
+atf_test_case isolation_stdin
+isolation_stdin_head()
+{
+    atf_set "descr" "Tests that atf-run nullifies the stdin of test cases"
+}
+isolation_stdin_body()
+{
+    create_helper read_stdin
+    create_atffile helper
+    atf_check -s eq:0 -o ignore -e ignore -x 'echo hello world | atf-run helper'
+}
+
 atf_test_case isolation_umask
 isolation_umask_head()
 {
@@ -1047,6 +1059,7 @@ atf_init_test_cases()
     atf_add_test_case hooks
     atf_add_test_case isolation_env
     atf_add_test_case isolation_home
+    atf_add_test_case isolation_stdin
     atf_add_test_case isolation_umask
     atf_add_test_case cleanup_pass
     atf_add_test_case cleanup_fail
