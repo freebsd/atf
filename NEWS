@@ -14,6 +14,10 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
   ensure that test cases are properly defined in test programs and helps
   in catching typos in the names of the body functions.
 
+* Made atf-run hardcode TZ=UTC for test cases.  It used to undefine TZ, but
+  that does not take into account that libc determines the current timezone
+  from a configuration file.
+
 
 Changes in version 0.13
 ***********************

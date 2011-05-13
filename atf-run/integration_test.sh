@@ -1,7 +1,7 @@
 #
 # Automated Testing Framework (atf)
 #
-# Copyright (c) 2007, 2008, 2009, 2010 The NetBSD Foundation, Inc.
+# Copyright (c) 2007, 2008, 2009, 2010, 2011 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -583,8 +583,8 @@ isolation_env_head()
 isolation_env_body()
 {
     undef_vars="LANG LC_ALL LC_COLLATE LC_CTYPE LC_MESSAGES LC_MONETARY \
-                LC_NUMERIC LC_TIME TZ"
-    def_vars="HOME"
+                LC_NUMERIC LC_TIME"
+    def_vars="HOME TZ"
 
     mangleenv="env"
     for v in ${undef_vars} ${def_vars}; do
@@ -607,6 +607,8 @@ isolation_env_body()
     for v in ${def_vars}; do
         atf_check -s eq:0 -o ignore -e empty grep "^tc-so:${v}=" stdout
     done
+
+    atf_check -s eq:0 -o ignore -e empty grep "^tc-so:TZ=UTC" stdout
 }
 
 atf_test_case isolation_home

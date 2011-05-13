@@ -239,7 +239,7 @@ prepare_child(const atf::fs::path& workdir)
     atf::env::unset("LC_MONETARY");
     atf::env::unset("LC_NUMERIC");
     atf::env::unset("LC_TIME");
-    atf::env::unset("TZ");
+    atf::env::set("TZ", "UTC");
 
     impl::change_directory(workdir);
 }
