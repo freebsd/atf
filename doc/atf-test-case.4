@@ -148,6 +148,9 @@ Test cases will log their results to an auxiliary file, which is then
 collected by the test program they are contained in.
 The developer need not care about this as long as he uses the correct
 APIs to implement the test cases.
+.Pp
+The standard input of the test cases is unconditionally connected to
+.Sq /dev/zero .
 .Ss Meta-data
 The following list describes all meta-data properties interpreted
 internally by ATF.

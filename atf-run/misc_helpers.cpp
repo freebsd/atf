@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007, 2008, 2010 The NetBSD Foundation, Inc.
+// Copyright (c) 2007, 2008, 2010, 2011 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -164,6 +164,26 @@ ATF_TEST_CASE_BODY(env_home)
     atf::fs::file_info fi2(atf::fs::path("."));
     ATF_REQUIRE_EQ(fi1.get_device(), fi2.get_device());
     ATF_REQUIRE_EQ(fi1.get_inode(), fi2.get_inode());
+}
+
+ATF_TEST_CASE(read_stdin);
+ATF_TEST_CASE_HEAD(read_stdin)
+{
+    set_md_var("descr", "Helper test case for the t_integration test program");
+}
+ATF_TEST_CASE_BODY(read_stdin)
+{
+    char buf[100];
+    ssize_t len = ::read(STDIN_FILENO, buf, sizeof(buf) - 1);
+    ATF_REQUIRE(len != -1);
+
+    buf[len + 1] = '\0';
+    for (ssize_t i = 0; i < len; i++) {
+        if (buf[i] != '\0') {
+            fail("The stdin of the test case does not seem to be /dev/zero; "
+                 "got '" + std::string(buf) + "'");
+        }
+    }
 }
 
 ATF_TEST_CASE(umask);
@@ -349,6 +369,8 @@ ATF_INIT_TEST_CASES(tcs)
         ATF_ADD_TEST_CASE(tcs, env_list);
     if (which == "env_home")
         ATF_ADD_TEST_CASE(tcs, env_home);
+    if (which == "read_stdin")
+        ATF_ADD_TEST_CASE(tcs, read_stdin);
     if (which == "umask")
         ATF_ADD_TEST_CASE(tcs, umask);
     if (which == "cleanup_states")
