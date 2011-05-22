@@ -22,6 +22,10 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
   that does not take into account that libc determines the current timezone
   from a configuration file.
 
+* All test programs will now print a warning when they are not run through
+  atf-run(1) stating that this is unsupported and may deliver incorrect
+  results.
+
 
 Changes in version 0.13
 ***********************

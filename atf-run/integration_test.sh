@@ -120,6 +120,18 @@ atf_init_test_cases()
 EOF
 }
 
+atf_test_case no_warnings
+no_warnings_head()
+{
+    atf_set "descr" "Tests that atf-run suppresses warnings about not running" \
+                    "within atf-run"
+}
+no_warnings_body()
+{
+    create_helper pass
+    atf_check -s eq:0 -o ignore -e not-match:'WARNING.*atf-run' atf-run helper
+}
+
 atf_test_case config
 config_head()
 {
@@ -1045,6 +1057,7 @@ ignore_deprecated_use_fs_body()
 
 atf_init_test_cases()
 {
+    atf_add_test_case no_warnings
     atf_add_test_case config
     atf_add_test_case vflag
     atf_add_test_case atffile

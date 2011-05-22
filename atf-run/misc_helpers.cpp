@@ -66,6 +66,15 @@ touch(const std::string& path)
 // Helper tests for "t_integration".
 // ------------------------------------------------------------------------
 
+ATF_TEST_CASE(pass);
+ATF_TEST_CASE_HEAD(pass)
+{
+    set_md_var("descr", "Helper test case for the t_integration test program");
+}
+ATF_TEST_CASE_BODY(pass)
+{
+}
+
 ATF_TEST_CASE(config);
 ATF_TEST_CASE_HEAD(config)
 {
@@ -357,6 +366,8 @@ ATF_INIT_TEST_CASES(tcs)
     std::string which = atf::env::get("TESTCASE");
 
     // Add helper tests for t_integration.
+    if (which == "pass")
+        ATF_ADD_TEST_CASE(tcs, pass);
     if (which == "config")
         ATF_ADD_TEST_CASE(tcs, config);
     if (which == "fds")

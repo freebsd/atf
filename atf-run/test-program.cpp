@@ -241,6 +241,8 @@ prepare_child(const atf::fs::path& workdir)
     atf::env::unset("LC_TIME");
     atf::env::set("TZ", "UTC");
 
+    atf::env::set("__RUNNING_INSIDE_ATF_RUN", "internal-yes-value");
+
     impl::change_directory(workdir);
 }
 

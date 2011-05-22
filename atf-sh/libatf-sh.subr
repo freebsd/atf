@@ -523,6 +523,17 @@ _atf_error()
 }
 
 #
+# _atf_warning msg1 [.. msgN]
+#
+#   Prints the given warning message (which can be composed of multiple
+#   arguments, in which case are joined by a single space).
+#
+_atf_warning()
+{
+    echo "${Prog_Name}: WARNING:" "$@" 1>&2
+}
+
+#
 # _atf_find_in_path program
 #
 #   Looks for a program in the path and prints the full path to it or
@@ -685,6 +696,10 @@ _atf_run_tc()
     esac
 
     if _atf_has_tc ${_tcname}; then
+        _atf_warning "Running test cases without atf-run(1) is unsupported"
+        _atf_warning "No isolation nor timeout control is being applied; you" \
+            "may get unexpected failures; see atf-test-case(4)"
+
         _atf_parse_head ${_tcname}
 
         _atf_internal_set srcdir "${Source_Dir}"
