@@ -26,6 +26,10 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
   atf-run(1) stating that this is unsupported and may deliver incorrect
   results.
 
+* Added support for the 'require.files' test-case property.  This allows
+  test cases to specify installed files that must be present for the test
+  case to run.
+
 
 Changes in version 0.13
 ***********************

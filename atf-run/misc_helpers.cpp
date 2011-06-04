@@ -274,6 +274,16 @@ ATF_TEST_CASE_BODY(require_config)
     std::cout << "var2: " << get_config_var("var2") << "\n";
 }
 
+ATF_TEST_CASE(require_files);
+ATF_TEST_CASE_HEAD(require_files)
+{
+    set_md_var("descr", "Helper test case for the t_integration test program");
+    set_md_var("require.files", get_config_var("files", "not-set"));
+}
+ATF_TEST_CASE_BODY(require_files)
+{
+}
+
 ATF_TEST_CASE(require_machine);
 ATF_TEST_CASE_HEAD(require_machine)
 {
@@ -392,6 +402,8 @@ ATF_INIT_TEST_CASES(tcs)
         ATF_ADD_TEST_CASE(tcs, require_arch);
     if (which == "require_config")
         ATF_ADD_TEST_CASE(tcs, require_config);
+    if (which == "require_files")
+        ATF_ADD_TEST_CASE(tcs, require_files);
     if (which == "require_machine")
         ATF_ADD_TEST_CASE(tcs, require_machine);
     if (which == "require_progs")

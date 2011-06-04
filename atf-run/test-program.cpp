@@ -420,6 +420,7 @@ detail::atf_tp_reader::validate_and_insert(const std::string& name,
                               ident_regex + "; was '" + value + "'");
     } else if (name == "require.arch") {
     } else if (name == "require.config") {
+    } else if (name == "require.files") {
     } else if (name == "require.machine") {
     } else if (name == "require.progs") {
     } else if (name == "require.user") {

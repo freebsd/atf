@@ -881,6 +881,36 @@ require_config_body()
         -v var1=a -v var2=' ' helper
 }
 
+atf_test_case require_files
+require_files_head()
+{
+    atf_set "descr" "Tests that atf-run validates the require.files property"
+}
+require_files_body()
+{
+    create_helper require_files
+    create_atffile helper
+
+    touch i-exist
+
+    echo "Checking absolute paths"
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v files='/bin/cp' helper
+    atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
+        -v files="$(pwd)/i-exist" helper
+    atf_check -s eq:0 \
+        -o match:"${TESTCASE}, skipped, .*$(pwd)/dont-exist" \
+        -e ignore atf-run -v files="$(pwd)/i-exist $(pwd)/dont-exist" helper
+
+    echo "Checking that relative paths are not allowed"
+    atf_check -s eq:1 \
+        -o match:"${TESTCASE}, failed, Relative paths.*not allowed.*hello" \
+        -e ignore atf-run -v files='hello' helper
+    atf_check -s eq:1 \
+        -o match:"${TESTCASE}, failed, Relative paths.*not allowed.*a/b" \
+        -e ignore atf-run -v files='a/b' helper
+}
+
 atf_test_case require_machine
 require_machine_head()
 {
@@ -1085,6 +1115,7 @@ atf_init_test_cases()
     atf_add_test_case cleanup_symlink
     atf_add_test_case require_arch
     atf_add_test_case require_config
+    atf_add_test_case require_files
     atf_add_test_case require_machine
     atf_add_test_case require_progs
     atf_add_test_case require_user_root

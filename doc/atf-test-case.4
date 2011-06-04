@@ -26,7 +26,7 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd May 13, 2011
+.Dd May 29, 2011
 .Dt ATF-TEST-CASE 4
 .Os
 .Sh NAME
@@ -182,7 +182,7 @@ Required.
 The test case's identifier.
 Must be unique inside the test program and should be short but descriptive.
 .It require.arch
-Type textual.
+Type: textual.
 Optional.
 .Pp
 A whitespace separated list of architectures that the test case can be run
@@ -195,8 +195,17 @@ A whitespace separated list of configuration variables that must be defined
 to execute the test case.
 If any of the required variables is not defined, the test case is
 .Em skipped .
+.It require.files
+Type: textual.
+Optional.
+.Pp
+A whitespace separated list of files that must be present to execute the
+test case.
+The names of these files must be absolute paths.
+If any of the required files is not found, the test case is
+.Em skipped .
 .It require.machine
-Type textual.
+Type: textual.
 Optional.
 .Pp
 A whitespace separated list of machine types that the test case can be run
