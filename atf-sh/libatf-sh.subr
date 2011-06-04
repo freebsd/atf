@@ -696,9 +696,11 @@ _atf_run_tc()
     esac
 
     if _atf_has_tc ${_tcname}; then
-        _atf_warning "Running test cases without atf-run(1) is unsupported"
-        _atf_warning "No isolation nor timeout control is being applied; you" \
-            "may get unexpected failures; see atf-test-case(4)"
+        if [ "${__RUNNING_INSIDE_ATF_RUN}" != "internal-yes-value" ]; then
+            _atf_warning "Running test cases without atf-run(1) is unsupported"
+            _atf_warning "No isolation nor timeout control is being applied;" \
+                "you may get unexpected failures; see atf-test-case(4)"
+        fi
 
         _atf_parse_head ${_tcname}
 
