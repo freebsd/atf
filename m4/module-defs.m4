@@ -1,7 +1,7 @@
 dnl
 dnl Automated Testing Framework (atf)
 dnl
-dnl Copyright (c) 2008, 2010 The NetBSD Foundation, Inc.
+dnl Copyright (c) 2008, 2010, 2011 The NetBSD Foundation, Inc.
 dnl All rights reserved.
 dnl
 dnl Redistribution and use in source and binary forms, with or without
@@ -27,13 +27,36 @@ dnl OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 dnl IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 dnl
 
-AC_DEFUN([ATF_MODULE_DEFS], [
+AC_DEFUN([ATF_ATTRIBUTE_FORMAT_PRINTF], [
+    AC_MSG_CHECKING(
+        [whether __attribute__((__format__(__printf__, a, b))) is supported])
+    AC_COMPILE_IFELSE(
+        [AC_LANG_PROGRAM([
+static void test_printf(const char *, ...)
+    __attribute__((__format__(__printf__, 1, 2)));
+
+static void
+test_printf(const char *format, ...)
+{
+}], [
+    test_printf("foo %s", "bar");
+    return 0;
+])],
+        [AC_MSG_RESULT(yes)
+         value="__attribute__((__format__(__printf__, a, b)))"],
+        [AC_MSG_RESULT(no)
+         value=""]
+    )
+    AC_SUBST([ATTRIBUTE_FORMAT_PRINTF], [${value}])
+])
+
+AC_DEFUN([ATF_ATTRIBUTE_NORETURN], [
     dnl XXX This check is overly simple and should be fixed.  For example,
     dnl Sun's cc does support the noreturn attribute but CC (the C++
     dnl compiler) does not.  And in that case, CC just raises a warning
     dnl during compilation, not an error, which later breaks the
     dnl atf-c++/t_pkg_config:cxx_build check.
-    AC_MSG_CHECKING(whether __attribute__((noreturn)) is supported)
+    AC_MSG_CHECKING(whether __attribute__((__noreturn__)) is supported)
     AC_RUN_IFELSE(
         [AC_LANG_PROGRAM([], [
 #if ((__GNUC__ == 2 && __GNUC_MINOR__ >= 5) || __GNUC__ > 2)
@@ -43,9 +66,14 @@ AC_DEFUN([ATF_MODULE_DEFS], [
 #endif
 ])],
         [AC_MSG_RESULT(yes)
-         value="__attribute__((noreturn))"],
+         value="__attribute__((__noreturn__))"],
         [AC_MSG_RESULT(no)
          value=""]
     )
     AC_SUBST([ATTRIBUTE_NORETURN], [${value}])
+])
+
+AC_DEFUN([ATF_MODULE_DEFS], [
+    ATF_ATTRIBUTE_FORMAT_PRINTF
+    ATF_ATTRIBUTE_NORETURN
 ])
