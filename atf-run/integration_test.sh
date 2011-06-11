@@ -899,7 +899,7 @@ require_files_body()
     atf_check -s eq:0 -o match:"${TESTCASE}, passed" -e ignore atf-run \
         -v files="$(pwd)/i-exist" helper
     atf_check -s eq:0 \
-        -o match:"${TESTCASE}, skipped, .*$(pwd)/dont-exist" \
+        -o match:"${TESTCASE}, skipped, .*/dont-exist" \
         -e ignore atf-run -v files="$(pwd)/i-exist $(pwd)/dont-exist" helper
 
     echo "Checking that relative paths are not allowed"
