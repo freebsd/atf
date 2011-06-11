@@ -91,6 +91,7 @@ find_sources() {
               -name "*.c" -o \
               -name "*.cpp" -o \
               -name "*.h" -o \
+              -name "*.h.in" -o \
               -name "*.hpp" -o \
               -name "*.m4" -o \
               -name "*.sh" \
@@ -100,6 +101,7 @@ find_sources() {
               -type f -a \
               \! -name "aclocal.m4" \
               \! -name "bconfig.h" \
+              \! -name "defs.h" \
               \! -name "libtool.m4" \
               \! -name "ltoptions.m4" \
               \! -name "ltsugar.m4" \
