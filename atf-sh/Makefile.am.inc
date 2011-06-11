@@ -45,6 +45,7 @@ dist_man_MANS += atf-sh/atf-sh-api.3
 
 atf_shaclocaldir = $(atf_aclocaldir)
 atf_shaclocal_DATA = atf-sh/atf-sh.m4
+EXTRA_DIST += $(atf_shaclocal_DATA)
 
 atf_shpkgconfigdir = $(atf_pkgconfigdir)
 atf_shpkgconfig_DATA = atf-sh/atf-sh.pc
