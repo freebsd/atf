@@ -11,6 +11,8 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET!
   processes spawned by atf, not only test programs, which caused breakage
   in tests that pipe data through atf-check.
 
+* Performance improvements to atf-sh.
+
 
 Changes in version 0.14
 ***********************
