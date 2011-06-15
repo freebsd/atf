@@ -7,6 +7,10 @@ Changes in version 0.15
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET!
 
+* Respect stdin in atf-check.  The previous release silenced stdin for any
+  processes spawned by atf, not only test programs, which caused breakage
+  in tests that pipe data through atf-check.
+
 
 Changes in version 0.14
 ***********************
