@@ -45,14 +45,15 @@ dist_man_MANS += atf-sh/atf-sh-api.3
 
 atf_shaclocaldir = $(atf_aclocaldir)
 atf_shaclocal_DATA = atf-sh/atf-sh.m4
+EXTRA_DIST += $(atf_shaclocal_DATA)
 
 atf_shpkgconfigdir = $(atf_pkgconfigdir)
 atf_shpkgconfig_DATA = atf-sh/atf-sh.pc
 CLEANFILES += atf-sh/atf-sh.pc
 EXTRA_DIST += atf-sh/atf-sh.pc.in
-atf-sh/atf-sh.pc: $(srcdir)/atf-sh/atf-sh.pc.in
+atf-sh/atf-sh.pc: $(srcdir)/atf-sh/atf-sh.pc.in Makefile
 	test -d atf-sh || mkdir -p atf-sh
-	sed -e 's,__ATF_VERSION__,@PACKAGE_VERSION@,g' \
+	sed -e 's,__ATF_VERSION__,$(PACKAGE_VERSION),g' \
 	    -e 's,__EXEC_PREFIX__,$(exec_prefix),g' \
 	    <$(srcdir)/atf-sh/atf-sh.pc.in >atf-sh/atf-sh.pc.tmp
 	mv atf-sh/atf-sh.pc.tmp atf-sh/atf-sh.pc
