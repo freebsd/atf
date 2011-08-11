@@ -103,7 +103,7 @@ static void errno_test(struct context *, const char *, const size_t,
                        const int, const char *, const bool,
                        void (*)(struct context *, atf_dynstr_t *));
 static atf_error_t check_prog_in_dir(const char *, void *);
-static atf_error_t check_prog(struct context *, const char *, void *);
+static atf_error_t check_prog(struct context *, const char *);
 
 static void
 context_init(struct context *ctx, const atf_tc_t *tc, const char *resfile)
@@ -449,7 +449,7 @@ out_p:
 }
 
 static atf_error_t
-check_prog(struct context *ctx, const char *prog, void *data)
+check_prog(struct context *ctx, const char *prog)
 {
     atf_error_t err;
     atf_fs_path_t p;
@@ -863,7 +863,7 @@ _atf_tc_pass(struct context *ctx)
 static void
 _atf_tc_require_prog(struct context *ctx, const char *prog)
 {
-    check_fatal_error(check_prog(ctx, prog, NULL));
+    check_fatal_error(check_prog(ctx, prog));
 }
 
 static void

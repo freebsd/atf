@@ -73,7 +73,27 @@ AC_DEFUN([ATF_ATTRIBUTE_NORETURN], [
     AC_SUBST([ATTRIBUTE_NORETURN], [${value}])
 ])
 
+AC_DEFUN([ATF_ATTRIBUTE_UNUSED], [
+    AC_MSG_CHECKING(whether __attribute__((__unused__)) is supported)
+    AC_COMPILE_IFELSE(
+        [AC_LANG_PROGRAM([
+static void
+function(int a __attribute__((__unused__)))
+{
+}], [
+    function(3);
+    return 0;
+])],
+        [AC_MSG_RESULT(yes)
+         value="__attribute__((__unused__))"],
+        [AC_MSG_RESULT(no)
+         value=""]
+    )
+    AC_SUBST([ATTRIBUTE_UNUSED], [${value}])
+])
+
 AC_DEFUN([ATF_MODULE_DEFS], [
     ATF_ATTRIBUTE_FORMAT_PRINTF
     ATF_ATTRIBUTE_NORETURN
+    ATF_ATTRIBUTE_UNUSED
 ])

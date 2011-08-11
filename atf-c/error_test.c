@@ -34,6 +34,7 @@
 
 #include <atf-c.h>
 
+#include "atf-c/defs.h"
 #include "atf-c/error.h"
 
 #include "detail/test_helpers.h"
@@ -44,7 +45,8 @@
 
 static
 void
-test_format(const atf_error_t err, char *buf, size_t buflen)
+test_format(const atf_error_t err ATF_DEFS_ATTRIBUTE_UNUSED,
+            char *buf, size_t buflen)
 {
     snprintf(buf, buflen, "Test formatting function");
 }

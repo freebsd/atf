@@ -42,6 +42,8 @@ extern "C" {
 #include <fstream>
 #include <iostream>
 
+#include "atf-c/defs.h"
+
 #include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/parser.hpp"
 #include "atf-c++/detail/process.hpp"
@@ -395,8 +397,9 @@ detail::atf_tp_reader::~atf_tp_reader(void)
 }
 
 void
-detail::atf_tp_reader::got_tc(const std::string& ident,
-                              const std::map< std::string, std::string >& md)
+detail::atf_tp_reader::got_tc(
+    const std::string& ident ATF_DEFS_ATTRIBUTE_UNUSED,
+    const std::map< std::string, std::string >& md ATF_DEFS_ATTRIBUTE_UNUSED)
 {
 }
 
@@ -664,7 +667,7 @@ namespace {
 static volatile bool terminate_poll;
 
 static void
-sigchld_handler(const int signo)
+sigchld_handler(const int signo ATF_DEFS_ATTRIBUTE_UNUSED)
 {
     terminate_poll = true;
 }

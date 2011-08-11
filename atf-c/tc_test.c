@@ -40,15 +40,15 @@
 
 ATF_TC_HEAD(empty, tc)
 {
+    if (tc != NULL) {}
+}
+ATF_TC_BODY(empty, tc)
+{
 }
 
 ATF_TC_HEAD(test_var, tc)
 {
     atf_tc_set_md_var(tc, "test-var", "Test text");
-}
-
-ATF_TC_BODY(empty, tc)
-{
 }
 
 /* ---------------------------------------------------------------------

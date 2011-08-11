@@ -34,6 +34,8 @@
 #include <utility>
 #include <vector>
 
+#include "atf-c/defs.h"
+
 #include "atf-c++/detail/application.hpp"
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/sanity.hpp"
@@ -115,7 +117,8 @@ public:
 
     virtual
     void
-    write_tp_start(const std::string& name, size_t ntcs)
+    write_tp_start(const std::string& name,
+                   size_t ntcs ATF_DEFS_ATTRIBUTE_UNUSED)
     {
         m_tpname = name;
         m_failed = false;
@@ -388,7 +391,8 @@ class xml_writer : public writer {
     }
 
     void
-    write_tp_start(const std::string& tp, size_t ntcs)
+    write_tp_start(const std::string& tp,
+                   size_t ntcs ATF_DEFS_ATTRIBUTE_UNUSED)
     {
         (*m_os) << "<tp id=\"" << attrval(tp) << "\">\n";
     }

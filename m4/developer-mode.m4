@@ -57,13 +57,13 @@ AC_DEFUN([ATF_DEVELOPER_MODE], [
                          -Wall \
                          -Wcast-qual \
                          -Wextra \
-                         -Wno-unused-parameter \
                          -Wpointer-arith \
                          -Wredundant-decls \
                          -Wreturn-type \
                          -Wshadow \
                          -Wsign-compare \
                          -Wswitch \
+                         -Wunused \
                          -Wwrite-strings"
 
         try_c_flags="-Wmissing-prototypes \

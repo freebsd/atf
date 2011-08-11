@@ -77,7 +77,7 @@ build_check_c_o(const atf_tc_t *tc, const char *sfile, const char *failmsg)
 }
 
 void
-header_check(const atf_tc_t *tc, const char *hdrname)
+header_check(const char *hdrname)
 {
     FILE *srcfile;
     char failmsg[128];

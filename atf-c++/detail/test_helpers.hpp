@@ -53,7 +53,7 @@
     } \
     ATF_TEST_CASE_BODY(name) \
     { \
-        header_check(*this, hdrname); \
+        header_check(hdrname); \
     }
 
 #define BUILD_TC(name, sfile, descr, failmsg) \
@@ -73,7 +73,7 @@ class tc;
 }
 }
 
-void header_check(const atf::tests::tc&, const char*);
+void header_check(const char*);
 void build_check_cxx_o(const atf::tests::tc&, const char*, const char*);
 atf::fs::path get_process_helpers_path(const atf::tests::tc&);
 bool grep_file(const char*, const char*);

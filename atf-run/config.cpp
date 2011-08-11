@@ -30,6 +30,8 @@
 #include <fstream>
 #include <vector>
 
+#include "atf-c/defs.h"
+
 #include "atf-c++/config.hpp"
 
 #include "atf-c++/detail/env.hpp"
@@ -136,8 +138,9 @@ detail::atf_config_reader::~atf_config_reader(void)
 }
 
 void
-detail::atf_config_reader::got_var(const std::string& var,
-                                   const std::string& val)
+detail::atf_config_reader::got_var(
+    const std::string& var ATF_DEFS_ATTRIBUTE_UNUSED,
+    const std::string& val ATF_DEFS_ATTRIBUTE_UNUSED)
 {
 }
 

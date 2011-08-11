@@ -29,6 +29,8 @@
 
 #include <iostream>
 
+#include "atf-c/defs.h"
+
 #include "macros.hpp"
 #include "utils.hpp"
 
@@ -51,7 +53,7 @@ public:
         return atf::utils::auto_array< test_array >(ta);
     }
 
-    void* operator new(size_t size)
+    void* operator new(size_t size ATF_DEFS_ATTRIBUTE_UNUSED)
     {
         ATF_FAIL("New called but should have been new[]");
         return new int(5);
@@ -65,7 +67,7 @@ public:
         return mem;
     }
 
-    void operator delete(void* mem)
+    void operator delete(void* mem ATF_DEFS_ATTRIBUTE_UNUSED)
     {
         ATF_FAIL("Delete called but should have been delete[]");
     }

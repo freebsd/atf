@@ -690,7 +690,7 @@ static void child_report_pid(void *) ATF_DEFS_ATTRIBUTE_NORETURN;
 
 static
 void
-child_report_pid(void *v)
+child_report_pid(void *v ATF_DEFS_ATTRIBUTE_UNUSED)
 {
     const pid_t pid = getpid();
     if (write(STDOUT_FILENO, &pid, sizeof(pid)) != sizeof(pid))
@@ -731,7 +731,7 @@ ATF_TC_BODY(child_pid, tc)
 
 static
 void
-child_loop(void *v)
+child_loop(void *v ATF_DEFS_ATTRIBUTE_UNUSED)
 {
     for (;;)
         sleep(1);
@@ -739,13 +739,13 @@ child_loop(void *v)
 
 static
 void
-nop_signal(int sig)
+nop_signal(int sig ATF_DEFS_ATTRIBUTE_UNUSED)
 {
 }
 
 static
 void
-child_spawn_loop_and_wait_eintr(void *v)
+child_spawn_loop_and_wait_eintr(void *v ATF_DEFS_ATTRIBUTE_UNUSED)
 {
     atf_process_child_t child;
     atf_process_status_t status;

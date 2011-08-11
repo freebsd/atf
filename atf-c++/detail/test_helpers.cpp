@@ -65,7 +65,7 @@ build_check_cxx_o(const atf::tests::tc& tc, const char* sfile,
 }
 
 void
-header_check(const atf::tests::tc& tc, const char *hdrname)
+header_check(const char *hdrname)
 {
     std::ofstream srcfile("test.c");
     ATF_REQUIRE(srcfile);

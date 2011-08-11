@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#include <defs.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -197,7 +198,7 @@ atf_process_status_init(atf_process_status_t *s, int status)
 }
 
 void
-atf_process_status_fini(atf_process_status_t *s)
+atf_process_status_fini(atf_process_status_t *s ATF_DEFS_ATTRIBUTE_UNUSED)
 {
 }
 

@@ -31,6 +31,8 @@
 #include <sstream>
 #include <utility>
 
+#include "atf-c/defs.h"
+
 #include "atf-c++/detail/parser.hpp"
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
@@ -126,44 +128,52 @@ impl::atf_tps_reader::~atf_tps_reader(void)
 }
 
 void
-impl::atf_tps_reader::got_info(const std::string& what,
-                               const std::string& val)
+impl::atf_tps_reader::got_info(
+    const std::string& what ATF_DEFS_ATTRIBUTE_UNUSED,
+    const std::string& val ATF_DEFS_ATTRIBUTE_UNUSED)
 {
 }
 
 void
-impl::atf_tps_reader::got_ntps(size_t ntps)
+impl::atf_tps_reader::got_ntps(size_t ntps ATF_DEFS_ATTRIBUTE_UNUSED)
 {
 }
 
 void
-impl::atf_tps_reader::got_tp_start(const std::string& tp, size_t ntcs)
+impl::atf_tps_reader::got_tp_start(
+    const std::string& tp ATF_DEFS_ATTRIBUTE_UNUSED,
+    size_t ntcs ATF_DEFS_ATTRIBUTE_UNUSED)
 {
 }
 
 void
-impl::atf_tps_reader::got_tp_end(const std::string& reason)
+impl::atf_tps_reader::got_tp_end(
+    const std::string& reason ATF_DEFS_ATTRIBUTE_UNUSED)
 {
 }
 
 void
-impl::atf_tps_reader::got_tc_start(const std::string& tcname)
+impl::atf_tps_reader::got_tc_start(
+    const std::string& tcname ATF_DEFS_ATTRIBUTE_UNUSED)
 {
 }
 
 void
-impl::atf_tps_reader::got_tc_stdout_line(const std::string& line)
+impl::atf_tps_reader::got_tc_stdout_line(
+    const std::string& line ATF_DEFS_ATTRIBUTE_UNUSED)
 {
 }
 
 void
-impl::atf_tps_reader::got_tc_stderr_line(const std::string& line)
+impl::atf_tps_reader::got_tc_stderr_line(
+    const std::string& line ATF_DEFS_ATTRIBUTE_UNUSED)
 {
 }
 
 void
-impl::atf_tps_reader::got_tc_end(const std::string& state,
-                                 const std::string& reason)
+impl::atf_tps_reader::got_tc_end(
+    const std::string& state ATF_DEFS_ATTRIBUTE_UNUSED,
+    const std::string& reason ATF_DEFS_ATTRIBUTE_UNUSED)
 {
 }
 
