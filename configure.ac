@@ -88,7 +88,7 @@ if test "${atf_cv_prog_cxx_works}" = no; then
     AC_MSG_ERROR([C++ compiler cannot create executables])
 fi
 
-ATF_DEVELOPER_MODE
+KYUA_DEVELOPER_MODE([C,C++])
 
 ATF_MODULE_APPLICATION
 ATF_MODULE_DEFS
