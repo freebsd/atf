@@ -31,6 +31,6 @@
 
 ATF_TP_ADD_TCS(tp)
 {
-    if (tp != NULL) {}  // Use tp.
+    if (tp != NULL) {}  /* Use tp. */
     return atf_no_error();
 }
