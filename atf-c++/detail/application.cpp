@@ -41,6 +41,10 @@ extern "C" {
 #include <cstring>
 #include <iostream>
 
+extern "C" {
+#include "atf-c/defs.h"
+}
+
 #include "application.hpp"
 #include "sanity.hpp"
 #include "ui.hpp"
@@ -151,7 +155,8 @@ impl::app::specific_options(void)
 }
 
 void
-impl::app::process_option(int ch, const char* arg)
+impl::app::process_option(int ch ATF_DEFS_ATTRIBUTE_UNUSED,
+                          const char* arg ATF_DEFS_ATTRIBUTE_UNUSED)
 {
 }
 

@@ -46,6 +46,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "atf-c/defs.h"
 #include "atf-c/error.h"
 
 #include "fs.h"
@@ -584,7 +585,7 @@ atf_fs_stat_copy(atf_fs_stat_t *dest, const atf_fs_stat_t *src)
 }
 
 void
-atf_fs_stat_fini(atf_fs_stat_t *st)
+atf_fs_stat_fini(atf_fs_stat_t *st ATF_DEFS_ATTRIBUTE_UNUSED)
 {
 }
 
