@@ -32,6 +32,10 @@
 #include <map>
 #include <string>
 
+extern "C" {
+#include "atf-c/defs.h"
+}
+
 #include "atf-c++/config.hpp"
 
 #include "atf-c++/detail/application.hpp"
@@ -67,7 +71,7 @@ atf_config::atf_config(void) :
 }
 
 void
-atf_config::process_option(int ch, const char* arg)
+atf_config::process_option(int ch, const char* arg ATF_DEFS_ATTRIBUTE_UNUSED)
 {
     switch (ch) {
     case 't':
