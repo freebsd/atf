@@ -38,7 +38,7 @@ test_programs_c_helpers_LDADD = libatf-c.la
 
 tests_test_programs_PROGRAMS += test-programs/cpp_helpers
 test_programs_cpp_helpers_SOURCES = test-programs/cpp_helpers.cpp
-test_programs_cpp_helpers_LDADD = libatf-c++.la
+test_programs_cpp_helpers_LDADD = $(ATF_CXX_LIBS)
 
 common_sh = $(srcdir)/test-programs/common.sh
 EXTRA_DIST += test-programs/common.sh

@@ -29,7 +29,7 @@
 
 bin_PROGRAMS += atf-config/atf-config
 atf_config_atf_config_SOURCES = atf-config/atf-config.cpp
-atf_config_atf_config_LDADD = libatf-c++.la
+atf_config_atf_config_LDADD = $(ATF_CXX_LIBS)
 dist_man_MANS += atf-config/atf-config.1
 
 tests_atf_config_DATA = atf-config/Atffile \

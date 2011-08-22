@@ -31,7 +31,7 @@ bin_PROGRAMS += atf-version/atf-version
 atf_version_atf_version_SOURCES = atf-version/atf-version.cpp
 nodist_atf_version_atf_version_SOURCES = atf-version/revision.h
 atf_version_atf_version_CPPFLAGS = -Iatf-version
-atf_version_atf_version_LDADD = libatf-c++.la
+atf_version_atf_version_LDADD = $(ATF_CXX_LIBS)
 dist_man_MANS += atf-version/atf-version.1
 
 EXTRA_DIST += atf-version/generate-revision.sh

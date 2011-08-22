@@ -27,6 +27,8 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+ATF_CXX_LIBS = libatf-c++.la libatf-c.la
+
 lib_LTLIBRARIES += libatf-c++.la
 libatf_c___la_LIBADD = libatf-c.la
 libatf_c___la_SOURCES = atf-c++/build.cpp \
@@ -72,24 +74,19 @@ EXTRA_DIST += $(tests_atf_c___DATA)
 
 tests_atf_c___PROGRAMS = atf-c++/atf_c++_test
 atf_c___atf_c___test_SOURCES = atf-c++/atf_c++_test.cpp
-atf_c___atf_c___test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.la
-
+atf_c___atf_c___test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
 tests_atf_c___PROGRAMS += atf-c++/build_test
 atf_c___build_test_SOURCES = atf-c++/build_test.cpp atf-c/h_build.h
-atf_c___build_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.la
-
+atf_c___build_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
 tests_atf_c___PROGRAMS += atf-c++/check_test
 atf_c___check_test_SOURCES = atf-c++/check_test.cpp
-atf_c___check_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.la
-
+atf_c___check_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
 tests_atf_c___PROGRAMS += atf-c++/config_test
 atf_c___config_test_SOURCES = atf-c++/config_test.cpp
-atf_c___config_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.la
-
+atf_c___config_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
 tests_atf_c___PROGRAMS += atf-c++/macros_test
 atf_c___macros_test_SOURCES = atf-c++/macros_test.cpp
-atf_c___macros_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.la
-
+atf_c___macros_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
 tests_atf_c___SCRIPTS = atf-c++/pkg_config_test
 CLEANFILES += atf-c++/pkg_config_test
 EXTRA_DIST += atf-c++/pkg_config_test.sh
@@ -100,12 +97,10 @@ atf-c++/pkg_config_test: $(srcdir)/atf-c++/pkg_config_test.sh
 
 tests_atf_c___PROGRAMS += atf-c++/tests_test
 atf_c___tests_test_SOURCES = atf-c++/tests_test.cpp
-atf_c___tests_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.la
-
+atf_c___tests_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
 tests_atf_c___PROGRAMS += atf-c++/utils_test
 atf_c___utils_test_SOURCES = atf-c++/utils_test.cpp
-atf_c___utils_test_LDADD = atf-c++/detail/libtest_helpers.la libatf-c++.la
-
+atf_c___utils_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
 include atf-c++/detail/Makefile.am.inc
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
