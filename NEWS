@@ -23,6 +23,12 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET!
   automatically enabled when building from the repository, not for formal
   releases.
 
+* Added new Autoconf M4 macros (ATF_ARG_WITH, ATF_CHECK_C and
+  ATF_CHECK_CXX) to provide a consistent way of defining a --with-arg flag
+  in configure scripts and detecting the presence of any of the ATF
+  bindings.  Note that ATF_CHECK_SH was already introduced in 0.14, but it
+  has now been modified to also honor --with-atf if instantiated.
+
 
 Changes in version 0.14
 ***********************

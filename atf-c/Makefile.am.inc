@@ -84,6 +84,9 @@ atf_cdir = $(includedir)/atf-c
 
 dist_man_MANS += atf-c/atf-c-api.3
 
+atf_aclocal_DATA += atf-c/atf-common.m4 atf-c/atf-c.m4
+EXTRA_DIST += atf-c/atf-common.m4 atf-c/atf-c.m4
+
 atf_cpkgconfigdir = $(atf_pkgconfigdir)
 atf_cpkgconfig_DATA = atf-c/atf-c.pc
 CLEANFILES += atf-c/atf-c.pc

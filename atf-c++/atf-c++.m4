@@ -30,24 +30,19 @@ dnl (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 dnl OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 dnl
 
-dnl ATF_CHECK_SH([version-spec])
+dnl ATF_CHECK_CXX([version-spec])
 dnl
-dnl Checks if atf-sh is present.  If version-spec is provided, ensures that
+dnl Checks if atf-c++ is present.  If version-spec is provided, ensures that
 dnl the installed version of atf-sh matches the required version.  This
 dnl argument must be something like '>= 0.14' and accepts any version
 dnl specification supported by pkg-config.
 dnl
-dnl Defines and substitutes ATF_SH with the full path to the atf-sh interpreter.
-AC_DEFUN([ATF_CHECK_SH], [
-    spec="atf-sh[]m4_default_nblank([ $1], [])"
+dnl Defines and substitutes ATF_CXX_CFLAGS and ATF_CXX_LIBS with the compiler
+dnl and linker flags need to build against atf-c++.
+AC_DEFUN([ATF_CHECK_CXX], [
+    spec="atf-c++[]m4_default_nblank([ $1], [])"
     _ATF_CHECK_ARG_WITH(
-        [AC_MSG_CHECKING([for ${spec}])
-         PKG_CHECK_EXISTS([${spec}], [found=yes], [found=no])
-         if test "${found}" = yes; then
-             ATF_SH="$(${PKG_CONFIG} --variable=interpreter atf-sh)"
-             AC_SUBST([ATF_SH], [${ATF_SH}])
-             found_atf_sh=yes
-         fi
-         AC_MSG_RESULT([${ATF_SH}])],
+        [PKG_CHECK_MODULES([ATF_CXX], [${spec}],
+                           [found=yes found_atf_cxx=yes], [found=no])],
         [required ${spec} not found])
 ])
