@@ -52,8 +52,8 @@ CLEANFILES += atf-sh/atf-sh.pc
 EXTRA_DIST += atf-sh/atf-sh.pc.in
 atf-sh/atf-sh.pc: $(srcdir)/atf-sh/atf-sh.pc.in Makefile
 	test -d atf-sh || mkdir -p atf-sh
-	sed -e 's,__ATF_VERSION__,$(PACKAGE_VERSION),g' \
-	    -e 's,__EXEC_PREFIX__,$(exec_prefix),g' \
+	sed -e 's#__ATF_VERSION__#$(PACKAGE_VERSION)#g' \
+	    -e 's#__EXEC_PREFIX__#$(exec_prefix)#g' \
 	    <$(srcdir)/atf-sh/atf-sh.pc.in >atf-sh/atf-sh.pc.tmp
 	mv atf-sh/atf-sh.pc.tmp atf-sh/atf-sh.pc
 

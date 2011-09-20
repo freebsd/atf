@@ -93,10 +93,10 @@ CLEANFILES += atf-c/atf-c.pc
 EXTRA_DIST += atf-c/atf-c.pc.in
 atf-c/atf-c.pc: $(srcdir)/atf-c/atf-c.pc.in Makefile
 	test -d atf-c || mkdir -p atf-c
-	sed -e 's,__ATF_VERSION__,$(PACKAGE_VERSION),g' \
-	    -e 's,__CC__,$(CC),g' \
-	    -e 's,__INCLUDEDIR__,$(includedir),g' \
-	    -e 's,__LIBDIR__,$(libdir),g' \
+	sed -e 's#__ATF_VERSION__#$(PACKAGE_VERSION)#g' \
+	    -e 's#__CC__#$(CC)#g' \
+	    -e 's#__INCLUDEDIR__#$(includedir)#g' \
+	    -e 's#__LIBDIR__#$(libdir)#g' \
 	    <$(srcdir)/atf-c/atf-c.pc.in >atf-c/atf-c.pc.tmp
 	mv atf-c/atf-c.pc.tmp atf-c/atf-c.pc
 
