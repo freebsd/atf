@@ -214,7 +214,7 @@ oflag_inline_body()
     # XXX Ugly hack to workaround the lack of \e in FreeBSD.  Look for a
     # nicer solution...
     case $(uname) in
-    FreeBSD)
+    Darwin|FreeBSD)
         h_pass "printf '\a\b\f\n\r\t\v'" -o inline:"\a\b\f\n\r\t\v"
         ;;
     *)
@@ -334,7 +334,7 @@ eflag_inline_body()
     # XXX Ugly hack to workaround the lack of \e in FreeBSD.  Look for a
     # nicer solution...
     case $(uname) in
-    FreeBSD)
+    Darwin|FreeBSD)
         h_pass "printf '\a\b\f\n\r\t\v' 1>&2" -e inline:"\a\b\f\n\r\t\v"
         ;;
     *)
