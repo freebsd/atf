@@ -166,7 +166,8 @@ write_resfile(const int fd, const char *result, const int arg,
 
     INV(arg == -1 || reason != NULL);
 
-    iov[count].iov_base = __UNCONST(result);
+#define UNCONST(a) ((void *)(unsigned long)(const void *)(a))
+    iov[count].iov_base = UNCONST(result);
     iov[count++].iov_len = strlen(result);
 
     if (reason != NULL) {
@@ -179,9 +180,10 @@ write_resfile(const int fd, const char *result, const int arg,
 	iov[count++].iov_len = sizeof(CS) - 1;
 
 	r = atf_dynstr_cstring(reason);
-	iov[count].iov_base = __UNCONST(r);
+	iov[count].iov_base = UNCONST(r);
 	iov[count++].iov_len = strlen(r);
     }
+#undef UNCONST
 
     iov[count].iov_base = NL;
     iov[count++].iov_len = sizeof(NL) - 1;
