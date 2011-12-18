@@ -29,6 +29,8 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET!
   bindings.  Note that ATF_CHECK_SH was already introduced in 0.14, but it
   has now been modified to also honor --with-atf if instantiated.
 
+* Added timing support to atf-run / atf-report.
+
 
 Changes in version 0.14
 ***********************

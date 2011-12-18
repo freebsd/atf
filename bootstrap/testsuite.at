@@ -60,10 +60,12 @@ m4_define(CHECK_TCR, [TCR_DATA([expres], $2, $3)
                       AT_CHECK([diff -u expres $1], [0], [], [])])
 
 m4_define(CHECK_TCS_TCR,
-          [AT_CHECK([grep '^tc-end: $1, $2' $3], [0], [ignore], [])])
+          [AT_CHECK([grep '^tc-end: @<:@0-9. @:>@*, $1, $2' $3], [0],
+          [ignore], [])])
 
 m4_define(CHECK_TPS_TCR,
-          [AT_CHECK([grep '^tc-end: $1, $2' $3], [0], [ignore], [])])
+          [AT_CHECK([grep '^tc-end: @<:@0-9. @:>@*, $1, $2' $3], [0],
+          [ignore], [])])
 
 dnl The tests below are sorted depending on how important they are.
 m4_include(bootstrap/t_application_opts_args.at)

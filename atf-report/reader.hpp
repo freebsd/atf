@@ -30,6 +30,10 @@
 #if !defined(_ATF_REPORT_FORMATS_HPP_)
 #define _ATF_REPORT_FORMATS_HPP_
 
+extern "C" {
+#include <sys/time.h>
+}
+
 #include <istream>
 #include <string>
 
@@ -65,12 +69,13 @@ protected:
     virtual void got_info(const std::string&, const std::string&);
     virtual void got_ntps(size_t);
     virtual void got_tp_start(const std::string&, size_t);
-    virtual void got_tp_end(const std::string&);
+    virtual void got_tp_end(struct timeval*, const std::string&);
 
     virtual void got_tc_start(const std::string&);
     virtual void got_tc_stdout_line(const std::string&);
     virtual void got_tc_stderr_line(const std::string&);
-    virtual void got_tc_end(const std::string&, const std::string&);
+    virtual void got_tc_end(const std::string&, struct timeval*,
+                            const std::string&);
     virtual void got_eof(void);
 
 public:

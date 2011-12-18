@@ -56,6 +56,11 @@ h3 {
     padding: 3pt;
 }
 
+p.details {
+    margin-left: 20pt;
+    margin-right: 20pt;
+}
+
 p.term {
     margin-left: 40pt;
     margin-right: 40pt;

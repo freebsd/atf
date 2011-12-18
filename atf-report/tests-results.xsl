@@ -503,6 +503,11 @@
     <xsl:value-of select="../@id" /><xsl:text>/</xsl:text>
     <xsl:value-of select="@id" /></h2>
 
+    <xsl:if test="tc-time">
+      <p class="details">Duration:
+      <xsl:apply-templates select="tc-time" mode="details" /></p>
+    </xsl:if>
+
     <h3>Termination reason</h3>
     <xsl:apply-templates select="expected_death|expected_exit|expected_failure|
                                  expected_signal|expected_timeout|
@@ -518,6 +523,10 @@
       <h3>Standard error stream</h3>
       <pre class="se"><xsl:apply-templates select="se" mode="details" /></pre>
     </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="tc-time" mode="details">
+    <xsl:apply-templates /> seconds
   </xsl:template>
 
   <xsl:template match="so" mode="details">
