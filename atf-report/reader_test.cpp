@@ -65,7 +65,7 @@ class tps_reader : protected impl::atf_tps_reader {
     }
 
     void
-    got_tp_end(struct timeval* ATF_DEFS_ATTRIBUTE_UNUSED(tv),
+    got_tp_end(struct timeval* tv ATF_DEFS_ATTRIBUTE_UNUSED,
                const std::string& reason)
     {
         m_calls.push_back("got_tp_end(" + reason + ")");
@@ -79,7 +79,7 @@ class tps_reader : protected impl::atf_tps_reader {
 
     void
     got_tc_end(const std::string& state,
-               struct timeval* ATF_DEFS_ATTRIBUTE_UNUSED(tv),
+               struct timeval* tv ATF_DEFS_ATTRIBUTE_UNUSED,
                const std::string& reason)
     {
         const std::string r = state + (reason.empty() ? "" : ", " + reason);

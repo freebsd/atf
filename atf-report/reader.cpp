@@ -171,7 +171,7 @@ impl::atf_tps_reader::got_tp_start(
 
 void
 impl::atf_tps_reader::got_tp_end(
-    struct timeval* ATF_DEFS_ATTRIBUTE_UNUSED(tv),
+    struct timeval* tv ATF_DEFS_ATTRIBUTE_UNUSED,
     const std::string& reason ATF_DEFS_ATTRIBUTE_UNUSED)
 {
 }
@@ -197,7 +197,7 @@ impl::atf_tps_reader::got_tc_stderr_line(
 void
 impl::atf_tps_reader::got_tc_end(
     const std::string& state ATF_DEFS_ATTRIBUTE_UNUSED,
-    struct timeval* ATF_DEFS_ATTRIBUTE_UNUSED(tv),
+    struct timeval* tv ATF_DEFS_ATTRIBUTE_UNUSED,
     const std::string& reason ATF_DEFS_ATTRIBUTE_UNUSED)
 {
 }
