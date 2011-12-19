@@ -183,8 +183,8 @@ ATF_TEST_CASE_BODY(tps_3)
         "tc-end: 123.345, first-test, passed\n"
         "tc-start: 123.456, second-test\n"
         "tc-end: 123.567, second-test, skipped, Testing skipped reason\n"
-        "tc-start: 123.678, third-test\n"
-        "tc-end: 123.789, third-test, failed, Testing failed reason\n"
+        "tc-start: 123.678, third.test\n"
+        "tc-end: 123.789, third.test, failed, Testing failed reason\n"
         "tp-end: 123.890, first-prog\n"
         "tp-start: 124.901, second-prog, 3\n"
         "tc-start: 124.1012, first-test\n"
@@ -199,12 +199,12 @@ ATF_TEST_CASE_BODY(tps_3)
         "tc-so:second stdout line for 2nd test\n"
         "tc-se:second stderr line for 2nd test\n"
         "tc-end: 124.1345, second-test, skipped, Testing skipped reason\n"
-        "tc-start: 124.1456, third-test\n"
+        "tc-start: 124.1456, third.test\n"
         "tc-so:first stdout line for 3rd test\n"
         "tc-se:first stderr line for 3rd test\n"
         "tc-so:second stdout line for 3rd test\n"
         "tc-se:second stderr line for 3rd test\n"
-        "tc-end: 124.1567, third-test, failed, Testing failed reason\n"
+        "tc-end: 124.1567, third.test, failed, Testing failed reason\n"
         "tp-end: 124.1678, second-prog, This program failed\n"
     ;
 
@@ -215,7 +215,7 @@ ATF_TEST_CASE_BODY(tps_3)
         "got_tc_end(passed)",
         "got_tc_start(second-test)",
         "got_tc_end(skipped, Testing skipped reason)",
-        "got_tc_start(third-test)",
+        "got_tc_start(third.test)",
         "got_tc_end(failed, Testing failed reason)",
         "got_tp_end()",
         "got_tp_start(second-prog, 3)",
@@ -231,7 +231,7 @@ ATF_TEST_CASE_BODY(tps_3)
         "got_tc_stdout_line(second stdout line for 2nd test)",
         "got_tc_stderr_line(second stderr line for 2nd test)",
         "got_tc_end(skipped, Testing skipped reason)",
-        "got_tc_start(third-test)",
+        "got_tc_start(third.test)",
         "got_tc_stdout_line(first stdout line for 3rd test)",
         "got_tc_stderr_line(first stderr line for 3rd test)",
         "got_tc_stdout_line(second stdout line for 3rd test)",
@@ -586,18 +586,18 @@ ATF_TEST_CASE_BODY(tps_54)
     const char* exp_errors[] = {
         "4: Unexpected token `foo'; expected start of test program",
         "5: Unexpected token `<<NEWLINE>>'; expected `:'",
-        "6: Unexpected token `<<NEWLINE>>'; expected timestamp secs",
-        "7: Unexpected token `<<NEWLINE>>'; expected `.'",
-        "8: Unexpected token `<<NEWLINE>>'; expected timestamp usecs",
+        "6: Unexpected token `<<NEWLINE>>'; expected timestamp",
+        "7: Malformed timestamp value 123",
+        "8: Malformed timestamp value 123.",
         "9: Unexpected token `<<NEWLINE>>'; expected `,'",
         "10: Unexpected token `<<NEWLINE>>'; expected test program name",
         "11: Unexpected token `<<NEWLINE>>'; expected `,'",
         "12: Unexpected token `<<NEWLINE>>'; expected number of test programs",
         "14: Unexpected token `bar'; expected end of test program",
         "16: Unexpected token `<<NEWLINE>>'; expected `:'",
-        "18: Unexpected token `<<NEWLINE>>'; expected timestamp secs",
-        "20: Unexpected token `<<NEWLINE>>'; expected `.'",
-        "22: Unexpected token `<<NEWLINE>>'; expected timestamp usecs",
+        "18: Unexpected token `<<NEWLINE>>'; expected timestamp",
+        "20: Malformed timestamp value 777",
+        "22: Malformed timestamp value 777.",
         "24: Unexpected token `<<NEWLINE>>'; expected `,'",
 
         "26: Unexpected token `<<NEWLINE>>'; expected test program name",
@@ -657,16 +657,16 @@ ATF_TEST_CASE_BODY(tps_55)
     const char* exp_errors[] = {
         "5: Unexpected token `foo'; expected start of test case",
         "6: Unexpected token `<<NEWLINE>>'; expected `:'",
-        "7: Unexpected token `<<NEWLINE>>'; expected timestamp secs",
-        "8: Unexpected token `<<NEWLINE>>'; expected `.'",
-        "9: Unexpected token `<<NEWLINE>>'; expected timestamp usecs",
+        "7: Unexpected token `<<NEWLINE>>'; expected timestamp",
+        "8: Malformed timestamp value 111",
+        "9: Malformed timestamp value 111.",
         "10: Unexpected token `<<NEWLINE>>'; expected `,'",
         "11: Unexpected token `<<NEWLINE>>'; expected test case name",
         "13: Unexpected token `bar'; expected end of test case or test case's stdout/stderr line",
         "15: Unexpected token `<<NEWLINE>>'; expected `:'",
-        "17: Unexpected token `<<NEWLINE>>'; expected timestamp secs",
-        "19: Unexpected token `<<NEWLINE>>'; expected `.'",
-        "21: Unexpected token `<<NEWLINE>>'; expected timestamp usecs",
+        "17: Unexpected token `<<NEWLINE>>'; expected timestamp",
+        "19: Malformed timestamp value 111",
+        "21: Malformed timestamp value 111.",
         "23: Unexpected token `<<NEWLINE>>'; expected `,'",
         "25: Unexpected token `<<NEWLINE>>'; expected test case name",
         "27: Test case name used in terminator does not match opening",
@@ -836,7 +836,7 @@ ATF_TEST_CASE_BODY(tps_61)
     };
 
     const char* exp_errors[] = {
-        "3: Unexpected token `<<NEWLINE>>'; expected `,' or `.'",
+        "3: Unexpected token `<<NEWLINE>>'; expected `,'",
         NULL
     };
 
