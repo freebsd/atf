@@ -435,42 +435,42 @@
   </xsl:template>
 
   <xsl:template match="passed" mode="tc">
-    <td class="tcr-passed"><p>Passed</p></td>
+    <td class="tcr-passed"><p class="nobr">Passed</p></td>
     <td><p>N/A</p></td>
   </xsl:template>
 
   <xsl:template match="expected_death" mode="tc">
-    <td class="tcr-xfail"><p>Expected death</p></td>
+    <td class="tcr-xfail"><p class="nobr">Expected death</p></td>
     <td><p><xsl:apply-templates /></p></td>
   </xsl:template>
 
   <xsl:template match="expected_exit" mode="tc">
-    <td class="tcr-xfail"><p>Expected exit</p></td>
+    <td class="tcr-xfail"><p class="nobr">Expected exit</p></td>
     <td><p><xsl:apply-templates /></p></td>
   </xsl:template>
 
   <xsl:template match="expected_failure" mode="tc">
-    <td class="tcr-xfail"><p>Expected failure</p></td>
+    <td class="tcr-xfail"><p class="nobr">Expected failure</p></td>
     <td><p><xsl:apply-templates /></p></td>
   </xsl:template>
 
   <xsl:template match="expected_timeout" mode="tc">
-    <td class="tcr-xfail"><p>Expected timeout</p></td>
+    <td class="tcr-xfail"><p class="nobr">Expected timeout</p></td>
     <td><p><xsl:apply-templates /></p></td>
   </xsl:template>
 
   <xsl:template match="expected_signal" mode="tc">
-    <td class="tcr-xfail"><p>Expected signal</p></td>
+    <td class="tcr-xfail"><p class="nobr">Expected signal</p></td>
     <td><p><xsl:apply-templates /></p></td>
   </xsl:template>
 
   <xsl:template match="failed" mode="tc">
-    <td class="tcr-failed"><p>Failed</p></td>
+    <td class="tcr-failed"><p class="nobr">Failed</p></td>
     <td><p><xsl:apply-templates /></p></td>
   </xsl:template>
 
   <xsl:template match="skipped" mode="tc">
-    <td class="tcr-skipped"><p>Skipped</p></td>
+    <td class="tcr-skipped"><p class="nobr">Skipped</p></td>
     <td><p><xsl:apply-templates /></p></td>
   </xsl:template>
 
