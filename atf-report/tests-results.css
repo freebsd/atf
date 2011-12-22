@@ -147,9 +147,15 @@ table.tcs-summary th {
     padding: 3pt 6pt 3pt 6pt;
 }
 
+table.tcs-summary td.numeric {
+    text-align: right;
+    width: 1pt;
+}
+
 table.tcs-summary td.tp-id {
     background: #dddddd;
     font-weight: bold;
+    width: 1pt;
 }
 
 table.tcs-summary td.tc-id p {
@@ -158,16 +164,24 @@ table.tcs-summary td.tc-id p {
 
 table.tcs-summary td.tcr-passed {
     background: #aaffaa;
+    width: 1pt;
 }
 
 table.tcs-summary td.tcr-failed {
     background: #ffaaaa;
+    width: 1pt;
 }
 
 table.tcs-summary td.tcr-skipped {
     background: #ffffaa;
+    width: 1pt;
 }
 
 table.tcs-summary td.tcr-xfail {
     background: #ffaaff;
+    width: 1pt;
+}
+
+table.tcs-summary td.tcr-reason {
+    width: 100%;
 }
