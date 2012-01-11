@@ -503,7 +503,7 @@ ATF_TEST_CASE_BODY(atf_tps_writer)
 {
     std::ostringstream expss;
     std::ostringstream ss;
-    const char *ts_regex = "[0-9]+\\.[0-9]{6}, ";
+    const char *ts_regex = "[0-9]+\\.[0-9]{1,6}, ";
 
 #define RESET \
     expss.str(""); \

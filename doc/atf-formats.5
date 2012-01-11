@@ -26,7 +26,7 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd December 18, 2011
+.Dd December 20, 2011
 .Dt ATF-FORMATS 5
 .Os
 .Sh NAME
@@ -213,18 +213,18 @@ associated with this result (if applicable).
 An example:
 .Bd -literal -offset indent
 tps-count: 2
-tp-start: calculator, 2
-tc-start: add
-tc-end: add, passed
-tc-start: subtract
+tp-start: calculator, 1324318951.838923, 2
+tc-start: add, 1324318951.839101
+tc-end: add, 1324318951.839500, passed
+tc-start: subtract, 1324318951.840001
 tc-so: 3-2 expected to return 1 but got 0
-tc-end: subtract, failed, Calculated an unexpected value
-tp-end: calculator
-tp-start: files, 1
-tc-start: copy
+tc-end: subtract, 1324318952.000123, failed, Calculated an unexpected value
+tp-end: calculator, 1324318952.002301
+tp-start: files, 1, 1324318952.502348
+tc-start: copy, 1324318952.508291
 tc-se: could not find the cp(1) utility
-tc-end: copy, skipped
-tp-end: files
+tc-end: copy, 1324318953.203145, skipped
+tp-end: files, 1324318953.203800
 .Ed
 .Sh SEE ALSO
 .Xr atf 7

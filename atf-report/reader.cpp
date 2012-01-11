@@ -88,7 +88,6 @@ static const atf::parser::token_type expected_exit_type = 18;
 static const atf::parser::token_type expected_failure_type = 19;
 static const atf::parser::token_type expected_signal_type = 20;
 static const atf::parser::token_type expected_timeout_type = 21;
-static const atf::parser::token_type dot_type = 22;
 
 class tokenizer : public atf::parser::tokenizer< std::istream > {
 public:
@@ -98,7 +97,6 @@ public:
     {
         add_delim(':', colon_type);
         add_delim(',', comma_type);
-        add_delim('.', dot_type);
         add_keyword("tps-count", tps_count_type);
         add_keyword("tp-start", tp_start_type);
         add_keyword("tp-end", tp_end_type);
@@ -125,15 +123,16 @@ read_timeval(atf::parser::parser< atf_tps::tokenizer >& parser)
 {
     using namespace atf_tps;
 
+    atf::parser::token t = parser.expect(text_type, "timestamp");
+    const std::string::size_type divider = t.text().find('.');
+    if (divider == std::string::npos || divider == 0 ||
+        divider == t.text().length() - 1)
+        throw atf::parser::parse_error(t.lineno(),
+                                       "Malformed timestamp value " + t.text());
+
     struct timeval tv;
-
-    atf::parser::token t;
-    t = parser.expect(text_type, "timestamp secs");
-    tv.tv_sec = string_to_int< long >(t.text());
-    t = parser.expect(dot_type, "`.'");
-    t = parser.expect(text_type, "timestamp usecs");
-    tv.tv_usec = string_to_int< long >(t.text());
-
+    tv.tv_sec = string_to_int< long >(t.text().substr(0, divider));
+    tv.tv_usec = string_to_int< long >(t.text().substr(divider + 1));
     return tv;
 }
 
@@ -219,20 +218,9 @@ impl::atf_tps_reader::read_info(void* pptr)
 
     (void)p.expect(colon_type, "`:'");
 
-    std::string property;
-
-    atf::parser::token t;
-    do {
-        t = p.expect(text_type, "info property name");
-        if (property.empty())
-            property += t.text();
-        else
-            property += "." + t.text();
-
-        t = p.expect(comma_type, dot_type, "`,' or `.'");
-    } while (t.type() == dot_type);
-
-    got_info(property, atf::text::trim(p.rest_of_line()));
+    atf::parser::token t = p.expect(text_type, "info property name");
+    (void)p.expect(comma_type, "`,'");
+    got_info(t.text(), atf::text::trim(p.rest_of_line()));
 
     (void)p.expect(nl_type, "new line");
 }
