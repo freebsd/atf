@@ -171,17 +171,17 @@ write_resfile(const int fd, const char *result, const int arg,
     iov[count++].iov_len = strlen(result);
 
     if (reason != NULL) {
-	if (arg != -1) {
-	    iov[count].iov_base = buf;
-	    iov[count++].iov_len = snprintf(buf, sizeof(buf), "(%d)", arg);
-	}
+        if (arg != -1) {
+            iov[count].iov_base = buf;
+            iov[count++].iov_len = snprintf(buf, sizeof(buf), "(%d)", arg);
+        }
 
-	iov[count].iov_base = CS;
-	iov[count++].iov_len = sizeof(CS) - 1;
+        iov[count].iov_base = CS;
+        iov[count++].iov_len = sizeof(CS) - 1;
 
-	r = atf_dynstr_cstring(reason);
-	iov[count].iov_base = UNCONST(r);
-	iov[count++].iov_len = strlen(r);
+        r = atf_dynstr_cstring(reason);
+        iov[count].iov_base = UNCONST(r);
+        iov[count++].iov_len = strlen(r);
     }
 #undef UNCONST
 
