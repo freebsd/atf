@@ -270,6 +270,8 @@ class ticker_writer : public writer {
     {
         std::string str;
 
+        (*m_os) << "[" << format_tv(tv) << "s] ";
+
         if (state == "expected_death" || state == "expected_exit" ||
             state == "expected_failure" || state == "expected_signal" ||
             state == "expected_timeout") {
@@ -292,9 +294,7 @@ class ticker_writer : public writer {
         // XXX Wrap text.  format_text_with_tag does not currently allow
         // to specify the current column, which is needed because we have
         // already printed the tc's name.
-        (*m_os) << str;
-
-        (*m_os) << "  [" << format_tv(tv) << "s]\n";
+        (*m_os) << str << '\n';
 
         m_tcname = "";
     }
