@@ -97,6 +97,8 @@ ATF_MODULE_FS
 ATF_MODULE_SANITY
 ATF_MODULE_SIGNALS
 
+AC_CHECK_TYPE([timer_t], [], [], [[#include <time.h>]])
+
 ATF_RUNTIME_TOOL([ATF_BUILD_CC],
                  [C compiler to use at runtime], [${CC}])
 ATF_RUNTIME_TOOL([ATF_BUILD_CFLAGS],
