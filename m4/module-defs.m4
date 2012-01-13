@@ -44,7 +44,7 @@ test_printf(const char *format, ...)
     va_list ap;
 
     va_start(ap, format);
-    printf(format);
+    vprintf(format, ap);
     va_end(ap);
 }], [
     test_printf("foo %s", "bar");
