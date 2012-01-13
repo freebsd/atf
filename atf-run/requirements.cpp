@@ -27,9 +27,18 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-// TODO: We probably don't want to raise std::runtime_error for the errors
-// detected in this file.
+extern "C" {
+#include <sys/param.h>
+#include <sys/sysctl.h>
+}
+
+#include <cerrno>
+#include <cstring>
 #include <stdexcept>
+
+extern "C" {
+#include "atf-c/defs.h"
+}
 
 #include "atf-c++/config.hpp"
 
@@ -139,6 +148,47 @@ check_machine(const std::string& machines)
         return "Requires one of the '" + machines + "' machine types";
 }
 
+#if defined(__NetBSD__)
+static
+std::string
+check_memory_netbsd(const std::string& raw_memory)
+{
+    const int64_t needed = atf::text::to_bytes(raw_memory);
+
+    int64_t available;
+    std::size_t available_length = sizeof(available);
+    if (::sysctlbyname("hw.usermem64", &available, &available_length,
+                       NULL, 0) == -1) {
+        const char* e = std::strerror(errno);
+        return "Failed to get sysctl(hw.usermem64) value: " + std::string(e);
+    }
+
+    if (available < needed) {
+        return "Not enough memory; needed " + atf::text::to_string(needed) +
+            ", available " + atf::text::to_string(available);
+    } else
+        return "";
+}
+#else
+static
+std::string
+check_memory_unknown(const std::string& raw_memory ATF_DEFS_ATTRIBUTE_UNUSED)
+{
+    return "";
+}
+#endif
+
+static
+std::string
+check_memory(const std::string& raw_memory)
+{
+#if defined(__NetBSD__)
+    return check_memory_netbsd(raw_memory);
+#else
+    return check_memory_unknown(raw_memory);
+#endif
+}
+
 static
 std::string
 check_progs(const std::string& progs)
@@ -207,6 +257,8 @@ impl::check_requirements(const atf::tests::vars_map& metadata,
             failure_reason = check_files(value);
         else if (name == "require.machine")
             failure_reason = check_machine(value);
+        else if (name == "require.memory")
+            failure_reason = check_memory(value);
         else if (name == "require.progs")
             failure_reason = check_progs(value);
         else if (name == "require.user")

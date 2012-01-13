@@ -490,6 +490,29 @@ ATF_TEST_CASE_BODY(tp_59)
     do_parser_test< tp_reader >(input, exp_calls, exp_errors);
 }
 
+ATF_TEST_CASE_WITHOUT_HEAD(tp_60);
+ATF_TEST_CASE_BODY(tp_60)
+{
+    const char* input =
+        "Content-Type: application/X-atf-tp; version=\"1\"\n"
+        "\n"
+        "ident: test\n"
+        "require.memory: 12345D\n"
+    ;
+
+    const char* exp_calls[] = {
+        NULL
+    };
+
+    const char* exp_errors[] = {
+        "4: The require.memory property requires an integer value representing"
+        " an amount of bytes",
+        NULL
+    };
+
+    do_parser_test< tp_reader >(input, exp_calls, exp_errors);
+}
+
 // -------------------------------------------------------------------------
 // Tests for the "tps" writer.
 // -------------------------------------------------------------------------
@@ -967,6 +990,7 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, tp_57);
     ATF_ADD_TEST_CASE(tcs, tp_58);
     ATF_ADD_TEST_CASE(tcs, tp_59);
+    ATF_ADD_TEST_CASE(tcs, tp_60);
 
     ATF_ADD_TEST_CASE(tcs, atf_tps_writer);
 

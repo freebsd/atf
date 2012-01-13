@@ -458,6 +458,13 @@ detail::atf_tp_reader::validate_and_insert(const std::string& name,
     } else if (name == "require.config") {
     } else if (name == "require.files") {
     } else if (name == "require.machine") {
+    } else if (name == "require.memory") {
+        try {
+            (void)atf::text::to_bytes(value);
+        } catch (const std::runtime_error&) {
+            throw parse_error(lineno, "The require.memory property requires an "
+                              "integer value representing an amount of bytes");
+        }
     } else if (name == "require.progs") {
     } else if (name == "require.user") {
     } else if (name == "timeout") {
