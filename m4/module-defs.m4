@@ -32,6 +32,7 @@ AC_DEFUN([ATF_ATTRIBUTE_FORMAT_PRINTF], [
         [whether __attribute__((__format__(__printf__, a, b))) is supported])
     AC_COMPILE_IFELSE(
         [AC_LANG_PROGRAM([
+#include <stdarg.h>
 #include <stdio.h>
 
 static void test_printf(const char *, ...)
@@ -40,7 +41,11 @@ static void test_printf(const char *, ...)
 static void
 test_printf(const char *format, ...)
 {
+    va_list ap;
+
+    va_start(ap, format);
     printf(format);
+    va_end(ap);
 }], [
     test_printf("foo %s", "bar");
     return 0;
