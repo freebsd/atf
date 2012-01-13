@@ -30,6 +30,10 @@
 #if !defined(_ATF_CXX_TEXT_HPP_)
 #define _ATF_CXX_TEXT_HPP_
 
+extern "C" {
+#include <stdint.h>
+}
+
 #include <sstream>
 #include <stdexcept>
 #include <string>
