@@ -148,16 +148,14 @@ check_machine(const std::string& machines)
         return "Requires one of the '" + machines + "' machine types";
 }
 
-#if defined(__NetBSD__)
+#if defined(__APPLE__) || defined(__NetBSD__)
 static
 std::string
-check_memory_netbsd(const std::string& raw_memory)
+check_memory_sysctl(const int64_t needed, const char* sysctl_variable)
 {
-    const int64_t needed = atf::text::to_bytes(raw_memory);
-
     int64_t available;
     std::size_t available_length = sizeof(available);
-    if (::sysctlbyname("hw.usermem64", &available, &available_length,
+    if (::sysctlbyname(sysctl_variable, &available, &available_length,
                        NULL, 0) == -1) {
         const char* e = std::strerror(errno);
         return "Failed to get sysctl(hw.usermem64) value: " + std::string(e);
@@ -169,10 +167,27 @@ check_memory_netbsd(const std::string& raw_memory)
     } else
         return "";
 }
+#   if defined(__APPLE__)
+static
+std::string
+check_memory_darwin(const int64_t needed)
+{
+    return check_memory_sysctl(needed, "hw.usermem");
+}
+#   elif defined(__NetBSD__)
+static
+std::string
+check_memory_netbsd(const int64_t needed)
+{
+    return check_memory_sysctl(needed, "hw.usermem64");
+}
+#   else
+#      error "Conditional error"
+#   endif
 #else
 static
 std::string
-check_memory_unknown(const std::string& raw_memory ATF_DEFS_ATTRIBUTE_UNUSED)
+check_memory_unknown(const int64_t needed ATF_DEFS_ATTRIBUTE_UNUSED)
 {
     return "";
 }
@@ -182,10 +197,14 @@ static
 std::string
 check_memory(const std::string& raw_memory)
 {
-#if defined(__NetBSD__)
-    return check_memory_netbsd(raw_memory);
+    const int64_t needed = atf::text::to_bytes(raw_memory);
+
+#if defined(__APPLE__)
+    return check_memory_darwin(needed);
+#elif defined(__NetBSD__)
+    return check_memory_netbsd(needed);
 #else
-    return check_memory_unknown(raw_memory);
+    return check_memory_unknown(needed);
 #endif
 }
 
