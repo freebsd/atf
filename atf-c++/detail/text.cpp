@@ -133,3 +133,28 @@ impl::to_bool(const std::string& str)
 
     return b;
 }
+
+int64_t
+impl::to_bytes(std::string str)
+{
+    if (str.empty())
+        throw std::runtime_error("Empty value");
+
+    const char unit = str[str.length() - 1];
+    int64_t multiplier;
+    switch (unit) {
+    case 'k': case 'K': multiplier = 1 << 10; break;
+    case 'm': case 'M': multiplier = 1 << 20; break;
+    case 'g': case 'G': multiplier = 1 << 30; break;
+    case 't': case 'T': multiplier = int64_t(1) << 40; break;
+    default:
+        if (!std::isdigit(unit))
+            throw std::runtime_error(std::string("Unknown size unit '") + unit
+                                     + "'");
+        multiplier = 1;
+    }
+    if (multiplier != 1)
+        str.erase(str.length() - 1);
+
+    return to_type< int64_t >(str) * multiplier;
+}

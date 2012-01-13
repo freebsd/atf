@@ -98,6 +98,11 @@ std::string trim(const std::string&);
 bool to_bool(const std::string&);
 
 //!
+//! \brief Converts the given string to a bytes size.
+//!
+int64_t to_bytes(std::string);
+
+//!
 //! \brief Changes the case of a string to lowercase.
 //!
 //! Returns a new string that is a lowercased version of the original
@@ -133,7 +138,7 @@ to_type(const std::string& str)
     std::istringstream ss(str);
     T value;
     ss >> value;
-    if (!ss.eof() || (!ss.eof() && !ss.good()))
+    if (!ss.eof() || (ss.eof() && (ss.fail() || ss.bad())))
         throw std::runtime_error("Cannot convert string to requested type");
     return value;
 }
