@@ -5,7 +5,7 @@ Major changes between releases                  Automated Testing Framework
 Changes in version 0.15
 ***********************
 
-STILL UNDER DEVELOPMENT; NOT RELEASED YET!
+Experimental version released on January 16th, 2012.
 
 * Respect stdin in atf-check.  The previous release silenced stdin for any
   processes spawned by atf, not only test programs, which caused breakage
