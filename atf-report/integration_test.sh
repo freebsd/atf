@@ -424,6 +424,15 @@ EOF
         "atf-report -o xml:- <tps.out | sed -E -e 's/>[0-9]+.[0-9]{6}</>#.#</'"
 }
 
+atf_test_case too_many_args
+too_many_args_body()
+{
+    cat >experr <<EOF
+atf-report: ERROR: No arguments allowed
+EOF
+    atf_check -s eq:1 -o empty -e file:experr atf-report foo
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case default
@@ -433,6 +442,7 @@ atf_init_test_cases()
     atf_add_test_case output_ticker
     atf_add_test_case output_xml
     atf_add_test_case output_xml_space
+    atf_add_test_case too_many_args
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

@@ -670,6 +670,9 @@ atf_report::specific_options(void)
 int
 atf_report::main(void)
 {
+    if (m_argc > 0)
+        throw std::runtime_error("No arguments allowed");
+
     if (m_oflags.empty())
         m_oflags.push_back(fmt_path_pair("ticker", atf::fs::path("-")));
 
