@@ -407,8 +407,9 @@ muxer_test(const size_t bufsize, const size_t iterations)
     std::cout << "flush done\n";
     check_stream(std::cout);
 
+    sigchld.unprogram();
     int status;
-    ::wait(&status);
+    ATF_REQUIRE(::waitpid(pid, &status, 0) != -1);
     ATF_REQUIRE(WIFEXITED(status));
     ATF_REQUIRE(WEXITSTATUS(status) == EXIT_SUCCESS);
 
