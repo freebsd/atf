@@ -335,7 +335,7 @@ output_xml_body()
 
 # NO_CHECK_STYLE_BEGIN
     cat >expout <<EOF
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE tests-results PUBLIC "-//NetBSD//DTD ATF Tests Results 0.1//EN" "http://www.NetBSD.org/XML/atf/tests-results.dtd">
 
 <tests-results>
@@ -392,7 +392,7 @@ EOF
 
 # NO_CHECK_STYLE_BEGIN
     cat >expout <<EOF
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE tests-results PUBLIC "-//NetBSD//DTD ATF Tests Results 0.1//EN" "http://www.NetBSD.org/XML/atf/tests-results.dtd">
 
 <tests-results>

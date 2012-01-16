@@ -481,7 +481,7 @@ public:
     xml_writer(const atf::fs::path& p) :
         m_os(open_outfile(p))
     {
-        (*m_os) << "<?xml version=\"1.0\"?>\n"
+        (*m_os) << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
                 << "<!DOCTYPE tests-results PUBLIC "
                    "\"-//NetBSD//DTD ATF Tests Results 0.1//EN\" "
                    "\"http://www.NetBSD.org/XML/atf/tests-results.dtd\">\n\n"
