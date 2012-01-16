@@ -34,9 +34,9 @@ dnl -----------------------------------------------------------------------
 AC_INIT([Automated Testing Framework], [0.15], [atf-devel@NetBSD.org], [atf],
         [http://www.NetBSD.org/~jmmv/atf/])
 AC_PREREQ([2.65])
-AC_COPYRIGHT([Copyright (c) 2007-2011 The NetBSD Foundation, Inc.])
+AC_COPYRIGHT([Copyright (c) 2007-2012 The NetBSD Foundation, Inc.])
 AC_DEFINE([PACKAGE_COPYRIGHT],
-          ["Copyright (c) 2007-2011 The NetBSD Foundation, Inc."],
+          ["Copyright (c) 2007-2012 The NetBSD Foundation, Inc."],
           [Define to the copyright string applicable to this package.])
 AC_CONFIG_AUX_DIR([admin])
 AC_CONFIG_HEADERS([bconfig.h])
