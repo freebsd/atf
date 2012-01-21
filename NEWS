@@ -7,6 +7,9 @@ Changes in version 0.16
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
+* Tweaked the ATF_TEST_CASE macro of atf-c++ so that the compiler can
+  detect defined but unused test cases.
+
 
 Changes in version 0.15
 ***********************
