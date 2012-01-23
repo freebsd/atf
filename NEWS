@@ -10,6 +10,11 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 * Tweaked the ATF_TEST_CASE macro of atf-c++ so that the compiler can
   detect defined but unused test cases.
 
+* PR bin/45859: Fixed some XSLT bugs that resulted in the tc-time and
+  tp-time XML tags leaking into the generated HTML file.  Also improved
+  the CSS file slightly to correct alignment and color issues with the
+  timestamps column.
+
 
 Changes in version 0.15
 ***********************
