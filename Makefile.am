@@ -112,7 +112,7 @@ BUILD_SH_TP = \
 
 .PHONY: clean-all
 clean-all:
-	MTN="$(MTN)" $(SH) $(srcdir)/admin/clean-all.sh
+	GIT="$(GIT)" $(SH) $(srcdir)/admin/clean-all.sh
 
 .PHONY: release
 release:

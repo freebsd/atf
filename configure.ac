@@ -32,7 +32,7 @@ dnl Initialize the GNU build system.
 dnl -----------------------------------------------------------------------
 
 AC_INIT([Automated Testing Framework], [0.16], [atf-devel@NetBSD.org], [atf],
-        [http://www.NetBSD.org/~jmmv/atf/])
+        [http://code.google.com/p/kyua/wiki/ATF])
 AC_PREREQ([2.65])
 AC_COPYRIGHT([Copyright (c) 2007-2012 The NetBSD Foundation, Inc.])
 AC_DEFINE([PACKAGE_COPYRIGHT],
@@ -216,7 +216,7 @@ dnl -----------------------------------------------------------------------
 AC_PATH_PROG([GDB], [gdb])
 AC_PATH_PROG([KYUA], [kyua])
 AM_CONDITIONAL([HAVE_KYUA], [test -n "${KYUA}"])
-AC_PATH_PROG([MTN], [mtn])
+AC_PATH_PROG([GIT], [git])
 
 dnl -----------------------------------------------------------------------
 dnl Finally, generate output.

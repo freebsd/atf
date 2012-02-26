@@ -48,7 +48,7 @@ CLEANFILES += atf-version/revision.h.stamp
 atf-version/revision.h.stamp:
 	@test -d atf-version || mkdir -p atf-version
 	@$(top_srcdir)/atf-version/generate-revision.sh \
-	    -m "$(MTN)" -r $(top_srcdir) -o atf-version/revision.h.stamp \
+	    -g "$(GIT)" -r $(top_srcdir) -o atf-version/revision.h.stamp \
 	    -v $(PACKAGE_VERSION)
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

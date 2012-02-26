@@ -4,11 +4,11 @@ This document contains multiple items that should be taken into account when con
 
 == The repository ==
 
-The project's code is managed with the Monotone version control system.  This gives you, a potential contributor, a lot of freedom in how to manage the code and your changes on top of it.
+The project's code is managed with the Git version control system.  This gives you, a potential contributor, a lot of freedom in how to manage the code and your changes on top of it.
 
-Please read http://www.venge.net/mtn-wiki/BestPractices for multiple tips on how to best use monotone.  Of special importance is the daggy fixes work-flow pattern: http://www.venge.net/mtn-wiki/DaggyFixes.
+Please read http://www.venge.net/mtn-wiki/BestPractices for multiple tips on how to best use Git; the document is focused on Monotone, but most of the ideas are equally applicable.  Of special importance is the daggy fixes work-flow pattern: http://www.venge.net/mtn-wiki/DaggyFixes.
 
-As regards commit messages, we use a "mail-style" formatting approach.  Your message must be composed of a single-line subject sentence that summarizes the whole change, and later be described in detail in subsequent paragraphs.  This is so that visualization tools such as ViewMTN can show useful summary lines for changes.  It also forces you to verify your changes more carefully before committing them.
+As regards commit messages, we use a "mail-style" formatting approach.  Your message must be composed of a single-line subject sentence that summarizes the whole change, and later be described in detail in subsequent paragraphs.  This is so that visualization tools such as gitk can show useful summary lines for changes.  It also forces you to verify your changes more carefully before committing them.
 
 == Licensing ==
 
@@ -42,17 +42,17 @@ When in doubt, try to find existing code that is similar to what you are writing
 
 == Commit guidelines ==
 
- * The format of commit messages is: a single-line summary of the purpose of the change, followed by a blank line and followed by a free-form, detailed description that may span multiple paragraphs.  Always follow this format, even if writing the description seems redundant in some cases.
+ * The format of commit messages is: a single-line summary of the purpose of the change, followed by a blank line and followed by a free-form, detailed description that may span multiple paragraphs.  The detailed description is optional if it is completely redundant.
 
- Rationale: some tools (such as monotone-viz) only show the first line of the message in revision summaries.
+ Rationale: some tools (such as git rebase -i or gitk) only show the first line of the message in revision summaries.
 
- * Commits in monotone are cheap and fast, so abuse them.  Commit often and with a fine granularity.  If you find yourself writing a commit message as a list of items, then you are most likely doing it the wrong way.  Stop the commit (without writing the log message) and split your work in pieces.
+ * Commits in Git are cheap and fast, so abuse them.  Commit often and with a fine granularity.  If you find yourself writing a commit message as a list of items, then you are most likely doing it the wrong way.  Stop the commit (without writing the log message) and split your work in pieces.
 
  For example, suppose you are adding a new feature to a front-end tool and along the process you need to add a minor function to an existing module.  The first commit would include the changes required to add this minor function and its unit tests, all in one single change set.  The second commit would add your new feature.
 
  Rationale: small commits are easier to review and to cherry-pick.
 
- * Branch if needed.  If you are reworking a big part of the code or want to add a major feature without disturbing the development of mainline, create a branch for it.  The branch name should follow the pattern used for the mainline name; i.e. org.NetBSD.atf.src.<yourname>.  Be aware that branch names are global and public in Monotone, so choose the name wisely.  Better to be verbose than cryptic.
+ * Branch if needed.  If you are reworking a big part of the code or want to add a major feature without disturbing the development of mainline, create a branch for it.
 
  Rationale: do not disturb mainline with work that may not be completed on time for the next release, or with work that may leave mainline broken for a long period of time.
 

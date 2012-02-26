@@ -80,11 +80,9 @@ find . -name .libs | xargs rm -rf
 find . -name .tmp | xargs rm -rf
 
 # Show remaining files
-if [ -n "${MTN}" ]; then
-    echo ">>> mtn ls unknown"
-    "${MTN}" ls unknown
-    echo ">>> mtn ls ignored"
-    "${MTN}" ls ignored
+if [ -n "${GIT}" ]; then
+    echo ">>> untracked and ignored files"
+    "${GIT}" status --porcelain --ignored | grep -E '^(\?\?|!!)'
 fi
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
