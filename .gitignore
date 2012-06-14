@@ -18,5 +18,7 @@ bconfig.h.in
 config.log
 config.status
 configure
+installcheck.log
 libtool
 stamp-h1
+testsuite.log
