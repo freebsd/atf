@@ -208,6 +208,14 @@ The following flags are specific to ATF's 'configure' script:
   detection features regardless of the value of this flag.  However, such
   warnings are only fatal when --enable-developer is 'yes'.
 
+* --enable-tools
+  Possible values: yes, no
+  Default: no.
+
+  Enables the build of the deprecated atf-config, atf-report, atf-run
+  and atf-version tools.  atf-report and atf-run have been superseded by
+  Kyua, and atf-config and atf-version are unnecessary.
+
 * --enable-unstable-shared
   Possible values: yes, no
   Default: no.

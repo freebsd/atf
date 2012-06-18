@@ -7,6 +7,13 @@ Changes in version 0.16
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
+* Added a --enable-tools flag to configure to request the build of the
+  deprecated ATF tools, whose build is now disabled by default.  In order
+  to continue running tests, you should migrate to Kyua instead of enabling
+  the build of the deprecated tools.  The kyua-atf-compat package provides
+  transitional compatibility versions of atf-run and atf-report built on
+  top of Kyua.
+
 * Tweaked the ATF_TEST_CASE macro of atf-c++ so that the compiler can
   detect defined but unused test cases.
 

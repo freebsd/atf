@@ -27,13 +27,16 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+dist_man_MANS += doc/atf-test-case.4 \
+                 doc/atf-test-program.1
+
+if ENABLE_TOOLS
+
 man_MANS += doc/atf.7
 CLEANFILES += doc/atf.7
 EXTRA_DIST += doc/atf.7.in
 
-dist_man_MANS += doc/atf-formats.5 \
-                 doc/atf-test-case.4 \
-                 doc/atf-test-program.1
+dist_man_MANS += doc/atf-formats.5
 
 doc/atf.7: $(srcdir)/doc/atf.7.in
 	test -d doc || mkdir -p doc
@@ -41,5 +44,7 @@ doc/atf.7: $(srcdir)/doc/atf.7.in
 	    -e 's#__TESTSDIR__#$(testsdir)#g' \
 	    <$(srcdir)/doc/atf.7.in >doc/atf.7.tmp
 	mv doc/atf.7.tmp doc/atf.7
+
+endif
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

@@ -45,14 +45,17 @@ ACLOCAL_AMFLAGS = -I m4
 include admin/Makefile.am.inc
 include atf-c/Makefile.am.inc
 include atf-c++/Makefile.am.inc
-include atf-config/Makefile.am.inc
-include atf-report/Makefile.am.inc
-include atf-run/Makefile.am.inc
 include atf-sh/Makefile.am.inc
-include atf-version/Makefile.am.inc
 include bootstrap/Makefile.am.inc
 include doc/Makefile.am.inc
 include test-programs/Makefile.am.inc
+
+if ENABLE_TOOLS
+include atf-report/Makefile.am.inc
+include atf-config/Makefile.am.inc
+include atf-run/Makefile.am.inc
+include atf-version/Makefile.am.inc
+endif
 
 #
 # Top-level distfile documents.
@@ -72,6 +75,7 @@ TESTS_ENVIRONMENT = PATH=$(prefix)/bin:$${PATH} \
 testsdir = $(exec_prefix)/tests
 pkgtestsdir = $(testsdir)/$(PACKAGE)
 
+if ENABLE_TOOLS
 installcheck-local: installcheck-atf
 .PHONY: installcheck-atf
 installcheck-atf:
@@ -90,6 +94,7 @@ installcheck-atf:
 	     "installcheck.log; exit was $${res}"; \
 	test $${res} -eq 0
 CLEANFILES += installcheck.fifo installcheck.log
+endif
 
 .PHONY: installcheck-kyua
 if HAVE_KYUA
@@ -97,7 +102,10 @@ installcheck-kyua:
 	cd $(pkgtestsdir) && $(TESTS_ENVIRONMENT) $(KYUA) test
 endif
 
-pkgtests_DATA = Atffile Kyuafile
+pkgtests_DATA = Kyuafile
+if ENABLE_TOOLS
+pkgtests_DATA += Atffile
+endif
 EXTRA_DIST += $(pkgtests_DATA)
 
 BUILD_SH_TP = \
@@ -109,6 +117,17 @@ BUILD_SH_TP = \
 #
 # Custom targets.
 #
+
+dist-hook: forbid-dist
+if ENABLE_TOOLS
+forbid-dist:
+	@true
+else
+forbid-dist:
+	@echo "Sorry; cannot make dist without the tools enabled."
+	@echo "Please reconfigure with --enable-tools."
+	@false
+endif
 
 .PHONY: clean-all
 clean-all:

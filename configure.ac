@@ -65,6 +65,17 @@ AC_ARG_ENABLE(unstable-shared,
      esac],
     [enable_shared=no])
 
+AC_ARG_ENABLE(tools,
+    AS_HELP_STRING([--enable-tools],
+        [Enables the build of the deprecated ATF tools]),
+    [case $enableval in
+     yes|no) enable_tools=${enableval} ;;
+     *) AC_MSG_ERROR([Invalid value passed to --enable-tools]) ;;
+     esac],
+    [enable_tools=no])
+AC_SUBST([ENABLE_TOOLS], ${enable_tools})
+AM_CONDITIONAL([ENABLE_TOOLS], [test "${enable_tools}" = yes])
+
 dnl -----------------------------------------------------------------------
 dnl Check for the C and C++ compilers and required features.
 dnl -----------------------------------------------------------------------
@@ -225,8 +236,13 @@ dnl -----------------------------------------------------------------------
 AC_OUTPUT([Makefile atf-c/defs.h])
 
 if test ${enable_shared} = yes; then
-    AC_MSG_WARN([Shared libraries with unstable ABIs/APIs have been enabled.])
-    AC_MSG_WARN([Please do not install them as part of a binary package.])
+    AC_MSG_WARN([Shared libraries with unstable ABIs/APIs have been enabled;])
+    AC_MSG_WARN([please do not install them as part of a binary package.])
+fi
+
+if test ${enable_tools} = yes; then
+    AC_MSG_WARN([Building the deprecated ATF tools (atf-run and atf-report);])
+    AC_MSG_WARN([please migrate to Kyua as soon as feasible.])
 fi
 
 dnl vim: syntax=m4:expandtab:shiftwidth=4:softtabstop=4

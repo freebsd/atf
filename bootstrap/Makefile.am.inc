@@ -103,6 +103,7 @@ testsuite_incs=	$(srcdir)/bootstrap/t_application_help.at \
 	echo 'm4_define(AT_PACKAGE_VERSION,   @PACKAGE_VERSION@)'; \
 	echo 'm4_define(AT_PACKAGE_STRING,    @PACKAGE_STRING@)'; \
 	echo 'm4_define(AT_PACKAGE_BUGREPORT, @PACKAGE_BUGREPORT@)'; \
+	echo 'm4_define(ENABLE_TOOLS,         @ENABLE_TOOLS@)'; \
 	} >$(srcdir)/bootstrap/package.m4
 
 @target_srcdir@bootstrap/testsuite: $(srcdir)/bootstrap/testsuite.at \

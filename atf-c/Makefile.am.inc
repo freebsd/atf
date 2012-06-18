@@ -100,9 +100,11 @@ atf-c/atf-c.pc: $(srcdir)/atf-c/atf-c.pc.in Makefile
 	    <$(srcdir)/atf-c/atf-c.pc.in >atf-c/atf-c.pc.tmp
 	mv atf-c/atf-c.pc.tmp atf-c/atf-c.pc
 
-tests_atf_c_DATA = atf-c/Atffile \
-                   atf-c/Kyuafile \
+tests_atf_c_DATA = atf-c/Kyuafile \
                    atf-c/macros_h_test.c
+if ENABLE_TOOLS
+tests_atf_c_DATA += atf-c/Atffile
+endif
 tests_atf_cdir = $(pkgtestsdir)/atf-c
 EXTRA_DIST += $(tests_atf_c_DATA)
 

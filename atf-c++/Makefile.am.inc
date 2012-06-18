@@ -69,9 +69,11 @@ atf-c++/atf-c++.pc: $(srcdir)/atf-c++/atf-c++.pc.in Makefile
 	    <$(srcdir)/atf-c++/atf-c++.pc.in >atf-c++/atf-c++.pc.tmp
 	mv atf-c++/atf-c++.pc.tmp atf-c++/atf-c++.pc
 
-tests_atf_c___DATA = atf-c++/Atffile \
-                     atf-c++/Kyuafile \
+tests_atf_c___DATA = atf-c++/Kyuafile \
                      atf-c++/macros_hpp_test.cpp
+if ENABLE_TOOLS
+tests_atf_c___DATA += atf-c++/Atffile
+endif
 tests_atf_c__dir = $(pkgtestsdir)/atf-c++
 EXTRA_DIST += $(tests_atf_c___DATA)
 

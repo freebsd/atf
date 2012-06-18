@@ -27,8 +27,10 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-tests_test_programs_DATA = test-programs/Atffile \
-                           test-programs/Kyuafile
+tests_test_programs_DATA = test-programs/Kyuafile
+if ENABLE_TOOLS
+tests_test_programs_DATA += test-programs/Atffile
+endif
 tests_test_programsdir = $(pkgtestsdir)/test-programs
 EXTRA_DIST += $(tests_test_programs_DATA)
 
