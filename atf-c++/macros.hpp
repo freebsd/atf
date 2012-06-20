@@ -36,14 +36,19 @@
 
 #include <atf-c++/tests.hpp>
 
+// Do not define inline methods for the test case classes.  Doing so
+// significantly increases the memory requirements of GNU G++ during
+// compilation.
+
 #define ATF_TEST_CASE_WITHOUT_HEAD(name) \
     namespace { \
     class atfu_tc_ ## name : public atf::tests::tc { \
         void body(void) const; \
     public: \
-        atfu_tc_ ## name(void) : atf::tests::tc(#name, false) {} \
+        atfu_tc_ ## name(void); \
     }; \
     static atfu_tc_ ## name* atfu_tcptr_ ## name; \
+    atfu_tc_ ## name::atfu_tc_ ## name(void) : atf::tests::tc(#name, false) {} \
     }
 
 #define ATF_TEST_CASE(name) \
@@ -52,9 +57,10 @@
         void head(void); \
         void body(void) const; \
     public: \
-        atfu_tc_ ## name(void) : atf::tests::tc(#name, false) {} \
+        atfu_tc_ ## name(void); \
     }; \
     static atfu_tc_ ## name* atfu_tcptr_ ## name; \
+    atfu_tc_ ## name::atfu_tc_ ## name(void) : atf::tests::tc(#name, false) {} \
     }
 
 #define ATF_TEST_CASE_WITH_CLEANUP(name) \
@@ -64,9 +70,10 @@
         void body(void) const; \
         void cleanup(void) const; \
     public: \
-        atfu_tc_ ## name(void) : atf::tests::tc(#name, true) {} \
+        atfu_tc_ ## name(void); \
     }; \
     static atfu_tc_ ## name* atfu_tcptr_ ## name; \
+    atfu_tc_ ## name::atfu_tc_ ## name(void) : atf::tests::tc(#name, true) {} \
     }
 
 #define ATF_TEST_CASE_NAME(name) atfu_tc_ ## name

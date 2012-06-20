@@ -22,6 +22,9 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
   the CSS file slightly to correct alignment and color issues with the
   timestamps column.
 
+* Optimized atf-c++/macros.hpp so that GNU G++ consumes less memory during
+  compilation with GNU G++.
+
 * Project hosting moved from an adhoc solution (custom web site and
   Monotone repository) to Google Code (standard wiki and Git).  ATF now
   lives in a subcomponent of the Kyua project.
