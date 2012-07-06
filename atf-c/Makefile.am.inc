@@ -62,6 +62,7 @@ libatf_c_la_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
                        "-DATF_SHELL=\"$(ATF_SHELL)\"" \
                        "-DATF_WORKDIR=\"$(ATF_WORKDIR)\"" \
                        -I$(srcdir)/atf-c
+libatf_c_la_LDFLAGS = -version-info 0:0:0
 
 # XXX For some reason, the nodist line above does not work as expected.
 # Work this problem around.

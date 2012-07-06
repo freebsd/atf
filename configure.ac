@@ -48,22 +48,7 @@ AC_CANONICAL_TARGET
 
 AM_INIT_AUTOMAKE([1.9 check-news foreign subdir-objects -Wall])
 
-LT_INIT([disable-shared])
-dnl This is just a hack to reverse the meaning of the --enable-shared
-dnl flag provided by libtool.  We want it to default to building static
-dnl libraries only for now, but these are painful during development.
-dnl It is nice to have an easy way to enable shared library builds.
-dnl
-dnl TODO(1.0): Enable shared libraries by default, and fix their
-dnl -version-info.
-AC_ARG_ENABLE(unstable-shared,
-    AS_HELP_STRING([--enable-unstable-shared],
-        [Enables the build of shared libraries with unstable ABIs/APIs]),
-    [case $enableval in
-     yes|no) enable_shared=${enableval} ;;
-     *) enable_shared=${enableval} ;;
-     esac],
-    [enable_shared=no])
+LT_INIT
 
 AC_ARG_ENABLE(tools,
     AS_HELP_STRING([--enable-tools],
@@ -234,11 +219,6 @@ dnl Finally, generate output.
 dnl -----------------------------------------------------------------------
 
 AC_OUTPUT([Makefile atf-c/defs.h])
-
-if test ${enable_shared} = yes; then
-    AC_MSG_WARN([Shared libraries with unstable ABIs/APIs have been enabled;])
-    AC_MSG_WARN([please do not install them as part of a binary package.])
-fi
 
 if test ${enable_tools} = yes; then
     AC_MSG_WARN([Building the deprecated ATF tools (atf-run and atf-report);])

@@ -216,16 +216,6 @@ The following flags are specific to ATF's 'configure' script:
   and atf-version tools.  atf-report and atf-run have been superseded by
   Kyua, and atf-config and atf-version are unnecessary.
 
-* --enable-unstable-shared
-  Possible values: yes, no
-  Default: no.
-
-  Forces the building of shared libraries in addition to static ones.  The
-  build of shared libraries is currently disabled because their ABIs and
-  APIs are unstable and subject to change.  This flag is provided for
-  development purposes only and will be removed once the libraries are
-  stable enough.
-
 
 Post-installation steps
 ***********************

@@ -41,6 +41,7 @@ libatf_c___la_SOURCES = atf-c++/build.cpp \
                         atf-c++/tests.cpp \
                         atf-c++/tests.hpp \
                         atf-c++/utils.hpp
+libatf_c___la_LDFLAGS = -version-info 0:0:0
 
 include_HEADERS += atf-c++.hpp
 atf_c___HEADERS = atf-c++/build.hpp \

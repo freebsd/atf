@@ -25,6 +25,13 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 * Optimized atf-c++/macros.hpp so that GNU G++ consumes less memory during
   compilation with GNU G++.
 
+* Flipped the default to building shared libraries for atf-c and atf-c++,
+  and started versioning them.  As a side-effect, this removes the
+  --enable-unstable-shared flag from configure that appears to not work any
+  more (under NetBSD).  Additionally, some distributions require the use of
+  shared libraries for proper dependency tracking (e.g. Fedora), so it is
+  better if we do the right versioning upstream.
+
 * Project hosting moved from an adhoc solution (custom web site and
   Monotone repository) to Google Code (standard wiki and Git).  ATF now
   lives in a subcomponent of the Kyua project.
