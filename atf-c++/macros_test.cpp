@@ -759,6 +759,11 @@ BUILD_TC(use, "macros_hpp_test.cpp",
          "do not cause syntax errors when used",
          "Build of macros_hpp_test.cpp failed; some macros in "
          "atf-c++/macros.hpp are broken");
+BUILD_TC_FAIL(detect_unused_tests, "unused_test.cpp",
+         "Tests that defining an unused test case raises a warning (and thus "
+         "an error)",
+         "Build of unused_test.cpp passed; unused test cases are not properly "
+         "detected");
 
 // ------------------------------------------------------------------------
 // Main.
@@ -783,4 +788,5 @@ ATF_INIT_TEST_CASES(tcs)
     // Add the test cases for the header file.
     ATF_ADD_TEST_CASE(tcs, include);
     ATF_ADD_TEST_CASE(tcs, use);
+    ATF_ADD_TEST_CASE(tcs, detect_unused_tests);
 }

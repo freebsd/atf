@@ -71,7 +71,8 @@ atf-c++/atf-c++.pc: $(srcdir)/atf-c++/atf-c++.pc.in Makefile
 	mv atf-c++/atf-c++.pc.tmp atf-c++/atf-c++.pc
 
 tests_atf_c___DATA = atf-c++/Kyuafile \
-                     atf-c++/macros_hpp_test.cpp
+                     atf-c++/macros_hpp_test.cpp \
+                     atf-c++/unused_test.cpp
 if ENABLE_TOOLS
 tests_atf_c___DATA += atf-c++/Atffile
 endif

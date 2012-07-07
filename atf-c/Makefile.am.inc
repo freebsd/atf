@@ -102,7 +102,8 @@ atf-c/atf-c.pc: $(srcdir)/atf-c/atf-c.pc.in Makefile
 	mv atf-c/atf-c.pc.tmp atf-c/atf-c.pc
 
 tests_atf_c_DATA = atf-c/Kyuafile \
-                   atf-c/macros_h_test.c
+                   atf-c/macros_h_test.c \
+                   atf-c/unused_test.c
 if ENABLE_TOOLS
 tests_atf_c_DATA += atf-c/Atffile
 endif
