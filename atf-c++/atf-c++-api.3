@@ -179,10 +179,12 @@ Additionally, the
 .Fn ATF_TEST_CASE_NAME
 macro can be used to obtain the name of the class corresponding to a
 particular test case, as the name is internally manged by the library to
-prevent clashes with other user identifiers. Similarly, the
+prevent clashes with other user identifiers.
+Similarly, the
 .Fn ATF_TEST_CASE_USE
 macro can be executed on a particular test case to mark it as "used" and
-thus prevent compiler warnings regarding unused symbols.  Note that
+thus prevent compiler warnings regarding unused symbols.
+Note that
 .Em you should never have to use these macros during regular operation.
 .Ss Program initialization
 The library provides a way to easily define the test program's

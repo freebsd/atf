@@ -616,7 +616,8 @@ ATF_TEST_CASE_BODY(require_throw_re)
     } *t, tests[] = {
         { "throw_int", false, "unexpected error" },
         { "throw_rt_match", true, NULL },
-        { "throw_rt_no_match", false, "threw.*runtime_error\\(baz foo bar a\\).*"
+        { "throw_rt_no_match", false,
+          "threw.*runtime_error\\(baz foo bar a\\).*"
           "does not match 'foo\\.\\*baz'" },
         { "no_throw_rt", false, "did not throw" },
         { NULL, false, NULL }
