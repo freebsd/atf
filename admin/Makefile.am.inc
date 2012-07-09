@@ -28,12 +28,12 @@
 #
 
 dist-hook: check-install
-.PHONY: check-install
+PHONY_TARGETS += check-install
 check-install: $(srcdir)/INSTALL
 	$(srcdir)/admin/check-install.sh $(srcdir)/INSTALL
 
 dist-hook: check-style
-.PHONY: check-style
+PHONY_TARGETS += check-style
 check-style:
 	$(srcdir)/admin/check-style.sh
 

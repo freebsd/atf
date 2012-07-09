@@ -44,7 +44,7 @@ atf-version/revision.h: atf-version/revision.h.stamp
 	    cp -p atf-version/revision.h.stamp atf-version/revision.h
 
 CLEANFILES += atf-version/revision.h.stamp
-.PHONY: atf-version/revision.h.stamp
+PHONY_TARGETS += atf-version/revision.h.stamp
 atf-version/revision.h.stamp:
 	@test -d atf-version || mkdir -p atf-version
 	@$(top_srcdir)/atf-version/generate-revision.sh \

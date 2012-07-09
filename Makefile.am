@@ -39,6 +39,8 @@ libexec_PROGRAMS =
 man_MANS =
 noinst_DATA =
 noinst_LTLIBRARIES =
+INSTALLCHECK_TARGETS =
+PHONY_TARGETS =
 
 ACLOCAL_AMFLAGS = -I m4
 
@@ -76,8 +78,8 @@ testsdir = $(exec_prefix)/tests
 pkgtestsdir = $(testsdir)/$(PACKAGE)
 
 if ENABLE_TOOLS
-installcheck-local: installcheck-atf
-.PHONY: installcheck-atf
+INSTALLCHECK_TARGETS += installcheck-atf
+PHONY_TARGETS += installcheck-atf
 installcheck-atf:
 	logfile=$$(pwd)/installcheck.log; \
 	fifofile=$$(pwd)/installcheck.fifo; \
@@ -96,11 +98,13 @@ installcheck-atf:
 CLEANFILES += installcheck.fifo installcheck.log
 endif
 
-.PHONY: installcheck-kyua
+PHONY_TARGETS += installcheck-kyua
 if HAVE_KYUA
 installcheck-kyua:
 	cd $(pkgtestsdir) && $(TESTS_ENVIRONMENT) $(KYUA) test
 endif
+
+installcheck-targets: $(INSTALLCHECK_TARGETS)
 
 pkgtests_DATA = Kyuafile
 if ENABLE_TOOLS
@@ -129,16 +133,18 @@ forbid-dist:
 	@false
 endif
 
-.PHONY: clean-all
+PHONY_TARGETS += clean-all
 clean-all:
 	GIT="$(GIT)" $(SH) $(srcdir)/admin/clean-all.sh
 
-.PHONY: release
+PHONY_TARGETS += release
 release:
 	$(SH) $(srcdir)/admin/release.sh $(PACKAGE_VERSION) $(DIST_ARCHIVES)
 
-.PHONY: release-test
+PHONY_TARGETS += release-test
 release-test:
 	$(SH) $(srcdir)/admin/release-test.sh $(DIST_ARCHIVES)
+
+.PHONY: $(PHONY_TARGETS)
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

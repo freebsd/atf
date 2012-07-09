@@ -114,8 +114,8 @@ testsuite_incs=	$(srcdir)/bootstrap/t_application_help.at \
 	    $(srcdir)/bootstrap/testsuite.at -o $@.tmp
 	mv $@.tmp $@
 
-installcheck-local: installcheck-bootstrap
-.PHONY: installcheck-bootstrap
+INSTALLCHECK_TARGETS += installcheck-bootstrap
+PHONY_TARGETS += installcheck-bootstrap
 installcheck-bootstrap: @target_srcdir@bootstrap/testsuite check
 	$(TESTS_ENVIRONMENT) $(srcdir)/bootstrap/testsuite
 
