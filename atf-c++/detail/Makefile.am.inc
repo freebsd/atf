@@ -47,10 +47,8 @@ libatf_c___la_SOURCES += atf-c++/detail/application.cpp \
                          atf-c++/detail/ui.cpp \
                          atf-c++/detail/ui.hpp
 
-tests_atf_c___detail_DATA = atf-c++/detail/Kyuafile
-if ENABLE_TOOLS
-tests_atf_c___detail_DATA += atf-c++/detail/Atffile
-endif
+tests_atf_c___detail_DATA = atf-c++/detail/Atffile \
+                            atf-c++/detail/Kyuafile
 tests_atf_c___detaildir = $(pkgtestsdir)/atf-c++/detail
 EXTRA_DIST += $(tests_atf_c___detail_DATA)
 
