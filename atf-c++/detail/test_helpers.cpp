@@ -50,6 +50,7 @@ build_check_cxx_o_aux(const atf::fs::path& sfile, const char* failmsg,
 {
     std::vector< std::string > optargs;
     optargs.push_back("-I" + atf::config::get("atf_includedir"));
+    optargs.push_back("-Wall");
     optargs.push_back("-Werror");
 
     const bool result = atf::check::build_cxx_o(
