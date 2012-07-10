@@ -47,9 +47,9 @@ ones:
 
 * GNU autoconf 2.68
 
-* GNU automake 1.11.1
+* GNU automake 1.11.3
 
-* GNU libtool 2.2.6b
+* GNU libtool 2.4.2
 
 
 Regenerating the build system
