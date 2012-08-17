@@ -205,7 +205,7 @@ The first parameter of this macro matches the name you provided in the
 former call.
 .Ss Header definitions
 The test case's header can define the meta-data by using the
-.Fn set
+.Fn set_md_var
 method, which takes two parameters: the first one specifies the
 meta-data variable to be set and the second one specifies its value.
 Both of them are strings.
@@ -371,7 +371,7 @@ validates the addition operator:
 ATF_TEST_CASE(addition);
 ATF_TEST_CASE_HEAD(addition)
 {
-    set("descr", "Sample tests for the addition operator");
+    set_md_var("descr", "Sample tests for the addition operator");
 }
 ATF_TEST_CASE_BODY(addition)
 {
@@ -387,7 +387,7 @@ ATF_TEST_CASE_BODY(addition)
 ATF_TEST_CASE(open_failure);
 ATF_TEST_CASE_HEAD(open_failure)
 {
-    set("descr", "Sample tests for the open function");
+    set_md_var("descr", "Sample tests for the open function");
 }
 ATF_TEST_CASE_BODY(open_failure)
 {
@@ -397,7 +397,7 @@ ATF_TEST_CASE_BODY(open_failure)
 ATF_TEST_CASE(known_bug);
 ATF_TEST_CASE_HEAD(known_bug)
 {
-    set("descr", "Reproduces a known bug");
+    set_md_var("descr", "Reproduces a known bug");
 }
 ATF_TEST_CASE_BODY(known_bug)
 {
