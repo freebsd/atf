@@ -42,7 +42,7 @@ dnl and linker flags need to build against atf-c.
 AC_DEFUN([ATF_CHECK_C], [
     spec="atf-c[]m4_default_nblank([ $1], [])"
     _ATF_CHECK_ARG_WITH(
-        [PKG_CHECK_MODULES([ATF_CXX], [${spec}],
+        [PKG_CHECK_MODULES([ATF_C], [${spec}],
                            [found=yes found_atf_c=yes], [found=no])],
         [required ${spec} not found])
 ])
