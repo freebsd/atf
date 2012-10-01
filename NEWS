@@ -2,6 +2,15 @@ Major changes between releases                  Automated Testing Framework
 ===========================================================================
 
 
+Changes in version 0.17
+***********************
+
+STILL UNDER DEVELOPMENT; NOT RELEASED YET.
+
+* Miscellaneous fixes for manpage typos and compilation problems with
+  clang.
+
+
 Changes in version 0.16
 ***********************
 
