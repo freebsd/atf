@@ -27,10 +27,139 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdlib.h>
-
 #include "atf-c/utils.h"
 
+#include <sys/wait.h>
+
+#include <err.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include <atf-c.h>
+
+#include "atf-c/detail/dynstr.h"
+
+/// Prints the contents of a file to stdout.
+///
+/// \param name The name of the file to be printed.
+/// \param prefix An string to be prepended to every line of the printed file.
+void
+atf_utils_cat_file(const char *name, const char *prefix)
+{
+    const int fd = open(name, O_RDONLY);
+    ATF_REQUIRE_MSG(fd != -1, "Cannot open %s", name);
+
+    char buffer[1024];
+    ssize_t count;
+    bool continued = false;
+    while ((count = read(fd, buffer, sizeof(buffer) - 1)) > 0) {
+        buffer[count] = '\0';
+
+        if (!continued)
+            printf("%s", prefix);
+
+        char *iter = buffer;
+        char *end;
+        while ((end = strchr(iter, '\n')) != NULL) {
+            *end = '\0';
+            printf("%s\n", iter);
+
+            iter = end + 1;
+            if (iter != buffer + count)
+                printf("%s", prefix);
+            else
+                continued = false;
+        }
+        if (iter < buffer + count) {
+            printf("%s", iter);
+            continued = true;
+        }
+    }
+    ATF_REQUIRE(count == 0);
+}
+
+/// Compares a file against the given golden contents.
+///
+/// \param name Name of the file to be compared.
+/// \param contents Expected contents of the file.
+///
+/// \return True if the file matches the contents; false otherwise.
+bool
+atf_utils_compare_file(const char *name, const char *contents)
+{
+    const int fd = open(name, O_RDONLY);
+    ATF_REQUIRE_MSG(fd != -1, "Cannot open %s", name);
+
+    const char *pos = contents;
+    ssize_t remaining = strlen(contents);
+
+    char buffer[1024];
+    ssize_t count;
+    while ((count = read(fd, buffer, sizeof(buffer))) > 0 &&
+           count <= remaining) {
+        if (memcmp(pos, buffer, count) != 0) {
+            close(fd);
+            return false;
+        }
+        remaining -= count;
+        pos += count;
+    }
+    close(fd);
+    return count == 0 && remaining == 0;
+}
+
+/// Creates a file.
+///
+/// \param name Name of the file to create.
+/// \param contents Text to write into the created file.
+void
+atf_utils_create_file(const char *name, const char *contents, ...)
+{
+    va_list ap;
+    atf_dynstr_t formatted;
+    atf_error_t error;
+
+    va_start(ap, contents);
+    error = atf_dynstr_init_ap(&formatted, contents, ap);
+    va_end(ap);
+    ATF_REQUIRE(!atf_is_error(error));
+
+    const int fd = open(name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    ATF_REQUIRE_MSG(fd != -1, "Cannot create file %s", name);
+    ATF_REQUIRE(write(fd, atf_dynstr_cstring(&formatted),
+                      atf_dynstr_length(&formatted)) != -1);
+    close(fd);
+
+    atf_dynstr_fini(&formatted);
+}
+
+/// Spawns a subprocess and redirects its output to files.
+///
+/// Use the atf_utils_wait() function to wait for the completion of the spawned
+/// subprocess and validate its exit conditions.
+///
+/// \return 0 in the new child; the PID of the new child in the parent.  Does
+/// not return in error conditions.
+pid_t
+atf_utils_fork(void)
+{
+    const pid_t pid = fork();
+    if (pid == -1)
+        atf_tc_fail("fork failed");
+
+    if (pid == 0) {
+        atf_utils_redirect(STDOUT_FILENO, "atf_utils_fork_out.txt");
+        atf_utils_redirect(STDERR_FILENO, "atf_utils_fork_err.txt");
+    }
+    return pid;
+}
+
+/// Frees an dynamically-allocated "argv" array.
+///
+/// \param argv A dynamically-allocated array of dynamically-allocated strings.
 void
 atf_utils_free_charpp(char **argv)
 {
@@ -40,4 +169,57 @@ atf_utils_free_charpp(char **argv)
         free(*ptr);
 
     free(argv);
+}
+
+/// Redirects a file descriptor to a file.
+///
+/// \param target_fd The file descriptor to be replaced.
+/// \param name The name of the file to direct the descriptor to.
+///
+/// \pre Should only be called from the process spawned by fork_for_testing
+/// because this exits uncontrolledly.
+/// \post Terminates execution if the redirection fails.
+void
+atf_utils_redirect(const int target_fd, const char *name)
+{
+    if (target_fd == STDOUT_FILENO)
+        fflush(stdout);
+    else if (target_fd == STDERR_FILENO)
+        fflush(stderr);
+
+    const int new_fd = open(name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (new_fd == -1)
+        err(EXIT_FAILURE, "Cannot create %s", name);
+    if (new_fd != target_fd) {
+        if (dup2(new_fd, target_fd) == -1)
+            err(EXIT_FAILURE, "Cannot redirect to fd %d", target_fd);
+    }
+    close(new_fd);
+}
+
+/// Waits for a subprocess and validates its exit condition.
+///
+/// \param pid The process to be waited for.  Must have been started by
+///     testutils_fork().
+/// \param exitstatus Expected exit status.
+/// \param expout Expected contents of stdout.
+/// \param experr Expected contents of stderr.
+void
+atf_utils_wait(const pid_t pid, const int exitstatus, const char *expout,
+               const char *experr)
+{
+    int status;
+    ATF_REQUIRE(waitpid(pid, &status, 0) != -1);
+
+    atf_utils_cat_file("atf_utils_fork_out.txt", "subprocess stdout: ");
+    atf_utils_cat_file("atf_utils_fork_err.txt", "subprocess stderr: ");
+
+    ATF_REQUIRE(WIFEXITED(status));
+    ATF_REQUIRE_EQ(exitstatus, WEXITSTATUS(status));
+
+    ATF_REQUIRE(atf_utils_compare_file("atf_utils_fork_out.txt", expout));
+    ATF_REQUIRE(atf_utils_compare_file("atf_utils_fork_err.txt", experr));
+
+    ATF_REQUIRE(unlink("atf_utils_fork_out.txt") != -1);
+    ATF_REQUIRE(unlink("atf_utils_fork_err.txt") != -1);
 }

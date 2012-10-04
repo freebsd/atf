@@ -30,6 +30,15 @@
 #if !defined(ATF_C_UTILS_H)
 #define ATF_C_UTILS_H
 
+#include <stdbool.h>
+#include <unistd.h>
+
+void atf_utils_cat_file(const char *, const char *);
+bool atf_utils_compare_file(const char *, const char *);
+void atf_utils_create_file(const char *, const char *, ...);
+pid_t atf_utils_fork(void);
 void atf_utils_free_charpp(char **);
+void atf_utils_redirect(const int, const char *);
+void atf_utils_wait(const pid_t, const int, const char *, const char *);
 
 #endif /* ATF_C_UTILS_H */
