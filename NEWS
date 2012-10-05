@@ -8,9 +8,9 @@ Changes in version 0.17
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
 * Added the atf_utils_cat_file, atf_utils_compare_file,
-  atf_utils_create_file, atf_utils_fork, atf_utils_redirect and
-  atf_utils_wait utility functions to atf-c-api.  Documented the
-  already-public atf_utils_free_charpp function.
+  atf_utils_create_file, atf_utils_fork, atf_utils_readline,
+  atf_utils_redirect and atf_utils_wait utility functions to atf-c-api.
+  Documented the already-public atf_utils_free_charpp function.
 
 * Miscellaneous fixes for manpage typos and compilation problems with
   clang.

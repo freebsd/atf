@@ -79,6 +79,7 @@
 .Nm atf_utils_create_file ,
 .Nm atf_utils_fork ,
 .Nm atf_utils_free_charpp ,
+.Nm atf_utils_readline ,
 .Nm atf_utils_redirect ,
 .Nm atf_utils_wait
 .Nd C API to write ATF-based test programs
@@ -150,6 +151,10 @@
 .Ft void
 .Fo atf_utils_free_charpp
 .Fa "char **argv"
+.Fc
+.Ft char *
+.Fo atf_utils_readline
+.Fa "int fd"
 .Fc
 .Ft void
 .Fo atf_utils_redirect
@@ -538,6 +543,20 @@ Fails the test case if the fork fails, so this does not return an error.
 .Fc
 .Bd -offset indent
 Frees a dynamically-allocated array of dynamically-allocated strings.
+.Ed
+.Pp
+.Ft char *
+.Fo atf_utils_readline
+.Fa "int fd"
+.Fc
+.Bd -offset indent
+Reads a line from the file descriptor
+.Fa fd .
+The line, if any, is returned as a dynamically-allocated buffer that must be
+released with
+.Xr free 3 .
+If there was nothing to read, returns
+.Sq NULL .
 .Ed
 .Pp
 .Ft void

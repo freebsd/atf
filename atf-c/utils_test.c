@@ -241,6 +241,46 @@ ATF_TC_BODY(free_charpp__some, tc)
     atf_utils_free_charpp(array);
 }
 
+ATF_TC_WITHOUT_HEAD(readline__none);
+ATF_TC_BODY(readline__none, tc)
+{
+    atf_utils_create_file("empty.txt", "");
+
+    const int fd = open("empty.txt", O_RDONLY);
+    ATF_REQUIRE(fd != -1);
+    ATF_REQUIRE(atf_utils_readline(fd) == NULL);
+    close(fd);
+}
+
+ATF_TC_WITHOUT_HEAD(readline__some);
+ATF_TC_BODY(readline__some, tc)
+{
+    const char *l1 = "First line with % formatting % characters %";
+    const char *l2 = "Second line; much longer than the first one";
+    const char *l3 = "Last line, without terminator";
+
+    atf_utils_create_file("test.txt", "%s\n%s\n%s", l1, l2, l3);
+
+    const int fd = open("test.txt", O_RDONLY);
+    ATF_REQUIRE(fd != -1);
+
+    char *line;
+
+    line = atf_utils_readline(fd);
+    ATF_REQUIRE_STREQ(l1, line);
+    free(line);
+
+    line = atf_utils_readline(fd);
+    ATF_REQUIRE_STREQ(l2, line);
+    free(line);
+
+    line = atf_utils_readline(fd);
+    ATF_REQUIRE_STREQ(l3, line);
+    free(line);
+
+    close(fd);
+}
+
 ATF_TC_WITHOUT_HEAD(redirect__stdout);
 ATF_TC_BODY(redirect__stdout, tc)
 {
@@ -375,6 +415,9 @@ ATF_TP_ADD_TCS(tp)
 
     ATF_TP_ADD_TC(tp, free_charpp__empty);
     ATF_TP_ADD_TC(tp, free_charpp__some);
+
+    ATF_TP_ADD_TC(tp, readline__none);
+    ATF_TP_ADD_TC(tp, readline__some);
 
     ATF_TP_ADD_TC(tp, redirect__stdout);
     ATF_TP_ADD_TC(tp, redirect__stderr);

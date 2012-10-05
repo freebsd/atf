@@ -90,14 +90,10 @@ static
 void
 check_line(int fd, const char *exp)
 {
-    atf_dynstr_t line;
-
-    atf_dynstr_init(&line);
-    ATF_CHECK(!read_line(fd, &line));
-    ATF_CHECK_MSG(atf_equal_dynstr_cstring(&line, exp),
-                  "read: '%s', expected: '%s'",
-                  atf_dynstr_cstring(&line), exp);
-    atf_dynstr_fini(&line);
+    char *line = atf_utils_readline(fd);
+    ATF_CHECK(line != NULL);
+    ATF_CHECK_STREQ_MSG(exp, line, "read: '%s', expected: '%s'", line, exp);
+    free(line);
 }
 
 /* ---------------------------------------------------------------------

@@ -171,6 +171,37 @@ atf_utils_free_charpp(char **argv)
     free(argv);
 }
 
+/// Reads a line of arbitrary length.
+///
+/// \param fd The descriptor from which to read the line.
+///
+/// \return A pointer to the read line, which must be released with free(), or
+/// NULL if there was nothing to read from the file.
+char *
+atf_utils_readline(const int fd)
+{
+    char ch;
+    ssize_t cnt;
+    atf_dynstr_t temp;
+    atf_error_t error;
+
+    error = atf_dynstr_init(&temp);
+    ATF_REQUIRE(!atf_is_error(error));
+
+    while ((cnt = read(fd, &ch, sizeof(ch))) == sizeof(ch) &&
+           ch != '\n') {
+        error = atf_dynstr_append_fmt(&temp, "%c", ch);
+        ATF_REQUIRE(!atf_is_error(error));
+    }
+    ATF_REQUIRE(cnt != -1);
+
+    if (cnt == 0 && atf_dynstr_length(&temp) == 0) {
+        atf_dynstr_fini(&temp);
+        return NULL;
+    } else
+        return atf_dynstr_fini_disown(&temp);
+}
+
 /// Redirects a file descriptor to a file.
 ///
 /// \param target_fd The file descriptor to be replaced.
