@@ -241,6 +241,33 @@ ATF_TC_BODY(free_charpp__some, tc)
     atf_utils_free_charpp(array);
 }
 
+ATF_TC_WITHOUT_HEAD(grep_file);
+ATF_TC_BODY(grep_file, tc)
+{
+    atf_utils_create_file("test.txt", "line1\nthe second line\naaaabbbb\n");
+
+    ATF_CHECK(atf_utils_grep_file("test.txt", "line1"));
+    ATF_CHECK(atf_utils_grep_file("test.txt", "line%d", 1));
+    ATF_CHECK(atf_utils_grep_file("test.txt", "second line"));
+    ATF_CHECK(atf_utils_grep_file("test.txt", "aa.*bb"));
+    ATF_CHECK(!atf_utils_grep_file("test.txt", "foo"));
+    ATF_CHECK(!atf_utils_grep_file("test.txt", "bar"));
+    ATF_CHECK(!atf_utils_grep_file("test.txt", "aaaaa"));
+}
+
+ATF_TC_WITHOUT_HEAD(grep_string);
+ATF_TC_BODY(grep_string, tc)
+{
+    const char *str = "a string - aaaabbbb";
+    ATF_CHECK(atf_utils_grep_string(str, "a string"));
+    ATF_CHECK(atf_utils_grep_string(str, "^a string"));
+    ATF_CHECK(atf_utils_grep_string(str, "aaaabbbb$"));
+    ATF_CHECK(atf_utils_grep_string(str, "a%s*bb", "a."));
+    ATF_CHECK(!atf_utils_grep_string(str, "foo"));
+    ATF_CHECK(!atf_utils_grep_string(str, "bar"));
+    ATF_CHECK(!atf_utils_grep_string(str, "aaaaa"));
+}
+
 ATF_TC_WITHOUT_HEAD(readline__none);
 ATF_TC_BODY(readline__none, tc)
 {
@@ -415,6 +442,9 @@ ATF_TP_ADD_TCS(tp)
 
     ATF_TP_ADD_TC(tp, free_charpp__empty);
     ATF_TP_ADD_TC(tp, free_charpp__some);
+
+    ATF_TP_ADD_TC(tp, grep_file);
+    ATF_TP_ADD_TC(tp, grep_string);
 
     ATF_TP_ADD_TC(tp, readline__none);
     ATF_TP_ADD_TC(tp, readline__some);

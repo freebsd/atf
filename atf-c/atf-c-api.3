@@ -79,6 +79,8 @@
 .Nm atf_utils_create_file ,
 .Nm atf_utils_fork ,
 .Nm atf_utils_free_charpp ,
+.Nm atf_utils_grep_file ,
+.Nm atf_utils_grep_string ,
 .Nm atf_utils_readline ,
 .Nm atf_utils_redirect ,
 .Nm atf_utils_wait
@@ -151,6 +153,18 @@
 .Ft void
 .Fo atf_utils_free_charpp
 .Fa "char **argv"
+.Fc
+.Ft bool
+.Fo atf_utils_grep_file
+.Fa "const char *file"
+.Fa "const char *regexp"
+.Fa "..."
+.Fc
+.Ft bool
+.Fo atf_utils_grep_string
+.Fa "const char *str"
+.Fa "const char *regexp"
+.Fa "..."
 .Fc
 .Ft char *
 .Fo atf_utils_readline
@@ -543,6 +557,36 @@ Fails the test case if the fork fails, so this does not return an error.
 .Fc
 .Bd -offset indent
 Frees a dynamically-allocated array of dynamically-allocated strings.
+.Ed
+.Pp
+.Ft bool
+.Fo atf_utils_grep_file
+.Fa "const char *file"
+.Fa "const char *regexp"
+.Fa "..."
+.Fc
+.Bd -offset indent
+Searches for the
+.Fa regexp ,
+which is a formatting string representing the regular expression,
+in the
+.Fa file .
+The variable arguments are used to construct the regular expression.
+.Ed
+.Pp
+.Ft bool
+.Fo atf_utils_grep_string
+.Fa "const char *str"
+.Fa "const char *regexp"
+.Fa "..."
+.Fc
+.Bd -offset indent
+Searches for the
+.Fa regexp ,
+which is a formatting string representing the regular expression,
+in the literal string
+.Fa str .
+The variable arguments are used to construct the regular expression.
 .Ed
 .Pp
 .Ft char *

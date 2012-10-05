@@ -33,6 +33,7 @@
 
 #include <err.h>
 #include <fcntl.h>
+#include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,6 +42,30 @@
 #include <atf-c.h>
 
 #include "atf-c/detail/dynstr.h"
+
+/// Searches for a regexp in a string.
+///
+/// \param str The string in which to look for the expression.
+/// \param regex The regexp to look for.
+///
+/// \return True if there is a match; false otherwise.
+static
+bool
+grep_string(const char *str, const char *regex)
+{
+    int res;
+    regex_t preg;
+
+    printf("Looking for '%s' in '%s'\n", regex, str);
+    ATF_REQUIRE(regcomp(&preg, regex, REG_EXTENDED) == 0);
+
+    res = regexec(&preg, str, 0, NULL, 0);
+    ATF_REQUIRE(res == 0 || res == REG_NOMATCH);
+
+    regfree(&preg);
+
+    return res == 0;
+}
 
 /// Prints the contents of a file to stdout.
 ///
@@ -169,6 +194,65 @@ atf_utils_free_charpp(char **argv)
         free(*ptr);
 
     free(argv);
+}
+
+/// Searches for a regexp in a file.
+///
+/// \param file The file in which to look for the expression.
+/// \param regex The regexp to look for.
+///
+/// \return True if there is a match; false otherwise.
+bool
+atf_utils_grep_file(const char *file, const char *regex, ...)
+{
+    int fd;
+    va_list ap;
+    atf_dynstr_t formatted;
+    atf_error_t error;
+
+    va_start(ap, regex);
+    error = atf_dynstr_init_ap(&formatted, regex, ap);
+    va_end(ap);
+    ATF_REQUIRE(!atf_is_error(error));
+
+    ATF_REQUIRE((fd = open(file, O_RDONLY)) != -1);
+    bool found = false;
+    char *line = NULL;
+    while (!found && (line = atf_utils_readline(fd)) != NULL) {
+        found = grep_string(line, atf_dynstr_cstring(&formatted));
+        free(line);
+    }
+    close(fd);
+
+    atf_dynstr_fini(&formatted);
+
+    return found;
+}
+
+/// Searches for a regexp in a string.
+///
+/// \param str The string in which to look for the expression.
+/// \param regex The regexp to look for.
+///
+/// \return True if there is a match; false otherwise.
+bool
+atf_utils_grep_string(const char *str, const char *regex, ...)
+{
+    bool res;
+    va_list ap;
+    atf_dynstr_t formatted;
+    atf_error_t error;
+
+    va_start(ap, regex);
+    error = atf_dynstr_init_ap(&formatted, regex, ap);
+    va_end(ap);
+    ATF_REQUIRE(!atf_is_error(error));
+
+    res = grep_string(str, atf_dynstr_cstring(&formatted));
+
+    atf_dynstr_fini(&formatted);
+
+    return res;
 }
 
 /// Reads a line of arbitrary length.

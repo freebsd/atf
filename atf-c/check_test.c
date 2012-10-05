@@ -242,15 +242,15 @@ ATF_TC_BODY(build_c_o, tc)
 {
     init_and_run_h_tc(&ATF_TC_NAME(h_build_c_o_ok),
              &ATF_TC_PACK_NAME(h_build_c_o_ok), "stdout", "stderr");
-    ATF_CHECK(grep_file("stdout", "-o test.o"));
-    ATF_CHECK(grep_file("stdout", "-c test.c"));
+    ATF_CHECK(atf_utils_grep_file("stdout", "-o test.o"));
+    ATF_CHECK(atf_utils_grep_file("stdout", "-c test.c"));
 
     init_and_run_h_tc(&ATF_TC_NAME(h_build_c_o_fail),
              &ATF_TC_PACK_NAME(h_build_c_o_fail), "stdout", "stderr");
-    ATF_CHECK(grep_file("stdout", "-o test.o"));
-    ATF_CHECK(grep_file("stdout", "-c test.c"));
-    ATF_CHECK(grep_file("stderr", "test.c"));
-    ATF_CHECK(grep_file("stderr", "UNDEFINED_SYMBOL"));
+    ATF_CHECK(atf_utils_grep_file("stdout", "-o test.o"));
+    ATF_CHECK(atf_utils_grep_file("stdout", "-c test.c"));
+    ATF_CHECK(atf_utils_grep_file("stderr", "test.c"));
+    ATF_CHECK(atf_utils_grep_file("stderr", "UNDEFINED_SYMBOL"));
 }
 
 ATF_TC(build_cpp);
@@ -263,16 +263,16 @@ ATF_TC_BODY(build_cpp, tc)
 {
     init_and_run_h_tc(&ATF_TC_NAME(h_build_cpp_ok),
              &ATF_TC_PACK_NAME(h_build_cpp_ok), "stdout", "stderr");
-    ATF_CHECK(grep_file("stdout", "-o.*test.p"));
-    ATF_CHECK(grep_file("stdout", "test.c"));
-    ATF_CHECK(grep_file("test.p", "foo bar"));
+    ATF_CHECK(atf_utils_grep_file("stdout", "-o.*test.p"));
+    ATF_CHECK(atf_utils_grep_file("stdout", "test.c"));
+    ATF_CHECK(atf_utils_grep_file("test.p", "foo bar"));
 
     init_and_run_h_tc(&ATF_TC_NAME(h_build_cpp_fail),
              &ATF_TC_PACK_NAME(h_build_cpp_fail), "stdout", "stderr");
-    ATF_CHECK(grep_file("stdout", "-o test.p"));
-    ATF_CHECK(grep_file("stdout", "test.c"));
-    ATF_CHECK(grep_file("stderr", "test.c"));
-    ATF_CHECK(grep_file("stderr", "non-existent.h"));
+    ATF_CHECK(atf_utils_grep_file("stdout", "-o test.p"));
+    ATF_CHECK(atf_utils_grep_file("stdout", "test.c"));
+    ATF_CHECK(atf_utils_grep_file("stderr", "test.c"));
+    ATF_CHECK(atf_utils_grep_file("stderr", "non-existent.h"));
 }
 
 ATF_TC(build_cxx_o);
@@ -285,15 +285,15 @@ ATF_TC_BODY(build_cxx_o, tc)
 {
     init_and_run_h_tc(&ATF_TC_NAME(h_build_cxx_o_ok),
              &ATF_TC_PACK_NAME(h_build_cxx_o_ok), "stdout", "stderr");
-    ATF_CHECK(grep_file("stdout", "-o test.o"));
-    ATF_CHECK(grep_file("stdout", "-c test.cpp"));
+    ATF_CHECK(atf_utils_grep_file("stdout", "-o test.o"));
+    ATF_CHECK(atf_utils_grep_file("stdout", "-c test.cpp"));
 
     init_and_run_h_tc(&ATF_TC_NAME(h_build_cxx_o_fail),
              &ATF_TC_PACK_NAME(h_build_cxx_o_fail), "stdout", "stderr");
-    ATF_CHECK(grep_file("stdout", "-o test.o"));
-    ATF_CHECK(grep_file("stdout", "-c test.cpp"));
-    ATF_CHECK(grep_file("stderr", "test.cpp"));
-    ATF_CHECK(grep_file("stderr", "UNDEFINED_SYMBOL"));
+    ATF_CHECK(atf_utils_grep_file("stdout", "-o test.o"));
+    ATF_CHECK(atf_utils_grep_file("stdout", "-c test.cpp"));
+    ATF_CHECK(atf_utils_grep_file("stderr", "test.cpp"));
+    ATF_CHECK(atf_utils_grep_file("stderr", "UNDEFINED_SYMBOL"));
 }
 
 ATF_TC(exec_array);

@@ -127,24 +127,24 @@ do_test(enum type t, bool cond)
     if (!cond) {
         switch (t) {
         case inv:
-            ATF_REQUIRE(grep_string(lines[0], "Invariant"));
+            ATF_REQUIRE(atf_utils_grep_string(lines[0], "Invariant"));
             break;
 
         case pre:
-            ATF_REQUIRE(grep_string(lines[0], "Precondition"));
+            ATF_REQUIRE(atf_utils_grep_string(lines[0], "Precondition"));
             break;
 
         case post:
-            ATF_REQUIRE(grep_string(lines[0], "Postcondition"));
+            ATF_REQUIRE(atf_utils_grep_string(lines[0], "Postcondition"));
             break;
 
         case unreachable:
-            ATF_REQUIRE(grep_string(lines[0], "Invariant"));
+            ATF_REQUIRE(atf_utils_grep_string(lines[0], "Invariant"));
             break;
         }
 
-        ATF_REQUIRE(grep_string(lines[0], __FILE__));
-        ATF_REQUIRE(grep_string(lines[2], PACKAGE_BUGREPORT));
+        ATF_REQUIRE(atf_utils_grep_string(lines[0], __FILE__));
+        ATF_REQUIRE(atf_utils_grep_string(lines[2], PACKAGE_BUGREPORT));
     }
 
     while (nlines > 0) {

@@ -30,7 +30,6 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <regex.h>
 #include <unistd.h>
 
 #include "atf-c/build.h"
@@ -104,48 +103,6 @@ get_process_helpers_path(const atf_tc_t *tc, const bool is_detail,
     RE(atf_fs_path_init_fmt(path, "%s/%sprocess_helpers",
                             atf_tc_get_config_var(tc, "srcdir"),
                             is_detail ? "" : "detail/"));
-}
-
-bool
-grep_string(const char *str, const char *regex)
-{
-    int res;
-    regex_t preg;
-
-    printf("Looking for '%s' in '%s'\n", regex, str);
-    ATF_REQUIRE(regcomp(&preg, regex, REG_EXTENDED) == 0);
-
-    res = regexec(&preg, str, 0, NULL, 0);
-    ATF_REQUIRE(res == 0 || res == REG_NOMATCH);
-
-    regfree(&preg);
-
-    return res == 0;
-}
-
-bool
-grep_file(const char *file, const char *regex, ...)
-{
-    int fd;
-    va_list ap;
-    atf_dynstr_t formatted;
-
-    va_start(ap, regex);
-    RE(atf_dynstr_init_ap(&formatted, regex, ap));
-    va_end(ap);
-
-    ATF_REQUIRE((fd = open(file, O_RDONLY)) != -1);
-    bool found = false;
-    char *line = NULL;
-    while (!found && (line = atf_utils_readline(fd)) != NULL) {
-        found = grep_string(line, atf_dynstr_cstring(&formatted));
-        free(line);
-    }
-    close(fd);
-
-    atf_dynstr_fini(&formatted);
-
-    return found;
 }
 
 struct run_h_tc_data {
