@@ -27,28 +27,66 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_UTILS_HPP_)
-#define _ATF_CXX_UTILS_HPP_
-
 extern "C" {
-#include <unistd.h>
+#include "atf-c/utils.h"
 }
 
-#include <string>
+#include <cstdlib>
+#include <iostream>
 
-namespace atf {
-namespace utils {
+#include "utils.hpp"
 
-void cat_file(const std::string&, const std::string&);
-bool compare_file(const std::string&, const std::string&);
-void create_file(const std::string&, const std::string&);
-pid_t fork(void);
-bool grep_file(const std::string&, const std::string&);
-bool grep_string(const std::string&, const std::string&);
-void redirect(const int, const std::string&);
-void wait(const pid_t, const int, const std::string&, const std::string&);
+void
+atf::utils::cat_file(const std::string& path, const std::string& prefix)
+{
+    atf_utils_cat_file(path.c_str(), prefix.c_str());
+}
 
-} // namespace utils
-} // namespace atf
+bool
+atf::utils::compare_file(const std::string& path, const std::string& contents)
+{
+    return atf_utils_compare_file(path.c_str(), contents.c_str());
+}
 
-#endif // !defined(_ATF_CXX_UTILS_HPP_)
+void
+atf::utils::create_file(const std::string& path, const std::string& contents)
+{
+    atf_utils_create_file(path.c_str(), "%s", contents.c_str());
+}
+
+pid_t
+atf::utils::fork(void)
+{
+    std::cout.flush();
+    std::cerr.flush();
+    return atf_utils_fork();
+}
+
+bool
+atf::utils::grep_file(const std::string& path, const std::string& regex)
+{
+    return atf_utils_grep_file(path.c_str(), "%s", regex.c_str());
+}
+
+bool
+atf::utils::grep_string(const std::string& str, const std::string& regex)
+{
+    return atf_utils_grep_string(str.c_str(), "%s", regex.c_str());
+}
+
+void
+atf::utils::redirect(const int fd, const std::string& path)
+{
+    if (fd == STDOUT_FILENO)
+        std::cout.flush();
+    else if (fd == STDERR_FILENO)
+        std::cerr.flush();
+    atf_utils_redirect(fd, path.c_str());
+}
+
+void
+atf::utils::wait(const pid_t pid, const int exitstatus,
+                 const std::string& expout, const std::string& experr)
+{
+    atf_utils_wait(pid, exitstatus, expout.c_str(), experr.c_str());
+}

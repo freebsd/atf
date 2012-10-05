@@ -27,16 +27,316 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "atf-c/defs.h"
+extern "C" {
+#include <sys/wait.h>
+
+#include <fcntl.h>
+#include <unistd.h>
+}
+
+#include <cstdlib>
+#include <iostream>
+#include <string>
 
 #include "macros.hpp"
 #include "utils.hpp"
 
 #include "detail/test_helpers.hpp"
 
-ATF_TEST_CASE_WITHOUT_HEAD(TODO);
-ATF_TEST_CASE_BODY(TODO)
+static std::string
+read_file(const char *path)
 {
+    char buffer[1024];
+
+    const int fd = open(path, O_RDONLY);
+    if (fd == -1)
+        ATF_FAIL("Cannot open " + std::string(path));
+    const ssize_t length = read(fd, buffer, sizeof(buffer) - 1);
+    close(fd);
+    ATF_REQUIRE(length != -1);
+    if (length == sizeof(buffer) - 1)
+        ATF_FAIL("Internal buffer not long enough to read temporary file");
+    ((char *)buffer)[length] = '\0';
+
+    return buffer;
+}
+
+// ------------------------------------------------------------------------
+// Tests cases for the free functions.
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE_WITHOUT_HEAD(cat_file__empty);
+ATF_TEST_CASE_BODY(cat_file__empty)
+{
+    atf::utils::create_file("file.txt", "");
+    atf::utils::redirect(STDOUT_FILENO, "captured.txt");
+    atf::utils::cat_file("file.txt", "PREFIX");
+    std::cout.flush();
+    close(STDOUT_FILENO);
+
+    ATF_REQUIRE_EQ("", read_file("captured.txt"));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(cat_file__one_line);
+ATF_TEST_CASE_BODY(cat_file__one_line)
+{
+    atf::utils::create_file("file.txt", "This is a single line\n");
+    atf::utils::redirect(STDOUT_FILENO, "captured.txt");
+    atf::utils::cat_file("file.txt", "PREFIX");
+    std::cout.flush();
+    close(STDOUT_FILENO);
+
+    ATF_REQUIRE_EQ("PREFIXThis is a single line\n", read_file("captured.txt"));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(cat_file__several_lines);
+ATF_TEST_CASE_BODY(cat_file__several_lines)
+{
+    atf::utils::create_file("file.txt", "First\nSecond line\nAnd third\n");
+    atf::utils::redirect(STDOUT_FILENO, "captured.txt");
+    atf::utils::cat_file("file.txt", ">");
+    std::cout.flush();
+    close(STDOUT_FILENO);
+
+    ATF_REQUIRE_EQ(">First\n>Second line\n>And third\n",
+                   read_file("captured.txt"));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(cat_file__no_newline_eof);
+ATF_TEST_CASE_BODY(cat_file__no_newline_eof)
+{
+    atf::utils::create_file("file.txt", "Foo\n bar baz");
+    atf::utils::redirect(STDOUT_FILENO, "captured.txt");
+    atf::utils::cat_file("file.txt", "PREFIX");
+    std::cout.flush();
+    close(STDOUT_FILENO);
+
+    ATF_REQUIRE_EQ("PREFIXFoo\nPREFIX bar baz", read_file("captured.txt"));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(compare_file__empty__match);
+ATF_TEST_CASE_BODY(compare_file__empty__match)
+{
+    atf::utils::create_file("test.txt", "");
+    ATF_REQUIRE(atf::utils::compare_file("test.txt", ""));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(compare_file__empty__not_match);
+ATF_TEST_CASE_BODY(compare_file__empty__not_match)
+{
+    atf::utils::create_file("test.txt", "");
+    ATF_REQUIRE(!atf::utils::compare_file("test.txt", "\n"));
+    ATF_REQUIRE(!atf::utils::compare_file("test.txt", "foo"));
+    ATF_REQUIRE(!atf::utils::compare_file("test.txt", " "));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(compare_file__short__match);
+ATF_TEST_CASE_BODY(compare_file__short__match)
+{
+    atf::utils::create_file("test.txt", "this is a short file");
+    ATF_REQUIRE(atf::utils::compare_file("test.txt", "this is a short file"));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(compare_file__short__not_match);
+ATF_TEST_CASE_BODY(compare_file__short__not_match)
+{
+    atf::utils::create_file("test.txt", "this is a short file");
+    ATF_REQUIRE(!atf::utils::compare_file("test.txt", ""));
+    ATF_REQUIRE(!atf::utils::compare_file("test.txt", "\n"));
+    ATF_REQUIRE(!atf::utils::compare_file("test.txt", "this is a Short file"));
+    ATF_REQUIRE(!atf::utils::compare_file("test.txt", "this is a short fil"));
+    ATF_REQUIRE(!atf::utils::compare_file("test.txt", "this is a short file "));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(compare_file__long__match);
+ATF_TEST_CASE_BODY(compare_file__long__match)
+{
+    char long_contents[3456];
+    size_t i = 0;
+    for (; i < sizeof(long_contents) - 1; i++)
+        long_contents[i] = '0' + (i % 10);
+    long_contents[i] = '\0';
+    atf::utils::create_file("test.txt", long_contents);
+
+    ATF_REQUIRE(atf::utils::compare_file("test.txt", long_contents));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(compare_file__long__not_match);
+ATF_TEST_CASE_BODY(compare_file__long__not_match)
+{
+    char long_contents[3456];
+    size_t i = 0;
+    for (; i < sizeof(long_contents) - 1; i++)
+        long_contents[i] = '0' + (i % 10);
+    long_contents[i] = '\0';
+    atf::utils::create_file("test.txt", long_contents);
+
+    ATF_REQUIRE(!atf::utils::compare_file("test.txt", ""));
+    ATF_REQUIRE(!atf::utils::compare_file("test.txt", "\n"));
+    ATF_REQUIRE(!atf::utils::compare_file("test.txt", "0123456789"));
+    long_contents[i - 1] = 'Z';
+    ATF_REQUIRE(!atf::utils::compare_file("test.txt", long_contents));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(create_file);
+ATF_TEST_CASE_BODY(create_file)
+{
+    atf::utils::create_file("test.txt", "This is a %d test");
+
+    ATF_REQUIRE_EQ("This is a %d test", read_file("test.txt"));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(fork);
+ATF_TEST_CASE_BODY(fork)
+{
+    std::cout << "Should not get into child\n";
+    std::cerr << "Should not get into child\n";
+    pid_t pid = atf::utils::fork();
+    if (pid == 0) {
+        std::cout << "Child stdout\n";
+        std::cerr << "Child stderr\n";
+        exit(EXIT_SUCCESS);
+    }
+
+    int status;
+    ATF_REQUIRE(waitpid(pid, &status, 0) != -1);
+    ATF_REQUIRE(WIFEXITED(status));
+    ATF_REQUIRE_EQ(EXIT_SUCCESS, WEXITSTATUS(status));
+
+    ATF_REQUIRE_EQ("Child stdout\n", read_file("atf_utils_fork_out.txt"));
+    ATF_REQUIRE_EQ("Child stderr\n", read_file("atf_utils_fork_err.txt"));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(grep_file);
+ATF_TEST_CASE_BODY(grep_file)
+{
+    atf::utils::create_file("test.txt", "line1\nthe second line\naaaabbbb\n");
+
+    ATF_REQUIRE(atf::utils::grep_file("test.txt", "line1"));
+    ATF_REQUIRE(atf::utils::grep_file("test.txt", "second line"));
+    ATF_REQUIRE(atf::utils::grep_file("test.txt", "aa.*bb"));
+    ATF_REQUIRE(!atf::utils::grep_file("test.txt", "foo"));
+    ATF_REQUIRE(!atf::utils::grep_file("test.txt", "bar"));
+    ATF_REQUIRE(!atf::utils::grep_file("test.txt", "aaaaa"));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(grep_string);
+ATF_TEST_CASE_BODY(grep_string)
+{
+    const char *str = "a string - aaaabbbb";
+    ATF_REQUIRE(atf::utils::grep_string(str, "a string"));
+    ATF_REQUIRE(atf::utils::grep_string(str, "^a string"));
+    ATF_REQUIRE(atf::utils::grep_string(str, "aaaabbbb$"));
+    ATF_REQUIRE(atf::utils::grep_string(str, "aa.*bb"));
+    ATF_REQUIRE(!atf::utils::grep_string(str, "foo"));
+    ATF_REQUIRE(!atf::utils::grep_string(str, "bar"));
+    ATF_REQUIRE(!atf::utils::grep_string(str, "aaaaa"));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(redirect__stdout);
+ATF_TEST_CASE_BODY(redirect__stdout)
+{
+    std::cout << "Buffer this";
+    atf::utils::redirect(STDOUT_FILENO, "captured.txt");
+    std::cout << "The printed message";
+    std::cout.flush();
+
+    ATF_REQUIRE_EQ("The printed message", read_file("captured.txt"));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(redirect__stderr);
+ATF_TEST_CASE_BODY(redirect__stderr)
+{
+    std::cerr << "Buffer this";
+    atf::utils::redirect(STDERR_FILENO, "captured.txt");
+    std::cerr << "The printed message";
+    std::cerr.flush();
+
+    ATF_REQUIRE_EQ("The printed message", read_file("captured.txt"));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(redirect__other);
+ATF_TEST_CASE_BODY(redirect__other)
+{
+    const std::string message = "Foo bar\nbaz\n";
+    atf::utils::redirect(15, "captured.txt");
+    write(15, message.c_str(), message.length());
+    close(15);
+
+    ATF_REQUIRE_EQ(message, read_file("captured.txt"));
+}
+
+static void
+fork_and_wait(const int exitstatus, const char* expout, const char* experr)
+{
+    const pid_t pid = atf::utils::fork();
+    if (pid == 0) {
+        std::cout << "Some output\n";
+        std::cerr << "Some error\n";
+        exit(123);
+    }
+    atf::utils::wait(pid, exitstatus, expout, experr);
+    exit(EXIT_SUCCESS);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(wait__ok);
+ATF_TEST_CASE_BODY(wait__ok)
+{
+    const pid_t control = fork();
+    ATF_REQUIRE(control != -1);
+    if (control == 0)
+        fork_and_wait(123, "Some output\n", "Some error\n");
+    else {
+        int status;
+        ATF_REQUIRE(waitpid(control, &status, 0) != -1);
+        ATF_REQUIRE(WIFEXITED(status));
+        ATF_REQUIRE_EQ(EXIT_SUCCESS, WEXITSTATUS(status));
+    }
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(wait__invalid_exitstatus);
+ATF_TEST_CASE_BODY(wait__invalid_exitstatus)
+{
+    const pid_t control = fork();
+    ATF_REQUIRE(control != -1);
+    if (control == 0)
+        fork_and_wait(120, "Some output\n", "Some error\n");
+    else {
+        int status;
+        ATF_REQUIRE(waitpid(control, &status, 0) != -1);
+        ATF_REQUIRE(WIFEXITED(status));
+        ATF_REQUIRE_EQ(EXIT_FAILURE, WEXITSTATUS(status));
+    }
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(wait__invalid_stdout);
+ATF_TEST_CASE_BODY(wait__invalid_stdout)
+{
+    const pid_t control = fork();
+    ATF_REQUIRE(control != -1);
+    if (control == 0)
+        fork_and_wait(123, "Some output foo\n", "Some error\n");
+    else {
+        int status;
+        ATF_REQUIRE(waitpid(control, &status, 0) != -1);
+        ATF_REQUIRE(WIFEXITED(status));
+        ATF_REQUIRE_EQ(EXIT_FAILURE, WEXITSTATUS(status));
+    }
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(wait__invalid_stderr);
+ATF_TEST_CASE_BODY(wait__invalid_stderr)
+{
+    const pid_t control = fork();
+    ATF_REQUIRE(control != -1);
+    if (control == 0)
+        fork_and_wait(123, "Some output\n", "Some error foo\n");
+    else {
+        int status;
+        ATF_REQUIRE(waitpid(control, &status, 0) != -1);
+        ATF_REQUIRE(WIFEXITED(status));
+        ATF_REQUIRE_EQ(EXIT_FAILURE, WEXITSTATUS(status));
+    }
 }
 
 // ------------------------------------------------------------------------
@@ -52,7 +352,33 @@ HEADER_TC(include, "atf-c++/utils.hpp");
 ATF_INIT_TEST_CASES(tcs)
 {
     // Add the test for the free functions.
-    ATF_ADD_TEST_CASE(tcs, TODO);
+    ATF_ADD_TEST_CASE(tcs, cat_file__empty);
+    ATF_ADD_TEST_CASE(tcs, cat_file__one_line);
+    ATF_ADD_TEST_CASE(tcs, cat_file__several_lines);
+    ATF_ADD_TEST_CASE(tcs, cat_file__no_newline_eof);
+
+    ATF_ADD_TEST_CASE(tcs, compare_file__empty__match);
+    ATF_ADD_TEST_CASE(tcs, compare_file__empty__not_match);
+    ATF_ADD_TEST_CASE(tcs, compare_file__short__match);
+    ATF_ADD_TEST_CASE(tcs, compare_file__short__not_match);
+    ATF_ADD_TEST_CASE(tcs, compare_file__long__match);
+    ATF_ADD_TEST_CASE(tcs, compare_file__long__not_match);
+
+    ATF_ADD_TEST_CASE(tcs, create_file);
+
+    ATF_ADD_TEST_CASE(tcs, fork);
+
+    ATF_ADD_TEST_CASE(tcs, grep_file);
+    ATF_ADD_TEST_CASE(tcs, grep_string);
+
+    ATF_ADD_TEST_CASE(tcs, redirect__stdout);
+    ATF_ADD_TEST_CASE(tcs, redirect__stderr);
+    ATF_ADD_TEST_CASE(tcs, redirect__other);
+
+    ATF_ADD_TEST_CASE(tcs, wait__ok);
+    ATF_ADD_TEST_CASE(tcs, wait__invalid_exitstatus);
+    ATF_ADD_TEST_CASE(tcs, wait__invalid_stdout);
+    ATF_ADD_TEST_CASE(tcs, wait__invalid_stderr);
 
     // Add the test cases for the header file.
     ATF_ADD_TEST_CASE(tcs, include);

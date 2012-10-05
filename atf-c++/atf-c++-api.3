@@ -26,10 +26,11 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd January 21, 2012
+.Dd October 5, 2012
 .Dt ATF-C++-API 3
 .Os
 .Sh NAME
+.Nm atf-c++-api ,
 .Nm ATF_ADD_TEST_CASE ,
 .Nm ATF_CHECK_ERRNO ,
 .Nm ATF_FAIL ,
@@ -52,6 +53,14 @@
 .Nm ATF_TEST_CASE_USE ,
 .Nm ATF_TEST_CASE_WITH_CLEANUP ,
 .Nm ATF_TEST_CASE_WITHOUT_HEAD ,
+.Nm atf::utils::cat_file ,
+.Nm atf::utils::compare_file ,
+.Nm atf::utils::create_file ,
+.Nm atf::utils::fork ,
+.Nm atf::utils::grep_file ,
+.Nm atf::utils::grep_string ,
+.Nm atf::utils::redirect ,
+.Nm atf::utils::wait
 .Nd C++ API to write ATF-based test programs
 .Sh SYNOPSIS
 .In atf-c++.hpp
@@ -77,6 +86,47 @@
 .Fn ATF_TEST_CASE_USE "name"
 .Fn ATF_TEST_CASE_WITH_CLEANUP "name"
 .Fn ATF_TEST_CASE_WITHOUT_HEAD "name"
+.Ft void
+.Fo atf::utils::cat_file
+.Fa "const std::string& path"
+.Fa "const std::string& prefix"
+.Fc
+.Ft bool
+.Fo atf::utils::compare_file
+.Fa "const std::string& path"
+.Fa "const std::string& contents"
+.Fc
+.Ft void
+.Fo atf::utils::create_file
+.Fa "const std::string& path"
+.Fa "const std::string& contents"
+.Fc
+.Ft pid_t
+.Fo atf::utils::fork
+.Fa "void"
+.Fc
+.Ft bool
+.Fo atf::utils::grep_file
+.Fa "const std::string& path"
+.Fa "const std::string& regexp"
+.Fc
+.Ft bool
+.Fo atf::utils::grep_string
+.Fa "const std::string& path"
+.Fa "const std::string& regexp"
+.Fc
+.Ft void
+.Fo atf::utils::redirect
+.Fa "const int fd"
+.Fa "const std::string& path"
+.Fc
+.Ft void
+.Fo atf::utils::wait
+.Fa "const pid_t pid"
+.Fa "const int expected_exit_status"
+.Fa "const std::string& expected_stdout"
+.Fa "const std::string& expected_stderr"
+.Fc
 .Sh DESCRIPTION
 ATF provides a mostly-macro-based programming interface to implement test
 programs in C or C++.
@@ -362,6 +412,118 @@ variable and, second, a boolean expression that, if evaluates to true,
 means that a call failed and
 .Va errno
 has to be checked against the first value.
+.Ss Utility functions
+The following functions are provided as part of the
+.Nm
+API to simplify the creation of a variety of tests.
+In particular, these are useful to write tests for command-line interfaces.
+.Pp
+.Ft void
+.Fo atf::utils::cat_file
+.Fa "const std::string& path"
+.Fa "const std::string& prefix"
+.Fc
+.Bd -offset indent
+Prints the contents of
+.Fa path
+to the standard output, prefixing every line with the string in
+.Fa prefix .
+.Ed
+.Pp
+.Ft bool
+.Fo atf::utils::compare_file
+.Fa "const std::string& path"
+.Fa "const std::string& contents"
+.Fc
+.Bd -offset indent
+Returns true if the given
+.Fa path
+matches exactly the expected inlined
+.Fa contents .
+.Ed
+.Pp
+.Ft void
+.Fo atf::utils::create_file
+.Fa "const std::string& path"
+.Fa "const std::string& contents"
+.Fc
+.Bd -offset indent
+Creates
+.Fa file
+with the text given in
+.Fa contents .
+.Ed
+.Pp
+.Ft pid_t
+.Fo atf::utils::fork
+.Fa "void"
+.Fc
+.Bd -offset indent
+Forks a process and redirects the standard output and standard error of the
+child to files for later validation with
+.Fn atf::utils::wait .
+Fails the test case if the fork fails, so this does not return an error.
+.Ed
+.Pp
+.Ft bool
+.Fo atf::utils::grep_file
+.Fa "const std::string& path"
+.Fa "const std::string& regexp"
+.Fc
+.Bd -offset indent
+Searches for the regular expression
+.Fa regexp
+in the file
+.Fa path .
+The variable arguments are used to construct the regular expression.
+.Ed
+.Pp
+.Ft bool
+.Fo atf::utils::grep_string
+.Fa "const std::string& str"
+.Fa "const std::string& regexp"
+.Fc
+.Bd -offset indent
+Searches for the regular expression
+.Fa regexp
+in the string
+.Fa str .
+.Ed
+.Ft void
+.Fo atf::utils::redirect
+.Fa "const int fd"
+.Fa "const std::string& path"
+.Fc
+.Bd -offset indent
+Redirects the given file descriptor
+.Fa fd
+to the file
+.Fa path .
+This function exits the process in case of an error and does not properly mark
+the test case as failed.
+As a result, it should only be used in subprocesses of the test case; specially
+those spawned by
+.Fn atf::utils::fork .
+.Ed
+.Pp
+.Ft void
+.Fo atf::utils::wait
+.Fa "const pid_t pid"
+.Fa "const int expected_exit_status"
+.Fa "const std::string& expected_stdout"
+.Fa "const std::string& expected_stderr"
+.Fc
+.Bd -offset indent
+Waits and validates the result of a subprocess spawned with
+.Fn atf::utils::wait .
+The validation involves checking that the subprocess exited cleanly and returned
+the code specified in
+.Fa expected_exit_status
+and that its standard output and standard error match the strings given in
+.Fa expected_stdout
+and
+.Fa expected_stderr .
+.Ed
 .Sh EXAMPLES
 The following shows a complete test program with a single test case that
 validates the addition operator:
