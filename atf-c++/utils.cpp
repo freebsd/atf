@@ -63,15 +63,15 @@ atf::utils::fork(void)
 }
 
 bool
-atf::utils::grep_file(const std::string& path, const std::string& regex)
+atf::utils::grep_file(const std::string& regex, const std::string& path)
 {
-    return atf_utils_grep_file(path.c_str(), "%s", regex.c_str());
+    return atf_utils_grep_file("%s", path.c_str(), regex.c_str());
 }
 
 bool
-atf::utils::grep_string(const std::string& str, const std::string& regex)
+atf::utils::grep_string(const std::string& regex, const std::string& str)
 {
-    return atf_utils_grep_string(str.c_str(), "%s", regex.c_str());
+    return atf_utils_grep_string("%s", str.c_str(), regex.c_str());
 }
 
 void

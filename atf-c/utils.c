@@ -45,13 +45,13 @@
 
 /// Searches for a regexp in a string.
 ///
-/// \param str The string in which to look for the expression.
 /// \param regex The regexp to look for.
+/// \param str The string in which to look for the expression.
 ///
 /// \return True if there is a match; false otherwise.
 static
 bool
-grep_string(const char *str, const char *regex)
+grep_string(const char *regex, const char *str)
 {
     int res;
     regex_t preg;
@@ -198,19 +198,19 @@ atf_utils_free_charpp(char **argv)
 
 /// Searches for a regexp in a file.
 ///
-/// \param file The file in which to look for the expression.
 /// \param regex The regexp to look for.
+/// \param file The file in which to look for the expression.
 ///
 /// \return True if there is a match; false otherwise.
 bool
-atf_utils_grep_file(const char *file, const char *regex, ...)
+atf_utils_grep_file(const char *regex, const char *file, ...)
 {
     int fd;
     va_list ap;
     atf_dynstr_t formatted;
     atf_error_t error;
 
-    va_start(ap, regex);
+    va_start(ap, file);
     error = atf_dynstr_init_ap(&formatted, regex, ap);
     va_end(ap);
     ATF_REQUIRE(!atf_is_error(error));
@@ -219,7 +219,7 @@ atf_utils_grep_file(const char *file, const char *regex, ...)
     bool found = false;
     char *line = NULL;
     while (!found && (line = atf_utils_readline(fd)) != NULL) {
-        found = grep_string(line, atf_dynstr_cstring(&formatted));
+        found = grep_string(atf_dynstr_cstring(&formatted), line);
         free(line);
     }
     close(fd);
@@ -236,19 +236,19 @@ atf_utils_grep_file(const char *file, const char *regex, ...)
 ///
 /// \return True if there is a match; false otherwise.
 bool
-atf_utils_grep_string(const char *str, const char *regex, ...)
+atf_utils_grep_string(const char *regex, const char *str, ...)
 {
     bool res;
     va_list ap;
     atf_dynstr_t formatted;
     atf_error_t error;
 
-    va_start(ap, regex);
+    va_start(ap, str);
     error = atf_dynstr_init_ap(&formatted, regex, ap);
     va_end(ap);
     ATF_REQUIRE(!atf_is_error(error));
 
-    res = grep_string(str, atf_dynstr_cstring(&formatted));
+    res = grep_string(atf_dynstr_cstring(&formatted), str);
 
     atf_dynstr_fini(&formatted);
 

@@ -107,13 +107,13 @@
 .Fc
 .Ft bool
 .Fo atf::utils::grep_file
-.Fa "const std::string& path"
 .Fa "const std::string& regexp"
+.Fa "const std::string& path"
 .Fc
 .Ft bool
 .Fo atf::utils::grep_string
-.Fa "const std::string& path"
 .Fa "const std::string& regexp"
+.Fa "const std::string& path"
 .Fc
 .Ft void
 .Fo atf::utils::redirect
@@ -467,8 +467,8 @@ Fails the test case if the fork fails, so this does not return an error.
 .Pp
 .Ft bool
 .Fo atf::utils::grep_file
-.Fa "const std::string& path"
 .Fa "const std::string& regexp"
+.Fa "const std::string& path"
 .Fc
 .Bd -offset indent
 Searches for the regular expression
@@ -480,8 +480,8 @@ The variable arguments are used to construct the regular expression.
 .Pp
 .Ft bool
 .Fo atf::utils::grep_string
-.Fa "const std::string& str"
 .Fa "const std::string& regexp"
+.Fa "const std::string& str"
 .Fc
 .Bd -offset indent
 Searches for the regular expression

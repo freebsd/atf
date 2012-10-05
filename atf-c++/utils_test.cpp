@@ -212,25 +212,25 @@ ATF_TEST_CASE_BODY(grep_file)
 {
     atf::utils::create_file("test.txt", "line1\nthe second line\naaaabbbb\n");
 
-    ATF_REQUIRE(atf::utils::grep_file("test.txt", "line1"));
-    ATF_REQUIRE(atf::utils::grep_file("test.txt", "second line"));
-    ATF_REQUIRE(atf::utils::grep_file("test.txt", "aa.*bb"));
-    ATF_REQUIRE(!atf::utils::grep_file("test.txt", "foo"));
-    ATF_REQUIRE(!atf::utils::grep_file("test.txt", "bar"));
-    ATF_REQUIRE(!atf::utils::grep_file("test.txt", "aaaaa"));
+    ATF_REQUIRE(atf::utils::grep_file("line1", "test.txt"));
+    ATF_REQUIRE(atf::utils::grep_file("second line", "test.txt"));
+    ATF_REQUIRE(atf::utils::grep_file("aa.*bb", "test.txt"));
+    ATF_REQUIRE(!atf::utils::grep_file("foo", "test.txt"));
+    ATF_REQUIRE(!atf::utils::grep_file("bar", "test.txt"));
+    ATF_REQUIRE(!atf::utils::grep_file("aaaaa", "test.txt"));
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(grep_string);
 ATF_TEST_CASE_BODY(grep_string)
 {
     const char *str = "a string - aaaabbbb";
-    ATF_REQUIRE(atf::utils::grep_string(str, "a string"));
-    ATF_REQUIRE(atf::utils::grep_string(str, "^a string"));
-    ATF_REQUIRE(atf::utils::grep_string(str, "aaaabbbb$"));
-    ATF_REQUIRE(atf::utils::grep_string(str, "aa.*bb"));
-    ATF_REQUIRE(!atf::utils::grep_string(str, "foo"));
-    ATF_REQUIRE(!atf::utils::grep_string(str, "bar"));
-    ATF_REQUIRE(!atf::utils::grep_string(str, "aaaaa"));
+    ATF_REQUIRE(atf::utils::grep_string("a string", str));
+    ATF_REQUIRE(atf::utils::grep_string("^a string", str));
+    ATF_REQUIRE(atf::utils::grep_string("aaaabbbb$", str));
+    ATF_REQUIRE(atf::utils::grep_string("aa.*bb", str));
+    ATF_REQUIRE(!atf::utils::grep_string("foo", str));
+    ATF_REQUIRE(!atf::utils::grep_string("bar", str));
+    ATF_REQUIRE(!atf::utils::grep_string("aaaaa", str));
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(redirect__stdout);

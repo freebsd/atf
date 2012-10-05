@@ -95,12 +95,12 @@ check_file(const enum out_type type)
 {
     switch (type) {
     case stdout_type:
-        ATF_CHECK(atf_utils_grep_file("stdout", "stdout: msg"));
-        ATF_CHECK(!atf_utils_grep_file("stdout", "stderr: msg"));
+        ATF_CHECK(atf_utils_grep_file("stdout: msg", "stdout"));
+        ATF_CHECK(!atf_utils_grep_file("stderr: msg", "stdout"));
         break;
     case stderr_type:
-        ATF_CHECK(atf_utils_grep_file("stderr", "stderr: msg"));
-        ATF_CHECK(!atf_utils_grep_file("stderr", "stdout: msg"));
+        ATF_CHECK(atf_utils_grep_file("stderr: msg", "stderr"));
+        ATF_CHECK(!atf_utils_grep_file("stdout: msg", "stderr"));
         break;
     default:
         UNREACHABLE;
@@ -155,12 +155,12 @@ capture_stream_fini(void *v)
 
     switch (s->m_base.m_type) {
     case stdout_type:
-        ATF_CHECK(atf_utils_grep_string(s->m_msg, "stdout: msg"));
-        ATF_CHECK(!atf_utils_grep_string(s->m_msg, "stderr: msg"));
+        ATF_CHECK(atf_utils_grep_string("stdout: msg", s->m_msg));
+        ATF_CHECK(!atf_utils_grep_string("stderr: msg", s->m_msg));
         break;
     case stderr_type:
-        ATF_CHECK(!atf_utils_grep_string(s->m_msg, "stdout: msg"));
-        ATF_CHECK(atf_utils_grep_string(s->m_msg, "stderr: msg"));
+        ATF_CHECK(!atf_utils_grep_string("stdout: msg", s->m_msg));
+        ATF_CHECK(atf_utils_grep_string("stderr: msg", s->m_msg));
         break;
     default:
         UNREACHABLE;
