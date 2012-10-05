@@ -76,6 +76,7 @@
 .Nm atf_tc_skip ,
 .Nm atf_utils_cat_file ,
 .Nm atf_utils_compare_file ,
+.Nm atf_utils_copy_file ,
 .Nm atf_utils_create_file ,
 .Nm atf_utils_fork ,
 .Nm atf_utils_free_charpp ,
@@ -139,6 +140,11 @@
 .Fo atf_utils_compare_file
 .Fa "const char *file"
 .Fa "const char *contents"
+.Fc
+.Ft void
+.Fo atf_utils_copy_file
+.Fa "const char *source"
+.Fa "const char *destination"
 .Fc
 .Ft void
 .Fo atf_utils_create_file
@@ -524,6 +530,19 @@ Returns true if the given
 .Fa file
 matches exactly the expected inlined
 .Fa contents .
+.Ed
+.Pp
+.Ft void
+.Fo atf_utils_copy_file
+.Fa "const char *source"
+.Fa "const char *destination"
+.Fc
+.Bd -offset indent
+Copies the file
+.Fa source
+to
+.Fa destination .
+The permissions of the file are preserved during the code.
 .Ed
 .Pp
 .Ft void

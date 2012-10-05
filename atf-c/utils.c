@@ -29,6 +29,7 @@
 
 #include "atf-c/utils.h"
 
+#include <sys/stat.h>
 #include <sys/wait.h>
 
 #include <err.h>
@@ -134,6 +135,39 @@ atf_utils_compare_file(const char *name, const char *contents)
     }
     close(fd);
     return count == 0 && remaining == 0;
+}
+
+/// Copies a file.
+///
+/// \param source Path to the source file.
+/// \param destination Path to the destination file.
+void
+atf_utils_copy_file(const char *source, const char *destination)
+{
+    const int input = open(source, O_RDONLY);
+    ATF_REQUIRE_MSG(input != -1, "Failed to open source file during "
+                    "copy (%s)", source);
+
+    const int output = open(destination, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+    ATF_REQUIRE_MSG(output != -1, "Failed to open destination file during "
+                    "copy (%s)", destination);
+
+    char buffer[1024];
+    ssize_t length;
+    while ((length = read(input, buffer, sizeof(buffer))) > 0)
+        ATF_REQUIRE_MSG(write(output, buffer, length) == length,
+                        "Failed to write to %s during copy", destination);
+    ATF_REQUIRE_MSG(length != -1, "Failed to read from %s during copy", source);
+
+    struct stat sb;
+    ATF_REQUIRE_MSG(fstat(input, &sb) != -1,
+                    "Failed to stat source file %s during copy", source);
+    ATF_REQUIRE_MSG(fchmod(output, sb.st_mode) != -1,
+                    "Failed to chmod destination file %s during copy",
+                    destination);
+
+    close(output);
+    close(input);
 }
 
 /// Creates a file.

@@ -55,6 +55,7 @@
 .Nm ATF_TEST_CASE_WITHOUT_HEAD ,
 .Nm atf::utils::cat_file ,
 .Nm atf::utils::compare_file ,
+.Nm atf::utils::copy_file ,
 .Nm atf::utils::create_file ,
 .Nm atf::utils::fork ,
 .Nm atf::utils::grep_collection ,
@@ -96,6 +97,11 @@
 .Fo atf::utils::compare_file
 .Fa "const std::string& path"
 .Fa "const std::string& contents"
+.Fc
+.Ft void
+.Fo atf::utils::copy_file
+.Fa "const std::string& source"
+.Fa "const std::string& destination"
 .Fc
 .Ft void
 .Fo atf::utils::create_file
@@ -446,6 +452,19 @@ Returns true if the given
 .Fa path
 matches exactly the expected inlined
 .Fa contents .
+.Ed
+.Pp
+.Ft void
+.Fo atf::utils::copy_file
+.Fa "const std::string& source"
+.Fa "const std::string& destination"
+.Fc
+.Bd -offset indent
+Copies the file
+.Fa source
+to
+.Fa destination .
+The permissions of the file are preserved during the code.
 .Ed
 .Pp
 .Ft void

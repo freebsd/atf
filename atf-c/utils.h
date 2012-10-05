@@ -35,6 +35,7 @@
 
 void atf_utils_cat_file(const char *, const char *);
 bool atf_utils_compare_file(const char *, const char *);
+void atf_utils_copy_file(const char *, const char *);
 void atf_utils_create_file(const char *, const char *, ...);
 pid_t atf_utils_fork(void);
 void atf_utils_free_charpp(char **);

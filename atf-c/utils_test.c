@@ -27,6 +27,7 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sys/stat.h>
 #include <sys/wait.h>
 
 #include <fcntl.h>
@@ -184,6 +185,27 @@ ATF_TC_BODY(compare_file__long__not_match, tc)
     ATF_REQUIRE(!atf_utils_compare_file("test.txt", "0123456789"));
     long_contents[i - 1] = 'Z';
     ATF_REQUIRE(!atf_utils_compare_file("test.txt", long_contents));
+}
+
+ATF_TC_WITHOUT_HEAD(copy_file__empty);
+ATF_TC_BODY(copy_file__empty, tc)
+{
+    atf_utils_create_file("src.txt", "");
+    ATF_REQUIRE(chmod("src.txt", 0520) != -1);
+
+    atf_utils_copy_file("src.txt", "dest.txt");
+    ATF_REQUIRE(atf_utils_compare_file("dest.txt", ""));
+    struct stat sb;
+    ATF_REQUIRE(stat("dest.txt", &sb) != -1);
+    ATF_REQUIRE_EQ(0520, sb.st_mode & 0xfff);
+}
+
+ATF_TC_WITHOUT_HEAD(copy_file__some_contents);
+ATF_TC_BODY(copy_file__some_contents, tc)
+{
+    atf_utils_create_file("src.txt", "This is a\ntest file\n");
+    atf_utils_copy_file("src.txt", "dest.txt");
+    ATF_REQUIRE(atf_utils_compare_file("dest.txt", "This is a\ntest file\n"));
 }
 
 ATF_TC_WITHOUT_HEAD(create_file);
@@ -435,6 +457,9 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, compare_file__short__not_match);
     ATF_TP_ADD_TC(tp, compare_file__long__match);
     ATF_TP_ADD_TC(tp, compare_file__long__not_match);
+
+    ATF_TP_ADD_TC(tp, copy_file__empty);
+    ATF_TP_ADD_TC(tp, copy_file__some_contents);
 
     ATF_TP_ADD_TC(tp, create_file);
 

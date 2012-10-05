@@ -28,6 +28,7 @@
 //
 
 extern "C" {
+#include <sys/stat.h>
 #include <sys/wait.h>
 
 #include <fcntl.h>
@@ -178,6 +179,27 @@ ATF_TEST_CASE_BODY(compare_file__long__not_match)
     ATF_REQUIRE(!atf::utils::compare_file("test.txt", "0123456789"));
     long_contents[i - 1] = 'Z';
     ATF_REQUIRE(!atf::utils::compare_file("test.txt", long_contents));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(copy_file__empty);
+ATF_TEST_CASE_BODY(copy_file__empty)
+{
+    atf::utils::create_file("src.txt", "");
+    ATF_REQUIRE(chmod("src.txt", 0520) != -1);
+
+    atf::utils::copy_file("src.txt", "dest.txt");
+    ATF_REQUIRE(atf::utils::compare_file("dest.txt", ""));
+    struct stat sb;
+    ATF_REQUIRE(stat("dest.txt", &sb) != -1);
+    ATF_REQUIRE_EQ(0520, sb.st_mode & 0xfff);
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(copy_file__some_contents);
+ATF_TEST_CASE_BODY(copy_file__some_contents)
+{
+    atf::utils::create_file("src.txt", "This is a\ntest file\n");
+    atf::utils::copy_file("src.txt", "dest.txt");
+    ATF_REQUIRE(atf::utils::compare_file("dest.txt", "This is a\ntest file\n"));
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(create_file);
@@ -391,6 +413,9 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, compare_file__long__not_match);
 
     ATF_ADD_TEST_CASE(tcs, create_file);
+
+    ATF_ADD_TEST_CASE(tcs, copy_file__empty);
+    ATF_ADD_TEST_CASE(tcs, copy_file__some_contents);
 
     ATF_ADD_TEST_CASE(tcs, fork);
 

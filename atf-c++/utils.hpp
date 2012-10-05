@@ -41,6 +41,7 @@ namespace utils {
 
 void cat_file(const std::string&, const std::string&);
 bool compare_file(const std::string&, const std::string&);
+void copy_file(const std::string&, const std::string&);
 void create_file(const std::string&, const std::string&);
 pid_t fork(void);
 bool grep_file(const std::string&, const std::string&);

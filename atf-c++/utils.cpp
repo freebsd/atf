@@ -42,6 +42,12 @@ atf::utils::cat_file(const std::string& path, const std::string& prefix)
     atf_utils_cat_file(path.c_str(), prefix.c_str());
 }
 
+void
+atf::utils::copy_file(const std::string& source, const std::string& destination)
+{
+    atf_utils_copy_file(source.c_str(), destination.c_str());
+}
+
 bool
 atf::utils::compare_file(const std::string& path, const std::string& contents)
 {
