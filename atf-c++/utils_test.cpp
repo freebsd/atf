@@ -36,7 +36,9 @@ extern "C" {
 
 #include <cstdlib>
 #include <iostream>
+#include <set>
 #include <string>
+#include <vector>
 
 #include "macros.hpp"
 #include "utils.hpp"
@@ -207,6 +209,30 @@ ATF_TEST_CASE_BODY(fork)
     ATF_REQUIRE_EQ("Child stderr\n", read_file("atf_utils_fork_err.txt"));
 }
 
+ATF_TEST_CASE_WITHOUT_HEAD(grep_collection__set);
+ATF_TEST_CASE_BODY(grep_collection__set)
+{
+    std::set< std::string > strings;
+    strings.insert("First");
+    strings.insert("Second");
+
+    ATF_REQUIRE( atf::utils::grep_collection("irs", strings));
+    ATF_REQUIRE( atf::utils::grep_collection("cond", strings));
+    ATF_REQUIRE(!atf::utils::grep_collection("Third", strings));
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(grep_collection__vector);
+ATF_TEST_CASE_BODY(grep_collection__vector)
+{
+    std::vector< std::string > strings;
+    strings.push_back("First");
+    strings.push_back("Second");
+
+    ATF_REQUIRE( atf::utils::grep_collection("irs", strings));
+    ATF_REQUIRE( atf::utils::grep_collection("cond", strings));
+    ATF_REQUIRE(!atf::utils::grep_collection("Third", strings));
+}
+
 ATF_TEST_CASE_WITHOUT_HEAD(grep_file);
 ATF_TEST_CASE_BODY(grep_file)
 {
@@ -368,6 +394,8 @@ ATF_INIT_TEST_CASES(tcs)
 
     ATF_ADD_TEST_CASE(tcs, fork);
 
+    ATF_ADD_TEST_CASE(tcs, grep_collection__set);
+    ATF_ADD_TEST_CASE(tcs, grep_collection__vector);
     ATF_ADD_TEST_CASE(tcs, grep_file);
     ATF_ADD_TEST_CASE(tcs, grep_string);
 

@@ -57,6 +57,7 @@
 .Nm atf::utils::compare_file ,
 .Nm atf::utils::create_file ,
 .Nm atf::utils::fork ,
+.Nm atf::utils::grep_collection ,
 .Nm atf::utils::grep_file ,
 .Nm atf::utils::grep_string ,
 .Nm atf::utils::redirect ,
@@ -104,6 +105,11 @@
 .Ft pid_t
 .Fo atf::utils::fork
 .Fa "void"
+.Fc
+.Ft bool
+.Fo atf::utils::grep_collection
+.Fa "const std::string& regexp"
+.Fa "const Collection& collection"
 .Fc
 .Ft bool
 .Fo atf::utils::grep_file
@@ -463,6 +469,19 @@ Forks a process and redirects the standard output and standard error of the
 child to files for later validation with
 .Fn atf::utils::wait .
 Fails the test case if the fork fails, so this does not return an error.
+.Ed
+.Pp
+.Ft bool
+.Fo atf::utils::grep_collection
+.Fa "const std::string& regexp"
+.Fa "const Collection& collection"
+.Fc
+.Bd -offset indent
+Searches for the regular expression
+.Fa regexp
+in any of the strings contained in the
+.Fa collection .
+This is a template that accepts any one-dimensional container of strings.
 .Ed
 .Pp
 .Ft bool

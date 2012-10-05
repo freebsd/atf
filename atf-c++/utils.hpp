@@ -48,6 +48,18 @@ bool grep_string(const std::string&, const std::string&);
 void redirect(const int, const std::string&);
 void wait(const pid_t, const int, const std::string&, const std::string&);
 
+template< typename Collection >
+bool
+grep_collection(const std::string& regexp, const Collection& collection)
+{
+    for (typename Collection::const_iterator iter = collection.begin();
+         iter != collection.end(); ++iter) {
+        if (grep_string(regexp, *iter))
+            return true;
+    }
+    return false;
+}
+
 } // namespace utils
 } // namespace atf
 
