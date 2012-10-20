@@ -33,6 +33,7 @@
 #include <sys/wait.h>
 
 #include <err.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <regex.h>
 #include <stdio.h>
@@ -193,6 +194,25 @@ atf_utils_create_file(const char *name, const char *contents, ...)
     close(fd);
 
     atf_dynstr_fini(&formatted);
+}
+
+/// Checks if a file exists.
+///
+/// \param path Location of the file to check for.
+///
+/// \return True if the file exists, false otherwise.
+bool
+atf_utils_file_exists(const char *path)
+{
+    const int ret = access(path, F_OK);
+    if (ret == -1) {
+        if (errno != ENOENT)
+            atf_tc_fail("Failed to check the existence of %s: %s", path,
+                        strerror(errno));
+        else
+            return false;
+    } else
+        return true;
 }
 
 /// Spawns a subprocess and redirects its output to files.

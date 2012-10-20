@@ -210,6 +210,17 @@ ATF_TEST_CASE_BODY(create_file)
     ATF_REQUIRE_EQ("This is a %d test", read_file("test.txt"));
 }
 
+ATF_TEST_CASE_WITHOUT_HEAD(file_exists);
+ATF_TEST_CASE_BODY(file_exists)
+{
+    atf::utils::create_file("test.txt", "foo");
+
+    ATF_REQUIRE( atf::utils::file_exists("test.txt"));
+    ATF_REQUIRE( atf::utils::file_exists("./test.txt"));
+    ATF_REQUIRE(!atf::utils::file_exists("./test.tx"));
+    ATF_REQUIRE(!atf::utils::file_exists("test.txt2"));
+}
+
 ATF_TEST_CASE_WITHOUT_HEAD(fork);
 ATF_TEST_CASE_BODY(fork)
 {
@@ -412,10 +423,12 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, compare_file__long__match);
     ATF_ADD_TEST_CASE(tcs, compare_file__long__not_match);
 
-    ATF_ADD_TEST_CASE(tcs, create_file);
-
     ATF_ADD_TEST_CASE(tcs, copy_file__empty);
     ATF_ADD_TEST_CASE(tcs, copy_file__some_contents);
+
+    ATF_ADD_TEST_CASE(tcs, create_file);
+
+    ATF_ADD_TEST_CASE(tcs, file_exists);
 
     ATF_ADD_TEST_CASE(tcs, fork);
 

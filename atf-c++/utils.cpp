@@ -60,6 +60,12 @@ atf::utils::create_file(const std::string& path, const std::string& contents)
     atf_utils_create_file(path.c_str(), "%s", contents.c_str());
 }
 
+bool
+atf::utils::file_exists(const std::string& path)
+{
+    return atf_utils_file_exists(path.c_str());
+}
+
 pid_t
 atf::utils::fork(void)
 {

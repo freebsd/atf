@@ -218,6 +218,17 @@ ATF_TC_BODY(create_file, tc)
     ATF_REQUIRE_STREQ("This is a test with 12345", buffer);
 }
 
+ATF_TC_WITHOUT_HEAD(file_exists);
+ATF_TC_BODY(file_exists, tc)
+{
+    atf_utils_create_file("test.txt", "foo");
+
+    ATF_REQUIRE( atf_utils_file_exists("test.txt"));
+    ATF_REQUIRE( atf_utils_file_exists("./test.txt"));
+    ATF_REQUIRE(!atf_utils_file_exists("./test.tx"));
+    ATF_REQUIRE(!atf_utils_file_exists("test.txt2"));
+}
+
 ATF_TC_WITHOUT_HEAD(fork);
 ATF_TC_BODY(fork, tc)
 {
@@ -462,6 +473,8 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, copy_file__some_contents);
 
     ATF_TP_ADD_TC(tp, create_file);
+
+    ATF_TP_ADD_TC(tp, file_exists);
 
     ATF_TP_ADD_TC(tp, fork);
 

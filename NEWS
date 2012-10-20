@@ -8,15 +8,16 @@ Changes in version 0.17
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
 * Added the atf_utils_cat_file, atf_utils_compare_file,
-  atf_utils_copy_file, atf_utils_create_file, atf_utils_fork,
-  atf_utils_grep_file, atf_utils_grep_string, atf_utils_readline,
-  atf_utils_redirect and atf_utils_wait utility functions to atf-c-api.
-  Documented the already-public atf_utils_free_charpp function.
+  atf_utils_copy_file, atf_utils_create_file, atf_utils_file_exists,
+  atf_utils_fork, atf_utils_grep_file, atf_utils_grep_string,
+  atf_utils_readline, atf_utils_redirect and atf_utils_wait utility
+  functions to atf-c-api.  Documented the already-public
+  atf_utils_free_charpp function.
 
-* Added the cat_file, compare_file, copy_file, create_file, fork,
-  grep_collection, grep_file, grep_string, redirect and wait functions to
-  the atf::utils namespace of atf-c++-api.  These are wrappers around the
-  same functions added to the atf-c-api library.
+* Added the cat_file, compare_file, copy_file, create_file, file_exists,
+  fork, grep_collection, grep_file, grep_string, redirect and wait
+  functions to the atf::utils namespace of atf-c++-api.  These are wrappers
+  around the same functions added to the atf-c-api library.
 
 * Miscellaneous fixes for manpage typos and compilation problems with
   clang.
