@@ -285,8 +285,9 @@ atf_utils_grep_file(const char *regex, const char *file, ...)
 
 /// Searches for a regexp in a string.
 ///
-/// \param str The string in which to look for the expression.
 /// \param regex The regexp to look for.
+/// \param str The string in which to look for the expression.
+/// \param ... Variable format arguments for the regex.
 ///
 /// \return True if there is a match; false otherwise.
 bool

@@ -19,6 +19,10 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
   functions to the atf::utils namespace of atf-c++-api.  These are wrappers
   around the same functions added to the atf-c-api library.
 
+* Added the ATF_CHECK_MATCH, ATF_CHECK_MATCH_MSG, ATF_REQUIRE_MATCH and
+  ATF_REQUIRE_MATCH_MSG macros to atf-c to simplify the validation of a string
+  against a regular expression.
+
 * Miscellaneous fixes for manpage typos and compilation problems with
   clang.
 

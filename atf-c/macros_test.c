@@ -125,6 +125,11 @@ init_and_run_h_tc(const char *name, void (*head)(atf_tc_t *),
 #define H_CHECK_STREQ(id, v1, v2) \
     H_DEF(check_streq_ ## id, ATF_CHECK_STREQ(v1, v2))
 
+#define H_CHECK_MATCH_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_check_match_ ## id)
+#define H_CHECK_MATCH_BODY_NAME(id) ATF_TC_BODY_NAME(h_check_match_ ## id)
+#define H_CHECK_MATCH(id, v1, v2) \
+    H_DEF(check_match_ ## id, ATF_CHECK_MATCH(v1, v2))
+
 #define H_CHECK_EQ_MSG_HEAD_NAME(id) \
     ATF_TC_HEAD_NAME(h_check_eq_msg_ ## id)
 #define H_CHECK_EQ_MSG_BODY_NAME(id) \
@@ -138,6 +143,13 @@ init_and_run_h_tc(const char *name, void (*head)(atf_tc_t *),
     ATF_TC_BODY_NAME(h_check_streq_msg_ ## id)
 #define H_CHECK_STREQ_MSG(id, v1, v2, msg) \
     H_DEF(check_streq_msg_ ## id, ATF_CHECK_STREQ_MSG(v1, v2, msg))
+
+#define H_CHECK_MATCH_MSG_HEAD_NAME(id) \
+    ATF_TC_HEAD_NAME(h_check_match_msg_ ## id)
+#define H_CHECK_MATCH_MSG_BODY_NAME(id) \
+    ATF_TC_BODY_NAME(h_check_match_msg_ ## id)
+#define H_CHECK_MATCH_MSG(id, v1, v2, msg) \
+    H_DEF(check_match_msg_ ## id, ATF_CHECK_MATCH_MSG(v1, v2, msg))
 
 #define H_CHECK_ERRNO_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_check_errno_ ## id)
 #define H_CHECK_ERRNO_BODY_NAME(id) ATF_TC_BODY_NAME(h_check_errno_ ## id)
@@ -164,6 +176,11 @@ init_and_run_h_tc(const char *name, void (*head)(atf_tc_t *),
 #define H_REQUIRE_STREQ(id, v1, v2) \
     H_DEF(require_streq_ ## id, ATF_REQUIRE_STREQ(v1, v2))
 
+#define H_REQUIRE_MATCH_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_require_match_ ## id)
+#define H_REQUIRE_MATCH_BODY_NAME(id) ATF_TC_BODY_NAME(h_require_match_ ## id)
+#define H_REQUIRE_MATCH(id, v1, v2) \
+    H_DEF(require_match_ ## id, ATF_REQUIRE_MATCH(v1, v2))
+
 #define H_REQUIRE_EQ_MSG_HEAD_NAME(id) \
     ATF_TC_HEAD_NAME(h_require_eq_msg_ ## id)
 #define H_REQUIRE_EQ_MSG_BODY_NAME(id) \
@@ -177,6 +194,13 @@ init_and_run_h_tc(const char *name, void (*head)(atf_tc_t *),
     ATF_TC_BODY_NAME(h_require_streq_msg_ ## id)
 #define H_REQUIRE_STREQ_MSG(id, v1, v2, msg) \
     H_DEF(require_streq_msg_ ## id, ATF_REQUIRE_STREQ_MSG(v1, v2, msg))
+
+#define H_REQUIRE_MATCH_MSG_HEAD_NAME(id) \
+    ATF_TC_HEAD_NAME(h_require_match_msg_ ## id)
+#define H_REQUIRE_MATCH_MSG_BODY_NAME(id) \
+    ATF_TC_BODY_NAME(h_require_match_msg_ ## id)
+#define H_REQUIRE_MATCH_MSG(id, v1, v2, msg) \
+    H_DEF(require_match_msg_ ## id, ATF_REQUIRE_MATCH_MSG(v1, v2, msg))
 
 #define H_REQUIRE_ERRNO_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_require_errno_ ## id)
 #define H_REQUIRE_ERRNO_BODY_NAME(id) ATF_TC_BODY_NAME(h_require_errno_ ## id)
@@ -485,6 +509,40 @@ ATF_TC_BODY(check_streq, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Test cases for the ATF_CHECK_MATCH and ATF_CHECK_MATCH_MSG macros.
+ * --------------------------------------------------------------------- */
+
+H_CHECK_MATCH(yes, "hello [a-z]+", "abc hello world");
+H_CHECK_MATCH(no, "hello [a-z]+", "abc hello WORLD");
+H_CHECK_MATCH_MSG(yes, "hello [a-z]+", "abc hello world", "lowercase");
+H_CHECK_MATCH_MSG(no, "hello [a-z]+", "abc hello WORLD", "uppercase");
+
+ATF_TC(check_match);
+ATF_TC_HEAD(check_match, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the ATF_CHECK_MATCH and "
+                      "ATF_CHECK_MATCH_MSG macros");
+}
+ATF_TC_BODY(check_match, tc)
+{
+    struct check_eq_test tests[] = {
+        { H_CHECK_MATCH_HEAD_NAME(yes), H_CHECK_MATCH_BODY_NAME(yes),
+          "hello [a-z]+", "abc hello world", "", true },
+        { H_CHECK_MATCH_HEAD_NAME(no), H_CHECK_MATCH_BODY_NAME(no),
+          "hello [a-z]+", "abc hello WORLD",
+          "'hello \\[a-z\\]\\+' not matched in 'abc hello WORLD'", false },
+        { H_CHECK_MATCH_MSG_HEAD_NAME(yes), H_CHECK_MATCH_MSG_BODY_NAME(yes),
+          "hello [a-z]+", "abc hello world", "", true },
+        { H_CHECK_MATCH_MSG_HEAD_NAME(no), H_CHECK_MATCH_MSG_BODY_NAME(no),
+          "hello [a-z]+", "abc hello WORLD",
+          "'hello \\[a-z\\]\\+' not matched in 'abc hello WORLD': uppercase",
+          false },
+        { NULL, NULL, 0, 0, "", false }
+    };
+    do_check_eq_tests(tests);
+}
+
+/* ---------------------------------------------------------------------
  * Test cases for the ATF_REQUIRE and ATF_REQUIRE_MSG macros.
  * --------------------------------------------------------------------- */
 
@@ -673,6 +731,41 @@ ATF_TC_BODY(require_streq, tc)
 }
 
 /* ---------------------------------------------------------------------
+ * Test cases for the ATF_REQUIRE_MATCH and ATF_REQUIRE_MATCH_MSG macros.
+ * --------------------------------------------------------------------- */
+
+H_REQUIRE_MATCH(yes, "hello [a-z]+", "abc hello world");
+H_REQUIRE_MATCH(no, "hello [a-z]+", "abc hello WORLD");
+H_REQUIRE_MATCH_MSG(yes, "hello [a-z]+", "abc hello world", "lowercase");
+H_REQUIRE_MATCH_MSG(no, "hello [a-z]+", "abc hello WORLD", "uppercase");
+
+ATF_TC(require_match);
+ATF_TC_HEAD(require_match, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the ATF_REQUIRE_MATCH and "
+                      "ATF_REQUIRE_MATCH_MSG macros");
+}
+ATF_TC_BODY(require_match, tc)
+{
+    struct require_eq_test tests[] = {
+        { H_REQUIRE_MATCH_HEAD_NAME(yes), H_REQUIRE_MATCH_BODY_NAME(yes),
+          "hello [a-z]+", "abc hello world", "", true },
+        { H_REQUIRE_MATCH_HEAD_NAME(no), H_REQUIRE_MATCH_BODY_NAME(no),
+          "hello [a-z]+", "abc hello WORLD",
+          "'hello \\[a-z\\]\\+' not matched in 'abc hello WORLD'", false },
+        { H_REQUIRE_MATCH_MSG_HEAD_NAME(yes),
+          H_REQUIRE_MATCH_MSG_BODY_NAME(yes),
+          "hello [a-z]+", "abc hello world", "", true },
+        { H_REQUIRE_MATCH_MSG_HEAD_NAME(no), H_REQUIRE_MATCH_MSG_BODY_NAME(no),
+          "hello [a-z]+", "abc hello WORLD",
+          "'hello \\[a-z\\]\\+' not matched in 'abc hello WORLD': uppercase",
+          false },
+        { NULL, NULL, 0, 0, "", false }
+    };
+    do_require_eq_tests(tests);
+}
+
+/* ---------------------------------------------------------------------
  * Miscellaneous test cases covering several macros.
  * --------------------------------------------------------------------- */
 
@@ -765,11 +858,13 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, check_eq);
     ATF_TP_ADD_TC(tp, check_streq);
     ATF_TP_ADD_TC(tp, check_errno);
+    ATF_TP_ADD_TC(tp, check_match);
 
     ATF_TP_ADD_TC(tp, require);
     ATF_TP_ADD_TC(tp, require_eq);
     ATF_TP_ADD_TC(tp, require_streq);
     ATF_TP_ADD_TC(tp, require_errno);
+    ATF_TP_ADD_TC(tp, require_match);
 
     ATF_TP_ADD_TC(tp, msg_embedded_fmt);
 
