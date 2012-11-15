@@ -377,11 +377,6 @@ protected:
 class pistream : public std::istream, noncopyable
 {
     //!
-    //! \brief The file handle managed by this stream.
-    //!
-    int m_fd;
-
-    //!
     //! \brief The systembuf object used to manage this stream's data.
     //!
     systembuf m_systembuf;
