@@ -80,7 +80,7 @@
 #define ATF_TC_HEAD(tc, tcptr) \
     static \
     void \
-    atfu_ ## tc ## _head(atf_tc_t *tcptr)
+    atfu_ ## tc ## _head(atf_tc_t *tcptr ATF_DEFS_ATTRIBUTE_UNUSED)
 
 #define ATF_TC_HEAD_NAME(tc) \
     (atfu_ ## tc ## _head)
