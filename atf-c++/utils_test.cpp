@@ -398,6 +398,40 @@ ATF_TEST_CASE_BODY(wait__invalid_stderr)
     }
 }
 
+ATF_TEST_CASE_WITHOUT_HEAD(wait__save_stdout);
+ATF_TEST_CASE_BODY(wait__save_stdout)
+{
+    const pid_t control = fork();
+    ATF_REQUIRE(control != -1);
+    if (control == 0)
+        fork_and_wait(123, "save:my-output.txt", "Some error\n");
+    else {
+        int status;
+        ATF_REQUIRE(waitpid(control, &status, 0) != -1);
+        ATF_REQUIRE(WIFEXITED(status));
+        ATF_REQUIRE_EQ(EXIT_SUCCESS, WEXITSTATUS(status));
+
+        ATF_REQUIRE(atf::utils::compare_file("my-output.txt", "Some output\n"));
+    }
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(wait__save_stderr);
+ATF_TEST_CASE_BODY(wait__save_stderr)
+{
+    const pid_t control = fork();
+    ATF_REQUIRE(control != -1);
+    if (control == 0)
+        fork_and_wait(123, "Some output\n", "save:my-output.txt");
+    else {
+        int status;
+        ATF_REQUIRE(waitpid(control, &status, 0) != -1);
+        ATF_REQUIRE(WIFEXITED(status));
+        ATF_REQUIRE_EQ(EXIT_SUCCESS, WEXITSTATUS(status));
+
+        ATF_REQUIRE(atf::utils::compare_file("my-output.txt", "Some error\n"));
+    }
+}
+
 // ------------------------------------------------------------------------
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
@@ -445,6 +479,8 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, wait__invalid_exitstatus);
     ATF_ADD_TEST_CASE(tcs, wait__invalid_stdout);
     ATF_ADD_TEST_CASE(tcs, wait__invalid_stderr);
+    ATF_ADD_TEST_CASE(tcs, wait__save_stdout);
+    ATF_ADD_TEST_CASE(tcs, wait__save_stderr);
 
     // Add the test cases for the header file.
     ATF_ADD_TEST_CASE(tcs, include);

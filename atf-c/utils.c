@@ -387,8 +387,24 @@ atf_utils_wait(const pid_t pid, const int exitstatus, const char *expout,
     ATF_REQUIRE(WIFEXITED(status));
     ATF_REQUIRE_EQ(exitstatus, WEXITSTATUS(status));
 
-    ATF_REQUIRE(atf_utils_compare_file("atf_utils_fork_out.txt", expout));
-    ATF_REQUIRE(atf_utils_compare_file("atf_utils_fork_err.txt", experr));
+    const char *save_prefix = "save:";
+    const size_t save_prefix_length = strlen(save_prefix);
+
+    if (strlen(expout) > save_prefix_length &&
+        strncmp(expout, save_prefix, save_prefix_length) == 0) {
+        atf_utils_copy_file("atf_utils_fork_out.txt",
+                            expout + save_prefix_length);
+    } else {
+        ATF_REQUIRE(atf_utils_compare_file("atf_utils_fork_out.txt", expout));
+    }
+
+    if (strlen(experr) > save_prefix_length &&
+        strncmp(experr, save_prefix, save_prefix_length) == 0) {
+        atf_utils_copy_file("atf_utils_fork_err.txt",
+                            experr + save_prefix_length);
+    } else {
+        ATF_REQUIRE(atf_utils_compare_file("atf_utils_fork_err.txt", experr));
+    }
 
     ATF_REQUIRE(unlink("atf_utils_fork_out.txt") != -1);
     ATF_REQUIRE(unlink("atf_utils_fork_err.txt") != -1);

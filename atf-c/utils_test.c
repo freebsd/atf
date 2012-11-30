@@ -453,6 +453,40 @@ ATF_TC_BODY(wait__invalid_stderr, tc)
     }
 }
 
+ATF_TC_WITHOUT_HEAD(wait__save_stdout);
+ATF_TC_BODY(wait__save_stdout, tc)
+{
+    const pid_t control = fork();
+    ATF_REQUIRE(control != -1);
+    if (control == 0)
+        fork_and_wait(123, "save:my-output.txt", "Some error\n");
+    else {
+        int status;
+        ATF_REQUIRE(waitpid(control, &status, 0) != -1);
+        ATF_REQUIRE(WIFEXITED(status));
+        ATF_REQUIRE_EQ(EXIT_SUCCESS, WEXITSTATUS(status));
+
+        ATF_REQUIRE(atf_utils_compare_file("my-output.txt", "Some output\n"));
+    }
+}
+
+ATF_TC_WITHOUT_HEAD(wait__save_stderr);
+ATF_TC_BODY(wait__save_stderr, tc)
+{
+    const pid_t control = fork();
+    ATF_REQUIRE(control != -1);
+    if (control == 0)
+        fork_and_wait(123, "Some output\n", "save:my-output.txt");
+    else {
+        int status;
+        ATF_REQUIRE(waitpid(control, &status, 0) != -1);
+        ATF_REQUIRE(WIFEXITED(status));
+        ATF_REQUIRE_EQ(EXIT_SUCCESS, WEXITSTATUS(status));
+
+        ATF_REQUIRE(atf_utils_compare_file("my-output.txt", "Some error\n"));
+    }
+}
+
 HEADER_TC(include, "atf-c/utils.h");
 
 ATF_TP_ADD_TCS(tp)
@@ -492,6 +526,8 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, redirect__other);
 
     ATF_TP_ADD_TC(tp, wait__ok);
+    ATF_TP_ADD_TC(tp, wait__save_stdout);
+    ATF_TP_ADD_TC(tp, wait__save_stderr);
     ATF_TP_ADD_TC(tp, wait__invalid_exitstatus);
     ATF_TP_ADD_TC(tp, wait__invalid_stdout);
     ATF_TP_ADD_TC(tp, wait__invalid_stderr);
