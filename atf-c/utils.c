@@ -175,6 +175,7 @@ atf_utils_copy_file(const char *source, const char *destination)
 ///
 /// \param name Name of the file to create.
 /// \param contents Text to write into the created file.
+/// \param ... Positional parameters to the contents.
 void
 atf_utils_create_file(const char *name, const char *contents, ...)
 {
@@ -254,6 +255,7 @@ atf_utils_free_charpp(char **argv)
 ///
 /// \param regex The regexp to look for.
 /// \param file The file in which to look for the expression.
+/// \param ... Positional parameters to the regex.
 ///
 /// \return True if there is a match; false otherwise.
 bool
@@ -287,7 +289,7 @@ atf_utils_grep_file(const char *regex, const char *file, ...)
 ///
 /// \param regex The regexp to look for.
 /// \param str The string in which to look for the expression.
-/// \param ... Variable format arguments for the regex.
+/// \param ... Positional parameters to the regex.
 ///
 /// \return True if there is a match; false otherwise.
 bool

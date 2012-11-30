@@ -70,7 +70,7 @@ read_file(const char *path, void *const buffer, const size_t buflen)
 ATF_TC_WITHOUT_HEAD(cat_file__empty);
 ATF_TC_BODY(cat_file__empty, tc)
 {
-    atf_utils_create_file("file.txt", "");
+    atf_utils_create_file("file.txt", "%s", "");
     atf_utils_redirect(STDOUT_FILENO, "captured.txt");
     atf_utils_cat_file("file.txt", "PREFIX");
     fflush(stdout);
@@ -126,14 +126,14 @@ ATF_TC_BODY(cat_file__no_newline_eof, tc)
 ATF_TC_WITHOUT_HEAD(compare_file__empty__match);
 ATF_TC_BODY(compare_file__empty__match, tc)
 {
-    atf_utils_create_file("test.txt", "");
+    atf_utils_create_file("test.txt", "%s", "");
     ATF_REQUIRE(atf_utils_compare_file("test.txt", ""));
 }
 
 ATF_TC_WITHOUT_HEAD(compare_file__empty__not_match);
 ATF_TC_BODY(compare_file__empty__not_match, tc)
 {
-    atf_utils_create_file("test.txt", "");
+    atf_utils_create_file("test.txt", "%s", "");
     ATF_REQUIRE(!atf_utils_compare_file("test.txt", "\n"));
     ATF_REQUIRE(!atf_utils_compare_file("test.txt", "foo"));
     ATF_REQUIRE(!atf_utils_compare_file("test.txt", " "));
@@ -190,7 +190,7 @@ ATF_TC_BODY(compare_file__long__not_match, tc)
 ATF_TC_WITHOUT_HEAD(copy_file__empty);
 ATF_TC_BODY(copy_file__empty, tc)
 {
-    atf_utils_create_file("src.txt", "");
+    atf_utils_create_file("src.txt", "%s", "");
     ATF_REQUIRE(chmod("src.txt", 0520) != -1);
 
     atf_utils_copy_file("src.txt", "dest.txt");
@@ -304,7 +304,7 @@ ATF_TC_BODY(grep_string, tc)
 ATF_TC_WITHOUT_HEAD(readline__none);
 ATF_TC_BODY(readline__none, tc)
 {
-    atf_utils_create_file("empty.txt", "");
+    atf_utils_create_file("empty.txt", "%s", "");
 
     const int fd = open("empty.txt", O_RDONLY);
     ATF_REQUIRE(fd != -1);
