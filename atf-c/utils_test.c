@@ -165,7 +165,7 @@ ATF_TC_BODY(compare_file__long__match, tc)
     for (; i < sizeof(long_contents) - 1; i++)
         long_contents[i] = '0' + (i % 10);
     long_contents[i] = '\0';
-    atf_utils_create_file("test.txt", long_contents);
+    atf_utils_create_file("test.txt", "%s", long_contents);
 
     ATF_REQUIRE(atf_utils_compare_file("test.txt", long_contents));
 }
@@ -178,7 +178,7 @@ ATF_TC_BODY(compare_file__long__not_match, tc)
     for (; i < sizeof(long_contents) - 1; i++)
         long_contents[i] = '0' + (i % 10);
     long_contents[i] = '\0';
-    atf_utils_create_file("test.txt", long_contents);
+    atf_utils_create_file("test.txt", "%s", long_contents);
 
     ATF_REQUIRE(!atf_utils_compare_file("test.txt", ""));
     ATF_REQUIRE(!atf_utils_compare_file("test.txt", "\n"));
