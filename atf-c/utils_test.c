@@ -372,7 +372,7 @@ ATF_TC_BODY(redirect__other, tc)
 {
     const char *message = "Foo bar\nbaz\n";
     atf_utils_redirect(15, "captured.txt");
-    write(15, message, strlen(message));
+    ATF_REQUIRE(write(15, message, strlen(message)) != -1);
     close(15);
 
     char buffer[1024];

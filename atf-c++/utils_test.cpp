@@ -319,7 +319,7 @@ ATF_TEST_CASE_BODY(redirect__other)
 {
     const std::string message = "Foo bar\nbaz\n";
     atf::utils::redirect(15, "captured.txt");
-    write(15, message.c_str(), message.length());
+    ATF_REQUIRE(write(15, message.c_str(), message.length()) != -1);
     close(15);
 
     ATF_REQUIRE_EQ(message, read_file("captured.txt"));
