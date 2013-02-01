@@ -45,12 +45,12 @@
 
 #include "atf-c/detail/dynstr.h"
 
-/// Searches for a regexp in a string.
-///
-/// \param regex The regexp to look for.
-/// \param str The string in which to look for the expression.
-///
-/// \return True if there is a match; false otherwise.
+/** Searches for a regexp in a string.
+ *
+ * \param regex The regexp to look for.
+ * \param str The string in which to look for the expression.
+ *
+ * \return True if there is a match; false otherwise. */
 static
 bool
 grep_string(const char *regex, const char *str)
@@ -69,10 +69,11 @@ grep_string(const char *regex, const char *str)
     return res == 0;
 }
 
-/// Prints the contents of a file to stdout.
-///
-/// \param name The name of the file to be printed.
-/// \param prefix An string to be prepended to every line of the printed file.
+/** Prints the contents of a file to stdout.
+ *
+ * \param name The name of the file to be printed.
+ * \param prefix An string to be prepended to every line of the printed
+ *     file. */
 void
 atf_utils_cat_file(const char *name, const char *prefix)
 {
@@ -108,12 +109,12 @@ atf_utils_cat_file(const char *name, const char *prefix)
     ATF_REQUIRE(count == 0);
 }
 
-/// Compares a file against the given golden contents.
-///
-/// \param name Name of the file to be compared.
-/// \param contents Expected contents of the file.
-///
-/// \return True if the file matches the contents; false otherwise.
+/** Compares a file against the given golden contents.
+ *
+ * \param name Name of the file to be compared.
+ * \param contents Expected contents of the file.
+ *
+ * \return True if the file matches the contents; false otherwise. */
 bool
 atf_utils_compare_file(const char *name, const char *contents)
 {
@@ -138,10 +139,10 @@ atf_utils_compare_file(const char *name, const char *contents)
     return count == 0 && remaining == 0;
 }
 
-/// Copies a file.
-///
-/// \param source Path to the source file.
-/// \param destination Path to the destination file.
+/** Copies a file.
+ *
+ * \param source Path to the source file.
+ * \param destination Path to the destination file. */
 void
 atf_utils_copy_file(const char *source, const char *destination)
 {
@@ -171,11 +172,11 @@ atf_utils_copy_file(const char *source, const char *destination)
     close(input);
 }
 
-/// Creates a file.
-///
-/// \param name Name of the file to create.
-/// \param contents Text to write into the created file.
-/// \param ... Positional parameters to the contents.
+/** Creates a file.
+ *
+ * \param name Name of the file to create.
+ * \param contents Text to write into the created file.
+ * \param ... Positional parameters to the contents. */
 void
 atf_utils_create_file(const char *name, const char *contents, ...)
 {
@@ -197,11 +198,11 @@ atf_utils_create_file(const char *name, const char *contents, ...)
     atf_dynstr_fini(&formatted);
 }
 
-/// Checks if a file exists.
-///
-/// \param path Location of the file to check for.
-///
-/// \return True if the file exists, false otherwise.
+/** Checks if a file exists.
+ *
+ * \param path Location of the file to check for.
+ *
+ * \return True if the file exists, false otherwise. */
 bool
 atf_utils_file_exists(const char *path)
 {
@@ -216,13 +217,13 @@ atf_utils_file_exists(const char *path)
         return true;
 }
 
-/// Spawns a subprocess and redirects its output to files.
-///
-/// Use the atf_utils_wait() function to wait for the completion of the spawned
-/// subprocess and validate its exit conditions.
-///
-/// \return 0 in the new child; the PID of the new child in the parent.  Does
-/// not return in error conditions.
+/** Spawns a subprocess and redirects its output to files.
+ *
+ * Use the atf_utils_wait() function to wait for the completion of the spawned
+ * subprocess and validate its exit conditions.
+ *
+ * \return 0 in the new child; the PID of the new child in the parent.  Does
+ * not return in error conditions. */
 pid_t
 atf_utils_fork(void)
 {
@@ -237,9 +238,10 @@ atf_utils_fork(void)
     return pid;
 }
 
-/// Frees an dynamically-allocated "argv" array.
-///
-/// \param argv A dynamically-allocated array of dynamically-allocated strings.
+/** Frees an dynamically-allocated "argv" array.
+ *
+ * \param argv A dynamically-allocated array of dynamically-allocated
+ *     strings. */
 void
 atf_utils_free_charpp(char **argv)
 {
@@ -251,13 +253,13 @@ atf_utils_free_charpp(char **argv)
     free(argv);
 }
 
-/// Searches for a regexp in a file.
-///
-/// \param regex The regexp to look for.
-/// \param file The file in which to look for the expression.
-/// \param ... Positional parameters to the regex.
-///
-/// \return True if there is a match; false otherwise.
+/** Searches for a regexp in a file.
+ *
+ * \param regex The regexp to look for.
+ * \param file The file in which to look for the expression.
+ * \param ... Positional parameters to the regex.
+ *
+ * \return True if there is a match; false otherwise. */
 bool
 atf_utils_grep_file(const char *regex, const char *file, ...)
 {
@@ -285,13 +287,13 @@ atf_utils_grep_file(const char *regex, const char *file, ...)
     return found;
 }
 
-/// Searches for a regexp in a string.
-///
-/// \param regex The regexp to look for.
-/// \param str The string in which to look for the expression.
-/// \param ... Positional parameters to the regex.
-///
-/// \return True if there is a match; false otherwise.
+/** Searches for a regexp in a string.
+ *
+ * \param regex The regexp to look for.
+ * \param str The string in which to look for the expression.
+ * \param ... Positional parameters to the regex.
+ *
+ * \return True if there is a match; false otherwise. */
 bool
 atf_utils_grep_string(const char *regex, const char *str, ...)
 {
@@ -312,12 +314,12 @@ atf_utils_grep_string(const char *regex, const char *str, ...)
     return res;
 }
 
-/// Reads a line of arbitrary length.
-///
-/// \param fd The descriptor from which to read the line.
-///
-/// \return A pointer to the read line, which must be released with free(), or
-/// NULL if there was nothing to read from the file.
+/** Reads a line of arbitrary length.
+ *
+ * \param fd The descriptor from which to read the line.
+ *
+ * \return A pointer to the read line, which must be released with free(), or
+ * NULL if there was nothing to read from the file. */
 char *
 atf_utils_readline(const int fd)
 {
@@ -343,14 +345,14 @@ atf_utils_readline(const int fd)
         return atf_dynstr_fini_disown(&temp);
 }
 
-/// Redirects a file descriptor to a file.
-///
-/// \param target_fd The file descriptor to be replaced.
-/// \param name The name of the file to direct the descriptor to.
-///
-/// \pre Should only be called from the process spawned by fork_for_testing
-/// because this exits uncontrolledly.
-/// \post Terminates execution if the redirection fails.
+/** Redirects a file descriptor to a file.
+ *
+ * \param target_fd The file descriptor to be replaced.
+ * \param name The name of the file to direct the descriptor to.
+ *
+ * \pre Should only be called from the process spawned by fork_for_testing
+ * because this exits uncontrolledly.
+ * \post Terminates execution if the redirection fails. */
 void
 atf_utils_redirect(const int target_fd, const char *name)
 {
@@ -369,13 +371,13 @@ atf_utils_redirect(const int target_fd, const char *name)
     close(new_fd);
 }
 
-/// Waits for a subprocess and validates its exit condition.
-///
-/// \param pid The process to be waited for.  Must have been started by
-///     testutils_fork().
-/// \param exitstatus Expected exit status.
-/// \param expout Expected contents of stdout.
-/// \param experr Expected contents of stderr.
+/** Waits for a subprocess and validates its exit condition.
+ *
+ * \param pid The process to be waited for.  Must have been started by
+ *     testutils_fork().
+ * \param exitstatus Expected exit status.
+ * \param expout Expected contents of stdout.
+ * \param experr Expected contents of stderr. */
 void
 atf_utils_wait(const pid_t pid, const int exitstatus, const char *expout,
                const char *experr)

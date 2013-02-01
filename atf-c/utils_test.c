@@ -43,18 +43,18 @@
 
 #include "detail/test_helpers.h"
 
-/// Reads the contents of a file into a buffer.
-///
-/// Up to buflen-1 characters are read into buffer.  If this function returns,
-/// the contents read into the buffer are guaranteed to be nul-terminated.
-/// Note, however, that if the file contains any nul characters itself,
-/// comparing it "as a string" will not work.
-///
-/// \param path The file to be read, which must exist.
-/// \param buffer Buffer into which to store the file contents.
-/// \param buflen Size of the target buffer.
-///
-/// \return The count of bytes read.
+/** Reads the contents of a file into a buffer.
+ *
+ * Up to buflen-1 characters are read into buffer.  If this function returns,
+ * the contents read into the buffer are guaranteed to be nul-terminated.
+ * Note, however, that if the file contains any nul characters itself,
+ * comparing it "as a string" will not work.
+ *
+ * \param path The file to be read, which must exist.
+ * \param buffer Buffer into which to store the file contents.
+ * \param buflen Size of the target buffer.
+ *
+ * \return The count of bytes read. */
 static ssize_t
 read_file(const char *path, void *const buffer, const size_t buflen)
 {

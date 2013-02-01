@@ -310,7 +310,8 @@ ATF_TC_BODY(require_errno, tc)
             ATF_REQUIRE(exists("after"));
         } else {
             ATF_REQUIRE(atf_utils_grep_file(
-                "^failed: .*macros_test.c:[0-9]+: %s$", "result", t->exp_regex));
+                "^failed: .*macros_test.c:[0-9]+: %s$", "result",
+                t->exp_regex));
             ATF_REQUIRE(!exists("after"));
         }
 
