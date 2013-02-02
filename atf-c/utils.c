@@ -43,7 +43,7 @@
 
 #include <atf-c.h>
 
-#include "atf-c/detail/dynstr.h"
+#include "detail/dynstr.h"
 
 /** Searches for a regexp in a string.
  *
