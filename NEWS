@@ -26,6 +26,10 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 * Miscellaneous fixes for manpage typos and compilation problems with
   clang.
 
+* Added caching of the results of those configure tests that rely on
+  executing a test program.  This should help crossbuild systems by
+  providing a mechanism to pre-specify what the results should be.
+
 
 Changes in version 0.16
 ***********************

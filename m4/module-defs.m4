@@ -64,20 +64,25 @@ AC_DEFUN([ATF_ATTRIBUTE_NORETURN], [
     dnl compiler) does not.  And in that case, CC just raises a warning
     dnl during compilation, not an error, which later breaks the
     dnl atf-c++/t_pkg_config:cxx_build check.
-    AC_MSG_CHECKING(whether __attribute__((__noreturn__)) is supported)
-    AC_RUN_IFELSE(
-        [AC_LANG_PROGRAM([], [
+    AC_CACHE_CHECK(
+        [whether __attribute__((__noreturn__)) is supported],
+        [kyua_cv_attribute_noreturn], [
+        AC_RUN_IFELSE(
+            [AC_LANG_PROGRAM([], [
 #if ((__GNUC__ == 2 && __GNUC_MINOR__ >= 5) || __GNUC__ > 2)
     return 0;
 #else
     return 1;
 #endif
 ])],
-        [AC_MSG_RESULT(yes)
-         value="__attribute__((__noreturn__))"],
-        [AC_MSG_RESULT(no)
-         value=""]
-    )
+        [kyua_cv_attribute_noreturn=yes],
+        [kyua_cv_attribute_noreturn=no])
+    ])
+    if test x"${kyua_cv_attribute_noreturn}" = xyes; then
+        value="__attribute__((__noreturn__))"
+    else
+        value=""
+    fi
     AC_SUBST([ATTRIBUTE_NORETURN], [${value}])
 ])
 
