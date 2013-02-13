@@ -27,6 +27,10 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+extern "C" {
+#include <sys/types.h>
+}
+
 #include <iostream>
 
 #include "atf-c/defs.h"
