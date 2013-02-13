@@ -40,16 +40,7 @@ To build and use ATF successfully you need:
 * A make(1) utility.
 
 If you are building ATF from the code on the repository, you will also need
-the following tools.  The versions listed here are the ones used to build
-the files bundled in the last formal release, but these are not strictly
-required.  Newer ones will most likely work and, maybe, some slightly older
-ones:
-
-* GNU autoconf 2.68
-
-* GNU automake 1.11.3
-
-* GNU libtool 2.4.2
+to have GNU autoconf, automake and libtool installed.
 
 
 Regenerating the build system
