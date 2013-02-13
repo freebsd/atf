@@ -36,7 +36,7 @@ extern "C" {
 #include <fstream>
 #include <iostream>
 
-#include "atf-c++/macros.hpp"
+#include <atf-c++.hpp>
 
 #include "atf-c++/detail/fs.hpp"
 
@@ -235,10 +235,8 @@ ATF_TEST_CASE_HEAD(fork_stop)
 }
 ATF_TEST_CASE_BODY(fork_stop)
 {
-    std::ofstream os(get_config_var("pidfile").c_str());
-    os << ::getpid() << "\n";
-    os.close();
-    std::cout << "Wrote pid file\n";
+    atf::utils::create_file(get_config_var("runfile"), "");
+    std::cout << "Wrote runfile\n";
     std::cout << "Waiting for done file\n";
     while (::access(get_config_var("donefile").c_str(), F_OK) != 0)
         ::usleep(10000);

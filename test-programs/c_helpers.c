@@ -397,18 +397,13 @@ ATF_TC_HEAD(fork_stop, tc)
 }
 ATF_TC_BODY(fork_stop, tc)
 {
-    FILE *f;
-    const char *dfstr, *pfstr;
+    const char *dfstr, *rfstr;
 
     dfstr = atf_tc_get_config_var(tc, "donefile");
-    pfstr = atf_tc_get_config_var(tc, "pidfile");
+    rfstr = atf_tc_get_config_var(tc, "runfile");
 
-    f = fopen(pfstr, "w");
-    if (f == NULL)
-        atf_tc_fail("Failed to create pidfile %s", pfstr);
-    fprintf(f, "%d", (int)getpid());
-    fclose(f);
-    printf("Wrote pid file\n");
+    atf_utils_create_file(rfstr, "%s", "");
+    printf("Wrote runfile\n");
 
     printf("Waiting for done file\n");
     while (access(dfstr, F_OK) != 0)

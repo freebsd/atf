@@ -39,20 +39,21 @@ stop_head()
 stop_body()
 {
     for h in $(get_helpers); do
-        ${h} -s $(atf_get_srcdir) -v pidfile=$(pwd)/pid \
+        ${h} -s $(atf_get_srcdir) -v runfile=$(pwd)/run \
              -v donefile=$(pwd)/done -r resfile fork_stop &
-        ppid=${!}
-        echo "Waiting for pid file for test program ${ppid}"
-        while test ! -f pid; do sleep 1; done
-        pid=$(cat pid)
-        echo "Test case's pid is ${pid}"
+        pid=${!}
+        echo "Waiting for test program ${pid} to start"
+        while test ! -f run; do sleep 1; done
         kill -STOP ${pid}
         touch done
         echo "Wrote done file"
         kill -CONT ${pid}
-        wait ${ppid}
+        sleep 1  # XXX Needed in Linux 3.7.5.  This is strange.
+        wait ${pid}
+        ret=${?}
+        [ "${ret}" -eq 0 ] || atf_fail "Test program exited with code ${ret}"
         atf_check -s eq:0 -o ignore -e empty grep '^passed$' resfile
-        rm -f pid done
+        rm -f run done
     done
 }
 
