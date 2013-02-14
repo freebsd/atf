@@ -30,6 +30,11 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
   executing a test program.  This should help crossbuild systems by
   providing a mechanism to pre-specify what the results should be.
 
+* PR bin/45690: Make atf-report convert any non-printable characters to
+  a plain-text representation (matching their corresponding hexadecimal
+  entities) in XML output files.  This is to prevent the output of test
+  cases from breaking xsltproc later.
+
 
 Changes in version 0.16
 ***********************
