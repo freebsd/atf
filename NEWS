@@ -5,7 +5,7 @@ Major changes between releases                  Automated Testing Framework
 Changes in version 0.17
 ***********************
 
-STILL UNDER DEVELOPMENT; NOT RELEASED YET.
+Experimental version released on February 14th, 2013.
 
 * Added the atf_utils_cat_file, atf_utils_compare_file,
   atf_utils_copy_file, atf_utils_create_file, atf_utils_file_exists,
@@ -16,12 +16,12 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
 * Added the cat_file, compare_file, copy_file, create_file, file_exists,
   fork, grep_collection, grep_file, grep_string, redirect and wait
-  functions to the atf::utils namespace of atf-c++-api.  These are wrappers
-  around the same functions added to the atf-c-api library.
+  functions to the atf::utils namespace of atf-c++-api.  These are
+  wrappers around the same functions added to the atf-c-api library.
 
 * Added the ATF_CHECK_MATCH, ATF_CHECK_MATCH_MSG, ATF_REQUIRE_MATCH and
-  ATF_REQUIRE_MATCH_MSG macros to atf-c to simplify the validation of a string
-  against a regular expression.
+  ATF_REQUIRE_MATCH_MSG macros to atf-c to simplify the validation of a
+  string against a regular expression.
 
 * Miscellaneous fixes for manpage typos and compilation problems with
   clang.
