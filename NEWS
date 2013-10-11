@@ -7,7 +7,7 @@ Changes in version 0.18
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
-* No changes recorded yet.
+* Fixed an issue with the handling of cin with libc++.
 
 
 Changes in version 0.17
