@@ -9,6 +9,10 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
 * Fixed an issue with the handling of cin with libc++.
 
+* NetBSD PR bin/48284: Made atf-check flush its progress message to
+  stdout so that an interrupted test case always shows the last message
+  being executed.
+
 * NetBSD PR bin/48285: Fixed atf_check examples in atf-sh-api(3).
 
 
