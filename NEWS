@@ -9,6 +9,8 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
 * Fixed an issue with the handling of cin with libc++.
 
+* NetBSD PR bin/48285: Fixed atf_check examples in atf-sh-api(3).
+
 
 Changes in version 0.17
 ***********************
