@@ -440,7 +440,7 @@ In particular, these are useful to write tests for command-line interfaces.
 .Fa "const std::string& path"
 .Fa "const std::string& prefix"
 .Fc
-.Bd -offset indent
+.Bd -ragged -offset indent
 Prints the contents of
 .Fa path
 to the standard output, prefixing every line with the string in
@@ -452,7 +452,7 @@ to the standard output, prefixing every line with the string in
 .Fa "const std::string& path"
 .Fa "const std::string& contents"
 .Fc
-.Bd -offset indent
+.Bd -ragged -offset indent
 Returns true if the given
 .Fa path
 matches exactly the expected inlined
@@ -464,7 +464,7 @@ matches exactly the expected inlined
 .Fa "const std::string& source"
 .Fa "const std::string& destination"
 .Fc
-.Bd -offset indent
+.Bd -ragged -offset indent
 Copies the file
 .Fa source
 to
@@ -477,7 +477,7 @@ The permissions of the file are preserved during the code.
 .Fa "const std::string& path"
 .Fa "const std::string& contents"
 .Fc
-.Bd -offset indent
+.Bd -ragged -offset indent
 Creates
 .Fa file
 with the text given in
@@ -488,7 +488,7 @@ with the text given in
 .Fo atf::utils::file_exists
 .Fa "const std::string& path"
 .Fc
-.Bd -offset indent
+.Bd -ragged -offset indent
 Checks if
 .Fa path
 exists.
@@ -498,7 +498,7 @@ exists.
 .Fo atf::utils::fork
 .Fa "void"
 .Fc
-.Bd -offset indent
+.Bd -ragged -offset indent
 Forks a process and redirects the standard output and standard error of the
 child to files for later validation with
 .Fn atf::utils::wait .
@@ -510,7 +510,7 @@ Fails the test case if the fork fails, so this does not return an error.
 .Fa "const std::string& regexp"
 .Fa "const Collection& collection"
 .Fc
-.Bd -offset indent
+.Bd -ragged -offset indent
 Searches for the regular expression
 .Fa regexp
 in any of the strings contained in the
@@ -523,7 +523,7 @@ This is a template that accepts any one-dimensional container of strings.
 .Fa "const std::string& regexp"
 .Fa "const std::string& path"
 .Fc
-.Bd -offset indent
+.Bd -ragged -offset indent
 Searches for the regular expression
 .Fa regexp
 in the file
@@ -536,7 +536,7 @@ The variable arguments are used to construct the regular expression.
 .Fa "const std::string& regexp"
 .Fa "const std::string& str"
 .Fc
-.Bd -offset indent
+.Bd -ragged -offset indent
 Searches for the regular expression
 .Fa regexp
 in the string
@@ -547,7 +547,7 @@ in the string
 .Fa "const int fd"
 .Fa "const std::string& path"
 .Fc
-.Bd -offset indent
+.Bd -ragged -offset indent
 Redirects the given file descriptor
 .Fa fd
 to the file
@@ -566,7 +566,7 @@ those spawned by
 .Fa "const std::string& expected_stdout"
 .Fa "const std::string& expected_stderr"
 .Fc
-.Bd -offset indent
+.Bd -ragged -offset indent
 Waits and validates the result of a subprocess spawned with
 .Fn atf::utils::wait .
 The validation involves checking that the subprocess exited cleanly and returned

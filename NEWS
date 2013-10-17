@@ -9,6 +9,8 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
 * Fixed an issue with the handling of cin with libc++.
 
+* Issue 64: Fixed various mandoc formatting warnings.
+
 
 Changes in version 0.17
 ***********************
