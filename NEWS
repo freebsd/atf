@@ -7,6 +7,8 @@ Changes in version 0.18
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
+* Issue 45: Added require.memory support in atf-run for FreeBSD.
+
 * Fixed an issue with the handling of cin with libc++.
 
 * Issue 64: Fixed various mandoc formatting warnings.
