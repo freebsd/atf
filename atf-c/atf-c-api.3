@@ -26,7 +26,7 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd November 30, 2012
+.Dd November 15, 2013
 .Dt ATF-C-API 3
 .Os
 .Sh NAME
@@ -202,9 +202,8 @@
 .Fa "const char *expected_stderr"
 .Fc
 .Sh DESCRIPTION
-The ATF
-.Pp
-C-based test programs always follow this template:
+ATF provides a C programming interface to implement test programs.
+C-based test programs follow this template:
 .Bd -literal -offset indent
 .Ns ... C-specific includes go here ...
 
