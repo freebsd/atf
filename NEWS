@@ -5,7 +5,7 @@ Major changes between releases                  Automated Testing Framework
 Changes in version 0.18
 ***********************
 
-STILL UNDER DEVELOPMENT; NOT RELEASED YET.
+Experimental version released on November 16th, 2013.
 
 * Issue 45: Added require.memory support in atf-run for FreeBSD.
 
