@@ -2,6 +2,15 @@ Major changes between releases                  Automated Testing Framework
 ===========================================================================
 
 
+Changes in version 0.19
+***********************
+
+STILL UNDER DEVELOPMENT; NOT RELEASED YET.
+
+* Various fixes and improvements to support running as part of the FreeBSD
+  test suite.
+
+
 Changes in version 0.18
 ***********************
 
