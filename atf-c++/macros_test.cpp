@@ -763,11 +763,21 @@ BUILD_TC(use, "macros_hpp_test.cpp",
          "do not cause syntax errors when used",
          "Build of macros_hpp_test.cpp failed; some macros in "
          "atf-c++/macros.hpp are broken");
-BUILD_TC_FAIL(detect_unused_tests, "unused_test.cpp",
-         "Tests that defining an unused test case raises a warning (and thus "
-         "an error)",
-         "Build of unused_test.cpp passed; unused test cases are not properly "
-         "detected");
+
+ATF_TEST_CASE(detect_unused_tests);
+ATF_TEST_CASE_HEAD(detect_unused_tests)
+{
+    set_md_var("descr",
+               "Tests that defining an unused test case raises a warning (and "
+               "thus an error)");
+}
+ATF_TEST_CASE_BODY(detect_unused_tests)
+{
+    build_check_cxx_o(*this, "unused_test.cpp",
+                      "Build of unused_test.cpp passed; unused test cases are "
+                      "not properly detected",
+                      false);
+}
 
 // ------------------------------------------------------------------------
 // Main.

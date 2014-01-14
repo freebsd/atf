@@ -67,17 +67,6 @@
         build_check_cxx_o(*this, sfile, failmsg, true);      \
     }
 
-#define BUILD_TC_FAIL(name, sfile, descr, failmsg) \
-    ATF_TEST_CASE(name); \
-    ATF_TEST_CASE_HEAD(name) \
-    { \
-        set_md_var("descr", descr); \
-    } \
-    ATF_TEST_CASE_BODY(name) \
-    { \
-        build_check_cxx_o(*this, sfile, failmsg, false);      \
-    }
-
 namespace atf {
 namespace tests {
 class tc;

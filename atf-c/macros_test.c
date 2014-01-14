@@ -843,11 +843,21 @@ BUILD_TC(use, "macros_h_test.c",
          "do not cause syntax errors when used",
          "Build of macros_h_test.c failed; some macros in atf-c/macros.h "
          "are broken");
-BUILD_TC_FAIL(detect_unused_tests, "unused_test.c",
-         "Tests that defining an unused test case raises a warning (and thus "
-         "an error)",
-         "Build of unused_test.c passed; unused test cases are not properly "
-         "detected");
+
+ATF_TC(detect_unused_tests);
+ATF_TC_HEAD(detect_unused_tests, tc)
+{
+    atf_tc_set_md_var(tc, "descr",
+                      "Tests that defining an unused test case raises a "
+                      "warning (and thus an error)");
+}
+ATF_TC_BODY(detect_unused_tests, tc)
+{
+    build_check_c_o(tc, "unused_test.c",
+                    "Build of unused_test.c passed; unused test cases are "
+                    "not properly detected",
+                    false);
+}
 
 /* ---------------------------------------------------------------------
  * Main.
