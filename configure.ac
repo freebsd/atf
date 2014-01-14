@@ -48,6 +48,7 @@ AC_CANONICAL_TARGET
 
 AM_INIT_AUTOMAKE([1.9 check-news foreign subdir-objects -Wall])
 
+AM_PROG_AR
 LT_INIT
 
 AC_ARG_ENABLE(tools,
