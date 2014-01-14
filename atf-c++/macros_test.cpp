@@ -773,6 +773,16 @@ ATF_TEST_CASE_HEAD(detect_unused_tests)
 }
 ATF_TEST_CASE_BODY(detect_unused_tests)
 {
+    const char* validate_compiler =
+        "class test_class { public: int dummy; };\n"
+        "#define define_unused static test_class unused\n"
+        "define_unused;\n";
+
+    atf::utils::create_file("compiler_test.cpp", validate_compiler);
+    if (build_check_cxx_o("compiler_test.cpp"))
+        expect_fail("Compiler does not raise a warning on an unused "
+                    "static global variable declared by a macro");
+
     if (build_check_cxx_o_srcdir(*this, "unused_test.cpp"))
         ATF_FAIL("Build of unused_test.cpp passed; unused test cases are "
                  "not properly detected");
