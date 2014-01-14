@@ -43,9 +43,8 @@
 #include "process.h"
 #include "test_helpers.h"
 
-static
 bool
-build_check_c_o_aux(const char *path)
+build_check_c_o(const char *path)
 {
     bool success;
     atf_dynstr_t iflag;
@@ -66,13 +65,13 @@ build_check_c_o_aux(const char *path)
 }
 
 bool
-build_check_c_o(const atf_tc_t *tc, const char *sfile)
+build_check_c_o_srcdir(const atf_tc_t *tc, const char *sfile)
 {
     atf_fs_path_t path;
 
     RE(atf_fs_path_init_fmt(&path, "%s/%s",
                             atf_tc_get_config_var(tc, "srcdir"), sfile));
-    const bool result = build_check_c_o_aux(atf_fs_path_cstring(&path));
+    const bool result = build_check_c_o(atf_fs_path_cstring(&path));
     atf_fs_path_fini(&path);
     return result;
 }
@@ -91,7 +90,7 @@ header_check(const char *hdrname)
     snprintf(failmsg, sizeof(failmsg),
              "Header check failed; %s is not self-contained", hdrname);
 
-    if (!build_check_c_o_aux("test.c"))
+    if (!build_check_c_o("test.c"))
         atf_tc_fail("%s", failmsg);
 }
 

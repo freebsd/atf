@@ -773,7 +773,7 @@ ATF_TEST_CASE_HEAD(detect_unused_tests)
 }
 ATF_TEST_CASE_BODY(detect_unused_tests)
 {
-    if (build_check_cxx_o(*this, "unused_test.cpp"))
+    if (build_check_cxx_o_srcdir(*this, "unused_test.cpp"))
         ATF_FAIL("Build of unused_test.cpp passed; unused test cases are "
                  "not properly detected");
 }

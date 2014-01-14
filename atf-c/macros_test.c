@@ -853,7 +853,7 @@ ATF_TC_HEAD(detect_unused_tests, tc)
 }
 ATF_TC_BODY(detect_unused_tests, tc)
 {
-    if (build_check_c_o(tc, "unused_test.c"))
+    if (build_check_c_o_srcdir(tc, "unused_test.c"))
         atf_tc_fail("Build of unused_test.c passed; unused test cases are "
                     "not properly detected");
 }

@@ -53,23 +53,23 @@ static const char* atf_c_tests_base = NULL;
 #undef ATF_C_TESTS_BASE
 
 bool
-build_check_cxx_o_aux(const atf::fs::path& sfile)
+build_check_cxx_o(const char* sfile)
 {
     std::vector< std::string > optargs;
     optargs.push_back("-I" + atf::config::get("atf_includedir"));
     optargs.push_back("-Wall");
     optargs.push_back("-Werror");
 
-    return atf::check::build_cxx_o(sfile.str(), "test.o",
+    return atf::check::build_cxx_o(sfile, "test.o",
                                    atf::process::argv_array(optargs));
 }
 
 bool
-build_check_cxx_o(const atf::tests::tc& tc, const char* sfile)
+build_check_cxx_o_srcdir(const atf::tests::tc& tc, const char* sfile)
 {
     const atf::fs::path sfilepath =
         atf::fs::path(tc.get_config_var("srcdir")) / sfile;
-    return build_check_cxx_o_aux(sfilepath);
+    return build_check_cxx_o(sfilepath.c_str());
 }
 
 void
@@ -82,7 +82,7 @@ header_check(const char *hdrname)
 
     const std::string failmsg = std::string("Header check failed; ") +
         hdrname + " is not self-contained";
-    if (!build_check_cxx_o_aux(atf::fs::path("test.cpp")))
+    if (!build_check_cxx_o("test.cpp"))
         ATF_FAIL(failmsg);
 }
 
