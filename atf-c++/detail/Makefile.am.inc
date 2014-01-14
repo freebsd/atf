@@ -101,4 +101,7 @@ tests_atf_c___detail_PROGRAMS += atf-c++/detail/ui_test
 atf_c___detail_ui_test_SOURCES = atf-c++/detail/ui_test.cpp
 atf_c___detail_ui_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
 
+tests_atf_c___detail_PROGRAMS += atf-c++/detail/version_helper
+atf_c___detail_version_helper_SOURCES = atf-c++/detail/version_helper.cpp
+
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
