@@ -63,10 +63,11 @@ struct atf_fs_path;
     } \
     ATF_TC_BODY(name, tc) \
     { \
-        build_check_c_o(tc, sfile, failmsg, true);   \
+        if (!build_check_c_o(tc, sfile)) \
+            atf_tc_fail("%s", failmsg); \
     }
 
-void build_check_c_o(const atf_tc_t *, const char *, const char *, const bool);
+bool build_check_c_o(const atf_tc_t *, const char *);
 void header_check(const char *);
 void get_process_helpers_path(const atf_tc_t *, const bool,
                               struct atf_fs_path *);

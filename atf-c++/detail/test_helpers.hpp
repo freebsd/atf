@@ -64,7 +64,8 @@
     } \
     ATF_TEST_CASE_BODY(name) \
     { \
-        build_check_cxx_o(*this, sfile, failmsg, true);      \
+        if (!build_check_cxx_o(*this, sfile)) \
+            ATF_FAIL(failmsg); \
     }
 
 namespace atf {
@@ -74,7 +75,7 @@ class tc;
 }
 
 void header_check(const char*);
-void build_check_cxx_o(const atf::tests::tc&, const char*, const char*, bool);
+bool build_check_cxx_o(const atf::tests::tc&, const char*);
 atf::fs::path get_process_helpers_path(const atf::tests::tc&, bool);
 
 struct run_h_tc_data {
