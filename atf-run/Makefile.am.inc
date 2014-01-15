@@ -34,6 +34,8 @@ atf_run_atf_run_SOURCES = atf-run/atf-run.cpp \
                           atf-run/atffile.hpp \
                           atf-run/config.cpp \
                           atf-run/config.hpp \
+                          atf-run/expand.cpp \
+                          atf-run/expand.hpp \
                           atf-run/fs.cpp \
                           atf-run/fs.hpp \
                           atf-run/io.cpp \
@@ -58,7 +60,8 @@ EXTRA_DIST += $(tests_atf_run_DATA)
 
 tests_atf_run_PROGRAMS = atf-run/atffile_test
 atf_run_atffile_test_SOURCES = atf-run/atffile_test.cpp \
-                               atf-run/atffile.cpp
+                               atf-run/atffile.cpp \
+                               atf-run/expand.cpp
 atf_run_atffile_test_CPPFLAGS = -I$(srcdir)/atf-c++/detail
 atf_run_atffile_test_LDADD = utils/libutils.a \
                              atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
@@ -72,6 +75,13 @@ atf_run_config_test_SOURCES = atf-run/config_test.cpp \
                               atf-run/config.cpp
 atf_run_config_test_CPPFLAGS = -I$(srcdir)/atf-c++/detail
 atf_run_config_test_LDADD = utils/libutils.a \
+                            atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
+
+tests_atf_run_PROGRAMS += atf-run/expand_test
+atf_run_expand_test_SOURCES = atf-run/expand_test.cpp \
+                              atf-run/expand.cpp
+atf_run_expand_test_CPPFLAGS = -I$(srcdir)/atf-c++/detail
+atf_run_expand_test_LDADD = utils/libutils.a \
                             atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
 
 tests_atf_run_PROGRAMS += atf-run/expect_helpers

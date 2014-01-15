@@ -34,8 +34,6 @@ libatf_c___la_SOURCES += atf-c++/detail/application.cpp \
                          atf-c++/detail/env.hpp \
                          atf-c++/detail/exceptions.cpp \
                          atf-c++/detail/exceptions.hpp \
-                         atf-c++/detail/expand.cpp \
-                         atf-c++/detail/expand.hpp \
                          atf-c++/detail/fs.cpp \
                          atf-c++/detail/fs.hpp \
                          atf-c++/detail/process.cpp \
@@ -70,10 +68,6 @@ atf_c___detail_env_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS
 tests_atf_c___detail_PROGRAMS += atf-c++/detail/exceptions_test
 atf_c___detail_exceptions_test_SOURCES = atf-c++/detail/exceptions_test.cpp
 atf_c___detail_exceptions_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
-
-tests_atf_c___detail_PROGRAMS += atf-c++/detail/expand_test
-atf_c___detail_expand_test_SOURCES = atf-c++/detail/expand_test.cpp
-atf_c___detail_expand_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
 
 tests_atf_c___detail_PROGRAMS += atf-c++/detail/fs_test
 atf_c___detail_fs_test_SOURCES = atf-c++/detail/fs_test.cpp

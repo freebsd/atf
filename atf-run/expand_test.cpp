@@ -29,7 +29,7 @@
 
 #include <cstring>
 
-#include "../macros.hpp"
+#include "atf-c++/macros.hpp"
 
 #include "expand.hpp"
 

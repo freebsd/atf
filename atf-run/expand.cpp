@@ -29,8 +29,8 @@
 
 #include <stdexcept>
 
+#include "atf-c++/detail/text.hpp"
 #include "expand.hpp"
-#include "text.hpp"
 
 namespace impl = atf::expand;
 #define IMPL_NAME "atf::expand"
