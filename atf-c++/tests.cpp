@@ -63,7 +63,6 @@ extern "C" {
 #include "detail/env.hpp"
 #include "detail/exceptions.hpp"
 #include "detail/fs.hpp"
-#include "detail/parser.hpp"
 #include "detail/sanity.hpp"
 #include "detail/text.hpp"
 
@@ -79,12 +78,7 @@ detail::atf_tp_writer::atf_tp_writer(std::ostream& os) :
     m_os(os),
     m_is_first(true)
 {
-    atf::parser::headers_map hm;
-    atf::parser::attrs_map ct_attrs;
-    ct_attrs["version"] = "1";
-    hm["Content-Type"] = atf::parser::header_entry("Content-Type",
-        "application/X-atf-tp", ct_attrs);
-    atf::parser::write_headers(hm, m_os);
+    m_os << "Content-Type: application/X-atf-tp; version=\"1\"\n\n";
 }
 
 void

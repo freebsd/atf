@@ -31,7 +31,7 @@ bin_PROGRAMS += atf-report/atf-report
 atf_report_atf_report_SOURCES = atf-report/atf-report.cpp \
                                 atf-report/reader.cpp \
                                 atf-report/reader.hpp
-atf_report_atf_report_LDADD = $(ATF_CXX_LIBS)
+atf_report_atf_report_LDADD = utils/libutils.a $(ATF_CXX_LIBS)
 dist_man_MANS += atf-report/atf-report.1
 
 cssdir = $(atf_cssdir)
@@ -75,6 +75,8 @@ tests_atf_report_PROGRAMS += atf-report/reader_test
 atf_report_reader_test_SOURCES = atf-report/reader_test.cpp \
                                  atf-report/reader.cpp
 atf_report_reader_test_CPPFLAGS = -I$(srcdir)/atf-c++/detail
-atf_report_reader_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
+atf_report_reader_test_LDADD = utils/libutils.a \
+                               atf-c++/detail/libtest_helpers.la \
+                               $(ATF_CXX_LIBS)
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

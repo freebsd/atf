@@ -37,7 +37,7 @@
 #include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/sanity.hpp"
-#include "atf-c++/detail/parser.hpp"
+#include "utils/parser.hpp"
 
 #include "config.hpp"
 

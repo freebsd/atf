@@ -39,7 +39,7 @@ extern "C" {
 #include "atf-c++/macros.hpp"
 
 #include "atf-c++/detail/exceptions.hpp"
-#include "atf-c++/detail/test_helpers.hpp"
+#include "utils/test_helpers.hpp"
 
 #include "atffile.hpp"
 

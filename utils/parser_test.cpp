@@ -29,10 +29,9 @@
 
 #include <sstream>
 
-#include "../macros.hpp"
-
-#include "parser.hpp"
-#include "test_helpers.hpp"
+#include "atf-c++/macros.hpp"
+#include "utils/parser.hpp"
+#include "utils/test_helpers.hpp"
 
 // ------------------------------------------------------------------------
 // Tests for the "parse_error" class.

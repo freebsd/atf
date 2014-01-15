@@ -33,8 +33,8 @@
 
 #include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/expand.hpp"
-#include "atf-c++/detail/parser.hpp"
 #include "atf-c++/detail/sanity.hpp"
+#include "utils/parser.hpp"
 
 #include "atffile.hpp"
 

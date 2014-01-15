@@ -58,6 +58,7 @@ include atf-report/Makefile.am.inc
 include atf-config/Makefile.am.inc
 include atf-run/Makefile.am.inc
 include atf-version/Makefile.am.inc
+include utils/Makefile.am.inc
 endif
 
 #

@@ -37,9 +37,9 @@ extern "C" {
 
 #include "atf-c/defs.h"
 
-#include "atf-c++/detail/parser.hpp"
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
+#include "utils/parser.hpp"
 
 #include "reader.hpp"
 

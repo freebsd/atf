@@ -35,10 +35,10 @@
 
 #include "atf-c++/macros.hpp"
 
-#include "atf-c++/detail/parser.hpp"
 #include "atf-c++/detail/sanity.hpp"
-#include "atf-c++/detail/test_helpers.hpp"
 #include "atf-c++/detail/text.hpp"
+#include "utils/parser.hpp"
+#include "utils/test_helpers.hpp"
 
 #include "reader.hpp"
 

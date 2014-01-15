@@ -16,3 +16,6 @@ end
 if fs.exists("atf-run/Kyuafile") then
    include("atf-run/Kyuafile")
 end
+if fs.exists("utils/Kyuafile") then
+   include("utils/Kyuafile")
+end
