@@ -30,9 +30,9 @@
 #include "atf-c++/detail/env.hpp"
 #include "atf-c++/config.hpp"
 #include "atf-c++/macros.hpp"
-#include "utils/test_helpers.hpp"
 
 #include "config.hpp"
+#include "test_helpers.hpp"
 
 namespace impl = atf::atf_run;
 namespace detail = atf::atf_run::detail;

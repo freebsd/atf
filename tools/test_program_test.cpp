@@ -33,10 +33,10 @@
 #include "atf-c++/macros.hpp"
 
 #include "atf-c++/detail/text.hpp"
-#include "utils/parser.hpp"
-#include "utils/test_helpers.hpp"
 
+#include "parser.hpp"
 #include "test-program.hpp"
+#include "test_helpers.hpp"
 
 namespace impl = atf::atf_run;
 namespace detail = atf::atf_run::detail;

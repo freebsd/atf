@@ -54,11 +54,7 @@ include doc/Makefile.am.inc
 include test-programs/Makefile.am.inc
 
 if ENABLE_TOOLS
-include atf-report/Makefile.am.inc
-include atf-config/Makefile.am.inc
-include atf-run/Makefile.am.inc
-include atf-version/Makefile.am.inc
-include utils/Makefile.am.inc
+include tools/Makefile.am.inc
 endif
 
 #

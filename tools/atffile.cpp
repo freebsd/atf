@@ -33,10 +33,10 @@
 
 #include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/sanity.hpp"
-#include "utils/parser.hpp"
 
 #include "atffile.hpp"
 #include "expand.hpp"
+#include "parser.hpp"
 
 namespace impl = atf::atf_run;
 namespace detail = atf::atf_run::detail;

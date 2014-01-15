@@ -1,7 +1,7 @@
 //
 // Automated Testing Framework (atf)
 //
-// Copyright (c) 2007 The NetBSD Foundation, Inc.
+// Copyright (c) 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,40 +29,38 @@
 
 #include <iostream>
 
-#include "atf-c++/macros.hpp"
+#include "test_helpers.hpp"
 
-// ------------------------------------------------------------------------
-// Helper tests for "t_integration".
-// ------------------------------------------------------------------------
-
-ATF_TEST_CASE(diff);
-ATF_TEST_CASE_HEAD(diff)
+void
+test_helpers_detail::check_equal(const char* expected[],
+                                 const string_vector& actual)
 {
-    set_md_var("descr", "Helper test case for the t_integration program");
-}
-ATF_TEST_CASE_BODY(diff)
-{
-    std::cout << "--- a	2007-11-04 14:00:41.000000000 +0100\n";
-    std::cout << "+++ b	2007-11-04 14:00:48.000000000 +0100\n";
-    std::cout << "@@ -1,7 +1,7 @@\n";
-    std::cout << " This test is meant to simulate a diff.\n";
-    std::cout << " Blank space at beginning of context lines must be "
-                 "preserved.\n";
-    std::cout << " \n";
-    std::cout << "-First original line.\n";
-    std::cout << "-Second original line.\n";
-    std::cout << "+First modified line.\n";
-    std::cout << "+Second modified line.\n";
-    std::cout << " \n";
-    std::cout << " EOF\n";
-}
+    const char** expected_iter = expected;
+    string_vector::const_iterator actual_iter = actual.begin();
 
-// ------------------------------------------------------------------------
-// Main.
-// ------------------------------------------------------------------------
+    bool equals = true;
+    while (equals && *expected_iter != NULL && actual_iter != actual.end()) {
+        if (*expected_iter != *actual_iter) {
+            equals = false;
+        } else {
+            expected_iter++;
+            actual_iter++;
+        }
+    }
+    if (equals && ((*expected_iter == NULL && actual_iter != actual.end()) ||
+                   (*expected_iter != NULL && actual_iter == actual.end())))
+        equals = false;
 
-ATF_INIT_TEST_CASES(tcs)
-{
-    // Add helper tests for t_integration.
-    ATF_ADD_TEST_CASE(tcs, diff);
+    if (!equals) {
+        std::cerr << "EXPECTED:\n";
+        for (expected_iter = expected; *expected_iter != NULL; expected_iter++)
+            std::cerr << *expected_iter << "\n";
+
+        std::cerr << "ACTUAL:\n";
+        for (actual_iter = actual.begin(); actual_iter != actual.end();
+             actual_iter++)
+            std::cerr << *actual_iter << "\n";
+
+        ATF_FAIL("Expected results differ to actual values");
+    }
 }

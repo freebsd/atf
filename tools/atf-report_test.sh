@@ -105,7 +105,7 @@ default_body()
 atf_test_case expect
 expect_body()
 {
-    ln -s "$(atf_get_srcdir)/../atf-run/expect_helpers" .
+    ln -s "$(atf_get_srcdir)/expect_helpers" .
     cat >Atffile <<EOF
 Content-Type: application/X-atf-atffile; version="1"
 
@@ -381,6 +381,7 @@ output_xml_space_head()
 }
 output_xml_space_body()
 {
+    export TESTCASE=diff
     cp $(atf_get_srcdir)/misc_helpers .
     cat >Atffile <<EOF
 Content-Type: application/X-atf-atffile; version="1"

@@ -37,9 +37,9 @@
 #include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/sanity.hpp"
-#include "utils/parser.hpp"
 
 #include "config.hpp"
+#include "parser.hpp"
 
 namespace impl = atf::atf_run;
 namespace detail = atf::atf_run::detail;

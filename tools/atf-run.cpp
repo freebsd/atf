@@ -58,11 +58,11 @@ extern "C" {
 #include "atf-c++/detail/process.hpp"
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
-#include "utils/parser.hpp"
 
 #include "atffile.hpp"
 #include "config.hpp"
 #include "fs.hpp"
+#include "parser.hpp"
 #include "requirements.hpp"
 #include "test-program.hpp"
 

@@ -39,9 +39,9 @@ extern "C" {
 #include "atf-c++/macros.hpp"
 
 #include "atf-c++/detail/exceptions.hpp"
-#include "utils/test_helpers.hpp"
 
 #include "atffile.hpp"
+#include "test_helpers.hpp"
 
 namespace detail = atf::atf_run::detail;
 

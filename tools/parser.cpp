@@ -29,9 +29,10 @@
 
 #include <sstream>
 
-#include "utils/parser.hpp"
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
+
+#include "parser.hpp"
 
 namespace impl = atf::parser;
 #define IMPL_NAME "atf::parser"

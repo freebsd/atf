@@ -1,0 +1,7 @@
+atf-config
+atf-report
+atf-run
+atf-version
+libtools.a
+revision.h
+revision.h.stamp

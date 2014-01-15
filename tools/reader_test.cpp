@@ -37,10 +37,10 @@
 
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
-#include "utils/parser.hpp"
-#include "utils/test_helpers.hpp"
 
+#include "parser.hpp"
 #include "reader.hpp"
+#include "test_helpers.hpp"
 
 namespace impl = atf::atf_report;
 

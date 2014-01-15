@@ -38,7 +38,8 @@
 
 #include "atf-c++/detail/text.hpp"
 #include "atf-c++/macros.hpp"
-#include "utils/parser.hpp"
+
+#include "parser.hpp"
 
 namespace test_helpers_detail {
 

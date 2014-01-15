@@ -63,7 +63,7 @@ touch(const std::string& path)
 }
 
 // ------------------------------------------------------------------------
-// Helper tests for "t_integration".
+// Helper tests for "atf-run_test".
 // ------------------------------------------------------------------------
 
 ATF_TEST_CASE(pass);
@@ -368,6 +368,32 @@ ATF_TEST_CASE_BODY(use_fs)
 }
 
 // ------------------------------------------------------------------------
+// Helper tests for "atf-report_test".
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(diff);
+ATF_TEST_CASE_HEAD(diff)
+{
+    set_md_var("descr", "Helper test case for the t_integration program");
+}
+ATF_TEST_CASE_BODY(diff)
+{
+    std::cout << "--- a	2007-11-04 14:00:41.000000000 +0100\n";
+    std::cout << "+++ b	2007-11-04 14:00:48.000000000 +0100\n";
+    std::cout << "@@ -1,7 +1,7 @@\n";
+    std::cout << " This test is meant to simulate a diff.\n";
+    std::cout << " Blank space at beginning of context lines must be "
+                 "preserved.\n";
+    std::cout << " \n";
+    std::cout << "-First original line.\n";
+    std::cout << "-Second original line.\n";
+    std::cout << "+First modified line.\n";
+    std::cout << "+Second modified line.\n";
+    std::cout << " \n";
+    std::cout << " EOF\n";
+}
+
+// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -375,7 +401,7 @@ ATF_INIT_TEST_CASES(tcs)
 {
     std::string which = atf::env::get("TESTCASE");
 
-    // Add helper tests for t_integration.
+    // Add helper tests for atf-run_test.
     if (which == "pass")
         ATF_ADD_TEST_CASE(tcs, pass);
     if (which == "config")
@@ -416,4 +442,8 @@ ATF_INIT_TEST_CASES(tcs)
         ATF_ADD_TEST_CASE(tcs, timeout_forkexit);
     if (which == "use_fs")
         ATF_ADD_TEST_CASE(tcs, use_fs);
+
+    // Add helper tests for atf-report_test.
+    if (which == "diff")
+        ATF_ADD_TEST_CASE(tcs, diff);
 }

@@ -39,8 +39,8 @@ extern "C" {
 
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
-#include "utils/parser.hpp"
 
+#include "parser.hpp"
 #include "reader.hpp"
 
 namespace impl = atf::atf_report;
