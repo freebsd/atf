@@ -76,7 +76,6 @@ dist_man_MANS += tools/atf-run.1
 bin_PROGRAMS += tools/atf-version
 tools_atf_version_SOURCES = tools/atf-version.cpp
 nodist_tools_atf_version_SOURCES = tools/revision.h
-tools_atf_version_CPPFLAGS = -Itools
 tools_atf_version_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 dist_man_MANS += tools/atf-version.1
 
@@ -152,7 +151,6 @@ tools/atf-run_test: $(srcdir)/tools/atf-run_test.sh
 
 tests_tools_PROGRAMS = tools/atffile_test
 tools_atffile_test_SOURCES = tools/atffile_test.cpp
-tools_atffile_test_CPPFLAGS = -I$(srcdir)/atf-c++/detail
 tools_atffile_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/bad_metadata_helper
@@ -161,12 +159,10 @@ tools_bad_metadata_helper_LDADD = libatf-c.la
 
 tests_tools_PROGRAMS += tools/config_test
 tools_config_test_SOURCES = tools/config_test.cpp
-tools_config_test_CPPFLAGS = -I$(srcdir)/atf-c++/detail
 tools_config_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/expand_test
 tools_expand_test_SOURCES = tools/expand_test.cpp
-tools_expand_test_CPPFLAGS = -I$(srcdir)/atf-c++/detail
 tools_expand_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/expect_helpers
@@ -199,7 +195,6 @@ tools_pass_helper_LDADD = $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/reader_test
 tools_reader_test_SOURCES = tools/reader_test.cpp
-tools_reader_test_CPPFLAGS = -I$(srcdir)/atf-c++/detail
 tools_reader_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/requirements_test
@@ -216,7 +211,6 @@ tools_signals_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/test_program_test
 tools_test_program_test_SOURCES = tools/test_program_test.cpp
-tools_test_program_test_CPPFLAGS = -I$(srcdir)/atf-c++/detail
 tools_test_program_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/user_test
