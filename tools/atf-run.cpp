@@ -60,7 +60,7 @@ extern "C" {
 
 #include "application.hpp"
 #include "atffile.hpp"
-#include "config.hpp"
+#include "config_file.hpp"
 #include "fs.hpp"
 #include "parser.hpp"
 #include "requirements.hpp"

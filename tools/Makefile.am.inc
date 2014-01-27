@@ -32,8 +32,8 @@ tools_libtools_a_SOURCES = tools/application.cpp \
                            tools/application.hpp \
                            tools/atffile.cpp \
                            tools/atffile.hpp \
-                           tools/config.cpp \
-                           tools/config.hpp \
+                           tools/config_file.cpp \
+                           tools/config_file.hpp \
                            tools/expand.cpp \
                            tools/expand.hpp \
                            tools/fs.cpp \
@@ -165,9 +165,9 @@ tests_tools_PROGRAMS += tools/bad_metadata_helper
 tools_bad_metadata_helper_SOURCES = tools/bad_metadata_helper.c
 tools_bad_metadata_helper_LDADD = libatf-c.la
 
-tests_tools_PROGRAMS += tools/config_test
-tools_config_test_SOURCES = tools/config_test.cpp
-tools_config_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tests_tools_PROGRAMS += tools/config_file_test
+tools_config_file_test_SOURCES = tools/config_file_test.cpp
+tools_config_file_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/expand_test
 tools_expand_test_SOURCES = tools/expand_test.cpp

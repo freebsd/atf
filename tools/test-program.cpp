@@ -50,7 +50,7 @@ extern "C" {
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
 
-#include "config.hpp"
+#include "config_file.hpp"
 #include "fs.hpp"
 #include "io.hpp"
 #include "parser.hpp"
