@@ -43,13 +43,13 @@ extern "C" {
 
 #include "atf-c/defs.h"
 
-#include "atf-c++/detail/application.hpp"
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
-#include "atf-c++/detail/ui.hpp"
 
+#include "application.hpp"
 #include "reader.hpp"
+#include "ui.hpp"
 
 typedef std::auto_ptr< std::ostream > ostream_ptr;
 

@@ -48,7 +48,6 @@ extern "C" {
 #include <map>
 #include <string>
 
-#include "atf-c++/detail/application.hpp"
 #include "atf-c++/config.hpp"
 #include "atf-c++/tests.hpp"
 
@@ -59,6 +58,7 @@ extern "C" {
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
 
+#include "application.hpp"
 #include "atffile.hpp"
 #include "config.hpp"
 #include "fs.hpp"

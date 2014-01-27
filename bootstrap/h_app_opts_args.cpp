@@ -30,8 +30,9 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "atf-c++/detail/application.hpp"
 #include "atf-c++/detail/sanity.hpp"
+
+#include "tools/application.hpp"
 
 class h_app_opts_args : public atf::application::app {
     static const char* m_description;

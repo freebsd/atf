@@ -30,9 +30,9 @@
 #include <cstring>
 #include <iostream>
 
-#include "../macros.hpp"
+#include "atf-c++/detail/env.hpp"
+#include "atf-c++/macros.hpp"
 
-#include "env.hpp"
 #include "ui.hpp"
 
 // ------------------------------------------------------------------------

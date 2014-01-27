@@ -5,6 +5,7 @@ prop: test-suite = atf
 tp: atf-config_test
 tp: atf-report_test
 tp: atf-run_test
+tp: application_test
 tp: atffile_test
 tp: config_test
 tp: expand_test
@@ -15,4 +16,5 @@ tp: reader_test
 tp: requirements_test
 tp: signals_test
 tp: test_program_test
+tp: ui_test
 tp: user_test

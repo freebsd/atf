@@ -34,10 +34,9 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "atf-c++/detail/application.hpp"
-#include "atf-c++/detail/ui.hpp"
-
+#include "application.hpp"
 #include "revision.h"
+#include "ui.hpp"
 
 class atf_version : public atf::application::app {
     static const char* m_description;

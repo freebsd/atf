@@ -28,7 +28,9 @@
 #
 
 noinst_LIBRARIES = tools/libtools.a
-tools_libtools_a_SOURCES = tools/atffile.cpp \
+tools_libtools_a_SOURCES = tools/application.cpp \
+                           tools/application.hpp \
+                           tools/atffile.cpp \
                            tools/atffile.hpp \
                            tools/config.cpp \
                            tools/config.hpp \
@@ -52,6 +54,8 @@ tools_libtools_a_SOURCES = tools/atffile.cpp \
                            tools/test_helpers.hpp \
                            tools/timer.cpp \
                            tools/timer.hpp \
+                           tools/ui.cpp \
+                           tools/ui.hpp \
                            tools/user.cpp \
                            tools/user.hpp
 
@@ -149,7 +153,11 @@ tools/atf-run_test: $(srcdir)/tools/atf-run_test.sh
 	@src="$(srcdir)/tools/atf-run_test.sh"; \
 	dst="tools/atf-run_test"; $(BUILD_SH_TP)
 
-tests_tools_PROGRAMS = tools/atffile_test
+tests_tools_PROGRAMS = tools/application_test
+tools_application_test_SOURCES = tools/application_test.cpp
+tools_application_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+
+tests_tools_PROGRAMS += tools/atffile_test
 tools_atffile_test_SOURCES = tools/atffile_test.cpp
 tools_atffile_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 
@@ -212,6 +220,10 @@ tools_signals_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 tests_tools_PROGRAMS += tools/test_program_test
 tools_test_program_test_SOURCES = tools/test_program_test.cpp
 tools_test_program_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+
+tests_tools_PROGRAMS += tools/ui_test
+tools_ui_test_SOURCES = tools/ui_test.cpp tools/ui.cpp
+tools_ui_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/user_test
 tools_user_test_SOURCES = tools/user_test.cpp tools/user.cpp
