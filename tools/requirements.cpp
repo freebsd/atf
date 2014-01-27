@@ -43,11 +43,11 @@ extern "C" {
 }
 
 #include "atf-c++/detail/fs.hpp"
-#include "atf-c++/detail/text.hpp"
 
 #include "config.hpp"
 #include "env.hpp"
 #include "requirements.hpp"
+#include "text.hpp"
 #include "user.hpp"
 
 namespace impl = tools::atf_run;
@@ -68,7 +68,7 @@ has_program(const atf::fs::path& program)
                                      "when searching for a program (" +
                                      program.str() + ")");
 
-        const std::vector< std::string > dirs = atf::text::split(
+        const std::vector< std::string > dirs = tools::text::split(
             tools::env::get("PATH"), ":");
         for (std::vector< std::string >::const_iterator iter = dirs.begin();
              !found && iter != dirs.end(); iter++) {
@@ -85,7 +85,7 @@ static
 std::string
 check_arch(const std::string& arches)
 {
-    const std::vector< std::string > v = atf::text::split(arches, " ");
+    const std::vector< std::string > v = tools::text::split(arches, " ");
 
     for (std::vector< std::string >::const_iterator iter = v.begin();
          iter != v.end(); iter++) {
@@ -103,7 +103,7 @@ static
 std::string
 check_config(const std::string& variables, const atf::tests::vars_map& config)
 {
-    const std::vector< std::string > v = atf::text::split(variables, " ");
+    const std::vector< std::string > v = tools::text::split(variables, " ");
     for (std::vector< std::string >::const_iterator iter = v.begin();
          iter != v.end(); iter++) {
         if (config.find((*iter)) == config.end())
@@ -117,7 +117,7 @@ static
 std::string
 check_files(const std::string& progs)
 {
-    const std::vector< std::string > v = atf::text::split(progs, " ");
+    const std::vector< std::string > v = tools::text::split(progs, " ");
     for (std::vector< std::string >::const_iterator iter = v.begin();
          iter != v.end(); iter++) {
         const atf::fs::path file(*iter);
@@ -134,7 +134,7 @@ static
 std::string
 check_machine(const std::string& machines)
 {
-    const std::vector< std::string > v = atf::text::split(machines, " ");
+    const std::vector< std::string > v = tools::text::split(machines, " ");
 
     for (std::vector< std::string >::const_iterator iter = v.begin();
          iter != v.end(); iter++) {
@@ -162,8 +162,8 @@ check_memory_sysctl(const int64_t needed, const char* sysctl_variable)
     }
 
     if (available < needed) {
-        return "Not enough memory; needed " + atf::text::to_string(needed) +
-            ", available " + atf::text::to_string(available);
+        return "Not enough memory; needed " + tools::text::to_string(needed) +
+            ", available " + tools::text::to_string(available);
     } else
         return "";
 }
@@ -204,7 +204,7 @@ static
 std::string
 check_memory(const std::string& raw_memory)
 {
-    const int64_t needed = atf::text::to_bytes(raw_memory);
+    const int64_t needed = tools::text::to_bytes(raw_memory);
 
 #if defined(__APPLE__)
     return check_memory_darwin(needed);
@@ -221,7 +221,7 @@ static
 std::string
 check_progs(const std::string& progs)
 {
-    const std::vector< std::string > v = atf::text::split(progs, " ");
+    const std::vector< std::string > v = tools::text::split(progs, " ");
     for (std::vector< std::string >::const_iterator iter = v.begin();
          iter != v.end(); iter++) {
         if (!has_program(atf::fs::path(*iter)))

@@ -32,11 +32,10 @@
 
 #include <atf-c++.hpp>
 
-#include "atf-c++/detail/text.hpp"
-
 #include "parser.hpp"
 #include "test-program.hpp"
 #include "test_helpers.hpp"
+#include "text.hpp"
 
 namespace impl = tools::atf_run;
 namespace detail = tools::atf_run::detail;
@@ -86,7 +85,7 @@ static
 void
 print_indented(const std::string& str)
 {
-    std::vector< std::string > ws = atf::text::split(str, "\n");
+    std::vector< std::string > ws = tools::text::split(str, "\n");
     for (std::vector< std::string >::const_iterator iter = ws.begin();
          iter != ws.end(); iter++)
         std::cout << ">>" << *iter << "<<\n";
@@ -101,7 +100,7 @@ void
 check_match(const atf::tests::tc& tc, const std::string& str,
             const std::string& exp)
 {
-    if (!atf::text::match(str, exp)) {
+    if (!tools::text::match(str, exp)) {
         std::cout << "String match check failed.\n"
                   << "Adding >> and << to delimit the string boundaries "
                      "below.\n";

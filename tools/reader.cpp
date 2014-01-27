@@ -39,10 +39,9 @@ extern "C" {
 
 #include "atf-c/defs.h"
 
-#include "atf-c++/detail/text.hpp"
-
 #include "parser.hpp"
 #include "reader.hpp"
+#include "text.hpp"
 
 namespace impl = tools::atf_report;
 #define IMPL_NAME "tools::atf_report"
@@ -221,7 +220,7 @@ impl::atf_tps_reader::read_info(void* pptr)
 
     tools::parser::token t = p.expect(text_type, "info property name");
     (void)p.expect(comma_type, "`,'");
-    got_info(t.text(), atf::text::trim(p.rest_of_line()));
+    got_info(t.text(), tools::text::trim(p.rest_of_line()));
 
     (void)p.expect(nl_type, "new line");
 }
@@ -288,7 +287,7 @@ impl::atf_tps_reader::read_tp(void* pptr)
                  "new line or comma_type");
     std::string reason;
     if (t.type() == comma_type) {
-        reason = atf::text::trim(p.rest_of_line());
+        reason = tools::text::trim(p.rest_of_line());
         if (reason.empty())
             throw parse_error(t.lineno(),
                               "Empty reason for failed test program");
@@ -381,7 +380,7 @@ impl::atf_tps_reader::read_tc(void* pptr)
         else std::abort();
 
         t = p.expect(comma_type, "`,'");
-        std::string reason = atf::text::trim(p.rest_of_line());
+        std::string reason = tools::text::trim(p.rest_of_line());
         if (reason.empty())
             throw parse_error(t.lineno(), "Empty reason for " + state +
                 " test case result");

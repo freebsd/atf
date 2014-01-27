@@ -59,6 +59,8 @@ tools_libtools_a_SOURCES = tools/application.cpp \
                            tools/test-program.hpp \
                            tools/test_helpers.cpp \
                            tools/test_helpers.hpp \
+                           tools/text.cpp \
+                           tools/text.hpp \
                            tools/timer.cpp \
                            tools/timer.hpp \
                            tools/ui.cpp \
@@ -254,6 +256,10 @@ tools_signals_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 tests_tools_PROGRAMS += tools/test_program_test
 tools_test_program_test_SOURCES = tools/test_program_test.cpp
 tools_test_program_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+
+tests_tools_PROGRAMS += tools/text_test
+tools_text_test_SOURCES = tools/text_test.cpp tools/text.cpp
+tools_text_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/ui_test
 tools_ui_test_SOURCES = tools/ui_test.cpp tools/ui.cpp

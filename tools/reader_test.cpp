@@ -35,11 +35,10 @@
 
 #include <atf-c++.hpp>
 
-#include "atf-c++/detail/text.hpp"
-
 #include "parser.hpp"
 #include "reader.hpp"
 #include "test_helpers.hpp"
+#include "text.hpp"
 
 namespace impl = tools::atf_report;
 
@@ -53,14 +52,14 @@ class tps_reader : protected impl::atf_tps_reader {
     void
     got_ntps(size_t ntps)
     {
-        m_calls.push_back("got_ntps(" + atf::text::to_string(ntps) + ")");
+        m_calls.push_back("got_ntps(" + tools::text::to_string(ntps) + ")");
     }
 
     void
     got_tp_start(const std::string& tpname, size_t ntcs)
     {
         m_calls.push_back("got_tp_start(" + tpname + ", " +
-                          atf::text::to_string(ntcs) + ")");
+                          tools::text::to_string(ntcs) + ")");
     }
 
     void

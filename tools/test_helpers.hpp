@@ -38,9 +38,8 @@
 
 #include <atf-c++.hpp>
 
-#include "atf-c++/detail/text.hpp"
-
 #include "parser.hpp"
+#include "text.hpp"
 
 namespace test_helpers_detail {
 
@@ -62,7 +61,7 @@ do_read(const char* input)
             errors.push_back(*iter);
     } catch (const tools::parser::parse_error& pe) {
         ATF_FAIL("Raised a lonely parse error: " +
-                 atf::text::to_string(pe.first) + ": " + pe.second);
+                 tools::text::to_string(pe.first) + ": " + pe.second);
     }
 
     return std::make_pair(reader.m_calls, errors);

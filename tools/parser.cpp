@@ -30,9 +30,8 @@
 #include <cassert>
 #include <sstream>
 
-#include "atf-c++/detail/text.hpp"
-
 #include "parser.hpp"
+#include "text.hpp"
 
 namespace impl = tools::parser;
 #define IMPL_NAME "tools::parser"
@@ -69,7 +68,7 @@ impl::parse_error::what(void)
 impl::parse_error::operator std::string(void)
     const
 {
-    return atf::text::to_string(first) + ": " + second;
+    return tools::text::to_string(first) + ": " + second;
 }
 
 // ------------------------------------------------------------------------
@@ -92,7 +91,7 @@ impl::parse_errors::what(void)
     const throw()
 {
     try {
-        m_msg = atf::text::join(*this, "\n");
+        m_msg = tools::text::join(*this, "\n");
         return m_msg.c_str();
     } catch (...) {
         return "Could not format messages for parsing errors.";
@@ -377,7 +376,7 @@ impl::validate_content_type(const impl::headers_map& hm, const std::string& fmt,
 
     if (!he.has_attr("version"))
         throw format_error("Could not determine version");
-    const std::string& vstr = atf::text::to_string(version);
+    const std::string& vstr = tools::text::to_string(version);
     if (he.get_attr("version") != vstr)
         throw format_error("Mismatched version: expected `" +
                            vstr + "' but got `" +

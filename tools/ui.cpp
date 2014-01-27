@@ -37,9 +37,8 @@ extern "C" {
 #include <cassert>
 #include <sstream>
 
-#include "atf-c++/detail/text.hpp"
-
 #include "env.hpp"
+#include "text.hpp"
 #include "ui.hpp"
 
 namespace impl = tools::ui;
@@ -56,7 +55,7 @@ terminal_width(void)
         if (tools::env::has("COLUMNS")) {
             const std::string cols = tools::env::get("COLUMNS");
             if (cols.length() > 0) {
-                width = atf::text::to_type< size_t >(cols);
+                width = tools::text::to_type< size_t >(cols);
             }
         } else {
             struct winsize ws;
@@ -96,7 +95,7 @@ format_paragraph(const std::string& text,
 
     const size_t maxcol = terminal_width();
 
-    std::vector< std::string > words = atf::text::split(text, " ");
+    std::vector< std::string > words = tools::text::split(text, " ");
     for (std::vector< std::string >::const_iterator iter = words.begin();
          iter != words.end(); iter++) {
         const std::string& word = *iter;
@@ -148,7 +147,7 @@ impl::format_text_with_tag(const std::string& text, const std::string& tag,
 
     std::string formatted;
 
-    std::vector< std::string > lines = atf::text::split(text, "\n");
+    std::vector< std::string > lines = tools::text::split(text, "\n");
     for (std::vector< std::string >::const_iterator iter = lines.begin();
          iter != lines.end(); iter++) {
         const std::string& line = *iter;

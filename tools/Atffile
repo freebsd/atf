@@ -19,5 +19,6 @@ tp: reader_test
 tp: requirements_test
 tp: signals_test
 tp: test_program_test
+tp: text_test
 tp: ui_test
 tp: user_test

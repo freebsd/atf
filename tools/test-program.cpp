@@ -47,7 +47,6 @@ extern "C" {
 #include "atf-c/defs.h"
 
 #include "atf-c++/detail/process.hpp"
-#include "atf-c++/detail/text.hpp"
 
 #include "config_file.hpp"
 #include "env.hpp"
@@ -57,6 +56,7 @@ extern "C" {
 #include "requirements.hpp"
 #include "signals.hpp"
 #include "test-program.hpp"
+#include "text.hpp"
 #include "timer.hpp"
 #include "user.hpp"
 
@@ -338,7 +338,7 @@ tokenize_result(const std::string& line, std::string& out_state,
     } else if (line[pos] == ':') {
         out_state = line.substr(0, pos);
         out_arg = "";
-        out_reason = atf::text::trim(line.substr(pos + 1));
+        out_reason = tools::text::trim(line.substr(pos + 1));
     } else if (line[pos] == '(') {
         const std::string::size_type pos2 = line.find("):", pos);
         if (pos2 == std::string::npos)
@@ -346,7 +346,7 @@ tokenize_result(const std::string& line, std::string& out_state,
                 "': unclosed optional argument");
         out_state = line.substr(0, pos);
         out_arg = line.substr(pos + 1, pos2 - pos - 1);
-        out_reason = atf::text::trim(line.substr(pos2 + 2));
+        out_reason = tools::text::trim(line.substr(pos2 + 2));
     } else
         std::abort();
 }
@@ -394,7 +394,7 @@ handle_result_with_reason_and_arg(const std::string& state,
         value = -1;
     } else {
         try {
-            value = atf::text::to_type< int >(arg);
+            value = tools::text::to_type< int >(arg);
         } catch (const std::runtime_error&) {
             throw std::runtime_error("The value '" + arg + "' passed to the '" +
                 state + "' state must be an integer");
@@ -445,13 +445,13 @@ detail::atf_tp_reader::validate_and_insert(const std::string& name,
         // Any non-empty value is valid.
     } else if (name == "has.cleanup") {
         try {
-            (void)atf::text::to_bool(value);
+            (void)tools::text::to_bool(value);
         } catch (const std::runtime_error&) {
             throw parse_error(lineno, "The has.cleanup property requires a"
                               " boolean value");
         }
     } else if (name == "ident") {
-        if (!atf::text::match(value, ident_regex))
+        if (!tools::text::match(value, ident_regex))
             throw parse_error(lineno, "The identifier must match " +
                               ident_regex + "; was '" + value + "'");
     } else if (name == "require.arch") {
@@ -460,7 +460,7 @@ detail::atf_tp_reader::validate_and_insert(const std::string& name,
     } else if (name == "require.machine") {
     } else if (name == "require.memory") {
         try {
-            (void)atf::text::to_bytes(value);
+            (void)tools::text::to_bytes(value);
         } catch (const std::runtime_error&) {
             throw parse_error(lineno, "The require.memory property requires an "
                               "integer value representing an amount of bytes");
@@ -468,7 +468,7 @@ detail::atf_tp_reader::validate_and_insert(const std::string& name,
     } else if (name == "require.progs") {
     } else if (name == "require.user") {
     } else if (name == "timeout") {
-        if (!atf::text::match(value, integer_regex))
+        if (!tools::text::match(value, integer_regex))
             throw parse_error(lineno, "The timeout property requires an integer"
                               " value");
     } else if (name == "use.fs") {
@@ -506,7 +506,7 @@ detail::atf_tp_reader::read(void)
         do {
             const std::string name = t.text();
             t = p.expect(colon_type, "`:'");
-            const std::string value = atf::text::trim(p.rest_of_line());
+            const std::string value = tools::text::trim(p.rest_of_line());
             t = p.expect(nl_type, "new line");
             validate_and_insert(name, value, t.lineno(), props);
 
@@ -750,7 +750,7 @@ impl::run_test_case(const atf::fs::path& executable,
     const atf::tests::vars_map::const_iterator iter = metadata.find("timeout");
     assert(iter != metadata.end());
     const unsigned int timeout =
-        atf::text::to_type< unsigned int >((*iter).second);
+        tools::text::to_type< unsigned int >((*iter).second);
     const pid_t child_pid = child.pid();
 
     // Get the input stream of stdout and stderr.
@@ -782,7 +782,7 @@ impl::run_test_case(const atf::fs::path& executable,
         // Don't assume the child process has been signaled due to the timeout
         // expiration as older versions did.  The child process may have exited
         // but we may have timed out due to a subchild process getting stuck.
-        reason = "Test case timed out after " + atf::text::to_string(timeout) +
+        reason = "Test case timed out after " + tools::text::to_string(timeout) +
             " " + (timeout == 1 ? "second" : "seconds");
     }
 

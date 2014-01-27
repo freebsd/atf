@@ -53,7 +53,6 @@ extern "C" {
 
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/process.hpp"
-#include "atf-c++/detail/text.hpp"
 
 #include "application.hpp"
 #include "atffile.hpp"
@@ -65,6 +64,7 @@ extern "C" {
 #include "parser.hpp"
 #include "requirements.hpp"
 #include "test-program.hpp"
+#include "text.hpp"
 
 namespace impl = tools::atf_run;
 
@@ -206,7 +206,7 @@ atf_run::parse_vflag(const std::string& str)
     if (str.empty())
         throw std::runtime_error("-v requires a non-empty argument");
 
-    std::vector< std::string > ws = atf::text::split(str, "=");
+    std::vector< std::string > ws = tools::text::split(str, "=");
     if (ws.size() == 1 && str[str.length() - 1] == '=') {
         m_cmdline_vars[ws[0]] = "";
     } else {
@@ -268,7 +268,7 @@ atf_run::get_test_case_result(const std::string& broken_reason,
                               const atf::fs::path& resfile)
     const
 {
-    using atf::text::to_string;
+    using tools::text::to_string;
     using impl::read_test_case_result;
     using impl::test_case_result;
 
@@ -343,7 +343,7 @@ atf_run::get_test_case_result(const std::string& broken_reason,
             tcr = read_test_case_result(resfile);
         } catch (const std::runtime_error&) {
             return test_case_result("failed", -1, "Test program received "
-                "signal " + atf::text::to_string(s.termsig()) +
+                "signal " + tools::text::to_string(s.termsig()) +
                 (s.coredump() ? " (core dumped)" : ""));
         }
 
@@ -358,7 +358,7 @@ atf_run::get_test_case_result(const std::string& broken_reason,
                     " signal but got " + to_string(s.termsig()));
         } else {
             return test_case_result("failed", -1, "Test program received "
-                "signal " + atf::text::to_string(s.termsig()) +
+                "signal " + tools::text::to_string(s.termsig()) +
                 (s.coredump() ? " (core dumped)" : "") + " and created a "
                 "bogus results file");
         }
@@ -382,7 +382,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
         w.end_tp("Invalid format for test case list: " + std::string(e.what()));
         return EXIT_FAILURE;
     } catch (const tools::parser::parse_errors& e) {
-        const std::string reason = atf::text::join(e, "; ");
+        const std::string reason = tools::text::join(e, "; ");
         w.start_tp(tp.str(), 0);
         w.end_tp("Invalid format for test case list: " + reason);
         return EXIT_FAILURE;
@@ -422,7 +422,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
             atf::fs::path resfile = resdir.get_path() / "tcr";
             assert(!atf::fs::exists(resfile));
             try {
-                const bool has_cleanup = atf::text::to_bool(
+                const bool has_cleanup = tools::text::to_bool(
                     (*tcmd.find("has.cleanup")).second);
 
                 impl::temp_dir workdir(atf::fs::path(tools::config::get(

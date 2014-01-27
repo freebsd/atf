@@ -29,10 +29,9 @@
 
 #include <atf-c++.hpp>
 
-#include "atf-c++/detail/text.hpp"
-
 #include "config.hpp"
 #include "requirements.hpp"
+#include "text.hpp"
 #include "user.hpp"
 
 namespace impl = tools::atf_run;
@@ -50,7 +49,7 @@ do_check(const std::string& expected, const atf::tests::vars_map& metadata,
          const atf::tests::vars_map& config = no_config)
 {
     const std::string actual = impl::check_requirements(metadata, config);
-    if (!atf::text::match(actual, expected))
+    if (!tools::text::match(actual, expected))
         ATF_FAIL("Requirements failure reason \"" + actual + "\" does not "
                  "match \"" + expected + "\"");
 }

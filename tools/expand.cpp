@@ -29,8 +29,8 @@
 
 #include <stdexcept>
 
-#include "atf-c++/detail/text.hpp"
 #include "expand.hpp"
+#include "text.hpp"
 
 namespace impl = tools::expand;
 #define IMPL_NAME "tools::expand"
@@ -77,5 +77,5 @@ impl::is_glob(const std::string& glob)
 bool
 impl::matches_glob(const std::string& glob, const std::string& candidate)
 {
-    return atf::text::match(candidate, glob_to_regex(glob));
+    return tools::text::match(candidate, glob_to_regex(glob));
 }

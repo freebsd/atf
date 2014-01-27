@@ -44,10 +44,10 @@ extern "C" {
 #include "atf-c/defs.h"
 
 #include "atf-c++/detail/fs.hpp"
-#include "atf-c++/detail/text.hpp"
 
 #include "application.hpp"
 #include "reader.hpp"
+#include "text.hpp"
 #include "ui.hpp"
 
 typedef std::auto_ptr< std::ostream > ostream_ptr;
@@ -222,7 +222,7 @@ class ticker_writer : public writer {
     void
     write_tp_start(const std::string& tp, size_t ntcs)
     {
-        using atf::text::to_string;
+        using tools::text::to_string;
         using tools::ui::format_text;
 
         m_tpname = tp;
@@ -321,8 +321,8 @@ class ticker_writer : public writer {
     void
     write_eof(void)
     {
-        using atf::text::join;
-        using atf::text::to_string;
+        using tools::text::join;
+        using tools::text::to_string;
         using tools::ui::format_text;
         using tools::ui::format_text_with_tag;
 

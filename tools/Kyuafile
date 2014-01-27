@@ -19,4 +19,5 @@ atf_test_program{name="reader_test"}
 atf_test_program{name="requirements_test"}
 atf_test_program{name="signals_test"}
 atf_test_program{name="test_program_test"}
+atf_test_program{name="text_test"}
 atf_test_program{name="ui_test"}
