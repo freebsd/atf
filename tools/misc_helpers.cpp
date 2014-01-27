@@ -43,10 +43,11 @@ extern "C" {
 
 #include "atf-c++/macros.hpp"
 
-#include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/process.hpp"
 #include "atf-c++/detail/sanity.hpp"
+
+#include "env.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -167,8 +168,8 @@ ATF_TEST_CASE_HEAD(env_home)
 }
 ATF_TEST_CASE_BODY(env_home)
 {
-    ATF_REQUIRE(atf::env::has("HOME"));
-    atf::fs::path p(atf::env::get("HOME"));
+    ATF_REQUIRE(tools::env::has("HOME"));
+    atf::fs::path p(tools::env::get("HOME"));
     atf::fs::file_info fi1(p);
     atf::fs::file_info fi2(atf::fs::path("."));
     ATF_REQUIRE_EQ(fi1.get_device(), fi2.get_device());
@@ -399,7 +400,7 @@ ATF_TEST_CASE_BODY(diff)
 
 ATF_INIT_TEST_CASES(tcs)
 {
-    std::string which = atf::env::get("TESTCASE");
+    std::string which = tools::env::get("TESTCASE");
 
     // Add helper tests for atf-run_test.
     if (which == "pass")

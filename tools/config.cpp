@@ -29,11 +29,11 @@
 
 #include <map>
 
-#include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
 
 #include "config.hpp"
+#include "env.hpp"
 
 static std::map< std::string, std::string > m_variables;
 
@@ -75,8 +75,8 @@ init_variables(void)
     for (struct var* v = vars; v->name != NULL; v++) {
         const std::string varname = atf::text::to_lower(v->name);
 
-        if (atf::env::has(v->name)) {
-            const std::string envval = atf::env::get(v->name);
+        if (tools::env::has(v->name)) {
+            const std::string envval = tools::env::get(v->name);
             if (envval.empty() && !v->can_be_empty)
                 m_variables[varname] = v->default_value;
             else

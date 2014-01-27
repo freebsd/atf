@@ -50,7 +50,6 @@ extern "C" {
 
 #include "atf-c++/tests.hpp"
 
-#include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/process.hpp"
@@ -61,6 +60,7 @@ extern "C" {
 #include "atffile.hpp"
 #include "config.hpp"
 #include "config_file.hpp"
+#include "env.hpp"
 #include "fs.hpp"
 #include "parser.hpp"
 #include "requirements.hpp"
@@ -110,7 +110,7 @@ static void
 sanitize_gdb_env(void)
 {
     try {
-        atf::env::unset("TERM");
+        tools::env::unset("TERM");
     } catch (...) {
         // Just swallow exceptions here; they cannot propagate into C, which
         // is where this function is called from, and even if these exceptions

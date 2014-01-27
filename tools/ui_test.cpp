@@ -30,9 +30,9 @@
 #include <cstring>
 #include <iostream>
 
-#include "atf-c++/detail/env.hpp"
 #include "atf-c++/macros.hpp"
 
+#include "env.hpp"
 #include "ui.hpp"
 
 // ------------------------------------------------------------------------
@@ -363,7 +363,7 @@ run_tests(const char *tc)
 
     std::cout << "Running tests for " << tc << "\n";
 
-    atf::env::set("COLUMNS", "15");
+    tools::env::set("COLUMNS", "15");
 
     for (t = &tests[0]; t->tc != NULL; t++) {
         if (std::strcmp(t->tc, tc) == 0) {

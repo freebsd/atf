@@ -36,11 +36,11 @@ extern "C" {
 
 #include <sstream>
 
-#include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/text.hpp"
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
 
+#include "env.hpp"
 #include "ui.hpp"
 
 namespace impl = tools::ui;
@@ -54,8 +54,8 @@ terminal_width(void)
     static size_t width = 0;
 
     if (!done) {
-        if (atf::env::has("COLUMNS")) {
-            const std::string cols = atf::env::get("COLUMNS");
+        if (tools::env::has("COLUMNS")) {
+            const std::string cols = tools::env::get("COLUMNS");
             if (cols.length() > 0) {
                 width = atf::text::to_type< size_t >(cols);
             }

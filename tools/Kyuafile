@@ -9,6 +9,7 @@ atf_test_program{name="application_test"}
 atf_test_program{name="atffile_test"}
 atf_test_program{name="config_test"}
 atf_test_program{name="config_file_test"}
+atf_test_program{name="env_test"}
 atf_test_program{name="expand_test"}
 atf_test_program{name="fs_test"}
 atf_test_program{name="io_test"}

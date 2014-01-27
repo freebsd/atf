@@ -32,10 +32,10 @@
 
 #include "atf-c++/macros.hpp"
 
-#include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/exceptions.hpp"
 
 #include "config.hpp"
+#include "env.hpp"
 
 static const char *test_value = "env-value";
 
@@ -77,7 +77,7 @@ void
 set_env_var(const char* name, const char* val)
 {
     try {
-        atf::env::set(name, val);
+        tools::env::set(name, val);
     } catch (const atf::system_error&) {
         ATF_FAIL(std::string("set_env_var(") + name + ", " + val +
                  ") failed");
@@ -89,7 +89,7 @@ void
 unset_env_var(const char* name)
 {
     try {
-        atf::env::unset(name);
+        tools::env::unset(name);
     } catch (const atf::system_error&) {
         ATF_FAIL(std::string("unset_env_var(") + name + ") failed");
     }

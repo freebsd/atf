@@ -36,6 +36,8 @@ tools_libtools_a_SOURCES = tools/application.cpp \
                            tools/config.hpp \
                            tools/config_file.cpp \
                            tools/config_file.hpp \
+                           tools/env.cpp \
+                           tools/env.hpp \
                            tools/expand.cpp \
                            tools/expand.hpp \
                            tools/fs.cpp \
@@ -190,6 +192,10 @@ tests_tools_PROGRAMS += tools/config_file_test
 tools_config_file_test_SOURCES = tools/config_file_test.cpp
 tools_config_file_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 
+tests_tools_PROGRAMS += tools/env_test
+tools_env_test_SOURCES = tools/env_test.cpp
+tools_env_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+
 tests_tools_PROGRAMS += tools/expand_test
 tools_expand_test_SOURCES = tools/expand_test.cpp
 tools_expand_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
@@ -212,7 +218,7 @@ tools_io_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/misc_helpers
 tools_misc_helpers_SOURCES = tools/misc_helpers.cpp
-tools_misc_helpers_LDADD = $(ATF_CXX_LIBS)
+tools_misc_helpers_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/parser_test
 tools_parser_test_SOURCES = tools/parser_test.cpp

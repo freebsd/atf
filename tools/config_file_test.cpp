@@ -27,11 +27,11 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "atf-c++/detail/env.hpp"
 #include "atf-c++/macros.hpp"
 
 #include "config.hpp"
 #include "config_file.hpp"
+#include "env.hpp"
 #include "test_helpers.hpp"
 
 namespace impl = tools::atf_run;
@@ -361,7 +361,7 @@ ATF_TEST_CASE_BODY(merge_configs_mixed) {
 ATF_TEST_CASE(read_config_files_none);
 ATF_TEST_CASE_HEAD(read_config_files_none) {}
 ATF_TEST_CASE_BODY(read_config_files_none) {
-    atf::env::set("ATF_CONFDIR", ".");
+    tools::env::set("ATF_CONFDIR", ".");
     atf::config::__reinit();
     ATF_REQUIRE(vars_map() == impl::read_config_files("test-suite"));
 }

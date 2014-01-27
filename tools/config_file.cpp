@@ -32,12 +32,12 @@
 
 #include "atf-c/defs.h"
 
-#include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/sanity.hpp"
 
 #include "config.hpp"
 #include "config_file.hpp"
+#include "env.hpp"
 #include "parser.hpp"
 
 namespace impl = tools::atf_run;
@@ -120,8 +120,8 @@ get_config_dirs(void)
 {
     std::vector< atf::fs::path > dirs;
     dirs.push_back(atf::fs::path(tools::config::get("atf_confdir")));
-    if (atf::env::has("HOME"))
-        dirs.push_back(atf::fs::path(atf::env::get("HOME")) / ".atf");
+    if (tools::env::has("HOME"))
+        dirs.push_back(atf::fs::path(tools::env::get("HOME")) / ".atf");
     return dirs;
 }
 

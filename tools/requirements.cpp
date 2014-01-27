@@ -41,11 +41,11 @@ extern "C" {
 }
 
 #include "atf-c++/detail/fs.hpp"
-#include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
 
 #include "config.hpp"
+#include "env.hpp"
 #include "requirements.hpp"
 #include "user.hpp"
 
@@ -68,7 +68,7 @@ has_program(const atf::fs::path& program)
                                      program.str() + ")");
 
         const std::vector< std::string > dirs = atf::text::split(
-            atf::env::get("PATH"), ":");
+            tools::env::get("PATH"), ":");
         for (std::vector< std::string >::const_iterator iter = dirs.begin();
              !found && iter != dirs.end(); iter++) {
             const atf::fs::path& p = atf::fs::path(*iter) / program;

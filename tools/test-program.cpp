@@ -45,12 +45,12 @@ extern "C" {
 
 #include "atf-c/defs.h"
 
-#include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/process.hpp"
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
 
 #include "config_file.hpp"
+#include "env.hpp"
 #include "fs.hpp"
 #include "io.hpp"
 #include "parser.hpp"
@@ -263,18 +263,18 @@ prepare_child(const atf::fs::path& workdir)
     for (int i = 1; i <= impl::last_signo; i++)
         impl::reset(i);
 
-    atf::env::set("HOME", workdir.str());
-    atf::env::unset("LANG");
-    atf::env::unset("LC_ALL");
-    atf::env::unset("LC_COLLATE");
-    atf::env::unset("LC_CTYPE");
-    atf::env::unset("LC_MESSAGES");
-    atf::env::unset("LC_MONETARY");
-    atf::env::unset("LC_NUMERIC");
-    atf::env::unset("LC_TIME");
-    atf::env::set("TZ", "UTC");
+    tools::env::set("HOME", workdir.str());
+    tools::env::unset("LANG");
+    tools::env::unset("LC_ALL");
+    tools::env::unset("LC_COLLATE");
+    tools::env::unset("LC_CTYPE");
+    tools::env::unset("LC_MESSAGES");
+    tools::env::unset("LC_MONETARY");
+    tools::env::unset("LC_NUMERIC");
+    tools::env::unset("LC_TIME");
+    tools::env::set("TZ", "UTC");
 
-    atf::env::set("__RUNNING_INSIDE_ATF_RUN", "internal-yes-value");
+    tools::env::set("__RUNNING_INSIDE_ATF_RUN", "internal-yes-value");
 
     impl::change_directory(workdir);
 
