@@ -45,11 +45,10 @@ extern "C" {
 #include <cstdlib>
 #include <cstring>
 
-#include "atf-c++/detail/process.hpp"
-
 #include "auto_array.hpp"
 #include "exceptions.hpp"
 #include "fs.hpp"
+#include "process.hpp"
 #include "user.hpp"
 
 namespace impl = tools::atf_run;
@@ -187,10 +186,10 @@ retry_unmount:
     // with it, at least for now.
 
     const atf::fs::path prog("umount");
-    atf::process::argv_array argv("umount", abs_path.c_str(), NULL);
+    tools::process::argv_array argv("umount", abs_path.c_str(), NULL);
 
-    atf::process::status s = atf::process::exec(prog, argv,
-        atf::process::stream_inherit(), atf::process::stream_inherit());
+    tools::process::status s = tools::process::exec(prog, argv,
+        tools::process::stream_inherit(), tools::process::stream_inherit());
     if (!s.exited() || s.exitstatus() != EXIT_SUCCESS)
         throw std::runtime_error("Call to unmount failed");
 #endif

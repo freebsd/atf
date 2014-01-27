@@ -46,13 +46,12 @@ extern "C" {
 
 #include "atf-c/defs.h"
 
-#include "atf-c++/detail/process.hpp"
-
 #include "config_file.hpp"
 #include "env.hpp"
 #include "fs.hpp"
 #include "io.hpp"
 #include "parser.hpp"
+#include "process.hpp"
 #include "requirements.hpp"
 #include "signals.hpp"
 #include "test-program.hpp"
@@ -651,10 +650,10 @@ impl::get_metadata(const atf::fs::path& executable,
                    const atf::tests::vars_map& config)
 {
     get_metadata_params params(executable, config);
-    atf::process::child child =
-        atf::process::fork(get_metadata_child,
-                           atf::process::stream_capture(),
-                           atf::process::stream_inherit(),
+    tools::process::child child =
+        tools::process::fork(get_metadata_child,
+                           tools::process::stream_capture(),
+                           tools::process::stream_inherit(),
                            static_cast< void * >(&params));
 
     impl::pistream outin(child.stdout_fd());
@@ -662,7 +661,7 @@ impl::get_metadata(const atf::fs::path& executable,
     metadata_reader parser(outin);
     parser.read();
 
-    const atf::process::status status = child.wait();
+    const tools::process::status status = child.wait();
     if (!status.exited() || status.exitstatus() != EXIT_SUCCESS)
         throw tools::parser::format_error("Test program returned failure "
                                         "exit status for test case list");
@@ -724,7 +723,7 @@ public:
 
 } // anonymous namespace
 
-std::pair< std::string, atf::process::status >
+std::pair< std::string, tools::process::status >
 impl::run_test_case(const atf::fs::path& executable,
                     const std::string& test_case_name,
                     const std::string& test_case_part,
@@ -739,10 +738,10 @@ impl::run_test_case(const atf::fs::path& executable,
 
     test_case_params params(executable, test_case_name, test_case_part,
                             metadata, config, resfile, workdir);
-    atf::process::child child =
-        atf::process::fork(run_test_case_child,
-                           atf::process::stream_capture(),
-                           atf::process::stream_capture(),
+    tools::process::child child =
+        tools::process::fork(run_test_case_child,
+                           tools::process::stream_capture(),
+                           tools::process::stream_capture(),
                            static_cast< void * >(&params));
 
     terminate_poll = false;
@@ -774,7 +773,7 @@ impl::run_test_case(const atf::fs::path& executable,
 
     ::killpg(child_pid, SIGKILL);
     mux.flush();
-    atf::process::status status = child.wait();
+    tools::process::status status = child.wait();
 
     std::string reason;
 

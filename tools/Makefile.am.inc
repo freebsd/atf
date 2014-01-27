@@ -49,6 +49,8 @@ tools_libtools_a_SOURCES = tools/application.cpp \
                            tools/io.hpp \
                            tools/parser.cpp \
                            tools/parser.hpp \
+                           tools/process.cpp \
+                           tools/process.hpp \
                            tools/reader.cpp \
                            tools/reader.hpp \
                            tools/requirements.cpp \
@@ -232,6 +234,10 @@ tools_misc_helpers_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 tests_tools_PROGRAMS += tools/parser_test
 tools_parser_test_SOURCES = tools/parser_test.cpp
 tools_parser_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+
+tests_tools_PROGRAMS += tools/process_test
+tools_process_test_SOURCES = tools/process_test.cpp
+tools_process_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/pass_helper
 tools_pass_helper_SOURCES = tools/pass_helper.cpp

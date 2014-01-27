@@ -40,9 +40,9 @@ extern "C" {
 #include <atf-c++.hpp>
 
 #include "atf-c/defs.h"
-#include "atf-c++/detail/process.hpp"
 
 #include "exceptions.hpp"
+#include "process.hpp"
 #include "signals.hpp"
 
 // ------------------------------------------------------------------------
@@ -247,11 +247,11 @@ ATF_TEST_CASE_HEAD(reset)
 }
 ATF_TEST_CASE_BODY(reset)
 {
-    atf::process::child c =
-        atf::process::fork(reset_child, atf::process::stream_inherit(),
-                           atf::process::stream_inherit(), NULL);
+    tools::process::child c =
+        tools::process::fork(reset_child, tools::process::stream_inherit(),
+                           tools::process::stream_inherit(), NULL);
 
-    const atf::process::status s = c.wait();
+    const tools::process::status s = c.wait();
     ATF_REQUIRE(s.exited() || s.signaled());
     ATF_REQUIRE(!s.signaled() || s.termsig() == SIGUSR1);
 }

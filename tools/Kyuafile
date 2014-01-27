@@ -15,6 +15,7 @@ atf_test_program{name="expand_test"}
 atf_test_program{name="fs_test"}
 atf_test_program{name="io_test"}
 atf_test_program{name="parser_test"}
+atf_test_program{name="process_test"}
 atf_test_program{name="reader_test"}
 atf_test_program{name="requirements_test"}
 atf_test_program{name="signals_test"}

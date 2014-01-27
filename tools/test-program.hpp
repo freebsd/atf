@@ -32,7 +32,8 @@
 #include "atf-c++/tests.hpp"
 
 #include "atf-c++/detail/fs.hpp"
-#include "atf-c++/detail/process.hpp"
+
+#include "process.hpp"
 
 namespace tools {
 namespace atf_run {
@@ -141,7 +142,7 @@ class atf_tps_writer;
 
 metadata get_metadata(const atf::fs::path&, const atf::tests::vars_map&);
 test_case_result read_test_case_result(const atf::fs::path&);
-std::pair< std::string, atf::process::status > run_test_case(
+std::pair< std::string, tools::process::status > run_test_case(
     const atf::fs::path&, const std::string&, const std::string&,
     const atf::tests::vars_map&, const atf::tests::vars_map&,
     const atf::fs::path&, const atf::fs::path&, atf_tps_writer&);

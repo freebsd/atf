@@ -52,7 +52,6 @@ extern "C" {
 #include "atf-c++/tests.hpp"
 
 #include "atf-c++/detail/fs.hpp"
-#include "atf-c++/detail/process.hpp"
 
 #include "application.hpp"
 #include "atffile.hpp"
@@ -62,6 +61,7 @@ extern "C" {
 #include "exceptions.hpp"
 #include "fs.hpp"
 #include "parser.hpp"
+#include "process.hpp"
 #include "requirements.hpp"
 #include "test-program.hpp"
 #include "text.hpp"
@@ -98,7 +98,7 @@ class atf_run : public tools::application::app {
                          const atf::tests::vars_map&);
 
     impl::test_case_result get_test_case_result(const std::string&,
-        const atf::process::status&, const atf::fs::path&) const;
+        const tools::process::status&, const atf::fs::path&) const;
 
 public:
     atf_run(void);
@@ -119,7 +119,7 @@ sanitize_gdb_env(void)
 }
 
 static void
-dump_stacktrace(const atf::fs::path& tp, const atf::process::status& s,
+dump_stacktrace(const atf::fs::path& tp, const tools::process::status& s,
                 const atf::fs::path& workdir, impl::atf_tps_writer& w)
 {
     assert(s.signaled() && s.coredump());
@@ -135,13 +135,13 @@ dump_stacktrace(const atf::fs::path& tp, const atf::process::status& s,
 
     const atf::fs::path gdb(GDB);
     const atf::fs::path gdbout = workdir / "gdb.out";
-    const atf::process::argv_array args(gdb.leaf_name().c_str(), "-batch",
+    const tools::process::argv_array args(gdb.leaf_name().c_str(), "-batch",
                                         "-q", "-ex", "bt", tp.c_str(),
                                         corename.c_str(), NULL);
-    atf::process::status status = atf::process::exec(
+    tools::process::status status = tools::process::exec(
         gdb, args,
-        atf::process::stream_redirect_path(gdbout),
-        atf::process::stream_redirect_path(atf::fs::path("/dev/null")),
+        tools::process::stream_redirect_path(gdbout),
+        tools::process::stream_redirect_path(atf::fs::path("/dev/null")),
         sanitize_gdb_env);
     if (!status.exited() || status.exitstatus() != EXIT_SUCCESS) {
         w.stderr_tc("Execution of " GDB " failed");
@@ -264,7 +264,7 @@ atf_run::run_test_directory(const atf::fs::path& tp,
 
 impl::test_case_result
 atf_run::get_test_case_result(const std::string& broken_reason,
-                              const atf::process::status& s,
+                              const tools::process::status& s,
                               const atf::fs::path& resfile)
     const
 {
@@ -437,7 +437,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
                     resfile = workdir.get_path() / "tcr";
                 }
 
-                std::pair< std::string, const atf::process::status > s =
+                std::pair< std::string, const tools::process::status > s =
                     impl::run_test_case(tp, tcname, "body", tcmd, config,
                                             resfile, workdir.get_path(), w);
                 if (s.second.signaled() && s.second.coredump())
@@ -502,12 +502,12 @@ call_hook(const std::string& tool, const std::string& hook)
     const atf::fs::path hooks =
         atf::fs::path(tools::config::get("atf_pkgdatadir")) / (tool + ".hooks");
 
-    const atf::process::status s =
-        atf::process::exec(sh,
-                           atf::process::argv_array(sh.c_str(), hooks.c_str(),
+    const tools::process::status s =
+        tools::process::exec(sh,
+                           tools::process::argv_array(sh.c_str(), hooks.c_str(),
                                                     hook.c_str(), NULL),
-                           atf::process::stream_inherit(),
-                           atf::process::stream_inherit());
+                           tools::process::stream_inherit(),
+                           tools::process::stream_inherit());
 
 
     if (!s.exited() || s.exitstatus() != EXIT_SUCCESS)

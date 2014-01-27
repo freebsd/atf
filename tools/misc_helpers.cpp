@@ -44,9 +44,9 @@ extern "C" {
 #include <atf-c++.hpp>
 
 #include "atf-c++/detail/fs.hpp"
-#include "atf-c++/detail/process.hpp"
 
 #include "env.hpp"
+#include "process.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -151,11 +151,11 @@ ATF_TEST_CASE_HEAD(env_list)
 }
 ATF_TEST_CASE_BODY(env_list)
 {
-    const atf::process::status s =
-        atf::process::exec(atf::fs::path("env"),
-                           atf::process::argv_array("env", NULL),
-                           atf::process::stream_inherit(),
-                           atf::process::stream_inherit());
+    const tools::process::status s =
+        tools::process::exec(atf::fs::path("env"),
+                           tools::process::argv_array("env", NULL),
+                           tools::process::stream_inherit(),
+                           tools::process::stream_inherit());
     ATF_REQUIRE(s.exited());
     ATF_REQUIRE(s.exitstatus() == EXIT_SUCCESS);
 }

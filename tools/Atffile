@@ -15,6 +15,7 @@ tp: expand_test
 tp: fs_test
 tp: io_test
 tp: parser_test
+tp: process_test
 tp: reader_test
 tp: requirements_test
 tp: signals_test
