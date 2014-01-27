@@ -60,6 +60,21 @@ tools_libtools_a_SOURCES = tools/application.cpp \
                            tools/ui.hpp \
                            tools/user.cpp \
                            tools/user.hpp
+tools_libtools_a_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
+                            "-DATF_BUILD_CC=\"$(ATF_BUILD_CC)\"" \
+                            "-DATF_BUILD_CFLAGS=\"$(ATF_BUILD_CFLAGS)\"" \
+                            "-DATF_BUILD_CPP=\"$(ATF_BUILD_CPP)\"" \
+                            "-DATF_BUILD_CPPFLAGS=\"$(ATF_BUILD_CPPFLAGS)\"" \
+                            "-DATF_BUILD_CXX=\"$(ATF_BUILD_CXX)\"" \
+                            "-DATF_BUILD_CXXFLAGS=\"$(ATF_BUILD_CXXFLAGS)\"" \
+                            "-DATF_CONFDIR=\"$(atf_confdir)\"" \
+                            "-DATF_INCLUDEDIR=\"$(includedir)\"" \
+                            "-DATF_LIBDIR=\"$(libdir)\"" \
+                            "-DATF_LIBEXECDIR=\"$(libexecdir)\"" \
+                            "-DATF_MACHINE=\"$(atf_machine)\"" \
+                            "-DATF_PKGDATADIR=\"$(pkgdatadir)\"" \
+                            "-DATF_SHELL=\"$(ATF_SHELL)\"" \
+                            "-DATF_WORKDIR=\"$(ATF_WORKDIR)\""
 
 
 

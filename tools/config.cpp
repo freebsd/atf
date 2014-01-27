@@ -29,16 +29,36 @@
 
 #include <map>
 
-extern "C" {
-#include "atf-c/config.h"
-}
-
 #include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/sanity.hpp"
+#include "atf-c++/detail/text.hpp"
 
 #include "config.hpp"
 
 static std::map< std::string, std::string > m_variables;
+
+static struct var {
+    const char *name;
+    const char *default_value;
+    bool can_be_empty;
+} vars[] = {
+    { "ATF_ARCH",           ATF_ARCH,           false, },
+    { "ATF_BUILD_CC",       ATF_BUILD_CC,       false, },
+    { "ATF_BUILD_CFLAGS",   ATF_BUILD_CFLAGS,   true,  },
+    { "ATF_BUILD_CPP",      ATF_BUILD_CPP,      false, },
+    { "ATF_BUILD_CPPFLAGS", ATF_BUILD_CPPFLAGS, true,  },
+    { "ATF_BUILD_CXX",      ATF_BUILD_CXX,      false, },
+    { "ATF_BUILD_CXXFLAGS", ATF_BUILD_CXXFLAGS, true,  },
+    { "ATF_CONFDIR",        ATF_CONFDIR,        false, },
+    { "ATF_INCLUDEDIR",     ATF_INCLUDEDIR,     false, },
+    { "ATF_LIBDIR",         ATF_LIBDIR,         false, },
+    { "ATF_LIBEXECDIR",     ATF_LIBEXECDIR,     false, },
+    { "ATF_MACHINE",        ATF_MACHINE,        false, },
+    { "ATF_PKGDATADIR",     ATF_PKGDATADIR,     false, },
+    { "ATF_SHELL",          ATF_SHELL,          false, },
+    { "ATF_WORKDIR",        ATF_WORKDIR,        false, },
+    { NULL,                 NULL,               false, },
+};
 
 //
 // Adds all predefined standard build-time variables to the m_variables
@@ -52,21 +72,19 @@ init_variables(void)
 {
     PRE(m_variables.empty());
 
-    m_variables["atf_arch"] = atf_config_get("atf_arch");
-    m_variables["atf_build_cc"] = atf_config_get("atf_build_cc");
-    m_variables["atf_build_cflags"] = atf_config_get("atf_build_cflags");
-    m_variables["atf_build_cpp"] = atf_config_get("atf_build_cpp");
-    m_variables["atf_build_cppflags"] = atf_config_get("atf_build_cppflags");
-    m_variables["atf_build_cxx"] = atf_config_get("atf_build_cxx");
-    m_variables["atf_build_cxxflags"] = atf_config_get("atf_build_cxxflags");
-    m_variables["atf_confdir"] = atf_config_get("atf_confdir");
-    m_variables["atf_includedir"] = atf_config_get("atf_includedir");
-    m_variables["atf_libdir"] = atf_config_get("atf_libdir");
-    m_variables["atf_libexecdir"] = atf_config_get("atf_libexecdir");
-    m_variables["atf_machine"] = atf_config_get("atf_machine");
-    m_variables["atf_pkgdatadir"] = atf_config_get("atf_pkgdatadir");
-    m_variables["atf_shell"] = atf_config_get("atf_shell");
-    m_variables["atf_workdir"] = atf_config_get("atf_workdir");
+    for (struct var* v = vars; v->name != NULL; v++) {
+        const std::string varname = atf::text::to_lower(v->name);
+
+        if (atf::env::has(v->name)) {
+            const std::string envval = atf::env::get(v->name);
+            if (envval.empty() && !v->can_be_empty)
+                m_variables[varname] = v->default_value;
+            else
+                m_variables[varname] = envval;
+        } else {
+            m_variables[varname] = v->default_value;
+        }
+    }
 
     POST(!m_variables.empty());
 }
@@ -99,10 +117,6 @@ atf::config::has(const std::string& varname)
     return m_variables.find(varname) != m_variables.end();
 }
 
-extern "C" {
-void __atf_config_reinit(void);
-}
-
 namespace atf {
 namespace config {
 //
@@ -116,7 +130,6 @@ namespace config {
 void
 __reinit(void)
 {
-    __atf_config_reinit();
     m_variables.clear();
 }
 } // namespace config
