@@ -27,8 +27,9 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <atf-c++.hpp>
+
 #include "atf-c++/detail/text.hpp"
-#include "atf-c++/macros.hpp"
 
 #include "config.hpp"
 #include "requirements.hpp"

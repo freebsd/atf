@@ -36,8 +36,9 @@
 #include <sstream>
 #include <utility>
 
+#include <atf-c++.hpp>
+
 #include "atf-c++/detail/text.hpp"
-#include "atf-c++/macros.hpp"
 
 #include "parser.hpp"
 

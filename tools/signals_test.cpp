@@ -37,10 +37,9 @@ extern "C" {
 #include <cstdlib>
 #include <iostream>
 
+#include <atf-c++.hpp>
+
 #include "atf-c/defs.h"
-
-#include "atf-c++/macros.hpp"
-
 #include "atf-c++/detail/process.hpp"
 
 #include "exceptions.hpp"

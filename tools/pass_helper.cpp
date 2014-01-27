@@ -27,7 +27,7 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "atf-c++/macros.hpp"
+#include <atf-c++.hpp>
 
 ATF_TEST_CASE(main);
 ATF_TEST_CASE_HEAD(main)

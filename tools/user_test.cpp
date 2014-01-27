@@ -37,7 +37,7 @@ extern "C" {
 #include <iostream>
 #include <set>
 
-#include "../atf-c++/macros.hpp"
+#include <atf-c++.hpp>
 
 #include "user.hpp"
 

@@ -41,7 +41,7 @@ extern "C" {
 #include <iostream>
 #include <string>
 
-#include "atf-c++/macros.hpp"
+#include <atf-c++.hpp>
 
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/process.hpp"

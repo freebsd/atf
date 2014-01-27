@@ -45,7 +45,7 @@ extern "C" {
 #include <istream>
 #include <ostream>
 
-#include "../atf-c++/macros.hpp"
+#include <atf-c++.hpp>
 
 #include "io.hpp"
 #include "signals.hpp"

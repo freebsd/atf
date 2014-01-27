@@ -33,7 +33,7 @@
 #include <utility>
 #include <vector>
 
-#include "atf-c++/macros.hpp"
+#include <atf-c++.hpp>
 
 #include "atf-c++/detail/text.hpp"
 

@@ -36,7 +36,7 @@ extern "C" {
 #include <fstream>
 #include <memory>
 
-#include "atf-c++/macros.hpp"
+#include <atf-c++.hpp>
 
 #include "atffile.hpp"
 #include "exceptions.hpp"

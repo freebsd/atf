@@ -30,7 +30,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "atf-c++/macros.hpp"
+#include <atf-c++.hpp>
 
 #include "atf-c++/detail/text.hpp"
 

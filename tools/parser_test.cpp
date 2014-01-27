@@ -29,7 +29,7 @@
 
 #include <sstream>
 
-#include "atf-c++/macros.hpp"
+#include <atf-c++.hpp>
 
 #include "parser.hpp"
 #include "test_helpers.hpp"
