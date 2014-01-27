@@ -27,10 +27,10 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "atf-c++/config.hpp"
 #include "atf-c++/detail/text.hpp"
 #include "atf-c++/macros.hpp"
 
+#include "config.hpp"
 #include "requirements.hpp"
 #include "user.hpp"
 

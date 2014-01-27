@@ -28,9 +28,9 @@
 //
 
 #include "atf-c++/detail/env.hpp"
-#include "atf-c++/config.hpp"
 #include "atf-c++/macros.hpp"
 
+#include "config.hpp"
 #include "config_file.hpp"
 #include "test_helpers.hpp"
 

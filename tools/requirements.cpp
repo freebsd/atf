@@ -40,13 +40,12 @@ extern "C" {
 #include "atf-c/defs.h"
 }
 
-#include "atf-c++/config.hpp"
-
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
 
+#include "config.hpp"
 #include "requirements.hpp"
 #include "user.hpp"
 

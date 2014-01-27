@@ -36,11 +36,10 @@ extern "C" {
 #include "atf-c/defs.h"
 }
 
-#include "atf-c++/config.hpp"
-
 #include "atf-c++/detail/sanity.hpp"
 
 #include "application.hpp"
+#include "config.hpp"
 
 class atf_config : public atf::application::app {
     static const char* m_description;
