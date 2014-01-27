@@ -47,7 +47,7 @@ ATF_TEST_CASE_HEAD(is_glob)
 }
 ATF_TEST_CASE_BODY(is_glob)
 {
-    using atf::expand::is_glob;
+    using tools::expand::is_glob;
 
     ATF_REQUIRE(!is_glob(""));
     ATF_REQUIRE(!is_glob("a"));
@@ -72,7 +72,7 @@ ATF_TEST_CASE_HEAD(matches_glob_plain)
 }
 ATF_TEST_CASE_BODY(matches_glob_plain)
 {
-    using atf::expand::matches_glob;
+    using tools::expand::matches_glob;
 
     ATF_REQUIRE( matches_glob("", ""));
     ATF_REQUIRE(!matches_glob("a", ""));
@@ -91,7 +91,7 @@ ATF_TEST_CASE_HEAD(matches_glob_star)
 }
 ATF_TEST_CASE_BODY(matches_glob_star)
 {
-    using atf::expand::matches_glob;
+    using tools::expand::matches_glob;
 
     ATF_REQUIRE( matches_glob("*", ""));
     ATF_REQUIRE( matches_glob("*", "a"));
@@ -131,7 +131,7 @@ ATF_TEST_CASE_HEAD(matches_glob_question)
 }
 ATF_TEST_CASE_BODY(matches_glob_question)
 {
-    using atf::expand::matches_glob;
+    using tools::expand::matches_glob;
 
     ATF_REQUIRE(!matches_glob("?", ""));
     ATF_REQUIRE( matches_glob("?", "a"));
@@ -159,7 +159,7 @@ ATF_TEST_CASE_HEAD(expand_glob_base)
 }
 ATF_TEST_CASE_BODY(expand_glob_base)
 {
-    using atf::expand::expand_glob;
+    using tools::expand::expand_glob;
 
     std::vector< std::string > candidates;
     candidates.push_back("foo");
@@ -228,7 +228,7 @@ ATF_TEST_CASE_HEAD(expand_glob_tps)
 }
 ATF_TEST_CASE_BODY(expand_glob_tps)
 {
-    using atf::expand::expand_glob;
+    using tools::expand::expand_glob;
 
     std::vector< std::string > candidates;
     candidates.push_back("Atffile");

@@ -27,8 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_RUN_IO_HPP_)
-#define _ATF_RUN_IO_HPP_
+#if !defined(TOOLS_IO_HPP)
+#define TOOLS_IO_HPP
 
 #include <istream>
 #include <ostream>
@@ -39,7 +39,7 @@
 #include "../atf-c++/detail/auto_array.hpp"
 #include "../atf-c++/noncopyable.hpp"
 
-namespace atf {
+namespace tools {
 namespace atf_run {
 
 // ------------------------------------------------------------------------
@@ -374,7 +374,7 @@ protected:
 //! this happens, the buffer eventually empties and the system blocks
 //! until the writer generates some data.
 //!
-class pistream : public std::istream, noncopyable
+class pistream : public std::istream, atf::noncopyable
 {
     //!
     //! \brief The systembuf object used to manage this stream's data.
@@ -400,7 +400,7 @@ public:
 // The "muxer" class.
 // ------------------------------------------------------------------------
 
-class muxer : noncopyable {
+class muxer : atf::noncopyable {
     const int* m_fds;
     const size_t m_nfds;
 
@@ -421,6 +421,6 @@ public:
 };
 
 } // namespace atf_run
-} // namespace atf
+} // namespace tools
 
-#endif // !defined(_ATF_RUN_IO_HPP_)
+#endif // !defined(TOOLS_IO_HPP)

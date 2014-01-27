@@ -27,8 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_REPORT_FORMATS_HPP_)
-#define _ATF_REPORT_FORMATS_HPP_
+#if !defined(TOOLS_FORMATS_HPP)
+#define TOOLS_FORMATS_HPP
 
 extern "C" {
 #include <sys/time.h>
@@ -39,7 +39,7 @@ extern "C" {
 
 #include <atf-c++/tests.hpp>
 
-namespace atf {
+namespace tools {
 namespace atf_report {
 
 struct test_case_result {
@@ -86,6 +86,6 @@ public:
 };
 
 } // namespace atf_report
-} // namespace atf
+} // namespace tools
 
-#endif // !defined(_ATF_REPORT_FORMATS_HPP_)
+#endif // !defined(TOOLS_FORMATS_HPP)

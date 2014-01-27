@@ -43,8 +43,8 @@ extern "C" {
 
 #include "user.hpp"
 
-namespace impl = atf::atf_run;
-#define IMPL_NAME "atf::atf_run"
+namespace impl = tools::atf_run;
+#define IMPL_NAME "tools::atf_run"
 
 uid_t
 impl::euid(void)

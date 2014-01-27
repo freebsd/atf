@@ -56,8 +56,8 @@ using ::vsnprintf;
 }
 #endif // !defined(HAVE_VSNPRINTF_IN_STD)
 
-namespace impl = atf::application;
-#define IMPL_NAME "atf::application"
+namespace impl = tools::application;
+#define IMPL_NAME "tools::application"
 
 // ------------------------------------------------------------------------
 // The "usage_error" class.

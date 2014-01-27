@@ -27,8 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_RUN_ATFFILE_HPP_)
-#define _ATF_RUN_ATFFILE_HPP_
+#if !defined(TOOLS_ATFFILE_HPP)
+#define TOOLS_ATFFILE_HPP
 
 #include <string>
 #include <vector>
@@ -37,7 +37,7 @@
 
 #include "atf-c++/detail/fs.hpp"
 
-namespace atf {
+namespace tools {
 namespace atf_run {
 
 // ------------------------------------------------------------------------
@@ -87,9 +87,9 @@ public:
 // Free functions.
 // ------------------------------------------------------------------------
 
-atffile read_atffile(const fs::path&);
+atffile read_atffile(const atf::fs::path&);
 
 } // namespace atf_run
-} // namespace atf
+} // namespace tools
 
-#endif // !defined(_ATF_RUN_ATFFILE_HPP_)
+#endif // !defined(TOOLS_ATFFILE_HPP)

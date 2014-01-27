@@ -60,8 +60,8 @@ extern "C" {
 #include "timer.hpp"
 #include "user.hpp"
 
-namespace impl = atf::atf_run;
-namespace detail = atf::atf_run::detail;
+namespace impl = tools::atf_run;
+namespace detail = tools::atf_run::detail;
 
 namespace {
 
@@ -81,16 +81,16 @@ check_stream(std::ostream& os)
 
 namespace atf_tp {
 
-static const atf::parser::token_type eof_type = 0;
-static const atf::parser::token_type nl_type = 1;
-static const atf::parser::token_type text_type = 2;
-static const atf::parser::token_type colon_type = 3;
-static const atf::parser::token_type dblquote_type = 4;
+static const tools::parser::token_type eof_type = 0;
+static const tools::parser::token_type nl_type = 1;
+static const tools::parser::token_type text_type = 2;
+static const tools::parser::token_type colon_type = 3;
+static const tools::parser::token_type dblquote_type = 4;
 
-class tokenizer : public atf::parser::tokenizer< std::istream > {
+class tokenizer : public tools::parser::tokenizer< std::istream > {
 public:
     tokenizer(std::istream& is, size_t curline) :
-        atf::parser::tokenizer< std::istream >
+        tools::parser::tokenizer< std::istream >
             (is, true, eof_type, nl_type, text_type, curline)
     {
         add_delim(':', colon_type);
@@ -432,7 +432,7 @@ detail::atf_tp_reader::validate_and_insert(const std::string& name,
     const std::string& value, const size_t lineno,
     std::map< std::string, std::string >& md)
 {
-    using atf::parser::parse_error;
+    using tools::parser::parse_error;
 
     if (value.empty())
         throw parse_error(lineno, "The value for '" + name +"' cannot be "
@@ -485,19 +485,19 @@ detail::atf_tp_reader::validate_and_insert(const std::string& name,
 void
 detail::atf_tp_reader::read(void)
 {
-    using atf::parser::parse_error;
+    using tools::parser::parse_error;
     using namespace atf_tp;
 
-    std::pair< size_t, atf::parser::headers_map > hml =
-        atf::parser::read_headers(m_is, 1);
-    atf::parser::validate_content_type(hml.second,
+    std::pair< size_t, tools::parser::headers_map > hml =
+        tools::parser::read_headers(m_is, 1);
+    tools::parser::validate_content_type(hml.second,
         "application/X-atf-tp", 1);
 
     tokenizer tkz(m_is, hml.first);
-    atf::parser::parser< tokenizer > p(tkz);
+    tools::parser::parser< tokenizer > p(tkz);
 
     try {
-        atf::parser::token t = p.expect(text_type, "property name");
+        tools::parser::token t = p.expect(text_type, "property name");
         if (t.text() != "ident")
             throw parse_error(t.lineno(), "First property of a test case "
                               "must be 'ident'");
@@ -565,13 +565,13 @@ detail::parse_test_case_result(const std::string& line)
 impl::atf_tps_writer::atf_tps_writer(std::ostream& os) :
     m_os(os)
 {
-    atf::parser::headers_map hm;
-    atf::parser::attrs_map ct_attrs;
+    tools::parser::headers_map hm;
+    tools::parser::attrs_map ct_attrs;
     ct_attrs["version"] = "3";
     hm["Content-Type"] =
-        atf::parser::header_entry("Content-Type", "application/X-atf-tps",
+        tools::parser::header_entry("Content-Type", "application/X-atf-tps",
                                   ct_attrs);
-    atf::parser::write_headers(hm, m_os);
+    tools::parser::write_headers(hm, m_os);
 }
 
 void
@@ -664,7 +664,7 @@ impl::get_metadata(const atf::fs::path& executable,
 
     const atf::process::status status = child.wait();
     if (!status.exited() || status.exitstatus() != EXIT_SUCCESS)
-        throw atf::parser::format_error("Test program returned failure "
+        throw tools::parser::format_error("Test program returned failure "
                                         "exit status for test case list");
 
     return metadata(parser.get_tcs());

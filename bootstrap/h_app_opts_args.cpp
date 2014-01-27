@@ -34,7 +34,7 @@
 
 #include "tools/application.hpp"
 
-class h_app_opts_args : public atf::application::app {
+class h_app_opts_args : public tools::application::app {
     static const char* m_description;
 
     std::string specific_args(void) const;
@@ -67,7 +67,7 @@ h_app_opts_args::options_set
 h_app_opts_args::specific_options(void)
     const
 {
-    using atf::application::option;
+    using tools::application::option;
     options_set opts;
     opts.insert(option('d', "", "Debug mode"));
     opts.insert(option('v', "level", "Verbosity level"));

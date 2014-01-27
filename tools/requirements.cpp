@@ -49,7 +49,7 @@ extern "C" {
 #include "requirements.hpp"
 #include "user.hpp"
 
-namespace impl = atf::atf_run;
+namespace impl = tools::atf_run;
 
 namespace {
 
@@ -88,7 +88,7 @@ check_arch(const std::string& arches)
 
     for (std::vector< std::string >::const_iterator iter = v.begin();
          iter != v.end(); iter++) {
-        if ((*iter) == atf::config::get("atf_arch"))
+        if ((*iter) == tools::config::get("atf_arch"))
             return "";
     }
 
@@ -137,7 +137,7 @@ check_machine(const std::string& machines)
 
     for (std::vector< std::string >::const_iterator iter = v.begin();
          iter != v.end(); iter++) {
-        if ((*iter) == atf::config::get("atf_machine"))
+        if ((*iter) == tools::config::get("atf_machine"))
             return "";
     }
 

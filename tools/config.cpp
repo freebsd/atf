@@ -90,7 +90,7 @@ init_variables(void)
 }
 
 const std::string&
-atf::config::get(const std::string& varname)
+tools::config::get(const std::string& varname)
 {
     if (m_variables.empty())
         init_variables();
@@ -100,7 +100,7 @@ atf::config::get(const std::string& varname)
 }
 
 const std::map< std::string, std::string >&
-atf::config::get_all(void)
+tools::config::get_all(void)
 {
     if (m_variables.empty())
         init_variables();
@@ -109,7 +109,7 @@ atf::config::get_all(void)
 }
 
 bool
-atf::config::has(const std::string& varname)
+tools::config::has(const std::string& varname)
 {
     if (m_variables.empty())
         init_variables();
@@ -117,7 +117,7 @@ atf::config::has(const std::string& varname)
     return m_variables.find(varname) != m_variables.end();
 }
 
-namespace atf {
+namespace tools {
 namespace config {
 //
 // Auxiliary function for the t_config test program so that it can
@@ -133,4 +133,4 @@ __reinit(void)
     m_variables.clear();
 }
 } // namespace config
-} // namespace atf
+} // namespace tools

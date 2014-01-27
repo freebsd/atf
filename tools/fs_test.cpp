@@ -66,7 +66,7 @@ ATF_TEST_CASE_HEAD(temp_dir_raii)
 }
 ATF_TEST_CASE_BODY(temp_dir_raii)
 {
-    using atf::atf_run::temp_dir;
+    using tools::atf_run::temp_dir;
 
     atf::fs::path t1("non-existent");
     atf::fs::path t2("non-existent");
@@ -125,7 +125,7 @@ ATF_TEST_CASE_HEAD(cleanup)
 }
 ATF_TEST_CASE_BODY(cleanup)
 {
-    using atf::atf_run::cleanup;
+    using tools::atf_run::cleanup;
 
     ::mkdir("root", 0755);
     ::mkdir("root/dir", 0755);
@@ -150,7 +150,7 @@ ATF_TEST_CASE_HEAD(cleanup_eacces_on_root)
 }
 ATF_TEST_CASE_BODY(cleanup_eacces_on_root)
 {
-    using atf::atf_run::cleanup;
+    using tools::atf_run::cleanup;
 
     ::mkdir("aux", 0755);
     ::mkdir("aux/root", 0755);
@@ -158,9 +158,9 @@ ATF_TEST_CASE_BODY(cleanup_eacces_on_root)
 
     try {
         cleanup(atf::fs::path("aux/root"));
-        ATF_REQUIRE(atf::atf_run::is_root());
+        ATF_REQUIRE(tools::atf_run::is_root());
     } catch (const atf::system_error& e) {
-        ATF_REQUIRE(!atf::atf_run::is_root());
+        ATF_REQUIRE(!tools::atf_run::is_root());
         ATF_REQUIRE_EQ(EACCES, e.code());
     }
 }
@@ -172,7 +172,7 @@ ATF_TEST_CASE_HEAD(cleanup_eacces_on_subdir)
 }
 ATF_TEST_CASE_BODY(cleanup_eacces_on_subdir)
 {
-    using atf::atf_run::cleanup;
+    using tools::atf_run::cleanup;
 
     ::mkdir("root", 0755);
     ::mkdir("root/1", 0755);
@@ -193,8 +193,8 @@ ATF_TEST_CASE_HEAD(change_directory)
 }
 ATF_TEST_CASE_BODY(change_directory)
 {
-    using atf::atf_run::change_directory;
-    using atf::atf_run::get_current_dir;
+    using tools::atf_run::change_directory;
+    using tools::atf_run::get_current_dir;
 
     ::mkdir("files", 0755);
     ::mkdir("files/dir", 0755);
@@ -222,8 +222,8 @@ ATF_TEST_CASE_HEAD(get_current_dir)
 }
 ATF_TEST_CASE_BODY(get_current_dir)
 {
-    using atf::atf_run::change_directory;
-    using atf::atf_run::get_current_dir;
+    using tools::atf_run::change_directory;
+    using tools::atf_run::get_current_dir;
 
     ::mkdir("files", 0755);
     ::mkdir("files/dir", 0755);

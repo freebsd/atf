@@ -27,8 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_PARSER_HPP_)
-#define _ATF_CXX_PARSER_HPP_
+#if !defined(TOOLS_PARSER_HPP)
+#define TOOLS_PARSER_HPP
 
 #include <istream>
 #include <map>
@@ -38,7 +38,7 @@
 #include <utility>
 #include <vector>
 
-namespace atf {
+namespace tools {
 namespace parser {
 
 // ------------------------------------------------------------------------
@@ -602,6 +602,6 @@ void write_headers(const headers_map&, std::ostream&);
 void validate_content_type(const headers_map&, const std::string&, int);
 
 } // namespace parser
-} // namespace atf
+} // namespace tools
 
-#endif // !defined(_ATF_CXX_PARSER_HPP_)
+#endif // !defined(TOOLS_PARSER_HPP)

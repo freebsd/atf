@@ -35,7 +35,7 @@ extern "C" {
 
 #include "atf-c++/macros.hpp"
 
-class getopt_app : public atf::application::app {
+class getopt_app : public tools::application::app {
 public:
     getopt_app(void) : app("description", "manpage", "other") {}
 

@@ -45,7 +45,7 @@ ATF_TEST_CASE_HEAD(parse_error_to_string)
 }
 ATF_TEST_CASE_BODY(parse_error_to_string)
 {
-    using atf::parser::parse_error;
+    using tools::parser::parse_error;
 
     const parse_error e(123, "This is the message");
     ATF_REQUIRE_EQ("123: This is the message", std::string(e));
@@ -62,8 +62,8 @@ ATF_TEST_CASE_HEAD(parse_errors_what)
 }
 ATF_TEST_CASE_BODY(parse_errors_what)
 {
-    using atf::parser::parse_error;
-    using atf::parser::parse_errors;
+    using tools::parser::parse_error;
+    using tools::parser::parse_errors;
 
     parse_errors es;
     es.push_back(parse_error(2, "Second error"));
@@ -83,7 +83,7 @@ ATF_TEST_CASE_HEAD(token_getters)
 }
 ATF_TEST_CASE_BODY(token_getters)
 {
-    using atf::parser::token;
+    using tools::parser::token;
 
     {
         token t(10, 0);
@@ -120,21 +120,21 @@ ATF_TEST_CASE_BODY(token_getters)
 
 #define EXPECT(tkz, ttype, ttext) \
     do { \
-        atf::parser::token t = tkz.next(); \
+        tools::parser::token t = tkz.next(); \
         ATF_REQUIRE(t.type() == ttype); \
         ATF_REQUIRE_EQ(t.text(), ttext); \
     } while (false);
 
 namespace minimal {
 
-    static const atf::parser::token_type eof_type = 0;
-    static const atf::parser::token_type nl_type = 1;
-    static const atf::parser::token_type word_type = 2;
+    static const tools::parser::token_type eof_type = 0;
+    static const tools::parser::token_type nl_type = 1;
+    static const tools::parser::token_type word_type = 2;
 
-    class tokenizer : public atf::parser::tokenizer< std::istream > {
+    class tokenizer : public tools::parser::tokenizer< std::istream > {
     public:
         tokenizer(std::istream& is, bool skipws) :
-            atf::parser::tokenizer< std::istream >
+            tools::parser::tokenizer< std::istream >
                 (is, skipws, eof_type, nl_type, word_type)
         {
         }
@@ -144,17 +144,17 @@ namespace minimal {
 
 namespace delims {
 
-    static const atf::parser::token_type eof_type = 0;
-    static const atf::parser::token_type nl_type = 1;
-    static const atf::parser::token_type word_type = 2;
-    static const atf::parser::token_type plus_type = 3;
-    static const atf::parser::token_type minus_type = 4;
-    static const atf::parser::token_type equal_type = 5;
+    static const tools::parser::token_type eof_type = 0;
+    static const tools::parser::token_type nl_type = 1;
+    static const tools::parser::token_type word_type = 2;
+    static const tools::parser::token_type plus_type = 3;
+    static const tools::parser::token_type minus_type = 4;
+    static const tools::parser::token_type equal_type = 5;
 
-    class tokenizer : public atf::parser::tokenizer< std::istream > {
+    class tokenizer : public tools::parser::tokenizer< std::istream > {
     public:
         tokenizer(std::istream& is, bool skipws) :
-            atf::parser::tokenizer< std::istream >
+            tools::parser::tokenizer< std::istream >
                 (is, skipws, eof_type, nl_type, word_type)
         {
             add_delim('+', plus_type);
@@ -167,17 +167,17 @@ namespace delims {
 
 namespace keywords {
 
-    static const atf::parser::token_type eof_type = 0;
-    static const atf::parser::token_type nl_type = 1;
-    static const atf::parser::token_type word_type = 2;
-    static const atf::parser::token_type var_type = 3;
-    static const atf::parser::token_type loop_type = 4;
-    static const atf::parser::token_type endloop_type = 5;
+    static const tools::parser::token_type eof_type = 0;
+    static const tools::parser::token_type nl_type = 1;
+    static const tools::parser::token_type word_type = 2;
+    static const tools::parser::token_type var_type = 3;
+    static const tools::parser::token_type loop_type = 4;
+    static const tools::parser::token_type endloop_type = 5;
 
-    class tokenizer : public atf::parser::tokenizer< std::istream > {
+    class tokenizer : public tools::parser::tokenizer< std::istream > {
     public:
         tokenizer(std::istream& is, bool skipws) :
-            atf::parser::tokenizer< std::istream >
+            tools::parser::tokenizer< std::istream >
                 (is, skipws, eof_type, nl_type, word_type)
         {
             add_keyword("var", var_type);
@@ -190,15 +190,15 @@ namespace keywords {
 
 namespace quotes {
 
-    static const atf::parser::token_type eof_type = 0;
-    static const atf::parser::token_type nl_type = 1;
-    static const atf::parser::token_type word_type = 2;
-    static const atf::parser::token_type dblquote_type = 3;
+    static const tools::parser::token_type eof_type = 0;
+    static const tools::parser::token_type nl_type = 1;
+    static const tools::parser::token_type word_type = 2;
+    static const tools::parser::token_type dblquote_type = 3;
 
-    class tokenizer : public atf::parser::tokenizer< std::istream > {
+    class tokenizer : public tools::parser::tokenizer< std::istream > {
     public:
         tokenizer(std::istream& is, bool skipws) :
-            atf::parser::tokenizer< std::istream >
+            tools::parser::tokenizer< std::istream >
                 (is, skipws, eof_type, nl_type, word_type)
         {
             add_quote('"', dblquote_type);
@@ -739,9 +739,9 @@ public:
     void
     read(void)
     {
-        std::pair< size_t, atf::parser::headers_map > hml =
-            atf::parser::read_headers(m_is, 1);
-        atf::parser::validate_content_type(hml.second,
+        std::pair< size_t, tools::parser::headers_map > hml =
+            tools::parser::read_headers(m_is, 1);
+        tools::parser::validate_content_type(hml.second,
             "application/X-atf-headers-test", 1234);
     }
 

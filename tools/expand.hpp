@@ -27,13 +27,13 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_EXPAND_HPP_)
-#define _ATF_CXX_EXPAND_HPP_
+#if !defined(TOOLS_EXPAND_HPP)
+#define TOOLS_EXPAND_HPP
 
 #include <string>
 #include <vector>
 
-namespace atf {
+namespace tools {
 namespace expand {
 
 // ------------------------------------------------------------------------
@@ -77,6 +77,6 @@ std::vector< std::string > expand_glob(const std::string& glob,
 }
 
 } // namespace expand
-} // namespace atf
+} // namespace tools
 
-#endif // !defined(_ATF_CXX_EXPAND_HPP_)
+#endif // !defined(TOOLS_EXPAND_HPP)

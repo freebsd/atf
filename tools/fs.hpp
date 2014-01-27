@@ -27,14 +27,14 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_RUN_FS_HPP_)
-#define _ATF_RUN_FS_HPP_
+#if !defined(TOOLS_FS_HPP)
+#define TOOLS_FS_HPP
 
 #include <memory>
 
 #include "atf-c++/detail/fs.hpp"
 
-namespace atf {
+namespace tools {
 namespace atf_run {
 
 class temp_dir {
@@ -52,6 +52,6 @@ void cleanup(const atf::fs::path&);
 atf::fs::path get_current_dir(void);
 
 } // namespace atf_run
-} // namespace atf
+} // namespace tools
 
-#endif // !defined(_ATF_RUN_FS_HPP_)
+#endif // !defined(TOOLS_FS_HPP)

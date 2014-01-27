@@ -51,8 +51,8 @@ extern "C" {
 #include "fs.hpp"
 #include "user.hpp"
 
-namespace impl = atf::atf_run;
-#define IMPL_NAME "atf::atf_run"
+namespace impl = tools::atf_run;
+#define IMPL_NAME "tools::atf_run"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -204,9 +204,9 @@ impl::temp_dir::temp_dir(const atf::fs::path& p)
     atf::auto_array< char > buf(new char[p.str().length() + 1]);
     std::strcpy(buf.get(), p.c_str());
     if (::mkdtemp(buf.get()) == NULL)
-        throw system_error(IMPL_NAME "::temp_dir::temp_dir(" +
-                           p.str() + ")", "mkdtemp(3) failed",
-                           errno);
+        throw atf::system_error(IMPL_NAME "::temp_dir::temp_dir(" +
+                                p.str() + ")", "mkdtemp(3) failed",
+                                errno);
 
     m_path.reset(new atf::fs::path(buf.get()));
 }
@@ -234,8 +234,8 @@ impl::change_directory(const atf::fs::path& dir)
 
     if (olddir != dir) {
         if (::chdir(dir.c_str()) == -1)
-            throw system_error(IMPL_NAME "::chdir(" + dir.str() + ")",
-                               "chdir(2) failed", errno);
+            throw atf::system_error(IMPL_NAME "::chdir(" + dir.str() + ")",
+                                    "chdir(2) failed", errno);
     }
 
     return olddir;

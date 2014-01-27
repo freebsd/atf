@@ -97,7 +97,7 @@ ATF_TEST_CASE_HEAD(signal_holder_preserve)
 }
 ATF_TEST_CASE_BODY(signal_holder_preserve)
 {
-    using atf::atf_run::signal_holder;
+    using tools::atf_run::signal_holder;
 
     sigusr1::program();
 
@@ -123,7 +123,7 @@ ATF_TEST_CASE_HEAD(signal_holder_destructor)
 }
 ATF_TEST_CASE_BODY(signal_holder_destructor)
 {
-    using atf::atf_run::signal_holder;
+    using tools::atf_run::signal_holder;
 
     sigusr1::program();
 
@@ -149,7 +149,7 @@ ATF_TEST_CASE_HEAD(signal_holder_process)
 }
 ATF_TEST_CASE_BODY(signal_holder_process)
 {
-    using atf::atf_run::signal_holder;
+    using tools::atf_run::signal_holder;
 
     sigusr1::program();
 
@@ -184,7 +184,7 @@ ATF_TEST_CASE_HEAD(signal_programmer_program)
 }
 ATF_TEST_CASE_BODY(signal_programmer_program)
 {
-    using atf::atf_run::signal_programmer;
+    using tools::atf_run::signal_programmer;
 
     signal_programmer sp(SIGUSR1, sigusr1_2::handler);
 
@@ -201,7 +201,7 @@ ATF_TEST_CASE_HEAD(signal_programmer_preserve)
 }
 ATF_TEST_CASE_BODY(signal_programmer_preserve)
 {
-    using atf::atf_run::signal_programmer;
+    using tools::atf_run::signal_programmer;
 
     sigusr1::program();
     sigusr1::happened = false;
@@ -230,7 +230,7 @@ reset_child(void *v ATF_DEFS_ATTRIBUTE_UNUSED)
     sigusr1::program();
 
     sigusr1::happened = false;
-    atf::atf_run::reset(SIGUSR1);
+    tools::atf_run::reset(SIGUSR1);
     kill(::getpid(), SIGUSR1);
 
     if (sigusr1::happened) {

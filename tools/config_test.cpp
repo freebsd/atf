@@ -66,7 +66,7 @@ static struct varnames {
 // Auxiliary functions.
 // ------------------------------------------------------------------------
 
-namespace atf {
+namespace tools {
     namespace config {
         void __reinit(void);
     }
@@ -121,9 +121,9 @@ compare_one(const char* var, const char* expvalue)
 
     for (const struct varnames* v = all_vars; v->lc != NULL; v++) {
         if (std::strcmp(v->lc, var) == 0)
-            ATF_REQUIRE_EQ(atf::config::get(v->lc), test_value);
+            ATF_REQUIRE_EQ(tools::config::get(v->lc), test_value);
         else
-            ATF_REQUIRE(atf::config::get(v->lc) != test_value);
+            ATF_REQUIRE(tools::config::get(v->lc) != test_value);
     }
 }
 
@@ -141,20 +141,20 @@ ATF_TEST_CASE_BODY(get)
     // Unset all known environment variables and make sure the built-in
     // values do not match the bogus value we will use for testing.
     unset_all();
-    atf::config::__reinit();
+    tools::config::__reinit();
     for (const struct varnames* v = all_vars; v->lc != NULL; v++)
-        ATF_REQUIRE(atf::config::get(v->lc) != test_value);
+        ATF_REQUIRE(tools::config::get(v->lc) != test_value);
 
     // Test the behavior of empty values.
     for (const struct varnames* v = all_vars; v->lc != NULL; v++) {
         unset_all();
-        if (!atf::config::get(v->lc).empty()) {
+        if (!tools::config::get(v->lc).empty()) {
             set_env_var(v->uc, "");
-            atf::config::__reinit();
+            tools::config::__reinit();
             if (v->can_be_empty)
-                ATF_REQUIRE(atf::config::get(v->lc).empty());
+                ATF_REQUIRE(tools::config::get(v->lc).empty());
             else
-                ATF_REQUIRE(!atf::config::get(v->lc).empty());
+                ATF_REQUIRE(!tools::config::get(v->lc).empty());
         }
     }
 
@@ -162,7 +162,7 @@ ATF_TEST_CASE_BODY(get)
     for (const struct varnames* v = all_vars; v->lc != NULL; v++) {
         unset_all();
         set_env_var(v->uc, test_value);
-        atf::config::__reinit();
+        tools::config::__reinit();
         compare_one(v->lc, test_value);
     }
 }
@@ -174,10 +174,10 @@ ATF_TEST_CASE_HEAD(get_all)
 }
 ATF_TEST_CASE_BODY(get_all)
 {
-    atf::config::__reinit();
+    tools::config::__reinit();
 
     // Check that the valid variables, and only those, are returned.
-    std::map< std::string, std::string > vars = atf::config::get_all();
+    std::map< std::string, std::string > vars = tools::config::get_all();
     ATF_REQUIRE_EQ(vars.size(), all_vars_count());
     for (const struct varnames* v = all_vars; v->lc != NULL; v++)
         ATF_REQUIRE(vars.find(v->lc) != vars.end());
@@ -190,23 +190,23 @@ ATF_TEST_CASE_HEAD(has)
 }
 ATF_TEST_CASE_BODY(has)
 {
-    atf::config::__reinit();
+    tools::config::__reinit();
 
     // Check for all the variables that must exist.
     for (const struct varnames* v = all_vars; v->lc != NULL; v++)
-        ATF_REQUIRE(atf::config::has(v->lc));
+        ATF_REQUIRE(tools::config::has(v->lc));
 
     // Same as above, but using uppercase (which is incorrect).
     for (const struct varnames* v = all_vars; v->lc != NULL; v++)
-        ATF_REQUIRE(!atf::config::has(v->uc));
+        ATF_REQUIRE(!tools::config::has(v->uc));
 
     // Check for some other variables that cannot exist.
-    ATF_REQUIRE(!atf::config::has("foo"));
-    ATF_REQUIRE(!atf::config::has("BAR"));
-    ATF_REQUIRE(!atf::config::has("atf_foo"));
-    ATF_REQUIRE(!atf::config::has("ATF_BAR"));
-    ATF_REQUIRE(!atf::config::has("atf_shel"));
-    ATF_REQUIRE(!atf::config::has("atf_shells"));
+    ATF_REQUIRE(!tools::config::has("foo"));
+    ATF_REQUIRE(!tools::config::has("BAR"));
+    ATF_REQUIRE(!tools::config::has("atf_foo"));
+    ATF_REQUIRE(!tools::config::has("ATF_BAR"));
+    ATF_REQUIRE(!tools::config::has("atf_shel"));
+    ATF_REQUIRE(!tools::config::has("atf_shells"));
 }
 
 // ------------------------------------------------------------------------

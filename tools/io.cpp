@@ -47,8 +47,8 @@ extern "C" {
 
 #include "io.hpp"
 
-namespace impl = atf::atf_run;
-#define IMPL_NAME "atf::atf_run"
+namespace impl = tools::atf_run;
+#define IMPL_NAME "tools::atf_run"
 
 // ------------------------------------------------------------------------
 // The "file_handle" class.
@@ -131,13 +131,13 @@ impl::file_handle::posix_remap(handle_type h)
         return;
 
     if (::dup2(m_handle, h) == -1)
-        throw system_error(IMPL_NAME "::file_handle::posix_remap",
-                           "dup2(2) failed", errno);
+        throw atf::system_error(IMPL_NAME "::file_handle::posix_remap",
+                                "dup2(2) failed", errno);
 
     if (::close(m_handle) == -1) {
         ::close(h);
-        throw system_error(IMPL_NAME "::file_handle::posix_remap",
-                           "close(2) failed", errno);
+        throw atf::system_error(IMPL_NAME "::file_handle::posix_remap",
+                                "close(2) failed", errno);
     }
 
     m_handle = h;

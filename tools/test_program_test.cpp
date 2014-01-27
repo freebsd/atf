@@ -38,8 +38,8 @@
 #include "test-program.hpp"
 #include "test_helpers.hpp"
 
-namespace impl = atf::atf_run;
-namespace detail = atf::atf_run::detail;
+namespace impl = tools::atf_run;
+namespace detail = tools::atf_run::detail;
 
 using atf::tests::vars_map;
 
@@ -759,16 +759,16 @@ ATF_TEST_CASE(get_metadata_bad);
 ATF_TEST_CASE_HEAD(get_metadata_bad) {}
 ATF_TEST_CASE_BODY(get_metadata_bad) {
     const atf::fs::path executable = get_helper(*this, "bad_metadata_helper");
-    ATF_REQUIRE_THROW(atf::parser::parse_errors,
-                    impl::get_metadata(executable, vars_map()));
+    ATF_REQUIRE_THROW(tools::parser::parse_errors,
+                      impl::get_metadata(executable, vars_map()));
 }
 
 ATF_TEST_CASE(get_metadata_zero_tcs);
 ATF_TEST_CASE_HEAD(get_metadata_zero_tcs) {}
 ATF_TEST_CASE_BODY(get_metadata_zero_tcs) {
     const atf::fs::path executable = get_helper(*this, "zero_tcs_helper");
-    ATF_REQUIRE_THROW(atf::parser::parse_errors,
-                    impl::get_metadata(executable, vars_map()));
+    ATF_REQUIRE_THROW(tools::parser::parse_errors,
+                      impl::get_metadata(executable, vars_map()));
 }
 
 ATF_TEST_CASE(get_metadata_several_tcs);

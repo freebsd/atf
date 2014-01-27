@@ -27,10 +27,10 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if defined(UTILS_TEST_HELPERS_H)
+#if defined(TOOLS_TEST_HELPERS_H)
 #   error "Cannot include test_helpers.hpp more than once."
 #else
-#   define UTILS_TEST_HELPERS_H
+#   define TOOLS_TEST_HELPERS_H
 #endif
 
 #include <sstream>
@@ -55,11 +55,11 @@ do_read(const char* input)
     Reader reader(is);
     try {
         reader.read();
-    } catch (const atf::parser::parse_errors& pes) {
-        for (std::vector< atf::parser::parse_error >::const_iterator iter =
+    } catch (const tools::parser::parse_errors& pes) {
+        for (std::vector< tools::parser::parse_error >::const_iterator iter =
              pes.begin(); iter != pes.end(); iter++)
             errors.push_back(*iter);
-    } catch (const atf::parser::parse_error& pe) {
+    } catch (const tools::parser::parse_error& pe) {
         ATF_FAIL("Raised a lonely parse error: " +
                  atf::text::to_string(pe.first) + ": " + pe.second);
     }

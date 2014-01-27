@@ -224,7 +224,7 @@ class ticker_writer : public writer {
     write_tp_start(const std::string& tp, size_t ntcs)
     {
         using atf::text::to_string;
-        using atf::ui::format_text;
+        using tools::ui::format_text;
 
         m_tpname = tp;
 
@@ -238,7 +238,7 @@ class ticker_writer : public writer {
     void
     write_tp_end(struct timeval* tv, const std::string& reason)
     {
-        using atf::ui::format_text_with_tag;
+        using tools::ui::format_text_with_tag;
 
         m_curtp++;
 
@@ -304,8 +304,8 @@ class ticker_writer : public writer {
     write_expected_failures(const std::map< std::string, std::string >& xfails,
                             std::ostream& os)
     {
-        using atf::ui::format_text;
-        using atf::ui::format_text_with_tag;
+        using tools::ui::format_text;
+        using tools::ui::format_text_with_tag;
 
         os << format_text("Test cases for known bugs:") << "\n";
 
@@ -324,8 +324,8 @@ class ticker_writer : public writer {
     {
         using atf::text::join;
         using atf::text::to_string;
-        using atf::ui::format_text;
-        using atf::ui::format_text_with_tag;
+        using tools::ui::format_text;
+        using tools::ui::format_text_with_tag;
 
         if (!m_failed_tps.empty()) {
             (*m_os) << format_text("Failed (bogus) test programs:")
@@ -507,7 +507,7 @@ public:
 //! raised by the parser, redirects it to multiple writers so that they
 //! can reformat it according to their output rules.
 //!
-class converter : public atf::atf_report::atf_tps_reader {
+class converter : public tools::atf_report::atf_tps_reader {
     typedef std::vector< writer* > outs_vector;
     outs_vector m_outs;
 
@@ -586,7 +586,7 @@ class converter : public atf::atf_report::atf_tps_reader {
 
 public:
     converter(std::istream& is) :
-        atf::atf_report::atf_tps_reader(is)
+        tools::atf_report::atf_tps_reader(is)
     {
     }
 
@@ -615,7 +615,7 @@ public:
 // The "atf_report" class.
 // ------------------------------------------------------------------------
 
-class atf_report : public atf::application::app {
+class atf_report : public tools::application::app {
     static const char* m_description;
 
     typedef std::pair< std::string, atf::fs::path > fmt_path_pair;
@@ -666,7 +666,7 @@ atf_report::options_set
 atf_report::specific_options(void)
     const
 {
-    using atf::application::option;
+    using tools::application::option;
     options_set opts;
     opts.insert(option('o', "fmt:path", "Adds a new output file; multiple "
                                         "ones can be specified, and a - "

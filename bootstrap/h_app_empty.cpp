@@ -31,7 +31,7 @@
 
 #include "tools/application.hpp"
 
-class h_app_empty : public atf::application::app {
+class h_app_empty : public tools::application::app {
     static const char* m_description;
 
 public:

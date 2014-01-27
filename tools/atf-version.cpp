@@ -38,7 +38,7 @@
 #include "revision.h"
 #include "ui.hpp"
 
-class atf_version : public atf::application::app {
+class atf_version : public tools::application::app {
     static const char* m_description;
 
 public:
@@ -59,8 +59,8 @@ atf_version::atf_version(void) :
 int
 atf_version::main(void)
 {
-    using atf::ui::format_text;
-    using atf::ui::format_text_with_tag;
+    using tools::ui::format_text;
+    using tools::ui::format_text_with_tag;
 
     std::cout << PACKAGE_STRING " (" PACKAGE_TARNAME "-" PACKAGE_VERSION
                  ")\n" PACKAGE_COPYRIGHT "\n\n";

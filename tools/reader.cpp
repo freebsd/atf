@@ -43,8 +43,8 @@ extern "C" {
 #include "parser.hpp"
 #include "reader.hpp"
 
-namespace impl = atf::atf_report;
-#define IMPL_NAME "atf::atf_report"
+namespace impl = tools::atf_report;
+#define IMPL_NAME "tools::atf_report"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -67,32 +67,32 @@ string_to_int(const std::string& str)
 
 namespace atf_tps {
 
-static const atf::parser::token_type eof_type = 0;
-static const atf::parser::token_type nl_type = 1;
-static const atf::parser::token_type text_type = 2;
-static const atf::parser::token_type colon_type = 3;
-static const atf::parser::token_type comma_type = 4;
-static const atf::parser::token_type tps_count_type = 5;
-static const atf::parser::token_type tp_start_type = 6;
-static const atf::parser::token_type tp_end_type = 7;
-static const atf::parser::token_type tc_start_type = 8;
-static const atf::parser::token_type tc_so_type = 9;
-static const atf::parser::token_type tc_se_type = 10;
-static const atf::parser::token_type tc_end_type = 11;
-static const atf::parser::token_type passed_type = 12;
-static const atf::parser::token_type failed_type = 13;
-static const atf::parser::token_type skipped_type = 14;
-static const atf::parser::token_type info_type = 16;
-static const atf::parser::token_type expected_death_type = 17;
-static const atf::parser::token_type expected_exit_type = 18;
-static const atf::parser::token_type expected_failure_type = 19;
-static const atf::parser::token_type expected_signal_type = 20;
-static const atf::parser::token_type expected_timeout_type = 21;
+static const tools::parser::token_type eof_type = 0;
+static const tools::parser::token_type nl_type = 1;
+static const tools::parser::token_type text_type = 2;
+static const tools::parser::token_type colon_type = 3;
+static const tools::parser::token_type comma_type = 4;
+static const tools::parser::token_type tps_count_type = 5;
+static const tools::parser::token_type tp_start_type = 6;
+static const tools::parser::token_type tp_end_type = 7;
+static const tools::parser::token_type tc_start_type = 8;
+static const tools::parser::token_type tc_so_type = 9;
+static const tools::parser::token_type tc_se_type = 10;
+static const tools::parser::token_type tc_end_type = 11;
+static const tools::parser::token_type passed_type = 12;
+static const tools::parser::token_type failed_type = 13;
+static const tools::parser::token_type skipped_type = 14;
+static const tools::parser::token_type info_type = 16;
+static const tools::parser::token_type expected_death_type = 17;
+static const tools::parser::token_type expected_exit_type = 18;
+static const tools::parser::token_type expected_failure_type = 19;
+static const tools::parser::token_type expected_signal_type = 20;
+static const tools::parser::token_type expected_timeout_type = 21;
 
-class tokenizer : public atf::parser::tokenizer< std::istream > {
+class tokenizer : public tools::parser::tokenizer< std::istream > {
 public:
     tokenizer(std::istream& is, size_t curline) :
-        atf::parser::tokenizer< std::istream >
+        tools::parser::tokenizer< std::istream >
             (is, true, eof_type, nl_type, text_type, curline)
     {
         add_delim(':', colon_type);
@@ -119,15 +119,15 @@ public:
 } // namespace atf_tps
 
 struct timeval
-read_timeval(atf::parser::parser< atf_tps::tokenizer >& parser)
+read_timeval(tools::parser::parser< atf_tps::tokenizer >& parser)
 {
     using namespace atf_tps;
 
-    atf::parser::token t = parser.expect(text_type, "timestamp");
+    tools::parser::token t = parser.expect(text_type, "timestamp");
     const std::string::size_type divider = t.text().find('.');
     if (divider == std::string::npos || divider == 0 ||
         divider == t.text().length() - 1)
-        throw atf::parser::parse_error(t.lineno(),
+        throw tools::parser::parse_error(t.lineno(),
                                        "Malformed timestamp value " + t.text());
 
     struct timeval tv;
@@ -209,16 +209,16 @@ impl::atf_tps_reader::got_eof(void)
 void
 impl::atf_tps_reader::read_info(void* pptr)
 {
-    using atf::parser::parse_error;
+    using tools::parser::parse_error;
     using namespace atf_tps;
 
-    atf::parser::parser< tokenizer >& p =
-        *reinterpret_cast< atf::parser::parser< tokenizer >* >
+    tools::parser::parser< tokenizer >& p =
+        *reinterpret_cast< tools::parser::parser< tokenizer >* >
         (pptr);
 
     (void)p.expect(colon_type, "`:'");
 
-    atf::parser::token t = p.expect(text_type, "info property name");
+    tools::parser::token t = p.expect(text_type, "info property name");
     (void)p.expect(comma_type, "`,'");
     got_info(t.text(), atf::text::trim(p.rest_of_line()));
 
@@ -228,14 +228,14 @@ impl::atf_tps_reader::read_info(void* pptr)
 void
 impl::atf_tps_reader::read_tp(void* pptr)
 {
-    using atf::parser::parse_error;
+    using tools::parser::parse_error;
     using namespace atf_tps;
 
-    atf::parser::parser< tokenizer >& p =
-        *reinterpret_cast< atf::parser::parser< tokenizer >* >
+    tools::parser::parser< tokenizer >& p =
+        *reinterpret_cast< tools::parser::parser< tokenizer >* >
         (pptr);
 
-    atf::parser::token t = p.expect(tp_start_type,
+    tools::parser::token t = p.expect(tp_start_type,
                                     "start of test program");
 
     t = p.expect(colon_type, "`:'");
@@ -287,7 +287,7 @@ impl::atf_tps_reader::read_tp(void* pptr)
                  "new line or comma_type");
     std::string reason;
     if (t.type() == comma_type) {
-        reason = text::trim(p.rest_of_line());
+        reason = atf::text::trim(p.rest_of_line());
         if (reason.empty())
             throw parse_error(t.lineno(),
                               "Empty reason for failed test program");
@@ -300,14 +300,14 @@ impl::atf_tps_reader::read_tp(void* pptr)
 void
 impl::atf_tps_reader::read_tc(void* pptr)
 {
-    using atf::parser::parse_error;
+    using tools::parser::parse_error;
     using namespace atf_tps;
 
-    atf::parser::parser< tokenizer >& p =
-        *reinterpret_cast< atf::parser::parser< tokenizer >* >
+    tools::parser::parser< tokenizer >& p =
+        *reinterpret_cast< tools::parser::parser< tokenizer >* >
         (pptr);
 
-    atf::parser::token t = p.expect(tc_start_type, "start of test case");
+    tools::parser::token t = p.expect(tc_start_type, "start of test case");
 
     t = p.expect(colon_type, "`:'");
 
@@ -326,7 +326,7 @@ impl::atf_tps_reader::read_tc(void* pptr)
                  "end of test case or test case's stdout/stderr line");
     while (t.type() != tc_end_type &&
            (t.type() == tc_so_type || t.type() == tc_se_type)) {
-        atf::parser::token t2 = t;
+        tools::parser::token t2 = t;
 
         t = p.expect(colon_type, "`:'");
 
@@ -380,7 +380,7 @@ impl::atf_tps_reader::read_tc(void* pptr)
         else UNREACHABLE;
 
         t = p.expect(comma_type, "`,'");
-        std::string reason = text::trim(p.rest_of_line());
+        std::string reason = atf::text::trim(p.rest_of_line());
         if (reason.empty())
             throw parse_error(t.lineno(), "Empty reason for " + state +
                 " test case result");
@@ -393,18 +393,19 @@ impl::atf_tps_reader::read_tc(void* pptr)
 void
 impl::atf_tps_reader::read(void)
 {
-    using atf::parser::parse_error;
+    using tools::parser::parse_error;
     using namespace atf_tps;
 
-    std::pair< size_t, atf::parser::headers_map > hml =
-        atf::parser::read_headers(m_is, 1);
-    atf::parser::validate_content_type(hml.second, "application/X-atf-tps", 3);
+    std::pair< size_t, tools::parser::headers_map > hml =
+        tools::parser::read_headers(m_is, 1);
+    tools::parser::validate_content_type(hml.second,
+                                         "application/X-atf-tps", 3);
 
     tokenizer tkz(m_is, hml.first);
-    atf::parser::parser< tokenizer > p(tkz);
+    tools::parser::parser< tokenizer > p(tkz);
 
     try {
-        atf::parser::token t;
+        tools::parser::token t;
 
         while ((t = p.expect(tps_count_type, info_type, "tps-count or info "
                              "field")).type() == info_type)

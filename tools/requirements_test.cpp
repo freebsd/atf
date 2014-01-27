@@ -34,7 +34,7 @@
 #include "requirements.hpp"
 #include "user.hpp"
 
-namespace impl = atf::atf_run;
+namespace impl = tools::atf_run;
 
 // -------------------------------------------------------------------------
 // Auxiliary functions.
@@ -64,7 +64,7 @@ ATF_TEST_CASE(require_arch_one_ok);
 ATF_TEST_CASE_HEAD(require_arch_one_ok) {}
 ATF_TEST_CASE_BODY(require_arch_one_ok) {
     atf::tests::vars_map metadata;
-    metadata["require.arch"] = atf::config::get("atf_arch");
+    metadata["require.arch"] = tools::config::get("atf_arch");
     do_check("", metadata);
 }
 
@@ -80,7 +80,7 @@ ATF_TEST_CASE(require_arch_many_ok);
 ATF_TEST_CASE_HEAD(require_arch_many_ok) {}
 ATF_TEST_CASE_BODY(require_arch_many_ok) {
     atf::tests::vars_map metadata;
-    metadata["require.arch"] = "__foo__ " + atf::config::get("atf_arch") +
+    metadata["require.arch"] = "__foo__ " + tools::config::get("atf_arch") +
         " __bar__";
     do_check("", metadata);
 }
@@ -194,7 +194,7 @@ ATF_TEST_CASE(require_machine_one_ok);
 ATF_TEST_CASE_HEAD(require_machine_one_ok) {}
 ATF_TEST_CASE_BODY(require_machine_one_ok) {
     atf::tests::vars_map metadata;
-    metadata["require.machine"] = atf::config::get("atf_machine");
+    metadata["require.machine"] = tools::config::get("atf_machine");
     do_check("", metadata);
 }
 
@@ -210,8 +210,8 @@ ATF_TEST_CASE(require_machine_many_ok);
 ATF_TEST_CASE_HEAD(require_machine_many_ok) {}
 ATF_TEST_CASE_BODY(require_machine_many_ok) {
     atf::tests::vars_map metadata;
-    metadata["require.machine"] = "__foo__ " + atf::config::get("atf_machine") +
-        " __bar__";
+    metadata["require.machine"] = "__foo__ " +
+        tools::config::get("atf_machine") + " __bar__";
     do_check("", metadata);
 }
 
@@ -319,7 +319,7 @@ ATF_TEST_CASE_HEAD(require_user_root) {}
 ATF_TEST_CASE_BODY(require_user_root) {
     atf::tests::vars_map metadata;
     metadata["require.user"] = "root";
-    if (atf::atf_run::is_root())
+    if (tools::atf_run::is_root())
         do_check("", metadata);
     else
         do_check("Requires root privileges", metadata);
@@ -330,7 +330,7 @@ ATF_TEST_CASE_HEAD(require_user_unprivileged) {}
 ATF_TEST_CASE_BODY(require_user_unprivileged) {
     atf::tests::vars_map metadata;
     metadata["require.user"] = "unprivileged";
-    if (atf::atf_run::is_root())
+    if (tools::atf_run::is_root())
         do_check("Requires an unprivileged user and the 'unprivileged-user' "
                  "configuration variable is not set", metadata);
     else

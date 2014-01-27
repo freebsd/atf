@@ -34,8 +34,8 @@
 
 #include "parser.hpp"
 
-namespace impl = atf::parser;
-#define IMPL_NAME "atf::parser"
+namespace impl = tools::parser;
+#define IMPL_NAME "tools::parser"
 
 // ------------------------------------------------------------------------
 // The "parse_error" class.

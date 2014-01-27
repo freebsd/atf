@@ -27,8 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_RUN_ALARM_HPP_)
-#define _ATF_RUN_ALARM_HPP_
+#if !defined(TOOLS_ALARM_HPP)
+#define TOOLS_ALARM_HPP
 
 extern "C" {
 #include <sys/types.h>
@@ -38,7 +38,7 @@ extern "C" {
 
 #include "atf-c++/noncopyable.hpp"
 
-namespace atf {
+namespace tools {
 namespace atf_run {
 
 class signal_programmer;
@@ -47,7 +47,7 @@ class signal_programmer;
 // The "timer" class.
 // ------------------------------------------------------------------------
 
-class timer : noncopyable {
+class timer : atf::noncopyable {
     struct impl;
     std::auto_ptr< impl > m_pimpl;
 
@@ -76,6 +76,6 @@ public:
 };
 
 } // namespace atf_run
-} // namespace atf
+} // namespace tools
 
-#endif // !defined(_ATF_RUN_ALARM_HPP_)
+#endif // !defined(TOOLS_ALARM_HPP)

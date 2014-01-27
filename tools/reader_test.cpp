@@ -42,7 +42,7 @@
 #include "reader.hpp"
 #include "test_helpers.hpp"
 
-namespace impl = atf::atf_report;
+namespace impl = tools::atf_report;
 
 class tps_reader : protected impl::atf_tps_reader {
     void

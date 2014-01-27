@@ -40,24 +40,24 @@
 #include "config_file.hpp"
 #include "parser.hpp"
 
-namespace impl = atf::atf_run;
-namespace detail = atf::atf_run::detail;
+namespace impl = tools::atf_run;
+namespace detail = tools::atf_run::detail;
 
 namespace {
 
 namespace atf_config {
 
-static const atf::parser::token_type eof_type = 0;
-static const atf::parser::token_type nl_type = 1;
-static const atf::parser::token_type text_type = 2;
-static const atf::parser::token_type dblquote_type = 3;
-static const atf::parser::token_type equal_type = 4;
-static const atf::parser::token_type hash_type = 5;
+static const tools::parser::token_type eof_type = 0;
+static const tools::parser::token_type nl_type = 1;
+static const tools::parser::token_type text_type = 2;
+static const tools::parser::token_type dblquote_type = 3;
+static const tools::parser::token_type equal_type = 4;
+static const tools::parser::token_type hash_type = 5;
 
-class tokenizer : public atf::parser::tokenizer< std::istream > {
+class tokenizer : public tools::parser::tokenizer< std::istream > {
 public:
     tokenizer(std::istream& is, size_t curline) :
-        atf::parser::tokenizer< std::istream >
+        tools::parser::tokenizer< std::istream >
             (is, true, eof_type, nl_type, text_type, curline)
     {
         add_delim('=', equal_type);
@@ -119,7 +119,7 @@ std::vector< atf::fs::path >
 get_config_dirs(void)
 {
     std::vector< atf::fs::path > dirs;
-    dirs.push_back(atf::fs::path(atf::config::get("atf_confdir")));
+    dirs.push_back(atf::fs::path(tools::config::get("atf_confdir")));
     if (atf::env::has("HOME"))
         dirs.push_back(atf::fs::path(atf::env::get("HOME")) / ".atf");
     return dirs;
@@ -151,22 +151,22 @@ detail::atf_config_reader::got_eof(void)
 void
 detail::atf_config_reader::read(void)
 {
-    using atf::parser::parse_error;
+    using tools::parser::parse_error;
     using namespace atf_config;
 
-    std::pair< size_t, atf::parser::headers_map > hml =
-        atf::parser::read_headers(m_is, 1);
-    atf::parser::validate_content_type(hml.second,
+    std::pair< size_t, tools::parser::headers_map > hml =
+        tools::parser::read_headers(m_is, 1);
+    tools::parser::validate_content_type(hml.second,
         "application/X-atf-config", 1);
 
     tokenizer tkz(m_is, hml.first);
-    atf::parser::parser< tokenizer > p(tkz);
+    tools::parser::parser< tokenizer > p(tkz);
 
     for (;;) {
         try {
-            atf::parser::token t = p.expect(eof_type, hash_type, text_type,
-                                            nl_type,
-                                            "eof, #, new line or text");
+            tools::parser::token t = p.expect(eof_type, hash_type, text_type,
+                                              nl_type,
+                                              "eof, #, new line or text");
             if (t.type() == eof_type)
                 break;
 

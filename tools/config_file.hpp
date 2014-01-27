@@ -32,7 +32,7 @@
 
 #include "atf-c++/tests.hpp"
 
-namespace atf {
+namespace tools {
 namespace atf_run {
 
 namespace detail {
@@ -58,4 +58,4 @@ atf::tests::vars_map merge_configs(const atf::tests::vars_map&,
 atf::tests::vars_map read_config_files(const std::string&);
 
 } // namespace atf_run
-} // namespace atf
+} // namespace tools

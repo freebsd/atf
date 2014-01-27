@@ -32,8 +32,8 @@
 #include "atf-c++/detail/text.hpp"
 #include "expand.hpp"
 
-namespace impl = atf::expand;
-#define IMPL_NAME "atf::expand"
+namespace impl = tools::expand;
+#define IMPL_NAME "tools::expand"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.

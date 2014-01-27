@@ -27,12 +27,12 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_UI_HPP_)
-#define _ATF_CXX_UI_HPP_
+#if !defined(TOOLS_UI_HPP)
+#define TOOLS_UI_HPP
 
 #include <string>
 
-namespace atf {
+namespace tools {
 namespace ui {
 
 //!
@@ -100,6 +100,6 @@ std::string format_text_with_tag(const std::string&, const std::string&,
 std::string format_warning(const std::string&, const std::string&);
 
 } // namespace ui
-} // namespace atf
+} // namespace tools
 
-#endif // !defined(_ATF_CXX_UI_HPP_)
+#endif // !defined(TOOLS_UI_HPP)

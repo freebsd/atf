@@ -66,7 +66,7 @@ extern "C" {
 #include "requirements.hpp"
 #include "test-program.hpp"
 
-namespace impl = atf::atf_run;
+namespace impl = tools::atf_run;
 
 #if defined(MAXCOMLEN)
 static const std::string::size_type max_core_name_length = MAXCOMLEN;
@@ -74,7 +74,7 @@ static const std::string::size_type max_core_name_length = MAXCOMLEN;
 static const std::string::size_type max_core_name_length = std::string::npos;
 #endif
 
-class atf_run : public atf::application::app {
+class atf_run : public tools::application::app {
     static const char* m_description;
 
     atf::tests::vars_map m_cmdline_vars;
@@ -192,7 +192,7 @@ atf_run::options_set
 atf_run::specific_options(void)
     const
 {
-    using atf::application::option;
+    using tools::application::option;
     options_set opts;
     opts.insert(option('v', "var=value", "Sets the configuration variable "
                                          "`var' to `value'; overrides "
@@ -377,18 +377,18 @@ atf_run::run_test_program(const atf::fs::path& tp,
     impl::metadata md;
     try {
         md = impl::get_metadata(tp, config);
-    } catch (const atf::parser::format_error& e) {
+    } catch (const tools::parser::format_error& e) {
         w.start_tp(tp.str(), 0);
         w.end_tp("Invalid format for test case list: " + std::string(e.what()));
         return EXIT_FAILURE;
-    } catch (const atf::parser::parse_errors& e) {
+    } catch (const tools::parser::parse_errors& e) {
         const std::string reason = atf::text::join(e, "; ");
         w.start_tp(tp.str(), 0);
         w.end_tp("Invalid format for test case list: " + reason);
         return EXIT_FAILURE;
     }
 
-    impl::temp_dir resdir(atf::fs::path(atf::config::get("atf_workdir")) /
+    impl::temp_dir resdir(atf::fs::path(tools::config::get("atf_workdir")) /
                           "atf-run.XXXXXX");
 
     w.start_tp(tp.str(), md.test_cases.size());
@@ -425,7 +425,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
                 const bool has_cleanup = atf::text::to_bool(
                     (*tcmd.find("has.cleanup")).second);
 
-                impl::temp_dir workdir(atf::fs::path(atf::config::get(
+                impl::temp_dir workdir(atf::fs::path(tools::config::get(
                     "atf_workdir")) / "atf-run.XXXXXX");
                 if (user.first != -1 && user.second != -1) {
                     if (::chown(workdir.get_path().c_str(), user.first,
@@ -498,9 +498,9 @@ static
 void
 call_hook(const std::string& tool, const std::string& hook)
 {
-    const atf::fs::path sh(atf::config::get("atf_shell"));
+    const atf::fs::path sh(tools::config::get("atf_shell"));
     const atf::fs::path hooks =
-        atf::fs::path(atf::config::get("atf_pkgdatadir")) / (tool + ".hooks");
+        atf::fs::path(tools::config::get("atf_pkgdatadir")) / (tool + ".hooks");
 
     const atf::process::status s =
         atf::process::exec(sh,

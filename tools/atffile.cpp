@@ -38,8 +38,8 @@
 #include "expand.hpp"
 #include "parser.hpp"
 
-namespace impl = atf::atf_run;
-namespace detail = atf::atf_run::detail;
+namespace impl = tools::atf_run;
+namespace detail = tools::atf_run::detail;
 
 // ------------------------------------------------------------------------
 // The "atf_atffile" auxiliary parser.
@@ -47,22 +47,22 @@ namespace detail = atf::atf_run::detail;
 
 namespace atf_atffile {
 
-static const atf::parser::token_type eof_type = 0;
-static const atf::parser::token_type nl_type = 1;
-static const atf::parser::token_type text_type = 2;
-static const atf::parser::token_type colon_type = 3;
-static const atf::parser::token_type conf_type = 4;
-static const atf::parser::token_type dblquote_type = 5;
-static const atf::parser::token_type equal_type = 6;
-static const atf::parser::token_type hash_type = 7;
-static const atf::parser::token_type prop_type = 8;
-static const atf::parser::token_type tp_type = 9;
-static const atf::parser::token_type tp_glob_type = 10;
+static const tools::parser::token_type eof_type = 0;
+static const tools::parser::token_type nl_type = 1;
+static const tools::parser::token_type text_type = 2;
+static const tools::parser::token_type colon_type = 3;
+static const tools::parser::token_type conf_type = 4;
+static const tools::parser::token_type dblquote_type = 5;
+static const tools::parser::token_type equal_type = 6;
+static const tools::parser::token_type hash_type = 7;
+static const tools::parser::token_type prop_type = 8;
+static const tools::parser::token_type tp_type = 9;
+static const tools::parser::token_type tp_glob_type = 10;
 
-class tokenizer : public atf::parser::tokenizer< std::istream > {
+class tokenizer : public tools::parser::tokenizer< std::istream > {
 public:
     tokenizer(std::istream& is, size_t curline) :
-        atf::parser::tokenizer< std::istream >
+        tools::parser::tokenizer< std::istream >
             (is, true, eof_type, nl_type, text_type, curline)
     {
         add_delim(':', colon_type);
@@ -120,20 +120,20 @@ detail::atf_atffile_reader::got_eof(void)
 void
 detail::atf_atffile_reader::read(void)
 {
-    using atf::parser::parse_error;
+    using tools::parser::parse_error;
     using namespace atf_atffile;
 
-    std::pair< size_t, atf::parser::headers_map > hml =
-        atf::parser::read_headers(m_is, 1);
-    atf::parser::validate_content_type(hml.second,
+    std::pair< size_t, tools::parser::headers_map > hml =
+        tools::parser::read_headers(m_is, 1);
+    tools::parser::validate_content_type(hml.second,
         "application/X-atf-atffile", 1);
 
     tokenizer tkz(m_is, hml.first);
-    atf::parser::parser< tokenizer > p(tkz);
+    tools::parser::parser< tokenizer > p(tkz);
 
     for (;;) {
         try {
-            atf::parser::token t =
+            tools::parser::token t =
                 p.expect(conf_type, hash_type, prop_type, tp_type,
                          tp_glob_type, nl_type, eof_type,
                          "conf, #, prop, tp, tp-glob, a new line or eof");
@@ -207,7 +207,7 @@ class reader : public detail::atf_atffile_reader {
     {
         if (isglob) {
             std::vector< std::string > ms =
-                atf::expand::expand_glob(name, m_dir.names());
+                tools::expand::expand_glob(name, m_dir.names());
             // Cannot use m_tps.insert(iterator, begin, end) here because it
             // does not work under Solaris.
             for (std::vector< std::string >::const_iterator iter = ms.begin();
@@ -309,12 +309,12 @@ impl::read_atffile(const atf::fs::path& filename)
 {
     // Scan the directory where the atffile lives in to gather a list of
     // all possible test programs in it.
-    fs::directory dir(filename.branch_path());
+    atf::fs::directory dir(filename.branch_path());
     dir.erase(filename.leaf_name());
-    fs::directory::iterator iter = dir.begin();
+    atf::fs::directory::iterator iter = dir.begin();
     while (iter != dir.end()) {
         const std::string& name = (*iter).first;
-        const fs::file_info& fi = (*iter).second;
+        const atf::fs::file_info& fi = (*iter).second;
 
         // Discard hidden files and non-executable ones so that they are
         // not candidates for glob matching.
@@ -328,7 +328,7 @@ impl::read_atffile(const atf::fs::path& filename)
     // Parse the atffile.
     std::ifstream is(filename.c_str());
     if (!is)
-        throw atf::not_found_error< fs::path >
+        throw atf::not_found_error< atf::fs::path >
             ("Cannot open Atffile", filename);
     reader r(is, dir);
     r.read();

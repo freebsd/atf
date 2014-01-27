@@ -27,13 +27,13 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_CONFIG_HPP_)
-#define _ATF_CXX_CONFIG_HPP_
+#if !defined(TOOLS_CONFIG_HPP)
+#define TOOLS_CONFIG_HPP
 
 #include <map>
 #include <string>
 
-namespace atf {
+namespace tools {
 
 namespace config {
 
@@ -70,6 +70,6 @@ bool has(const std::string&);
 
 } // namespace config
 
-} // namespace atf
+} // namespace tools
 
-#endif // !defined(_ATF_CXX_CONFIG_HPP_)
+#endif // !defined(TOOLS_CONFIG_HPP)

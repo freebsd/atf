@@ -374,7 +374,7 @@ run_tests(const char *tc)
             std::cout << "Input: >>>" << t->fmt << "<<<\n";
             std::cout << "Expected output: >>>" << t->result << "<<<\n";
 
-            std::string result = atf::ui::format_text_with_tag(t->fmt, t->tag,
+            std::string result = tools::ui::format_text_with_tag(t->fmt, t->tag,
                 t->repeat, t->col);
             std::cout << "Output         : >>>" << result << "<<<\n";
             ATF_REQUIRE_EQ(t->result, result);

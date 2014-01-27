@@ -27,14 +27,14 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_RUN_SIGNALS_HPP_)
-#define _ATF_RUN_SIGNALS_HPP_
+#if !defined(TOOLS_SIGNALS_HPP)
+#define TOOLS_SIGNALS_HPP
 
 extern "C" {
 #include <signal.h>
 }
 
-namespace atf {
+namespace tools {
 namespace atf_run {
 
 extern const int last_signo;
@@ -87,6 +87,6 @@ public:
 void reset(const int);
 
 } // namespace atf_run
-} // namespace atf
+} // namespace tools
 
-#endif // !defined(_ATF_RUN_SIGNALS_HPP_)
+#endif // !defined(TOOLS_SIGNALS_HPP)

@@ -27,15 +27,15 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_APPLICATION_HPP_)
-#define _ATF_CXX_APPLICATION_HPP_
+#if !defined(TOOLS_APPLICATION_HPP)
+#define TOOLS_APPLICATION_HPP
 
 #include <ostream>
 #include <set>
 #include <stdexcept>
 #include <string>
 
-namespace atf {
+namespace tools {
 namespace application {
 
 // ------------------------------------------------------------------------
@@ -108,6 +108,6 @@ public:
 };
 
 } // namespace application
-} // namespace atf
+} // namespace tools
 
-#endif // !defined(_ATF_CXX_APPLICATION_HPP_)
+#endif // !defined(TOOLS_APPLICATION_HPP)

@@ -43,8 +43,8 @@ extern "C" {
 
 #include "ui.hpp"
 
-namespace impl = atf::ui;
-#define IMPL_NAME "atf::ui"
+namespace impl = tools::ui;
+#define IMPL_NAME "tools::ui"
 
 static
 size_t

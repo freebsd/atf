@@ -27,8 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_RUN_USER_HPP_)
-#define _ATF_RUN_USER_HPP_
+#if !defined(TOOLS_USER_HPP)
+#define TOOLS_USER_HPP
 
 extern "C" {
 #include <sys/types.h>
@@ -36,7 +36,7 @@ extern "C" {
 
 #include <utility>
 
-namespace atf {
+namespace tools {
 namespace atf_run {
 
 uid_t euid(void);
@@ -47,6 +47,6 @@ bool is_root(void);
 bool is_unprivileged(void);
 
 } // namespace atf_run
-} // namespace atf
+} // namespace tools
 
-#endif // !defined(_ATF_RUN_USER_HPP_)
+#endif // !defined(TOOLS_USER_HPP)

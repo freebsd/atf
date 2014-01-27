@@ -32,7 +32,7 @@
 
 #include "atf-c++/tests.hpp"
 
-namespace atf {
+namespace tools {
 namespace atf_run {
 
 std::string check_requirements(const atf::tests::vars_map&,
@@ -41,4 +41,4 @@ std::pair< int, int > get_required_user(const atf::tests::vars_map&,
                                         const atf::tests::vars_map&);
 
 } // namespace atf_run
-} // namespace atf
+} // namespace tools
