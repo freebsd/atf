@@ -42,8 +42,7 @@ extern "C" {
 #include "../atf-c/error.h"
 }
 
-#include "../atf-c++/detail/auto_array.hpp"
-
+#include "auto_array.hpp"
 #include "exceptions.hpp"
 #include "io.hpp"
 
@@ -290,7 +289,7 @@ size_t
 impl::muxer::read_one(const size_t index, const int fd, std::string& accum,
                       const bool report_errors)
 {
-    atf::auto_array< char > buffer(new char[m_bufsize]);
+    tools::auto_array< char > buffer(new char[m_bufsize]);
     const size_t nbytes = safe_read(fd, buffer.get(), m_bufsize - 1,
                                     report_errors);
     assert(nbytes < m_bufsize);
@@ -319,7 +318,7 @@ impl::muxer::read_one(const size_t index, const int fd, std::string& accum,
 void
 impl::muxer::mux(volatile const bool& terminate)
 {
-    atf::auto_array< struct pollfd > poll_fds(new struct pollfd[m_nfds]);
+    tools::auto_array< struct pollfd > poll_fds(new struct pollfd[m_nfds]);
     for (size_t i = 0; i < m_nfds; i++) {
         poll_fds[i].fd = m_fds[i];
         poll_fds[i].events = POLLIN;

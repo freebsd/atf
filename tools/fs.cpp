@@ -45,9 +45,9 @@ extern "C" {
 #include <cstdlib>
 #include <cstring>
 
-#include "atf-c++/detail/auto_array.hpp"
 #include "atf-c++/detail/process.hpp"
 
+#include "auto_array.hpp"
 #include "exceptions.hpp"
 #include "fs.hpp"
 #include "user.hpp"
@@ -202,7 +202,7 @@ retry_unmount:
 
 impl::temp_dir::temp_dir(const atf::fs::path& p)
 {
-    atf::auto_array< char > buf(new char[p.str().length() + 1]);
+    tools::auto_array< char > buf(new char[p.str().length() + 1]);
     std::strcpy(buf.get(), p.c_str());
     if (::mkdtemp(buf.get()) == NULL)
         throw tools::system_error(IMPL_NAME "::temp_dir::temp_dir(" +

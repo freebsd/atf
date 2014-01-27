@@ -32,6 +32,7 @@ tools_libtools_a_SOURCES = tools/application.cpp \
                            tools/application.hpp \
                            tools/atffile.cpp \
                            tools/atffile.hpp \
+                           tools/auto_array.hpp \
                            tools/config.cpp \
                            tools/config.hpp \
                            tools/config_file.cpp \
@@ -181,6 +182,10 @@ tools_application_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 tests_tools_PROGRAMS += tools/atffile_test
 tools_atffile_test_SOURCES = tools/atffile_test.cpp
 tools_atffile_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+
+tests_tools_PROGRAMS += tools/auto_array_test
+tools_auto_array_test_SOURCES = tools/auto_array_test.cpp
+tools_auto_array_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/bad_metadata_helper
 tools_bad_metadata_helper_SOURCES = tools/bad_metadata_helper.c

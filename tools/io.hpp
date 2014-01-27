@@ -34,9 +34,8 @@
 #include <ostream>
 #include <streambuf>
 
+#include "auto_array.hpp"
 #include "fs.hpp"
-
-#include "../atf-c++/detail/auto_array.hpp"
 
 namespace tools {
 namespace atf_run {
@@ -416,7 +415,7 @@ class muxer {
     const size_t m_nfds;
 
     const size_t m_bufsize;
-    atf::auto_array< std::string > m_buffers;
+    tools::auto_array< std::string > m_buffers;
 
 protected:
     virtual void line_callback(const size_t, const std::string&) = 0;
