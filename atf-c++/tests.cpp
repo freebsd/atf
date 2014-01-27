@@ -55,7 +55,6 @@ extern "C" {
 #include "atf-c/utils.h"
 }
 
-#include "noncopyable.hpp"
 #include "tests.hpp"
 
 #include "detail/application.hpp"
@@ -123,7 +122,13 @@ detail::match(const std::string& regexp, const std::string& str)
 static std::map< atf_tc_t*, impl::tc* > wraps;
 static std::map< const atf_tc_t*, const impl::tc* > cwraps;
 
-struct impl::tc_impl : atf::noncopyable {
+struct impl::tc_impl {
+private:
+    // Non-copyable.
+    tc_impl(const tc_impl&);
+    tc_impl& operator=(const tc_impl&);
+
+public:
     std::string m_ident;
     atf_tc_t m_tc;
     bool m_has_cleanup;
