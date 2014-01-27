@@ -31,10 +31,10 @@
 
 #include "atf-c/defs.h"
 
-#include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/sanity.hpp"
 
 #include "atffile.hpp"
+#include "exceptions.hpp"
 #include "expand.hpp"
 #include "parser.hpp"
 
@@ -215,7 +215,7 @@ class reader : public detail::atf_atffile_reader {
                 m_tps.push_back(*iter);
         } else {
             if (m_dir.find(name) == m_dir.end())
-                throw atf::not_found_error< atf::fs::path >
+                throw tools::not_found_error< atf::fs::path >
                     ("Cannot locate the " + name + " file",
                      atf::fs::path(name));
             m_tps.push_back(name);
@@ -328,7 +328,7 @@ impl::read_atffile(const atf::fs::path& filename)
     // Parse the atffile.
     std::ifstream is(filename.c_str());
     if (!is)
-        throw atf::not_found_error< atf::fs::path >
+        throw tools::not_found_error< atf::fs::path >
             ("Cannot open Atffile", filename);
     reader r(is, dir);
     r.read();
@@ -336,7 +336,7 @@ impl::read_atffile(const atf::fs::path& filename)
 
     // Sanity checks.
     if (r.props().find("test-suite") == r.props().end())
-        throw atf::not_found_error< std::string >
+        throw tools::not_found_error< std::string >
             ("Undefined property `test-suite'", "test-suite");
 
     return atffile(r.conf(), r.tps(), r.props());

@@ -41,9 +41,9 @@ extern "C" {
 
 #include "atf-c++/macros.hpp"
 
-#include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/process.hpp"
 
+#include "exceptions.hpp"
 #include "signals.hpp"
 
 // ------------------------------------------------------------------------
@@ -69,7 +69,7 @@ namespace sigusr1 {
         sigemptyset(&sa.sa_mask);
         sa.sa_flags = 0;
         if (::sigaction(SIGUSR1, &sa, NULL) == -1)
-            throw atf::system_error("sigusr1::program",
+            throw tools::system_error("sigusr1::program",
                                     "sigaction(2) failed", errno);
     }
 } // namespace sigusr1

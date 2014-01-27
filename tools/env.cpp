@@ -37,10 +37,10 @@ extern "C" {
 #include <string.h>
 }
 
-#include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/sanity.hpp"
 
 #include "env.hpp"
+#include "exceptions.hpp"
 
 namespace impl = tools::env;
 #define IMPL_NAME "tools::env"
@@ -68,14 +68,14 @@ impl::set(const std::string& name, const std::string& val)
 {
 #if defined(HAVE_SETENV)
     if (setenv(name.c_str(), val.c_str(), 1) == -1)
-        throw atf::system_error(IMPL_NAME "::set",
+        throw tools::system_error(IMPL_NAME "::set",
                                 "Cannot set environment variable '" + name +
                                 "' to '" + val + "'",
                                 errno);
 #elif defined(HAVE_PUTENV)
     const std::string buf = name + "=" + val;
     if (putenv(strdup(buf.c_str())) == -1)
-        throw atf::system_error(IMPL_NAME "::set",
+        throw tools::system_error(IMPL_NAME "::set",
                                 "Cannot set environment variable '" + name +
                                 "' to '" + val + "'",
                                 errno);
@@ -93,7 +93,7 @@ impl::unset(const std::string& name)
     const std::string buf = name + "=";
 
     if (putenv(strdup(buf.c_str())) == -1)
-        throw atf::system_error(IMPL_NAME "::unset",
+        throw tools::system_error(IMPL_NAME "::unset",
                                 "Cannot unset environment variable '" +
                                 name + "'", errno);
 #else

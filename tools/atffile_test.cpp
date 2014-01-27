@@ -38,9 +38,8 @@ extern "C" {
 
 #include "atf-c++/macros.hpp"
 
-#include "atf-c++/detail/exceptions.hpp"
-
 #include "atffile.hpp"
+#include "exceptions.hpp"
 #include "test_helpers.hpp"
 
 namespace detail = tools::atf_run::detail;
@@ -582,7 +581,7 @@ ATF_TEST_CASE_BODY(read_missing_test_suite) {
     try {
         (void)tools::atf_run::read_atffile(atf::fs::path("Atffile"));
         ATF_FAIL("Missing property 'test-suite' did not raise an error");
-    } catch (const atf::not_found_error< std::string >& e) {
+    } catch (const tools::not_found_error< std::string >& e) {
         ATF_REQUIRE_EQ("test-suite", e.get_value());
     }
 }
@@ -601,7 +600,7 @@ ATF_TEST_CASE_BODY(read_missing_test_program) {
     try {
         (void)tools::atf_run::read_atffile(atf::fs::path("Atffile"));
         ATF_FAIL("Missing file 'bar' did not raise an error");
-    } catch (const atf::not_found_error< atf::fs::path >& e) {
+    } catch (const tools::not_found_error< atf::fs::path >& e) {
         ATF_REQUIRE_EQ("bar", e.get_value().str());
     }
 }

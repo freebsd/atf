@@ -38,6 +38,8 @@ tools_libtools_a_SOURCES = tools/application.cpp \
                            tools/config_file.hpp \
                            tools/env.cpp \
                            tools/env.hpp \
+                           tools/exceptions.cpp \
+                           tools/exceptions.hpp \
                            tools/expand.cpp \
                            tools/expand.hpp \
                            tools/fs.cpp \

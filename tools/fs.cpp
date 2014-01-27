@@ -48,6 +48,7 @@ extern "C" {
 #include "atf-c++/detail/process.hpp"
 #include "atf-c++/detail/sanity.hpp"
 
+#include "exceptions.hpp"
 #include "fs.hpp"
 #include "user.hpp"
 
@@ -100,7 +101,7 @@ cleanup_aux(const atf::fs::path& p, dev_t parent_device, bool erase)
             else
                 atf::fs::remove(p);
         }
-    } catch (const atf::system_error& e) {
+    } catch (const tools::system_error& e) {
         if (e.code() != ENOENT && e.code() != ENOTDIR)
             throw e;
     }
@@ -120,7 +121,7 @@ retry_chmod:
                 ::sleep(retry_delay_in_seconds);
                 goto retry_chmod;
             } else {
-                throw atf::system_error(IMPL_NAME "::cleanup(" +
+                throw tools::system_error(IMPL_NAME "::cleanup(" +
                                         p.str() + ")", "chmod(2) failed",
                                         errno);
             }
@@ -137,7 +138,7 @@ retry_chmod:
                 const atf::fs::directory d(p);
                 subdirs = d.names();
                 ok = true;
-            } catch (const atf::system_error& e) {
+            } catch (const tools::system_error& e) {
                 retries--;
                 if (retries == 0)
                     throw e;
@@ -174,7 +175,7 @@ retry_unmount:
             ::sleep(retry_delay_in_seconds);
             goto retry_unmount;
         } else {
-            throw atf::system_error(IMPL_NAME "::cleanup(" + in_path.str() +
+            throw tools::system_error(IMPL_NAME "::cleanup(" + in_path.str() +
                                     ")", "unmount(2) failed", errno);
         }
     }
@@ -204,7 +205,7 @@ impl::temp_dir::temp_dir(const atf::fs::path& p)
     atf::auto_array< char > buf(new char[p.str().length() + 1]);
     std::strcpy(buf.get(), p.c_str());
     if (::mkdtemp(buf.get()) == NULL)
-        throw atf::system_error(IMPL_NAME "::temp_dir::temp_dir(" +
+        throw tools::system_error(IMPL_NAME "::temp_dir::temp_dir(" +
                                 p.str() + ")", "mkdtemp(3) failed",
                                 errno);
 
@@ -234,7 +235,7 @@ impl::change_directory(const atf::fs::path& dir)
 
     if (olddir != dir) {
         if (::chdir(dir.c_str()) == -1)
-            throw atf::system_error(IMPL_NAME "::chdir(" + dir.str() + ")",
+            throw tools::system_error(IMPL_NAME "::chdir(" + dir.str() + ")",
                                     "chdir(2) failed", errno);
     }
 
@@ -258,7 +259,7 @@ impl::get_current_dir(void)
     cwd.reset(getcwd(NULL, MAXPATHLEN));
 #endif
     if (cwd.get() == NULL)
-        throw atf::system_error(IMPL_NAME "::get_current_dir()",
+        throw tools::system_error(IMPL_NAME "::get_current_dir()",
                                 "getcwd() failed", errno);
 
     return atf::fs::path(cwd.get());

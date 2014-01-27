@@ -50,7 +50,6 @@ extern "C" {
 
 #include "atf-c++/tests.hpp"
 
-#include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/process.hpp"
 #include "atf-c++/detail/sanity.hpp"
@@ -61,6 +60,7 @@ extern "C" {
 #include "config.hpp"
 #include "config_file.hpp"
 #include "env.hpp"
+#include "exceptions.hpp"
 #include "fs.hpp"
 #include "parser.hpp"
 #include "requirements.hpp"
@@ -430,7 +430,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
                 if (user.first != -1 && user.second != -1) {
                     if (::chown(workdir.get_path().c_str(), user.first,
                                 user.second) == -1) {
-                        throw atf::system_error("chown(" +
+                        throw tools::system_error("chown(" +
                             workdir.get_path().str() + ")", "chown(2) failed",
                             errno);
                     }

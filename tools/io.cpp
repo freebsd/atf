@@ -42,9 +42,9 @@ extern "C" {
 }
 
 #include "../atf-c++/detail/auto_array.hpp"
-#include "../atf-c++/detail/exceptions.hpp"
 #include "../atf-c++/detail/sanity.hpp"
 
+#include "exceptions.hpp"
 #include "io.hpp"
 
 namespace impl = tools::atf_run;
@@ -131,12 +131,12 @@ impl::file_handle::posix_remap(handle_type h)
         return;
 
     if (::dup2(m_handle, h) == -1)
-        throw atf::system_error(IMPL_NAME "::file_handle::posix_remap",
+        throw tools::system_error(IMPL_NAME "::file_handle::posix_remap",
                                 "dup2(2) failed", errno);
 
     if (::close(m_handle) == -1) {
         ::close(h);
-        throw atf::system_error(IMPL_NAME "::file_handle::posix_remap",
+        throw tools::system_error(IMPL_NAME "::file_handle::posix_remap",
                                 "close(2) failed", errno);
     }
 
@@ -248,7 +248,7 @@ safe_poll(struct pollfd fds[], nfds_t nfds, int timeout)
         if (errno == EINTR)
             ret = 0;
         else
-            throw atf::system_error(IMPL_NAME "::safe_poll", "poll(2) failed",
+            throw tools::system_error(IMPL_NAME "::safe_poll", "poll(2) failed",
                                     errno);
     }
     INV(ret >= 0);
@@ -265,7 +265,7 @@ safe_read(const int fd, void* buffer, const size_t nbytes,
         INV(errno != EINTR);
 
         if (report_errors)
-            throw atf::system_error(IMPL_NAME "::safe_read", "read(2) failed",
+            throw tools::system_error(IMPL_NAME "::safe_read", "read(2) failed",
                                     errno);
         else
             ret = 0;

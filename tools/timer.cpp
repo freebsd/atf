@@ -43,9 +43,9 @@ extern "C" {
 #include "atf-c/defs.h"
 }
 
-#include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/sanity.hpp"
 
+#include "exceptions.hpp"
 #include "signals.hpp"
 #include "timer.hpp"
 
@@ -110,7 +110,7 @@ impl::timer::timer(const unsigned int seconds) :
     sa.sa_flags = SA_SIGINFO;
     sa.sa_sigaction = ::handler;
     if (::sigaction(SIGALRM, &sa, &m_pimpl->m_old_sa) == -1)
-        throw atf::system_error(IMPL_NAME "::timer::timer",
+        throw tools::system_error(IMPL_NAME "::timer::timer",
                                 "Failed to set signal handler", errno);
 
 #if defined(HAVE_TIMER_T)
@@ -122,7 +122,7 @@ impl::timer::timer(const unsigned int seconds) :
     se.sigev_notify_attributes = NULL;
     if (::timer_create(CLOCK_MONOTONIC, &se, &m_pimpl->m_timer) == -1) {
         ::sigaction(SIGALRM, &m_pimpl->m_old_sa, NULL);
-        throw atf::system_error(IMPL_NAME "::timer::timer",
+        throw tools::system_error(IMPL_NAME "::timer::timer",
                                 "Failed to create timer", errno);
     }
 
@@ -134,7 +134,7 @@ impl::timer::timer(const unsigned int seconds) :
     if (::timer_settime(m_pimpl->m_timer, 0, &it, &m_pimpl->m_old_it) == -1) {
        ::sigaction(SIGALRM, &m_pimpl->m_old_sa, NULL);
        ::timer_delete(m_pimpl->m_timer);
-        throw atf::system_error(IMPL_NAME "::timer::timer",
+        throw tools::system_error(IMPL_NAME "::timer::timer",
                                 "Failed to program timer", errno);
     }
 #else
@@ -145,7 +145,7 @@ impl::timer::timer(const unsigned int seconds) :
     it.it_value.tv_usec = 0;
     if (::setitimer(ITIMER_REAL, &it, &m_pimpl->m_old_it) == -1) {
         ::sigaction(SIGALRM, &m_pimpl->m_old_sa, NULL);
-        throw atf::system_error(IMPL_NAME "::timer::timer",
+        throw tools::system_error(IMPL_NAME "::timer::timer",
                                 "Failed to program timer", errno);
     }
     INV(compat_handle == NULL);

@@ -38,9 +38,9 @@ extern "C" {
 
 #include <cerrno>
 
-#include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/sanity.hpp"
 
+#include "exceptions.hpp"
 #include "signals.hpp"
 
 namespace impl = tools::atf_run;
@@ -110,7 +110,7 @@ impl::signal_programmer::signal_programmer(const int signo, const handler h) :
     sa.sa_flags = 0;
 
     if (::sigaction(m_signo, &sa, &m_oldsa) == -1)
-        throw atf::system_error(IMPL_NAME, "Could not install handler for "
+        throw tools::system_error(IMPL_NAME, "Could not install handler for "
                                 "signal", errno);
     m_programmed = true;
 }

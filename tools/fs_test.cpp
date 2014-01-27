@@ -40,6 +40,7 @@ extern "C" {
 #include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/fs.hpp"
 
+#include "exceptions.hpp"
 #include "fs.hpp"
 #include "user.hpp"
 
@@ -162,6 +163,9 @@ ATF_TEST_CASE_BODY(cleanup_eacces_on_root)
     } catch (const atf::system_error& e) {
         ATF_REQUIRE(!tools::atf_run::is_root());
         ATF_REQUIRE_EQ(EACCES, e.code());
+    } catch (const tools::system_error& e) {
+        ATF_REQUIRE(!tools::atf_run::is_root());
+        ATF_REQUIRE_EQ(EACCES, e.code());
     }
 }
 
@@ -202,7 +206,7 @@ ATF_TEST_CASE_BODY(change_directory)
 
     const atf::fs::path old = get_current_dir();
 
-    ATF_REQUIRE_THROW(atf::system_error,
+    ATF_REQUIRE_THROW(tools::system_error,
                     change_directory(atf::fs::path("files/reg")));
     ATF_REQUIRE(get_current_dir() == old);
 

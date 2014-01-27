@@ -27,32 +27,48 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_EXCEPTIONS_HPP_)
-#define _ATF_CXX_EXCEPTIONS_HPP_
+#include <cstring>
 
-#include <stdexcept>
-#include <string>
+#include "exceptions.hpp"
 
-extern "C" {
-struct atf_error;
+// ------------------------------------------------------------------------
+// The "system_error" type.
+// ------------------------------------------------------------------------
+
+tools::system_error::system_error(const std::string& who,
+                                  const std::string& message,
+                                  int sys_err) :
+    std::runtime_error(who + ": " + message),
+    m_sys_err(sys_err)
+{
 }
 
-namespace atf {
+tools::system_error::~system_error(void)
+    throw()
+{
+}
 
-class system_error : public std::runtime_error {
-    int m_sys_err;
-    mutable std::string m_message;
+int
+tools::system_error::code(void)
+    const
+    throw()
+{
+    return m_sys_err;
+}
 
-public:
-    system_error(const std::string&, const std::string&, int);
-    ~system_error(void) throw();
+const char*
+tools::system_error::what(void)
+    const
+    throw()
+{
+    try {
+        if (m_message.length() == 0) {
+            m_message = std::string(std::runtime_error::what()) + ": ";
+            m_message += ::strerror(m_sys_err);
+        }
 
-    int code(void) const throw();
-    const char* what(void) const throw();
-};
-
-void throw_atf_error(struct atf_error *);
-
-} // namespace atf
-
-#endif // !defined(_ATF_CXX_EXCEPTIONS_HPP_)
+        return m_message.c_str();
+    } catch (...) {
+        return "Unable to format system_error message";
+    }
+}
