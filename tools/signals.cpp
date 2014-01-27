@@ -37,8 +37,7 @@ extern "C" {
 }
 
 #include <cerrno>
-
-#include "atf-c++/detail/sanity.hpp"
+#include <cstdlib>
 
 #include "exceptions.hpp"
 #include "signals.hpp"
@@ -125,7 +124,7 @@ impl::signal_programmer::unprogram(void)
 {
     if (m_programmed) {
         if (::sigaction(m_signo, &m_oldsa, NULL) == -1)
-            UNREACHABLE;
+            std::abort();
         m_programmed = false;
     }
 }

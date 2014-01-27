@@ -37,7 +37,7 @@ extern "C" {
 #include <string.h>
 }
 
-#include "atf-c++/detail/sanity.hpp"
+#include <cassert>
 
 #include "env.hpp"
 #include "exceptions.hpp"
@@ -53,7 +53,7 @@ std::string
 impl::get(const std::string& name)
 {
     const char* val = getenv(name.c_str());
-    PRE(val != NULL);
+    assert(val != NULL);
     return val;
 }
 

@@ -27,13 +27,13 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cstdlib>
 #include <fstream>
 #include <vector>
 
 #include "atf-c/defs.h"
 
 #include "atf-c++/detail/fs.hpp"
-#include "atf-c++/detail/sanity.hpp"
 
 #include "config.hpp"
 #include "config_file.hpp"
@@ -188,7 +188,7 @@ detail::atf_config_reader::read(void)
                 }
             } else if (t.type() == nl_type) {
             } else
-                UNREACHABLE;
+                std::abort();
         } catch (const parse_error& pe) {
             p.add_error(pe);
             p.reset(nl_type);

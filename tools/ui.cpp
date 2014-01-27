@@ -34,10 +34,9 @@ extern "C" {
 #include <unistd.h>
 }
 
+#include <cassert>
 #include <sstream>
 
-#include "atf-c++/detail/text.hpp"
-#include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
 
 #include "env.hpp"
@@ -82,7 +81,7 @@ format_paragraph(const std::string& text,
                  const bool repeat,
                  const size_t col)
 {
-    PRE(text.find('\n') == std::string::npos);
+    assert(text.find('\n') == std::string::npos);
 
     const std::string pad(col - tag.length(), ' ');
     const std::string fullpad(col, ' ');
@@ -92,7 +91,7 @@ format_paragraph(const std::string& text,
         formatted = tag + pad;
     else
         formatted = fullpad;
-    INV(formatted.length() == col);
+    assert(formatted.length() == col);
     size_t curcol = col;
 
     const size_t maxcol = terminal_width();
@@ -143,7 +142,7 @@ std::string
 impl::format_text_with_tag(const std::string& text, const std::string& tag,
                            bool repeat, size_t col)
 {
-    PRE(col == 0 || col >= tag.length());
+    assert(col == 0 || col >= tag.length());
     if (col == 0)
         col = tag.length();
 

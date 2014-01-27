@@ -36,8 +36,6 @@ extern "C" {
 #include "atf-c/defs.h"
 }
 
-#include "atf-c++/detail/sanity.hpp"
-
 #include "application.hpp"
 #include "config.hpp"
 
@@ -79,7 +77,7 @@ atf_config::process_option(int ch, const char* arg ATF_DEFS_ATTRIBUTE_UNUSED)
         break;
 
     default:
-        UNREACHABLE;
+        std::abort();
     }
 }
 

@@ -27,9 +27,9 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cassert>
 #include <map>
 
-#include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
 
 #include "config.hpp"
@@ -70,7 +70,7 @@ static
 void
 init_variables(void)
 {
-    PRE(m_variables.empty());
+    assert(m_variables.empty());
 
     for (struct var* v = vars; v->name != NULL; v++) {
         const std::string varname = atf::text::to_lower(v->name);
@@ -86,7 +86,7 @@ init_variables(void)
         }
     }
 
-    POST(!m_variables.empty());
+    assert(!m_variables.empty());
 }
 
 const std::string&
@@ -95,7 +95,7 @@ tools::config::get(const std::string& varname)
     if (m_variables.empty())
         init_variables();
 
-    PRE(has(varname));
+    assert(has(varname));
     return m_variables[varname];
 }
 

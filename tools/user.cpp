@@ -39,8 +39,6 @@ extern "C" {
 #include <stdexcept>
 #include <string>
 
-#include "../atf-c++/detail/sanity.hpp"
-
 #include "user.hpp"
 
 namespace impl = tools::atf_run;

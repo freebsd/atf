@@ -44,7 +44,6 @@ extern "C" {
 #include "atf-c/defs.h"
 
 #include "atf-c++/detail/fs.hpp"
-#include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
 
 #include "application.hpp"
@@ -290,7 +289,7 @@ class ticker_writer : public writer {
             str = "Skipped: " + reason;
             m_tcs_skipped++;
         } else
-            UNREACHABLE;
+            std::abort();
 
         // XXX Wrap text.  format_text_with_tag does not currently allow
         // to specify the current column, which is needed because we have
@@ -473,7 +472,7 @@ class xml_writer : public writer {
         } else if (state == "skipped") {
             (*m_os) << "<skipped>" << elemval(reason) << "</skipped>\n";
         } else
-            UNREACHABLE;
+            std::abort();
         (*m_os) << "<tc-time>" << format_tv(tv) << "</tc-time>";
         (*m_os) << "</tc>\n";
     }
@@ -658,7 +657,7 @@ atf_report::process_option(int ch, const char* arg)
         break;
 
     default:
-        UNREACHABLE;
+        std::abort();
     }
 }
 

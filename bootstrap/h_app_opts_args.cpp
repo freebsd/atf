@@ -30,8 +30,6 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "atf-c++/detail/sanity.hpp"
-
 #include "tools/application.hpp"
 
 class h_app_opts_args : public tools::application::app {
@@ -87,7 +85,7 @@ h_app_opts_args::process_option(int ch, const char* arg)
         break;
 
     default:
-        UNREACHABLE;
+        std::abort();
     }
 }
 

@@ -35,6 +35,7 @@ extern "C" {
 #include <unistd.h>
 }
 
+#include <cassert>
 #include <cerrno>
 #include <cstddef>
 #include <cstdlib>
@@ -44,7 +45,6 @@ extern "C" {
 #include <istream>
 #include <ostream>
 
-#include "../atf-c++/detail/sanity.hpp"
 #include "../atf-c++/macros.hpp"
 
 #include "io.hpp"
@@ -349,7 +349,7 @@ public:
 static bool child_finished = false;
 static void sigchld_handler(int signo)
 {
-    INV(signo == SIGCHLD);
+    assert(signo == SIGCHLD);
     child_finished = true;
 }
 
@@ -391,7 +391,7 @@ muxer_test(const size_t bufsize, const size_t iterations)
     if (pid == 0) {
         sigchld.unprogram();
         child_printer(pipeout, pipeerr, iterations);
-        UNREACHABLE;
+        std::abort();
     }
     ::close(pipeout[1]);
     ::close(pipeerr[1]);

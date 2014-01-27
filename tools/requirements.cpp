@@ -32,7 +32,9 @@ extern "C" {
 #include <sys/sysctl.h>
 }
 
+#include <cassert>
 #include <cerrno>
+#include <cstdlib>
 #include <cstring>
 #include <stdexcept>
 
@@ -41,7 +43,6 @@ extern "C" {
 }
 
 #include "atf-c++/detail/fs.hpp"
-#include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
 
 #include "config.hpp"
@@ -274,7 +275,7 @@ impl::check_requirements(const atf::tests::vars_map& metadata,
          failure_reason.empty() && iter != metadata.end(); iter++) {
         const std::string& name = (*iter).first;
         const std::string& value = (*iter).second;
-        INV(!value.empty()); // Enforced by application/X-atf-tp parser.
+        assert(!value.empty()); // Enforced by application/X-atf-tp parser.
 
         if (name == "require.arch")
             failure_reason = check_arch(value);
@@ -293,7 +294,7 @@ impl::check_requirements(const atf::tests::vars_map& metadata,
         else {
             // Unknown require.* properties are forbidden by the
             // application/X-atf-tp parser.
-            INV(failure_reason.find("require.") != 0);
+            assert(failure_reason.find("require.") != 0);
         }
     }
 
@@ -316,8 +317,7 @@ impl::get_required_user(const atf::tests::vars_map& metadata,
             try {
                 return impl::get_user_ids((*iter).second);
             } catch (const std::exception& e) {
-                UNREACHABLE;  // This has been validated by check_user.
-                throw e;
+                std::abort();  // This has been validated by check_user.
             }
         } else {
             return std::make_pair(-1, -1);

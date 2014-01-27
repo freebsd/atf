@@ -45,7 +45,6 @@ extern "C" {
 
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/process.hpp"
-#include "atf-c++/detail/sanity.hpp"
 
 #include "env.hpp"
 
@@ -128,7 +127,7 @@ ATF_TEST_CASE_BODY(mux_streams)
             std::cerr << "stderr " << i << "\n";
             break;
         default:
-            UNREACHABLE;
+            std::abort();
         }
     }
 }

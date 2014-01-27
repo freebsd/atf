@@ -35,6 +35,7 @@ extern "C" {
 #include <sys/time.h>
 }
 
+#include <cassert>
 #include <cerrno>
 #include <csignal>
 #include <ctime>
@@ -42,8 +43,6 @@ extern "C" {
 extern "C" {
 #include "atf-c/defs.h"
 }
-
-#include "atf-c++/detail/sanity.hpp"
 
 #include "exceptions.hpp"
 #include "signals.hpp"
@@ -148,7 +147,7 @@ impl::timer::timer(const unsigned int seconds) :
         throw tools::system_error(IMPL_NAME "::timer::timer",
                                 "Failed to program timer", errno);
     }
-    INV(compat_handle == NULL);
+    assert(compat_handle == NULL);
     compat_handle = this;
 #endif
 }
@@ -158,16 +157,16 @@ impl::timer::~timer(void)
 #if defined(HAVE_TIMER_T)
     {
         const int ret = ::timer_delete(m_pimpl->m_timer);
-        INV(ret != -1);
+        assert(ret != -1);
     }
 #else
     {
         const int ret = ::setitimer(ITIMER_REAL, &m_pimpl->m_old_it, NULL);
-        INV(ret != -1);
+        assert(ret != -1);
     }
 #endif
     const int ret = ::sigaction(SIGALRM, &m_pimpl->m_old_sa, NULL);
-    INV(ret != -1);
+    assert(ret != -1);
 
 #if !defined(HAVE_TIMER_T)
     compat_handle = NULL;

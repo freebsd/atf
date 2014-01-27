@@ -27,11 +27,11 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cassert>
+#include <cstdlib>
 #include <fstream>
 
 #include "atf-c/defs.h"
-
-#include "atf-c++/detail/sanity.hpp"
 
 #include "atffile.hpp"
 #include "exceptions.hpp"
@@ -175,7 +175,7 @@ detail::atf_atffile_reader::read(void)
             } else if (t.type() == nl_type) {
                 continue;
             } else
-                UNREACHABLE;
+                std::abort();
 
             t = p.expect(nl_type, hash_type, eof_type,
                          "new line or comment");
@@ -274,7 +274,7 @@ impl::atffile::atffile(const atf::tests::vars_map& config_vars,
     m_tps(test_program_names),
     m_props(properties)
 {
-    PRE(properties.find("test-suite") != properties.end());
+    assert(properties.find("test-suite") != properties.end());
 }
 
 const std::vector< std::string >&

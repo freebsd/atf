@@ -31,13 +31,14 @@ extern "C" {
 #include <sys/time.h>
 }
 
+#include <cassert>
+#include <cstdlib>
 #include <map>
 #include <sstream>
 #include <utility>
 
 #include "atf-c/defs.h"
 
-#include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
 
 #include "parser.hpp"
@@ -335,7 +336,7 @@ impl::atf_tps_reader::read_tc(void* pptr)
         if (t2.type() == tc_so_type) {
             ATF_PARSER_CALLBACK(p, got_tc_stdout_line(line));
         } else {
-            INV(t2.type() == tc_se_type);
+            assert(t2.type() == tc_se_type);
             ATF_PARSER_CALLBACK(p, got_tc_stderr_line(line));
         }
 
@@ -377,7 +378,7 @@ impl::atf_tps_reader::read_tc(void* pptr)
         else if (t.type() == expected_timeout_type) state = "expected_timeout";
         else if (t.type() == failed_type) state = "failed";
         else if (t.type() == skipped_type) state = "skipped";
-        else UNREACHABLE;
+        else std::abort();
 
         t = p.expect(comma_type, "`,'");
         std::string reason = atf::text::trim(p.rest_of_line());

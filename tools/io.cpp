@@ -34,6 +34,7 @@ extern "C" {
 #include <unistd.h>
 }
 
+#include <cassert>
 #include <cerrno>
 #include <cstring>
 
@@ -42,7 +43,6 @@ extern "C" {
 }
 
 #include "../atf-c++/detail/auto_array.hpp"
-#include "../atf-c++/detail/sanity.hpp"
 
 #include "exceptions.hpp"
 #include "io.hpp"
@@ -62,7 +62,7 @@ impl::file_handle::file_handle(void) :
 impl::file_handle::file_handle(handle_type h) :
     m_handle(h)
 {
-    PRE(m_handle != invalid_value());
+    assert(m_handle != invalid_value());
 }
 
 impl::file_handle::file_handle(const file_handle& fh) :
@@ -96,7 +96,7 @@ impl::file_handle::is_valid(void)
 void
 impl::file_handle::close(void)
 {
-    PRE(is_valid());
+    assert(is_valid());
 
     ::close(m_handle);
 
@@ -106,7 +106,7 @@ impl::file_handle::close(void)
 impl::file_handle::handle_type
 impl::file_handle::disown(void)
 {
-    PRE(is_valid());
+    assert(is_valid());
 
     handle_type h = m_handle;
     m_handle = invalid_value();
@@ -117,7 +117,7 @@ impl::file_handle::handle_type
 impl::file_handle::get(void)
     const
 {
-    PRE(is_valid());
+    assert(is_valid());
 
     return m_handle;
 }
@@ -125,7 +125,7 @@ impl::file_handle::get(void)
 void
 impl::file_handle::posix_remap(handle_type h)
 {
-    PRE(is_valid());
+    assert(is_valid());
 
     if (m_handle == h)
         return;
@@ -159,8 +159,8 @@ impl::systembuf::systembuf(handle_type h, std::size_t bufsize) :
     m_read_buf(NULL),
     m_write_buf(NULL)
 {
-    PRE(m_handle >= 0);
-    PRE(m_bufsize > 0);
+    assert(m_handle >= 0);
+    assert(m_bufsize > 0);
 
     try {
         m_read_buf = new char[bufsize];
@@ -185,7 +185,7 @@ impl::systembuf::~systembuf(void)
 impl::systembuf::int_type
 impl::systembuf::underflow(void)
 {
-    PRE(gptr() >= egptr());
+    assert(gptr() >= egptr());
 
     bool ok;
     ssize_t cnt = ::read(m_handle, m_read_buf, m_bufsize);
@@ -202,7 +202,7 @@ impl::systembuf::underflow(void)
 impl::systembuf::int_type
 impl::systembuf::overflow(int c)
 {
-    PRE(pptr() >= epptr());
+    assert(pptr() >= epptr());
     if (sync() == -1)
         return traits_type::eof();
     if (!traits_type::eq_int_type(c, traits_type::eof())) {
@@ -251,7 +251,7 @@ safe_poll(struct pollfd fds[], nfds_t nfds, int timeout)
             throw tools::system_error(IMPL_NAME "::safe_poll", "poll(2) failed",
                                     errno);
     }
-    INV(ret >= 0);
+    assert(ret >= 0);
     return ret;
 }
 
@@ -262,7 +262,7 @@ safe_read(const int fd, void* buffer, const size_t nbytes,
     int ret;
     while ((ret = ::read(fd, buffer, nbytes)) == -1 && errno == EINTR) {}
     if (ret == -1) {
-        INV(errno != EINTR);
+        assert(errno != EINTR);
 
         if (report_errors)
             throw tools::system_error(IMPL_NAME "::safe_read", "read(2) failed",
@@ -270,7 +270,7 @@ safe_read(const int fd, void* buffer, const size_t nbytes,
         else
             ret = 0;
     }
-    INV(ret >= 0);
+    assert(ret >= 0);
     return static_cast< size_t >(ret);
 }
 
@@ -293,7 +293,7 @@ impl::muxer::read_one(const size_t index, const int fd, std::string& accum,
     atf::auto_array< char > buffer(new char[m_bufsize]);
     const size_t nbytes = safe_read(fd, buffer.get(), m_bufsize - 1,
                                     report_errors);
-    INV(nbytes < m_bufsize);
+    assert(nbytes < m_bufsize);
     buffer[nbytes] = '\0';
 
     std::string line(accum);
@@ -339,7 +339,7 @@ impl::muxer::mux(volatile const bool& terminate)
                 // a call to the flush method.
                 poll_fds[i].events = 0;
 
-                INV(nactive >= 1);
+                assert(nactive >= 1);
                 nactive--;
             } else if (poll_fds[i].revents & (POLLIN | POLLRDNORM | POLLRDBAND |
                                        POLLPRI)) {

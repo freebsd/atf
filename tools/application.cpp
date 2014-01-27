@@ -35,6 +35,7 @@ extern "C" {
 #include <unistd.h>
 }
 
+#include <cassert>
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
@@ -44,8 +45,6 @@ extern "C" {
 extern "C" {
 #include "atf-c/defs.h"
 }
-
-#include "atf-c++/detail/sanity.hpp"
 
 #include "application.hpp"
 #include "ui.hpp"
@@ -160,7 +159,7 @@ impl::app::process_option(int ch ATF_DEFS_ATTRIBUTE_UNUSED,
 void
 impl::app::process_options(void)
 {
-    PRE(inited());
+    assert(inited());
 
     std::string optstr;
 #if defined(HAVE_GNU_GETOPT)
@@ -213,7 +212,7 @@ impl::app::process_options(void)
 void
 impl::app::usage(std::ostream& os)
 {
-    PRE(inited());
+    assert(inited());
 
     std::string args = specific_args();
     if (!args.empty())
@@ -223,7 +222,7 @@ impl::app::usage(std::ostream& os)
        << ui::format_text(m_description) << "\n\n";
 
     options_set opts = options();
-    INV(!opts.empty());
+    assert(!opts.empty());
     os << "Available options:\n";
     size_t coldesc = 0;
     for (options_set::const_iterator iter = opts.begin();
@@ -258,8 +257,8 @@ impl::app::usage(std::ostream& os)
 int
 impl::app::run(int argc, char* const* argv)
 {
-    PRE(argc > 0);
-    PRE(argv != NULL);
+    assert(argc > 0);
+    assert(argv != NULL);
 
     m_argc = argc;
     m_argv = argv;

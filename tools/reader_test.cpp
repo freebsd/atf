@@ -35,7 +35,6 @@
 
 #include "atf-c++/macros.hpp"
 
-#include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
 
 #include "parser.hpp"

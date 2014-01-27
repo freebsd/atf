@@ -40,6 +40,7 @@ extern "C" {
 }
 
 #include <algorithm>
+#include <cassert>
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
@@ -52,7 +53,6 @@ extern "C" {
 
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/process.hpp"
-#include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
 
 #include "application.hpp"
@@ -122,7 +122,7 @@ static void
 dump_stacktrace(const atf::fs::path& tp, const atf::process::status& s,
                 const atf::fs::path& workdir, impl::atf_tps_writer& w)
 {
-    PRE(s.signaled() && s.coredump());
+    assert(s.signaled() && s.coredump());
 
     w.stderr_tc("Test program crashed; attempting to get stack trace");
 
@@ -177,7 +177,7 @@ atf_run::process_option(int ch, const char* arg)
         break;
 
     default:
-        UNREACHABLE;
+        std::abort();
     }
 }
 
@@ -247,7 +247,7 @@ atf_run::run_test_directory(const atf::fs::path& tp,
     {
         atf::tests::vars_map::const_iterator iter =
             af.props().find("test-suite");
-        INV(iter != af.props().end());
+        assert(iter != af.props().end());
         test_suite_vars = impl::read_config_files((*iter).second);
     }
 
@@ -363,7 +363,7 @@ atf_run::get_test_case_result(const std::string& broken_reason,
                 "bogus results file");
         }
     }
-    UNREACHABLE;
+    std::abort();
     return test_case_result();
 }
 
@@ -420,7 +420,7 @@ atf_run::run_test_program(const atf::fs::path& tp,
                 tcmd, config);
 
             atf::fs::path resfile = resdir.get_path() / "tcr";
-            INV(!atf::fs::exists(resfile));
+            assert(!atf::fs::exists(resfile));
             try {
                 const bool has_cleanup = atf::text::to_bool(
                     (*tcmd.find("has.cleanup")).second);
@@ -535,7 +535,7 @@ atf_run::main(void)
     {
         atf::tests::vars_map::const_iterator iter =
             af.props().find("test-suite");
-        INV(iter != af.props().end());
+        assert(iter != af.props().end());
         test_suite_vars = impl::read_config_files((*iter).second);
     }
 

@@ -37,6 +37,7 @@ extern "C" {
 #include <unistd.h>
 }
 
+#include <cassert>
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
@@ -46,7 +47,6 @@ extern "C" {
 #include "atf-c/defs.h"
 
 #include "atf-c++/detail/process.hpp"
-#include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
 
 #include "config_file.hpp"
@@ -248,7 +248,7 @@ silence_stdin(void)
     int fd = ::open("/dev/null", O_RDONLY);
     if (fd == -1)
         throw std::runtime_error("Could not open /dev/null");
-    INV(fd == STDIN_FILENO);
+    assert(fd == STDIN_FILENO);
 }
 
 static
@@ -256,7 +256,7 @@ void
 prepare_child(const atf::fs::path& workdir)
 {
     const int ret = ::setpgid(::getpid(), 0);
-    INV(ret != -1);
+    assert(ret != -1);
 
     ::umask(S_IWGRP | S_IWOTH);
 
@@ -348,14 +348,14 @@ tokenize_result(const std::string& line, std::string& out_state,
         out_arg = line.substr(pos + 1, pos2 - pos - 1);
         out_reason = atf::text::trim(line.substr(pos2 + 2));
     } else
-        UNREACHABLE;
+        std::abort();
 }
 
 static impl::test_case_result
 handle_result(const std::string& state, const std::string& arg,
               const std::string& reason)
 {
-    PRE(state == "passed");
+    assert(state == "passed");
 
     if (!arg.empty() || !reason.empty())
         throw std::runtime_error("The test case result '" + state + "' cannot "
@@ -368,7 +368,7 @@ static impl::test_case_result
 handle_result_with_reason(const std::string& state, const std::string& arg,
                           const std::string& reason)
 {
-    PRE(state == "expected_death" || state == "expected_failure" ||
+    assert(state == "expected_death" || state == "expected_failure" ||
         state == "expected_timeout" || state == "failed" || state == "skipped");
 
     if (!arg.empty() || reason.empty())
@@ -383,7 +383,7 @@ handle_result_with_reason_and_arg(const std::string& state,
                                   const std::string& arg,
                                   const std::string& reason)
 {
-    PRE(state == "expected_exit" || state == "expected_signal");
+    assert(state == "expected_exit" || state == "expected_signal");
 
     if (reason.empty())
         throw std::runtime_error("The test case result '" + state + "' must "
@@ -600,7 +600,7 @@ impl::atf_tps_writer::start_tp(const std::string& tp, size_t ntcs)
 void
 impl::atf_tps_writer::end_tp(const std::string& reason)
 {
-    PRE(reason.find('\n') == std::string::npos);
+    assert(reason.find('\n') == std::string::npos);
     if (reason.empty())
         m_os << "tp-end: " << generate_timestamp() << ", " << m_tpname << "\n";
     else
@@ -709,7 +709,7 @@ class child_muxer : public impl::muxer {
         switch (index) {
         case 0: m_writer.stdout_tc(line); break;
         case 1: m_writer.stderr_tc(line); break;
-        default: UNREACHABLE;
+        default: std::abort();
         }
     }
 
@@ -748,7 +748,7 @@ impl::run_test_case(const atf::fs::path& executable,
     terminate_poll = false;
 
     const atf::tests::vars_map::const_iterator iter = metadata.find("timeout");
-    INV(iter != metadata.end());
+    assert(iter != metadata.end());
     const unsigned int timeout =
         atf::text::to_type< unsigned int >((*iter).second);
     const pid_t child_pid = child.pid();
@@ -769,7 +769,7 @@ impl::run_test_case(const atf::fs::path& executable,
         mux.mux(terminate_poll);
         timed_out = timeout_timer.fired();
     } catch (...) {
-        UNREACHABLE;
+        std::abort();
     }
 
     ::killpg(child_pid, SIGKILL);

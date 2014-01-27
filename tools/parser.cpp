@@ -27,9 +27,9 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <cassert>
 #include <sstream>
 
-#include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
 
 #include "parser.hpp"
@@ -205,7 +205,7 @@ const std::string&
 impl::header_entry::get_attr(const std::string& n) const
 {
     attrs_map::const_iterator iter = m_attrs.find(n);
-    PRE(iter != m_attrs.end());
+    assert(iter != m_attrs.end());
     return (*iter).second;
 }
 
@@ -285,7 +285,7 @@ write(std::ostream& os, const impl::header_entry& he)
     impl::attrs_map as = he.attrs();
     for (impl::attrs_map::const_iterator iter = as.begin(); iter != as.end();
          iter++) {
-        PRE((*iter).second.find('\"') == std::string::npos);
+        assert((*iter).second.find('\"') == std::string::npos);
         line += "; " + (*iter).first + "=\"" + (*iter).second + "\"";
     }
 
@@ -348,9 +348,9 @@ impl::read_headers(std::istream& is, size_t curline)
 void
 impl::write_headers(const impl::headers_map& hm, std::ostream& os)
 {
-    PRE(!hm.empty());
+    assert(!hm.empty());
     headers_map::const_iterator ct = hm.find("Content-Type");
-    PRE(ct != hm.end());
+    assert(ct != hm.end());
     header::write(os, (*ct).second);
     for (headers_map::const_iterator iter = hm.begin(); iter != hm.end();
          iter++) {

@@ -40,13 +40,13 @@ extern "C" {
 #include <unistd.h>
 }
 
+#include <cassert>
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
 
 #include "atf-c++/detail/auto_array.hpp"
 #include "atf-c++/detail/process.hpp"
-#include "atf-c++/detail/sanity.hpp"
 
 #include "exceptions.hpp"
 #include "fs.hpp"
@@ -133,7 +133,7 @@ retry_chmod:
         bool ok = false;
         int retries = max_retries;
         while (!ok) {
-            INV(retries > 0);
+            assert(retries > 0);
             try {
                 const atf::fs::directory d(p);
                 subdirs = d.names();
@@ -145,7 +145,7 @@ retry_chmod:
                 ::sleep(retry_delay_in_seconds);
             }
         }
-        INV(ok);
+        assert(ok);
     }
 
     for (std::set< std::string >::const_iterator iter = subdirs.begin();
