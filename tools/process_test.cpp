@@ -41,18 +41,6 @@
 // is cleaned by a fair amount.  Instead... just rely (at the moment) on
 // the system tests for the tools using this module.
 
-// Path to the directory containing the libatf-c tests, used to locate the
-// process_helpers program.  If NULL (the default), the code will use a
-// relative path.  Otherwise, the provided path will be used; this is so
-// that we can locate the helpers binary if the installation uses a
-// different layout than the one we provide (as is the case in FreeBSD).
-#if defined(ATF_C_TESTS_BASE)
-static const char* atf_c_tests_base = ATF_C_TESTS_BASE;
-#else
-static const char* atf_c_tests_base = NULL;
-#endif
-#undef ATF_C_TESTS_BASE
-
 // ------------------------------------------------------------------------
 // Auxiliary functions.
 // ------------------------------------------------------------------------
@@ -70,33 +58,19 @@ array_size(const char* const* array)
 }
 
 static
-atf::fs::path
-get_process_helpers_path(const atf::tests::tc& tc, bool is_detail)
-{
-    const char* helper = "detail/process_helpers";
-    if (atf_c_tests_base == NULL) {
-        if (is_detail)
-            return atf::fs::path(tc.get_config_var("srcdir")) /
-                   ".." / ".." / "atf-c" / helper;
-        else
-            return atf::fs::path(tc.get_config_var("srcdir")) /
-                   ".." / "atf-c" / helper;
-    } else {
-        return atf::fs::path(atf_c_tests_base) / helper;
-    }
-}
-
-static
 tools::process::status
 exec_process_helpers(const atf::tests::tc& tc, const char* helper_name)
 {
     using tools::process::exec;
 
+    const atf::fs::path helpers = atf::fs::path(tc.get_config_var("srcdir")) /
+        "process_helpers";
+
     std::vector< std::string > argv;
-    argv.push_back(get_process_helpers_path(tc, true).leaf_name());
+    argv.push_back(helpers.leaf_name());
     argv.push_back(helper_name);
 
-    return exec(get_process_helpers_path(tc, true),
+    return exec(helpers,
                 tools::process::argv_array(argv),
                 tools::process::stream_inherit(),
                 tools::process::stream_inherit());

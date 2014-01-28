@@ -243,6 +243,9 @@ tests_tools_PROGRAMS += tools/pass_helper
 tools_pass_helper_SOURCES = tools/pass_helper.cpp
 tools_pass_helper_LDADD = $(ATF_CXX_LIBS)
 
+tests_tools_PROGRAMS += tools/process_helpers
+tools_process_helpers_SOURCES = tools/process_helpers.c
+
 tests_tools_PROGRAMS += tools/reader_test
 tools_reader_test_SOURCES = tools/reader_test.cpp
 tools_reader_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)

@@ -28,17 +28,23 @@
 //
 
 extern "C" {
+#include <sys/types.h>
+#include <sys/wait.h>
+
+#include <fcntl.h>
 #include <signal.h>
 
-#include "atf-c/error.h"
-
-#include "atf-c/detail/process.h"
+#include "atf-c/defs.h"
 }
 
 #include <cassert>
+#include <cstdarg>
+#include <cerrno>
+#include <cstring>
 #include <iostream>
 
 #include "exceptions.hpp"
+#include "text.hpp"
 #include "process.hpp"
 
 namespace detail = tools::process::detail;
@@ -77,6 +83,46 @@ argv_to_collection(const char* const* argv)
         c.push_back(std::string(*iter));
 
     return c;
+}
+
+static
+void
+safe_dup(const int oldfd, const int newfd)
+{
+    if (oldfd != newfd) {
+        if (dup2(oldfd, newfd) == -1) {
+            throw tools::system_error(IMPL_NAME "::safe_dup",
+                                      "Could not allocate file descriptor",
+                                      errno);
+        } else {
+            ::close(oldfd);
+        }
+    }
+}
+
+static
+int
+const_execvp(const char *file, const char *const *argv)
+{
+#define UNCONST(a) ((void *)(unsigned long)(const void *)(a))
+    return ::execvp(file, (char* const*)(UNCONST(argv)));
+#undef UNCONST
+}
+
+void
+detail::do_exec(void *v)
+{
+    struct exec_args *ea = reinterpret_cast<struct exec_args *>(v);
+
+    if (ea->m_prehook != NULL)
+        ea->m_prehook();
+
+    const int ret = const_execvp(ea->m_prog.c_str(), ea->m_argv.exec_argv());
+    const int errnocopy = errno;
+    assert(ret == -1);
+    std::cerr << "exec(" << ea->m_prog.str() << ") failed: "
+              << std::strerror(errnocopy) << "\n";
+    std::exit(EXIT_FAILURE);
 }
 
 // ------------------------------------------------------------------------
@@ -172,120 +218,206 @@ impl::argv_array::operator=(const argv_array& a)
 // The "stream" types.
 // ------------------------------------------------------------------------
 
-impl::basic_stream::basic_stream(void) :
-    m_inited(false)
-{
-}
-
-impl::basic_stream::~basic_stream(void)
-{
-    if (m_inited)
-        atf_process_stream_fini(&m_sb);
-}
-
-const atf_process_stream_t*
-impl::basic_stream::get_sb(void)
-    const
-{
-    assert(m_inited);
-    return &m_sb;
-}
-
 impl::stream_capture::stream_capture(void)
 {
-    atf_error_t err = atf_process_stream_init_capture(&m_sb);
-    if (atf_is_error(err))
-        atf::throw_atf_error(err);
-    m_inited = true;
+    for (int i = 0; i < 2; i++)
+        m_pipefds[i] = -1;
 }
 
-impl::stream_connect::stream_connect(const int src_fd, const int tgt_fd)
+impl::stream_capture::~stream_capture(void)
 {
-    atf_error_t err = atf_process_stream_init_connect(&m_sb, src_fd, tgt_fd);
-    if (atf_is_error(err))
-        atf::throw_atf_error(err);
-    m_inited = true;
+    for (int i = 0; i < 2; i++)
+        if (m_pipefds[i] != -1)
+            ::close(m_pipefds[i]);
+}
+
+void
+impl::stream_capture::prepare(void)
+{
+    if (pipe(m_pipefds) == -1)
+        throw system_error(IMPL_NAME "::stream_capture::prepare",
+                           "Failed to create pipe", errno);
+}
+
+int
+impl::stream_capture::connect_parent(void)
+{
+    ::close(m_pipefds[1]); m_pipefds[1] = -1;
+    const int fd = m_pipefds[0];
+    m_pipefds[0] = -1;
+    return fd;
+}
+
+void
+impl::stream_capture::connect_child(const int fd)
+{
+    ::close(m_pipefds[0]); m_pipefds[0] = -1;
+    if (m_pipefds[1] != fd) {
+        safe_dup(m_pipefds[1], fd);
+    }
+    m_pipefds[1] = -1;
+}
+
+impl::stream_connect::stream_connect(const int src_fd, const int tgt_fd) :
+    m_src_fd(src_fd), m_tgt_fd(tgt_fd)
+{
+}
+
+void
+impl::stream_connect::prepare(void)
+{
+}
+
+int
+impl::stream_connect::connect_parent(void)
+{
+    return -1;
+}
+
+void
+impl::stream_connect::connect_child(const int fd ATF_DEFS_ATTRIBUTE_UNUSED)
+{
+    safe_dup(m_tgt_fd, m_src_fd);
 }
 
 impl::stream_inherit::stream_inherit(void)
 {
-    atf_error_t err = atf_process_stream_init_inherit(&m_sb);
-    if (atf_is_error(err))
-        atf::throw_atf_error(err);
-    m_inited = true;
 }
 
-impl::stream_redirect_fd::stream_redirect_fd(const int fd)
+void
+impl::stream_inherit::prepare(void)
 {
-    atf_error_t err = atf_process_stream_init_redirect_fd(&m_sb, fd);
-    if (atf_is_error(err))
-        atf::throw_atf_error(err);
-    m_inited = true;
 }
 
-impl::stream_redirect_path::stream_redirect_path(const atf::fs::path& p)
+int
+impl::stream_inherit::connect_parent(void)
 {
-    atf_error_t err = atf_process_stream_init_redirect_path(&m_sb, p.c_path());
-    if (atf_is_error(err))
-        atf::throw_atf_error(err);
-    m_inited = true;
+    return -1;
+}
+
+void
+impl::stream_inherit::connect_child(const int fd ATF_DEFS_ATTRIBUTE_UNUSED)
+{
+}
+
+impl::stream_redirect_fd::stream_redirect_fd(const int fd) :
+    m_fd(fd)
+{
+}
+
+void
+impl::stream_redirect_fd::prepare(void)
+{
+}
+
+int
+impl::stream_redirect_fd::connect_parent(void)
+{
+    return -1;
+}
+
+void
+impl::stream_redirect_fd::connect_child(const int fd)
+{
+    safe_dup(m_fd, fd);
+}
+
+impl::stream_redirect_path::stream_redirect_path(const atf::fs::path& p) :
+    m_path(p)
+{
+}
+
+void
+impl::stream_redirect_path::prepare(void)
+{
+}
+
+int
+impl::stream_redirect_path::connect_parent(void)
+{
+    return -1;
+}
+
+void
+impl::stream_redirect_path::connect_child(const int fd)
+{
+    const int aux = ::open(m_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (aux == -1)
+        throw system_error(IMPL_NAME "::stream_redirect_path::connect_child",
+                           "Could not create " + m_path.str(), errno);
+    else
+        safe_dup(aux, fd);
 }
 
 // ------------------------------------------------------------------------
 // The "status" type.
 // ------------------------------------------------------------------------
 
-impl::status::status(atf_process_status_t& s) :
+impl::status::status(int s) :
     m_status(s)
 {
 }
 
 impl::status::~status(void)
 {
-    atf_process_status_fini(&m_status);
 }
 
 bool
 impl::status::exited(void)
     const
 {
-    return atf_process_status_exited(&m_status);
+    int mutable_status = m_status;
+    return WIFEXITED(mutable_status);
 }
 
 int
 impl::status::exitstatus(void)
     const
 {
-    return atf_process_status_exitstatus(&m_status);
+    assert(exited());
+    int mutable_status = m_status;
+    return WEXITSTATUS(mutable_status);
 }
 
 bool
 impl::status::signaled(void)
     const
 {
-    return atf_process_status_signaled(&m_status);
+    int mutable_status = m_status;
+    return WIFSIGNALED(mutable_status);
 }
 
 int
 impl::status::termsig(void)
     const
 {
-    return atf_process_status_termsig(&m_status);
+    assert(signaled());
+    int mutable_status = m_status;
+    return WTERMSIG(mutable_status);
 }
 
 bool
 impl::status::coredump(void)
     const
 {
-    return atf_process_status_coredump(&m_status);
+    assert(signaled());
+#if defined(WCOREDUMP)
+    int mutable_status = m_status;
+    return WCOREDUMP(mutable_status);
+#else
+    return false;
+#endif
 }
 
 // ------------------------------------------------------------------------
 // The "child" type.
 // ------------------------------------------------------------------------
 
-impl::child::child(atf_process_child_t& c) :
-    m_child(c),
+impl::child::child(const pid_t pid_arg, const int stdout_fd_arg,
+                   const int stderr_fd_arg) :
+    m_pid(pid_arg),
+    m_stdout(stdout_fd_arg),
+    m_stderr(stderr_fd_arg),
     m_waited(false)
 {
 }
@@ -293,23 +425,29 @@ impl::child::child(atf_process_child_t& c) :
 impl::child::~child(void)
 {
     if (!m_waited) {
-        ::kill(atf_process_child_pid(&m_child), SIGTERM);
+        ::kill(m_pid, SIGTERM);
+        (void)wait();
 
-        atf_process_status_t s;
-        atf_error_t err = atf_process_child_wait(&m_child, &s);
-        assert(!atf_is_error(err));
-        atf_process_status_fini(&s);
+        if (m_stdout != -1)
+            ::close(m_stdout);
+        if (m_stderr != -1)
+            ::close(m_stderr);
     }
 }
 
 impl::status
 impl::child::wait(void)
 {
-    atf_process_status_t s;
+    int s;
 
-    atf_error_t err = atf_process_child_wait(&m_child, &s);
-    if (atf_is_error(err))
-        atf::throw_atf_error(err);
+    if (::waitpid(m_pid, &s, 0) == -1)
+        throw system_error(IMPL_NAME "::child::wait", "Failed waiting for "
+                           "process " + text::to_string(m_pid), errno);
+
+    if (m_stdout != -1)
+        ::close(m_stdout); m_stdout = -1;
+    if (m_stderr != -1)
+        ::close(m_stderr); m_stderr = -1;
 
     m_waited = true;
     return status(s);
@@ -319,19 +457,19 @@ pid_t
 impl::child::pid(void)
     const
 {
-    return atf_process_child_pid(&m_child);
+    return m_pid;
 }
 
 int
 impl::child::stdout_fd(void)
 {
-    return atf_process_child_stdout(&m_child);
+    return m_stdout;
 }
 
 int
 impl::child::stderr_fd(void)
 {
-    return atf_process_child_stderr(&m_child);
+    return m_stderr;
 }
 
 // ------------------------------------------------------------------------

@@ -33,15 +33,14 @@
 extern "C" {
 #include <sys/types.h>
 
-#include "atf-c/error.h"
-
-#include "atf-c/detail/process.h"
+#include <unistd.h>
 }
 
+#include <cerrno>
+#include <cstdlib>
+#include <iostream>
 #include <string>
 #include <vector>
-
-#include "atf-c++/detail/exceptions.hpp"
 
 #include "auto_array.hpp"
 #include "exceptions.hpp"
@@ -101,73 +100,91 @@ argv_array::argv_array(const C& c)
 // The "stream" types.
 // ------------------------------------------------------------------------
 
-class basic_stream {
-protected:
-    atf_process_stream_t m_sb;
-    bool m_inited;
+class stream_capture {
+    int m_pipefds[2];
 
-    const atf_process_stream_t* get_sb(void) const;
-
-public:
-    basic_stream(void);
-    ~basic_stream(void);
-};
-
-class stream_capture : basic_stream {
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
-    child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
+    child fork(void (*)(void*), OutStream, ErrStream, void*);
     template< class OutStream, class ErrStream > friend
     status exec(const atf::fs::path&, const argv_array&,
                 const OutStream&, const ErrStream&, void (*)(void));
+
+    void prepare(void);
+    int connect_parent(void);
+    void connect_child(const int);
 
 public:
     stream_capture(void);
+    ~stream_capture(void);
 };
 
-class stream_connect : basic_stream {
+class stream_connect {
+    int m_src_fd;
+    int m_tgt_fd;
+
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
-    child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
+    child fork(void (*)(void*), OutStream, ErrStream, void*);
     template< class OutStream, class ErrStream > friend
     status exec(const atf::fs::path&, const argv_array&,
                 const OutStream&, const ErrStream&, void (*)(void));
+
+    void prepare(void);
+    int connect_parent(void);
+    void connect_child(const int);
 
 public:
     stream_connect(const int, const int);
 };
 
-class stream_inherit : basic_stream {
+class stream_inherit {
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
-    child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
+    child fork(void (*)(void*), OutStream, ErrStream, void*);
     template< class OutStream, class ErrStream > friend
     status exec(const atf::fs::path&, const argv_array&,
                 const OutStream&, const ErrStream&, void (*)(void));
+
+    void prepare(void);
+    int connect_parent(void);
+    void connect_child(const int);
 
 public:
     stream_inherit(void);
 };
 
-class stream_redirect_fd : basic_stream {
+class stream_redirect_fd {
+    int m_fd;
+
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
-    child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
+    child fork(void (*)(void*), OutStream, ErrStream, void*);
     template< class OutStream, class ErrStream > friend
     status exec(const atf::fs::path&, const argv_array&,
                 const OutStream&, const ErrStream&, void (*)(void));
+
+    void prepare(void);
+    int connect_parent(void);
+    void connect_child(const int);
 
 public:
     stream_redirect_fd(const int);
 };
 
-class stream_redirect_path : basic_stream {
+class stream_redirect_path {
+    const atf::fs::path m_path;
+
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
-    child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
+    child fork(void (*)(void*), OutStream, ErrStream, void*);
     template< class OutStream, class ErrStream > friend
     status exec(const atf::fs::path&, const argv_array&,
                 const OutStream&, const ErrStream&, void (*)(void));
+
+    void prepare(void);
+    int connect_parent(void);
+    void connect_child(const int);
 
 public:
     stream_redirect_path(const atf::fs::path&);
@@ -178,14 +195,14 @@ public:
 // ------------------------------------------------------------------------
 
 class status {
-    atf_process_status_t m_status;
+    int m_status;
 
     friend class child;
     template< class OutStream, class ErrStream > friend
     status exec(const atf::fs::path&, const argv_array&,
                 const OutStream&, const ErrStream&, void (*)(void));
 
-    status(atf_process_status_t&);
+    status(int);
 
 public:
     ~status(void);
@@ -203,13 +220,17 @@ public:
 // ------------------------------------------------------------------------
 
 class child {
-    atf_process_child_t m_child;
+    pid_t m_pid;
+
+    int m_stdout;
+    int m_stderr;
+
     bool m_waited;
 
     template< class OutStream, class ErrStream > friend
-    child fork(void (*)(void*), const OutStream&, const ErrStream&, void*);
+    child fork(void (*)(void*), OutStream, ErrStream, void*);
 
-    child(atf_process_child_t& c);
+    child(const pid_t, const int, const int);
 
 public:
     ~child(void);
@@ -227,24 +248,46 @@ public:
 
 namespace detail {
 void flush_streams(void);
+
+struct exec_args {
+    const atf::fs::path m_prog;
+    const argv_array& m_argv;
+    void (*m_prehook)(void);
+};
+
+void do_exec(void *);
 } // namespace detail
 
 // TODO: The void* cookie can probably be templatized, thus also allowing
 // const data structures.
 template< class OutStream, class ErrStream >
 child
-fork(void (*start)(void*), const OutStream& outsb,
-     const ErrStream& errsb, void* v)
+fork(void (*start)(void*), OutStream outsb, ErrStream errsb, void* v)
 {
-    atf_process_child_t c;
-
     detail::flush_streams();
-    atf_error_t err = atf_process_fork(&c, start, outsb.get_sb(),
-                                       errsb.get_sb(), v);
-    if (atf_is_error(err))
-        atf::throw_atf_error(err);
 
-    return child(c);
+    outsb.prepare();
+    errsb.prepare();
+
+    pid_t pid = ::fork();
+    if (pid == -1) {
+        throw system_error("tools::process::child::fork",
+                           "Failed to fork", errno);
+    } else if (pid == 0) {
+        try {
+            outsb.connect_child(STDOUT_FILENO);
+            errsb.connect_child(STDERR_FILENO);
+            start(v);
+            std::abort();
+        } catch (...) {
+            std::cerr << "Unhandled error while running subprocess\n";
+            std::exit(EXIT_FAILURE);
+        }
+    } else {
+        const int stdout_fd = outsb.connect_parent();
+        const int stderr_fd = errsb.connect_parent();
+        return child(pid, stdout_fd, stderr_fd);
+    }
 }
 
 template< class OutStream, class ErrStream >
@@ -253,18 +296,18 @@ exec(const atf::fs::path& prog, const argv_array& argv,
      const OutStream& outsb, const ErrStream& errsb,
      void (*prehook)(void))
 {
-    atf_process_status_t s;
+    struct detail::exec_args ea = { prog, argv, prehook };
+    child c = fork(detail::do_exec, outsb, errsb, &ea);
 
-    detail::flush_streams();
-    atf_error_t err = atf_process_exec_array(&s, prog.c_path(),
-                                             argv.exec_argv(),
-                                             outsb.get_sb(),
-                                             errsb.get_sb(),
-                                             prehook);
-    if (atf_is_error(err))
-        atf::throw_atf_error(err);
-
-    return status(s);
+again:
+    try {
+        return c.wait();
+    } catch (const system_error& e) {
+        if (e.code() == EINTR)
+            goto again;
+        else
+            throw e;
+    }
 }
 
 template< class OutStream, class ErrStream >
