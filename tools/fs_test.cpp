@@ -33,12 +33,10 @@ extern "C" {
 }
 
 #include <cerrno>
+#include <cstdio>
 #include <fstream>
 
 #include <atf-c++.hpp>
-
-#include "atf-c++/detail/exceptions.hpp"
-#include "atf-c++/detail/fs.hpp"
 
 #include "exceptions.hpp"
 #include "fs.hpp"
@@ -56,6 +54,399 @@ create_file(const char *name)
     os.close();
 }
 
+static
+void
+create_files(void)
+{
+    ::mkdir("files", 0755);
+    ::mkdir("files/dir", 0755);
+
+    std::ofstream os("files/reg");
+    os.close();
+
+    // TODO: Should create all other file types (blk, chr, fifo, lnk, sock)
+    // and test for them... but the underlying file system may not support
+    // most of these.  Specially as we are working on /tmp, which can be
+    // mounted with flags such as "nodev".  See how to deal with this
+    // situation.
+}
+
+// ------------------------------------------------------------------------
+// Test cases for the "path" class.
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(path_normalize);
+ATF_TEST_CASE_HEAD(path_normalize)
+{
+    set_md_var("descr", "Tests the path's normalization");
+}
+ATF_TEST_CASE_BODY(path_normalize)
+{
+    using tools::fs::path;
+
+    ATF_REQUIRE_EQ(path(".").str(), ".");
+    ATF_REQUIRE_EQ(path("..").str(), "..");
+
+    ATF_REQUIRE_EQ(path("foo").str(), "foo");
+    ATF_REQUIRE_EQ(path("foo/bar").str(), "foo/bar");
+    ATF_REQUIRE_EQ(path("foo/bar/").str(), "foo/bar");
+
+    ATF_REQUIRE_EQ(path("/foo").str(), "/foo");
+    ATF_REQUIRE_EQ(path("/foo/bar").str(), "/foo/bar");
+    ATF_REQUIRE_EQ(path("/foo/bar/").str(), "/foo/bar");
+
+    ATF_REQUIRE_EQ(path("///foo").str(), "/foo");
+    ATF_REQUIRE_EQ(path("///foo///bar").str(), "/foo/bar");
+    ATF_REQUIRE_EQ(path("///foo///bar///").str(), "/foo/bar");
+}
+
+ATF_TEST_CASE(path_is_absolute);
+ATF_TEST_CASE_HEAD(path_is_absolute)
+{
+    set_md_var("descr", "Tests the path::is_absolute function");
+}
+ATF_TEST_CASE_BODY(path_is_absolute)
+{
+    using tools::fs::path;
+
+    ATF_REQUIRE( path("/").is_absolute());
+    ATF_REQUIRE( path("////").is_absolute());
+    ATF_REQUIRE( path("////a").is_absolute());
+    ATF_REQUIRE( path("//a//").is_absolute());
+    ATF_REQUIRE(!path("a////").is_absolute());
+    ATF_REQUIRE(!path("../foo").is_absolute());
+}
+
+ATF_TEST_CASE(path_is_root);
+ATF_TEST_CASE_HEAD(path_is_root)
+{
+    set_md_var("descr", "Tests the path::is_root function");
+}
+ATF_TEST_CASE_BODY(path_is_root)
+{
+    using tools::fs::path;
+
+    ATF_REQUIRE( path("/").is_root());
+    ATF_REQUIRE( path("////").is_root());
+    ATF_REQUIRE(!path("////a").is_root());
+    ATF_REQUIRE(!path("//a//").is_root());
+    ATF_REQUIRE(!path("a////").is_root());
+    ATF_REQUIRE(!path("../foo").is_root());
+}
+
+ATF_TEST_CASE(path_branch_path);
+ATF_TEST_CASE_HEAD(path_branch_path)
+{
+    set_md_var("descr", "Tests the path::branch_path function");
+}
+ATF_TEST_CASE_BODY(path_branch_path)
+{
+    using tools::fs::path;
+
+    ATF_REQUIRE_EQ(path(".").branch_path().str(), ".");
+    ATF_REQUIRE_EQ(path("foo").branch_path().str(), ".");
+    ATF_REQUIRE_EQ(path("foo/bar").branch_path().str(), "foo");
+    ATF_REQUIRE_EQ(path("/foo").branch_path().str(), "/");
+    ATF_REQUIRE_EQ(path("/foo/bar").branch_path().str(), "/foo");
+}
+
+ATF_TEST_CASE(path_leaf_name);
+ATF_TEST_CASE_HEAD(path_leaf_name)
+{
+    set_md_var("descr", "Tests the path::leaf_name function");
+}
+ATF_TEST_CASE_BODY(path_leaf_name)
+{
+    using tools::fs::path;
+
+    ATF_REQUIRE_EQ(path(".").leaf_name(), ".");
+    ATF_REQUIRE_EQ(path("foo").leaf_name(), "foo");
+    ATF_REQUIRE_EQ(path("foo/bar").leaf_name(), "bar");
+    ATF_REQUIRE_EQ(path("/foo").leaf_name(), "foo");
+    ATF_REQUIRE_EQ(path("/foo/bar").leaf_name(), "bar");
+}
+
+ATF_TEST_CASE(path_compare_equal);
+ATF_TEST_CASE_HEAD(path_compare_equal)
+{
+    set_md_var("descr", "Tests the comparison for equality between paths");
+}
+ATF_TEST_CASE_BODY(path_compare_equal)
+{
+    using tools::fs::path;
+
+    ATF_REQUIRE(path("/") == path("///"));
+    ATF_REQUIRE(path("/a") == path("///a"));
+    ATF_REQUIRE(path("/a") == path("///a///"));
+
+    ATF_REQUIRE(path("a/b/c") == path("a//b//c"));
+    ATF_REQUIRE(path("a/b/c") == path("a//b//c///"));
+}
+
+ATF_TEST_CASE(path_compare_different);
+ATF_TEST_CASE_HEAD(path_compare_different)
+{
+    set_md_var("descr", "Tests the comparison for difference between paths");
+}
+ATF_TEST_CASE_BODY(path_compare_different)
+{
+    using tools::fs::path;
+
+    ATF_REQUIRE(path("/") != path("//a/"));
+    ATF_REQUIRE(path("/a") != path("a///"));
+
+    ATF_REQUIRE(path("a/b/c") != path("a/b"));
+    ATF_REQUIRE(path("a/b/c") != path("a//b"));
+    ATF_REQUIRE(path("a/b/c") != path("/a/b/c"));
+    ATF_REQUIRE(path("a/b/c") != path("/a//b//c"));
+}
+
+ATF_TEST_CASE(path_concat);
+ATF_TEST_CASE_HEAD(path_concat)
+{
+    set_md_var("descr", "Tests the concatenation of multiple paths");
+}
+ATF_TEST_CASE_BODY(path_concat)
+{
+    using tools::fs::path;
+
+    ATF_REQUIRE_EQ((path("foo") / "bar").str(), "foo/bar");
+    ATF_REQUIRE_EQ((path("foo/") / "/bar").str(), "foo/bar");
+    ATF_REQUIRE_EQ((path("foo/") / "/bar/baz").str(), "foo/bar/baz");
+    ATF_REQUIRE_EQ((path("foo/") / "///bar///baz").str(), "foo/bar/baz");
+}
+
+ATF_TEST_CASE(path_to_absolute);
+ATF_TEST_CASE_HEAD(path_to_absolute)
+{
+    set_md_var("descr", "Tests the conversion of a relative path to an "
+               "absolute one");
+}
+ATF_TEST_CASE_BODY(path_to_absolute)
+{
+    using tools::fs::file_info;
+    using tools::fs::path;
+
+    create_files();
+
+    {
+        const path p(".");
+        path pa = p.to_absolute();
+        ATF_REQUIRE(pa.is_absolute());
+
+        file_info fi(p);
+        file_info fia(pa);
+        ATF_REQUIRE_EQ(fi.get_device(), fia.get_device());
+        ATF_REQUIRE_EQ(fi.get_inode(), fia.get_inode());
+    }
+
+    {
+        const path p("files/reg");
+        path pa = p.to_absolute();
+        ATF_REQUIRE(pa.is_absolute());
+
+        file_info fi(p);
+        file_info fia(pa);
+        ATF_REQUIRE_EQ(fi.get_device(), fia.get_device());
+        ATF_REQUIRE_EQ(fi.get_inode(), fia.get_inode());
+    }
+}
+
+ATF_TEST_CASE(path_op_less);
+ATF_TEST_CASE_HEAD(path_op_less)
+{
+    set_md_var("descr", "Tests that the path's less-than operator works");
+}
+ATF_TEST_CASE_BODY(path_op_less)
+{
+    using tools::fs::path;
+
+    create_files();
+
+    ATF_REQUIRE(!(path("aaa") < path("aaa")));
+
+    ATF_REQUIRE(  path("aab") < path("abc"));
+    ATF_REQUIRE(!(path("abc") < path("aab")));
+}
+
+// ------------------------------------------------------------------------
+// Test cases for the "directory" class.
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(directory_read);
+ATF_TEST_CASE_HEAD(directory_read)
+{
+    set_md_var("descr", "Tests the directory class creation, which reads "
+               "the contents of a directory");
+}
+ATF_TEST_CASE_BODY(directory_read)
+{
+    using tools::fs::directory;
+    using tools::fs::path;
+
+    create_files();
+
+    directory d(path("files"));
+    ATF_REQUIRE_EQ(d.size(), 4);
+    ATF_REQUIRE(d.find(".") != d.end());
+    ATF_REQUIRE(d.find("..") != d.end());
+    ATF_REQUIRE(d.find("dir") != d.end());
+    ATF_REQUIRE(d.find("reg") != d.end());
+}
+
+ATF_TEST_CASE(directory_file_info);
+ATF_TEST_CASE_HEAD(directory_file_info)
+{
+    set_md_var("descr", "Tests that the file_info objects attached to the "
+               "directory are valid");
+}
+ATF_TEST_CASE_BODY(directory_file_info)
+{
+    using tools::fs::directory;
+    using tools::fs::file_info;
+    using tools::fs::path;
+
+    create_files();
+
+    directory d(path("files"));
+
+    {
+        directory::const_iterator iter = d.find("dir");
+        ATF_REQUIRE(iter != d.end());
+        const file_info& fi = (*iter).second;
+        ATF_REQUIRE(fi.get_type() == file_info::dir_type);
+    }
+
+    {
+        directory::const_iterator iter = d.find("reg");
+        ATF_REQUIRE(iter != d.end());
+        const file_info& fi = (*iter).second;
+        ATF_REQUIRE(fi.get_type() == file_info::reg_type);
+    }
+}
+
+ATF_TEST_CASE(directory_names);
+ATF_TEST_CASE_HEAD(directory_names)
+{
+    set_md_var("descr", "Tests the directory's names method");
+}
+ATF_TEST_CASE_BODY(directory_names)
+{
+    using tools::fs::directory;
+    using tools::fs::path;
+
+    create_files();
+
+    directory d(path("files"));
+    std::set< std::string > ns = d.names();
+    ATF_REQUIRE_EQ(ns.size(), 4);
+    ATF_REQUIRE(ns.find(".") != ns.end());
+    ATF_REQUIRE(ns.find("..") != ns.end());
+    ATF_REQUIRE(ns.find("dir") != ns.end());
+    ATF_REQUIRE(ns.find("reg") != ns.end());
+}
+
+// ------------------------------------------------------------------------
+// Test cases for the "file_info" class.
+// ------------------------------------------------------------------------
+
+ATF_TEST_CASE(file_info_stat);
+ATF_TEST_CASE_HEAD(file_info_stat)
+{
+    set_md_var("descr", "Tests the file_info creation and its basic contents");
+}
+ATF_TEST_CASE_BODY(file_info_stat)
+{
+    using tools::fs::file_info;
+    using tools::fs::path;
+
+    create_files();
+
+    {
+        path p("files/dir");
+        file_info fi(p);
+        ATF_REQUIRE(fi.get_type() == file_info::dir_type);
+    }
+
+    {
+        path p("files/reg");
+        file_info fi(p);
+        ATF_REQUIRE(fi.get_type() == file_info::reg_type);
+    }
+}
+
+ATF_TEST_CASE(file_info_perms);
+ATF_TEST_CASE_HEAD(file_info_perms)
+{
+    set_md_var("descr", "Tests the file_info methods to get the file's "
+               "permissions");
+}
+ATF_TEST_CASE_BODY(file_info_perms)
+{
+    using tools::fs::file_info;
+    using tools::fs::path;
+
+    path p("file");
+
+    std::ofstream os(p.c_str());
+    os.close();
+
+#define perms(ur, uw, ux, gr, gw, gx, othr, othw, othx) \
+    { \
+        file_info fi(p); \
+        ATF_REQUIRE(fi.is_owner_readable() == ur); \
+        ATF_REQUIRE(fi.is_owner_writable() == uw); \
+        ATF_REQUIRE(fi.is_owner_executable() == ux); \
+        ATF_REQUIRE(fi.is_group_readable() == gr); \
+        ATF_REQUIRE(fi.is_group_writable() == gw); \
+        ATF_REQUIRE(fi.is_group_executable() == gx); \
+        ATF_REQUIRE(fi.is_other_readable() == othr); \
+        ATF_REQUIRE(fi.is_other_writable() == othw); \
+        ATF_REQUIRE(fi.is_other_executable() == othx); \
+    }
+
+    ::chmod(p.c_str(), 0000);
+    perms(false, false, false, false, false, false, false, false, false);
+
+    ::chmod(p.c_str(), 0001);
+    perms(false, false, false, false, false, false, false, false, true);
+
+    ::chmod(p.c_str(), 0010);
+    perms(false, false, false, false, false, true, false, false, false);
+
+    ::chmod(p.c_str(), 0100);
+    perms(false, false, true, false, false, false, false, false, false);
+
+    ::chmod(p.c_str(), 0002);
+    perms(false, false, false, false, false, false, false, true, false);
+
+    ::chmod(p.c_str(), 0020);
+    perms(false, false, false, false, true, false, false, false, false);
+
+    ::chmod(p.c_str(), 0200);
+    perms(false, true, false, false, false, false, false, false, false);
+
+    ::chmod(p.c_str(), 0004);
+    perms(false, false, false, false, false, false, true, false, false);
+
+    ::chmod(p.c_str(), 0040);
+    perms(false, false, false, true, false, false, false, false, false);
+
+    ::chmod(p.c_str(), 0400);
+    perms(true, false, false, false, false, false, false, false, false);
+
+    ::chmod(p.c_str(), 0644);
+    perms(true, true, false, true, false, false, true, false, false);
+
+    ::chmod(p.c_str(), 0755);
+    perms(true, true, true, true, false, true, true, false, true);
+
+    ::chmod(p.c_str(), 0777);
+    perms(true, true, true, true, true, true, true, true, true);
+
+#undef perms
+}
+
 // ------------------------------------------------------------------------
 // Test cases for the "temp_dir" class.
 // ------------------------------------------------------------------------
@@ -67,25 +458,23 @@ ATF_TEST_CASE_HEAD(temp_dir_raii)
 }
 ATF_TEST_CASE_BODY(temp_dir_raii)
 {
-    using tools::atf_run::temp_dir;
-
-    atf::fs::path t1("non-existent");
-    atf::fs::path t2("non-existent");
+    tools::fs::path t1("non-existent");
+    tools::fs::path t2("non-existent");
 
     {
-        atf::fs::path tmpl("testdir.XXXXXX");
-        temp_dir td1(tmpl);
-        temp_dir td2(tmpl);
+        tools::fs::path tmpl("testdir.XXXXXX");
+        tools::fs::temp_dir td1(tmpl);
+        tools::fs::temp_dir td2(tmpl);
         t1 = td1.get_path();
         t2 = td2.get_path();
         ATF_REQUIRE(t1.str().find("XXXXXX") == std::string::npos);
         ATF_REQUIRE(t2.str().find("XXXXXX") == std::string::npos);
         ATF_REQUIRE(t1 != t2);
-        ATF_REQUIRE(!atf::fs::exists(tmpl));
-        ATF_REQUIRE( atf::fs::exists(t1));
-        ATF_REQUIRE( atf::fs::exists(t2));
+        ATF_REQUIRE(!tools::fs::exists(tmpl));
+        ATF_REQUIRE( tools::fs::exists(t1));
+        ATF_REQUIRE( tools::fs::exists(t2));
 
-        atf::fs::file_info fi1(t1);
+        tools::fs::file_info fi1(t1);
         ATF_REQUIRE( fi1.is_owner_readable());
         ATF_REQUIRE( fi1.is_owner_writable());
         ATF_REQUIRE( fi1.is_owner_executable());
@@ -96,7 +485,7 @@ ATF_TEST_CASE_BODY(temp_dir_raii)
         ATF_REQUIRE(!fi1.is_other_writable());
         ATF_REQUIRE(!fi1.is_other_executable());
 
-        atf::fs::file_info fi2(t2);
+        tools::fs::file_info fi2(t2);
         ATF_REQUIRE( fi2.is_owner_readable());
         ATF_REQUIRE( fi2.is_owner_writable());
         ATF_REQUIRE( fi2.is_owner_executable());
@@ -109,15 +498,84 @@ ATF_TEST_CASE_BODY(temp_dir_raii)
     }
 
     ATF_REQUIRE(t1.str() != "non-existent");
-    ATF_REQUIRE(!atf::fs::exists(t1));
+    ATF_REQUIRE(!tools::fs::exists(t1));
     ATF_REQUIRE(t2.str() != "non-existent");
-    ATF_REQUIRE(!atf::fs::exists(t2));
+    ATF_REQUIRE(!tools::fs::exists(t2));
 }
 
 
 // ------------------------------------------------------------------------
 // Test cases for the free functions.
 // ------------------------------------------------------------------------
+
+ATF_TEST_CASE(exists);
+ATF_TEST_CASE_HEAD(exists)
+{
+    set_md_var("descr", "Tests the exists function");
+}
+ATF_TEST_CASE_BODY(exists)
+{
+    using tools::fs::exists;
+    using tools::fs::path;
+
+    create_files();
+
+    ATF_REQUIRE( exists(path("files")));
+    ATF_REQUIRE(!exists(path("file")));
+    ATF_REQUIRE(!exists(path("files2")));
+
+    ATF_REQUIRE( exists(path("files/.")));
+    ATF_REQUIRE( exists(path("files/..")));
+    ATF_REQUIRE( exists(path("files/dir")));
+    ATF_REQUIRE( exists(path("files/reg")));
+    ATF_REQUIRE(!exists(path("files/foo")));
+}
+
+ATF_TEST_CASE(is_executable);
+ATF_TEST_CASE_HEAD(is_executable)
+{
+    set_md_var("descr", "Tests the is_executable function");
+}
+ATF_TEST_CASE_BODY(is_executable)
+{
+    using tools::fs::is_executable;
+    using tools::fs::path;
+
+    create_files();
+
+    ATF_REQUIRE( is_executable(path("files")));
+    ATF_REQUIRE( is_executable(path("files/.")));
+    ATF_REQUIRE( is_executable(path("files/..")));
+    ATF_REQUIRE( is_executable(path("files/dir")));
+
+    ATF_REQUIRE(!is_executable(path("non-existent")));
+
+    ATF_REQUIRE(!is_executable(path("files/reg")));
+    ATF_REQUIRE(::chmod("files/reg", 0755) != -1);
+    ATF_REQUIRE( is_executable(path("files/reg")));
+}
+
+ATF_TEST_CASE(remove);
+ATF_TEST_CASE_HEAD(remove)
+{
+    set_md_var("descr", "Tests the remove function");
+}
+ATF_TEST_CASE_BODY(remove)
+{
+    using tools::fs::exists;
+    using tools::fs::path;
+    using tools::fs::remove;
+
+    create_files();
+
+    ATF_REQUIRE( exists(path("files/reg")));
+    remove(path("files/reg"));
+    ATF_REQUIRE(!exists(path("files/reg")));
+
+    ATF_REQUIRE( exists(path("files/dir")));
+    ATF_REQUIRE_THROW(tools::system_error, remove(path("files/dir")));
+    ATF_REQUIRE( exists(path("files/dir")));
+}
 
 ATF_TEST_CASE(cleanup);
 ATF_TEST_CASE_HEAD(cleanup)
@@ -126,7 +584,7 @@ ATF_TEST_CASE_HEAD(cleanup)
 }
 ATF_TEST_CASE_BODY(cleanup)
 {
-    using tools::atf_run::cleanup;
+    using tools::fs::cleanup;
 
     ::mkdir("root", 0755);
     ::mkdir("root/dir", 0755);
@@ -134,14 +592,14 @@ ATF_TEST_CASE_BODY(cleanup)
     ::mkdir("root/dir/2", 0644);
     create_file("root/reg");
 
-    atf::fs::path p("root");
-    ATF_REQUIRE(atf::fs::exists(p));
-    ATF_REQUIRE(atf::fs::exists(p / "dir"));
-    ATF_REQUIRE(atf::fs::exists(p / "dir/1"));
-    ATF_REQUIRE(atf::fs::exists(p / "dir/2"));
-    ATF_REQUIRE(atf::fs::exists(p / "reg"));
+    tools::fs::path p("root");
+    ATF_REQUIRE(tools::fs::exists(p));
+    ATF_REQUIRE(tools::fs::exists(p / "dir"));
+    ATF_REQUIRE(tools::fs::exists(p / "dir/1"));
+    ATF_REQUIRE(tools::fs::exists(p / "dir/2"));
+    ATF_REQUIRE(tools::fs::exists(p / "reg"));
     cleanup(p);
-    ATF_REQUIRE(!atf::fs::exists(p));
+    ATF_REQUIRE(!tools::fs::exists(p));
 }
 
 ATF_TEST_CASE(cleanup_eacces_on_root);
@@ -151,18 +609,15 @@ ATF_TEST_CASE_HEAD(cleanup_eacces_on_root)
 }
 ATF_TEST_CASE_BODY(cleanup_eacces_on_root)
 {
-    using tools::atf_run::cleanup;
+    using tools::fs::cleanup;
 
     ::mkdir("aux", 0755);
     ::mkdir("aux/root", 0755);
     ATF_REQUIRE(::chmod("aux", 0555) != -1);
 
     try {
-        cleanup(atf::fs::path("aux/root"));
+        cleanup(tools::fs::path("aux/root"));
         ATF_REQUIRE(tools::atf_run::is_root());
-    } catch (const atf::system_error& e) {
-        ATF_REQUIRE(!tools::atf_run::is_root());
-        ATF_REQUIRE_EQ(EACCES, e.code());
     } catch (const tools::system_error& e) {
         ATF_REQUIRE(!tools::atf_run::is_root());
         ATF_REQUIRE_EQ(EACCES, e.code());
@@ -176,7 +631,7 @@ ATF_TEST_CASE_HEAD(cleanup_eacces_on_subdir)
 }
 ATF_TEST_CASE_BODY(cleanup_eacces_on_subdir)
 {
-    using tools::atf_run::cleanup;
+    using tools::fs::cleanup;
 
     ::mkdir("root", 0755);
     ::mkdir("root/1", 0755);
@@ -185,9 +640,9 @@ ATF_TEST_CASE_BODY(cleanup_eacces_on_subdir)
     ATF_REQUIRE(::chmod("root/1/2", 0555) != -1);
     ATF_REQUIRE(::chmod("root/1", 0555) != -1);
 
-    const atf::fs::path p("root");
+    const tools::fs::path p("root");
     cleanup(p);
-    ATF_REQUIRE(!atf::fs::exists(p));
+    ATF_REQUIRE(!tools::fs::exists(p));
 }
 
 ATF_TEST_CASE(change_directory);
@@ -197,24 +652,24 @@ ATF_TEST_CASE_HEAD(change_directory)
 }
 ATF_TEST_CASE_BODY(change_directory)
 {
-    using tools::atf_run::change_directory;
-    using tools::atf_run::get_current_dir;
+    using tools::fs::change_directory;
+    using tools::fs::get_current_dir;
 
     ::mkdir("files", 0755);
     ::mkdir("files/dir", 0755);
     create_file("files/reg");
 
-    const atf::fs::path old = get_current_dir();
+    const tools::fs::path old = get_current_dir();
 
     ATF_REQUIRE_THROW(tools::system_error,
-                    change_directory(atf::fs::path("files/reg")));
+                    change_directory(tools::fs::path("files/reg")));
     ATF_REQUIRE(get_current_dir() == old);
 
-    atf::fs::path old2 = change_directory(atf::fs::path("files"));
+    tools::fs::path old2 = change_directory(tools::fs::path("files"));
     ATF_REQUIRE(old2 == old);
-    atf::fs::path old3 = change_directory(atf::fs::path("dir"));
+    tools::fs::path old3 = change_directory(tools::fs::path("dir"));
     ATF_REQUIRE(old3 == old2 / "files");
-    atf::fs::path old4 = change_directory(atf::fs::path("../.."));
+    tools::fs::path old4 = change_directory(tools::fs::path("../.."));
     ATF_REQUIRE(old4 == old3 / "dir");
     ATF_REQUIRE(get_current_dir() == old);
 }
@@ -226,23 +681,23 @@ ATF_TEST_CASE_HEAD(get_current_dir)
 }
 ATF_TEST_CASE_BODY(get_current_dir)
 {
-    using tools::atf_run::change_directory;
-    using tools::atf_run::get_current_dir;
+    using tools::fs::change_directory;
+    using tools::fs::get_current_dir;
 
     ::mkdir("files", 0755);
     ::mkdir("files/dir", 0755);
     create_file("files/reg");
 
-    atf::fs::path curdir = get_current_dir();
-    change_directory(atf::fs::path("."));
+    tools::fs::path curdir = get_current_dir();
+    change_directory(tools::fs::path("."));
     ATF_REQUIRE(get_current_dir() == curdir);
-    change_directory(atf::fs::path("files"));
+    change_directory(tools::fs::path("files"));
     ATF_REQUIRE(get_current_dir() == curdir / "files");
-    change_directory(atf::fs::path("dir"));
+    change_directory(tools::fs::path("dir"));
     ATF_REQUIRE(get_current_dir() == curdir / "files/dir");
-    change_directory(atf::fs::path(".."));
+    change_directory(tools::fs::path(".."));
     ATF_REQUIRE(get_current_dir() == curdir / "files");
-    change_directory(atf::fs::path(".."));
+    change_directory(tools::fs::path(".."));
     ATF_REQUIRE(get_current_dir() == curdir);
 }
 
@@ -252,10 +707,34 @@ ATF_TEST_CASE_BODY(get_current_dir)
 
 ATF_INIT_TEST_CASES(tcs)
 {
+    // Add the tests for the "path" class.
+    ATF_ADD_TEST_CASE(tcs, path_normalize);
+    ATF_ADD_TEST_CASE(tcs, path_is_absolute);
+    ATF_ADD_TEST_CASE(tcs, path_is_root);
+    ATF_ADD_TEST_CASE(tcs, path_branch_path);
+    ATF_ADD_TEST_CASE(tcs, path_leaf_name);
+    ATF_ADD_TEST_CASE(tcs, path_compare_equal);
+    ATF_ADD_TEST_CASE(tcs, path_compare_different);
+    ATF_ADD_TEST_CASE(tcs, path_concat);
+    ATF_ADD_TEST_CASE(tcs, path_to_absolute);
+    ATF_ADD_TEST_CASE(tcs, path_op_less);
+
+    // Add the tests for the "file_info" class.
+    ATF_ADD_TEST_CASE(tcs, file_info_stat);
+    ATF_ADD_TEST_CASE(tcs, file_info_perms);
+
+    // Add the tests for the "directory" class.
+    ATF_ADD_TEST_CASE(tcs, directory_read);
+    ATF_ADD_TEST_CASE(tcs, directory_names);
+    ATF_ADD_TEST_CASE(tcs, directory_file_info);
+
     // Add the tests for the "temp_dir" class.
     ATF_ADD_TEST_CASE(tcs, temp_dir_raii);
 
     // Add the tests for the free functions.
+    ATF_ADD_TEST_CASE(tcs, exists);
+    ATF_ADD_TEST_CASE(tcs, is_executable);
+    ATF_ADD_TEST_CASE(tcs, remove);
     ATF_ADD_TEST_CASE(tcs, cleanup);
     ATF_ADD_TEST_CASE(tcs, cleanup_eacces_on_root);
     ATF_ADD_TEST_CASE(tcs, cleanup_eacces_on_subdir);

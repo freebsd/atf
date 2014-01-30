@@ -31,8 +31,7 @@
 
 #include "atf-c++/tests.hpp"
 
-#include "atf-c++/detail/fs.hpp"
-
+#include "fs.hpp"
 #include "process.hpp"
 
 namespace tools {
@@ -140,12 +139,12 @@ struct metadata {
 
 class atf_tps_writer;
 
-metadata get_metadata(const atf::fs::path&, const atf::tests::vars_map&);
-test_case_result read_test_case_result(const atf::fs::path&);
+metadata get_metadata(const tools::fs::path&, const atf::tests::vars_map&);
+test_case_result read_test_case_result(const tools::fs::path&);
 std::pair< std::string, tools::process::status > run_test_case(
-    const atf::fs::path&, const std::string&, const std::string&,
+    const tools::fs::path&, const std::string&, const std::string&,
     const atf::tests::vars_map&, const atf::tests::vars_map&,
-    const atf::fs::path&, const atf::fs::path&, atf_tps_writer&);
+    const tools::fs::path&, const tools::fs::path&, atf_tps_writer&);
 
 } // namespace atf_run
 } // namespace tools

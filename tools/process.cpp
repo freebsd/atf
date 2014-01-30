@@ -322,7 +322,7 @@ impl::stream_redirect_fd::connect_child(const int fd)
     safe_dup(m_fd, fd);
 }
 
-impl::stream_redirect_path::stream_redirect_path(const atf::fs::path& p) :
+impl::stream_redirect_path::stream_redirect_path(const tools::fs::path& p) :
     m_path(p)
 {
 }

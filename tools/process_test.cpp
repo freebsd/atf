@@ -63,7 +63,7 @@ exec_process_helpers(const atf::tests::tc& tc, const char* helper_name)
 {
     using tools::process::exec;
 
-    const atf::fs::path helpers = atf::fs::path(tc.get_config_var("srcdir")) /
+    const tools::fs::path helpers = tools::fs::path(tc.get_config_var("srcdir")) /
         "process_helpers";
 
     std::vector< std::string > argv;

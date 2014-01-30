@@ -43,9 +43,8 @@ extern "C" {
 
 #include <atf-c++.hpp>
 
-#include "atf-c++/detail/fs.hpp"
-
 #include "env.hpp"
+#include "fs.hpp"
 #include "process.hpp"
 
 // ------------------------------------------------------------------------
@@ -152,7 +151,7 @@ ATF_TEST_CASE_HEAD(env_list)
 ATF_TEST_CASE_BODY(env_list)
 {
     const tools::process::status s =
-        tools::process::exec(atf::fs::path("env"),
+        tools::process::exec(tools::fs::path("env"),
                            tools::process::argv_array("env", NULL),
                            tools::process::stream_inherit(),
                            tools::process::stream_inherit());
@@ -168,9 +167,9 @@ ATF_TEST_CASE_HEAD(env_home)
 ATF_TEST_CASE_BODY(env_home)
 {
     ATF_REQUIRE(tools::env::has("HOME"));
-    atf::fs::path p(tools::env::get("HOME"));
-    atf::fs::file_info fi1(p);
-    atf::fs::file_info fi2(atf::fs::path("."));
+    tools::fs::path p(tools::env::get("HOME"));
+    tools::fs::file_info fi1(p);
+    tools::fs::file_info fi2(tools::fs::path("."));
     ATF_REQUIRE_EQ(fi1.get_device(), fi2.get_device());
     ATF_REQUIRE_EQ(fi1.get_inode(), fi2.get_inode());
 }
@@ -225,7 +224,7 @@ ATF_TEST_CASE_BODY(cleanup_states)
 }
 ATF_TEST_CASE_CLEANUP(cleanup_states)
 {
-    atf::fs::remove(atf::fs::path(get_config_var("statedir") + "/to-delete"));
+    tools::fs::remove(tools::fs::path(get_config_var("statedir") + "/to-delete"));
 }
 
 ATF_TEST_CASE_WITH_CLEANUP(cleanup_curdir);

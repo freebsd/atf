@@ -51,8 +51,6 @@ extern "C" {
 
 #include "atf-c++/tests.hpp"
 
-#include "atf-c++/detail/fs.hpp"
-
 #include "application.hpp"
 #include "atffile.hpp"
 #include "config.hpp"
@@ -91,14 +89,14 @@ class atf_run : public tools::application::app {
 
     size_t count_tps(std::vector< std::string >) const;
 
-    int run_test(const atf::fs::path&, impl::atf_tps_writer&,
+    int run_test(const tools::fs::path&, impl::atf_tps_writer&,
                  const atf::tests::vars_map&);
-    int run_test_directory(const atf::fs::path&, impl::atf_tps_writer&);
-    int run_test_program(const atf::fs::path&, impl::atf_tps_writer&,
+    int run_test_directory(const tools::fs::path&, impl::atf_tps_writer&);
+    int run_test_program(const tools::fs::path&, impl::atf_tps_writer&,
                          const atf::tests::vars_map&);
 
     impl::test_case_result get_test_case_result(const std::string&,
-        const tools::process::status&, const atf::fs::path&) const;
+        const tools::process::status&, const tools::fs::path&) const;
 
 public:
     atf_run(void);
@@ -119,29 +117,29 @@ sanitize_gdb_env(void)
 }
 
 static void
-dump_stacktrace(const atf::fs::path& tp, const tools::process::status& s,
-                const atf::fs::path& workdir, impl::atf_tps_writer& w)
+dump_stacktrace(const tools::fs::path& tp, const tools::process::status& s,
+                const tools::fs::path& workdir, impl::atf_tps_writer& w)
 {
     assert(s.signaled() && s.coredump());
 
     w.stderr_tc("Test program crashed; attempting to get stack trace");
 
-    const atf::fs::path corename = workdir /
+    const tools::fs::path corename = workdir /
         (tp.leaf_name().substr(0, max_core_name_length) + ".core");
-    if (!atf::fs::exists(corename)) {
+    if (!tools::fs::exists(corename)) {
         w.stderr_tc("Expected file " + corename.str() + " not found");
         return;
     }
 
-    const atf::fs::path gdb(GDB);
-    const atf::fs::path gdbout = workdir / "gdb.out";
+    const tools::fs::path gdb(GDB);
+    const tools::fs::path gdbout = workdir / "gdb.out";
     const tools::process::argv_array args(gdb.leaf_name().c_str(), "-batch",
                                         "-q", "-ex", "bt", tp.c_str(),
                                         corename.c_str(), NULL);
     tools::process::status status = tools::process::exec(
         gdb, args,
         tools::process::stream_redirect_path(gdbout),
-        tools::process::stream_redirect_path(atf::fs::path("/dev/null")),
+        tools::process::stream_redirect_path(tools::fs::path("/dev/null")),
         sanitize_gdb_env);
     if (!status.exited() || status.exitstatus() != EXIT_SUCCESS) {
         w.stderr_tc("Execution of " GDB " failed");
@@ -219,14 +217,14 @@ atf_run::parse_vflag(const std::string& str)
 }
 
 int
-atf_run::run_test(const atf::fs::path& tp,
+atf_run::run_test(const tools::fs::path& tp,
                   impl::atf_tps_writer& w,
                   const atf::tests::vars_map& config)
 {
-    atf::fs::file_info fi(tp);
+    tools::fs::file_info fi(tp);
 
     int errcode;
-    if (fi.get_type() == atf::fs::file_info::dir_type)
+    if (fi.get_type() == tools::fs::file_info::dir_type)
         errcode = run_test_directory(tp, w);
     else {
         const atf::tests::vars_map effective_config =
@@ -238,7 +236,7 @@ atf_run::run_test(const atf::fs::path& tp,
 }
 
 int
-atf_run::run_test_directory(const atf::fs::path& tp,
+atf_run::run_test_directory(const tools::fs::path& tp,
                             impl::atf_tps_writer& w)
 {
     impl::atffile af = impl::read_atffile(tp / "Atffile");
@@ -265,7 +263,7 @@ atf_run::run_test_directory(const atf::fs::path& tp,
 impl::test_case_result
 atf_run::get_test_case_result(const std::string& broken_reason,
                               const tools::process::status& s,
-                              const atf::fs::path& resfile)
+                              const tools::fs::path& resfile)
     const
 {
     using tools::text::to_string;
@@ -368,7 +366,7 @@ atf_run::get_test_case_result(const std::string& broken_reason,
 }
 
 int
-atf_run::run_test_program(const atf::fs::path& tp,
+atf_run::run_test_program(const tools::fs::path& tp,
                           impl::atf_tps_writer& w,
                           const atf::tests::vars_map& config)
 {
@@ -388,8 +386,8 @@ atf_run::run_test_program(const atf::fs::path& tp,
         return EXIT_FAILURE;
     }
 
-    impl::temp_dir resdir(atf::fs::path(tools::config::get("atf_workdir")) /
-                          "atf-run.XXXXXX");
+    tools::fs::temp_dir resdir(
+        tools::fs::path(tools::config::get("atf_workdir")) / "atf-run.XXXXXX");
 
     w.start_tp(tp.str(), md.test_cases.size());
     if (md.test_cases.empty()) {
@@ -419,13 +417,13 @@ atf_run::run_test_program(const atf::fs::path& tp,
             const std::pair< int, int > user = impl::get_required_user(
                 tcmd, config);
 
-            atf::fs::path resfile = resdir.get_path() / "tcr";
-            assert(!atf::fs::exists(resfile));
+            tools::fs::path resfile = resdir.get_path() / "tcr";
+            assert(!tools::fs::exists(resfile));
             try {
                 const bool has_cleanup = tools::text::to_bool(
                     (*tcmd.find("has.cleanup")).second);
 
-                impl::temp_dir workdir(atf::fs::path(tools::config::get(
+                tools::fs::temp_dir workdir(tools::fs::path(tools::config::get(
                     "atf_workdir")) / "atf-run.XXXXXX");
                 if (user.first != -1 && user.second != -1) {
                     if (::chown(workdir.get_path().c_str(), user.first,
@@ -455,12 +453,12 @@ atf_run::run_test_program(const atf::fs::path& tp,
                 if (tcr.state() == "failed")
                     errcode = EXIT_FAILURE;
             } catch (...) {
-                if (atf::fs::exists(resfile))
-                    atf::fs::remove(resfile);
+                if (tools::fs::exists(resfile))
+                    tools::fs::remove(resfile);
                 throw;
             }
-            if (atf::fs::exists(resfile))
-                atf::fs::remove(resfile);
+            if (tools::fs::exists(resfile))
+                tools::fs::remove(resfile);
 
         }
         w.end_tp("");
@@ -477,10 +475,10 @@ atf_run::count_tps(std::vector< std::string > tps)
 
     for (std::vector< std::string >::const_iterator iter = tps.begin();
          iter != tps.end(); iter++) {
-        atf::fs::path tp(*iter);
-        atf::fs::file_info fi(tp);
+        tools::fs::path tp(*iter);
+        tools::fs::file_info fi(tp);
 
-        if (fi.get_type() == atf::fs::file_info::dir_type) {
+        if (fi.get_type() == tools::fs::file_info::dir_type) {
             impl::atffile af = impl::read_atffile(tp / "Atffile");
             std::vector< std::string > aux = af.tps();
             for (std::vector< std::string >::iterator i2 = aux.begin();
@@ -498,9 +496,9 @@ static
 void
 call_hook(const std::string& tool, const std::string& hook)
 {
-    const atf::fs::path sh(tools::config::get("atf_shell"));
-    const atf::fs::path hooks =
-        atf::fs::path(tools::config::get("atf_pkgdatadir")) / (tool + ".hooks");
+    const tools::fs::path sh(tools::config::get("atf_shell"));
+    const tools::fs::path hooks =
+        tools::fs::path(tools::config::get("atf_pkgdatadir")) / (tool + ".hooks");
 
     const tools::process::status s =
         tools::process::exec(sh,
@@ -518,7 +516,7 @@ call_hook(const std::string& tool, const std::string& hook)
 int
 atf_run::main(void)
 {
-    impl::atffile af = impl::read_atffile(atf::fs::path("Atffile"));
+    impl::atffile af = impl::read_atffile(tools::fs::path("Atffile"));
 
     std::vector< std::string > tps;
     tps = af.tps();
@@ -546,7 +544,7 @@ atf_run::main(void)
     bool ok = true;
     for (std::vector< std::string >::const_iterator iter = tps.begin();
          iter != tps.end(); iter++) {
-        const bool result = run_test(atf::fs::path(*iter), w,
+        const bool result = run_test(tools::fs::path(*iter), w,
             impl::merge_configs(af.conf(), test_suite_vars));
         ok &= (result == EXIT_SUCCESS);
     }

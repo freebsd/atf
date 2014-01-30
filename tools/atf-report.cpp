@@ -43,9 +43,8 @@ extern "C" {
 
 #include "atf-c/defs.h"
 
-#include "atf-c++/detail/fs.hpp"
-
 #include "application.hpp"
+#include "fs.hpp"
 #include "reader.hpp"
 #include "text.hpp"
 #include "ui.hpp"
@@ -53,7 +52,7 @@ extern "C" {
 typedef std::auto_ptr< std::ostream > ostream_ptr;
 
 static ostream_ptr
-open_outfile(const atf::fs::path& path)
+open_outfile(const tools::fs::path& path)
 {
     ostream_ptr osp;
     if (path.str() == "-")
@@ -127,7 +126,7 @@ class csv_writer : public writer {
     std::string m_tcname;
 
 public:
-    csv_writer(const atf::fs::path& p) :
+    csv_writer(const tools::fs::path& p) :
         m_os(open_outfile(p))
     {
     }
@@ -361,7 +360,7 @@ class ticker_writer : public writer {
     }
 
 public:
-    ticker_writer(const atf::fs::path& p) :
+    ticker_writer(const tools::fs::path& p) :
         m_os(open_outfile(p))
     {
     }
@@ -484,7 +483,7 @@ class xml_writer : public writer {
     }
 
 public:
-    xml_writer(const atf::fs::path& p) :
+    xml_writer(const tools::fs::path& p) :
         m_os(open_outfile(p))
     {
         (*m_os) << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
@@ -597,7 +596,7 @@ public:
     }
 
     void
-    add_output(const std::string& fmt, const atf::fs::path& p)
+    add_output(const std::string& fmt, const tools::fs::path& p)
     {
         if (fmt == "csv") {
             m_outs.push_back(new csv_writer(p));
@@ -617,7 +616,7 @@ public:
 class atf_report : public tools::application::app {
     static const char* m_description;
 
-    typedef std::pair< std::string, atf::fs::path > fmt_path_pair;
+    typedef std::pair< std::string, tools::fs::path > fmt_path_pair;
     std::vector< fmt_path_pair > m_oflags;
 
     void process_option(int, const char*);
@@ -650,7 +649,7 @@ atf_report::process_option(int ch, const char* arg)
                 throw std::runtime_error("Syntax error in -o option");
             else {
                 std::string fmt = str.substr(0, pos);
-                atf::fs::path path = atf::fs::path(str.substr(pos + 1));
+                tools::fs::path path = tools::fs::path(str.substr(pos + 1));
                 m_oflags.push_back(fmt_path_pair(fmt, path));
             }
         }
@@ -680,15 +679,15 @@ atf_report::main(void)
         throw std::runtime_error("No arguments allowed");
 
     if (m_oflags.empty())
-        m_oflags.push_back(fmt_path_pair("ticker", atf::fs::path("-")));
+        m_oflags.push_back(fmt_path_pair("ticker", tools::fs::path("-")));
 
     // Look for path duplicates.
-    std::set< atf::fs::path > paths;
+    std::set< tools::fs::path > paths;
     for (std::vector< fmt_path_pair >::const_iterator iter = m_oflags.begin();
          iter != m_oflags.end(); iter++) {
-        atf::fs::path p = (*iter).second;
-        if (p == atf::fs::path("/dev/stdout"))
-            p = atf::fs::path("-");
+        tools::fs::path p = (*iter).second;
+        if (p == tools::fs::path("/dev/stdout"))
+            p = tools::fs::path("-");
         if (paths.find(p) != paths.end())
             throw std::runtime_error("The file `" + p.str() + "' was "
                                      "specified more than once");

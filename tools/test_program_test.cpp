@@ -47,10 +47,10 @@ using atf::tests::vars_map;
 // -------------------------------------------------------------------------
 
 static
-atf::fs::path
+tools::fs::path
 get_helper(const atf::tests::tc& tc, const char* name)
 {
-    return atf::fs::path(tc.get_config_var("srcdir")) / name;
+    return tools::fs::path(tc.get_config_var("srcdir")) / name;
 }
 
 static
@@ -757,7 +757,7 @@ ATF_TEST_CASE_BODY(atf_tps_writer)
 ATF_TEST_CASE(get_metadata_bad);
 ATF_TEST_CASE_HEAD(get_metadata_bad) {}
 ATF_TEST_CASE_BODY(get_metadata_bad) {
-    const atf::fs::path executable = get_helper(*this, "bad_metadata_helper");
+    const tools::fs::path executable = get_helper(*this, "bad_metadata_helper");
     ATF_REQUIRE_THROW(tools::parser::parse_errors,
                       impl::get_metadata(executable, vars_map()));
 }
@@ -765,7 +765,7 @@ ATF_TEST_CASE_BODY(get_metadata_bad) {
 ATF_TEST_CASE(get_metadata_zero_tcs);
 ATF_TEST_CASE_HEAD(get_metadata_zero_tcs) {}
 ATF_TEST_CASE_BODY(get_metadata_zero_tcs) {
-    const atf::fs::path executable = get_helper(*this, "zero_tcs_helper");
+    const tools::fs::path executable = get_helper(*this, "zero_tcs_helper");
     ATF_REQUIRE_THROW(tools::parser::parse_errors,
                       impl::get_metadata(executable, vars_map()));
 }
@@ -773,7 +773,7 @@ ATF_TEST_CASE_BODY(get_metadata_zero_tcs) {
 ATF_TEST_CASE(get_metadata_several_tcs);
 ATF_TEST_CASE_HEAD(get_metadata_several_tcs) {}
 ATF_TEST_CASE_BODY(get_metadata_several_tcs) {
-    const atf::fs::path executable = get_helper(*this, "several_tcs_helper");
+    const tools::fs::path executable = get_helper(*this, "several_tcs_helper");
     const impl::metadata md = impl::get_metadata(executable, vars_map());
     ATF_REQUIRE_EQ(3, md.test_cases.size());
 
@@ -924,7 +924,7 @@ ATF_TEST_CASE_WITHOUT_HEAD(read_test_case_result_failed);
 ATF_TEST_CASE_BODY(read_test_case_result_failed) {
     write_test_case_result("resfile", "failed: foo bar\n");
     const impl::test_case_result tcr = impl::read_test_case_result(
-        atf::fs::path("resfile"));
+        tools::fs::path("resfile"));
     ATF_REQUIRE_EQ("failed", tcr.state());
     ATF_REQUIRE_EQ("foo bar", tcr.reason());
 }
@@ -933,7 +933,7 @@ ATF_TEST_CASE_WITHOUT_HEAD(read_test_case_result_skipped);
 ATF_TEST_CASE_BODY(read_test_case_result_skipped) {
     write_test_case_result("resfile", "skipped: baz bar\n");
     const impl::test_case_result tcr = impl::read_test_case_result(
-        atf::fs::path("resfile"));
+        tools::fs::path("resfile"));
     ATF_REQUIRE_EQ("skipped", tcr.state());
     ATF_REQUIRE_EQ("baz bar", tcr.reason());
 }
@@ -943,28 +943,28 @@ ATF_TEST_CASE(read_test_case_result_no_file);
 ATF_TEST_CASE_HEAD(read_test_case_result_no_file) {}
 ATF_TEST_CASE_BODY(read_test_case_result_no_file) {
     ATF_REQUIRE_THROW(std::runtime_error,
-                    impl::read_test_case_result(atf::fs::path("resfile")));
+                    impl::read_test_case_result(tools::fs::path("resfile")));
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(read_test_case_result_empty_file);
 ATF_TEST_CASE_BODY(read_test_case_result_empty_file) {
     write_test_case_result("resfile", "");
     ATF_REQUIRE_THROW(std::runtime_error,
-                    impl::read_test_case_result(atf::fs::path("resfile")));
+                    impl::read_test_case_result(tools::fs::path("resfile")));
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(read_test_case_result_invalid);
 ATF_TEST_CASE_BODY(read_test_case_result_invalid) {
     write_test_case_result("resfile", "passed: hello\n");
     ATF_REQUIRE_THROW(std::runtime_error,
-                    impl::read_test_case_result(atf::fs::path("resfile")));
+                    impl::read_test_case_result(tools::fs::path("resfile")));
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(read_test_case_result_multiline);
 ATF_TEST_CASE_BODY(read_test_case_result_multiline) {
     write_test_case_result("resfile", "skipped: foo\nbar\n");
     const impl::test_case_result tcr = impl::read_test_case_result(
-        atf::fs::path("resfile"));
+        tools::fs::path("resfile"));
     ATF_REQUIRE_EQ("skipped", tcr.state());
     ATF_REQUIRE_EQ("foo<<NEWLINE UNEXPECTED>>bar", tcr.reason());
 }

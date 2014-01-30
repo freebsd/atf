@@ -131,10 +131,10 @@ public:
 };
 
 struct get_metadata_params {
-    const atf::fs::path& executable;
+    const tools::fs::path& executable;
     const atf::tests::vars_map& config;
 
-    get_metadata_params(const atf::fs::path& p_executable,
+    get_metadata_params(const tools::fs::path& p_executable,
                         const atf::tests::vars_map& p_config) :
         executable(p_executable),
         config(p_config)
@@ -143,21 +143,21 @@ struct get_metadata_params {
 };
 
 struct test_case_params {
-    const atf::fs::path& executable;
+    const tools::fs::path& executable;
     const std::string& test_case_name;
     const std::string& test_case_part;
     const atf::tests::vars_map& metadata;
     const atf::tests::vars_map& config;
-    const atf::fs::path& resfile;
-    const atf::fs::path& workdir;
+    const tools::fs::path& resfile;
+    const tools::fs::path& workdir;
 
-    test_case_params(const atf::fs::path& p_executable,
+    test_case_params(const tools::fs::path& p_executable,
                      const std::string& p_test_case_name,
                      const std::string& p_test_case_part,
                      const atf::tests::vars_map& p_metadata,
                      const atf::tests::vars_map& p_config,
-                     const atf::fs::path& p_resfile,
-                     const atf::fs::path& p_workdir) :
+                     const tools::fs::path& p_resfile,
+                     const tools::fs::path& p_workdir) :
         executable(p_executable),
         test_case_name(p_test_case_name),
         test_case_part(p_test_case_part),
@@ -210,7 +210,7 @@ vector_to_argv(const std::vector< std::string >& v)
 
 static
 void
-exec_or_exit(const atf::fs::path& executable,
+exec_or_exit(const tools::fs::path& executable,
              const std::vector< std::string >& argv)
 {
     // This leaks memory in case of a failure, but it is OK.  Exiting will
@@ -252,7 +252,7 @@ silence_stdin(void)
 
 static
 void
-prepare_child(const atf::fs::path& workdir)
+prepare_child(const tools::fs::path& workdir)
 {
     const int ret = ::setpgid(::getpid(), 0);
     assert(ret != -1);
@@ -275,7 +275,7 @@ prepare_child(const atf::fs::path& workdir)
 
     tools::env::set("__RUNNING_INSIDE_ATF_RUN", "internal-yes-value");
 
-    impl::change_directory(workdir);
+    tools::fs::change_directory(workdir);
 
     silence_stdin();
 }
@@ -309,7 +309,7 @@ run_test_case_child(void* raw_params)
 
     // The input 'tp' parameter may be relative and become invalid once
     // we change the current working directory.
-    const atf::fs::path absolute_executable = params->executable.to_absolute();
+    const tools::fs::path absolute_executable = params->executable.to_absolute();
 
     // Prepare the test program's arguments.  We use dynamic memory and
     // do not care to release it.  We are going to die anyway very soon,
@@ -646,7 +646,7 @@ impl::atf_tps_writer::end_tc(const std::string& state,
 }
 
 impl::metadata
-impl::get_metadata(const atf::fs::path& executable,
+impl::get_metadata(const tools::fs::path& executable,
                    const atf::tests::vars_map& config)
 {
     get_metadata_params params(executable, config);
@@ -670,7 +670,7 @@ impl::get_metadata(const atf::fs::path& executable,
 }
 
 impl::test_case_result
-impl::read_test_case_result(const atf::fs::path& results_path)
+impl::read_test_case_result(const tools::fs::path& results_path)
 {
     std::ifstream results_file(results_path.c_str());
     if (!results_file)
@@ -724,13 +724,13 @@ public:
 } // anonymous namespace
 
 std::pair< std::string, tools::process::status >
-impl::run_test_case(const atf::fs::path& executable,
+impl::run_test_case(const tools::fs::path& executable,
                     const std::string& test_case_name,
                     const std::string& test_case_part,
                     const atf::tests::vars_map& metadata,
                     const atf::tests::vars_map& config,
-                    const atf::fs::path& resfile,
-                    const atf::fs::path& workdir,
+                    const tools::fs::path& resfile,
+                    const tools::fs::path& workdir,
                     atf_tps_writer& writer)
 {
     // TODO: Capture termination signals and deliver them to the subprocess

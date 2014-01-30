@@ -107,7 +107,7 @@ class stream_capture {
     template< class OutStream, class ErrStream > friend
     child fork(void (*)(void*), OutStream, ErrStream, void*);
     template< class OutStream, class ErrStream > friend
-    status exec(const atf::fs::path&, const argv_array&,
+    status exec(const tools::fs::path&, const argv_array&,
                 const OutStream&, const ErrStream&, void (*)(void));
 
     void prepare(void);
@@ -127,7 +127,7 @@ class stream_connect {
     template< class OutStream, class ErrStream > friend
     child fork(void (*)(void*), OutStream, ErrStream, void*);
     template< class OutStream, class ErrStream > friend
-    status exec(const atf::fs::path&, const argv_array&,
+    status exec(const tools::fs::path&, const argv_array&,
                 const OutStream&, const ErrStream&, void (*)(void));
 
     void prepare(void);
@@ -143,7 +143,7 @@ class stream_inherit {
     template< class OutStream, class ErrStream > friend
     child fork(void (*)(void*), OutStream, ErrStream, void*);
     template< class OutStream, class ErrStream > friend
-    status exec(const atf::fs::path&, const argv_array&,
+    status exec(const tools::fs::path&, const argv_array&,
                 const OutStream&, const ErrStream&, void (*)(void));
 
     void prepare(void);
@@ -161,7 +161,7 @@ class stream_redirect_fd {
     template< class OutStream, class ErrStream > friend
     child fork(void (*)(void*), OutStream, ErrStream, void*);
     template< class OutStream, class ErrStream > friend
-    status exec(const atf::fs::path&, const argv_array&,
+    status exec(const tools::fs::path&, const argv_array&,
                 const OutStream&, const ErrStream&, void (*)(void));
 
     void prepare(void);
@@ -173,13 +173,13 @@ public:
 };
 
 class stream_redirect_path {
-    const atf::fs::path m_path;
+    const tools::fs::path m_path;
 
     // Allow access to the getters.
     template< class OutStream, class ErrStream > friend
     child fork(void (*)(void*), OutStream, ErrStream, void*);
     template< class OutStream, class ErrStream > friend
-    status exec(const atf::fs::path&, const argv_array&,
+    status exec(const tools::fs::path&, const argv_array&,
                 const OutStream&, const ErrStream&, void (*)(void));
 
     void prepare(void);
@@ -187,7 +187,7 @@ class stream_redirect_path {
     void connect_child(const int);
 
 public:
-    stream_redirect_path(const atf::fs::path&);
+    stream_redirect_path(const tools::fs::path&);
 };
 
 // ------------------------------------------------------------------------
@@ -199,7 +199,7 @@ class status {
 
     friend class child;
     template< class OutStream, class ErrStream > friend
-    status exec(const atf::fs::path&, const argv_array&,
+    status exec(const tools::fs::path&, const argv_array&,
                 const OutStream&, const ErrStream&, void (*)(void));
 
     status(int);
@@ -250,7 +250,7 @@ namespace detail {
 void flush_streams(void);
 
 struct exec_args {
-    const atf::fs::path m_prog;
+    const tools::fs::path m_prog;
     const argv_array& m_argv;
     void (*m_prehook)(void);
 };
@@ -292,7 +292,7 @@ fork(void (*start)(void*), OutStream outsb, ErrStream errsb, void* v)
 
 template< class OutStream, class ErrStream >
 status
-exec(const atf::fs::path& prog, const argv_array& argv,
+exec(const tools::fs::path& prog, const argv_array& argv,
      const OutStream& outsb, const ErrStream& errsb,
      void (*prehook)(void))
 {
@@ -312,7 +312,7 @@ again:
 
 template< class OutStream, class ErrStream >
 status
-exec(const atf::fs::path& prog, const argv_array& argv,
+exec(const tools::fs::path& prog, const argv_array& argv,
      const OutStream& outsb, const ErrStream& errsb)
 {
     return exec(prog, argv, outsb, errsb, NULL);

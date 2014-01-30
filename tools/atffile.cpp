@@ -198,7 +198,7 @@ detail::atf_atffile_reader::read(void)
 // ------------------------------------------------------------------------
 
 class reader : public detail::atf_atffile_reader {
-    const atf::fs::directory& m_dir;
+    const tools::fs::directory& m_dir;
     atf::tests::vars_map m_conf, m_props;
     std::vector< std::string > m_tps;
 
@@ -215,9 +215,9 @@ class reader : public detail::atf_atffile_reader {
                 m_tps.push_back(*iter);
         } else {
             if (m_dir.find(name) == m_dir.end())
-                throw tools::not_found_error< atf::fs::path >
+                throw tools::not_found_error< tools::fs::path >
                     ("Cannot locate the " + name + " file",
-                     atf::fs::path(name));
+                     tools::fs::path(name));
             m_tps.push_back(name);
         }
     }
@@ -235,7 +235,7 @@ class reader : public detail::atf_atffile_reader {
     }
 
 public:
-    reader(std::istream& is, const atf::fs::directory& dir) :
+    reader(std::istream& is, const tools::fs::directory& dir) :
         detail::atf_atffile_reader(is),
         m_dir(dir)
     {
@@ -305,16 +305,16 @@ impl::atffile::props(void)
 // XXX Glob expansion and file existance checks certainly do not belong in
 // a *parser*.  This needs to be taken out...
 impl::atffile
-impl::read_atffile(const atf::fs::path& filename)
+impl::read_atffile(const tools::fs::path& filename)
 {
     // Scan the directory where the atffile lives in to gather a list of
     // all possible test programs in it.
-    atf::fs::directory dir(filename.branch_path());
+    tools::fs::directory dir(filename.branch_path());
     dir.erase(filename.leaf_name());
-    atf::fs::directory::iterator iter = dir.begin();
+    tools::fs::directory::iterator iter = dir.begin();
     while (iter != dir.end()) {
         const std::string& name = (*iter).first;
-        const atf::fs::file_info& fi = (*iter).second;
+        const tools::fs::file_info& fi = (*iter).second;
 
         // Discard hidden files and non-executable ones so that they are
         // not candidates for glob matching.
@@ -328,7 +328,7 @@ impl::read_atffile(const atf::fs::path& filename)
     // Parse the atffile.
     std::ifstream is(filename.c_str());
     if (!is)
-        throw tools::not_found_error< atf::fs::path >
+        throw tools::not_found_error< tools::fs::path >
             ("Cannot open Atffile", filename);
     reader r(is, dir);
     r.read();

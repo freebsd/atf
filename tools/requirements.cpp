@@ -42,10 +42,9 @@ extern "C" {
 #include "atf-c/defs.h"
 }
 
-#include "atf-c++/detail/fs.hpp"
-
 #include "config.hpp"
 #include "env.hpp"
+#include "fs.hpp"
 #include "requirements.hpp"
 #include "text.hpp"
 #include "user.hpp"
@@ -56,12 +55,12 @@ namespace {
 
 static
 bool
-has_program(const atf::fs::path& program)
+has_program(const tools::fs::path& program)
 {
     bool found = false;
 
     if (program.is_absolute()) {
-        found = atf::fs::is_executable(program);
+        found = tools::fs::is_executable(program);
     } else {
         if (program.str().find('/') != std::string::npos)
             throw std::runtime_error("Relative paths are not allowed "
@@ -72,8 +71,8 @@ has_program(const atf::fs::path& program)
             tools::env::get("PATH"), ":");
         for (std::vector< std::string >::const_iterator iter = dirs.begin();
              !found && iter != dirs.end(); iter++) {
-            const atf::fs::path& p = atf::fs::path(*iter) / program;
-            if (atf::fs::is_executable(p))
+            const tools::fs::path& p = tools::fs::path(*iter) / program;
+            if (tools::fs::is_executable(p))
                 found = true;
         }
     }
@@ -120,11 +119,11 @@ check_files(const std::string& progs)
     const std::vector< std::string > v = tools::text::split(progs, " ");
     for (std::vector< std::string >::const_iterator iter = v.begin();
          iter != v.end(); iter++) {
-        const atf::fs::path file(*iter);
+        const tools::fs::path file(*iter);
         if (!file.is_absolute())
             throw std::runtime_error("Relative paths are not allowed when "
                 "checking for a required file (" + file.str() + ")");
-        if (!atf::fs::exists(file))
+        if (!tools::fs::exists(file))
             return "Required file '" + file.str() + "' not found";
     }
     return "";
@@ -224,7 +223,7 @@ check_progs(const std::string& progs)
     const std::vector< std::string > v = tools::text::split(progs, " ");
     for (std::vector< std::string >::const_iterator iter = v.begin();
          iter != v.end(); iter++) {
-        if (!has_program(atf::fs::path(*iter)))
+        if (!has_program(tools::fs::path(*iter)))
             return "Required program '" + (*iter) + "' not found in the PATH";
     }
     return "";

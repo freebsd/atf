@@ -33,11 +33,10 @@
 
 #include "atf-c/defs.h"
 
-#include "atf-c++/detail/fs.hpp"
-
 #include "config.hpp"
 #include "config_file.hpp"
 #include "env.hpp"
+#include "fs.hpp"
 #include "parser.hpp"
 
 namespace impl = tools::atf_run;
@@ -103,7 +102,7 @@ merge_maps(std::map< K, V >& dest, const std::map< K, V >& src)
 
 static
 void
-merge_config_file(const atf::fs::path& config_path,
+merge_config_file(const tools::fs::path& config_path,
                   atf::tests::vars_map& config)
 {
     std::ifstream is(config_path.c_str());
@@ -115,13 +114,13 @@ merge_config_file(const atf::fs::path& config_path,
 }
 
 static
-std::vector< atf::fs::path >
+std::vector< tools::fs::path >
 get_config_dirs(void)
 {
-    std::vector< atf::fs::path > dirs;
-    dirs.push_back(atf::fs::path(tools::config::get("atf_confdir")));
+    std::vector< tools::fs::path > dirs;
+    dirs.push_back(tools::fs::path(tools::config::get("atf_confdir")));
     if (tools::env::has("HOME"))
-        dirs.push_back(atf::fs::path(tools::env::get("HOME")) / ".atf");
+        dirs.push_back(tools::fs::path(tools::env::get("HOME")) / ".atf");
     return dirs;
 }
 
@@ -212,8 +211,8 @@ impl::read_config_files(const std::string& test_suite_name)
 {
     atf::tests::vars_map config;
 
-    const std::vector< atf::fs::path > dirs = get_config_dirs();
-    for (std::vector< atf::fs::path >::const_iterator iter = dirs.begin();
+    const std::vector< tools::fs::path > dirs = get_config_dirs();
+    for (std::vector< tools::fs::path >::const_iterator iter = dirs.begin();
          iter != dirs.end(); iter++) {
         merge_config_file((*iter) / "common.conf", config);
         merge_config_file((*iter) / (test_suite_name + ".conf"), config);

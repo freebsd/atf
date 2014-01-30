@@ -533,7 +533,7 @@ ATF_TEST_CASE_BODY(read_ok_simple) {
     touch_exec("tp-3");
 
     const tools::atf_run::atffile atffile = tools::atf_run::read_atffile(
-        atf::fs::path("Atffile"));
+        tools::fs::path("Atffile"));
     ATF_REQUIRE_EQ(2, atffile.conf().size());
     ATF_REQUIRE_EQ("value1", atffile.conf().find("var1")->second);
     ATF_REQUIRE_EQ("value2", atffile.conf().find("var2")->second);
@@ -564,7 +564,7 @@ ATF_TEST_CASE_BODY(read_ok_some_globs) {
     touch_exec("zzzt_hello");
 
     const tools::atf_run::atffile atffile = tools::atf_run::read_atffile(
-        atf::fs::path("Atffile"));
+        tools::fs::path("Atffile"));
     ATF_REQUIRE_EQ(5, atffile.tps().size());
     ATF_REQUIRE(is_in("foo", atffile.tps()));
     ATF_REQUIRE(is_in("bar", atffile.tps()));
@@ -579,7 +579,7 @@ ATF_TEST_CASE_BODY(read_missing_test_suite) {
     (*os).close();
 
     try {
-        (void)tools::atf_run::read_atffile(atf::fs::path("Atffile"));
+        (void)tools::atf_run::read_atffile(tools::fs::path("Atffile"));
         ATF_FAIL("Missing property 'test-suite' did not raise an error");
     } catch (const tools::not_found_error< std::string >& e) {
         ATF_REQUIRE_EQ("test-suite", e.get_value());
@@ -598,9 +598,9 @@ ATF_TEST_CASE_BODY(read_missing_test_program) {
     touch_exec("baz");
 
     try {
-        (void)tools::atf_run::read_atffile(atf::fs::path("Atffile"));
+        (void)tools::atf_run::read_atffile(tools::fs::path("Atffile"));
         ATF_FAIL("Missing file 'bar' did not raise an error");
-    } catch (const tools::not_found_error< atf::fs::path >& e) {
+    } catch (const tools::not_found_error< tools::fs::path >& e) {
         ATF_REQUIRE_EQ("bar", e.get_value().str());
     }
 }

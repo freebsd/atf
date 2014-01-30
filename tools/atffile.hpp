@@ -35,7 +35,7 @@
 
 #include "atf-c++/tests.hpp"
 
-#include "atf-c++/detail/fs.hpp"
+#include "fs.hpp"
 
 namespace tools {
 namespace atf_run {
@@ -87,7 +87,7 @@ public:
 // Free functions.
 // ------------------------------------------------------------------------
 
-atffile read_atffile(const atf::fs::path&);
+atffile read_atffile(const tools::fs::path&);
 
 } // namespace atf_run
 } // namespace tools
