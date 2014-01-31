@@ -35,9 +35,8 @@ extern "C" {
 
 #include <atf-c++.hpp>
 
-#include "atf-c/defs.h"
-
 #include "auto_array.hpp"
+#include "defs.hpp"
 
 // ------------------------------------------------------------------------
 // Tests for the "auto_array" class.

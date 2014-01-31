@@ -32,12 +32,9 @@
 #include <map>
 #include <string>
 
-extern "C" {
-#include "atf-c/defs.h"
-}
-
 #include "application.hpp"
 #include "config.hpp"
+#include "defs.hpp"
 
 class atf_config : public tools::application::app {
     static const char* m_description;

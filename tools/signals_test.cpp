@@ -39,8 +39,7 @@ extern "C" {
 
 #include <atf-c++.hpp>
 
-#include "atf-c/defs.h"
-
+#include "defs.hpp"
 #include "exceptions.hpp"
 #include "process.hpp"
 #include "signals.hpp"

@@ -42,11 +42,8 @@ extern "C" {
 #include <cstring>
 #include <iostream>
 
-extern "C" {
-#include "atf-c/defs.h"
-}
-
 #include "application.hpp"
+#include "defs.hpp"
 #include "ui.hpp"
 
 #if !defined(HAVE_VSNPRINTF_IN_STD)

@@ -44,9 +44,8 @@ extern "C" {
 #include <fstream>
 #include <iostream>
 
-#include "atf-c/defs.h"
-
 #include "config_file.hpp"
+#include "defs.hpp"
 #include "env.hpp"
 #include "fs.hpp"
 #include "io.hpp"

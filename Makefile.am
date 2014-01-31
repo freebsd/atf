@@ -30,6 +30,7 @@
 atf_aclocal_DATA =
 BUILT_SOURCES =
 CLEANFILES =
+DIST_HOOKS =
 EXTRA_DIST =
 bin_PROGRAMS =
 dist_man_MANS =
@@ -123,7 +124,7 @@ BUILD_SH_TP = \
 # Custom targets.
 #
 
-dist-hook: forbid-dist
+DIST_HOOKS += forbid-dist
 if ENABLE_TOOLS
 forbid-dist:
 	@true
@@ -147,5 +148,7 @@ release-test:
 	$(SH) $(srcdir)/admin/release-test.sh $(DIST_ARCHIVES)
 
 .PHONY: $(PHONY_TARGETS)
+
+dist-hook: $(DIST_HOOKS)
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

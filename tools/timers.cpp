@@ -40,10 +40,7 @@ extern "C" {
 #include <csignal>
 #include <ctime>
 
-extern "C" {
-#include "atf-c/defs.h"
-}
-
+#include "defs.hpp"
 #include "exceptions.hpp"
 #include "signals.hpp"
 #include "timers.hpp"

@@ -69,6 +69,7 @@ tools_libtools_a_SOURCES = tools/application.cpp \
                            tools/ui.hpp \
                            tools/user.cpp \
                            tools/user.hpp
+nodist_tools_libtools_a_SOURCES = tools/defs.hpp
 tools_libtools_a_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
                             "-DATF_BUILD_CC=\"$(ATF_BUILD_CC)\"" \
                             "-DATF_BUILD_CFLAGS=\"$(ATF_BUILD_CFLAGS)\"" \
@@ -84,6 +85,12 @@ tools_libtools_a_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
                             "-DATF_PKGDATADIR=\"$(pkgdatadir)\"" \
                             "-DATF_SHELL=\"$(ATF_SHELL)\"" \
                             "-DATF_WORKDIR=\"$(ATF_WORKDIR)\""
+
+# XXX For some reason, the nodist line above does not work as expected.
+# Work this problem around.
+DIST_HOOKS += kill-defs-hpp
+kill-defs-hpp:
+	rm -f $(distdir)/tools/defs.hpp
 
 
 

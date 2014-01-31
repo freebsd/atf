@@ -38,11 +38,8 @@ extern "C" {
 #include <cstring>
 #include <stdexcept>
 
-extern "C" {
-#include "atf-c/defs.h"
-}
-
 #include "config.hpp"
+#include "defs.hpp"
 #include "env.hpp"
 #include "fs.hpp"
 #include "requirements.hpp"

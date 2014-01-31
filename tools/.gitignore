@@ -2,6 +2,7 @@ atf-config
 atf-report
 atf-run
 atf-version
+defs.hpp
 libtools.a
 revision.h
 revision.h.stamp

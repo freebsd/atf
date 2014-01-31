@@ -33,8 +33,6 @@ extern "C" {
 
 #include <fcntl.h>
 #include <signal.h>
-
-#include "atf-c/defs.h"
 }
 
 #include <cassert>
@@ -43,6 +41,7 @@ extern "C" {
 #include <cstring>
 #include <iostream>
 
+#include "defs.hpp"
 #include "exceptions.hpp"
 #include "text.hpp"
 #include "process.hpp"

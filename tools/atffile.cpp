@@ -31,9 +31,8 @@
 #include <cstdlib>
 #include <fstream>
 
-#include "atf-c/defs.h"
-
 #include "atffile.hpp"
+#include "defs.hpp"
 #include "exceptions.hpp"
 #include "expand.hpp"
 #include "parser.hpp"

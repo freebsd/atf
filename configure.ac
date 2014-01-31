@@ -218,7 +218,7 @@ dnl -----------------------------------------------------------------------
 dnl Finally, generate output.
 dnl -----------------------------------------------------------------------
 
-AC_OUTPUT([Makefile atf-c/defs.h])
+AC_OUTPUT([Makefile atf-c/defs.h tools/defs.hpp])
 
 if test ${enable_tools} = yes; then
     AC_MSG_WARN([Building the deprecated ATF tools (atf-run and atf-report);])

@@ -37,8 +37,7 @@ extern "C" {
 #include <sstream>
 #include <utility>
 
-#include "atf-c/defs.h"
-
+#include "defs.hpp"
 #include "parser.hpp"
 #include "reader.hpp"
 #include "text.hpp"

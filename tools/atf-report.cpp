@@ -41,9 +41,8 @@ extern "C" {
 #include <utility>
 #include <vector>
 
-#include "atf-c/defs.h"
-
 #include "application.hpp"
+#include "defs.hpp"
 #include "fs.hpp"
 #include "reader.hpp"
 #include "text.hpp"

@@ -31,10 +31,9 @@
 #include <fstream>
 #include <vector>
 
-#include "atf-c/defs.h"
-
 #include "config.hpp"
 #include "config_file.hpp"
+#include "defs.hpp"
 #include "env.hpp"
 #include "fs.hpp"
 #include "parser.hpp"
