@@ -59,7 +59,6 @@ tools_libtools_a_SOURCES = tools/application.cpp \
                            tools/signals.hpp \
                            tools/test-program.cpp \
                            tools/test-program.hpp \
-                           tools/test_helpers.cpp \
                            tools/test_helpers.hpp \
                            tools/text.cpp \
                            tools/text.hpp \
