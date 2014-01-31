@@ -72,27 +72,6 @@ TESTS_ENVIRONMENT = PATH=$(prefix)/bin:$${PATH} \
 testsdir = $(exec_prefix)/tests
 pkgtestsdir = $(testsdir)/$(PACKAGE)
 
-if ENABLE_TOOLS
-INSTALLCHECK_TARGETS += installcheck-atf
-PHONY_TARGETS += installcheck-atf
-installcheck-atf:
-	logfile=$$(pwd)/installcheck.log; \
-	fifofile=$$(pwd)/installcheck.fifo; \
-	cd $(pkgtestsdir); \
-	rm -f $${fifofile}; \
-	mkfifo $${fifofile}; \
-	cat $${fifofile} | tee $${logfile} | $(TESTS_ENVIRONMENT) atf-report & \
-	$(TESTS_ENVIRONMENT) atf-run >>$${fifofile}; \
-	res=$${?}; \
-	wait; \
-	rm $${fifofile}; \
-	echo; \
-	echo "The verbatim output of atf-run has been saved to" \
-	     "installcheck.log; exit was $${res}"; \
-	test $${res} -eq 0
-CLEANFILES += installcheck.fifo installcheck.log
-endif
-
 PHONY_TARGETS += installcheck-kyua
 if HAVE_KYUA
 if !ENABLE_TOOLS
@@ -105,9 +84,6 @@ endif
 installcheck-local: $(INSTALLCHECK_TARGETS)
 
 pkgtests_DATA = Kyuafile
-if ENABLE_TOOLS
-pkgtests_DATA += Atffile
-endif
 EXTRA_DIST += $(pkgtests_DATA)
 
 BUILD_SH_TP = \
