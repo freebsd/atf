@@ -95,24 +95,24 @@ kill-defs-hpp:
 
 bin_PROGRAMS += tools/atf-config
 tools_atf_config_SOURCES = tools/atf-config.cpp
-tools_atf_config_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_atf_config_LDADD = tools/libtools.a
 dist_man_MANS += tools/atf-config.1
 
 bin_PROGRAMS += tools/atf-report
 tools_atf_report_SOURCES = tools/atf-report.cpp
-tools_atf_report_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_atf_report_LDADD = tools/libtools.a
 dist_man_MANS += tools/atf-report.1
 
 bin_PROGRAMS += tools/atf-run
 tools_atf_run_CPPFLAGS = "-DGDB=\"$(GDB)\""
 tools_atf_run_SOURCES = tools/atf-run.cpp
-tools_atf_run_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_atf_run_LDADD = tools/libtools.a
 dist_man_MANS += tools/atf-run.1
 
 bin_PROGRAMS += tools/atf-version
 tools_atf_version_SOURCES = tools/atf-version.cpp
 nodist_tools_atf_version_SOURCES = tools/revision.h
-tools_atf_version_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_atf_version_LDADD = tools/libtools.a
 dist_man_MANS += tools/atf-version.1
 
 EXTRA_DIST += tools/generate-revision.sh
