@@ -38,7 +38,7 @@
 #include "fs.hpp"
 
 namespace tools {
-namespace atf_run {
+namespace io {
 
 // ------------------------------------------------------------------------
 // The "file_handle" class.
@@ -430,7 +430,7 @@ public:
     void flush(void);
 };
 
-} // namespace atf_run
+} // namespace io
 } // namespace tools
 
 #endif // !defined(TOOLS_IO_HPP)

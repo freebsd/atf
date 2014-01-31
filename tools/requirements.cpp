@@ -49,7 +49,7 @@ extern "C" {
 #include "text.hpp"
 #include "user.hpp"
 
-namespace impl = tools::atf_run;
+namespace impl = tools;
 
 namespace {
 
@@ -234,12 +234,12 @@ std::string
 check_user(const std::string& user, const atf::tests::vars_map& config)
 {
     if (user == "root") {
-        if (!impl::is_root())
+        if (!tools::user::is_root())
             return "Requires root privileges";
         else
             return "";
     } else if (user == "unprivileged") {
-        if (impl::is_root()) {
+        if (tools::user::is_root()) {
             const atf::tests::vars_map::const_iterator iter = config.find(
                 "unprivileged-user");
             if (iter == config.end())
@@ -248,7 +248,7 @@ check_user(const std::string& user, const atf::tests::vars_map& config)
             else {
                 const std::string& unprivileged_user = (*iter).second;
                 try {
-                    (void)impl::get_user_ids(unprivileged_user);
+                    (void)tools::user::get_user_ids(unprivileged_user);
                     return "";
                 } catch (const std::runtime_error& e) {
                     return "Failed to get information for user " +
@@ -310,11 +310,11 @@ impl::get_required_user(const atf::tests::vars_map& metadata,
         return std::make_pair(-1, -1);
 
     if ((*user).second == "unprivileged") {
-        if (impl::is_root()) {
+        if (tools::user::is_root()) {
             const atf::tests::vars_map::const_iterator iter = config.find(
                 "unprivileged-user");
             try {
-                return impl::get_user_ids((*iter).second);
+                return tools::user::get_user_ids((*iter).second);
             } catch (const std::exception& e) {
                 std::abort();  // This has been validated by check_user.
             }

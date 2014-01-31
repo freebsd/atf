@@ -52,7 +52,7 @@ ATF_TEST_CASE_HEAD(euid)
 }
 ATF_TEST_CASE_BODY(euid)
 {
-    using tools::atf_run::euid;
+    using tools::user::euid;
 
     ATF_REQUIRE_EQ(euid(), ::geteuid());
 }
@@ -64,7 +64,7 @@ ATF_TEST_CASE_HEAD(is_member_of_group)
 }
 ATF_TEST_CASE_BODY(is_member_of_group)
 {
-    using tools::atf_run::is_member_of_group;
+    using tools::user::is_member_of_group;
 
     std::set< gid_t > groups;
     gid_t maxgid = 0;
@@ -109,7 +109,7 @@ ATF_TEST_CASE_HEAD(is_root)
 }
 ATF_TEST_CASE_BODY(is_root)
 {
-    using tools::atf_run::is_root;
+    using tools::user::is_root;
 
     if (::geteuid() == 0) {
         ATF_REQUIRE(is_root());
@@ -125,7 +125,7 @@ ATF_TEST_CASE_HEAD(is_unprivileged)
 }
 ATF_TEST_CASE_BODY(is_unprivileged)
 {
-    using tools::atf_run::is_unprivileged;
+    using tools::user::is_unprivileged;
 
     if (::geteuid() != 0) {
         ATF_REQUIRE(is_unprivileged());

@@ -63,8 +63,8 @@ tools_libtools_a_SOURCES = tools/application.cpp \
                            tools/test_helpers.hpp \
                            tools/text.cpp \
                            tools/text.hpp \
-                           tools/timer.cpp \
-                           tools/timer.hpp \
+                           tools/timers.cpp \
+                           tools/timers.hpp \
                            tools/ui.cpp \
                            tools/ui.hpp \
                            tools/user.cpp \

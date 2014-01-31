@@ -42,8 +42,8 @@ extern "C" {
 #include "exceptions.hpp"
 #include "signals.hpp"
 
-namespace impl = tools::atf_run;
-#define IMPL_NAME "tools::atf_run"
+namespace impl = tools::signals;
+#define IMPL_NAME "tools::signals"
 
 const int impl::last_signo = LAST_SIGNO;
 

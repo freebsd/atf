@@ -39,8 +39,8 @@
 #include "fs.hpp"
 #include "parser.hpp"
 
-namespace impl = tools::atf_run;
-namespace detail = tools::atf_run::detail;
+namespace impl = tools::config_file;
+namespace detail = tools::config_file::detail;
 
 namespace {
 

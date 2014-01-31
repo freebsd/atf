@@ -46,8 +46,8 @@ extern "C" {
 #include "exceptions.hpp"
 #include "io.hpp"
 
-namespace impl = tools::atf_run;
-#define IMPL_NAME "tools::atf_run"
+namespace impl = tools::io;
+#define IMPL_NAME "tools::io"
 
 // ------------------------------------------------------------------------
 // The "file_handle" class.

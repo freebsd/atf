@@ -27,6 +27,9 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#if !defined(TOOLS_TEST_PROGRAM_HPP)
+#define TOOLS_TEST_PROGRAM_HPP
+
 #include <map>
 
 #include "atf-c++/tests.hpp"
@@ -35,7 +38,7 @@
 #include "process.hpp"
 
 namespace tools {
-namespace atf_run {
+namespace test_program {
 
 struct test_case_result {
     std::string m_state;
@@ -146,5 +149,7 @@ std::pair< std::string, tools::process::status > run_test_case(
     const atf::tests::vars_map&, const atf::tests::vars_map&,
     const tools::fs::path&, const tools::fs::path&, atf_tps_writer&);
 
-} // namespace atf_run
+} // namespace test_program
 } // namespace tools
+
+#endif // !defined(TOOLS_TEST_PROGRAM_HPP)

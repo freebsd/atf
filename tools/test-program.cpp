@@ -56,11 +56,11 @@ extern "C" {
 #include "signals.hpp"
 #include "test-program.hpp"
 #include "text.hpp"
-#include "timer.hpp"
+#include "timers.hpp"
 #include "user.hpp"
 
-namespace impl = tools::atf_run;
-namespace detail = tools::atf_run::detail;
+namespace impl = tools::test_program;
+namespace detail = tools::test_program::detail;
 
 namespace {
 
@@ -259,8 +259,8 @@ prepare_child(const tools::fs::path& workdir)
 
     ::umask(S_IWGRP | S_IWOTH);
 
-    for (int i = 1; i <= impl::last_signo; i++)
-        impl::reset(i);
+    for (int i = 1; i <= tools::signals::last_signo; i++)
+        tools::signals::reset(i);
 
     tools::env::set("HOME", workdir.str());
     tools::env::unset("LANG");
@@ -302,10 +302,10 @@ run_test_case_child(void* raw_params)
     const test_case_params* params =
         static_cast< const test_case_params* >(raw_params);
 
-    const std::pair< int, int > user = impl::get_required_user(
+    const std::pair< int, int > user = tools::get_required_user(
         params->metadata, params->config);
     if (user.first != -1 && user.second != -1)
-        impl::drop_privileges(user);
+        tools::user::drop_privileges(user);
 
     // The input 'tp' parameter may be relative and become invalid once
     // we change the current working directory.
@@ -656,7 +656,7 @@ impl::get_metadata(const tools::fs::path& executable,
                            tools::process::stream_inherit(),
                            static_cast< void * >(&params));
 
-    impl::pistream outin(child.stdout_fd());
+    tools::io::pistream outin(child.stdout_fd());
 
     metadata_reader parser(outin);
     parser.read();
@@ -699,7 +699,7 @@ sigchld_handler(const int signo ATF_DEFS_ATTRIBUTE_UNUSED)
     terminate_poll = true;
 }
 
-class child_muxer : public impl::muxer {
+class child_muxer : public tools::io::muxer {
     impl::atf_tps_writer& m_writer;
 
     void
@@ -753,8 +753,8 @@ impl::run_test_case(const tools::fs::path& executable,
     const pid_t child_pid = child.pid();
 
     // Get the input stream of stdout and stderr.
-    impl::file_handle outfh = child.stdout_fd();
-    impl::file_handle errfh = child.stderr_fd();
+    tools::io::file_handle outfh = child.stdout_fd();
+    tools::io::file_handle errfh = child.stderr_fd();
 
     bool timed_out = false;
 
@@ -763,8 +763,8 @@ impl::run_test_case(const tools::fs::path& executable,
     int fds[2] = {outfh.get(), errfh.get()};
     child_muxer mux(fds, 2, writer);
     try {
-        child_timer timeout_timer(timeout, child_pid, terminate_poll);
-        signal_programmer sigchld(SIGCHLD, sigchld_handler);
+        timers::child_timer timeout_timer(timeout, child_pid, terminate_poll);
+        signals::signal_programmer sigchld(SIGCHLD, sigchld_handler);
         mux.mux(terminate_poll);
         timed_out = timeout_timer.fired();
     } catch (...) {

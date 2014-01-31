@@ -98,7 +98,7 @@ eaccess(const tools::fs::path& p, int mode)
         return;
 
     bool ok = false;
-    if (tools::atf_run::is_root()) {
+    if (tools::user::is_root()) {
         if (!ok && !(mode & access_x)) {
             /* Allow root to read/write any file. */
             ok = true;
@@ -110,18 +110,18 @@ eaccess(const tools::fs::path& p, int mode)
             ok = true;
         }
     } else {
-        if (!ok && (tools::atf_run::euid() == st.st_uid)) {
+        if (!ok && (tools::user::euid() == st.st_uid)) {
             ok = ((mode & access_r) && (st.st_mode & S_IRUSR)) ||
                  ((mode & access_w) && (st.st_mode & S_IWUSR)) ||
                  ((mode & access_x) && (st.st_mode & S_IXUSR));
         }
-        if (!ok && tools::atf_run::is_member_of_group(st.st_gid)) {
+        if (!ok && tools::user::is_member_of_group(st.st_gid)) {
             ok = ((mode & access_r) && (st.st_mode & S_IRGRP)) ||
                  ((mode & access_w) && (st.st_mode & S_IWGRP)) ||
                  ((mode & access_x) && (st.st_mode & S_IXGRP));
         }
-        if (!ok && ((tools::atf_run::euid() != st.st_uid) &&
-                    !tools::atf_run::is_member_of_group(st.st_gid))) {
+        if (!ok && ((tools::user::euid() != st.st_uid) &&
+                    !tools::user::is_member_of_group(st.st_gid))) {
             ok = ((mode & access_r) && (st.st_mode & S_IROTH)) ||
                  ((mode & access_w) && (st.st_mode & S_IWOTH)) ||
                  ((mode & access_x) && (st.st_mode & S_IXOTH));

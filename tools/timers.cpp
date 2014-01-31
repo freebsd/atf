@@ -46,10 +46,10 @@ extern "C" {
 
 #include "exceptions.hpp"
 #include "signals.hpp"
-#include "timer.hpp"
+#include "timers.hpp"
 
-namespace impl = tools::atf_run;
-#define IMPL_NAME "tools::atf_run"
+namespace impl = tools::timers;
+#define IMPL_NAME "tools::timers"
 
 #if !defined(HAVE_TIMER_T)
 static impl::timer* compat_handle;

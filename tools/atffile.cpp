@@ -38,8 +38,8 @@
 #include "expand.hpp"
 #include "parser.hpp"
 
-namespace impl = tools::atf_run;
-namespace detail = tools::atf_run::detail;
+namespace impl = tools;
+namespace detail = tools::detail;
 
 // ------------------------------------------------------------------------
 // The "atf_atffile" auxiliary parser.

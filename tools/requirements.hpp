@@ -27,18 +27,21 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#if !defined(TOOLS_REQUIREMENTS_HPP)
+#define TOOLS_REQUIREMENTS_HPP
+
 #include <string>
 #include <utility>
 
 #include "atf-c++/tests.hpp"
 
 namespace tools {
-namespace atf_run {
 
 std::string check_requirements(const atf::tests::vars_map&,
                                const atf::tests::vars_map&);
 std::pair< int, int > get_required_user(const atf::tests::vars_map&,
                                         const atf::tests::vars_map&);
 
-} // namespace atf_run
 } // namespace tools
+
+#endif // !defined(TOOLS_REQUIREMENTS_HPP)

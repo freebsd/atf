@@ -90,7 +90,7 @@ static
 void
 systembuf_test_read(std::size_t length, std::size_t bufsize)
 {
-    using tools::atf_run::systembuf;
+    using tools::io::systembuf;
 
     std::ofstream f("test_read.txt");
     systembuf_write_data(f, length);
@@ -109,7 +109,7 @@ static
 void
 systembuf_test_write(std::size_t length, std::size_t bufsize)
 {
-    using tools::atf_run::systembuf;
+    using tools::io::systembuf;
 
     int fd = ::open("test_write.txt", O_WRONLY | O_CREAT | O_TRUNC,
                     S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
@@ -136,7 +136,7 @@ ATF_TEST_CASE_HEAD(file_handle_ctor)
 }
 ATF_TEST_CASE_BODY(file_handle_ctor)
 {
-    using tools::atf_run::file_handle;
+    using tools::io::file_handle;
 
     file_handle fh1;
     ATF_REQUIRE(!fh1.is_valid());
@@ -153,7 +153,7 @@ ATF_TEST_CASE_HEAD(file_handle_copy)
 }
 ATF_TEST_CASE_BODY(file_handle_copy)
 {
-    using tools::atf_run::file_handle;
+    using tools::io::file_handle;
 
     file_handle fh1;
     file_handle fh2(STDOUT_FILENO);
@@ -176,7 +176,7 @@ ATF_TEST_CASE_HEAD(file_handle_get)
 }
 ATF_TEST_CASE_BODY(file_handle_get)
 {
-    using tools::atf_run::file_handle;
+    using tools::io::file_handle;
 
     file_handle fh1(STDOUT_FILENO);
     ATF_REQUIRE_EQ(fh1.get(), STDOUT_FILENO);
@@ -189,7 +189,7 @@ ATF_TEST_CASE_HEAD(file_handle_posix_remap)
 }
 ATF_TEST_CASE_BODY(file_handle_posix_remap)
 {
-    using tools::atf_run::file_handle;
+    using tools::io::file_handle;
 
     int pfd[2];
 
@@ -282,9 +282,9 @@ ATF_TEST_CASE_HEAD(pistream)
 }
 ATF_TEST_CASE_BODY(pistream)
 {
-    using tools::atf_run::file_handle;
-    using tools::atf_run::pistream;
-    using tools::atf_run::systembuf;
+    using tools::io::file_handle;
+    using tools::io::pistream;
+    using tools::io::systembuf;
 
     int fds[2];
     ATF_REQUIRE(::pipe(fds) != -1);
@@ -321,7 +321,7 @@ check_stream(std::ostream& os)
     os.clear();
 }
 
-class mock_muxer : public tools::atf_run::muxer {
+class mock_muxer : public tools::io::muxer {
     void line_callback(const size_t index, const std::string& line)
     {
         // The following should be enabled but causes the output to be so big
@@ -381,7 +381,7 @@ muxer_test(const size_t bufsize, const size_t iterations)
     ATF_REQUIRE(pipe(pipeout) != -1);
     ATF_REQUIRE(pipe(pipeerr) != -1);
 
-    tools::atf_run::signal_programmer sigchld(SIGCHLD, sigchld_handler);
+    tools::signals::signal_programmer sigchld(SIGCHLD, sigchld_handler);
 
     std::cout.flush();
     std::cerr.flush();

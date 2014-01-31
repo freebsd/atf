@@ -617,9 +617,9 @@ ATF_TEST_CASE_BODY(cleanup_eacces_on_root)
 
     try {
         cleanup(tools::fs::path("aux/root"));
-        ATF_REQUIRE(tools::atf_run::is_root());
+        ATF_REQUIRE(tools::user::is_root());
     } catch (const tools::system_error& e) {
-        ATF_REQUIRE(!tools::atf_run::is_root());
+        ATF_REQUIRE(!tools::user::is_root());
         ATF_REQUIRE_EQ(EACCES, e.code());
     }
 }

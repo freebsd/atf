@@ -37,8 +37,8 @@
 #include "test_helpers.hpp"
 #include "text.hpp"
 
-namespace impl = tools::atf_run;
-namespace detail = tools::atf_run::detail;
+namespace impl = tools::test_program;
+namespace detail = tools::test_program::detail;
 
 using atf::tests::vars_map;
 

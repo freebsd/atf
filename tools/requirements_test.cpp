@@ -34,7 +34,7 @@
 #include "text.hpp"
 #include "user.hpp"
 
-namespace impl = tools::atf_run;
+namespace impl = tools;
 
 // -------------------------------------------------------------------------
 // Auxiliary functions.
@@ -319,7 +319,7 @@ ATF_TEST_CASE_HEAD(require_user_root) {}
 ATF_TEST_CASE_BODY(require_user_root) {
     atf::tests::vars_map metadata;
     metadata["require.user"] = "root";
-    if (tools::atf_run::is_root())
+    if (tools::user::is_root())
         do_check("", metadata);
     else
         do_check("Requires root privileges", metadata);
@@ -330,7 +330,7 @@ ATF_TEST_CASE_HEAD(require_user_unprivileged) {}
 ATF_TEST_CASE_BODY(require_user_unprivileged) {
     atf::tests::vars_map metadata;
     metadata["require.user"] = "unprivileged";
-    if (tools::atf_run::is_root())
+    if (tools::user::is_root())
         do_check("Requires an unprivileged user and the 'unprivileged-user' "
                  "configuration variable is not set", metadata);
     else

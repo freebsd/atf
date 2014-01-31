@@ -37,7 +37,7 @@ extern "C" {
 #include <utility>
 
 namespace tools {
-namespace atf_run {
+namespace user {
 
 uid_t euid(void);
 void drop_privileges(const std::pair< int, int >);
@@ -46,7 +46,7 @@ bool is_member_of_group(gid_t);
 bool is_root(void);
 bool is_unprivileged(void);
 
-} // namespace atf_run
+} // namespace user
 } // namespace tools
 
 #endif // !defined(TOOLS_USER_HPP)

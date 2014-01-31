@@ -42,7 +42,7 @@ extern "C" {
 #include "exceptions.hpp"
 #include "test_helpers.hpp"
 
-namespace detail = tools::atf_run::detail;
+namespace detail = tools::detail;
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -505,8 +505,7 @@ ATF_TEST_CASE_BODY(atffile_getters) {
     atf::tests::vars_map properties;
     properties["test-suite"] = "a test name";
 
-    const tools::atf_run::atffile atffile(config_vars, test_program_names,
-                                          properties);
+    const tools::atffile atffile(config_vars, test_program_names, properties);
     ATF_REQUIRE(config_vars == atffile.conf());
     ATF_REQUIRE(test_program_names == atffile.tps());
     ATF_REQUIRE(properties == atffile.props());
@@ -532,7 +531,7 @@ ATF_TEST_CASE_BODY(read_ok_simple) {
     touch_exec("tp-2");
     touch_exec("tp-3");
 
-    const tools::atf_run::atffile atffile = tools::atf_run::read_atffile(
+    const tools::atffile atffile = tools::read_atffile(
         tools::fs::path("Atffile"));
     ATF_REQUIRE_EQ(2, atffile.conf().size());
     ATF_REQUIRE_EQ("value1", atffile.conf().find("var1")->second);
@@ -563,7 +562,7 @@ ATF_TEST_CASE_BODY(read_ok_some_globs) {
     touch_exec("t_hello");
     touch_exec("zzzt_hello");
 
-    const tools::atf_run::atffile atffile = tools::atf_run::read_atffile(
+    const tools::atffile atffile = tools::read_atffile(
         tools::fs::path("Atffile"));
     ATF_REQUIRE_EQ(5, atffile.tps().size());
     ATF_REQUIRE(is_in("foo", atffile.tps()));
@@ -579,7 +578,7 @@ ATF_TEST_CASE_BODY(read_missing_test_suite) {
     (*os).close();
 
     try {
-        (void)tools::atf_run::read_atffile(tools::fs::path("Atffile"));
+        (void)tools::read_atffile(tools::fs::path("Atffile"));
         ATF_FAIL("Missing property 'test-suite' did not raise an error");
     } catch (const tools::not_found_error< std::string >& e) {
         ATF_REQUIRE_EQ("test-suite", e.get_value());
@@ -598,7 +597,7 @@ ATF_TEST_CASE_BODY(read_missing_test_program) {
     touch_exec("baz");
 
     try {
-        (void)tools::atf_run::read_atffile(tools::fs::path("Atffile"));
+        (void)tools::read_atffile(tools::fs::path("Atffile"));
         ATF_FAIL("Missing file 'bar' did not raise an error");
     } catch (const tools::not_found_error< tools::fs::path >& e) {
         ATF_REQUIRE_EQ("bar", e.get_value().str());

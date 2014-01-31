@@ -27,13 +27,16 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#if !defined(TOOLS_CONFIG_FILE_HPP)
+#define TOOLS_CONFIG_FILE_HPP
+
 #include <string>
 #include <vector>
 
 #include "atf-c++/tests.hpp"
 
 namespace tools {
-namespace atf_run {
+namespace config_file {
 
 namespace detail {
 
@@ -57,5 +60,7 @@ atf::tests::vars_map merge_configs(const atf::tests::vars_map&,
                                    const atf::tests::vars_map&);
 atf::tests::vars_map read_config_files(const std::string&);
 
-} // namespace atf_run
+} // namespace config_file
 } // namespace tools
+
+#endif // !defined(TOOLS_CONFIG_FILE_HPP)

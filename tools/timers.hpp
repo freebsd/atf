@@ -27,8 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(TOOLS_ALARM_HPP)
-#define TOOLS_ALARM_HPP
+#if !defined(TOOLS_TIMERS_HPP)
+#define TOOLS_TIMERS_HPP
 
 extern "C" {
 #include <sys/types.h>
@@ -37,7 +37,7 @@ extern "C" {
 #include <memory>
 
 namespace tools {
-namespace atf_run {
+namespace timers {
 
 class signal_programmer;
 
@@ -77,7 +77,7 @@ public:
     void timeout_callback(void);
 };
 
-} // namespace atf_run
+} // namespace timers
 } // namespace tools
 
-#endif // !defined(TOOLS_ALARM_HPP)
+#endif // !defined(TOOLS_TIMERS_HPP)

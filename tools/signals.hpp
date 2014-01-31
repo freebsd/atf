@@ -35,7 +35,7 @@ extern "C" {
 }
 
 namespace tools {
-namespace atf_run {
+namespace signals {
 
 extern const int last_signo;
 typedef void (*handler)(const int);
@@ -86,7 +86,7 @@ public:
 
 void reset(const int);
 
-} // namespace atf_run
+} // namespace signals
 } // namespace tools
 
 #endif // !defined(TOOLS_SIGNALS_HPP)

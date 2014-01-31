@@ -38,7 +38,6 @@
 #include "fs.hpp"
 
 namespace tools {
-namespace atf_run {
 
 // ------------------------------------------------------------------------
 // The "atf_atffile_reader" class.
@@ -89,7 +88,6 @@ public:
 
 atffile read_atffile(const tools::fs::path&);
 
-} // namespace atf_run
 } // namespace tools
 
 #endif // !defined(TOOLS_ATFFILE_HPP)
