@@ -134,6 +134,21 @@ tools/revision.h.stamp:
 
 
 
+man_MANS += tools/atf.7
+CLEANFILES += tools/atf.7
+EXTRA_DIST += tools/atf.7.in
+
+dist_man_MANS += tools/atf-formats.5
+
+tools/atf.7: $(srcdir)/tools/atf.7.in
+	test -d tools || mkdir -p tools
+	sed -e 's#__DOCDIR__#$(docdir)#g' \
+	    -e 's#__TESTSDIR__#$(testsdir)#g' \
+	    <$(srcdir)/tools/atf.7.in >tools/atf.7.tmp
+	mv tools/atf.7.tmp tools/atf.7
+
+
+
 cssdir = $(atf_cssdir)
 css_DATA = tools/tests-results.css
 EXTRA_DIST += $(css_DATA)
