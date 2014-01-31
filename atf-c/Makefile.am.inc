@@ -60,7 +60,7 @@ libatf_c_la_LDFLAGS = -version-info 0:0:0
 
 # XXX For some reason, the nodist line above does not work as expected.
 # Work this problem around.
-DIST_HOOKS += kill-defs-h
+dist-hook: kill-defs-h
 kill-defs-h:
 	rm -f $(distdir)/atf-c/defs.h
 

@@ -30,7 +30,6 @@
 atf_aclocal_DATA =
 BUILT_SOURCES =
 CLEANFILES =
-DIST_HOOKS =
 EXTRA_DIST =
 bin_PROGRAMS =
 dist_man_MANS =
@@ -74,9 +73,7 @@ pkgtestsdir = $(testsdir)/$(PACKAGE)
 
 PHONY_TARGETS += installcheck-kyua
 if HAVE_KYUA
-if !ENABLE_TOOLS
 INSTALLCHECK_TARGETS += installcheck-kyua
-endif
 installcheck-kyua:
 	cd $(pkgtestsdir) && $(TESTS_ENVIRONMENT) $(KYUA) test
 endif
@@ -96,17 +93,6 @@ BUILD_SH_TP = \
 # Custom targets.
 #
 
-DIST_HOOKS += forbid-dist
-if ENABLE_TOOLS
-forbid-dist:
-	@true
-else
-forbid-dist:
-	@echo "Sorry; cannot make dist without the tools enabled."
-	@echo "Please reconfigure with --enable-tools."
-	@false
-endif
-
 PHONY_TARGETS += clean-all
 clean-all:
 	GIT="$(GIT)" $(SH) $(srcdir)/admin/clean-all.sh
@@ -120,7 +106,5 @@ release-test:
 	$(SH) $(srcdir)/admin/release-test.sh $(DIST_ARCHIVES)
 
 .PHONY: $(PHONY_TARGETS)
-
-dist-hook: $(DIST_HOOKS)
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8

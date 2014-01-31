@@ -51,17 +51,6 @@ AM_INIT_AUTOMAKE([1.9 check-news foreign subdir-objects -Wall])
 AM_PROG_AR
 LT_INIT
 
-AC_ARG_ENABLE(tools,
-    AS_HELP_STRING([--enable-tools],
-        [Enables the build of the deprecated ATF tools]),
-    [case $enableval in
-     yes|no) enable_tools=${enableval} ;;
-     *) AC_MSG_ERROR([Invalid value passed to --enable-tools]) ;;
-     esac],
-    [enable_tools=no])
-AC_SUBST([ENABLE_TOOLS], ${enable_tools})
-AM_CONDITIONAL([ENABLE_TOOLS], [test "${enable_tools}" = yes])
-
 dnl -----------------------------------------------------------------------
 dnl Check for the C and C++ compilers and required features.
 dnl -----------------------------------------------------------------------
