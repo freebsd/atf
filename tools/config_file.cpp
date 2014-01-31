@@ -43,6 +43,8 @@ namespace detail = tools::config_file::detail;
 
 namespace {
 
+typedef std::map< std::string, std::string > vars_map;
+
 namespace atf_config {
 
 static const tools::parser::token_type eof_type = 0;
@@ -67,7 +69,7 @@ public:
 } // namespace atf_config
 
 class config_reader : public detail::atf_config_reader {
-    atf::tests::vars_map m_vars;
+    vars_map m_vars;
 
     void
     got_var(const std::string& var, const std::string& name)
@@ -81,7 +83,7 @@ public:
     {
     }
 
-    const atf::tests::vars_map&
+    const vars_map&
     get_vars(void)
         const
     {
@@ -102,7 +104,7 @@ merge_maps(std::map< K, V >& dest, const std::map< K, V >& src)
 static
 void
 merge_config_file(const tools::fs::path& config_path,
-                  atf::tests::vars_map& config)
+                  vars_map& config)
 {
     std::ifstream is(config_path.c_str());
     if (is) {
@@ -196,19 +198,19 @@ detail::atf_config_reader::read(void)
     ATF_PARSER_CALLBACK(p, got_eof());
 }
 
-atf::tests::vars_map
-impl::merge_configs(const atf::tests::vars_map& lower,
-                    const atf::tests::vars_map& upper)
+vars_map
+impl::merge_configs(const vars_map& lower,
+                    const vars_map& upper)
 {
-    atf::tests::vars_map merged = lower;
+    vars_map merged = lower;
     merge_maps(merged, upper);
     return merged;
 }
 
-atf::tests::vars_map
+vars_map
 impl::read_config_files(const std::string& test_suite_name)
 {
-    atf::tests::vars_map config;
+    vars_map config;
 
     const std::vector< tools::fs::path > dirs = get_config_dirs();
     for (std::vector< tools::fs::path >::const_iterator iter = dirs.begin();

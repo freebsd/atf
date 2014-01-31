@@ -50,6 +50,8 @@ namespace detail = tools::detail;
 
 namespace {
 
+typedef std::map< std::string, std::string > vars_map;
+
 static
 std::auto_ptr< std::ofstream >
 new_atffile(void)
@@ -496,13 +498,13 @@ ATF_TEST_CASE_BODY(atffile_54)
 ATF_TEST_CASE(atffile_getters);
 ATF_TEST_CASE_HEAD(atffile_getters) {}
 ATF_TEST_CASE_BODY(atffile_getters) {
-    atf::tests::vars_map config_vars;
+    vars_map config_vars;
     config_vars["config-var-1"] = "value 1";
 
     std::vector< std::string > test_program_names;
     test_program_names.push_back("test-program-1");
 
-    atf::tests::vars_map properties;
+    vars_map properties;
     properties["test-suite"] = "a test name";
 
     const tools::atffile atffile(config_vars, test_program_names, properties);

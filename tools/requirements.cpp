@@ -50,6 +50,8 @@ namespace impl = tools;
 
 namespace {
 
+typedef std::map< std::string, std::string > vars_map;
+
 static
 bool
 has_program(const tools::fs::path& program)
@@ -97,7 +99,7 @@ check_arch(const std::string& arches)
 
 static
 std::string
-check_config(const std::string& variables, const atf::tests::vars_map& config)
+check_config(const std::string& variables, const vars_map& config)
 {
     const std::vector< std::string > v = tools::text::split(variables, " ");
     for (std::vector< std::string >::const_iterator iter = v.begin();
@@ -228,7 +230,7 @@ check_progs(const std::string& progs)
 
 static
 std::string
-check_user(const std::string& user, const atf::tests::vars_map& config)
+check_user(const std::string& user, const vars_map& config)
 {
     if (user == "root") {
         if (!tools::user::is_root())
@@ -237,7 +239,7 @@ check_user(const std::string& user, const atf::tests::vars_map& config)
             return "";
     } else if (user == "unprivileged") {
         if (tools::user::is_root()) {
-            const atf::tests::vars_map::const_iterator iter = config.find(
+            const vars_map::const_iterator iter = config.find(
                 "unprivileged-user");
             if (iter == config.end())
                 return "Requires an unprivileged user and the "
@@ -262,12 +264,12 @@ check_user(const std::string& user, const atf::tests::vars_map& config)
 } // anonymous namespace
 
 std::string
-impl::check_requirements(const atf::tests::vars_map& metadata,
-                         const atf::tests::vars_map& config)
+impl::check_requirements(const vars_map& metadata,
+                         const vars_map& config)
 {
     std::string failure_reason = "";
 
-    for (atf::tests::vars_map::const_iterator iter = metadata.begin();
+    for (vars_map::const_iterator iter = metadata.begin();
          failure_reason.empty() && iter != metadata.end(); iter++) {
         const std::string& name = (*iter).first;
         const std::string& value = (*iter).second;
@@ -298,17 +300,17 @@ impl::check_requirements(const atf::tests::vars_map& metadata,
 }
 
 std::pair< int, int >
-impl::get_required_user(const atf::tests::vars_map& metadata,
-                        const atf::tests::vars_map& config)
+impl::get_required_user(const vars_map& metadata,
+                        const vars_map& config)
 {
-    const atf::tests::vars_map::const_iterator user = metadata.find(
+    const vars_map::const_iterator user = metadata.find(
         "require.user");
     if (user == metadata.end())
         return std::make_pair(-1, -1);
 
     if ((*user).second == "unprivileged") {
         if (tools::user::is_root()) {
-            const atf::tests::vars_map::const_iterator iter = config.find(
+            const vars_map::const_iterator iter = config.find(
                 "unprivileged-user");
             try {
                 return tools::user::get_user_ids((*iter).second);

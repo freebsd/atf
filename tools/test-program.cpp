@@ -63,6 +63,8 @@ namespace detail = tools::test_program::detail;
 
 namespace {
 
+typedef std::map< std::string, std::string > vars_map;
+
 static void
 check_stream(std::ostream& os)
 {
@@ -101,7 +103,7 @@ public:
 class metadata_reader : public detail::atf_tp_reader {
     impl::test_cases_map m_tcs;
 
-    void got_tc(const std::string& ident, const atf::tests::vars_map& props)
+    void got_tc(const std::string& ident, const vars_map& props)
     {
         if (m_tcs.find(ident) != m_tcs.end())
             throw(std::runtime_error("Duplicate test case " + ident +
@@ -131,10 +133,10 @@ public:
 
 struct get_metadata_params {
     const tools::fs::path& executable;
-    const atf::tests::vars_map& config;
+    const vars_map& config;
 
     get_metadata_params(const tools::fs::path& p_executable,
-                        const atf::tests::vars_map& p_config) :
+                        const vars_map& p_config) :
         executable(p_executable),
         config(p_config)
     {
@@ -145,16 +147,16 @@ struct test_case_params {
     const tools::fs::path& executable;
     const std::string& test_case_name;
     const std::string& test_case_part;
-    const atf::tests::vars_map& metadata;
-    const atf::tests::vars_map& config;
+    const vars_map& metadata;
+    const vars_map& config;
     const tools::fs::path& resfile;
     const tools::fs::path& workdir;
 
     test_case_params(const tools::fs::path& p_executable,
                      const std::string& p_test_case_name,
                      const std::string& p_test_case_part,
-                     const atf::tests::vars_map& p_metadata,
-                     const atf::tests::vars_map& p_config,
+                     const vars_map& p_metadata,
+                     const vars_map& p_config,
                      const tools::fs::path& p_resfile,
                      const tools::fs::path& p_workdir) :
         executable(p_executable),
@@ -227,11 +229,11 @@ exec_or_exit(const tools::fs::path& executable,
 
 static
 std::vector< std::string >
-config_to_args(const atf::tests::vars_map& config)
+config_to_args(const vars_map& config)
 {
     std::vector< std::string > args;
 
-    for (atf::tests::vars_map::const_iterator iter = config.begin();
+    for (vars_map::const_iterator iter = config.begin();
          iter != config.end(); iter++)
         args.push_back("-v" + (*iter).first + "=" + (*iter).second);
 
@@ -646,7 +648,7 @@ impl::atf_tps_writer::end_tc(const std::string& state,
 
 impl::metadata
 impl::get_metadata(const tools::fs::path& executable,
-                   const atf::tests::vars_map& config)
+                   const vars_map& config)
 {
     get_metadata_params params(executable, config);
     tools::process::child child =
@@ -726,8 +728,8 @@ std::pair< std::string, tools::process::status >
 impl::run_test_case(const tools::fs::path& executable,
                     const std::string& test_case_name,
                     const std::string& test_case_part,
-                    const atf::tests::vars_map& metadata,
-                    const atf::tests::vars_map& config,
+                    const vars_map& metadata,
+                    const vars_map& config,
                     const tools::fs::path& resfile,
                     const tools::fs::path& workdir,
                     atf_tps_writer& writer)
@@ -745,7 +747,7 @@ impl::run_test_case(const tools::fs::path& executable,
 
     terminate_poll = false;
 
-    const atf::tests::vars_map::const_iterator iter = metadata.find("timeout");
+    const vars_map::const_iterator iter = metadata.find("timeout");
     assert(iter != metadata.end());
     const unsigned int timeout =
         tools::text::to_type< unsigned int >((*iter).second);

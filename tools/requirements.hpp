@@ -30,17 +30,17 @@
 #if !defined(TOOLS_REQUIREMENTS_HPP)
 #define TOOLS_REQUIREMENTS_HPP
 
+#include <map>
 #include <string>
 #include <utility>
 
-#include "atf-c++/tests.hpp"
-
 namespace tools {
 
-std::string check_requirements(const atf::tests::vars_map&,
-                               const atf::tests::vars_map&);
-std::pair< int, int > get_required_user(const atf::tests::vars_map&,
-                                        const atf::tests::vars_map&);
+std::string check_requirements(const std::map< std::string, std::string >&,
+                               const std::map< std::string, std::string >&);
+std::pair< int, int > get_required_user(
+    const std::map< std::string, std::string >&,
+    const std::map< std::string, std::string >&);
 
 } // namespace tools
 

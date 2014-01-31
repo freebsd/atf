@@ -37,7 +37,11 @@
 namespace impl = tools::config_file;
 namespace detail = tools::config_file::detail;
 
-using atf::tests::vars_map;
+namespace {
+
+typedef std::map< std::string, std::string > vars_map;
+
+} // anonymous namespace
 
 namespace atf {
 namespace config {

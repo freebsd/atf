@@ -37,8 +37,6 @@ extern "C" {
 #include <istream>
 #include <string>
 
-#include <atf-c++/tests.hpp>
-
 namespace tools {
 namespace atf_report {
 

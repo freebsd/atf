@@ -31,8 +31,7 @@
 #define TOOLS_TEST_PROGRAM_HPP
 
 #include <map>
-
-#include "atf-c++/tests.hpp"
+#include <string>
 
 #include "fs.hpp"
 #include "process.hpp"
@@ -125,7 +124,8 @@ public:
     void end_tc(const std::string&, const std::string&);
 };
 
-typedef std::map< std::string, atf::tests::vars_map > test_cases_map;
+typedef std::map< std::string, std::map< std::string, std::string > >
+    test_cases_map;
 
 struct metadata {
     test_cases_map test_cases;
@@ -142,11 +142,13 @@ struct metadata {
 
 class atf_tps_writer;
 
-metadata get_metadata(const tools::fs::path&, const atf::tests::vars_map&);
+metadata get_metadata(const tools::fs::path&,
+                      const std::map< std::string, std::string >&);
 test_case_result read_test_case_result(const tools::fs::path&);
 std::pair< std::string, tools::process::status > run_test_case(
     const tools::fs::path&, const std::string&, const std::string&,
-    const atf::tests::vars_map&, const atf::tests::vars_map&,
+    const std::map< std::string, std::string >&,
+    const std::map< std::string, std::string >&,
     const tools::fs::path&, const tools::fs::path&, atf_tps_writer&);
 
 } // namespace test_program

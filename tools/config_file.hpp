@@ -30,10 +30,9 @@
 #if !defined(TOOLS_CONFIG_FILE_HPP)
 #define TOOLS_CONFIG_FILE_HPP
 
+#include <map>
 #include <string>
 #include <vector>
-
-#include "atf-c++/tests.hpp"
 
 namespace tools {
 namespace config_file {
@@ -56,9 +55,10 @@ public:
 
 } // namespace detail
 
-atf::tests::vars_map merge_configs(const atf::tests::vars_map&,
-                                   const atf::tests::vars_map&);
-atf::tests::vars_map read_config_files(const std::string&);
+std::map< std::string, std::string > merge_configs(
+    const std::map< std::string, std::string >&,
+    const std::map< std::string, std::string >&);
+std::map< std::string, std::string > read_config_files(const std::string&);
 
 } // namespace config_file
 } // namespace tools

@@ -30,10 +30,9 @@
 #if !defined(TOOLS_ATFFILE_HPP)
 #define TOOLS_ATFFILE_HPP
 
+#include <map>
 #include <string>
 #include <vector>
-
-#include "atf-c++/tests.hpp"
 
 #include "fs.hpp"
 
@@ -68,18 +67,18 @@ public:
 // ------------------------------------------------------------------------
 
 class atffile {
-    atf::tests::vars_map m_conf;
+    std::map< std::string, std::string > m_conf;
     std::vector< std::string > m_tps;
-    atf::tests::vars_map m_props;
+    std::map< std::string, std::string > m_props;
 
 public:
-    atffile(const atf::tests::vars_map&,
+    atffile(const std::map< std::string, std::string >&,
             const std::vector< std::string >&,
-            const atf::tests::vars_map&);
+            const std::map< std::string, std::string >&);
 
-    const atf::tests::vars_map& conf(void) const;
+    const std::map< std::string, std::string >& conf(void) const;
     const std::vector< std::string >& tps(void) const;
-    const atf::tests::vars_map& props(void) const;
+    const std::map< std::string, std::string >& props(void) const;
 };
 
 // ------------------------------------------------------------------------

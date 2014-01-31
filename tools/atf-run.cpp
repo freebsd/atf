@@ -49,8 +49,6 @@ extern "C" {
 #include <map>
 #include <string>
 
-#include "atf-c++/tests.hpp"
-
 #include "application.hpp"
 #include "atffile.hpp"
 #include "config.hpp"
@@ -64,6 +62,12 @@ extern "C" {
 #include "test-program.hpp"
 #include "text.hpp"
 
+namespace {
+
+typedef std::map< std::string, std::string > vars_map;
+
+} // anonymous namespace
+
 #if defined(MAXCOMLEN)
 static const std::string::size_type max_core_name_length = MAXCOMLEN;
 #else
@@ -73,9 +77,9 @@ static const std::string::size_type max_core_name_length = std::string::npos;
 class atf_run : public tools::application::app {
     static const char* m_description;
 
-    atf::tests::vars_map m_cmdline_vars;
+    vars_map m_cmdline_vars;
 
-    static atf::tests::vars_map::value_type parse_var(const std::string&);
+    static vars_map::value_type parse_var(const std::string&);
 
     void process_option(int, const char*);
     std::string specific_args(void) const;
@@ -88,12 +92,12 @@ class atf_run : public tools::application::app {
     size_t count_tps(std::vector< std::string >) const;
 
     int run_test(const tools::fs::path&, tools::test_program::atf_tps_writer&,
-                 const atf::tests::vars_map&);
+                 const vars_map&);
     int run_test_directory(const tools::fs::path&,
                            tools::test_program::atf_tps_writer&);
     int run_test_program(const tools::fs::path&,
                          tools::test_program::atf_tps_writer&,
-                         const atf::tests::vars_map&);
+                         const vars_map&);
 
     tools::test_program::test_case_result get_test_case_result(
         const std::string&, const tools::process::status&,
@@ -221,7 +225,7 @@ atf_run::parse_vflag(const std::string& str)
 int
 atf_run::run_test(const tools::fs::path& tp,
                   tools::test_program::atf_tps_writer& w,
-                  const atf::tests::vars_map& config)
+                  const vars_map& config)
 {
     tools::fs::file_info fi(tp);
 
@@ -229,7 +233,7 @@ atf_run::run_test(const tools::fs::path& tp,
     if (fi.get_type() == tools::fs::file_info::dir_type)
         errcode = run_test_directory(tp, w);
     else {
-        const atf::tests::vars_map effective_config =
+        const vars_map effective_config =
             tools::config_file::merge_configs(config, m_cmdline_vars);
 
         errcode = run_test_program(tp, w, effective_config);
@@ -243,10 +247,9 @@ atf_run::run_test_directory(const tools::fs::path& tp,
 {
     tools::atffile af = tools::read_atffile(tp / "Atffile");
 
-    atf::tests::vars_map test_suite_vars;
+    vars_map test_suite_vars;
     {
-        atf::tests::vars_map::const_iterator iter =
-            af.props().find("test-suite");
+        vars_map::const_iterator iter = af.props().find("test-suite");
         assert(iter != af.props().end());
         test_suite_vars = tools::config_file::read_config_files((*iter).second);
     }
@@ -370,7 +373,7 @@ atf_run::get_test_case_result(const std::string& broken_reason,
 int
 atf_run::run_test_program(const tools::fs::path& tp,
                           tools::test_program::atf_tps_writer& w,
-                          const atf::tests::vars_map& config)
+                          const vars_map& config)
 {
     int errcode = EXIT_SUCCESS;
 
@@ -396,10 +399,10 @@ atf_run::run_test_program(const tools::fs::path& tp,
         w.end_tp("Bogus test program: reported 0 test cases");
         errcode = EXIT_FAILURE;
     } else {
-        for (std::map< std::string, atf::tests::vars_map >::const_iterator iter
+        for (std::map< std::string, vars_map >::const_iterator iter
              = md.test_cases.begin(); iter != md.test_cases.end(); iter++) {
             const std::string& tcname = (*iter).first;
-            const atf::tests::vars_map& tcmd = (*iter).second;
+            const vars_map& tcmd = (*iter).second;
 
             w.start_tc(tcname);
 
@@ -533,10 +536,9 @@ atf_run::main(void)
     }
 
     // Read configuration data for this test suite.
-    atf::tests::vars_map test_suite_vars;
+    vars_map test_suite_vars;
     {
-        atf::tests::vars_map::const_iterator iter =
-            af.props().find("test-suite");
+        vars_map::const_iterator iter = af.props().find("test-suite");
         assert(iter != af.props().end());
         test_suite_vars = tools::config_file::read_config_files((*iter).second);
     }

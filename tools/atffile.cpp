@@ -40,6 +40,12 @@
 namespace impl = tools;
 namespace detail = tools::detail;
 
+namespace {
+
+typedef std::map< std::string, std::string > vars_map;
+
+} // anonymous namespace
+
 // ------------------------------------------------------------------------
 // The "atf_atffile" auxiliary parser.
 // ------------------------------------------------------------------------
@@ -198,7 +204,7 @@ detail::atf_atffile_reader::read(void)
 
 class reader : public detail::atf_atffile_reader {
     const tools::fs::directory& m_dir;
-    atf::tests::vars_map m_conf, m_props;
+    vars_map m_conf, m_props;
     std::vector< std::string > m_tps;
 
     void
@@ -240,14 +246,14 @@ public:
     {
     }
 
-    const atf::tests::vars_map&
+    const vars_map&
     conf(void)
         const
     {
         return m_conf;
     }
 
-    const atf::tests::vars_map&
+    const vars_map&
     props(void)
         const
     {
@@ -266,9 +272,9 @@ public:
 // The "atffile" class.
 // ------------------------------------------------------------------------
 
-impl::atffile::atffile(const atf::tests::vars_map& config_vars,
+impl::atffile::atffile(const vars_map& config_vars,
                        const std::vector< std::string >& test_program_names,
-                       const atf::tests::vars_map& properties) :
+                       const vars_map& properties) :
     m_conf(config_vars),
     m_tps(test_program_names),
     m_props(properties)
@@ -283,14 +289,14 @@ impl::atffile::tps(void)
     return m_tps;
 }
 
-const atf::tests::vars_map&
+const vars_map&
 impl::atffile::conf(void)
     const
 {
     return m_conf;
 }
 
-const atf::tests::vars_map&
+const vars_map&
 impl::atffile::props(void)
     const
 {

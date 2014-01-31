@@ -40,11 +40,13 @@
 namespace impl = tools::test_program;
 namespace detail = tools::test_program::detail;
 
-using atf::tests::vars_map;
-
 // -------------------------------------------------------------------------
 // Auxiliary functions.
 // -------------------------------------------------------------------------
+
+namespace {
+
+typedef std::map< std::string, std::string > vars_map;
 
 static
 tools::fs::path
@@ -111,6 +113,8 @@ check_match(const atf::tests::tc& tc, const std::string& str,
         tc.fail("Constructed string differs from the expected one");
     }
 }
+
+}  // anonymous namespace
 
 // -------------------------------------------------------------------------
 // Tests for the "tp" reader.
