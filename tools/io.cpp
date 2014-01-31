@@ -38,10 +38,6 @@ extern "C" {
 #include <cerrno>
 #include <cstring>
 
-extern "C" {
-#include "../atf-c/error.h"
-}
-
 #include "auto_array.hpp"
 #include "exceptions.hpp"
 #include "io.hpp"
