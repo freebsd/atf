@@ -27,6 +27,9 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+TOOLS_CPPFLAGS = -I$(top_srcdir)/tools -I$(top_builddir)/tools
+TOOLS_LDADD = tools/libtools.a
+
 noinst_LIBRARIES = tools/libtools.a
 tools_libtools_a_SOURCES = tools/application.cpp \
                            tools/application.hpp \
@@ -83,7 +86,8 @@ tools_libtools_a_CPPFLAGS = "-DATF_ARCH=\"$(atf_arch)\"" \
                             "-DATF_MACHINE=\"$(atf_machine)\"" \
                             "-DATF_PKGDATADIR=\"$(pkgdatadir)\"" \
                             "-DATF_SHELL=\"$(ATF_SHELL)\"" \
-                            "-DATF_WORKDIR=\"$(ATF_WORKDIR)\""
+                            "-DATF_WORKDIR=\"$(ATF_WORKDIR)\"" \
+                            $(TOOLS_CPPFLAGS)
 
 # XXX For some reason, the nodist line above does not work as expected.
 # Work this problem around.
@@ -95,24 +99,27 @@ kill-defs-hpp:
 
 bin_PROGRAMS += tools/atf-config
 tools_atf_config_SOURCES = tools/atf-config.cpp
-tools_atf_config_LDADD = tools/libtools.a
+tools_atf_config_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_atf_config_LDADD = $(TOOLS_LDADD)
 dist_man_MANS += tools/atf-config.1
 
 bin_PROGRAMS += tools/atf-report
 tools_atf_report_SOURCES = tools/atf-report.cpp
-tools_atf_report_LDADD = tools/libtools.a
+tools_atf_report_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_atf_report_LDADD = $(TOOLS_LDADD)
 dist_man_MANS += tools/atf-report.1
 
 bin_PROGRAMS += tools/atf-run
-tools_atf_run_CPPFLAGS = "-DGDB=\"$(GDB)\""
+tools_atf_run_CPPFLAGS = $(TOOLS_CPPFLAGS) "-DGDB=\"$(GDB)\""
 tools_atf_run_SOURCES = tools/atf-run.cpp
-tools_atf_run_LDADD = tools/libtools.a
+tools_atf_run_LDADD = $(TOOLS_LDADD)
 dist_man_MANS += tools/atf-run.1
 
 bin_PROGRAMS += tools/atf-version
 tools_atf_version_SOURCES = tools/atf-version.cpp
 nodist_tools_atf_version_SOURCES = tools/revision.h
-tools_atf_version_LDADD = tools/libtools.a
+tools_atf_version_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_atf_version_LDADD = $(TOOLS_LDADD)
 dist_man_MANS += tools/atf-version.1
 
 EXTRA_DIST += tools/generate-revision.sh
@@ -202,15 +209,18 @@ tools/atf-run_test: $(srcdir)/tools/atf-run_test.sh
 
 tests_tools_PROGRAMS = tools/application_test
 tools_application_test_SOURCES = tools/application_test.cpp
-tools_application_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_application_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_application_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/atffile_test
 tools_atffile_test_SOURCES = tools/atffile_test.cpp
-tools_atffile_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_atffile_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_atffile_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/auto_array_test
 tools_auto_array_test_SOURCES = tools/auto_array_test.cpp
-tools_auto_array_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_auto_array_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_auto_array_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/bad_metadata_helper
 tools_bad_metadata_helper_SOURCES = tools/bad_metadata_helper.c
@@ -218,19 +228,23 @@ tools_bad_metadata_helper_LDADD = libatf-c.la
 
 tests_tools_PROGRAMS += tools/config_test
 tools_config_test_SOURCES = tools/config_test.cpp
-tools_config_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_config_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_config_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/config_file_test
 tools_config_file_test_SOURCES = tools/config_file_test.cpp
-tools_config_file_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_config_file_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_config_file_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/env_test
 tools_env_test_SOURCES = tools/env_test.cpp
-tools_env_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_env_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_env_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/expand_test
 tools_expand_test_SOURCES = tools/expand_test.cpp
-tools_expand_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_expand_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_expand_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/expect_helpers
 tools_expect_helpers_SOURCES = tools/expect_helpers.c
@@ -242,23 +256,28 @@ tools_fail_helper_LDADD = $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/fs_test
 tools_fs_test_SOURCES = tools/fs_test.cpp
-tools_fs_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_fs_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_fs_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/io_test
 tools_io_test_SOURCES = tools/io_test.cpp
-tools_io_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_io_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_io_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/misc_helpers
 tools_misc_helpers_SOURCES = tools/misc_helpers.cpp
-tools_misc_helpers_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_misc_helpers_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_misc_helpers_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/parser_test
 tools_parser_test_SOURCES = tools/parser_test.cpp
-tools_parser_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_parser_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_parser_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/process_test
 tools_process_test_SOURCES = tools/process_test.cpp
-tools_process_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_process_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_process_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/pass_helper
 tools_pass_helper_SOURCES = tools/pass_helper.cpp
@@ -269,11 +288,13 @@ tools_process_helpers_SOURCES = tools/process_helpers.c
 
 tests_tools_PROGRAMS += tools/reader_test
 tools_reader_test_SOURCES = tools/reader_test.cpp
-tools_reader_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_reader_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_reader_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/requirements_test
 tools_requirements_test_SOURCES = tools/requirements_test.cpp
-tools_requirements_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_requirements_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_requirements_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/several_tcs_helper
 tools_several_tcs_helper_SOURCES = tools/several_tcs_helper.c
@@ -281,23 +302,28 @@ tools_several_tcs_helper_LDADD = libatf-c.la
 
 tests_tools_PROGRAMS += tools/signals_test
 tools_signals_test_SOURCES = tools/signals_test.cpp tools/signals.cpp
-tools_signals_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_signals_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_signals_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/test_program_test
 tools_test_program_test_SOURCES = tools/test_program_test.cpp
-tools_test_program_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_test_program_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_test_program_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/text_test
 tools_text_test_SOURCES = tools/text_test.cpp tools/text.cpp
-tools_text_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_text_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_text_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/ui_test
 tools_ui_test_SOURCES = tools/ui_test.cpp tools/ui.cpp
-tools_ui_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_ui_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_ui_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/user_test
 tools_user_test_SOURCES = tools/user_test.cpp tools/user.cpp
-tools_user_test_LDADD = tools/libtools.a $(ATF_CXX_LIBS)
+tools_user_test_CPPFLAGS = $(TOOLS_CPPFLAGS)
+tools_user_test_LDADD = $(TOOLS_LDADD) $(ATF_CXX_LIBS)
 
 tests_tools_PROGRAMS += tools/zero_tcs_helper
 tools_zero_tcs_helper_SOURCES = tools/zero_tcs_helper.c
