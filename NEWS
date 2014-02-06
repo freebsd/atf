@@ -7,7 +7,12 @@ Changes in version 0.20
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
-* No changes recorded yet.
+This is the first release without the code for the deprecated tools.  If
+you require such code, please fetch a copy of the 0.19 release and extract
+the 'tools' directory for your own consumption.
+
+* Removed the deprecated tools.  This includes atf-config, atf-report,
+  atf-run and atf-version.
 
 
 Changes in version 0.19

@@ -54,10 +54,6 @@ include bootstrap/Makefile.am.inc
 include doc/Makefile.am.inc
 include test-programs/Makefile.am.inc
 
-if ENABLE_TOOLS
-include tools/Makefile.am.inc
-endif
-
 #
 # Top-level distfile documents.
 #
