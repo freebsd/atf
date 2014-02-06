@@ -32,7 +32,7 @@ dnl Initialize the GNU build system.
 dnl -----------------------------------------------------------------------
 
 AC_INIT([Automated Testing Framework], [0.19], [atf-devel@NetBSD.org], [atf],
-        [http://code.google.com/p/kyua/wiki/ATF])
+        [https://github.com/jmmv/atf/])
 AC_PREREQ([2.65])
 AC_COPYRIGHT([Copyright (c) 2007-2012 The NetBSD Foundation, Inc.])
 AC_DEFINE([PACKAGE_COPYRIGHT],

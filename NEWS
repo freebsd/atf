@@ -10,6 +10,11 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 * Various fixes and improvements to support running as part of the FreeBSD
   test suite.
 
+* Project hosting moved from Google Code (as a subproject of Kyua) to
+  GitHub (as a first-class project).  The main reason for the change is
+  the suppression of binary downloads in Google Code on Jan 15th, 2014.
+  See https://github.com/jmmv/atf/
+
 
 Changes in version 0.18
 ***********************
