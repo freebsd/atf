@@ -102,6 +102,7 @@ find_sources() {
               \! -name "aclocal.m4" \
               \! -name "bconfig.h" \
               \! -name "defs.h" \
+              \! -name "defs.hpp" \
               \! -name "libtool.m4" \
               \! -name "ltoptions.m4" \
               \! -name "ltsugar.m4" \
