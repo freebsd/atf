@@ -15,6 +15,9 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
   the suppression of binary downloads in Google Code on Jan 15th, 2014.
   See https://github.com/jmmv/atf/
 
+* Removed builtin help from atf-sh(1) and atf-check(1) for simplicity
+  reasons.  In other words, their -h option is gone.
+
 
 Changes in version 0.18
 ***********************
