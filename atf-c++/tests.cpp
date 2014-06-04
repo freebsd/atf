@@ -166,14 +166,7 @@ public:
         std::map< const atf_tc_t*, const impl::tc* >::const_iterator iter =
             cwraps.find(tc);
         INV(iter != cwraps.end());
-        try {
-            (*iter).second->body();
-        } catch (const std::exception& e) {
-            (*iter).second->fail("Caught unhandled exception: " + std::string(
-                                     e.what()));
-        } catch (...) {
-            (*iter).second->fail("Caught unknown exception");
-        }
+        (*iter).second->body();
     }
 
     static void
@@ -543,22 +536,17 @@ run_tc(tc_vector& tcs, const std::string& tcarg, const atf::fs::path& resfile)
                 "you may get unexpected failures; see atf-test-case(4)");
     }
 
-    try {
-        switch (fields.second) {
-        case BODY:
-            tc->run(resfile.str());
-            break;
-        case CLEANUP:
-            tc->run_cleanup();
-            break;
-        default:
-            UNREACHABLE;
-        }
-        return EXIT_SUCCESS;
-    } catch (const std::runtime_error& e) {
-        std::cerr << "ERROR: " << e.what() << "\n";
-        return EXIT_FAILURE;
+    switch (fields.second) {
+    case BODY:
+        tc->run(resfile.str());
+        break;
+    case CLEANUP:
+        tc->run_cleanup();
+        break;
+    default:
+        UNREACHABLE;
     }
+    return EXIT_SUCCESS;
 }
 
 static int
