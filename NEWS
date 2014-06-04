@@ -14,6 +14,11 @@ the 'tools' directory for your own consumption.
 * Removed the deprecated tools.  This includes atf-config, atf-report,
   atf-run and atf-version.
 
+* Issue #7: Stopped catching unhandled exceptions in atf-c++ tests.  This
+  propagates the crash to the caller, which in turn allows it to obtain
+  proper debugging information.  In particular, Kyua should now be able to
+  extract a stacktrace pinpointing the problem.
+
 
 Changes in version 0.19
 ***********************
