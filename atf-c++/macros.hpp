@@ -196,7 +196,7 @@
 #define ATF_INIT_TEST_CASES(tcs) \
     namespace atf { \
         namespace tests { \
-            int run_tp(int, char* const*, \
+            int run_tp(int, char**, \
                        void (*)(std::vector< atf::tests::tc * >&)); \
         } \
     } \
@@ -204,7 +204,7 @@
     static void atfu_init_tcs(std::vector< atf::tests::tc * >&); \
     \
     int \
-    main(int argc, char* const* argv) \
+    main(int argc, char** argv) \
     { \
         return atf::tests::run_tp(argc, argv, atfu_init_tcs); \
     } \
