@@ -18,7 +18,7 @@ this execution engine is *not* shipped with ATF.
 
 Formal releases for source files are available for download from GitHub:
 
-* [atf 0.20](releases/tag/atf-0.20), released on February 7th, 2014.
+* [atf 0.20](../../releases/tag/atf-0.20), released on February 7th, 2014.
 
 ## Installation
 
@@ -32,7 +32,7 @@ wherever available:
 * NetBSD with pkgsrc: install the `pkgsrc/devel/atf` package.
 
 Should you want to build and install ATF from the source tree provided
-here, follow the instructions in the [INSTALL file](blob/master/INSTALL).
+here, follow the instructions in the [INSTALL file](INSTALL).
 
 ## Support
 
