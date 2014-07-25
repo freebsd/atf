@@ -11,6 +11,9 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
   proper debugging information.  In particular, Kyua should now be able to
   extract a stacktrace pinpointing the problem.
 
+* Issue #8: Fixed atf-c/macros_test:use test failures spotted by the clang
+  that ships with FreeBSD 11.0-CURRENT.
+
 
 Changes in version 0.20
 ***********************
