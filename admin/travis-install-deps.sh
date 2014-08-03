@@ -27,6 +27,8 @@ install_from_github() {
     make
     sudo make install
     cd -
+
+    rm -rf "${distname}" "${distname}.tar.gz"
 }
 
 install_from_github atf atf 0.20
