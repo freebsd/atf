@@ -123,7 +123,7 @@ result_exception_body()
 {
     for h in $(get_helpers cpp_helpers); do
         atf_check -s signal -o not-match:'failed: .*This is unhandled' \
-            "${h}" -s "${srcdir}" result_exception
+            -e ignore "${h}" -s "${srcdir}" result_exception
     done
 }
 
