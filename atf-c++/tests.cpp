@@ -594,7 +594,7 @@ safe_main(int argc, char** argv, void (*add_tcs)(tc_vector&))
     argc -= optind;
     argv += optind;
 
-    /* Clear getopt state just in case the test wants to use it. */
+    // Clear getopt state just in case the test wants to use it.
     ::opterr = old_opterr;
     ::optind = 1;
 #if defined(HAVE_OPTRESET)
