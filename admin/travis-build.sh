@@ -37,3 +37,5 @@ if [ "${AS_ROOT:-no}" = yes ]; then
 else
     make distcheck
 fi
+
+# vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

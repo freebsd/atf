@@ -62,3 +62,5 @@ install_from_github atf atf 0.20
 install_from_github lutok lutok 0.4
 install_from_github kyua kyua-testers 0.2
 install_from_github kyua kyua-cli 0.8
+
+# vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
