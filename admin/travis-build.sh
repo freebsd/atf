@@ -29,7 +29,11 @@
 
 set -e -x
 
-autoreconf -i -s
+if [ -d /usr/local/share/aclocal ]; then
+    autoreconf -isv -I/usr/local/share/aclocal
+else
+    autoreconf -isv
+fi
 ./configure
 
 if [ "${AS_ROOT:-no}" = yes ]; then

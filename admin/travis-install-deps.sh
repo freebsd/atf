@@ -48,9 +48,11 @@ install_from_github() {
     cd "${distname}"
     ./configure \
         --disable-developer \
-        --prefix=/usr \
         --without-atf \
-        --without-doxygen
+        --without-doxygen \
+        CPPFLAGS="-I/usr/local/include" \
+        LDFLAGS="-L/usr/local/lib -Wl,-R/usr/local/lib" \
+        PKG_CONFIG_PATH="/usr/local/lib/pkgconfig"
     make
     sudo make install
     cd -
@@ -58,9 +60,18 @@ install_from_github() {
     rm -rf "${distname}" "${distname}.tar.gz"
 }
 
-install_from_github atf atf 0.20
-install_from_github lutok lutok 0.4
-install_from_github kyua kyua-testers 0.2
-install_from_github kyua kyua-cli 0.8
+install_from_bintray() {
+    local name="20140803-usr-local-kyua-ubuntu-12-04-amd64-${CC:-gcc}.tar.gz"
+    wget "http://dl.bintray.com/jmmv/kyua/${name}" || return 1
+    sudo tar -xzvp -C / -f "${name}"
+    rm -f "${name}"
+}
+
+if ! install_from_bintray; then
+    install_from_github atf atf 0.20
+    install_from_github lutok lutok 0.4
+    install_from_github kyua kyua-testers 0.2
+    install_from_github kyua kyua-cli 0.8
+fi
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
