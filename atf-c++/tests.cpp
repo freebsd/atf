@@ -36,7 +36,6 @@ extern "C" {
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/wait.h>
-#include <err.h>
 #include <signal.h>
 #include <unistd.h>
 }
@@ -121,6 +120,21 @@ detail::atf_tp_writer::tc_meta_data(const std::string& name,
 // ------------------------------------------------------------------------
 // Free helper functions.
 // ------------------------------------------------------------------------
+
+std::string Program_Name;
+
+static void
+set_program_name(const char* argv0)
+{
+    const std::string program_name = atf::fs::path(argv0).leaf_name();
+    // Libtool workaround: if running from within the source tree (binaries
+    // that are not installed yet), skip the "lt-" prefix added to files in
+    // the ".libs" directory to show the real (not temporary) name.
+    if (program_name.substr(0, 3) == "lt-")
+        Program_Name = program_name.substr(3);
+    else
+        Program_Name = program_name;
+}
 
 bool
 detail::match(const std::string& regexp, const std::string& str)
@@ -420,13 +434,6 @@ parse_vflag(const std::string& str, atf::tests::vars_map& vars)
 static atf::fs::path
 handle_srcdir(const char* argv0, const std::string& srcdir_arg)
 {
-    std::string progname = atf::fs::path(argv0).leaf_name();
-    // Libtool workaround: if running from within the source tree (binaries
-    // that are not installed yet), skip the "lt-" prefix added to files in
-    // the ".libs" directory to show the real (not temporary) name.
-    if (progname.substr(0, 3) == "lt-")
-        progname = progname.substr(3);
-
     atf::fs::path srcdir(".");
 
     if (srcdir_arg.empty()) {
@@ -436,7 +443,7 @@ handle_srcdir(const char* argv0, const std::string& srcdir_arg)
     } else
         srcdir = atf::fs::path(srcdir_arg);
 
-    if (!atf::fs::exists(srcdir / progname))
+    if (!atf::fs::exists(srcdir / Program_Name))
         throw usage_error("Cannot find the test program in the source "
                           "directory `%s'", srcdir.c_str());
 
@@ -530,10 +537,11 @@ run_tc(tc_vector& tcs, const std::string& tcarg, const atf::fs::path& resfile)
     if (!atf::env::has("__RUNNING_INSIDE_ATF_RUN") || atf::env::get(
         "__RUNNING_INSIDE_ATF_RUN") != "internal-yes-value")
     {
-        ::warnx("WARNING: Running test cases without atf-run(1) is "
-                "unsupported");
-        ::warnx("WARNING: No isolation nor timeout control is being applied; "
-                "you may get unexpected failures; see atf-test-case(4)");
+        std::cerr << Program_Name << ": WARNING: Running test cases without "
+            "atf-run(1) is unsupported\n";
+        std::cerr << Program_Name << ": WARNING: No isolation nor timeout "
+            "control is being applied; you may get unexpected failures; see "
+            "atf-test-case(4)\n";
     }
 
     switch (fields.second) {
@@ -643,9 +651,12 @@ int
 impl::run_tp(int argc, char** argv, void (*add_tcs)(tc_vector&))
 {
     try {
+        set_program_name(argv[0]);
         return ::safe_main(argc, argv, add_tcs);
     } catch (const usage_error& e) {
-        ::warnx("ERROR: %s", e.what());
-        ::errx(EXIT_FAILURE, "See atf-test-program(1) for usage details.");
+        std::cerr
+            << Program_Name << ": ERROR: " << e.what() << '\n'
+            << Program_Name << ": See atf-test-program(1) for usage details.\n";
+        return EXIT_FAILURE;
     }
 }
