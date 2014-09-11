@@ -93,6 +93,7 @@
 .Nd C API to write ATF-based test programs
 .Sh SYNOPSIS
 .In atf-c.h
+.\" NO_CHECK_STYLE_BEGIN
 .Fn ATF_CHECK "expression"
 .Fn ATF_CHECK_MSG "expression" "fail_msg_fmt" ...
 .Fn ATF_CHECK_EQ "expected_expression" "actual_expression"
@@ -111,6 +112,7 @@
 .Fn ATF_REQUIRE_STREQ "expected_string" "actual_string"
 .Fn ATF_REQUIRE_STREQ_MSG "expected_string" "actual_string" "fail_msg_fmt" ...
 .Fn ATF_REQUIRE_ERRNO "expected_errno" "bool_expression"
+.\" NO_CHECK_STYLE_END
 .Fn ATF_TC "name"
 .Fn ATF_TC_BODY "name" "tc"
 .Fn ATF_TC_BODY_NAME "name"

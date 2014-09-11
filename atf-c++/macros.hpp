@@ -103,7 +103,8 @@
     do { \
         if (!(expression)) { \
             std::ostringstream atfu_ss; \
-            atfu_ss << "Line " << __LINE__ << ": " << #expression << " not met"; \
+            atfu_ss << "Line " << __LINE__ << ": " << #expression \
+                    << " not met"; \
             atf::tests::tc::fail(atfu_ss.str()); \
         } \
     } while (false)
