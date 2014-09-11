@@ -41,6 +41,7 @@
 
 #include "atf-c/utils.h"
 
+#include "detail/dynstr.h"
 #include "detail/test_helpers.h"
 
 /** Reads the contents of a file into a buffer.
@@ -246,11 +247,19 @@ ATF_TC_BODY(fork, tc)
     ATF_REQUIRE(WIFEXITED(status));
     ATF_REQUIRE_EQ(EXIT_SUCCESS, WEXITSTATUS(status));
 
+    atf_dynstr_t out_name;
+    RE(atf_dynstr_init_fmt(&out_name, "atf_utils_fork_%d_out.txt", (int)pid));
+    atf_dynstr_t err_name;
+    RE(atf_dynstr_init_fmt(&err_name, "atf_utils_fork_%d_err.txt", (int)pid));
+
     char buffer[1024];
-    read_file("atf_utils_fork_out.txt", buffer, sizeof(buffer));
+    read_file(atf_dynstr_cstring(&out_name), buffer, sizeof(buffer));
     ATF_REQUIRE_STREQ("Child stdout\n", buffer);
-    read_file("atf_utils_fork_err.txt", buffer, sizeof(buffer));
+    read_file(atf_dynstr_cstring(&err_name), buffer, sizeof(buffer));
     ATF_REQUIRE_STREQ("Child stderr\n", buffer);
+
+    atf_dynstr_fini(&err_name);
+    atf_dynstr_fini(&out_name);
 }
 
 ATF_TC_WITHOUT_HEAD(free_charpp__empty);

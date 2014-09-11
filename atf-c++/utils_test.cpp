@@ -38,6 +38,7 @@ extern "C" {
 #include <cstdlib>
 #include <iostream>
 #include <set>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -47,13 +48,13 @@ extern "C" {
 #include "detail/test_helpers.hpp"
 
 static std::string
-read_file(const char *path)
+read_file(const std::string& path)
 {
     char buffer[1024];
 
-    const int fd = open(path, O_RDONLY);
+    const int fd = open(path.c_str(), O_RDONLY);
     if (fd == -1)
-        ATF_FAIL("Cannot open " + std::string(path));
+        ATF_FAIL("Cannot open " + path);
     const ssize_t length = read(fd, buffer, sizeof(buffer) - 1);
     close(fd);
     ATF_REQUIRE(length != -1);
@@ -238,8 +239,13 @@ ATF_TEST_CASE_BODY(fork)
     ATF_REQUIRE(WIFEXITED(status));
     ATF_REQUIRE_EQ(EXIT_SUCCESS, WEXITSTATUS(status));
 
-    ATF_REQUIRE_EQ("Child stdout\n", read_file("atf_utils_fork_out.txt"));
-    ATF_REQUIRE_EQ("Child stderr\n", read_file("atf_utils_fork_err.txt"));
+    std::ostringstream out_name;
+    out_name << "atf_utils_fork_" << pid << "_out.txt";
+    std::ostringstream err_name;
+    err_name << "atf_utils_fork_" << pid << "_err.txt";
+
+    ATF_REQUIRE_EQ("Child stdout\n", read_file(out_name.str()));
+    ATF_REQUIRE_EQ("Child stderr\n", read_file(err_name.str()));
 }
 
 ATF_TEST_CASE_WITHOUT_HEAD(grep_collection__set);
@@ -350,6 +356,35 @@ ATF_TEST_CASE_BODY(wait__ok)
         ATF_REQUIRE(waitpid(control, &status, 0) != -1);
         ATF_REQUIRE(WIFEXITED(status));
         ATF_REQUIRE_EQ(EXIT_SUCCESS, WEXITSTATUS(status));
+    }
+}
+
+ATF_TEST_CASE_WITHOUT_HEAD(wait__ok_nested);
+ATF_TEST_CASE_BODY(wait__ok_nested)
+{
+    const pid_t parent = atf::utils::fork();
+    ATF_REQUIRE(parent != -1);
+    if (parent == 0) {
+        const pid_t child = atf::utils::fork();
+        ATF_REQUIRE(child != -1);
+        if (child == 0) {
+            std::cerr.flush();
+            std::cout << "Child output\n";
+            std::cout.flush();
+            std::cerr << "Child error\n";
+            std::exit(50);
+        } else {
+            fprintf(stdout, "Parent output\n");
+            fprintf(stderr, "Parent error\n");
+            atf::utils::wait(child, 50, "Child output\n", "Child error\n");
+            std::exit(40);
+        }
+    } else {
+        atf::utils::wait(parent, 40,
+                         "Parent output\n"
+                         "subprocess stdout: Child output\n"
+                         "subprocess stderr: Child error\n",
+                         "Parent error\n");
     }
 }
 
@@ -476,6 +511,7 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, redirect__other);
 
     ATF_ADD_TEST_CASE(tcs, wait__ok);
+    ATF_ADD_TEST_CASE(tcs, wait__ok_nested);
     ATF_ADD_TEST_CASE(tcs, wait__invalid_exitstatus);
     ATF_ADD_TEST_CASE(tcs, wait__invalid_stdout);
     ATF_ADD_TEST_CASE(tcs, wait__invalid_stderr);
