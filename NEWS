@@ -14,6 +14,8 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 * Issue #8: Fixed atf-c/macros_test:use test failures spotted by the clang
   that ships with FreeBSD 11.0-CURRENT.
 
+* Issue #15: Fix atf_utils_{fork,wait} to support nested calls.
+
 
 Changes in version 0.20
 ***********************
