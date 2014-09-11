@@ -374,8 +374,8 @@ ATF_TEST_CASE_BODY(wait__ok_nested)
             std::cerr << "Child error\n";
             std::exit(50);
         } else {
-            fprintf(stdout, "Parent output\n");
-            fprintf(stderr, "Parent error\n");
+            std::cout << "Parent output\n";
+            std::cerr << "Parent error\n";
             atf::utils::wait(child, 50, "Child output\n", "Child error\n");
             std::exit(40);
         }
