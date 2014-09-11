@@ -6,6 +6,9 @@ Changes in version 0.21
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
+* Issue #5: Recommend the (expected, actual) idiom for calls to the test
+  macros in the manual pages.
+
 * Issue #7: Stopped catching unhandled exceptions in atf-c++ tests.  This
   propagates the crash to the caller, which in turn allows it to obtain
   proper debugging information.  In particular, Kyua should now be able to

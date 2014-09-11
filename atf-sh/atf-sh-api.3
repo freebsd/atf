@@ -26,7 +26,7 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd March 2, 2014
+.Dd September 11, 2014
 .Dt ATF-SH-API 3
 .Os
 .Sh NAME
@@ -53,7 +53,7 @@
 .Sh SYNOPSIS
 .Fn atf_add_test_case "name"
 .Fn atf_check "command"
-.Fn atf_check_equal "expr1" "expr2"
+.Fn atf_check_equal "expected_expression" "actual_expression"
 .Fn atf_config_get "var_name"
 .Fn atf_config_has "var_name"
 .Fn atf_expect_death "reason" "..."
@@ -273,10 +273,12 @@ You should always use this function instead of the tool in your scripts.
 For more details on the parameters of this function, refer to
 .Xr atf-check 1 .
 .Pp
-.Fn atf_check_equal expr1 expr2
+.Fn atf_check_equal expected_expression actual_expression
 .Pp
 This function takes two expressions, evaluates them and, if their
 results differ, aborts the test case with an appropriate failure message.
+The common style is to put the expected value in the first parameter and the
+actual value in the second parameter.
 .Sh EXAMPLES
 The following shows a complete test program with a single test case that
 validates the addition operator:
@@ -286,13 +288,13 @@ addition_head() {
     atf_set "descr" "Sample tests for the addition operator"
 }
 addition_body() {
-    atf_check_equal $((0 + 0)) 0
-    atf_check_equal $((0 + 1)) 1
-    atf_check_equal $((1 + 0)) 0
+    atf_check_equal 0 $((0 + 0))
+    atf_check_equal 1 $((0 + 1))
+    atf_check_equal 1 $((1 + 0))
 
-    atf_check_equal $((1 + 1)) 2
+    atf_check_equal 2 $((1 + 1))
 
-    atf_check_equal $((100 + 200)) 300
+    atf_check_equal 300 $((100 + 200))
 }
 
 atf_init_test_cases() {

@@ -90,12 +90,13 @@ atf_check()
 }
 
 #
-# atf_check_equal expr1 expr2
+# atf_check_equal expected_expression actual_expression
 #
-#   Checks that expr1's value matches expr2's and, if not, raises an
-#   error.  Ideally expr1 and expr2 should be provided quoted (not
-#   expanded) so that the error message is helpful; otherwise it will
-#   only show the values, not the expressions themselves.
+#   Checks that expected_expression's value matches actual_expression's
+#   and, if not, raises an error.  Ideally expected_expression and
+#   actual_expression should be provided quoted (not expanded) so that
+#   the error message is helpful; otherwise it will only show the values,
+#   not the expressions themselves.
 #
 atf_check_equal()
 {
