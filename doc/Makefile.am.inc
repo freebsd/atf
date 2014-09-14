@@ -30,4 +30,15 @@
 dist_man_MANS += doc/atf-test-case.4 \
                  doc/atf-test-program.1
 
+man_MANS += doc/atf.7
+CLEANFILES += doc/atf.7
+EXTRA_DIST += doc/atf.7.in
+
+doc/atf.7: $(srcdir)/doc/atf.7.in
+	test -d doc || mkdir -p doc
+	sed -e 's#__DOCDIR__#$(docdir)#g' \
+	    -e 's#__TESTSDIR__#$(testsdir)#g' \
+	    <$(srcdir)/doc/atf.7.in >doc/atf.7.tmp
+	mv doc/atf.7.tmp doc/atf.7
+
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
