@@ -63,12 +63,12 @@ atf_c__dirpkgconfig_DATA = atf-c++/atf-c++.pc
 CLEANFILES += atf-c++/atf-c++.pc
 EXTRA_DIST += atf-c++/atf-c++.pc.in
 atf-c++/atf-c++.pc: $(srcdir)/atf-c++/atf-c++.pc.in Makefile
-	test -d atf-c++ || mkdir -p atf-c++
+	$(AM_V_GEN)test -d atf-c++ || mkdir -p atf-c++; \
 	sed -e 's#__ATF_VERSION__#$(PACKAGE_VERSION)#g' \
 	    -e 's#__CXX__#$(CXX)#g' \
 	    -e 's#__INCLUDEDIR__#$(includedir)#g' \
 	    -e 's#__LIBDIR__#$(libdir)#g' \
-	    <$(srcdir)/atf-c++/atf-c++.pc.in >atf-c++/atf-c++.pc.tmp
+	    <$(srcdir)/atf-c++/atf-c++.pc.in >atf-c++/atf-c++.pc.tmp; \
 	mv atf-c++/atf-c++.pc.tmp atf-c++/atf-c++.pc
 
 tests_atf_c___DATA = atf-c++/Kyuafile \
@@ -96,8 +96,7 @@ tests_atf_c___SCRIPTS = atf-c++/pkg_config_test
 CLEANFILES += atf-c++/pkg_config_test
 EXTRA_DIST += atf-c++/pkg_config_test.sh
 atf-c++/pkg_config_test: $(srcdir)/atf-c++/pkg_config_test.sh
-	test -d atf-c++ || mkdir -p atf-c++
-	@src="$(srcdir)/atf-c++/pkg_config_test.sh"; \
+	$(AM_V_GEN)src="$(srcdir)/atf-c++/pkg_config_test.sh"; \
 	dst="atf-c++/pkg_config_test"; $(BUILD_SH_TP)
 
 tests_atf_c___PROGRAMS += atf-c++/tests_test

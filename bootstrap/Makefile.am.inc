@@ -39,30 +39,26 @@ check_SCRIPTS = bootstrap/h_tp_basic_sh
 CLEANFILES += bootstrap/h_tp_basic_sh
 EXTRA_DIST += bootstrap/h_tp_basic_sh.sh
 bootstrap/h_tp_basic_sh: $(srcdir)/bootstrap/h_tp_basic_sh.sh
-	test -d bootstrap || mkdir -p bootstrap
-	@src=$(srcdir)/bootstrap/h_tp_basic_sh.sh; dst=$@; $(BUILD_SH_TP)
+	$(AM_V_GEN)src=$(srcdir)/bootstrap/h_tp_basic_sh.sh; dst=$@; $(BUILD_SH_TP)
 
 check_SCRIPTS += bootstrap/h_tp_atf_check_sh
 CLEANFILES += bootstrap/h_tp_atf_check_sh
 EXTRA_DIST += bootstrap/h_tp_atf_check_sh.sh
 bootstrap/h_tp_atf_check_sh: \
 		$(srcdir)/bootstrap/h_tp_atf_check_sh.sh
-	test -d bootstrap || mkdir -p bootstrap
-	@src=$(srcdir)/bootstrap/h_tp_atf_check_sh.sh; dst=$@; $(BUILD_SH_TP)
+	$(AM_V_GEN)src=$(srcdir)/bootstrap/h_tp_atf_check_sh.sh; dst=$@; $(BUILD_SH_TP)
 
 check_SCRIPTS += bootstrap/h_tp_fail
 CLEANFILES += bootstrap/h_tp_fail
 EXTRA_DIST += bootstrap/h_tp_fail.sh
 bootstrap/h_tp_fail: $(srcdir)/bootstrap/h_tp_fail.sh
-	test -d bootstrap || mkdir -p bootstrap
-	@src=$(srcdir)/bootstrap/h_tp_fail.sh; dst=$@; $(BUILD_SH_TP)
+	$(AM_V_GEN)src=$(srcdir)/bootstrap/h_tp_fail.sh; dst=$@; $(BUILD_SH_TP)
 
 check_SCRIPTS += bootstrap/h_tp_pass
 CLEANFILES += bootstrap/h_tp_pass
 EXTRA_DIST += bootstrap/h_tp_pass.sh
 bootstrap/h_tp_pass: $(srcdir)/bootstrap/h_tp_pass.sh
-	test -d bootstrap || mkdir -p bootstrap
-	@src=$(srcdir)/bootstrap/h_tp_pass.sh; dst=$@; $(BUILD_SH_TP)
+	$(AM_V_GEN)src=$(srcdir)/bootstrap/h_tp_pass.sh; dst=$@; $(BUILD_SH_TP)
 
 DISTCLEANFILES = \
 		bootstrap/atconfig \

@@ -35,10 +35,10 @@ CLEANFILES += doc/atf.7
 EXTRA_DIST += doc/atf.7.in
 
 doc/atf.7: $(srcdir)/doc/atf.7.in
-	test -d doc || mkdir -p doc
+	$(AM_V_GEN)test -d doc || mkdir -p doc; \
 	sed -e 's#__DOCDIR__#$(docdir)#g' \
 	    -e 's#__TESTSDIR__#$(testsdir)#g' \
-	    <$(srcdir)/doc/atf.7.in >doc/atf.7.tmp
+	    <$(srcdir)/doc/atf.7.in >doc/atf.7.tmp; \
 	mv doc/atf.7.tmp doc/atf.7
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
