@@ -38,12 +38,12 @@
 
 #include "atf-c/build.h"
 #include "atf-c/check.h"
-#include "atf-c/config.h"
 #include "atf-c/defs.h"
 #include "atf-c/error.h"
 #include "atf-c/utils.h"
 
 #include "detail/dynstr.h"
+#include "detail/env.h"
 #include "detail/fs.h"
 #include "detail/list.h"
 #include "detail/process.h"
@@ -60,7 +60,7 @@ create_tmpdir(atf_fs_path_t *dir)
     atf_error_t err;
 
     err = atf_fs_path_init_fmt(dir, "%s/check.XXXXXX",
-                               atf_config_get("atf_workdir"));
+                               atf_env_get_with_default("TMPDIR", "/tmp"));
     if (atf_is_error(err))
         goto out;
 
