@@ -9,6 +9,9 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 * Restored the atf(7) manual page to serve as a reference to all the other
   manual pages shipped by ATF.
 
+* Added the -s flag to atf-sh to support specifying the shell interpreter
+  to be used.
+
 * Issue #5: Recommend the (expected, actual) idiom for calls to the test
   macros in the manual pages.
 

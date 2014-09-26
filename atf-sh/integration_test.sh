@@ -30,9 +30,10 @@
 : ${ATF_SH:="__ATF_SH__"}
 
 create_test_program() {
-    echo "#! ${ATF_SH}" >"${1}"
-    cat >>"${1}"
-    chmod +x "${1}"
+    local output="${1}"; shift
+    echo "#! ${ATF_SH} ${*}" >"${output}"
+    cat >>"${output}"
+    chmod +x "${output}"
 }
 
 atf_test_case no_args
@@ -84,11 +85,52 @@ EOF
         ' hello bye ' 'foo bar'
 }
 
+atf_test_case custom_shell__command_line
+custom_shell__command_line_body()
+{
+    cat >expout <<EOF
+This is the custom shell
+This is the test program
+EOF
+
+    cat >custom-shell <<EOF
+#! /bin/sh
+echo "This is the custom shell"
+exec /bin/sh "\${@}"
+EOF
+    chmod +x custom-shell
+
+    echo 'main() { echo "This is the test program"; }' | create_test_program tp
+    atf_check -s eq:0 -o file:expout -e empty atf-sh -s ./custom-shell tp
+}
+
+atf_test_case custom_shell__shebang
+custom_shell__shebang_body()
+{
+    cat >expout <<EOF
+This is the custom shell
+This is the test program
+EOF
+
+    cat >custom-shell <<EOF
+#! /bin/sh
+echo "This is the custom shell"
+exec /bin/sh "\${@}"
+EOF
+    chmod +x custom-shell
+
+    echo 'main() { echo "This is the test program"; }' | create_test_program \
+        tp "-s$(pwd)/custom-shell"
+    atf_check -s eq:0 -o file:expout -e empty ./tp
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case no_args
     atf_add_test_case missing_script
     atf_add_test_case arguments
+    atf_add_test_case custom_shell__command_line
+    atf_add_test_case custom_shell__shebang
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4

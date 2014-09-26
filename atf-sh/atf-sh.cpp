@@ -111,6 +111,11 @@ construct_argv(const std::string& shell, const int interpreter_argc,
 class atf_sh : public atf::application::app {
     static const char* m_description;
 
+    atf::fs::path m_shell;
+
+    options_set specific_options(void) const;
+    void process_option(int, const char*);
+
 public:
     atf_sh(void);
 
@@ -122,8 +127,36 @@ const char* atf_sh::m_description =
     "system sh(1) with the atf-sh library.";
 
 atf_sh::atf_sh(void) :
-    app(m_description, "atf-sh(1)")
+    app(m_description, "atf-sh(1)"),
+    m_shell(atf::fs::path(atf::config::get("atf_shell")))
 {
+}
+
+atf_sh::options_set
+atf_sh::specific_options(void)
+    const
+{
+    using atf::application::option;
+    options_set opts;
+
+    INV(m_shell == atf::fs::path(atf::config::get("atf_shell")));
+    opts.insert(option('s', "shell", "Path to the shell interpreter to use; "
+                       "default: " + m_shell.str()));
+
+    return opts;
+}
+
+void
+atf_sh::process_option(int ch, const char* arg)
+{
+    switch (ch) {
+    case 's':
+        m_shell = atf::fs::path(arg);
+        break;
+
+    default:
+        UNREACHABLE;
+    }
 }
 
 int
@@ -137,15 +170,14 @@ atf_sh::main(void)
         throw std::runtime_error("The test program '" + script.str() + "' "
                                  "does not exist");
 
-    const std::string shell = atf::config::get("atf_shell");
-    const char** argv = construct_argv(shell, m_argc, m_argv);
+    const char** argv = construct_argv(m_shell.str(), m_argc, m_argv);
     // Don't bother keeping track of the memory allocated by construct_argv:
     // we are going to exec or die immediately.
 
-    const int ret = execv(shell.c_str(), const_cast< char** >(argv));
+    const int ret = execv(m_shell.c_str(), const_cast< char** >(argv));
     INV(ret == -1);
-    std::cerr << "Failed to execute " << shell << ": " << std::strerror(errno)
-              << "\n";
+    std::cerr << "Failed to execute " << m_shell.str() << ": "
+              << std::strerror(errno) << "\n";
     return EXIT_FAILURE;
 }
 
