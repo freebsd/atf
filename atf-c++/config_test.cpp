@@ -54,7 +54,6 @@ static struct varnames {
     { "atf_libexecdir",     "ATF_LIBEXECDIR",     false },
     { "atf_pkgdatadir",     "ATF_PKGDATADIR",     false },
     { "atf_shell",          "ATF_SHELL",          false },
-    { "atf_workdir",        "ATF_WORKDIR",        false },
     { NULL,                 NULL,                 false }
 };
 
