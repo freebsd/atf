@@ -52,6 +52,7 @@ extern "C" {
 
 #include "atf-c++/detail/application.hpp"
 #include "atf-c++/detail/auto_array.hpp"
+#include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/process.hpp"
@@ -112,17 +113,20 @@ class temp_file : public std::ostream {
     int m_fd;
 
 public:
-    temp_file(const atf::fs::path& p) :
+    temp_file(const char* pattern) :
         std::ostream(NULL),
         m_fd(-1)
     {
-        atf::auto_array< char > buf(new char[p.str().length() + 1]);
-        std::strcpy(buf.get(), p.c_str());
+        const atf::fs::path file = atf::fs::path(
+            atf::env::get("TMPDIR", "/tmp")) / pattern;
+
+        atf::auto_array< char > buf(new char[file.str().length() + 1]);
+        std::strcpy(buf.get(), file.c_str());
 
         m_fd = ::mkstemp(buf.get());
         if (m_fd == -1)
             throw atf::system_error("atf_check::temp_file::temp_file(" +
-                                    p.str() + ")", "mkstemp(3) failed",
+                                    file.str() + ")", "mkstemp(3) failed",
                                     errno);
 
         m_path.reset(new atf::fs::path(buf.get()));
@@ -623,9 +627,7 @@ run_output_check(const output_check oc, const atf::fs::path& path,
     } else if (oc.type == oc_ignore) {
         result = true;
     } else if (oc.type == oc_inline) {
-        atf::fs::path path2 = atf::fs::path(atf::config::get("atf_workdir"))
-                              / "inline.XXXXXX";
-        temp_file temp(path2);
+        temp_file temp("atf-check.XXXXXX");
         temp.write(decode(oc.value));
         temp.close();
 

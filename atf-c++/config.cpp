@@ -62,7 +62,6 @@ init_variables(void)
     m_variables["atf_libexecdir"] = atf_config_get("atf_libexecdir");
     m_variables["atf_pkgdatadir"] = atf_config_get("atf_pkgdatadir");
     m_variables["atf_shell"] = atf_config_get("atf_shell");
-    m_variables["atf_workdir"] = atf_config_get("atf_workdir");
 
     POST(!m_variables.empty());
 }

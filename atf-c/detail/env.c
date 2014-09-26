@@ -48,6 +48,16 @@ atf_env_get(const char *name)
     return val;
 }
 
+const char *
+atf_env_get_with_default(const char *name, const char *default_value)
+{
+    const char* val = getenv(name);
+    if (val == NULL)
+        return default_value;
+    else
+        return val;
+}
+
 bool
 atf_env_has(const char *name)
 {

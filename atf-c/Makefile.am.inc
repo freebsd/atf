@@ -54,8 +54,7 @@ libatf_c_la_CPPFLAGS = "-DATF_BUILD_CC=\"$(ATF_BUILD_CC)\"" \
                        "-DATF_INCLUDEDIR=\"$(includedir)\"" \
                        "-DATF_LIBEXECDIR=\"$(libexecdir)\"" \
                        "-DATF_PKGDATADIR=\"$(pkgdatadir)\"" \
-                       "-DATF_SHELL=\"$(ATF_SHELL)\"" \
-                       "-DATF_WORKDIR=\"$(ATF_WORKDIR)\""
+                       "-DATF_SHELL=\"$(ATF_SHELL)\""
 libatf_c_la_LDFLAGS = -version-info 0:0:0
 
 # XXX For some reason, the nodist line above does not work as expected.

@@ -48,6 +48,11 @@ namespace env {
 std::string get(const std::string&);
 
 //!
+//! \brief Returns the value of an environment variable with a default.
+//!
+std::string get(const std::string&, const std::string&);
+
+//!
 //! \brief Checks if the environment has a variable.
 //!
 //! Checks if the environment has a given variable.

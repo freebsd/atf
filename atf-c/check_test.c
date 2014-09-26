@@ -37,7 +37,6 @@
 #include <atf-c.h>
 
 #include "atf-c/check.h"
-#include "atf-c/config.h"
 
 #include "detail/fs.h"
 #include "detail/map.h"
@@ -494,12 +493,8 @@ ATF_TC_HEAD(exec_unknown, tc)
 }
 ATF_TC_BODY(exec_unknown, tc)
 {
-    char buf[1024];
-    snprintf(buf, sizeof(buf), "%s/non-existent",
-             atf_config_get("atf_workdir"));
-
     const char *argv[2];
-    argv[0] = buf;
+    argv[0] = "/foo/bar/non-existent";
     argv[1] = NULL;
 
     atf_check_result_t result;

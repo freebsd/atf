@@ -12,6 +12,11 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 * Added the -s flag to atf-sh to support specifying the shell interpreter
   to be used.
 
+* Removed ATF_WORKDIR.  The only remaining consumers have been converted to
+  use the standard TMPDIR environment variable.  As a benefit, and because
+  Kyua forces the TMPDIR to live within the test case's work directory,
+  any stale files left behind by ATF will be automatically cleaned up.
+
 * Issue #5: Recommend the (expected, actual) idiom for calls to the test
   macros in the manual pages.
 

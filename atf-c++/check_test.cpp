@@ -44,7 +44,6 @@ extern "C" {
 #include <atf-c++.hpp>
 
 #include "check.hpp"
-#include "config.hpp"
 #include "utils.hpp"
 
 #include "detail/fs.hpp"
@@ -374,7 +373,7 @@ ATF_TEST_CASE_HEAD(exec_unknown)
 ATF_TEST_CASE_BODY(exec_unknown)
 {
     std::vector< std::string > argv;
-    argv.push_back(atf::config::get("atf_workdir") + "/non-existent");
+    argv.push_back("/foo/bar/non-existent");
 
     atf::process::argv_array argva(argv);
     std::auto_ptr< atf::check::check_result > r = atf::check::exec(argva);
