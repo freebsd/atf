@@ -27,8 +27,10 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+: ${ATF_SH:="__ATF_SH__"}
+
 create_test_program() {
-    echo '#! /usr/bin/env atf-sh' >"${1}"
+    echo "#! ${ATF_SH}" >"${1}"
     cat >>"${1}"
     chmod +x "${1}"
 }
@@ -40,7 +42,7 @@ no_args_body()
 atf-sh: ERROR: No test program provided
 atf-sh: See atf-sh(1) for usage details.
 EOF
-    atf_check -s eq:1 -o ignore -e file:experr atf-sh
+    atf_check -s eq:1 -o ignore -e file:experr "${ATF_SH}"
 }
 
 atf_test_case missing_script
@@ -49,7 +51,7 @@ missing_script_body()
     cat >experr <<EOF
 atf-sh: ERROR: The test program 'non-existent' does not exist
 EOF
-    atf_check -s eq:1 -o ignore -e file:experr atf-sh non-existent
+    atf_check -s eq:1 -o ignore -e file:experr "${ATF_SH}" non-existent
 }
 
 atf_test_case arguments
@@ -78,7 +80,8 @@ EOF
 >>> hello bye <<<
 >>>foo bar<<<
 EOF
-    atf_check -s eq:0 -o file:expout -e empty atf-sh tp ' hello bye ' 'foo bar'
+    atf_check -s eq:0 -o file:expout -e empty "${ATF_SH}" tp \
+        ' hello bye ' 'foo bar'
 }
 
 atf_init_test_cases()

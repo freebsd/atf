@@ -84,10 +84,14 @@ pkgtests_DATA = Kyuafile
 EXTRA_DIST += $(pkgtests_DATA)
 
 BUILD_SH_TP = \
-	test -d $$(dirname $${dst}) || mkdir -p $$(dirname $${dst}); \
-	echo "\#! $(bindir)/atf-sh" >$${dst}; \
-	cat $${src} >>$${dst}; \
-	chmod +x $${dst}
+	test -d "$$(dirname "$${dst}")" || mkdir -p "$$(dirname "$${dst}")"; \
+	echo "\#! $(bindir)/atf-sh" >"$${dst}"; \
+	if [ -n "$${substs}" ]; then \
+	    sed $${substs} "$${src}" >>"$${dst}"; \
+	else \
+	    cat "$${src}" >>"$${dst}"; \
+	fi; \
+	chmod +x "$${dst}"
 
 #
 # Custom targets.

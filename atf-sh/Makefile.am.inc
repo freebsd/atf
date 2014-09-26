@@ -94,7 +94,8 @@ CLEANFILES += atf-sh/integration_test
 EXTRA_DIST += atf-sh/integration_test.sh
 atf-sh/integration_test: $(srcdir)/atf-sh/integration_test.sh
 	$(AM_V_GEN)src="$(srcdir)/atf-sh/integration_test.sh"; \
-	dst="atf-sh/integration_test"; $(BUILD_SH_TP)
+	dst="atf-sh/integration_test"; \
+	substs="s,__ATF_SH__,$(exec_prefix)/bin/atf-sh,g"; $(BUILD_SH_TP)
 
 tests_atf_sh_SCRIPTS += atf-sh/normalize_test
 CLEANFILES += atf-sh/normalize_test
