@@ -50,6 +50,12 @@ impl::get(const std::string& name)
     return atf_env_get(name.c_str());
 }
 
+std::string
+impl::get(const std::string& name, const std::string& default_value)
+{
+    return atf_env_get_with_default(name.c_str(), default_value.c_str());
+}
+
 bool
 impl::has(const std::string& name)
 {

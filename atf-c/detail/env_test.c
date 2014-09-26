@@ -67,6 +67,25 @@ ATF_TC_BODY(get, tc)
     ATF_REQUIRE(strchr(val, ':') != NULL);
 }
 
+ATF_TC(get_with_default);
+ATF_TC_HEAD(get_with_default, tc)
+{
+    atf_tc_set_md_var(tc, "descr", "Tests the atf_env_get_with_default "
+                      "function");
+}
+ATF_TC_BODY(get_with_default, tc)
+{
+    const char *val;
+
+    ATF_REQUIRE(atf_env_has("PATH"));
+
+    val = atf_env_get_with_default("PATH", "unknown");
+    ATF_REQUIRE(strcmp(val, "unknown") != 0);
+
+    val = atf_env_get_with_default("_UNKNOWN_VARIABLE_", "foo bar");
+    ATF_REQUIRE(strcmp(val, "foo bar") == 0);
+}
+
 ATF_TC(set);
 ATF_TC_HEAD(set, tc)
 {
@@ -109,6 +128,7 @@ ATF_TP_ADD_TCS(tp)
 {
     ATF_TP_ADD_TC(tp, has);
     ATF_TP_ADD_TC(tp, get);
+    ATF_TP_ADD_TC(tp, get_with_default);
     ATF_TP_ADD_TC(tp, set);
     ATF_TP_ADD_TC(tp, unset);
 
