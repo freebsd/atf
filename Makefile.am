@@ -87,9 +87,9 @@ BUILD_SH_TP = \
 	test -d "$$(dirname "$${dst}")" || mkdir -p "$$(dirname "$${dst}")"; \
 	echo "\#! $(bindir)/atf-sh" >"$${dst}"; \
 	if [ -n "$${substs}" ]; then \
-	    sed $${substs} "$${src}" >>"$${dst}"; \
+	    cat $${src} | sed $${substs} >>"$${dst}"; \
 	else \
-	    cat "$${src}" >>"$${dst}"; \
+	    cat $${src} >>"$${dst}"; \
 	fi; \
 	chmod +x "$${dst}"
 
