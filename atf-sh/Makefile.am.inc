@@ -30,10 +30,14 @@
 libexec_PROGRAMS += atf-sh/atf-check
 atf_sh_atf_check_SOURCES = atf-sh/atf-check.cpp
 atf_sh_atf_check_LDADD = $(ATF_CXX_LIBS)
+atf_sh_atf_check_CPPFLAGS = -DATF_SHELL=\"$(ATF_SHELL)\"
 dist_man_MANS += atf-sh/atf-check.1
 
 bin_PROGRAMS += atf-sh/atf-sh
 atf_sh_atf_sh_SOURCES = atf-sh/atf-sh.cpp
+atf_sh_atf_sh_CPPFLAGS = -DATF_LIBEXECDIR=\"$(libexecdir)\" \
+                         -DATF_PKGDATADIR=\"$(pkgdatadir)\" \
+                         -DATF_SHELL=\"$(ATF_SHELL)\"
 atf_sh_atf_sh_LDADD = $(ATF_CXX_LIBS)
 dist_man_MANS += atf-sh/atf-sh.1
 

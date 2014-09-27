@@ -34,7 +34,6 @@
 #include <atf-c.h>
 
 #include "atf-c/build.h"
-#include "atf-c/config.h"
 #include "atf-c/utils.h"
 
 #include "detail/env.h"
@@ -44,8 +43,6 @@
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
-
-void __atf_config_reinit(void);
 
 static
 bool
@@ -167,7 +164,6 @@ ATF_TC_BODY(c_o, tc)
         verbose_set_env("ATF_BUILD_CC", test->cc);
         verbose_set_env("ATF_BUILD_CFLAGS", test->cflags);
         verbose_set_env("ATF_BUILD_CPPFLAGS", test->cppflags);
-        __atf_config_reinit();
 
         {
             char **argv;
@@ -196,7 +192,6 @@ ATF_TC_BODY(cpp, tc)
 
         verbose_set_env("ATF_BUILD_CPP", test->cpp);
         verbose_set_env("ATF_BUILD_CPPFLAGS", test->cppflags);
-        __atf_config_reinit();
 
         {
             char **argv;
@@ -226,7 +221,6 @@ ATF_TC_BODY(cxx_o, tc)
         verbose_set_env("ATF_BUILD_CXX", test->cxx);
         verbose_set_env("ATF_BUILD_CXXFLAGS", test->cxxflags);
         verbose_set_env("ATF_BUILD_CPPFLAGS", test->cppflags);
-        __atf_config_reinit();
 
         {
             char **argv;

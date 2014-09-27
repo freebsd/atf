@@ -32,8 +32,6 @@ libatf_c_la_SOURCES = atf-c/build.c \
                       atf-c/build.h \
                       atf-c/check.c \
                       atf-c/check.h \
-                      atf-c/config.c \
-                      atf-c/config.h \
                       atf-c/error.c \
                       atf-c/error.h \
                       atf-c/error_fwd.h \
@@ -50,11 +48,7 @@ libatf_c_la_CPPFLAGS = "-DATF_BUILD_CC=\"$(ATF_BUILD_CC)\"" \
                        "-DATF_BUILD_CPP=\"$(ATF_BUILD_CPP)\"" \
                        "-DATF_BUILD_CPPFLAGS=\"$(ATF_BUILD_CPPFLAGS)\"" \
                        "-DATF_BUILD_CXX=\"$(ATF_BUILD_CXX)\"" \
-                       "-DATF_BUILD_CXXFLAGS=\"$(ATF_BUILD_CXXFLAGS)\"" \
-                       "-DATF_INCLUDEDIR=\"$(includedir)\"" \
-                       "-DATF_LIBEXECDIR=\"$(libexecdir)\"" \
-                       "-DATF_PKGDATADIR=\"$(pkgdatadir)\"" \
-                       "-DATF_SHELL=\"$(ATF_SHELL)\""
+                       "-DATF_BUILD_CXXFLAGS=\"$(ATF_BUILD_CXXFLAGS)\""
 libatf_c_la_LDFLAGS = -version-info 0:0:0
 
 # XXX For some reason, the nodist line above does not work as expected.
@@ -66,7 +60,6 @@ kill-defs-h:
 include_HEADERS += atf-c.h
 atf_c_HEADERS = atf-c/build.h \
                 atf-c/check.h \
-                atf-c/config.h \
                 atf-c/defs.h \
                 atf-c/error.h \
                 atf-c/error_fwd.h \
@@ -111,10 +104,6 @@ atf_c_build_test_LDADD = atf-c/detail/libtest_helpers.la libatf-c.la
 tests_atf_c_PROGRAMS += atf-c/check_test
 atf_c_check_test_SOURCES = atf-c/check_test.c
 atf_c_check_test_LDADD = atf-c/detail/libtest_helpers.la libatf-c.la
-
-tests_atf_c_PROGRAMS += atf-c/config_test
-atf_c_config_test_SOURCES = atf-c/config_test.c
-atf_c_config_test_LDADD = atf-c/detail/libtest_helpers.la libatf-c.la
 
 tests_atf_c_PROGRAMS += atf-c/error_test
 atf_c_error_test_SOURCES = atf-c/error_test.c

@@ -31,9 +31,9 @@
 #include <string.h>
 
 #include "atf-c/build.h"
-#include "atf-c/config.h"
 #include "atf-c/error.h"
 
+#include "detail/env.h"
 #include "detail/sanity.h"
 #include "detail/text.h"
 
@@ -43,12 +43,13 @@
 
 static
 atf_error_t
-append_config_var(const char *var, atf_list_t *argv)
+append_config_var(const char *var, const char *default_value, atf_list_t *argv)
 {
     atf_error_t err;
     atf_list_t words;
 
-    err = atf_text_split(atf_config_get(var), " ", &words);
+    err = atf_text_split(atf_env_get_with_default(var, default_value),
+                         " ", &words);
     if (atf_is_error(err))
         goto out;
 
@@ -158,15 +159,16 @@ atf_build_c_o(const char *sfile,
     if (atf_is_error(err))
         goto out;
 
-    err = append_config_var("atf_build_cc", &argv_list);
+    err = append_config_var("ATF_BUILD_CC", ATF_BUILD_CC, &argv_list);
     if (atf_is_error(err))
         goto out_list;
 
-    err = append_config_var("atf_build_cppflags", &argv_list);
+    err = append_config_var("ATF_BUILD_CPPFLAGS", ATF_BUILD_CPPFLAGS,
+                            &argv_list);
     if (atf_is_error(err))
         goto out_list;
 
-    err = append_config_var("atf_build_cflags", &argv_list);
+    err = append_config_var("ATF_BUILD_CFLAGS", ATF_BUILD_CFLAGS, &argv_list);
     if (atf_is_error(err))
         goto out_list;
 
@@ -203,11 +205,12 @@ atf_build_cpp(const char *sfile,
     if (atf_is_error(err))
         goto out;
 
-    err = append_config_var("atf_build_cpp", &argv_list);
+    err = append_config_var("ATF_BUILD_CPP", ATF_BUILD_CPP, &argv_list);
     if (atf_is_error(err))
         goto out_list;
 
-    err = append_config_var("atf_build_cppflags", &argv_list);
+    err = append_config_var("ATF_BUILD_CPPFLAGS", ATF_BUILD_CPPFLAGS,
+                            &argv_list);
     if (atf_is_error(err))
         goto out_list;
 
@@ -248,15 +251,17 @@ atf_build_cxx_o(const char *sfile,
     if (atf_is_error(err))
         goto out;
 
-    err = append_config_var("atf_build_cxx", &argv_list);
+    err = append_config_var("ATF_BUILD_CXX", ATF_BUILD_CXX, &argv_list);
     if (atf_is_error(err))
         goto out_list;
 
-    err = append_config_var("atf_build_cppflags", &argv_list);
+    err = append_config_var("ATF_BUILD_CPPFLAGS", ATF_BUILD_CPPFLAGS,
+                            &argv_list);
     if (atf_is_error(err))
         goto out_list;
 
-    err = append_config_var("atf_build_cxxflags", &argv_list);
+    err = append_config_var("ATF_BUILD_CXXFLAGS", ATF_BUILD_CXXFLAGS,
+                            &argv_list);
     if (atf_is_error(err))
         goto out_list;
 

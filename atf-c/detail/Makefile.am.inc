@@ -54,7 +54,8 @@ EXTRA_DIST += $(tests_atf_c_detail_DATA)
 noinst_LTLIBRARIES += atf-c/detail/libtest_helpers.la
 atf_c_detail_libtest_helpers_la_SOURCES = atf-c/detail/test_helpers.c \
                                           atf-c/detail/test_helpers.h
-atf_c_detail_libtest_helpers_la_CPPFLAGS = -I$(srcdir)/atf-c
+atf_c_detail_libtest_helpers_la_CPPFLAGS = -I$(srcdir)/atf-c \
+                                           -DATF_INCLUDEDIR=\"$(includedir)\"
 
 tests_atf_c_detail_PROGRAMS = atf-c/detail/dynstr_test
 atf_c_detail_dynstr_test_SOURCES = atf-c/detail/dynstr_test.c

@@ -35,8 +35,6 @@ libatf_c___la_SOURCES = atf-c++/build.cpp \
                         atf-c++/build.hpp \
                         atf-c++/check.cpp \
                         atf-c++/check.hpp \
-                        atf-c++/config.cpp \
-                        atf-c++/config.hpp \
                         atf-c++/macros.hpp \
                         atf-c++/tests.cpp \
                         atf-c++/tests.hpp \
@@ -47,7 +45,6 @@ libatf_c___la_LDFLAGS = -version-info 1:0:0
 include_HEADERS += atf-c++.hpp
 atf_c___HEADERS = atf-c++/build.hpp \
                   atf-c++/check.hpp \
-                  atf-c++/config.hpp \
                   atf-c++/macros.hpp \
                   atf-c++/tests.hpp \
                   atf-c++/utils.hpp
@@ -86,9 +83,6 @@ atf_c___build_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
 tests_atf_c___PROGRAMS += atf-c++/check_test
 atf_c___check_test_SOURCES = atf-c++/check_test.cpp
 atf_c___check_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
-tests_atf_c___PROGRAMS += atf-c++/config_test
-atf_c___config_test_SOURCES = atf-c++/config_test.cpp
-atf_c___config_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
 tests_atf_c___PROGRAMS += atf-c++/macros_test
 atf_c___macros_test_SOURCES = atf-c++/macros_test.cpp
 atf_c___macros_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)

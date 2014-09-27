@@ -34,11 +34,11 @@
 
 #include "atf-c/build.h"
 #include "atf-c/check.h"
-#include "atf-c/config.h"
 #include "atf-c/error.h"
 #include "atf-c/macros.h"
 
 #include "dynstr.h"
+#include "env.h"
 #include "fs.h"
 #include "process.h"
 #include "test_helpers.h"
@@ -50,7 +50,8 @@ build_check_c_o(const char *path)
     atf_dynstr_t iflag;
     const char *optargs[4];
 
-    RE(atf_dynstr_init_fmt(&iflag, "-I%s", atf_config_get("atf_includedir")));
+    RE(atf_dynstr_init_fmt(&iflag, "-I%s", atf_env_get_with_default(
+        "ATF_INCLUDEDIR", ATF_INCLUDEDIR)));
 
     optargs[0] = atf_dynstr_cstring(&iflag);
     optargs[1] = "-Wall";

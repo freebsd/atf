@@ -33,7 +33,6 @@
 #include "../atf-c/h_build.h"
 
 #include "build.hpp"
-#include "config.hpp"
 #include "macros.hpp"
 
 #include "detail/env.hpp"
@@ -43,12 +42,6 @@
 // ------------------------------------------------------------------------
 // Auxiliary functions.
 // ------------------------------------------------------------------------
-
-namespace atf {
-    namespace config {
-        void __reinit(void);
-    }
-}
 
 template< class C >
 void
@@ -168,7 +161,6 @@ ATF_TEST_CASE_BODY(c_o)
         verbose_set_env("ATF_BUILD_CC", test->cc);
         verbose_set_env("ATF_BUILD_CFLAGS", test->cflags);
         verbose_set_env("ATF_BUILD_CPPFLAGS", test->cppflags);
-        atf::config::__reinit();
 
         atf::process::argv_array argv =
             atf::build::c_o(test->sfile, test->ofile,
@@ -190,7 +182,6 @@ ATF_TEST_CASE_BODY(cpp)
 
         verbose_set_env("ATF_BUILD_CPP", test->cpp);
         verbose_set_env("ATF_BUILD_CPPFLAGS", test->cppflags);
-        atf::config::__reinit();
 
         atf::process::argv_array argv =
             atf::build::cpp(test->sfile, test->ofile,
@@ -213,7 +204,6 @@ ATF_TEST_CASE_BODY(cxx_o)
         verbose_set_env("ATF_BUILD_CXX", test->cxx);
         verbose_set_env("ATF_BUILD_CXXFLAGS", test->cxxflags);
         verbose_set_env("ATF_BUILD_CPPFLAGS", test->cppflags);
-        atf::config::__reinit();
 
         atf::process::argv_array argv =
             atf::build::cxx_o(test->sfile, test->ofile,

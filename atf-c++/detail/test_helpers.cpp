@@ -33,9 +33,9 @@
 #include <vector>
 
 #include "../check.hpp"
-#include "../config.hpp"
 #include "../macros.hpp"
 
+#include "env.hpp"
 #include "fs.hpp"
 #include "process.hpp"
 #include "test_helpers.hpp"
@@ -56,7 +56,7 @@ bool
 build_check_cxx_o(const char* sfile)
 {
     std::vector< std::string > optargs;
-    optargs.push_back("-I" + atf::config::get("atf_includedir"));
+    optargs.push_back("-I" + atf::env::get("ATF_INCLUDEDIR", ATF_INCLUDEDIR));
     optargs.push_back("-Wall");
     optargs.push_back("-Werror");
 
