@@ -49,6 +49,7 @@ EXTRA_DIST += $(tests_atf_c___detail_DATA)
 noinst_LTLIBRARIES += atf-c++/detail/libtest_helpers.la
 atf_c___detail_libtest_helpers_la_SOURCES = atf-c++/detail/test_helpers.cpp \
                                             atf-c++/detail/test_helpers.hpp
+atf_c___detail_libtest_helpers_la_CPPFLAGS = -DATF_INCLUDEDIR=\"$(includedir)\"
 
 tests_atf_c___detail_PROGRAMS = atf-c++/detail/application_test
 atf_c___detail_application_test_SOURCES = atf-c++/detail/application_test.cpp

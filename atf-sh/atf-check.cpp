@@ -48,7 +48,6 @@ extern "C" {
 #include <utility>
 
 #include "atf-c++/check.hpp"
-#include "atf-c++/config.hpp"
 
 #include "atf-c++/detail/application.hpp"
 #include "atf-c++/detail/auto_array.hpp"
@@ -354,7 +353,7 @@ execute_with_shell(char* const* argv)
     const std::string cmd = flatten_argv(argv);
 
     const char* sh_argv[4];
-    sh_argv[0] = atf::config::get("atf_shell").c_str();
+    sh_argv[0] = atf::env::get("ATF_SHELL", ATF_SHELL).c_str();
     sh_argv[1] = "-c";
     sh_argv[2] = cmd.c_str();
     sh_argv[3] = NULL;

@@ -36,9 +36,8 @@ extern "C" {
 #include <cstring>
 #include <iostream>
 
-#include "atf-c++/config.hpp"
-
 #include "atf-c++/detail/application.hpp"
+#include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/sanity.hpp"
 
@@ -63,9 +62,11 @@ static
 std::string*
 construct_script(const char* filename)
 {
-    const std::string libexecdir = atf::config::get("atf_libexecdir");
-    const std::string pkgdatadir = atf::config::get("atf_pkgdatadir");
-    const std::string shell = atf::config::get("atf_shell");
+    const std::string libexecdir = atf::env::get(
+        "ATF_LIBEXECDIR", ATF_LIBEXECDIR);
+    const std::string pkgdatadir = atf::env::get(
+        "ATF_PKGDATADIR", ATF_PKGDATADIR);
+    const std::string shell = atf::env::get("ATF_SHELL", ATF_SHELL);
 
     std::string* command = new std::string();
     command->reserve(512);
@@ -128,7 +129,7 @@ const char* atf_sh::m_description =
 
 atf_sh::atf_sh(void) :
     app(m_description, "atf-sh(1)"),
-    m_shell(atf::fs::path(atf::config::get("atf_shell")))
+    m_shell(atf::fs::path(atf::env::get("ATF_SHELL", ATF_SHELL)))
 {
 }
 
@@ -139,7 +140,7 @@ atf_sh::specific_options(void)
     using atf::application::option;
     options_set opts;
 
-    INV(m_shell == atf::fs::path(atf::config::get("atf_shell")));
+    INV(m_shell == atf::fs::path(atf::env::get("ATF_SHELL", ATF_SHELL)));
     opts.insert(option('s', "shell", "Path to the shell interpreter to use; "
                        "default: " + m_shell.str()));
 
