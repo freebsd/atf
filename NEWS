@@ -17,6 +17,10 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
   Kyua forces the TMPDIR to live within the test case's work directory,
   any stale files left behind by ATF will be automatically cleaned up.
 
+* Documented the environment variables recognized by each component in the
+  relevant manual pages.  This information was lost with the atf-config(1)
+  removal.
+
 * Issue #5: Recommend the (expected, actual) idiom for calls to the test
   macros in the manual pages.
 
