@@ -51,25 +51,51 @@
 .Nm atf_test_case
 .Nd POSIX shell API to write ATF-based test programs
 .Sh SYNOPSIS
-.Fn atf_add_test_case "name"
-.Fn atf_check "command"
-.Fn atf_check_equal "expected_expression" "actual_expression"
-.Fn atf_config_get "var_name"
-.Fn atf_config_has "var_name"
-.Fn atf_expect_death "reason" "..."
-.Fn atf_expect_exit "exitcode" "reason" "..."
-.Fn atf_expect_fail "reason" "..."
-.Fn atf_expect_pass
-.Fn atf_expect_signal "signo" "reason" "..."
-.Fn atf_expect_timeout "reason" "..."
-.Fn atf_fail "reason"
-.Fn atf_get "var_name"
-.Fn atf_get_srcdir
-.Fn atf_pass
-.Fn atf_require_prog "prog_name"
-.Fn atf_set "var_name" "value"
-.Fn atf_skip "reason"
-.Fn atf_test_case "name" "cleanup"
+.Nm atf_add_test_case
+.Qq foo
+.Nm atf_check
+.Qq command
+.Nm atf_check_equal
+.Qq expected_expression
+.Qq actual_expression
+.Nm atf_config_get
+.Qq var_name
+.Nm atf_config_has
+.Qq var_name
+.Nm atf_expect_death
+.Qq reason
+.Qq ...
+.Nm atf_expect_exit
+.Qq exitcode
+.Qq reason
+.Qq ...
+.Nm atf_expect_fail
+.Qq reason
+.Qq ...
+.Nm atf_expect_pass
+.Nm atf_expect_signal
+.Qq signo
+.Qq reason
+.Qq ...
+.Nm atf_expect_timeout
+.Qq reason
+.Qq ...
+.Nm atf_fail
+.Qq reason
+.Nm atf_get
+.Qq var_name
+.Nm atf_get_srcdir
+.Nm atf_pass
+.Nm atf_require_prog
+.Qq prog_name
+.Nm atf_set
+.Qq var_name
+.Qq value
+.Nm atf_skip
+.Qq reason
+.Nm atf_test_case
+.Qq name
+.Qq cleanup
 .Sh DESCRIPTION
 ATF
 provides a simple but powerful interface to easily write test programs in
