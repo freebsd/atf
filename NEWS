@@ -34,6 +34,8 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
 * Issue #15: Fix atf_utils_{fork,wait} to support nested calls.
 
+* Issue #19: Removed stale references to atf-config and atf-run.
+
 
 Changes in version 0.20
 ***********************

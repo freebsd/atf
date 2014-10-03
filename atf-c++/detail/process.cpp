@@ -341,11 +341,6 @@ impl::child::stderr_fd(void)
 void
 detail::flush_streams(void)
 {
-    // This is a weird hack to ensure that the output of the parent process
-    // is flushed before executing a child which prevents, for example, the
-    // output of the atf-run hooks to appear before the output of atf-run
-    // itself.
-    //
     // TODO: This should only be executed when inheriting the stdout or
     // stderr file descriptors.  However, the flushing is specific to the
     // iostreams, so we cannot do it from the C library where all the process

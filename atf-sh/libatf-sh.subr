@@ -596,7 +596,7 @@ _atf_run_tc()
     _atf_has_tc "${_tcname}" || _atf_syntax_error "Unknown test case \`${1}'"
 
     if [ "${__RUNNING_INSIDE_ATF_RUN}" != "internal-yes-value" ]; then
-        _atf_warning "Running test cases without atf-run(1) is unsupported"
+        _atf_warning "Running test cases outside of kyua(1) is unsupported"
         _atf_warning "No isolation nor timeout control is being applied;" \
             "you may get unexpected failures; see atf-test-case(4)"
     fi
@@ -742,10 +742,6 @@ main()
     done
     shift `expr ${OPTIND} - 1`
 
-    # First of all, make sure that the source directory is correct.  It
-    # doesn't matter if the user did not change it, because the default
-    # value may not work.  (TODO: It possibly should, even though it is
-    # not a big deal because atf-run deals with this.)
     case ${Source_Dir} in
         /*)
             ;;

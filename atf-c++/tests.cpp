@@ -537,8 +537,8 @@ run_tc(tc_vector& tcs, const std::string& tcarg, const atf::fs::path& resfile)
     if (!atf::env::has("__RUNNING_INSIDE_ATF_RUN") || atf::env::get(
         "__RUNNING_INSIDE_ATF_RUN") != "internal-yes-value")
     {
-        std::cerr << Program_Name << ": WARNING: Running test cases without "
-            "atf-run(1) is unsupported\n";
+        std::cerr << Program_Name << ": WARNING: Running test cases outside "
+            "of kyua(1) is unsupported\n";
         std::cerr << Program_Name << ": WARNING: No isolation nor timeout "
             "control is being applied; you may get unexpected failures; see "
             "atf-test-case(4)\n";

@@ -34,8 +34,8 @@ dnl -----------------------------------------------------------------------
 dnl
 dnl ATF_RUNTIME_TOOL(varname, description, default)
 dnl
-dnl Provides a configuration-time environment variable to select a tool
-dnl that will be later available through atf-config(1).
+dnl Provides a configure-time configuration variable.  The value provided
+dnl here can later be overriden at run-time via the environment.
 dnl
 AC_DEFUN([ATF_RUNTIME_TOOL],[
     AC_ARG_VAR([$1], [$2])

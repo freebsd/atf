@@ -499,7 +499,7 @@ run_tc(const atf_tp_t *tp, struct params *p, int *exitcode)
     if (!atf_env_has("__RUNNING_INSIDE_ATF_RUN") || strcmp(atf_env_get(
         "__RUNNING_INSIDE_ATF_RUN"), "internal-yes-value") != 0)
     {
-        print_warning("Running test cases without atf-run(1) is unsupported");
+        print_warning("Running test cases outside of kyua(1) is unsupported");
         print_warning("No isolation nor timeout control is being applied; you "
                       "may get unexpected failures; see atf-test-case(4)");
     }
