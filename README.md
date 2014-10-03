@@ -37,5 +37,9 @@ here, follow the instructions in the [INSTALL file](INSTALL).
 ## Support
 
 Please use the
-[atf-devel mailing list](http://www.netbsd.org/mailinglists/#atf-devel) for any
-support inquiries.
+[atf-discuss mailing list](https://groups.google.com/forum/#!forum/atf-discuss)
+for any support inquiries related to `atf-c`, `atf-c++` or `atf-sh`.
+
+If you have any questions on Kyua proper, please use the
+[kyua-discuss mailing list](https://groups.google.com/forum/#!forum/kyua-discuss)
+instead.
