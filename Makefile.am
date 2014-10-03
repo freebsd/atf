@@ -101,14 +101,6 @@ PHONY_TARGETS += clean-all
 clean-all:
 	GIT="$(GIT)" $(SH) $(srcdir)/admin/clean-all.sh
 
-PHONY_TARGETS += release
-release:
-	$(SH) $(srcdir)/admin/release.sh $(PACKAGE_VERSION) $(DIST_ARCHIVES)
-
-PHONY_TARGETS += release-test
-release-test:
-	$(SH) $(srcdir)/admin/release-test.sh $(DIST_ARCHIVES)
-
 .PHONY: $(PHONY_TARGETS)
 
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
