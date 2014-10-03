@@ -211,16 +211,7 @@ oflag_inline_body()
     h_pass "echo foo bar" -o inline:"foo bar\n"
     h_pass "printf 'foo bar'" -o inline:"foo bar"
     h_pass "printf '\t\n\t\n'" -o inline:"\t\n\t\n"
-    # XXX Ugly hack to workaround the lack of \e in FreeBSD.  Also, \e doesn't
-    # seem to work as expected in Linux.  Look for a nicer solution.
-    case $(uname) in
-    Darwin|FreeBSD|Linux)
-        h_pass "printf '\a\b\f\n\r\t\v'" -o inline:"\a\b\f\n\r\t\v"
-        ;;
-    *)
-        h_pass "printf '\a\b\e\f\n\r\t\v'" -o inline:"\a\b\e\f\n\r\t\v"
-        ;;
-    esac
+    h_pass "printf '\a\b\033\f\n\r\t\v'" -o inline:"\a\b\e\f\n\r\t\v"
     h_pass "printf '\011\022\033\012'" -o inline:"\011\022\033\012"
 
     h_fail "echo foo bar" -o inline:"foo bar"
@@ -331,16 +322,7 @@ eflag_inline_body()
     h_pass "echo foo bar 1>&2" -e inline:"foo bar\n"
     h_pass "printf 'foo bar' 1>&2" -e inline:"foo bar"
     h_pass "printf '\t\n\t\n' 1>&2" -e inline:"\t\n\t\n"
-    # XXX Ugly hack to workaround the lack of \e in FreeBSD.  Also, \e doesn't
-    # seem to work as expected in Linux.  Look for a nicer solution.
-    case $(uname) in
-    Darwin|FreeBSD|Linux)
-        h_pass "printf '\a\b\f\n\r\t\v' 1>&2" -e inline:"\a\b\f\n\r\t\v"
-        ;;
-    *)
-        h_pass "printf '\a\b\e\f\n\r\t\v' 1>&2" -e inline:"\a\b\e\f\n\r\t\v"
-        ;;
-    esac
+    h_pass "printf '\a\b\033\f\n\r\t\v' 1>&2" -e inline:"\a\b\e\f\n\r\t\v"
     h_pass "printf '\011\022\033\012' 1>&2" -e inline:"\011\022\033\012"
 
     h_fail "echo foo bar 1>&2" -e inline:"foo bar"
