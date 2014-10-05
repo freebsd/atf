@@ -26,7 +26,7 @@
 .\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 .\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd September 11, 2014
+.Dd October 5, 2014
 .Dt ATF-SH-API 3
 .Os
 .Sh NAME
@@ -293,12 +293,19 @@ Expects the test case to execute for longer than its timeout.
 .Ss Helper functions for common checks
 .Bl -tag -width indent
 .It Nm atf_check Qo [options] Qc Qo command Qc Qo [args] Qc
-This function wraps the execution of the
-.Nm atf-check
-tool and makes the test case fail if the tool reports failure.
-You should always use this function instead of the tool in your scripts.
-For more details on the parameters of this function, refer to
-.Xr atf-check 1 .
+Executes a command, performs checks on its exit code and its output, and
+fails the test case if any of the checks is not successful.
+This function is particularly useful in integration tests that verify the
+correct functioning of a binary.
+.Pp
+Internally, this function is just a wrapper over the
+.Xr atf-check 1
+tool (whose manual page provides all details on the calling syntax).
+You should always use the
+.Nm atf_check
+function instead of the
+.Xr atf-check 1
+tool in your scripts; the latter is not even in the path.
 .It Nm atf_check_equal Qo expected_expression Qc Qo actual_expression Qc
 This function takes two expressions, evaluates them and, if their
 results differ, aborts the test case with an appropriate failure message.
@@ -363,6 +370,7 @@ grep foo ls || atf_fail "foo file not found in listing"
 atf_check -s exit:0 -o match:"^foo$" -e empty 'ls'
 .Ed
 .Sh SEE ALSO
+.Xr atf-check 1 ,
 .Xr atf-sh 1 ,
 .Xr atf-test-program 1 ,
 .Xr atf-test-case 4

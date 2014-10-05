@@ -32,6 +32,9 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 * Issue #8: Fixed atf-c/macros_test:use test failures spotted by the clang
   that ships with FreeBSD 11.0-CURRENT.
 
+* Issue #12: Improved documentation of atf-sh-api(3) and atf-check(1) by
+  better explaining how they relate to each other.
+
 * Issue #15: Fix atf_utils_{fork,wait} to support nested calls.
 
 * Issue #16: Fixed test failures (by removing a long-standing hack) on
