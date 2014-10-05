@@ -21,6 +21,10 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
   relevant manual pages.  This information was lost with the atf-config(1)
   removal.
 
+* Added a new "require.diskspace" metadata property to test cases so that
+  they can specify the minimum amount of disk space required for the test
+  to run.
+
 * Issue #5: Recommend the (expected, actual) idiom for calls to the test
   macros in the manual pages.
 
