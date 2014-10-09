@@ -124,6 +124,33 @@ EOF
     atf_check -s eq:0 -o file:expout -e empty ./tp
 }
 
+atf_test_case set_e
+set_e_head()
+{
+    atf_set "descr" "Simple test to validate that atf-sh works even when" \
+        "set -e is enabled"
+}
+set_e_body()
+{
+    cat >custom-shell <<EOF
+#! /bin/sh
+exec /bin/sh -e "\${@}"
+EOF
+    chmod +x custom-shell
+
+    cat >tp <<EOF
+atf_test_case helper
+helper_body() {
+    atf_skip "reached"
+}
+atf_init_test_cases() {
+    atf_add_test_case helper
+}
+EOF
+    atf_check -s eq:0 -o match:skipped.*reached \
+        atf-sh -s ./custom-shell tp helper
+}
+
 atf_init_test_cases()
 {
     atf_add_test_case no_args
@@ -131,6 +158,7 @@ atf_init_test_cases()
     atf_add_test_case arguments
     atf_add_test_case custom_shell__command_line
     atf_add_test_case custom_shell__shebang
+    atf_add_test_case set_e
 }
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
