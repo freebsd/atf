@@ -1,7 +1,4 @@
 #! /bin/sh
-#
-# Automated Testing Framework (atf)
-#
 # Copyright (c) 2007 The NetBSD Foundation, Inc.
 # All rights reserved.
 #
@@ -26,7 +23,6 @@
 # IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
 
 #
 # A utility to sanity check the coding style of all source files in the
