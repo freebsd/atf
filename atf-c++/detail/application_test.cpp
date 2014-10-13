@@ -33,7 +33,7 @@ extern "C" {
 #include <unistd.h>
 }
 
-#include "atf-c++/macros.hpp"
+#include <atf-c++.hpp>
 
 class getopt_app : public atf::application::app {
 public:

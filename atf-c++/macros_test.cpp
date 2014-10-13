@@ -39,6 +39,8 @@ extern "C" {
 #include <iostream>
 #include <stdexcept>
 
+#include <atf-c++.hpp>
+
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/process.hpp"
 #include "atf-c++/detail/sanity.hpp"

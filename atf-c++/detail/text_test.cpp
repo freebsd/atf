@@ -33,7 +33,7 @@
 #include <set>
 #include <vector>
 
-#include "atf-c++/macros.hpp"
+#include <atf-c++.hpp>
 
 // ------------------------------------------------------------------------
 // Test cases for the free functions.

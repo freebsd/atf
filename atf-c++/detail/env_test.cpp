@@ -29,7 +29,7 @@
 
 #include "atf-c++/detail/env.hpp"
 
-#include "atf-c++/macros.hpp"
+#include <atf-c++.hpp>
 
 // ------------------------------------------------------------------------
 // Test cases for the free functions.

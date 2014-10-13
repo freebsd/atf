@@ -44,8 +44,9 @@ extern "C" {
 #include <string>
 #include <vector>
 
+#include <atf-c++.hpp>
+
 #include "atf-c++/detail/test_helpers.hpp"
-#include "atf-c++/macros.hpp"
 
 static std::string
 read_file(const std::string& path)

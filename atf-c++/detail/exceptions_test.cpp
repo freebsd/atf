@@ -36,8 +36,9 @@ extern "C" {
 #include <cstdio>
 #include <new>
 
+#include <atf-c++.hpp>
+
 #include "atf-c++/detail/sanity.hpp"
-#include "atf-c++/macros.hpp"
 
 // ------------------------------------------------------------------------
 // The "test" error.

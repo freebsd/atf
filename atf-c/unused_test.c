@@ -27,7 +27,7 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <atf-c/macros.h>
+#include <atf-c.h>
 
 ATF_TC(this_is_used);
 ATF_TC_HEAD(this_is_used, tc)

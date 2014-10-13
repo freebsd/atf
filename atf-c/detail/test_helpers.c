@@ -34,6 +34,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <atf-c.h>
+
 #include "atf-c/build.h"
 #include "atf-c/check.h"
 #include "atf-c/detail/dynstr.h"
@@ -41,7 +43,6 @@
 #include "atf-c/detail/fs.h"
 #include "atf-c/detail/process.h"
 #include "atf-c/error.h"
-#include "atf-c/macros.h"
 
 bool
 build_check_c_o(const char *path)
