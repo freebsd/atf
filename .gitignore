@@ -13,8 +13,9 @@ Makefile
 Makefile.in
 aclocal.m4
 autom4te.cache
-bconfig.h
-bconfig.h.in
+config.h
+config.h.in
+config.h.in~
 config.log
 config.status
 configure

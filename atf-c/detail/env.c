@@ -28,7 +28,7 @@
  */
 
 #if defined(HAVE_CONFIG_H)
-#include "bconfig.h"
+#include "config.h"
 #endif
 
 #include <errno.h>

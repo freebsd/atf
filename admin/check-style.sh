@@ -100,7 +100,7 @@ find_sources() {
               \! -path "*autom4te*" -a \
               -type f -a \
               \! -name "aclocal.m4" \
-              \! -name "bconfig.h" \
+              \! -name "config.h" \
               \! -name "defs.h" \
               \! -name "defs.hpp" \
               \! -name "libtool.m4" \
