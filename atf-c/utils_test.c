@@ -526,8 +526,6 @@ ATF_TC_BODY(wait__save_stderr, tc)
     }
 }
 
-HEADER_TC(include, "atf-c/utils.h");
-
 ATF_TP_ADD_TCS(tp)
 {
     ATF_TP_ADD_TC(tp, cat_file__empty);
@@ -571,8 +569,6 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, wait__invalid_exitstatus);
     ATF_TP_ADD_TC(tp, wait__invalid_stdout);
     ATF_TP_ADD_TC(tp, wait__invalid_stderr);
-
-    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

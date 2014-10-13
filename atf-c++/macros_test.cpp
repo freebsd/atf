@@ -759,7 +759,6 @@ ATF_TEST_CASE_BODY(require_errno)
 // Tests cases for the header file.
 // ------------------------------------------------------------------------
 
-HEADER_TC(include, "atf-c++/macros.hpp");
 BUILD_TC(use, "macros_hpp_test.cpp",
          "Tests that the macros provided by the atf-c++/macros.hpp file "
          "do not cause syntax errors when used",
@@ -811,7 +810,6 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, require_errno);
 
     // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
     ATF_ADD_TEST_CASE(tcs, use);
     ATF_ADD_TEST_CASE(tcs, detect_unused_tests);
 }

@@ -38,11 +38,11 @@ extern "C" {
 }
 
 #include <fstream>
+#include <iostream>
 #include <sstream>
 
 #include <atf-c++.hpp>
 
-#include "atf-c++/detail/test_helpers.hpp"
 #include "atf-c++/detail/text.hpp"
 
 // ------------------------------------------------------------------------
@@ -184,12 +184,6 @@ ATF_TEST_CASE_BODY(atf_tp_writer)
 }
 
 // ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/tests.hpp");
-
-// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -197,7 +191,4 @@ ATF_INIT_TEST_CASES(tcs)
 {
     // Add tests for the "atf_tp_writer" class.
     ATF_ADD_TEST_CASE(tcs, atf_tp_writer);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
 }

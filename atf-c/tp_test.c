@@ -34,8 +34,6 @@
 
 #include <atf-c.h>
 
-#include "atf-c/detail/test_helpers.h"
-
 ATF_TC(getopt);
 ATF_TC_HEAD(getopt, tc)
 {
@@ -83,21 +81,12 @@ ATF_TC_BODY(getopt, tc)
 }
 
 /* ---------------------------------------------------------------------
- * Tests cases for the header file.
- * --------------------------------------------------------------------- */
-
-HEADER_TC(include, "atf-c/tp.h");
-
-/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
 ATF_TP_ADD_TCS(tp)
 {
     ATF_TP_ADD_TC(tp, getopt);
-
-    /* Add the test cases for the header file. */
-    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

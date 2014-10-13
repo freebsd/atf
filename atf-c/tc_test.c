@@ -169,12 +169,6 @@ ATF_TC_BODY(config, tcin)
  * testing done later on. */
 
 /* ---------------------------------------------------------------------
- * Tests cases for the header file.
- * --------------------------------------------------------------------- */
-
-HEADER_TC(include, "atf-c/tc.h");
-
-/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -188,9 +182,6 @@ ATF_TP_ADD_TCS(tp)
 
     /* Add the test cases for the free functions. */
     /* TODO */
-
-    /* Add the test cases for the header file. */
-    ATF_TP_ADD_TC(tp, include);
 
     return atf_no_error();
 }

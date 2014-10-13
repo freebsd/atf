@@ -37,7 +37,6 @@
 #include <atf-c.h>
 
 #include "atf-c/defs.h"
-#include "atf-c/detail/test_helpers.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.
@@ -277,13 +276,6 @@ ATF_TC_BODY(no_memory_twice, tc)
 }
 
 /* ---------------------------------------------------------------------
- * Tests cases for the header file.
- * --------------------------------------------------------------------- */
-
-HEADER_TC(include, "atf-c/error.h");
-HEADER_TC(include_fwd, "atf-c/error_fwd.h");
-
-/* ---------------------------------------------------------------------
  * Main.
  * --------------------------------------------------------------------- */
 
@@ -304,10 +296,6 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, no_memory_new);
     ATF_TP_ADD_TC(tp, no_memory_format);
     ATF_TP_ADD_TC(tp, no_memory_twice);
-
-    /* Add the test cases for the header file. */
-    ATF_TP_ADD_TC(tp, include);
-    ATF_TP_ADD_TC(tp, include_fwd);
 
     return atf_no_error();
 }

@@ -40,7 +40,6 @@ extern "C" {
 
 #include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/process.hpp"
-#include "atf-c++/detail/test_helpers.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -216,12 +215,6 @@ ATF_TEST_CASE_BODY(cxx_o)
 }
 
 // ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/build.hpp");
-
-// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -234,7 +227,4 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, c_o);
     ATF_ADD_TEST_CASE(tcs, cpp);
     ATF_ADD_TEST_CASE(tcs, cxx_o);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
 }

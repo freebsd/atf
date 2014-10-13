@@ -46,8 +46,6 @@ extern "C" {
 
 #include <atf-c++.hpp>
 
-#include "atf-c++/detail/test_helpers.hpp"
-
 static std::string
 read_file(const std::string& path)
 {
@@ -469,12 +467,6 @@ ATF_TEST_CASE_BODY(wait__save_stderr)
 }
 
 // ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/utils.hpp");
-
-// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -518,7 +510,4 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, wait__invalid_stderr);
     ATF_ADD_TEST_CASE(tcs, wait__save_stdout);
     ATF_ADD_TEST_CASE(tcs, wait__save_stderr);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
 }
