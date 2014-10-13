@@ -38,10 +38,9 @@ extern "C" {
 #include <fstream>
 #include <sstream>
 
-#include "macros.hpp"
-
-#include "detail/test_helpers.hpp"
-#include "detail/text.hpp"
+#include "atf-c++/detail/test_helpers.hpp"
+#include "atf-c++/detail/text.hpp"
+#include "atf-c++/macros.hpp"
 
 // ------------------------------------------------------------------------
 // Tests for the "atf_tp_writer" class.

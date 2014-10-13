@@ -48,7 +48,6 @@ extern "C" {
 #include <utility>
 
 #include "atf-c++/check.hpp"
-
 #include "atf-c++/detail/application.hpp"
 #include "atf-c++/detail/auto_array.hpp"
 #include "atf-c++/detail/env.hpp"

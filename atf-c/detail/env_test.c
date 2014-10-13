@@ -32,9 +32,9 @@
 
 #include <atf-c.h>
 
-#include "env.h"
-#include "test_helpers.h"
-#include "text.h"
+#include "atf-c/detail/env.h"
+#include "atf-c/detail/test_helpers.h"
+#include "atf-c/detail/text.h"
 
 /* ---------------------------------------------------------------------
  * Test cases for the free functions.

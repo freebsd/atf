@@ -30,14 +30,15 @@
 #include <cstring>
 #include <iostream>
 
-#include "../atf-c/h_build.h"
+extern "C" {
+#include "atf-c/h_build.h"
+}
 
-#include "build.hpp"
-#include "macros.hpp"
-
-#include "detail/env.hpp"
-#include "detail/process.hpp"
-#include "detail/test_helpers.hpp"
+#include "atf-c++/build.hpp"
+#include "atf-c++/detail/env.hpp"
+#include "atf-c++/detail/process.hpp"
+#include "atf-c++/detail/test_helpers.hpp"
+#include "atf-c++/macros.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.

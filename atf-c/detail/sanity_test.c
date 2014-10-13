@@ -42,10 +42,10 @@
 
 #include <atf-c.h>
 
-#include "dynstr.h"
-#include "process.h"
-#include "sanity.h"
-#include "test_helpers.h"
+#include "atf-c/detail/dynstr.h"
+#include "atf-c/detail/process.h"
+#include "atf-c/detail/sanity.h"
+#include "atf-c/detail/test_helpers.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

@@ -32,10 +32,9 @@
 
 #include <atf-c.h>
 
+#include "atf-c/detail/list.h"
+#include "atf-c/detail/test_helpers.h"
 #include "atf-c/utils.h"
-
-#include "list.h"
-#include "test_helpers.h"
 
 /* ---------------------------------------------------------------------
  * Tests for the "atf_list" type.

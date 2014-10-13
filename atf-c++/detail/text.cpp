@@ -35,13 +35,12 @@ extern "C" {
 #include <cstring>
 
 extern "C" {
-#include "../../atf-c/error.h"
-
-#include "../../atf-c/detail/text.h"
+#include "atf-c/detail/text.h"
+#include "atf-c/error.h"
 }
 
-#include "exceptions.hpp"
-#include "text.hpp"
+#include "atf-c++/detail/exceptions.hpp"
+#include "atf-c++/detail/text.hpp"
 
 namespace impl = atf::text;
 #define IMPL_NAME "atf::text"

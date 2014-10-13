@@ -27,9 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "../macros.hpp"
-
-#include "env.hpp"
+#include "atf-c++/detail/env.hpp"
+#include "atf-c++/macros.hpp"
 
 // ------------------------------------------------------------------------
 // Test cases for the free functions.

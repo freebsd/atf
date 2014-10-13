@@ -39,10 +39,9 @@
 
 #include <atf-c.h>
 
+#include "atf-c/detail/dynstr.h"
+#include "atf-c/detail/test_helpers.h"
 #include "atf-c/utils.h"
-
-#include "detail/dynstr.h"
-#include "detail/test_helpers.h"
 
 /** Reads the contents of a file into a buffer.
  *

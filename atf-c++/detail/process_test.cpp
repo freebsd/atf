@@ -30,10 +30,9 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "../macros.hpp"
-
-#include "process.hpp"
-#include "test_helpers.hpp"
+#include "atf-c++/detail/process.hpp"
+#include "atf-c++/detail/test_helpers.hpp"
+#include "atf-c++/macros.hpp"
 
 // TODO: Testing the fork function is a huge task and I'm afraid of
 // copy/pasting tons of stuff from the C version.  I'd rather not do that

@@ -59,15 +59,14 @@ extern "C" {
 #include "atf-c/utils.h"
 }
 
-#include "tests.hpp"
-
-#include "detail/application.hpp"
-#include "detail/auto_array.hpp"
-#include "detail/env.hpp"
-#include "detail/exceptions.hpp"
-#include "detail/fs.hpp"
-#include "detail/sanity.hpp"
-#include "detail/text.hpp"
+#include "atf-c++/detail/application.hpp"
+#include "atf-c++/detail/auto_array.hpp"
+#include "atf-c++/detail/env.hpp"
+#include "atf-c++/detail/exceptions.hpp"
+#include "atf-c++/detail/fs.hpp"
+#include "atf-c++/detail/sanity.hpp"
+#include "atf-c++/detail/text.hpp"
+#include "atf-c++/tests.hpp"
 
 #if defined(HAVE_GNU_GETOPT)
 #   define GETOPT_POSIX "+"

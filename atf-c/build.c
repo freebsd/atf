@@ -31,11 +31,10 @@
 #include <string.h>
 
 #include "atf-c/build.h"
+#include "atf-c/detail/env.h"
+#include "atf-c/detail/sanity.h"
+#include "atf-c/detail/text.h"
 #include "atf-c/error.h"
-
-#include "detail/env.h"
-#include "detail/sanity.h"
-#include "detail/text.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

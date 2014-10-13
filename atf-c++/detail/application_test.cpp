@@ -31,9 +31,8 @@ extern "C" {
 #include <unistd.h>
 }
 
-#include "application.hpp"
-
-#include "../macros.hpp"
+#include "atf-c++/detail/application.hpp"
+#include "atf-c++/macros.hpp"
 
 class getopt_app : public atf::application::app {
 public:

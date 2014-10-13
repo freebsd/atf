@@ -33,11 +33,12 @@ extern "C" {
 
 #include <iostream>
 
+extern "C" {
 #include "atf-c/defs.h"
+}
 
-#include "../macros.hpp"
-
-#include "auto_array.hpp"
+#include "atf-c++/detail/auto_array.hpp"
+#include "atf-c++/macros.hpp"
 
 // ------------------------------------------------------------------------
 // Tests for the "auto_array" class.

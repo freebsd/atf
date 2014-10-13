@@ -37,11 +37,10 @@
 #include <atf-c.h>
 
 #include "atf-c/check.h"
-
-#include "detail/fs.h"
-#include "detail/map.h"
-#include "detail/process.h"
-#include "detail/test_helpers.h"
+#include "atf-c/detail/fs.h"
+#include "atf-c/detail/map.h"
+#include "atf-c/detail/process.h"
+#include "atf-c/detail/test_helpers.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

@@ -34,14 +34,13 @@
 
 #include "atf-c/build.h"
 #include "atf-c/check.h"
+#include "atf-c/detail/dynstr.h"
+#include "atf-c/detail/env.h"
+#include "atf-c/detail/fs.h"
+#include "atf-c/detail/process.h"
+#include "atf-c/detail/test_helpers.h"
 #include "atf-c/error.h"
 #include "atf-c/macros.h"
-
-#include "dynstr.h"
-#include "env.h"
-#include "fs.h"
-#include "process.h"
-#include "test_helpers.h"
 
 bool
 build_check_c_o(const char *path)

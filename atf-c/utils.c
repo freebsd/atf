@@ -43,7 +43,7 @@
 
 #include <atf-c.h>
 
-#include "detail/dynstr.h"
+#include "atf-c/detail/dynstr.h"
 
 /** Allocate a filename to be used by atf_utils_{fork,wait}.
  *

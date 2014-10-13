@@ -30,16 +30,15 @@
 extern "C" {
 #include <signal.h>
 
-#include "../../atf-c/error.h"
-
-#include "../../atf-c/detail/process.h"
+#include "atf-c/detail/process.h"
+#include "atf-c/error.h"
 }
 
 #include <iostream>
 
-#include "exceptions.hpp"
-#include "process.hpp"
-#include "sanity.hpp"
+#include "atf-c++/detail/exceptions.hpp"
+#include "atf-c++/detail/process.hpp"
+#include "atf-c++/detail/sanity.hpp"
 
 namespace detail = atf::process::detail;
 namespace impl = atf::process;

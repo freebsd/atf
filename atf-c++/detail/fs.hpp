@@ -42,7 +42,7 @@ extern "C" {
 #include <string>
 
 extern "C" {
-#include "../../atf-c/detail/fs.h"
+#include "atf-c/detail/fs.h"
 }
 
 namespace atf {

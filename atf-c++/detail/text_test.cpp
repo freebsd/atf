@@ -31,9 +31,8 @@
 #include <set>
 #include <vector>
 
-#include "../macros.hpp"
-
-#include "text.hpp"
+#include "atf-c++/detail/text.hpp"
+#include "atf-c++/macros.hpp"
 
 // ------------------------------------------------------------------------
 // Test cases for the free functions.

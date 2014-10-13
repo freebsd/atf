@@ -29,7 +29,7 @@
 
 #include <atf-c.h>
 
-#include "detail/test_helpers.h"
+#include "atf-c/detail/test_helpers.h"
 
 /* ---------------------------------------------------------------------
  * Tests cases for the header file.

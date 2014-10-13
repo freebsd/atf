@@ -36,8 +36,8 @@
 
 #include <atf-c/error_fwd.h>
 
-#include "fs.h"
-#include "list.h"
+#include "atf-c/detail/fs.h"
+#include "atf-c/detail/list.h"
 
 /* ---------------------------------------------------------------------
  * The "atf_process_stream" type.

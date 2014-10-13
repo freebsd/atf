@@ -41,14 +41,13 @@
 #include <unistd.h>
 
 #include "atf-c/defs.h"
+#include "atf-c/detail/env.h"
+#include "atf-c/detail/fs.h"
+#include "atf-c/detail/map.h"
+#include "atf-c/detail/sanity.h"
+#include "atf-c/detail/text.h"
 #include "atf-c/error.h"
 #include "atf-c/tc.h"
-
-#include "detail/env.h"
-#include "detail/fs.h"
-#include "detail/map.h"
-#include "detail/sanity.h"
-#include "detail/text.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

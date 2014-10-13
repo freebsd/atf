@@ -34,7 +34,7 @@ extern "C" {
 #include <cstdlib>
 #include <iostream>
 
-#include "utils.hpp"
+#include "atf-c++/utils.hpp"
 
 void
 atf::utils::cat_file(const std::string& path, const std::string& prefix)

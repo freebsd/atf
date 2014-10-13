@@ -36,10 +36,9 @@ extern "C" {
 #include <cerrno>
 #include <cstdio>
 
-#include "../macros.hpp"
-
-#include "exceptions.hpp"
-#include "fs.hpp"
+#include "atf-c++/detail/exceptions.hpp"
+#include "atf-c++/detail/fs.hpp"
+#include "atf-c++/macros.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.

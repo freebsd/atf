@@ -35,9 +35,8 @@
 #include <atf-c.h>
 
 #include "atf-c/defs.h"
+#include "atf-c/detail/test_helpers.h"
 #include "atf-c/error.h"
-
-#include "detail/test_helpers.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

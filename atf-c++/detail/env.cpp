@@ -28,14 +28,13 @@
 //
 
 extern "C" {
-#include "../../atf-c/error.h"
-
-#include "../../atf-c/detail/env.h"
+#include "atf-c/detail/env.h"
+#include "atf-c/error.h"
 }
 
-#include "env.hpp"
-#include "exceptions.hpp"
-#include "sanity.hpp"
+#include "atf-c++/detail/env.hpp"
+#include "atf-c++/detail/exceptions.hpp"
+#include "atf-c++/detail/sanity.hpp"
 
 namespace impl = atf::env;
 #define IMPL_NAME "atf::env"

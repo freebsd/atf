@@ -39,9 +39,9 @@
 
 #include <atf-c.h>
 
-#include "fs.h"
-#include "test_helpers.h"
-#include "user.h"
+#include "atf-c/detail/fs.h"
+#include "atf-c/detail/test_helpers.h"
+#include "atf-c/detail/user.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

@@ -45,8 +45,8 @@ extern "C" {
 #include "atf-c/defs.h"
 }
 
-#include "application.hpp"
-#include "sanity.hpp"
+#include "atf-c++/detail/application.hpp"
+#include "atf-c++/detail/sanity.hpp"
 
 #if !defined(HAVE_VSNPRINTF_IN_STD)
 namespace std {

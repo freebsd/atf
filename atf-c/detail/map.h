@@ -35,7 +35,7 @@
 
 #include <atf-c/error_fwd.h>
 
-#include "list.h"
+#include "atf-c/detail/list.h"
 
 /* ---------------------------------------------------------------------
  * The "atf_map_citer" type.

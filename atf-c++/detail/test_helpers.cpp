@@ -32,13 +32,12 @@
 #include <string>
 #include <vector>
 
-#include "../check.hpp"
-#include "../macros.hpp"
-
-#include "env.hpp"
-#include "fs.hpp"
-#include "process.hpp"
-#include "test_helpers.hpp"
+#include "atf-c++/check.hpp"
+#include "atf-c++/detail/env.hpp"
+#include "atf-c++/detail/fs.hpp"
+#include "atf-c++/detail/process.hpp"
+#include "atf-c++/detail/test_helpers.hpp"
+#include "atf-c++/macros.hpp"
 
 // Path to the directory containing the libatf-c tests, used to locate the
 // process_helpers program.  If NULL (the default), the code will use a

@@ -37,14 +37,13 @@ extern "C" {
 #include <iostream>
 #include <stdexcept>
 
-#include "macros.hpp"
-#include "utils.hpp"
-
-#include "detail/fs.hpp"
-#include "detail/process.hpp"
-#include "detail/sanity.hpp"
-#include "detail/test_helpers.hpp"
-#include "detail/text.hpp"
+#include "atf-c++/detail/fs.hpp"
+#include "atf-c++/detail/process.hpp"
+#include "atf-c++/detail/sanity.hpp"
+#include "atf-c++/detail/test_helpers.hpp"
+#include "atf-c++/detail/text.hpp"
+#include "atf-c++/macros.hpp"
+#include "atf-c++/utils.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.

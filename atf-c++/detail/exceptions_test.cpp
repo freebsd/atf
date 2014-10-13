@@ -28,16 +28,15 @@
 //
 
 extern "C" {
-#include "../../atf-c/error.h"
+#include "atf-c/error.h"
 }
 
 #include <cstdio>
 #include <new>
 
-#include "../macros.hpp"
-
-#include "exceptions.hpp"
-#include "sanity.hpp"
+#include "atf-c++/detail/exceptions.hpp"
+#include "atf-c++/detail/sanity.hpp"
+#include "atf-c++/macros.hpp"
 
 // ------------------------------------------------------------------------
 // The "test" error.

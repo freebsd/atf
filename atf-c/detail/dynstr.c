@@ -34,11 +34,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "atf-c/detail/dynstr.h"
+#include "atf-c/detail/sanity.h"
+#include "atf-c/detail/text.h"
 #include "atf-c/error.h"
-
-#include "dynstr.h"
-#include "sanity.h"
-#include "text.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

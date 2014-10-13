@@ -39,15 +39,14 @@
 #include "atf-c/build.h"
 #include "atf-c/check.h"
 #include "atf-c/defs.h"
+#include "atf-c/detail/dynstr.h"
+#include "atf-c/detail/env.h"
+#include "atf-c/detail/fs.h"
+#include "atf-c/detail/list.h"
+#include "atf-c/detail/process.h"
+#include "atf-c/detail/sanity.h"
 #include "atf-c/error.h"
 #include "atf-c/utils.h"
-
-#include "detail/dynstr.h"
-#include "detail/env.h"
-#include "detail/fs.h"
-#include "detail/list.h"
-#include "detail/process.h"
-#include "detail/sanity.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

@@ -37,11 +37,11 @@
 #include <new>
 
 extern "C" {
-#include "../../atf-c/error.h"
-};
+#include "atf-c/error.h"
+}
 
-#include "exceptions.hpp"
-#include "sanity.hpp"
+#include "atf-c++/detail/exceptions.hpp"
+#include "atf-c++/detail/sanity.hpp"
 
 // ------------------------------------------------------------------------
 // The "system_error" type.

@@ -32,11 +32,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "atf-c/detail/dynstr.h"
+#include "atf-c/detail/sanity.h"
+#include "atf-c/detail/text.h"
 #include "atf-c/error.h"
-
-#include "dynstr.h"
-#include "sanity.h"
-#include "text.h"
 
 atf_error_t
 atf_text_for_each_word(const char *instr, const char *sep,

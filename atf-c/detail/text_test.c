@@ -33,9 +33,9 @@
 
 #include <atf-c.h>
 
-#include "sanity.h"
-#include "test_helpers.h"
-#include "text.h"
+#include "atf-c/detail/sanity.h"
+#include "atf-c/detail/test_helpers.h"
+#include "atf-c/detail/text.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

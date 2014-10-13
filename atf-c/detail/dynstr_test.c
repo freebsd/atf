@@ -35,8 +35,8 @@
 
 #include <atf-c.h>
 
-#include "dynstr.h"
-#include "test_helpers.h"
+#include "atf-c/detail/dynstr.h"
+#include "atf-c/detail/test_helpers.h"
 
 /* ---------------------------------------------------------------------
  * Tests for the "atf_dynstr" type.

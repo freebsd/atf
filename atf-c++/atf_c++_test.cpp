@@ -27,9 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "macros.hpp"
-
-#include "detail/test_helpers.hpp"
+#include "atf-c++/detail/test_helpers.hpp"
+#include "atf-c++/macros.hpp"
 
 // ------------------------------------------------------------------------
 // Tests cases for the header file.

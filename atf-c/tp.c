@@ -32,13 +32,12 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "atf-c/detail/fs.h"
+#include "atf-c/detail/map.h"
+#include "atf-c/detail/sanity.h"
 #include "atf-c/error.h"
 #include "atf-c/tc.h"
 #include "atf-c/tp.h"
-
-#include "detail/fs.h"
-#include "detail/map.h"
-#include "detail/sanity.h"
 
 struct atf_tp_impl {
     atf_list_t m_tcs;

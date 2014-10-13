@@ -32,8 +32,8 @@
 #include <limits.h>
 #include <unistd.h>
 
-#include "sanity.h"
-#include "user.h"
+#include "atf-c/detail/sanity.h"
+#include "atf-c/detail/user.h"
 
 /* ---------------------------------------------------------------------
  * Free functions.

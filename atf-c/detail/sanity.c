@@ -36,7 +36,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sanity.h"
+#include "atf-c/detail/sanity.h"
 
 static
 void

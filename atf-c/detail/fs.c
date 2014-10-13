@@ -47,12 +47,11 @@
 #include <unistd.h>
 
 #include "atf-c/defs.h"
+#include "atf-c/detail/fs.h"
+#include "atf-c/detail/sanity.h"
+#include "atf-c/detail/text.h"
+#include "atf-c/detail/user.h"
 #include "atf-c/error.h"
-
-#include "fs.h"
-#include "sanity.h"
-#include "text.h"
-#include "user.h"
 
 /* ---------------------------------------------------------------------
  * Prototypes for auxiliary functions.
