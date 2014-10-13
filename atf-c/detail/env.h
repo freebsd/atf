@@ -27,8 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_ENV_H)
-#define ATF_C_ENV_H
+#if !defined(ATF_C_DETAIL_ENV_H)
+#define ATF_C_DETAIL_ENV_H
 
 #include <stdbool.h>
 
@@ -40,4 +40,4 @@ bool atf_env_has(const char *);
 atf_error_t atf_env_set(const char *, const char *);
 atf_error_t atf_env_unset(const char *);
 
-#endif /* !defined(ATF_C_ENV_H) */
+#endif /* !defined(ATF_C_DETAIL_ENV_H) */

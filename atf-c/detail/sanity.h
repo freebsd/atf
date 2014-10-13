@@ -27,8 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_SANITY_H)
-#define ATF_C_SANITY_H
+#if !defined(ATF_C_DETAIL_SANITY_H)
+#define ATF_C_DETAIL_SANITY_H
 
 void atf_sanity_inv(const char *, int, const char *);
 void atf_sanity_pre(const char *, int, const char *);
@@ -70,4 +70,4 @@ void atf_sanity_post(const char *, int, const char *);
 
 #define UNREACHABLE INV(0)
 
-#endif /* ATF_C_SANITY_H */
+#endif /* !defined(ATF_C_DETAIL_SANITY_H) */

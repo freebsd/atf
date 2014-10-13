@@ -68,4 +68,4 @@ const char *atf_libc_error_msg(const atf_error_t);
 
 atf_error_t atf_no_memory_error(void);
 
-#endif /* ATF_C_ERROR_H */
+#endif /* !defined(ATF_C_ERROR_H) */

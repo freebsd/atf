@@ -27,8 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_FS_H)
-#define ATF_C_FS_H
+#if !defined(ATF_C_DETAIL_FS_H)
+#define ATF_C_DETAIL_FS_H
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -130,4 +130,4 @@ atf_error_t atf_fs_mkstemp(atf_fs_path_t *, int *);
 atf_error_t atf_fs_rmdir(const atf_fs_path_t *);
 atf_error_t atf_fs_unlink(const atf_fs_path_t *);
 
-#endif /* !defined(ATF_C_FS_H) */
+#endif /* !defined(ATF_C_DETAIL_FS_H) */

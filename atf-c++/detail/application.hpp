@@ -27,8 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_APPLICATION_HPP_)
-#define _ATF_CXX_APPLICATION_HPP_
+#if !defined(ATF_CXX_DETAIL_APPLICATION_HPP)
+#define ATF_CXX_DETAIL_APPLICATION_HPP
 
 #include <ostream>
 #include <set>
@@ -108,4 +108,4 @@ public:
 } // namespace application
 } // namespace atf
 
-#endif // !defined(_ATF_CXX_APPLICATION_HPP_)
+#endif // !defined(ATF_CXX_DETAIL_APPLICATION_HPP)

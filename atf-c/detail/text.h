@@ -27,8 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_TEXT_H)
-#define ATF_C_TEXT_H
+#if !defined(ATF_C_DETAIL_TEXT_H)
+#define ATF_C_DETAIL_TEXT_H
 
 #include <stdarg.h>
 #include <stdbool.h>
@@ -46,4 +46,4 @@ atf_error_t atf_text_split(const char *, const char *, atf_list_t *);
 atf_error_t atf_text_to_bool(const char *, bool *);
 atf_error_t atf_text_to_long(const char *, long *);
 
-#endif /* ATF_C_TEXT_H */
+#endif /* !defined(ATF_C_DETAIL_TEXT_H) */

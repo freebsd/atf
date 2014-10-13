@@ -27,11 +27,11 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_SANITY_HPP_)
-#define _ATF_CXX_SANITY_HPP_
+#if !defined(ATF_CXX_DETAIL_SANITY_HPP)
+#define ATF_CXX_DETAIL_SANITY_HPP
 
 extern "C" {
 #include "atf-c/detail/sanity.h"
 }
 
-#endif // !defined(_ATF_CXX_SANITY_HPP_)
+#endif // !defined(ATF_CXX_DETAIL_SANITY_HPP)

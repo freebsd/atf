@@ -27,8 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_ENV_HPP_)
-#define _ATF_CXX_ENV_HPP_
+#if !defined(ATF_CXX_DETAIL_ENV_HPP)
+#define ATF_CXX_DETAIL_ENV_HPP
 
 #include <string>
 
@@ -86,4 +86,4 @@ void unset(const std::string&);
 } // namespace env
 } // namespace atf
 
-#endif // !defined(_ATF_CXX_ENV_HPP_)
+#endif // !defined(ATF_CXX_DETAIL_ENV_HPP)

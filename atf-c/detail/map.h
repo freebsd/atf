@@ -27,8 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_MAP_H)
-#define ATF_C_MAP_H
+#if !defined(ATF_C_DETAIL_MAP_H)
+#define ATF_C_DETAIL_MAP_H
 
 #include <stdarg.h>
 #include <stdbool.h>
@@ -116,4 +116,4 @@ atf_error_t atf_map_insert(atf_map_t *, const char *, void *, bool);
          !atf_equal_map_citer_map_citer((iter), atf_map_end_c(map)); \
          iter = atf_map_citer_next(iter))
 
-#endif /* ATF_C_MAP_H */
+#endif /* !defined(ATF_C_DETAIL_MAP_H) */

@@ -137,4 +137,4 @@ void atf_tc_check_errno(const char *, const size_t, const int,
 void atf_tc_require_errno(const char *, const size_t, const int,
                           const char *, const bool);
 
-#endif /* ATF_C_TC_H */
+#endif /* !defined(ATF_C_TC_H) */

@@ -27,8 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_PROCESS_HPP_)
-#define _ATF_CXX_PROCESS_HPP_
+#if !defined(ATF_CXX_DETAIL_PROCESS_HPP)
+#define ATF_CXX_DETAIL_PROCESS_HPP
 
 extern "C" {
 #include <sys/types.h>
@@ -275,4 +275,4 @@ exec(const atf::fs::path& prog, const argv_array& argv,
 } // namespace process
 } // namespace atf
 
-#endif // !defined(_ATF_CXX_PROCESS_HPP_)
+#endif // !defined(ATF_CXX_DETAIL_PROCESS_HPP)

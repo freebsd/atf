@@ -27,8 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_EXCEPTIONS_HPP_)
-#define _ATF_CXX_EXCEPTIONS_HPP_
+#if !defined(ATF_CXX_DETAIL_EXCEPTIONS_HPP)
+#define ATF_CXX_DETAIL_EXCEPTIONS_HPP
 
 #include <stdexcept>
 #include <string>
@@ -55,4 +55,4 @@ void throw_atf_error(struct atf_error *);
 
 } // namespace atf
 
-#endif // !defined(_ATF_CXX_EXCEPTIONS_HPP_)
+#endif // !defined(ATF_CXX_DETAIL_EXCEPTIONS_HPP)

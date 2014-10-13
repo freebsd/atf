@@ -70,4 +70,4 @@ atf_error_t atf_check_build_cxx_o(const char *, const char *,
                                   bool *);
 atf_error_t atf_check_exec_array(const char *const *, atf_check_result_t *);
 
-#endif /* ATF_C_CHECK_H */
+#endif /* !defined(ATF_C_CHECK_H) */

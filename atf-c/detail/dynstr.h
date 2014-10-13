@@ -27,8 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_DYNSTR_H)
-#define ATF_C_DYNSTR_H
+#if !defined(ATF_C_DETAIL_DYNSTR_H)
+#define ATF_C_DETAIL_DYNSTR_H
 
 #include <stdarg.h>
 #include <stdbool.h>
@@ -78,4 +78,4 @@ atf_error_t atf_dynstr_prepend_fmt(atf_dynstr_t *, const char *, ...);
 bool atf_equal_dynstr_cstring(const atf_dynstr_t *, const char *);
 bool atf_equal_dynstr_dynstr(const atf_dynstr_t *, const atf_dynstr_t *);
 
-#endif /* ATF_C_DYNSTR_H */
+#endif /* !defined(ATF_C_DETAIL_DYNSTR_H) */

@@ -51,4 +51,4 @@ char *atf_utils_readline(int);
 void atf_utils_redirect(const int, const char *);
 void atf_utils_wait(const pid_t, const int, const char *, const char *);
 
-#endif /* ATF_C_UTILS_H */
+#endif /* !defined(ATF_C_UTILS_H) */

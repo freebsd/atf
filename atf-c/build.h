@@ -39,4 +39,4 @@ atf_error_t atf_build_cpp(const char *, const char *, const char *const [],
 atf_error_t atf_build_cxx_o(const char *, const char *, const char *const [],
                             char ***);
 
-#endif /* ATF_C_BUILD_H */
+#endif /* !defined(ATF_C_BUILD_H) */

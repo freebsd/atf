@@ -27,8 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_TESTS_HPP_)
-#define _ATF_CXX_TESTS_HPP_
+#if !defined(ATF_CXX_TESTS_HPP)
+#define ATF_CXX_TESTS_HPP
 
 #include <map>
 #include <memory>
@@ -126,4 +126,4 @@ public:
 } // namespace tests
 } // namespace atf
 
-#endif // !defined(_ATF_CXX_TESTS_HPP_)
+#endif // !defined(ATF_CXX_TESTS_HPP)

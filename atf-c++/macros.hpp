@@ -27,8 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if !defined(_ATF_CXX_MACROS_HPP_)
-#define _ATF_CXX_MACROS_HPP_
+#if !defined(ATF_CXX_MACROS_HPP)
+#define ATF_CXX_MACROS_HPP
 
 #include <sstream>
 #include <stdexcept>
@@ -226,4 +226,4 @@
         (tcs).push_back(atfu_tcptr_ ## tcname); \
     } while (0);
 
-#endif // !defined(_ATF_CXX_MACROS_HPP_)
+#endif // !defined(ATF_CXX_MACROS_HPP)

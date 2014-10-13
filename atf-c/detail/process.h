@@ -27,8 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_PROCESS_H)
-#define ATF_C_PROCESS_H
+#if !defined(ATF_C_DETAIL_PROCESS_H)
+#define ATF_C_DETAIL_PROCESS_H
 
 #include <sys/types.h>
 
@@ -133,4 +133,4 @@ atf_error_t atf_process_exec_list(atf_process_status_t *,
                                   const atf_process_stream_t *,
                                   void (*)(void));
 
-#endif /* !defined(ATF_C_PROCESS_H) */
+#endif /* !defined(ATF_C_DETAIL_PROCESS_H) */

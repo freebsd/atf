@@ -66,4 +66,4 @@ atf_error_t atf_tp_add_tc(atf_tp_t *, struct atf_tc *);
 atf_error_t atf_tp_run(const atf_tp_t *, const char *, const char *);
 atf_error_t atf_tp_cleanup(const atf_tp_t *, const char *);
 
-#endif /* ATF_C_TP_H */
+#endif /* !defined(ATF_C_TP_H) */

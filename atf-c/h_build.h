@@ -27,10 +27,10 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if defined(TESTS_ATF_ATF_C_H_BUILD_H)
+#if defined(ATF_C_H_BUILD_H)
 #   error "Cannot include h_build.h more than once."
 #else
-#   define TESTS_ATF_ATF_C_H_BUILD_H
+#   define ATF_C_H_BUILD_H
 #endif
 
 /* ---------------------------------------------------------------------

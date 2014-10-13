@@ -27,8 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(ATF_C_LIST_H)
-#define ATF_C_LIST_H
+#if !defined(ATF_C_DETAIL_LIST_H)
+#define ATF_C_DETAIL_LIST_H
 
 #include <stdarg.h>
 #include <stdbool.h>
@@ -112,4 +112,4 @@ void atf_list_append_list(atf_list_t *, atf_list_t *);
          !atf_equal_list_citer_list_citer((iter), atf_list_end_c(list)); \
          iter = atf_list_citer_next(iter))
 
-#endif /* ATF_C_LIST_H */
+#endif /* !defined(ATF_C_DETAIL_LIST_H) */
