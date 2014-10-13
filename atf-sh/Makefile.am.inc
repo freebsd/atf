@@ -45,7 +45,7 @@ atf_sh_DATA = atf-sh/libatf-sh.subr
 atf_shdir = $(pkgdatadir)
 EXTRA_DIST += $(atf_sh_DATA)
 
-dist_man_MANS += atf-sh/atf-sh-api.3
+dist_man_MANS += atf-sh/atf-sh.3
 
 atf_aclocal_DATA += atf-sh/atf-sh.m4
 EXTRA_DIST += atf-sh/atf-sh.m4

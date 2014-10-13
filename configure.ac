@@ -77,6 +77,9 @@ fi
 
 KYUA_DEVELOPER_MODE([C,C++])
 
+dnl TODO(jmmv): Remove once the atf-*-api.3 symlinks are removed.
+AC_PROG_LN_S
+
 ATF_MODULE_APPLICATION
 ATF_MODULE_DEFS
 ATF_MODULE_ENV

@@ -64,11 +64,11 @@ documentation shipped with
 .Nm .
 .Ss Language bindings
 .Bl -tag -width atfXtestXprogramXXXXX
-.It Xr atf-c-api 3
+.It Xr atf-c 3
 C programming interface.
-.It Xr atf-c++-api 3
+.It Xr atf-c++ 3
 C++ programming interface.
-.It Xr atf-sh-api 3
+.It Xr atf-sh 3
 .Xr sh 1
 programming interface.
 .El

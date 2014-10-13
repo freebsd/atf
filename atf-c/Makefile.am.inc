@@ -69,7 +69,7 @@ atf_c_HEADERS = atf-c/build.h \
                 atf-c/utils.h
 atf_cdir = $(includedir)/atf-c
 
-dist_man_MANS += atf-c/atf-c-api.3
+dist_man_MANS += atf-c/atf-c.3
 
 atf_aclocal_DATA += atf-c/atf-common.m4 atf-c/atf-c.m4
 EXTRA_DIST += atf-c/atf-common.m4 atf-c/atf-c.m4

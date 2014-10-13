@@ -25,6 +25,10 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
   they can specify the minimum amount of disk space required for the test
   to run.
 
+* Renamed the atf-{c,c++,sh}-api(3) manual pages to atf-{c,c++,sh}(3) for
+  discoverability purposes.  Symbolic links are provided for the time
+  being to still make the old names visible.
+
 * Issue #5: Recommend the (expected, actual) idiom for calls to the test
   macros in the manual pages.
 

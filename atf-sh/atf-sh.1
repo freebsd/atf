@@ -41,7 +41,7 @@
 is an interpreter that runs the test program given in
 .Ar script
 after loading the
-.Xr atf-sh-api 3
+.Xr atf-sh 3
 library.
 .Pp
 .Nm
@@ -50,7 +50,7 @@ the system-wide shell defined by
 .Va ATF_SHELL .
 .Nm
 executes the interpreter, loads the
-.Xr atf-sh-api 3
+.Xr atf-sh 3
 library and then runs the script.
 You must consider
 .Nm atf-sh
@@ -82,7 +82,7 @@ interpreter.
 .El
 .Sh EXAMPLES
 Scripts using
-.Xr atf-sh-api 3
+.Xr atf-sh 3
 should start with:
 .Bd -literal -offset indent
 #! /usr/bin/env atf-sh
@@ -103,4 +103,4 @@ option afterwards as a
 #! /path/to/bin/atf-sh -s/bin/bash
 .Ed
 .Sh SEE ALSO
-.Xr atf-sh-api 3
+.Xr atf-sh 3

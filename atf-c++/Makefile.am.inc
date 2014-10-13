@@ -50,7 +50,7 @@ atf_c___HEADERS = atf-c++/build.hpp \
                   atf-c++/utils.hpp
 atf_c__dir = $(includedir)/atf-c++
 
-dist_man_MANS += atf-c++/atf-c++-api.3
+dist_man_MANS += atf-c++/atf-c++.3
 
 atf_aclocal_DATA += atf-c++/atf-c++.m4
 EXTRA_DIST += atf-c++/atf-c++.m4
