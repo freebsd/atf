@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/error.h"
+
 #include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -36,7 +38,6 @@
 
 #include "atf-c/defs.h"
 #include "atf-c/detail/test_helpers.h"
-#include "atf-c/error.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

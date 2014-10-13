@@ -27,13 +27,14 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/build.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <atf-c.h>
 
-#include "atf-c/build.h"
 #include "atf-c/detail/env.h"
 #include "atf-c/detail/test_helpers.h"
 #include "atf-c/h_build.h"

@@ -27,6 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/detail/process.hpp"
+
 extern "C" {
 #include <signal.h>
 
@@ -37,7 +39,6 @@ extern "C" {
 #include <iostream>
 
 #include "atf-c++/detail/exceptions.hpp"
-#include "atf-c++/detail/process.hpp"
 #include "atf-c++/detail/sanity.hpp"
 
 namespace detail = atf::process::detail;

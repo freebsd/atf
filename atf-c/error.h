@@ -30,10 +30,10 @@
 #if !defined(ATF_C_ERROR_H)
 #define ATF_C_ERROR_H
 
+#include <atf-c/error_fwd.h>
+
 #include <stdbool.h>
 #include <stddef.h>
-
-#include <atf-c/error_fwd.h>
 
 /* ---------------------------------------------------------------------
  * The "atf_error" type.

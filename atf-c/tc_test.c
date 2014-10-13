@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/tc.h"
+
 #include <stdbool.h>
 #include <string.h>
 

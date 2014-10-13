@@ -27,12 +27,13 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/detail/env.hpp"
+
 extern "C" {
 #include "atf-c/detail/env.h"
 #include "atf-c/error.h"
 }
 
-#include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/sanity.hpp"
 

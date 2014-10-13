@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/detail/sanity.h"
+
 #if defined(HAVE_CONFIG_H)
 #include "config.h"
 #endif
@@ -35,8 +37,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "atf-c/detail/sanity.h"
 
 static
 void

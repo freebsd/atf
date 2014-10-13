@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/check.h"
+
 #include <sys/wait.h>
 
 #include <errno.h>
@@ -37,7 +39,6 @@
 #include <unistd.h>
 
 #include "atf-c/build.h"
-#include "atf-c/check.h"
 #include "atf-c/defs.h"
 #include "atf-c/detail/dynstr.h"
 #include "atf-c/detail/env.h"

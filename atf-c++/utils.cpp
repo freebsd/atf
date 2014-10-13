@@ -27,14 +27,14 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/utils.hpp"
+
 extern "C" {
 #include "atf-c/utils.h"
 }
 
 #include <cstdlib>
 #include <iostream>
-
-#include "atf-c++/utils.hpp"
 
 void
 atf::utils::cat_file(const std::string& path, const std::string& prefix)

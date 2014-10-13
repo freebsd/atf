@@ -27,6 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/utils.hpp"
+
 extern "C" {
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -44,7 +46,6 @@ extern "C" {
 
 #include "atf-c++/detail/test_helpers.hpp"
 #include "atf-c++/macros.hpp"
-#include "atf-c++/utils.hpp"
 
 static std::string
 read_file(const std::string& path)

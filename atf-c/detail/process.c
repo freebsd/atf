@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/detail/process.h"
+
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -38,7 +40,6 @@
 #include <unistd.h>
 
 #include "atf-c/defs.h"
-#include "atf-c/detail/process.h"
 #include "atf-c/detail/sanity.h"
 #include "atf-c/error.h"
 

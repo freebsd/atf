@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/macros.h"
+
 #include <sys/types.h>
 #include <sys/wait.h>
 

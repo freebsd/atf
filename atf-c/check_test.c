@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/check.h"
+
 #include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
@@ -36,7 +38,6 @@
 
 #include <atf-c.h>
 
-#include "atf-c/check.h"
 #include "atf-c/detail/fs.h"
 #include "atf-c/detail/map.h"
 #include "atf-c/detail/process.h"

@@ -27,13 +27,14 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/build.hpp"
+
 extern "C" {
 #include "atf-c/build.h"
 #include "atf-c/error.h"
 #include "atf-c/utils.h"
 }
 
-#include "atf-c++/build.hpp"
 #include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/process.hpp"
 

@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/utils.h"
+
 #include <sys/stat.h>
 #include <sys/wait.h>
 
@@ -41,7 +43,6 @@
 
 #include "atf-c/detail/dynstr.h"
 #include "atf-c/detail/test_helpers.h"
-#include "atf-c/utils.h"
 
 /** Reads the contents of a file into a buffer.
  *

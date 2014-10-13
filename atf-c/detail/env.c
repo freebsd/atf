@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/detail/env.h"
+
 #if defined(HAVE_CONFIG_H)
 #include "config.h"
 #endif
@@ -34,7 +36,6 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#include "atf-c/detail/env.h"
 #include "atf-c/detail/sanity.h"
 #include "atf-c/detail/text.h"
 #include "atf-c/error.h"

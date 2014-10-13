@@ -27,6 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/tests.hpp"
+
 extern "C" {
 #include <sys/types.h>
 #include <sys/stat.h>

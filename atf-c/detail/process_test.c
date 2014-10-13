@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/detail/process.h"
+
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -43,7 +45,6 @@
 #include <atf-c.h>
 
 #include "atf-c/defs.h"
-#include "atf-c/detail/process.h"
 #include "atf-c/detail/sanity.h"
 #include "atf-c/detail/test_helpers.h"
 

@@ -27,6 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/check.hpp"
+
 #include <cstring>
 
 extern "C" {
@@ -34,7 +36,6 @@ extern "C" {
 #include "atf-c/error.h"
 }
 
-#include "atf-c++/check.hpp"
 #include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/process.hpp"
 #include "atf-c++/detail/sanity.hpp"

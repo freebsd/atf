@@ -27,6 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/check.hpp"
+
 extern "C" {
 #include <fcntl.h>
 #include <signal.h>
@@ -43,7 +45,6 @@ extern "C" {
 
 #include <atf-c++.hpp>
 
-#include "atf-c++/check.hpp"
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/process.hpp"
 #include "atf-c++/detail/test_helpers.hpp"

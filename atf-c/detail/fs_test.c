@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/detail/fs.h"
+
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -39,7 +41,6 @@
 
 #include <atf-c.h>
 
-#include "atf-c/detail/fs.h"
 #include "atf-c/detail/test_helpers.h"
 #include "atf-c/detail/user.h"
 

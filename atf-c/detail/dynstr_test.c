@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/detail/dynstr.h"
+
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -35,7 +37,6 @@
 
 #include <atf-c.h>
 
-#include "atf-c/detail/dynstr.h"
 #include "atf-c/detail/test_helpers.h"
 
 /* ---------------------------------------------------------------------

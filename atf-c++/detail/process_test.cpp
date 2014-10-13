@@ -27,10 +27,11 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/detail/process.hpp"
+
 #include <cstdlib>
 #include <cstring>
 
-#include "atf-c++/detail/process.hpp"
 #include "atf-c++/detail/test_helpers.hpp"
 #include "atf-c++/macros.hpp"
 

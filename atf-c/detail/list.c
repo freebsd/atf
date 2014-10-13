@@ -27,10 +27,11 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/detail/list.h"
+
 #include <stdlib.h>
 #include <string.h>
 
-#include "atf-c/detail/list.h"
 #include "atf-c/detail/sanity.h"
 #include "atf-c/error.h"
 #include "atf-c/utils.h"

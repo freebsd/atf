@@ -27,6 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/detail/exceptions.hpp"
+
 #if defined(HAVE_CONFIG_H)
 #include "config.h"
 #endif
@@ -40,7 +42,6 @@ extern "C" {
 #include "atf-c/error.h"
 }
 
-#include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/sanity.hpp"
 
 // ------------------------------------------------------------------------

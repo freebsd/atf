@@ -27,13 +27,14 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/error.h"
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "atf-c/detail/sanity.h"
-#include "atf-c/error.h"
 
 /* Theoretically, there can only be a single error intance at any given
  * point in time, because errors are raised at one point and must be

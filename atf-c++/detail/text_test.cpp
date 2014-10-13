@@ -27,11 +27,12 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/detail/text.hpp"
+
 #include <cstring>
 #include <set>
 #include <vector>
 
-#include "atf-c++/detail/text.hpp"
 #include "atf-c++/macros.hpp"
 
 // ------------------------------------------------------------------------

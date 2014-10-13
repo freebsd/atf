@@ -27,6 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/macros.hpp"
+
 extern "C" {
 #include <fcntl.h>
 #include <unistd.h>
@@ -42,7 +44,6 @@ extern "C" {
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/test_helpers.hpp"
 #include "atf-c++/detail/text.hpp"
-#include "atf-c++/macros.hpp"
 #include "atf-c++/utils.hpp"
 
 // ------------------------------------------------------------------------

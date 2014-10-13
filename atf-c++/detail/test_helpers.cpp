@@ -27,6 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/detail/test_helpers.hpp"
+
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -36,7 +38,6 @@
 #include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/process.hpp"
-#include "atf-c++/detail/test_helpers.hpp"
 #include "atf-c++/macros.hpp"
 
 // Path to the directory containing the libatf-c tests, used to locate the

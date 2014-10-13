@@ -27,11 +27,12 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/detail/application.hpp"
+
 extern "C" {
 #include <unistd.h>
 }
 
-#include "atf-c++/detail/application.hpp"
 #include "atf-c++/macros.hpp"
 
 class getopt_app : public atf::application::app {

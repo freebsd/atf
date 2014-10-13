@@ -27,6 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/detail/auto_array.hpp"
+
 extern "C" {
 #include <sys/types.h>
 }
@@ -37,7 +39,6 @@ extern "C" {
 #include "atf-c/defs.h"
 }
 
-#include "atf-c++/detail/auto_array.hpp"
 #include "atf-c++/macros.hpp"
 
 // ------------------------------------------------------------------------

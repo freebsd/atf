@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/detail/sanity.h"
+
 #if defined(HAVE_CONFIG_H)
 #include "config.h"
 #endif
@@ -44,7 +46,6 @@
 
 #include "atf-c/detail/dynstr.h"
 #include "atf-c/detail/process.h"
-#include "atf-c/detail/sanity.h"
 #include "atf-c/detail/test_helpers.h"
 
 /* ---------------------------------------------------------------------

@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/detail/fs.h"
+
 #if defined(HAVE_CONFIG_H)
 #include "config.h"
 #endif
@@ -47,7 +49,6 @@
 #include <unistd.h>
 
 #include "atf-c/defs.h"
-#include "atf-c/detail/fs.h"
 #include "atf-c/detail/sanity.h"
 #include "atf-c/detail/text.h"
 #include "atf-c/detail/user.h"

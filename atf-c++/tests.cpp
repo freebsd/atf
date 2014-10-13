@@ -27,6 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/tests.hpp"
+
 #if defined(HAVE_CONFIG_H)
 #include "config.h"
 #endif
@@ -66,7 +68,6 @@ extern "C" {
 #include "atf-c++/detail/fs.hpp"
 #include "atf-c++/detail/sanity.hpp"
 #include "atf-c++/detail/text.hpp"
-#include "atf-c++/tests.hpp"
 
 #if defined(HAVE_GNU_GETOPT)
 #   define GETOPT_POSIX "+"

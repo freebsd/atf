@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/tp.h"
+
 #include <string.h>
 #include <unistd.h>
 

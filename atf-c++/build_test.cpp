@@ -27,6 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/build.hpp"
+
 #include <cstring>
 #include <iostream>
 
@@ -34,7 +36,6 @@ extern "C" {
 #include "atf-c/h_build.h"
 }
 
-#include "atf-c++/build.hpp"
 #include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/process.hpp"
 #include "atf-c++/detail/test_helpers.hpp"

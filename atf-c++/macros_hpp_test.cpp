@@ -27,9 +27,9 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <stdexcept>
-
 #include <atf-c++/macros.hpp>
+
+#include <stdexcept>
 
 void
 atf_check_errno_semicolons(void)

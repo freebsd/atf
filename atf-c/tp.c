@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/tp.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,7 +39,6 @@
 #include "atf-c/detail/sanity.h"
 #include "atf-c/error.h"
 #include "atf-c/tc.h"
-#include "atf-c/tp.h"
 
 struct atf_tp_impl {
     atf_list_t m_tcs;

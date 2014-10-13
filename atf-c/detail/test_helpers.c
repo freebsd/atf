@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/detail/test_helpers.h"
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,7 +40,6 @@
 #include "atf-c/detail/env.h"
 #include "atf-c/detail/fs.h"
 #include "atf-c/detail/process.h"
-#include "atf-c/detail/test_helpers.h"
 #include "atf-c/error.h"
 #include "atf-c/macros.h"
 

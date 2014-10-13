@@ -27,6 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/detail/text.hpp"
+
 extern "C" {
 #include <regex.h>
 }
@@ -40,7 +42,6 @@ extern "C" {
 }
 
 #include "atf-c++/detail/exceptions.hpp"
-#include "atf-c++/detail/text.hpp"
 
 namespace impl = atf::text;
 #define IMPL_NAME "atf::text"

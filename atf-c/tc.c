@@ -27,6 +27,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atf-c/tc.h"
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/uio.h>
@@ -47,7 +49,6 @@
 #include "atf-c/detail/sanity.h"
 #include "atf-c/detail/text.h"
 #include "atf-c/error.h"
-#include "atf-c/tc.h"
 
 /* ---------------------------------------------------------------------
  * Auxiliary functions.

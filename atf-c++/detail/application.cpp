@@ -27,6 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/detail/application.hpp"
+
 #if defined(HAVE_CONFIG_H)
 #include "config.h"
 #endif
@@ -45,7 +47,6 @@ extern "C" {
 #include "atf-c/defs.h"
 }
 
-#include "atf-c++/detail/application.hpp"
 #include "atf-c++/detail/sanity.hpp"
 
 #if !defined(HAVE_VSNPRINTF_IN_STD)

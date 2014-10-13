@@ -27,6 +27,8 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include "atf-c++/detail/fs.hpp"
+
 extern "C" {
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -37,7 +39,6 @@ extern "C" {
 #include <cstdio>
 
 #include "atf-c++/detail/exceptions.hpp"
-#include "atf-c++/detail/fs.hpp"
 #include "atf-c++/macros.hpp"
 
 // ------------------------------------------------------------------------
