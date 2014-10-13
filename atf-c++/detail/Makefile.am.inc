@@ -75,10 +75,6 @@ tests_atf_c___detail_PROGRAMS += atf-c++/detail/process_test
 atf_c___detail_process_test_SOURCES = atf-c++/detail/process_test.cpp
 atf_c___detail_process_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
 
-tests_atf_c___detail_PROGRAMS += atf-c++/detail/sanity_test
-atf_c___detail_sanity_test_SOURCES = atf-c++/detail/sanity_test.cpp
-atf_c___detail_sanity_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
-
 tests_atf_c___detail_PROGRAMS += atf-c++/detail/text_test
 atf_c___detail_text_test_SOURCES = atf-c++/detail/text_test.cpp
 atf_c___detail_text_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
