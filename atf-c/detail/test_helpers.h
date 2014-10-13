@@ -35,9 +35,9 @@
 
 #include <stdbool.h>
 
-#include "atf-c/error_fwd.h"
-#include "atf-c/macros.h"
-#include "atf-c/tc.h"
+#include <atf-c/error_fwd.h>
+#include <atf-c/macros.h>
+#include <atf-c/tc.h>
 
 struct atf_dynstr;
 struct atf_fs_path;

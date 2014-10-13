@@ -33,16 +33,16 @@
 extern "C" {
 #include <sys/types.h>
 
-#include "atf-c/detail/process.h"
-#include "atf-c/error.h"
+#include <atf-c/detail/process.h>
+#include <atf-c/error.h>
 }
 
 #include <string>
 #include <vector>
 
-#include "atf-c++/detail/auto_array.hpp"
-#include "atf-c++/detail/exceptions.hpp"
-#include "atf-c++/detail/fs.hpp"
+#include <atf-c++/detail/auto_array.hpp>
+#include <atf-c++/detail/exceptions.hpp>
+#include <atf-c++/detail/fs.hpp>
 
 namespace atf {
 namespace process {

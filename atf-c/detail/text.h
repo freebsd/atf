@@ -33,9 +33,8 @@
 #include <stdarg.h>
 #include <stdbool.h>
 
+#include <atf-c/detail/list.h>
 #include <atf-c/error_fwd.h>
-
-#include "atf-c/detail/list.h"
 
 atf_error_t atf_text_for_each_word(const char *, const char *,
                                    atf_error_t (*)(const char *, void *),

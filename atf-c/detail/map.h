@@ -33,9 +33,8 @@
 #include <stdarg.h>
 #include <stdbool.h>
 
+#include <atf-c/detail/list.h>
 #include <atf-c/error_fwd.h>
-
-#include "atf-c/detail/list.h"
 
 /* ---------------------------------------------------------------------
  * The "atf_map_citer" type.
