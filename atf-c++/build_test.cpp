@@ -1,6 +1,3 @@
-//
-// Automated Testing Framework (atf)
-//
 // Copyright (c) 2009 The NetBSD Foundation, Inc.
 // All rights reserved.
 //
@@ -25,19 +22,20 @@
 // IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
+
+#include "atf-c++/build.hpp"
 
 #include <cstring>
 #include <iostream>
 
-#include "../atf-c/h_build.h"
+#include <atf-c++.hpp>
 
-#include "build.hpp"
-#include "macros.hpp"
+extern "C" {
+#include "atf-c/h_build.h"
+}
 
-#include "detail/env.hpp"
-#include "detail/process.hpp"
-#include "detail/test_helpers.hpp"
+#include "atf-c++/detail/env.hpp"
+#include "atf-c++/detail/process.hpp"
 
 // ------------------------------------------------------------------------
 // Auxiliary functions.
@@ -213,12 +211,6 @@ ATF_TEST_CASE_BODY(cxx_o)
 }
 
 // ------------------------------------------------------------------------
-// Tests cases for the header file.
-// ------------------------------------------------------------------------
-
-HEADER_TC(include, "atf-c++/build.hpp");
-
-// ------------------------------------------------------------------------
 // Main.
 // ------------------------------------------------------------------------
 
@@ -231,7 +223,4 @@ ATF_INIT_TEST_CASES(tcs)
     ATF_ADD_TEST_CASE(tcs, c_o);
     ATF_ADD_TEST_CASE(tcs, cpp);
     ATF_ADD_TEST_CASE(tcs, cxx_o);
-
-    // Add the test cases for the header file.
-    ATF_ADD_TEST_CASE(tcs, include);
 }

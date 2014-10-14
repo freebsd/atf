@@ -1,7 +1,4 @@
-/*
- * Automated Testing Framework (atf)
- *
- * Copyright (c) 2008 The NetBSD Foundation, Inc.
+/* Copyright (c) 2008 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,8 +21,7 @@
  * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
- * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  */
 
 #if defined(HAVE_CONFIG_H)
 #include "config.h"
@@ -38,16 +34,15 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "atf-c/detail/dynstr.h"
+#include "atf-c/detail/env.h"
+#include "atf-c/detail/fs.h"
+#include "atf-c/detail/map.h"
+#include "atf-c/detail/sanity.h"
 #include "atf-c/error.h"
 #include "atf-c/tc.h"
 #include "atf-c/tp.h"
 #include "atf-c/utils.h"
-
-#include "dynstr.h"
-#include "env.h"
-#include "fs.h"
-#include "map.h"
-#include "sanity.h"
 
 #if defined(HAVE_GNU_GETOPT)
 #   define GETOPT_POSIX "+"
