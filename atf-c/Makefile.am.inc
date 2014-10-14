@@ -47,22 +47,16 @@ libatf_c_la_CPPFLAGS = "-DATF_BUILD_CC=\"$(ATF_BUILD_CC)\"" \
                        "-DATF_BUILD_CXXFLAGS=\"$(ATF_BUILD_CXXFLAGS)\""
 libatf_c_la_LDFLAGS = -version-info 0:0:0
 
-# XXX For some reason, the nodist line above does not work as expected.
-# Work this problem around.
-dist-hook: kill-defs-h
-kill-defs-h:
-	rm -f $(distdir)/atf-c/defs.h
-
 include_HEADERS += atf-c.h
 atf_c_HEADERS = atf-c/build.h \
                 atf-c/check.h \
-                atf-c/defs.h \
                 atf-c/error.h \
                 atf-c/error_fwd.h \
                 atf-c/macros.h \
                 atf-c/tc.h \
                 atf-c/tp.h \
                 atf-c/utils.h
+nodist_atf_c_HEADERS = atf-c/defs.h
 atf_cdir = $(includedir)/atf-c
 
 dist_man_MANS += atf-c/atf-c.3
