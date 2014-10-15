@@ -37,7 +37,12 @@ fi
 ./configure
 
 if [ "${AS_ROOT:-no}" = yes ]; then
-    sudo make distcheck
+    cat >root-kyua.conf <<EOF
+syntax(2)
+unprivileged_user = 'nobody'
+EOF
+    sudo -H make distcheck DISTCHECK_CONFIGURE_FLAGS="${f}" \
+        KYUA_TEST_CONFIG_FILE="$(pwd)/root-kyua.conf"
 else
     make distcheck
 fi

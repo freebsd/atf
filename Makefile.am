@@ -68,6 +68,10 @@ EXTRA_DIST += $(doc_DATA) INSTALL README
 TESTS_ENVIRONMENT = PATH=$(prefix)/bin:$${PATH} \
                     PKG_CONFIG_PATH=$(prefix)/lib/pkgconfig
 
+# Allow the caller to override the configuration file to passed to our
+# test runs below.
+KYUA_TEST_CONFIG_FILE = none
+
 testsdir = $(exec_prefix)/tests
 pkgtestsdir = $(testsdir)/$(PACKAGE)
 
@@ -75,7 +79,8 @@ PHONY_TARGETS += installcheck-kyua
 if HAVE_KYUA
 INSTALLCHECK_TARGETS += installcheck-kyua
 installcheck-kyua:
-	cd $(pkgtestsdir) && $(TESTS_ENVIRONMENT) $(KYUA) test
+	cd $(pkgtestsdir) && $(TESTS_ENVIRONMENT) \
+	    $(KYUA) --config='$(KYUA_TEST_CONFIG_FILE)' test
 endif
 
 installcheck-local: $(INSTALLCHECK_TARGETS)
