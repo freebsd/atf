@@ -97,7 +97,7 @@ EOF
     chmod +x custom-shell
 
     echo 'main() { echo "This is the test program"; }' | create_test_program tp
-    atf_check -s eq:0 -o file:expout -e empty atf-sh -s ./custom-shell tp
+    atf_check -s eq:0 -o file:expout -e empty "${ATF_SH}" -s ./custom-shell tp
 }
 
 atf_test_case custom_shell__shebang
@@ -144,7 +144,7 @@ atf_init_test_cases() {
 }
 EOF
     atf_check -s eq:0 -o match:skipped.*reached \
-        atf-sh -s ./custom-shell tp helper
+        "${ATF_SH}" -s ./custom-shell tp helper
 }
 
 atf_init_test_cases()
