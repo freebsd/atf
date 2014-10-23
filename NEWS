@@ -4,7 +4,7 @@ Major changes between releases                  Automated Testing Framework
 Changes in version 0.21
 ***********************
 
-STILL UNDER DEVELOPMENT; NOT RELEASED YET.
+Released on October 23rd, 2014.
 
 * Restored the atf(7) manual page to serve as a reference to all the other
   manual pages shipped by ATF.
@@ -40,17 +40,17 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 * Issue #8: Fixed atf-c/macros_test:use test failures spotted by the clang
   that ships with FreeBSD 11.0-CURRENT.
 
-* Issue #12: Improved documentation of atf-sh-api(3) and atf-check(1) by
-  better explaining how they relate to each other.
+* Issue #12: Improved documentation of atf-sh(3) and atf-check(1) by better
+  explaining how they relate to each other.
 
-* Issue #14: Stop setting 'set -e' in atf-sh.  This setting was initially
-  added as a way to enable a "strict" mode in the library and to make test
-  cases fail fast when they run unprotected commands.  However, doing so
-  in the library is surprising as the responsibility of enabling 'set -e'
-  should be on the user's code.  Also, 'set -e' introduces inconsistent
-  behavior on subshells and users do not expect that.
+* Issue #14: Stopped setting 'set -e' in atf-sh.  This setting was
+  initially added as a way to enable a "strict" mode in the library and to
+  make test cases fail fast when they run unprotected commands.  However,
+  doing so in the library is surprising as the responsibility of enabling
+  'set -e' should be on the user's code.  Also, 'set -e' introduces
+  inconsistent behavior on subshells and users do not expect that.
 
-* Issue #15: Fix atf_utils_{fork,wait} to support nested calls.
+* Issue #15: Fixed atf_utils_{fork,wait} to support nested calls.
 
 * Issue #16: Fixed test failures (by removing a long-standing hack) on
   systems that lack \e support in printf(1).

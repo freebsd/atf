@@ -45,7 +45,7 @@ libatf_c_la_CPPFLAGS = "-DATF_BUILD_CC=\"$(ATF_BUILD_CC)\"" \
                        "-DATF_BUILD_CPPFLAGS=\"$(ATF_BUILD_CPPFLAGS)\"" \
                        "-DATF_BUILD_CXX=\"$(ATF_BUILD_CXX)\"" \
                        "-DATF_BUILD_CXXFLAGS=\"$(ATF_BUILD_CXXFLAGS)\""
-libatf_c_la_LDFLAGS = -version-info 0:0:0
+libatf_c_la_LDFLAGS = -version-info 1:0:0
 
 include_HEADERS += atf-c.h
 atf_c_HEADERS = atf-c/build.h \
