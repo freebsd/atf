@@ -111,7 +111,8 @@
             std::ostringstream atfu_ss; \
             atfu_ss << "Line " << __LINE__ << ": " \
                     << #expected << " != " << #actual \
-                    << " (" << (expected) << " != " << (actual) << ")"; \
+                    << " (" << (expected) << " != " << \
+                    static_cast<__typeof(expected)>(actual) << ")"; \
             atf::tests::tc::fail(atfu_ss.str()); \
         } \
     } while (false)
