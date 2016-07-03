@@ -39,7 +39,6 @@ INSTALLCHECK_TARGETS =
 PHONY_TARGETS =
 
 ACLOCAL_AMFLAGS = -I m4
-AM_DISTCHECK_CONFIGURE_FLAGS = --enable-tools
 
 include admin/Makefile.am.inc
 include atf-c/Makefile.am.inc
