@@ -34,17 +34,29 @@ if [ -d /usr/local/share/aclocal ]; then
 else
     autoreconf -isv
 fi
-./configure
+
+ret=0
+./configure || ret=${?}
+if [ ${ret} -ne 0 ]; then
+    cat config.log || true
+    exit ${ret}
+fi
 
 if [ "${AS_ROOT:-no}" = yes ]; then
     cat >root-kyua.conf <<EOF
 syntax(2)
 unprivileged_user = 'nobody'
 EOF
+    ret=0
     sudo -H make distcheck DISTCHECK_CONFIGURE_FLAGS="${f}" \
-        KYUA_TEST_CONFIG_FILE="$(pwd)/root-kyua.conf"
+        KYUA_TEST_CONFIG_FILE="$(pwd)/root-kyua.conf" || ret=${?}
 else
-    make distcheck
+    ret=0
+    make distcheck || ret=${?}
+fi
+if [ ${ret} -ne 0 ]; then
+    cat atf-*/_build/config.log || true
+    exit ${ret}
 fi
 
 # vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
