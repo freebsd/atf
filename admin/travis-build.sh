@@ -48,7 +48,7 @@ syntax(2)
 unprivileged_user = 'nobody'
 EOF
     ret=0
-    sudo -H make distcheck DISTCHECK_CONFIGURE_FLAGS="${f}" \
+    sudo -H PATH="${PATH}" make distcheck DISTCHECK_CONFIGURE_FLAGS="${f}" \
         KYUA_TEST_CONFIG_FILE="$(pwd)/root-kyua.conf" || ret=${?}
 else
     ret=0
