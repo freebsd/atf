@@ -42,6 +42,16 @@ if [ ${ret} -ne 0 ]; then
     exit ${ret}
 fi
 
+archflags=
+[ "${ARCH?}" != i386 ] || archflags=-m32
+
+f=
+f="${f} ATF_BUILD_CC='${CC} ${archflags}'"
+f="${f} ATF_BUILD_CXX='${CXX} ${archflags}'"
+f="${f} CFLAGS='${archflags}'"
+f="${f} CXXFLAGS='${archflags}'"
+f="${f} LDFLAGS='${archflags}'"
+
 if [ "${AS_ROOT:-no}" = yes ]; then
     cat >root-kyua.conf <<EOF
 syntax(2)
@@ -52,7 +62,7 @@ EOF
         KYUA_TEST_CONFIG_FILE="$(pwd)/root-kyua.conf" || ret=${?}
 else
     ret=0
-    make distcheck || ret=${?}
+    make distcheck DISTCHECK_CONFIGURE_FLAGS="${f}" || ret=${?}
 fi
 if [ ${ret} -ne 0 ]; then
     cat atf-*/_build/config.log || true

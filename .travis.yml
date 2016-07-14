@@ -8,8 +8,14 @@ before_install:
     - ./admin/travis-install-deps.sh
 
 env:
-    - AS_ROOT=no
-    - AS_ROOT=yes
+    - ARCH=amd64 AS_ROOT=no
+    - ARCH=amd64 AS_ROOT=yes
+    - ARCH=i386 AS_ROOT=no
+
+matrix:
+    exclude:
+        - compiler: clang
+          env: ARCH=i386 AS_ROOT=no
 
 script:
     - ./admin/travis-build.sh
