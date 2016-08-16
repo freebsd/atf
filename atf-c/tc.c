@@ -33,6 +33,7 @@
 #include <fcntl.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -162,7 +163,7 @@ write_resfile(const int fd, const char *result, const int arg,
 
     INV(arg == -1 || reason != NULL);
 
-#define UNCONST(a) ((void *)(unsigned long)(const void *)(a))
+#define UNCONST(a) ((void *)(uintptr_t)(const void *)(a))
     iov[count].iov_base = UNCONST(result);
     iov[count++].iov_len = strlen(result);
 
