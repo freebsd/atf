@@ -63,6 +63,7 @@ enum expect_type {
 struct context {
     const atf_tc_t *tc;
     const char *resfile;
+    int resfilefd;
     size_t fail_count;
 
     enum expect_type expect;
@@ -79,7 +80,7 @@ static void report_fatal_error(const char *, ...)
     ATF_DEFS_ATTRIBUTE_NORETURN;
 static atf_error_t write_resfile(const int, const char *, const int,
                                  const atf_dynstr_t *);
-static void create_resfile(const char *, const char *, const int,
+static void create_resfile(struct context *, const char *, const int,
                            atf_dynstr_t *);
 static void error_in_expect(struct context *, const char *, ...)
     ATF_DEFS_ATTRIBUTE_NORETURN;
@@ -106,8 +107,20 @@ static atf_error_t check_prog(struct context *, const char *);
 static void
 context_init(struct context *ctx, const atf_tc_t *tc, const char *resfile)
 {
+    atf_error_t err;
+
     ctx->tc = tc;
     ctx->resfile = resfile;
+    if (strcmp(resfile, "/dev/stdout") != 0 &&
+        strcmp(resfile, "/dev/stderr") != 0) {
+        ctx->resfilefd = open(resfile, O_WRONLY | O_CREAT | O_TRUNC,
+            S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        if (ctx->resfilefd == -1) {
+                err = atf_libc_error(errno,
+                    "Cannot create results file '%s'", resfile);
+                check_fatal_error(err);
+        }
+    }
     ctx->fail_count = 0;
     ctx->expect = EXPECT_PASS;
     check_fatal_error(atf_dynstr_init(&ctx->expect_reason));
@@ -203,25 +216,19 @@ write_resfile(const int fd, const char *result, const int arg,
  * not return any error code.
  */
 static void
-create_resfile(const char *resfile, const char *result, const int arg,
+create_resfile(struct context *ctx, const char *result, const int arg,
                atf_dynstr_t *reason)
 {
     atf_error_t err;
 
-    if (strcmp("/dev/stdout", resfile) == 0) {
+    if (strcmp("/dev/stdout", ctx->resfile) == 0) {
         err = write_resfile(STDOUT_FILENO, result, arg, reason);
-    } else if (strcmp("/dev/stderr", resfile) == 0) {
+    } else if (strcmp("/dev/stderr", ctx->resfile) == 0) {
         err = write_resfile(STDERR_FILENO, result, arg, reason);
     } else {
-        const int fd = open(resfile, O_WRONLY | O_CREAT | O_TRUNC,
-            S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-        if (fd == -1) {
-            err = atf_libc_error(errno, "Cannot create results file '%s'",
-                                 resfile);
-        } else {
-            err = write_resfile(fd, result, arg, reason);
-            close(fd);
-        }
+        err = write_resfile(ctx->resfilefd, result, arg, reason);
+        close(ctx->resfilefd);
+        ctx->resfilefd = -1;
     }
 
     if (reason != NULL)
@@ -281,7 +288,7 @@ expected_failure(struct context *ctx, atf_dynstr_t *reason)
 {
     check_fatal_error(atf_dynstr_prepend_fmt(reason, "%s: ",
         atf_dynstr_cstring(&ctx->expect_reason)));
-    create_resfile(ctx->resfile, "expected_failure", -1, reason);
+    create_resfile(ctx, "expected_failure", -1, reason);
     exit(EXIT_SUCCESS);
 }
 
@@ -291,7 +298,7 @@ fail_requirement(struct context *ctx, atf_dynstr_t *reason)
     if (ctx->expect == EXPECT_FAIL) {
         expected_failure(ctx, reason);
     } else if (ctx->expect == EXPECT_PASS) {
-        create_resfile(ctx->resfile, "failed", -1, reason);
+        create_resfile(ctx, "failed", -1, reason);
         exit(EXIT_FAILURE);
     } else {
         error_in_expect(ctx, "Test case raised a failure but was not "
@@ -326,7 +333,7 @@ pass(struct context *ctx)
         error_in_expect(ctx, "Test case was expecting a failure but got "
             "a pass instead");
     } else if (ctx->expect == EXPECT_PASS) {
-        create_resfile(ctx->resfile, "passed", -1, NULL);
+        create_resfile(ctx, "passed", -1, NULL);
         exit(EXIT_SUCCESS);
     } else {
         error_in_expect(ctx, "Test case asked to explicitly pass but was "
@@ -339,7 +346,7 @@ static void
 skip(struct context *ctx, atf_dynstr_t *reason)
 {
     if (ctx->expect == EXPECT_PASS) {
-        create_resfile(ctx->resfile, "skipped", -1, reason);
+        create_resfile(ctx, "skipped", -1, reason);
         exit(EXIT_SUCCESS);
     } else {
         error_in_expect(ctx, "Can only skip a test case when running in "
@@ -943,7 +950,7 @@ _atf_tc_expect_exit(struct context *ctx, const int exitcode, const char *reason,
     check_fatal_error(atf_dynstr_init_ap(&formatted, reason, ap2));
     va_end(ap2);
 
-    create_resfile(ctx->resfile, "expected_exit", exitcode, &formatted);
+    create_resfile(ctx, "expected_exit", exitcode, &formatted);
 }
 
 static void
@@ -960,7 +967,7 @@ _atf_tc_expect_signal(struct context *ctx, const int signo, const char *reason,
     check_fatal_error(atf_dynstr_init_ap(&formatted, reason, ap2));
     va_end(ap2);
 
-    create_resfile(ctx->resfile, "expected_signal", signo, &formatted);
+    create_resfile(ctx, "expected_signal", signo, &formatted);
 }
 
 static void
@@ -976,7 +983,7 @@ _atf_tc_expect_death(struct context *ctx, const char *reason, va_list ap)
     check_fatal_error(atf_dynstr_init_ap(&formatted, reason, ap2));
     va_end(ap2);
 
-    create_resfile(ctx->resfile, "expected_death", -1, &formatted);
+    create_resfile(ctx, "expected_death", -1, &formatted);
 }
 
 static void
@@ -992,7 +999,7 @@ _atf_tc_expect_timeout(struct context *ctx, const char *reason, va_list ap)
     check_fatal_error(atf_dynstr_init_ap(&formatted, reason, ap2));
     va_end(ap2);
 
-    create_resfile(ctx->resfile, "expected_timeout", -1, &formatted);
+    create_resfile(ctx, "expected_timeout", -1, &formatted);
 }
 
 /* ---------------------------------------------------------------------
