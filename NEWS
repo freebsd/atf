@@ -13,6 +13,9 @@ DON'T FORGET TO BUMP THE -version-info PRE-RELEASE IF NECESSARY!
 * Issue #31: Added require.progs metadata properties to the tests that
   need a compiler to run.
 
+* Added the atf_check_not_equal function to atf-sh to check for
+  unequal values.
+
 
 Changes in version 0.21
 ***********************
