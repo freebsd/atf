@@ -10,6 +10,9 @@ DON'T FORGET TO BUMP THE -version-info PRE-RELEASE IF NECESSARY!
 * Issue #23: Fix double-free triggered by atf_map_insert in low memory
   scenarios, caused by an overlook in the atf_list code.
 
+* Added the atf_check_not_equal function to atf-sh to check for
+  unequal values.
+
 
 Changes in version 0.21
 ***********************

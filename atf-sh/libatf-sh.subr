@@ -100,6 +100,14 @@ atf_check_equal()
         atf_fail "${1} != ${2} (${_val1} != ${_val2})"
 }
 
+atf_check_not_equal()
+{
+    eval _val1=\"${1}\"
+    eval _val2=\"${2}\"
+    test "${_val1}" != "${_val2}" || \
+        atf_fail "${1} == ${2} (${_val1} == ${_val2})"
+}
+
 #
 # atf_config_get varname [defvalue]
 #
