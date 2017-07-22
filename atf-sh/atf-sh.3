@@ -133,7 +133,7 @@ tc2_cleanup() {
     ... second test case's cleanup ...
 }
 
-.Ns ... additional test cases ...
+\&... additional test cases ...
 
 atf_init_test_cases() {
     atf_add_test_case tc1
@@ -148,7 +148,7 @@ described in
 .Xr atf-test-case 4 .
 To define test cases, one can use the
 .Nm atf_test_case
-function, which takes a first parameter specifiying the test case's
+function, which takes a first parameter specifying the test case's
 name and instructs the library to set things up to accept it as a valid
 test case.
 The second parameter is optional and, if provided, must be
@@ -343,7 +343,7 @@ atf_init_test_cases() {
 This other example shows how to include a file with extra helper functions
 in the test program:
 .Bd -literal -offset indent
-.Ns ... definition of test cases ...
+\&... definition of test cases ...
 
 atf_init_test_cases() {
     . $(atf_get_srcdir)/helper_functions.sh
