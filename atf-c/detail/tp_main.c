@@ -248,7 +248,7 @@ static
 void
 list_tcs(const atf_tp_t *tp)
 {
-    const atf_tc_t *const *tcs;
+    const atf_tc_t **tcs;
     const atf_tc_t *const *tcsptr;
 
     printf("Content-Type: application/X-atf-tp; version=\"1\"\n\n");
