@@ -31,6 +31,8 @@ wherever available:
 
 * NetBSD with pkgsrc: install the `pkgsrc/devel/atf` package.
 
+* OpenBSD: install the `devel/atf` package with `pkg_add atf`.
+
 Should you want to build and install ATF from the source tree provided
 here, follow the instructions in the [INSTALL file](INSTALL).
 
