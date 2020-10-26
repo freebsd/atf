@@ -106,6 +106,9 @@ static void errno_test(struct context *, const char *, const size_t,
 static atf_error_t check_prog_in_dir(const char *, void *);
 static atf_error_t check_prog(struct context *, const char *);
 
+/* No prototype in header for this one, it's a little sketchy (internal). */
+void atf_tc_set_resultsfile(const char *);
+
 static void
 context_init(struct context *ctx, const atf_tc_t *tc, const char *resfile)
 {
@@ -1022,6 +1025,13 @@ _atf_tc_expect_timeout(struct context *ctx, const char *reason, va_list ap)
     create_resfile(ctx, "expected_timeout", -1, &formatted);
 }
 
+static void
+_atf_tc_set_resultsfile(struct context *ctx, const char *file)
+{
+
+    context_set_resfile(ctx, file);
+}
+
 /* ---------------------------------------------------------------------
  * Free functions.
  * --------------------------------------------------------------------- */
@@ -1242,4 +1252,14 @@ atf_tc_expect_timeout(const char *reason, ...)
     va_start(ap, reason);
     _atf_tc_expect_timeout(&Current, reason, ap);
     va_end(ap);
+}
+
+/* Internal! */
+void
+atf_tc_set_resultsfile(const char *file)
+{
+
+    PRE(Current.tc != NULL);
+
+    _atf_tc_set_resultsfile(&Current, file);
 }
