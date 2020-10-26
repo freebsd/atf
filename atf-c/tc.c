@@ -75,6 +75,7 @@ struct context {
 };
 
 static void context_init(struct context *, const atf_tc_t *, const char *);
+static void context_set_resfile(struct context *, const char *);
 static void context_close_resfile(struct context *);
 static void check_fatal_error(atf_error_t);
 static void report_fatal_error(const char *, ...)
@@ -108,9 +109,25 @@ static atf_error_t check_prog(struct context *, const char *);
 static void
 context_init(struct context *ctx, const atf_tc_t *tc, const char *resfile)
 {
-    atf_error_t err;
 
     ctx->tc = tc;
+    ctx->resfilefd = -1;
+    context_set_resfile(ctx, resfile);
+    ctx->fail_count = 0;
+    ctx->expect = EXPECT_PASS;
+    check_fatal_error(atf_dynstr_init(&ctx->expect_reason));
+    ctx->expect_previous_fail_count = 0;
+    ctx->expect_fail_count = 0;
+    ctx->expect_exitcode = 0;
+    ctx->expect_signo = 0;
+}
+
+static void
+context_set_resfile(struct context *ctx, const char *resfile)
+{
+    atf_error_t err;
+
+    context_close_resfile(ctx);
     ctx->resfile = resfile;
     if (strcmp(resfile, "/dev/stdout") == 0)
         ctx->resfilefd = STDOUT_FILENO;
@@ -124,13 +141,8 @@ context_init(struct context *ctx, const atf_tc_t *tc, const char *resfile)
                 "Cannot create results file '%s'", resfile);
             check_fatal_error(err);
     }
-    ctx->fail_count = 0;
-    ctx->expect = EXPECT_PASS;
-    check_fatal_error(atf_dynstr_init(&ctx->expect_reason));
-    ctx->expect_previous_fail_count = 0;
-    ctx->expect_fail_count = 0;
-    ctx->expect_exitcode = 0;
-    ctx->expect_signo = 0;
+
+    ctx->resfile = resfile;
 }
 
 static void
