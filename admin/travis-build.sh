@@ -65,6 +65,7 @@ else
     make distcheck DISTCHECK_CONFIGURE_FLAGS="${f}" || ret=${?}
 fi
 if [ ${ret} -ne 0 ]; then
+    find .
     cat atf-*/_build/config.log || true
     exit ${ret}
 fi
