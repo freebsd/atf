@@ -252,7 +252,6 @@ create_resfile(struct context *ctx, const char *result, const int arg,
     atf_error_t err;
 
     err = write_resfile(ctx->resfilefd, result, arg, reason);
-    context_close_resfile(ctx);
 
     if (reason != NULL)
         atf_dynstr_fini(reason);
@@ -312,6 +311,7 @@ expected_failure(struct context *ctx, atf_dynstr_t *reason)
     check_fatal_error(atf_dynstr_prepend_fmt(reason, "%s: ",
         atf_dynstr_cstring(&ctx->expect_reason)));
     create_resfile(ctx, "expected_failure", -1, reason);
+    context_close_resfile(ctx);
     exit(EXIT_SUCCESS);
 }
 
@@ -322,6 +322,7 @@ fail_requirement(struct context *ctx, atf_dynstr_t *reason)
         expected_failure(ctx, reason);
     } else if (ctx->expect == EXPECT_PASS) {
         create_resfile(ctx, "failed", -1, reason);
+        context_close_resfile(ctx);
         exit(EXIT_FAILURE);
     } else {
         error_in_expect(ctx, "Test case raised a failure but was not "
@@ -357,6 +358,7 @@ pass(struct context *ctx)
             "a pass instead");
     } else if (ctx->expect == EXPECT_PASS) {
         create_resfile(ctx, "passed", -1, NULL);
+        context_close_resfile(ctx);
         exit(EXIT_SUCCESS);
     } else {
         error_in_expect(ctx, "Test case asked to explicitly pass but was "
@@ -370,6 +372,7 @@ skip(struct context *ctx, atf_dynstr_t *reason)
 {
     if (ctx->expect == EXPECT_PASS) {
         create_resfile(ctx, "skipped", -1, reason);
+        context_close_resfile(ctx);
         exit(EXIT_SUCCESS);
     } else {
         error_in_expect(ctx, "Can only skip a test case when running in "
