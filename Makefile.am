@@ -82,6 +82,7 @@ installcheck-kyua:
 	    cd $(pkgtestsdir) && $(TESTS_ENVIRONMENT) \
 		    $(KYUA) --config='$(KYUA_TEST_CONFIG_FILE)' \
 		    report-junit --output="$$JUNIT_OUTPUT"; \
+		    sed -i '' 's/encoding="iso-8859-1"/econding="utf-8"/' "$$JUNIT_OUTPUT"; \
 	fi; \
 	cd $(pkgtestsdir) && $(TESTS_ENVIRONMENT) \
 		$(KYUA) --config='$(KYUA_TEST_CONFIG_FILE)' report --verbose; \
