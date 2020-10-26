@@ -251,6 +251,17 @@ create_resfile(struct context *ctx, const char *result, const int arg,
 {
     atf_error_t err;
 
+    /*
+     * We'll attempt to truncate the results file, but only if it's not pointed
+     * at stdout/stderr.  We could just blindly ftruncate() here, but it may
+     * be that stdout/stderr have been redirected to a file that we want to
+     * validate expectations on, for example.  Kyua will want the truncation,
+     * but it will also redirect the results directly to some file and we'll
+     * have no issue here.
+     */
+    if (ctx->resfilefd != STDOUT_FILENO && ctx->resfilefd != STDERR_FILENO &&
+        ftruncate(ctx->resfilefd, 0) != -1)
+        lseek(ctx->resfilefd, 0, SEEK_SET);
     err = write_resfile(ctx->resfilefd, result, arg, reason);
 
     if (reason != NULL)
