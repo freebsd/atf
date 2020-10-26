@@ -46,11 +46,17 @@ archflags=
 [ "${ARCH?}" != i386 ] || archflags=-m32
 
 f=
-f="${f} ATF_BUILD_CC='${CC} ${archflags}'"
-f="${f} ATF_BUILD_CXX='${CXX} ${archflags}'"
-f="${f} CFLAGS='${archflags}'"
-f="${f} CXXFLAGS='${archflags}'"
-f="${f} LDFLAGS='${archflags}'"
+
+if [ -n "${archflags}" ]; then
+    CC=${CC-"cc"}
+    CXX=${CXX-"c++"}
+
+    f="${f} ATF_BUILD_CC='${CC} ${archflags}'"
+    f="${f} ATF_BUILD_CXX='${CXX} ${archflags}'"
+    f="${f} CFLAGS='${archflags}'"
+    f="${f} CXXFLAGS='${archflags}'"
+    f="${f} LDFLAGS='${archflags}'"
+fi
 
 if [ "${AS_ROOT:-no}" = yes ]; then
     cat >root-kyua.conf <<EOF
