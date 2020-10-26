@@ -75,6 +75,7 @@ struct context {
 };
 
 static void context_init(struct context *, const atf_tc_t *, const char *);
+static void context_close_resfile(struct context *);
 static void check_fatal_error(atf_error_t);
 static void report_fatal_error(const char *, ...)
     ATF_DEFS_ATTRIBUTE_NORETURN;
@@ -128,6 +129,18 @@ context_init(struct context *ctx, const atf_tc_t *tc, const char *resfile)
     ctx->expect_fail_count = 0;
     ctx->expect_exitcode = 0;
     ctx->expect_signo = 0;
+}
+
+static void
+context_close_resfile(struct context *ctx)
+{
+
+    if (ctx->resfilefd == -1)
+        return;
+    if (ctx->resfilefd != STDOUT_FILENO && ctx->resfilefd != STDERR_FILENO)
+        close(ctx->resfilefd);
+    ctx->resfilefd = -1;
+    ctx->resfile = NULL;
 }
 
 static void
@@ -227,9 +240,8 @@ create_resfile(struct context *ctx, const char *result, const int arg,
         err = write_resfile(STDERR_FILENO, result, arg, reason);
     } else {
         err = write_resfile(ctx->resfilefd, result, arg, reason);
-        close(ctx->resfilefd);
-        ctx->resfilefd = -1;
     }
+    context_close_resfile(ctx);
 
     if (reason != NULL)
         atf_dynstr_fini(reason);
