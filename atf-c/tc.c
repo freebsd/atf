@@ -112,15 +112,17 @@ context_init(struct context *ctx, const atf_tc_t *tc, const char *resfile)
 
     ctx->tc = tc;
     ctx->resfile = resfile;
-    if (strcmp(resfile, "/dev/stdout") != 0 &&
-        strcmp(resfile, "/dev/stderr") != 0) {
+    if (strcmp(resfile, "/dev/stdout") == 0)
+        ctx->resfilefd = STDOUT_FILENO;
+    else if (strcmp(resfile, "/dev/stderr") == 0)
+        ctx->resfilefd = STDERR_FILENO;
+    else
         ctx->resfilefd = open(resfile, O_WRONLY | O_CREAT | O_TRUNC,
             S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-        if (ctx->resfilefd == -1) {
-                err = atf_libc_error(errno,
-                    "Cannot create results file '%s'", resfile);
-                check_fatal_error(err);
-        }
+    if (ctx->resfilefd == -1) {
+            err = atf_libc_error(errno,
+                "Cannot create results file '%s'", resfile);
+            check_fatal_error(err);
     }
     ctx->fail_count = 0;
     ctx->expect = EXPECT_PASS;
@@ -234,13 +236,7 @@ create_resfile(struct context *ctx, const char *result, const int arg,
 {
     atf_error_t err;
 
-    if (strcmp("/dev/stdout", ctx->resfile) == 0) {
-        err = write_resfile(STDOUT_FILENO, result, arg, reason);
-    } else if (strcmp("/dev/stderr", ctx->resfile) == 0) {
-        err = write_resfile(STDERR_FILENO, result, arg, reason);
-    } else {
-        err = write_resfile(ctx->resfilefd, result, arg, reason);
-    }
+    err = write_resfile(ctx->resfilefd, result, arg, reason);
     context_close_resfile(ctx);
 
     if (reason != NULL)
