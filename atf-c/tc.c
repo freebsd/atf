@@ -137,7 +137,7 @@ context_set_resfile(struct context *ctx, const char *resfile)
     else if (strcmp(resfile, "/dev/stderr") == 0)
         ctx->resfilefd = STDERR_FILENO;
     else
-        ctx->resfilefd = open(resfile, O_WRONLY | O_CREAT | O_TRUNC,
+        ctx->resfilefd = open(resfile, O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC,
             S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (ctx->resfilefd == -1) {
             err = atf_libc_error(errno,

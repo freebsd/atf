@@ -347,7 +347,7 @@ child_connect(const stream_prepare_t *sp, int procfd)
         err = safe_dup(sp->m_sb->m_fd, procfd);
     } else if (type == atf_process_stream_type_redirect_path) {
         int aux = open(atf_fs_path_cstring(sp->m_sb->m_path),
-                       O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                       O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
         if (aux == -1)
             err = atf_libc_error(errno, "Could not create %s",
                                  atf_fs_path_cstring(sp->m_sb->m_path));
