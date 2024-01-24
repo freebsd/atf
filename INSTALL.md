@@ -1,5 +1,4 @@
-Installation instructions
-===========================================================================
+# Installation instructions
 
 ATF uses the GNU Automake, GNU Autoconf and GNU Libtool utilities as its
 build system.  These are used only when compiling the application from the
@@ -23,8 +22,7 @@ Or alternatively, install as a regular user into your home directory:
     $ make installcheck
 
 
-Dependencies
-------------
+## Dependencies
 
 To build and use ATF successfully you need:
 
@@ -39,8 +37,7 @@ If you are building ATF from the code on the repository, you will also need
 to have GNU autoconf, automake and libtool installed.
 
 
-Regenerating the build system
------------------------------
+## Regenerating the build system
 
 If you are building ATF from code extracted from the repository, you must
 first regenerate the files used by the build system.  You will also need to
@@ -52,8 +49,7 @@ system files.  To do this, simply run:
 For release builds, no extra steps are needed.
 
 
-General build procedure
------------------------
+## General build procedure
 
 To build and install the source package, you must follow these steps:
 
@@ -78,8 +74,7 @@ To build and install the source package, you must follow these steps:
    be run otherwise.
 
 
-Configuration flags
--------------------
+## Configuration flags
 
 The most common, standard flags given to `configure` are:
 
