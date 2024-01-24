@@ -1,11 +1,11 @@
-Major changes between releases                  Automated Testing Framework
+Major changes between releases
 ===========================================================================
 
 Changes in version 0.22
 ***********************
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
-DON'T FORGET TO BUMP THE -version-info PRE-RELEASE IF NECESSARY!
+DON'T FORGET TO BUMP THE `-version-info PRE-RELEASE` IF NECESSARY!
 
 * Issue #23: Fix double-free triggered by atf_map_insert in low memory
   scenarios, caused by an overlook in the atf_list code.
