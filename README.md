@@ -49,6 +49,18 @@ here, follow the instructions in the [INSTALL file](INSTALL.md).
 
 * NEWS.md: List of major changes between formal, published releases.
 
+## Other documents
+
+* `AUTHORS`: List of authors and contributors for this project.
+
+* `COPYING`: License information.
+
+* `INSTALL.md`: Compilation and installation instructions.  These is not the
+  standard document shipped with many packages, so be sure to read it for
+  things that are specific to ATF's build.
+
+* `NEWS.md`: List of major changes between formal, published releases.
+
 ## Support
 
 Please use the
