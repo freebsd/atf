@@ -41,6 +41,9 @@
 
 #include "atf-c/detail/dynstr.h"
 
+/* No prototype in header for this one, it's a little sketchy (internal). */
+void atf_tc_set_resultsfile(const char *);
+
 /** Allocate a filename to be used by atf_utils_{fork,wait}.
  *
  * In case of a failure, marks the calling test as failed when in_parent is
@@ -101,7 +104,7 @@ grep_string(const char *regex, const char *str)
 void
 atf_utils_cat_file(const char *name, const char *prefix)
 {
-    const int fd = open(name, O_RDONLY);
+    const int fd = open(name, O_RDONLY | O_CLOEXEC);
     ATF_REQUIRE_MSG(fd != -1, "Cannot open %s", name);
 
     char buffer[1024];
@@ -142,7 +145,7 @@ atf_utils_cat_file(const char *name, const char *prefix)
 bool
 atf_utils_compare_file(const char *name, const char *contents)
 {
-    const int fd = open(name, O_RDONLY);
+    const int fd = open(name, O_RDONLY | O_CLOEXEC);
     ATF_REQUIRE_MSG(fd != -1, "Cannot open %s", name);
 
     const char *pos = contents;
@@ -170,11 +173,12 @@ atf_utils_compare_file(const char *name, const char *contents)
 void
 atf_utils_copy_file(const char *source, const char *destination)
 {
-    const int input = open(source, O_RDONLY);
+    const int input = open(source, O_RDONLY | O_CLOEXEC);
     ATF_REQUIRE_MSG(input != -1, "Failed to open source file during "
                     "copy (%s)", source);
 
-    const int output = open(destination, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+    const int output = open(destination,
+        O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0777);
     ATF_REQUIRE_MSG(output != -1, "Failed to open destination file during "
                     "copy (%s)", destination);
 
@@ -213,7 +217,7 @@ atf_utils_create_file(const char *name, const char *contents, ...)
     va_end(ap);
     ATF_REQUIRE(!atf_is_error(error));
 
-    const int fd = open(name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    const int fd = open(name, O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
     ATF_REQUIRE_MSG(fd != -1, "Cannot create file %s", name);
     ATF_REQUIRE(write(fd, atf_dynstr_cstring(&formatted),
                       atf_dynstr_length(&formatted)) != -1);
@@ -271,6 +275,13 @@ atf_utils_fork(void)
     return pid;
 }
 
+void
+atf_utils_reset_resultsfile(void)
+{
+
+    atf_tc_set_resultsfile("/dev/null");
+}
+
 /** Frees an dynamically-allocated "argv" array.
  *
  * \param argv A dynamically-allocated array of dynamically-allocated
@@ -306,7 +317,7 @@ atf_utils_grep_file(const char *regex, const char *file, ...)
     va_end(ap);
     ATF_REQUIRE(!atf_is_error(error));
 
-    ATF_REQUIRE((fd = open(file, O_RDONLY)) != -1);
+    ATF_REQUIRE((fd = open(file, O_RDONLY | O_CLOEXEC)) != -1);
     bool found = false;
     char *line = NULL;
     while (!found && (line = atf_utils_readline(fd)) != NULL) {
@@ -394,7 +405,8 @@ atf_utils_redirect(const int target_fd, const char *name)
     else if (target_fd == STDERR_FILENO)
         fflush(stderr);
 
-    const int new_fd = open(name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    const int new_fd = open(name, O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC,
+        0644);
     if (new_fd == -1)
         err(EXIT_FAILURE, "Cannot create %s", name);
     if (new_fd != target_fd) {

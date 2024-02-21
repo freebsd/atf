@@ -33,6 +33,9 @@ wherever available:
 
 * OpenBSD: install the `devel/atf` package with `pkg_add atf`.
 
+* Ubuntu: install the `libatf-dev` and `atf-sh` packages with
+  `apt install libatf-dev atf-sh`.
+
 Should you want to build and install ATF from the source tree provided
 here, follow the instructions in the [INSTALL file](INSTALL).
 
