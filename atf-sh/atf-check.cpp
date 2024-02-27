@@ -46,7 +46,6 @@ extern "C" {
 
 #include "atf-c++/check.hpp"
 #include "atf-c++/detail/application.hpp"
-#include "atf-c++/detail/auto_array.hpp"
 #include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/fs.hpp"
@@ -119,16 +118,16 @@ public:
         const atf::fs::path file = atf::fs::path(
             atf::env::get("TMPDIR", "/tmp")) / pattern;
 
-        atf::auto_array< char > buf(new char[file.str().length() + 1]);
-        std::strcpy(buf.get(), file.c_str());
+        std::vector<char> buf(file.str().begin(), file.str().end());
+        buf.push_back('\0');
 
-        m_fd = ::mkstemp(buf.get());
+        m_fd = ::mkstemp(buf.data());
         if (m_fd == -1)
             throw atf::system_error("atf_check::temp_file::temp_file(" +
                                     file.str() + ")", "mkstemp(3) failed",
                                     errno);
 
-        m_path.reset(new atf::fs::path(buf.get()));
+        m_path.reset(new atf::fs::path(buf.data()));
     }
 
     ~temp_file(void)
