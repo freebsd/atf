@@ -58,7 +58,6 @@ extern "C" {
 }
 
 #include "atf-c++/detail/application.hpp"
-#include "atf-c++/detail/auto_array.hpp"
 #include "atf-c++/detail/env.hpp"
 #include "atf-c++/detail/exceptions.hpp"
 #include "atf-c++/detail/fs.hpp"
@@ -207,22 +206,22 @@ impl::tc::init(const vars_map& config)
 {
     atf_error_t err;
 
-    auto_array< const char * > array(new const char*[(config.size() * 2) + 1]);
-    const char **ptr = array.get();
+    std::vector< const char * > array;
+    array.reserve((config.size() * 2) + 1);
+
     for (vars_map::const_iterator iter = config.begin();
          iter != config.end(); iter++) {
-         *ptr = (*iter).first.c_str();
-         *(ptr + 1) = (*iter).second.c_str();
-         ptr += 2;
+         array.push_back((*iter).first.c_str());
+         array.push_back((*iter).second.c_str());
     }
-    *ptr = NULL;
+    array.push_back(nullptr);
 
     wraps[&pimpl->m_tc] = this;
     cwraps[&pimpl->m_tc] = this;
 
     err = atf_tc_init(&pimpl->m_tc, pimpl->m_ident.c_str(), pimpl->wrap_head,
         pimpl->wrap_body, pimpl->m_has_cleanup ? pimpl->wrap_cleanup : NULL,
-        array.get());
+        array.data());
     if (atf_is_error(err))
         throw_atf_error(err);
 }

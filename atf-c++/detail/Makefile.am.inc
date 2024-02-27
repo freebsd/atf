@@ -51,10 +51,6 @@ tests_atf_c___detail_PROGRAMS = atf-c++/detail/application_test
 atf_c___detail_application_test_SOURCES = atf-c++/detail/application_test.cpp
 atf_c___detail_application_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
 
-tests_atf_c___detail_PROGRAMS += atf-c++/detail/auto_array_test
-atf_c___detail_auto_array_test_SOURCES = atf-c++/detail/auto_array_test.cpp
-atf_c___detail_auto_array_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
-
 tests_atf_c___detail_PROGRAMS += atf-c++/detail/env_test
 atf_c___detail_env_test_SOURCES = atf-c++/detail/env_test.cpp
 atf_c___detail_env_test_LDADD = atf-c++/detail/libtest_helpers.la $(ATF_CXX_LIBS)
