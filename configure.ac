@@ -42,6 +42,7 @@ AC_CONFIG_SRCDIR([atf-c.h])
 AC_CONFIG_TESTDIR([bootstrap])
 
 AC_CANONICAL_TARGET
+AC_USE_SYSTEM_EXTENSIONS
 
 AM_INIT_AUTOMAKE([1.9 check-news foreign subdir-objects -Wall])
 
