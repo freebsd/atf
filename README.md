@@ -12,7 +12,7 @@ interface** to allow both humans and automation to run the tests.
 
 ATF-based test programs **rely on an execution engine** to be run and
 this execution engine is *not* shipped with ATF.
-**[Kyua](https://github.com/jmmv/kyua/) is the engine of choice.**
+**[Kyua](https://github.com/freebsd/kyua/) is the engine of choice.**
 
 ## Download
 

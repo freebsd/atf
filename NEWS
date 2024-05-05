@@ -109,7 +109,7 @@ does not depend on any internal details of atf-c++ any longer.
 * Project hosting moved from Google Code (as a subproject of Kyua) to
   GitHub (as a first-class project).  The main reason for the change is
   the suppression of binary downloads in Google Code on Jan 15th, 2014.
-  See https://github.com/jmmv/atf/
+  See https://github.com/freebsd/atf/
 
 * Removed builtin help from atf-sh(1) and atf-check(1) for simplicity
   reasons.  In other words, their -h option is gone.
