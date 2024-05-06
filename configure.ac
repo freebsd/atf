@@ -28,9 +28,10 @@ dnl Initialize the GNU build system.
 dnl -----------------------------------------------------------------------
 
 AC_INIT([Automated Testing Framework], [0.22],
-        [atf-discuss@googlegroups.com], [atf],
-        [https://github.com/jmmv/atf/])
-AC_PREREQ([2.65])
+        [testing@FreeBSD.org], [atf],
+        [https://github.com/freebsd/atf/]
+)
+AC_PREREQ([2.68])
 AC_COPYRIGHT([Copyright (c) 2007-2012 The NetBSD Foundation, Inc.])
 AC_DEFINE([PACKAGE_COPYRIGHT],
           ["Copyright (c) 2007-2012 The NetBSD Foundation, Inc."],
@@ -147,6 +148,7 @@ dnl -----------------------------------------------------------------------
 dnl Finally, generate output.
 dnl -----------------------------------------------------------------------
 
-AC_OUTPUT([Makefile atf-c/defs.h])
+AC_CONFIG_FILES([Makefile atf-c/defs.h])
+AC_OUTPUT
 
 dnl vim: syntax=m4:expandtab:shiftwidth=4:softtabstop=4
