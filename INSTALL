@@ -11,7 +11,7 @@ source code package.  If you want to install ATF from a binary package, you
 do not need to read this document.
 
 For the impatient:
-
+  $ autoreconf --install
   $ ./configure
   $ make
   Gain root privileges
