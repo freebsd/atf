@@ -1,11 +1,9 @@
-Major changes between releases                  Automated Testing Framework
-===========================================================================
+# Major changes between releases
 
-Changes in version 0.22
-***********************
+## Changes in version 0.22
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
-DON'T FORGET TO BUMP THE -version-info PRE-RELEASE IF NECESSARY!
+DON'T FORGET TO BUMP THE `-version-info PRE-RELEASE` IF NECESSARY!
 
 * Issue #23: Fix double-free triggered by atf_map_insert in low memory
   scenarios, caused by an overlook in the atf_list code.
@@ -19,8 +17,7 @@ DON'T FORGET TO BUMP THE -version-info PRE-RELEASE IF NECESSARY!
   unequal values.
 
 
-Changes in version 0.21
-***********************
+## Changes in version 0.21
 
 Released on October 23rd, 2014.
 
@@ -76,8 +73,7 @@ Released on October 23rd, 2014.
 * Issue #19: Removed stale references to atf-config and atf-run.
 
 
-Changes in version 0.20
-***********************
+## Changes in version 0.20
 
 Experimental version released on February 7th, 2014.
 
@@ -89,8 +85,7 @@ the 'tools' directory for your own consumption.
   atf-run and atf-version.
 
 
-Changes in version 0.19
-***********************
+## Changes in version 0.19
 
 Experimental version released on February 7th, 2014.
 
@@ -121,8 +116,7 @@ does not depend on any internal details of atf-c++ any longer.
   atf-c++ would break the stale tools.
 
 
-Changes in version 0.18
-***********************
+## Changes in version 0.18
 
 Experimental version released on November 16th, 2013.
 
@@ -139,8 +133,7 @@ Experimental version released on November 16th, 2013.
 * NetBSD PR bin/48285: Fixed atf_check examples in atf-sh-api(3).
 
 
-Changes in version 0.17
-***********************
+## Changes in version 0.17
 
 Experimental version released on February 14th, 2013.
 
@@ -173,8 +166,7 @@ Experimental version released on February 14th, 2013.
   cases from breaking xsltproc later.
 
 
-Changes in version 0.16
-***********************
+## Changes in version 0.16
 
 Experimental version released on July 10th, 2012.
 
@@ -208,8 +200,7 @@ Experimental version released on July 10th, 2012.
   lives in a subcomponent of the Kyua project.
 
 
-Changes in version 0.15
-***********************
+## Changes in version 0.15
 
 Experimental version released on January 16th, 2012.
 
@@ -245,8 +236,7 @@ Experimental version released on January 16th, 2012.
   mangle our report.
 
 
-Changes in version 0.14
-***********************
+## Changes in version 0.14
 
 Experimental version released on June 14th, 2011.
 
@@ -274,8 +264,7 @@ Experimental version released on June 14th, 2011.
   case to run.
 
 
-Changes in version 0.13
-***********************
+## Changes in version 0.13
 
 Experimental version released on March 31st, 2011.
 
@@ -320,8 +309,7 @@ The changes in this release are:
   instead of just listing them as having 0 test cases.
 
 
-Changes in version 0.12
-***********************
+## Changes in version 0.12
 
 Experimental version released on November 7th, 2010.
 
@@ -356,8 +344,7 @@ Experimental version released on November 7th, 2010.
   general, not be blindly run as root in the first place.
 
 
-Changes in version 0.11
-***********************
+## Changes in version 0.11
 
 Experimental version released on October 20th, 2010.
 
@@ -379,8 +366,7 @@ Experimental version released on October 20th, 2010.
 * Fixed the XSTL and CSS stylesheets to support expected failures.
 
 
-Changes in version 0.10
-***********************
+## Changes in version 0.10
 
 Experimental version released on July 2nd, 2010.
 
@@ -407,7 +393,7 @@ Miscellaneous features
   take the expected exception as the first argument and the statement to
   execute as the second argument.
 
-Changes in atf-check
+### Changes in atf-check
 
 * Changed atf-check to support negating the status and output checks by
   prefixing them with not- and added support to specify multiple checkers
@@ -460,8 +446,7 @@ Code simplifications and cleanups
   easier to maintain.
 
 
-Changes in version 0.9
-**********************
+## Changes in version 0.9
 
 Experimental version released on June 3rd, 2010.
 
@@ -488,8 +473,7 @@ Experimental version released on June 3rd, 2010.
   ATF_TEST_CASE_WITHOUT_HEAD.
 
 
-Changes in version 0.8
-**********************
+## Changes in version 0.8
 
 Experimental version released on May 7th, 2010.
 
@@ -538,8 +522,7 @@ Experimental version released on May 7th, 2010.
   name of their own.
 
 
-Changes in version 0.7
-**********************
+## Changes in version 0.7
 
 Experimental version released on December 22nd, 2009.
 
@@ -568,8 +551,7 @@ Experimental version released on December 22nd, 2009.
 * Fixed many memory and object leaks.
 
 
-Changes in version 0.6
-**********************
+## Changes in version 0.6
 
 Experimental version released on January 18th, 2009.
 
@@ -602,8 +584,7 @@ Experimental version released on January 18th, 2009.
   _STREQ_MSG.
 
 
-Changes in version 0.5
-**********************
+## Changes in version 0.5
 
 Experimental version released on May 1st, 2008.
 
@@ -629,8 +610,7 @@ Experimental version released on May 1st, 2008.
   executed multiple times to comply with the user's requests.
 
 
-Changes in version 0.4
-**********************
+## Changes in version 0.4
 
 Experimental version released on February 4th, 2008.
 
@@ -662,8 +642,7 @@ Experimental version released on February 4th, 2008.
   were likely affected too.
 
 
-Changes in version 0.3
-**********************
+## Changes in version 0.3
 
 Experimental version released on November 11th, 2007.
 
@@ -696,8 +675,7 @@ Experimental version released on November 11th, 2007.
   incomplete.
 
 
-Changes in version 0.2
-**********************
+## Changes in version 0.2
 
 Experimental version released on September 20th, 2007.
 
@@ -728,8 +706,7 @@ Experimental version released on September 20th, 2007.
 * Multiple bug fixes and improvements all around.
 
 
-Changes in version 0.1
-**********************
+## Changes in version 0.1
 
 Experimental version released on August 20th, 2007.
 
