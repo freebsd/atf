@@ -25,8 +25,6 @@ Formal releases for source files are available for download from GitHub:
 You are encouraged to install binary packages for your operating system
 wherever available:
 
-* Fedora 20 and above: install the `atf` package with `yum install atf`.
-
 * FreeBSD 10.0 and above: install the `atf` package with `pkg install atf`.
 
 * NetBSD with pkgsrc: install the `pkgsrc/devel/atf` package.
@@ -37,7 +35,7 @@ wherever available:
   `apt install libatf-dev atf-sh`.
 
 Should you want to build and install ATF from the source tree provided
-here, follow the instructions in the [INSTALL file](INSTALL).
+here, follow the instructions in the [INSTALL file](INSTALL.md).
 
 ## More Reading
 
