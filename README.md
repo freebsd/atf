@@ -14,13 +14,11 @@ ATF-based test programs **rely on an execution engine** to be run and
 this execution engine is *not* shipped with ATF.
 **[Kyua](https://github.com/freebsd/kyua/) is the engine of choice.**
 
-
 ## Download
 
 Formal releases for source files are available for download from GitHub:
 
 * [atf 0.21](../../releases/tag/atf-0.21), released on October 23rd, 2014.
-
 
 ## Installation
 
@@ -51,7 +49,6 @@ here, follow the instructions in the [INSTALL file](INSTALL.md).
 
 * NEWS.md: List of major changes between formal, published releases.
 
-
 ## Other documents
 
 * `AUTHORS`: List of authors and contributors for this project.
@@ -63,7 +60,6 @@ here, follow the instructions in the [INSTALL file](INSTALL.md).
   things that are specific to ATF's build.
 
 * `NEWS.md`: List of major changes between formal, published releases.
-
 
 ## Support
 
