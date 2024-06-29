@@ -1,5 +1,7 @@
 # Installation instructions
 
+## Introduction
+
 ATF uses the GNU Automake, GNU Autoconf and GNU Libtool utilities as its
 build system. These are used only when compiling the application from the
 source code package. If you want to install ATF from a binary package, you
