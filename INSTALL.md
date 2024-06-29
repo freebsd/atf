@@ -77,13 +77,16 @@ To build and install the source package, you must follow these steps:
 The most common, standard flags given to `configure` are:
 
 - `--prefix=directory`:
+
   **Possible values:** Any path
+
   **Default:** `/usr/local`
 
   Specifies where the program (binaries and all associated files) will
   be installed.
 
 - `--help`:
+
   Shows information about all available flags and exits immediately,
   without running any configuration tasks.
 
@@ -159,8 +162,10 @@ script:
 The following flags are specific to ATF's `configure` script:
 
 - `--enable-developer`:
-  Possible values: `yes`, `no`
-  Default: `yes` in HEAD builds; `no` in release builds.
+
+  **Possible values:** `yes`, `no`
+
+  **Default:** `yes` in HEAD builds; `no` in release builds.
 
   Enables several features useful for development, such as the inclusion
   of debugging symbols in all objects or the enforcement of compilation
