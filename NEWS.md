@@ -8,14 +8,40 @@ DON'T FORGET TO BUMP THE `-version-info PRE-RELEASE` IF NECESSARY!
 * Issue #23: Fix double-free triggered by atf_map_insert in low memory
   scenarios, caused by an overlook in the atf_list code.
 
-* Issue #29: Fixed various typos and formatting errors in manual pages.
-
 * Issue #31: Added require.progs metadata properties to the tests that
   need a compiler to run.
 
 * Added the atf_check_not_equal function to atf-sh to check for
   unequal values.
 
+* Add `-r timeout` flag to `atf-check`.
+
+* Open results files before executing tests to fix an issue ATF tests that
+  adjust the processes' Capsicum rights as part of the testcase(s)
+  executed.
+
+* Add Cirrus CI integration for FreeBSD CI/CD support.
+
+* Address compilation issues on OpenSolaris distributions.
+
+* Replace `auto_array` with `std::vector` (fixes modern C++ compliance).
+
+* Replace `auto_ptr` with `std::shared_ptr` (fixes modern C++ compliance).
+
+* Update autotools idioms and requirements. The minimum required version of
+  autoconf is now 2.68.
+
+* Modify `ATF_CHECK*` and `ATF_REQUIRE*` macros to avoid double
+  evaluation/allow the gcc toolchain to detect accidental single
+  assignment typos.
+
+* Always define CPP to fix use of ATF_BUILD_CPP when the user did not
+  define CPP when invoking the configure script.
+
+### General fixes
+
+* Fix various typos and formatting errors in manual pages and markdown
+  documents.
 
 ## Changes in version 0.21
 
