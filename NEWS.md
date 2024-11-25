@@ -2,8 +2,7 @@
 
 ## Changes in version 0.22
 
-STILL UNDER DEVELOPMENT; NOT RELEASED YET.
-DON'T FORGET TO BUMP THE `-version-info PRE-RELEASE` IF NECESSARY!
+Released on November 25th, 2024.
 
 * Issue #23: Fix double-free triggered by atf_map_insert in low memory
   scenarios, caused by an overlook in the atf_list code.
