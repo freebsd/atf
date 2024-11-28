@@ -23,5 +23,6 @@ config.status
 configure
 installcheck.log
 libtool
+releases
 stamp-h1
 testsuite.log
