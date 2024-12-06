@@ -235,14 +235,12 @@ bool
 atf_utils_file_exists(const char *path)
 {
     const int ret = access(path, F_OK);
-    if (ret == -1) {
-        if (errno != ENOENT)
-            atf_tc_fail("Failed to check the existence of %s: %s", path,
-                        strerror(errno));
-        else
-            return false;
-    } else
+    if (ret != -1)
         return true;
+    if (errno != ENOENT)
+        atf_tc_fail("Failed to check the existence of %s: %s", path,
+                    strerror(errno));
+    return false;
 }
 
 /** Spawns a subprocess and redirects its output to files.
