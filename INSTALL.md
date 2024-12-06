@@ -95,7 +95,7 @@ script:
 
 - `ATF_BUILD_CC`:
 
-  **Possible values:** empty, an absolute or relative path to a C compiler.
+  **Possible values:** empty, or an absolute or relative path to a C compiler.
 
   **Default:** the value of CC as detected by the configure script.
 
@@ -104,7 +104,7 @@ script:
 
 - `ATF_BUILD_CFLAGS`:
 
-  **Possible values:** empty, a list of valid C compiler flags.
+  **Possible values:** empty, or a list of valid C compiler flags.
 
   **Default:** the value of CFLAGS as detected by the configure script.
 
@@ -113,7 +113,7 @@ script:
 
 - `ATF_BUILD_CPP`:
 
-  **Possible values:** empty, an absolute or relative path to a C/C++
+  **Possible values:** empty, or an absolute or relative path to a C/C++
   preprocessor.
 
   **Default:** the value of CPP as detected by `configure` script.
@@ -123,7 +123,7 @@ script:
 
 - `ATF_BUILD_CPPFLAGS`:
 
-  **Possible values:** empty, a list of valid C/C++ preprocessor flags.
+  **Possible values:** empty, or a list of valid C/C++ preprocessor flags.
 
   **Default:** the value of `CPPFLAGS` as detected by the configure script.
 
@@ -132,7 +132,7 @@ script:
 
 - `ATF_BUILD_CXX`:
 
-  **Possible values:** empty, an absolute or relative path to a C++ compiler.
+  **Possible values:** empty, or an absolute or relative path to a C++ compiler.
 
   **Default:** the value of `CXX` as detected by the configure script.
 
@@ -141,7 +141,7 @@ script:
 
 - `ATF_BUILD_CXXFLAGS`:
 
-  **Possible values:** empty, a list of valid C++ compiler flags.
+  **Possible values:** empty, or a list of valid C++ compiler flags.
 
   **Default:** the value of `CXXFLAGS` as detected by `configure` script.
 
@@ -163,8 +163,6 @@ The following flags are specific to ATF's `configure` script:
 
 - `--enable-developer`:
 
-  **Possible values:** `yes`, `no`
-
   **Default:** `yes` in HEAD builds; `no` in release builds.
 
   Enables several features useful for development, such as the inclusion
@@ -174,3 +172,33 @@ The following flags are specific to ATF's `configure` script:
   The compiler will be executed with an exhaustive collection of warning
   detection features regardless of the value of this flag. However, such
   warnings are only fatal when `--enable-developer` is `yes`.
+
+- `--enable-asan`
+
+  **Default:** `no`.
+
+  Enables ASAN (Address Sanitizer) compiler support in the toolchain.
+
+  Platform-specific support varies depending on the toolchain and OS.
+
+- `--enable-lsan`
+
+  **Default:** `no`.
+
+  Enables LSAN (Leak Sanitizer) compiler support in the toolchain.
+
+  Platform-specific support varies depending on the toolchain and OS.
+
+  **Important:**
+  * llvm support is only available in Linux and macOS at time of writing.
+  * The test suite does not currently pass with this option enabled. See
+    [Issue #77](https://github.com/freebsd/atf/issues/77) for more details.
+
+- `--enable-ubsan`
+
+  **Default:** `no`.
+
+  Enables UBSAN (Undefined Behavior Sanitizier) compiler support in the
+  toolchain.
+
+  Platform-specific support varies depending on the toolchain and OS.

@@ -55,11 +55,13 @@ AC_DEFUN([KYUA_DEVELOPER_MODE], [
     AC_ARG_ENABLE(
         [developer],
         AS_HELP_STRING([--enable-developer], [enable developer features]),,
-        [if test -d ${srcdir}/.git; then
-             AC_MSG_NOTICE([building from HEAD; developer mode autoenabled])
+        [if test "x$enable_developer" = x; then
+           if test -d "${srcdir}/.git"; then
+             AC_MSG_NOTICE([building from HEAD (developer mode auto-enabled)])
              enable_developer=yes
-         else
+           else
              enable_developer=no
+           fi
          fi])
 
     #
@@ -70,7 +72,8 @@ AC_DEFUN([KYUA_DEVELOPER_MODE], [
     #                   Mac OS X.  This is due to the way _IOR is defined.
     #
 
-    try_c_cxx_flags="-D_FORTIFY_SOURCE=2 \
+#    try_c_cxx_flags="-D_FORTIFY_SOURCE=2 \
+    try_c_cxx_flags=" \
                      -Wall \
                      -Wcast-qual \
                      -Wextra \
@@ -98,9 +101,11 @@ AC_DEFUN([KYUA_DEVELOPER_MODE], [
                    -Wsynth"
 
     if test ${enable_developer} = yes; then
+        AC_MSG_NOTICE([Developer mode enabled])
         try_werror=yes
         try_c_cxx_flags="${try_c_cxx_flags} -g -Werror"
     else
+        AC_MSG_NOTICE([Developer mode disabled])
         try_werror=no
         try_c_cxx_flags="${try_c_cxx_flags} -DNDEBUG"
     fi

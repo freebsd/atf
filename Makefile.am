@@ -63,6 +63,22 @@ EXTRA_DIST += $(doc_DATA) INSTALL.md README.md
 TESTS_ENVIRONMENT = PATH=$(prefix)/bin:$${PATH} \
                     PKG_CONFIG_PATH=$(prefix)/lib/pkgconfig
 
+if HAVE_ASAN
+# NB: the trailing comma is intentional. I hate automake not allowing `:=` use on subsequent lines.
+if HAVE_LSAN
+LSAN_OPTIONS = detect_leaks=1,
+else
+LSAN_OPTIONS =
+endif
+# Some of the testcases trigger false positives as they pass
+# `SIZE_MAX - 1`, etc, to malloc(3).
+ASAN_OPTIONS = ${LSAN_OPTIONS}allocator_may_return_null=1
+TESTS_ENVIRONMENT+= ASAN_OPTIONS=${ASAN_OPTIONS}
+endif
+if HAVE_UBSAN
+TESTS_ENVIRONMENT+= UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1
+endif
+
 # Allow the caller to override the configuration file to passed to our
 # test runs below.
 KYUA_TEST_CONFIG_FILE = none
