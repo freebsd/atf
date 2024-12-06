@@ -70,7 +70,8 @@ AC_DEFUN([KYUA_DEVELOPER_MODE], [
     #                   Mac OS X.  This is due to the way _IOR is defined.
     #
 
-    try_c_cxx_flags="-D_FORTIFY_SOURCE=2 \
+#    try_c_cxx_flags="-D_FORTIFY_SOURCE=2 \
+    try_c_cxx_flags=" \
                      -Wall \
                      -Wcast-qual \
                      -Wextra \
