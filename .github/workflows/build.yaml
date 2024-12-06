@@ -25,7 +25,8 @@ permissions:
 
 jobs:
     build:
-        name: build ${{ matrix.build-os }} ${{ matrix.compiler }}
+        # yamllint disable-line rule:line-length
+        name: ${{ matrix.build-os }} ${{ matrix.compiler }} ${{ join(matrix.sanitize, '+') }}
         env:
             AR: ${{ matrix.llvm-bindir }}/llvm-ar
             CC: ${{ matrix.llvm-bindir }}/clang
@@ -37,7 +38,8 @@ jobs:
             STRIP: ${{ matrix.llvm-bindir }}/llvm-strip
             ATF_SRCDIR: ${{ github.workspace }}/src
             ATF_OBJDIR: ${{ github.workspace }}/obj
-            JOB_NAME: ${{ matrix.build-os }} ${{ matrix.compiler }}
+            # yamllint disable-line rule:line-length
+            JOB_NAME: ${{ matrix.build-os }} ${{ matrix.compiler }} ${{ join(matrix.sanitize, '+') }}
         runs-on: "${{ matrix.build-os }}"
         strategy:
             fail-fast: false
@@ -66,6 +68,11 @@ jobs:
                           - libtool
                           - pkgconf
                       llvm-bindir: /usr/lib/llvm-18/bin
+                sanitize:
+                    - ""
+                    - ["asan", "lsan"]
+                    - ubsan
+
         steps:
             - name: Install packages (macOS)
               if: runner.os == 'macOS'
@@ -88,17 +95,14 @@ jobs:
                   which -a kyua
             - name: Build
               run: |
-                  echo "uname -a: $(uname -a)"
-                  echo "uname -m: $(uname -m)"
-                  echo "uname -p: $(uname -p)"
-                  echo "Build environment:"
-                  kyua about | head -1
-
                   cd "${ATF_SRCDIR}"
                   ./admin/ci-build/01_configure.sh
             - name: Distcheck (builds and tests)
               run: |
                   CFG_ARGS="--disable-dependency-tracking --enable-developer"
+                  for i in ${{ join(matrix.sanitize, ' ') }}; do
+                      CFG_ARGS="${CFG_OPTS} --enable-${i}"
+                  done
                   cd "${ATF_SRCDIR}"
                   env "EXTRA_DISTCHECK_CONFIGURE_ARGS=${CFG_ARGS}" \
                       ./admin/ci-build/02_distcheck.sh
