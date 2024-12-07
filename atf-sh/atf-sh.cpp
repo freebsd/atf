@@ -168,11 +168,11 @@ atf_sh::main(void)
                                  "does not exist");
 
     const char** argv = construct_argv(m_shell.str(), m_argc, m_argv);
-    // Don't bother keeping track of the memory allocated by construct_argv:
-    // we are going to exec or die immediately.
 
     const int ret = execv(m_shell.c_str(), const_cast< char** >(argv));
     INV(ret == -1);
+    delete[] argv;  // shut up scan-build.
+
     std::cerr << "Failed to execute " << m_shell.str() << ": "
               << std::strerror(errno) << "\n";
     return EXIT_FAILURE;
