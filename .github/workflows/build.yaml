@@ -1,0 +1,174 @@
+name: build
+# GitHub action to compile atf on ubuntu-24.04 (amd64) and macos-latest (aarch64)
+#  * set-up prerequisites
+#  * configure && make && make check && make install
+#  * upload installed binaries as well as kyua reports as build artefact
+#
+# We run in a matrix with os/sanitize flags.
+
+on:
+    pull_request:
+        branches:
+            - main
+    push:
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    build:
+        name: build ${{ join(matrix.sanitize, '+') }} ${{ matrix.build-os }} ${{ matrix.compiler }}
+        runs-on: "${{ matrix.build-os }}"
+        strategy:
+            fail-fast: false
+            matrix:
+                build-os:
+                - ubuntu-24.04
+                - macos-latest
+                sanitize:
+                - []
+                include:
+                - build-os: macos-latest
+                  compiler: clang-19
+                  pkgs: 
+                  - llvm@19
+                  - automake
+                  - libtool # for AC
+                  # - pkgconf pre-installed on GH
+                  llvm-bindir: /opt/homebrew/opt/llvm@19/bin
+                - build-os: ubuntu-24.04
+                  compiler: clang-18
+                  pkgs: 
+                  - clang-18
+                  - automake 
+                  - libtool 
+                  - kyua 
+                  - pkgconf
+                  llvm-bindir: /usr/lib/llvm-18/bin
+        steps:
+        - name: install packages (macOS)
+          if: runner.os == 'macOS'
+          run: |
+            # on MacOS we build with 
+            #   * latest clang@19 from brew (system provided clang lacks sanitizers)
+            #   * ld from system
+            #
+
+            brew update --quiet || true
+            brew install ${{ join(matrix.pkgs, ' ') }}
+
+            # kyua was kicked out of brew due to lack of activity
+            # we patch away the disabled line and install the last built binary version
+            # note that it cannot be rebuilt as compiler defaults have changed
+            curl https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/k/kyua.rb | sed 's/[[:space:]]*disable!.*$//'  > kyua.rb
+            brew install --formula ./kyua.rb
+
+        - name: install packages (Linux)
+          if: runner.os == 'Linux'
+          run: |
+            sudo apt-get update --quiet || true
+            sudo apt-get -yq --no-install-suggests --no-install-recommends install ${{ join(matrix.pkgs, ' ') }}
+        - uses: actions/checkout@v4
+          with:
+            path: src.atf
+        - name: setup environment
+          run: |
+            echo "CC=${{ matrix.llvm-bindir }}/clang" >> "${GITHUB_ENV}"
+            echo "CXX=${{ matrix.llvm-bindir }}/clang++" >> "${GITHUB_ENV}"
+            echo "CPP=${{ matrix.llvm-bindir }}/clang-cpp" >> "${GITHUB_ENV}"
+            echo "AR=${{ matrix.llvm-bindir }}/llvm-ar" >> "${GITHUB_ENV}"
+            echo "OBJDUMP=${{ matrix.llvm-bindir }}/llvm-objdump" >> "${GITHUB_ENV}"
+            echo "STRIP=${{ matrix.llvm-bindir }}/llvm-strip" >> "${GITHUB_ENV}"
+            echo "RANLIB=${{ matrix.llvm-bindir }}/llvm-ranlib" >> "${GITHUB_ENV}"
+            echo "NM=${{ matrix.llvm-bindir }}/llvm-nm" >> "${GITHUB_ENV}"
+            echo "SRC_ATF=${GITHUB_WORKSPACE}/src.atf" >> "${GITHUB_ENV}"
+            echo "BUILD_ATF=${GITHUB_WORKSPACE}/build.atf" >> "${GITHUB_ENV}"
+            echo "INST_ATF=${GITHUB_WORKSPACE}/inst.atf" >> "${GITHUB_ENV}"
+            echo "NPROC=`getconf _NPROCESSORS_ONLN 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || echo 1`" >> "${GITHUB_ENV}"
+
+        - name: build atf
+          run: |
+            CFG_OPTS="--disable-dependency-tracking"
+            CFG_OPTS="${CFG_OPTS} --prefix=${INST_ATF}"
+            for i in ${{ join(matrix.sanitize, ' ') }}; do
+              CFG_OPTS="${CFG_OPTS} --enable-${i}"
+            done
+            echo Building atf with ${{ matrix.sanitize }} .. ${CFG_OPTS} 
+            echo uname -a: $(uname -a)
+            echo uname -m: $(uname -m)
+            echo uname -p: $(uname -p)
+            kyua about | head -1
+            echo NPROC="${NPROC}"
+            echo CC="${CC}"
+            echo CPP="${CPP}"
+            echo PKG_CONFIG_PATH="${PKG_CONFIG_PATH}"
+            echo SRC_ATF="${SRC_ATF}"
+            echo BUILD_ATF="${BUILD_ATF}"
+            echo INST_ATF="${INST_ATF}"
+
+            cd "${SRC_ATF}"
+            autoreconf -isv -I/usr/local/share/aclocal
+
+            mkdir -p "${BUILD_ATF}"
+            cd "${BUILD_ATF}"
+            ${SRC_ATF}/configure ${CFG_OPTS}
+            make -j${NPROC} | tee make-all.log
+
+        - name: install&check atf
+          run: |
+            set +e
+            echo Installing and Checking atf
+            cd "${BUILD_ATF}"
+            make install installcheck-kyua
+            check_exit=$?
+
+            cd "${INST_ATF}/tests/atf"
+            if [ $check_exit -eq 0 ]; then    
+                echo "# ✅ All mandatory checks passed" >> $GITHUB_STEP_SUMMARY
+                # kyua report
+            else
+                echo "# ❌ Some checks failed" >> $GITHUB_STEP_SUMMARY
+                echo "::error file=.github/workflows/build.yaml,line=173,endLine=173,title=Checks failed!::make check failed"
+                # kyua report --verbose
+            fi
+
+            # example run with tweaks
+            # running one test directly without overriding exitcode and not logging to stderr
+            ASAN_OPTIONS=exitcode=0:log_path=$PWD/testlog  kyua debug atf-c++/atf_c++_test:include
+            cat testlog.*
+
+            kyua report --results-filter=xfail,broken,failed | sed 's/===>/##/' >> $GITHUB_STEP_SUMMARY
+            if [ $check_exit -ne 0 ]; then
+                kyua report --verbose --results-filter=xfail,broken,failed | sed 's/===>/##/' >> $GITHUB_STEP_SUMMARY
+            fi
+
+            kyua report-html --output ${BUILD_ATF}/html # produces html subdirectory
+            # also include plain text
+            kyua report --verbose --results-filter=xfail,broken,failed > ${BUILD_ATF}/html/test-reportfailed.txt
+            # also include plain JUnit
+            kyua report-junit --output ${BUILD_ATF}/html/test-reportfailed.xml
+            # also include the kyua log
+            cp -a ~/.kyua/logs ${BUILD_ATF}/html/
+
+            exit $check_exit
+  
+        - name: tar install archive
+          run: |
+            test -d ${INST_ATF} && tar cvf atf-${{ matrix.build-os }}-${{ matrix.compiler }}.tar -C ${INST_ATF} .
+          if: ${{ success() && '' == join(matrix.sanitize, '') }} # only install successful non-debug builds
+  
+        - name: tar test reports
+          run: |
+            tar cvf atf-${{ matrix.build-os }}-${{ matrix.compiler }}-report${{ join(matrix.sanitize, '_') }}.tar -C "${BUILD_ATF}/html" .
+          if: ${{ always() }}
+
+        - name: archive build artefacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: atf-test${{ join(matrix.sanitize, '_') }}-${{ matrix.build-os }}-${{ matrix.compiler }}
+            path: atf*.tar
+            compression-level: 0
+            retention-days: 10
+            overwrite: true
+          if: ${{ always() }}
