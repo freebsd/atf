@@ -1,0 +1,131 @@
+---
+# GitHub action to compile and test ATF on supported platforms.
+#
+# Steps executed:
+# * Handle prerequisites
+#     * Install binary packages
+#     * Build packages from source (if needed).
+#     * Build
+#     * Install
+#     * Run tests
+#
+# On MacOS we build with:
+#   * latest clang from brew (system provided clang lacks sanitizers).
+#   * ld from system
+name: build
+on:
+    pull_request:
+        branches:
+            - master
+    push:
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    build:
+        name: build ${{ matrix.build-os }} ${{ matrix.compiler }}
+        runs-on: "${{ matrix.build-os }}"
+        strategy:
+            fail-fast: false
+            matrix:
+                build-os:
+                    - ubuntu-24.04
+                    - macos-latest
+                include:
+                    - build-os: macos-latest
+                      compiler: clang-19
+                      pkgs:
+                          - autoconf
+                          - automake
+                          - kyua
+                          - libtool
+                          - llvm@19
+                          - pkgconf
+                      llvm-bindir: /opt/homebrew/opt/llvm@19/bin
+                    - build-os: ubuntu-24.04
+                      compiler: clang-18
+                      pkgs:
+                          - clang-18
+                          - autoconf
+                          - automake
+                          - kyua
+                          - libtool
+                          - pkgconf
+                      llvm-bindir: /usr/lib/llvm-18/bin
+        steps:
+            - name: Install packages (macOS)
+              if: runner.os == 'macOS'
+              run: |
+                  brew update --quiet || true
+                  brew install ${{ join(matrix.pkgs, ' ') }}
+            - name: Install packages (Ubuntu)
+              if: runner.os == 'Linux'
+              run: |
+                  sudo apt-get update --quiet
+                  sudo apt-get --quiet -y --no-install-suggests \
+                      --no-install-recommends install \
+                      ${{ join(matrix.pkgs, ' ') }}
+            - name: Checking out source
+              uses: actions/checkout@v4
+              with:
+                  path: src
+            - name: Setup Environment
+              run: |
+                  echo "AR=${{ matrix.llvm-bindir }}/llvm-ar" >> "${GITHUB_ENV}"
+                  echo "CC=${{ matrix.llvm-bindir }}/clang" >> "${GITHUB_ENV}"
+                  echo "CPP=${{ matrix.llvm-bindir }}/clang-cpp" >> "${GITHUB_ENV}"
+                  echo "CXX=${{ matrix.llvm-bindir }}/clang++" >> "${GITHUB_ENV}"
+                  echo "NM=${{ matrix.llvm-bindir }}/llvm-nm" >> "${GITHUB_ENV}"
+                  echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}" >> "${GITHUB_ENV}"
+                  echo "RANLIB=${{ matrix.llvm-bindir }}/llvm-ranlib" >> "${GITHUB_ENV}"
+                  echo "OBJDUMP=${{ matrix.llvm-bindir }}/llvm-objdump" >> "${GITHUB_ENV}"
+                  echo "STRIP=${{ matrix.llvm-bindir }}/llvm-strip" >> "${GITHUB_ENV}"
+                  echo "ATF_SRCDIR=${GITHUB_WORKSPACE}/src" >> "${GITHUB_ENV}"
+                  echo "ATF_OBJDIR=${GITHUB_WORKSPACE}/obj" >> "${GITHUB_ENV}"
+                  echo "ATF_PREFIX=${GITHUB_WORKSPACE}/installed" >> "${GITHUB_ENV}"
+                  echo "NPROC=`getconf _NPROCESSORS_ONLN 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || echo 1`" >> "${GITHUB_ENV}"
+            - name: Sanity checks
+              run: |
+                  which -a kyua
+            - name: Build ATF
+              run: |
+                  CFG_OPTS="--disable-dependency-tracking"
+                  CFG_OPTS="${CFG_OPTS} --prefix=${ATF_PREFIX}"
+                  echo "Building atf with ${CFG_OPTS}..."
+                  echo "uname -a: $(uname -a)"
+                  echo "uname -m: $(uname -m)"
+                  echo "uname -p: $(uname -p)"
+                  echo "Build environment:"
+                  cat "${GITHUB_ENV}"
+                  kyua about | head -1
+                  cd "${ATF_SRCDIR}"
+                  autoreconf -isv -I/usr/local/share/aclocal
+                  mkdir -p "${ATF_OBJDIR}"
+                  cd "${ATF_OBJDIR}"
+                  "${ATF_SRCDIR}/configure" ${CFG_OPTS}
+                  make -j${NPROC} all | tee make-all.log
+            - name: Install ATF
+              run: |
+                  cd "${ATF_OBJDIR}"
+                  make install
+            - name: Test ATF
+              run: |
+                  cd "${ATF_OBJDIR}"
+                  make installcheck
+                  check_exit=$?
+                  if [ $check_exit -eq 0 ]; then
+                      echo "# ✅ All mandatory checks passed" >> $GITHUB_STEP_SUMMARY
+                  else
+                      echo "# ❌ Some checks failed" >> $GITHUB_STEP_SUMMARY
+                      echo "::error file=.github/workflows/build.yaml,line=173,endLine=173,title=Checks failed!::checks failed"
+                  fi
+                  cd "${ATF_PREFIX}/tests/atf"
+                  kyua report-html --output ${ATF_OBJDIR}/html # produces html subdirectory
+                  # Include the plaintext and JUnit reports.
+                  kyua report --verbose --results-filter=xfail,broken,failed > ${ATF_OBJDIR}/html/test-reportfailed.txt
+                  kyua report-junit --output ${ATF_OBJDIR}/html/test-reportfailed.xml
+                  # Include the kyua log.
+                  cp -a ~/.kyua/logs ${ATF_OBJDIR}/html/
+                  exit $check_exit
