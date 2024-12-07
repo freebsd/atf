@@ -272,6 +272,7 @@ impl::tc::get_md_vars(void)
         char **ptr;
         for (ptr = array; *ptr != NULL; ptr += 2)
             vars[*ptr] = *(ptr + 1);
+        atf_utils_free_charpp(array);
     } catch (...) {
         atf_utils_free_charpp(array);
         throw;
