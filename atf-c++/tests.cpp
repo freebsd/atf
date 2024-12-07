@@ -609,23 +609,20 @@ safe_main(int argc, char** argv, void (*add_tcs)(tc_vector&))
 
     int errcode;
 
-    tc_vector tcs;
     if (lflag) {
         if (argc > 0)
             throw usage_error("Cannot provide test case names with -l");
-
-        init_tcs(add_tcs, tcs, vars);
-        errcode = list_tcs(tcs);
     } else {
         if (argc == 0)
             throw usage_error("Must provide a test case name");
         else if (argc > 1)
             throw usage_error("Cannot provide more than one test case name");
         INV(argc == 1);
-
-        init_tcs(add_tcs, tcs, vars);
-        errcode = run_tc(tcs, argv[0], resfile);
     }
+
+    tc_vector tcs;
+    init_tcs(add_tcs, tcs, vars);
+    errcode = lflag ? list_tcs(tcs) : run_tc(tcs, argv[0], resfile);
     for (tc_vector::iterator iter = tcs.begin(); iter != tcs.end(); iter++) {
         impl::tc* tc = *iter;
 
