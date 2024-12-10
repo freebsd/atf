@@ -281,6 +281,7 @@ normalize_ap(atf_dynstr_t *d, const char *p, va_list ap)
     else {
         err = normalize(d, str);
         free(str);
+        str = NULL;
     }
 
 out:

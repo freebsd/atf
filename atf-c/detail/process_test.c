@@ -163,6 +163,7 @@ capture_stream_fini(void *v)
     }
 
     free(s->m_msg);
+    s->m_msg = NULL;
     atf_process_stream_fini(&s->m_base.m_sb);
 }
 

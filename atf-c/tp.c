@@ -112,6 +112,7 @@ atf_tp_fini(atf_tp_t *tp)
     atf_list_fini(&tp->pimpl->m_tcs);
 
     free(tp->pimpl);
+    tp->pimpl = NULL;
 }
 
 /*

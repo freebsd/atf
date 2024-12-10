@@ -290,10 +290,13 @@ atf_utils_free_charpp(char **argv)
 {
     char **ptr;
 
-    for (ptr = argv; *ptr != NULL; ptr++)
+    for (ptr = argv; *ptr != NULL; ptr++) {
         free(*ptr);
+        *ptr = NULL;
+    }
 
     free(argv);
+    argv = NULL;
 }
 
 /** Searches for a regexp in a file.

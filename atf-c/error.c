@@ -124,11 +124,13 @@ atf_error_free(atf_error_t err)
 
     freeit = err->m_free;
 
-    if (err->m_data != NULL)
-        free(err->m_data);
+    free(err->m_data);
+    err->m_data = NULL;
 
-    if (freeit)
+    if (freeit) {
         free(err);
+        err = NULL;
+    }
 
     error_on_flight = false;
 }
