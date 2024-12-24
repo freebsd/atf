@@ -361,9 +361,11 @@ atf_map_insert(atf_map_t *m, const char *key, void *value, bool managed)
     iter = atf_map_find(m, key);
     if (atf_equal_map_iter_map_iter(iter, atf_map_end(m))) {
         me = new_entry(key, value, managed);
-        if (me == NULL)
+        if (me == NULL) {
             err = atf_no_memory_error();
-        else {
+            if (managed)
+                free(value);
+        } else {
             err = atf_list_append(&m->m_list, me, false);
             if (atf_is_error(err)) {
                 if (managed)
