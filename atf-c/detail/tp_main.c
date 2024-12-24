@@ -290,15 +290,17 @@ list_tcs(const atf_tp_t *tp)
 
 static
 atf_error_t
-handle_tcarg(const char *tcarg, char **tcname, enum tc_part *tcpart)
+handle_tcarg(const char *tcarg, char **tcname_out, enum tc_part *tcpart)
 {
-    char *delim;
+    char *delim, *tcname;
 
-    *tcname = strdup(tcarg);
-    if (*tcname == NULL)
+    *tcname_out = NULL;
+    tcname = strdup(tcarg);
+    if (tcname == NULL) {
         return atf_no_memory_error();
+    }
 
-    delim = strchr(*tcname, ':');
+    delim = strchr(tcname, ':');
     if (delim != NULL) {
         *delim = '\0';
 
@@ -312,6 +314,7 @@ handle_tcarg(const char *tcarg, char **tcname, enum tc_part *tcpart)
         }
     }
 
+    *tcname_out = tcname;
     return atf_no_error();
 }
 
