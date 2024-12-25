@@ -105,7 +105,7 @@ void
 atf_utils_cat_file(const char *name, const char *prefix)
 {
     const int fd = open(name, O_RDONLY | O_CLOEXEC);
-    ATF_REQUIRE_MSG(fd != -1, "Cannot open %s", name);
+    ATF_REQUIRE_MSG(fd != -1, "Cannot open %s: %s", name, strerror(errno));
 
     char buffer[1024];
     ssize_t count;
@@ -315,7 +315,8 @@ atf_utils_grep_file(const char *regex, const char *file, ...)
     va_end(ap);
     ATF_REQUIRE(!atf_is_error(error));
 
-    ATF_REQUIRE((fd = open(file, O_RDONLY | O_CLOEXEC)) != -1);
+    fd = open(file, O_RDONLY | O_CLOEXEC);
+    ATF_REQUIRE_MSG(fd != -1, "Cannot open %s: %s", file, strerror(errno));
     bool found = false;
     char *line = NULL;
     while (!found && (line = atf_utils_readline(fd)) != NULL) {
