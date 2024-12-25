@@ -62,6 +62,7 @@ AC_USE_SYSTEM_EXTENSIONS
 
 AC_PROG_CXX
 AC_LANG_COMPILER(C++)
+AC_PROG_CPP
 AX_CXX_COMPILE_STDCXX(14, noext, mandatory)
 AC_CACHE_CHECK([whether the C++ compiler works],
                [atf_cv_prog_cxx_works],
