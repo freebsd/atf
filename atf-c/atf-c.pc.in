@@ -7,5 +7,5 @@ libdir=__LIBDIR__
 Name: atf-c
 Description: Automated Testing Framework (C binding)
 Version: __ATF_VERSION__
-Cflags: -I${includedir}
-Libs: -L${libdir} -latf-c
+Cflags: -I${includedir} __PC_CFLAGS__
+Libs: -L${libdir} -latf-c __PC_LDFLAGS__

@@ -61,7 +61,9 @@ EXTRA_DIST += $(doc_DATA) INSTALL README
 #
 
 TESTS_ENVIRONMENT = PATH=$(prefix)/bin:$${PATH} \
-                    PKG_CONFIG_PATH=$(prefix)/lib/pkgconfig
+                    PKG_CONFIG_PATH=$(prefix)/lib/pkgconfig \
+					ASAN_OPTIONS=detect_leaks=1 \
+					UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1
 
 # Allow the caller to override the configuration file to passed to our
 # test runs below.
