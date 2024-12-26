@@ -64,16 +64,6 @@ AC_PROG_CXX
 AC_LANG_COMPILER(C++)
 AC_PROG_CPP
 AX_CXX_COMPILE_STDCXX(14, noext, mandatory)
-AC_CACHE_CHECK([whether the C++ compiler works],
-               [atf_cv_prog_cxx_works],
-               [AC_LANG_PUSH([C++])
-                AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])],
-                               [atf_cv_prog_cxx_works=yes],
-                               [atf_cv_prog_cxx_works=no])
-                AC_LANG_POP])
-if test "${atf_cv_prog_cxx_works}" = no; then
-    AC_MSG_ERROR([C++ compiler cannot create executables])
-fi
 
 KYUA_DEVELOPER_MODE([C,C++])
 
