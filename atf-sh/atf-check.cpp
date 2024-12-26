@@ -118,16 +118,14 @@ public:
         const atf::fs::path file = atf::fs::path(
             atf::env::get("TMPDIR", "/tmp")) / pattern;
 
-        std::string file_s = file.str();
-        std::vector<char> buf(file_s.begin(), file_s.end() + 1);
-
-        m_fd = ::mkstemp(buf.data());
+        auto file_s = file.str();
+        m_fd = ::mkstemp(file_s.data());
         if (m_fd == -1)
             throw atf::system_error("atf_check::temp_file::temp_file(" +
-                                    file.str() + ")", "mkstemp(3) failed",
+                                    file_s + ")", "mkstemp(3) failed",
                                     errno);
 
-        m_path.reset(new atf::fs::path(buf.data()));
+        m_path.reset(new atf::fs::path(file_s.data()));
     }
 
     ~temp_file(void)
