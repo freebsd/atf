@@ -119,15 +119,22 @@ public:
             atf::env::get("TMPDIR", "/tmp")) / pattern;
 
         std::string file_s = file.str();
-        std::vector<char> buf(file_s.begin(), file_s.end() + 1);
-
-        m_fd = ::mkstemp(buf.data());
+        // C++14 returns const char* with `std::string::data()`.
+        //
+        // TODO(ngie): remove the else block and simplify once we are on C++17
+        // or later.
+#if __cplusplus >= 201703L
+        char *file_ch_arr = file_s.data();
+#else
+        char *file_ch_arr = &file_s[0];
+#endif
+        m_fd = ::mkstemp(file_ch_arr);
         if (m_fd == -1)
             throw atf::system_error("atf_check::temp_file::temp_file(" +
-                                    file.str() + ")", "mkstemp(3) failed",
+                                    file_s + ")", "mkstemp(3) failed",
                                     errno);
 
-        m_path.reset(new atf::fs::path(buf.data()));
+        m_path.reset(new atf::fs::path(file_ch_arr));
     }
 
     ~temp_file(void)
