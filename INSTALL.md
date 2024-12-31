@@ -10,7 +10,7 @@ For the impatient:
 ```sh
 $ ./configure
 $ make
-$ sudo make install # or gain root privileges through su or doas 
+$ sudo make install # or gain root privileges through su or doas
 $ make installcheck
 ```
 
@@ -27,19 +27,20 @@ $ make installcheck
 
 To build and use ATF successfully you need:
 
-- A C++14 standards-compliant C/C++ toolchain
-  - Clang 3.4 or above ([Clang C++ status](https://clang.llvm.org/cxx_status.html))
-  - GCC 6.1 or above ([GCC C++ status](https://gcc.gnu.org/projects/cxx-status.html))
-- A POSIX compliant shell
-  - e.g. zsh, bash, tcsh
-- make
+-   A C++14 standards-compliant C/C++ toolchain
+    -   Clang 3.4 or above ([Clang C++ status](https://clang.llvm.org/cxx_status.html))
+    -   GCC 6.1 or above ([GCC C++ status](https://gcc.gnu.org/projects/cxx-status.html))
+-   A POSIX compliant shell
+    -   e.g. zsh, bash, tcsh
+-   make
 
 If you are building ATF from the code on the repository, you will also need
 to have:
-- autoconf 2.68 or above
-- automake 1.9 or above
-- libtool
-- m4
+
+-   autoconf 2.68 or above
+-   automake 1.9 or above
+-   libtool
+-   m4
 
 ## Regenerating the build system
 
@@ -82,101 +83,101 @@ To build and install the source package, you must follow these steps:
 
 The most common, standard flags given to `configure` are:
 
-- `--prefix=directory`:
+-   `--prefix=directory`:
 
-  **Possible values:** Any path
+    **Possible values:** Any path
 
-  **Default:** `/usr/local`
+    **Default:** `/usr/local`
 
-  Specifies where the program (binaries and all associated files) will
-  be installed.
+    Specifies where the program (binaries and all associated files) will
+    be installed.
 
-- `--help`:
+-   `--help`:
 
-  Shows information about all available flags and exits immediately,
-  without running any configuration tasks.
+    Shows information about all available flags and exits immediately,
+    without running any configuration tasks.
 
 The following environment variables are specific to ATF's `configure`
 script:
 
-- `ATF_BUILD_CC`:
+-   `ATF_BUILD_CC`:
 
-  **Possible values:** empty, an absolute or relative path to a C compiler.
+    **Possible values:** empty, an absolute or relative path to a C compiler.
 
-  **Default:** the value of CC as detected by the configure script.
+    **Default:** the value of CC as detected by the configure script.
 
-  Specifies the C compiler that ATF will use at run time whenever the
-  build-time-specific checks are used.
+    Specifies the C compiler that ATF will use at run time whenever the
+    build-time-specific checks are used.
 
-- `ATF_BUILD_CFLAGS`:
+-   `ATF_BUILD_CFLAGS`:
 
-  **Possible values:** empty, a list of valid C compiler flags.
+    **Possible values:** empty, a list of valid C compiler flags.
 
-  **Default:** the value of CFLAGS as detected by the configure script.
+    **Default:** the value of CFLAGS as detected by the configure script.
 
-  Specifies the C compiler flags that ATF will use at run time whenever the
-  build-time-specific checks are used.
+    Specifies the C compiler flags that ATF will use at run time whenever the
+    build-time-specific checks are used.
 
-- `ATF_BUILD_CPP`:
+-   `ATF_BUILD_CPP`:
 
-  **Possible values:** empty, an absolute or relative path to a C/C++
-  preprocessor.
+    **Possible values:** empty, an absolute or relative path to a C/C++
+    preprocessor.
 
-  **Default:** the value of CPP as detected by `configure` script.
+    **Default:** the value of CPP as detected by `configure` script.
 
-  Specifies the C/C++ preprocessor that ATF will use at run time whenever
-  the build-time-specific checks are used.
+    Specifies the C/C++ preprocessor that ATF will use at run time whenever
+    the build-time-specific checks are used.
 
-- `ATF_BUILD_CPPFLAGS`:
+-   `ATF_BUILD_CPPFLAGS`:
 
-  **Possible values:** empty, a list of valid C/C++ preprocessor flags.
+    **Possible values:** empty, a list of valid C/C++ preprocessor flags.
 
-  **Default:** the value of `CPPFLAGS` as detected by the configure script.
+    **Default:** the value of `CPPFLAGS` as detected by the configure script.
 
-  Specifies the C/C++ preprocessor flags that ATF will use at run time
-  whenever the build-time-specific checks are used.
+    Specifies the C/C++ preprocessor flags that ATF will use at run time
+    whenever the build-time-specific checks are used.
 
-- `ATF_BUILD_CXX`:
+-   `ATF_BUILD_CXX`:
 
-  **Possible values:** empty, an absolute or relative path to a C++ compiler.
+    **Possible values:** empty, an absolute or relative path to a C++ compiler.
 
-  **Default:** the value of `CXX` as detected by the configure script.
+    **Default:** the value of `CXX` as detected by the configure script.
 
-  Specifies the C++ compiler that ATF will use at run time whenever the
-  build-time-specific checks are used.
+    Specifies the C++ compiler that ATF will use at run time whenever the
+    build-time-specific checks are used.
 
-- `ATF_BUILD_CXXFLAGS`:
+-   `ATF_BUILD_CXXFLAGS`:
 
-  **Possible values:** empty, a list of valid C++ compiler flags.
+    **Possible values:** empty, a list of valid C++ compiler flags.
 
-  **Default:** the value of `CXXFLAGS` as detected by `configure` script.
+    **Default:** the value of `CXXFLAGS` as detected by `configure` script.
 
-  Specifies the C++ compiler flags that ATF will use at run time whenever
-  the build-time-specific checks are used.
+    Specifies the C++ compiler flags that ATF will use at run time whenever
+    the build-time-specific checks are used.
 
-- `ATF_SHELL`:
+-   `ATF_SHELL`:
 
-  **Possible values:** empty, an absolute path to a POSIX shell interpreter.
+    **Possible values:** empty, an absolute path to a POSIX shell interpreter.
 
-  **Default:** empty.
+    **Default:** empty.
 
-  Specifies the POSIX shell interpreter that ATF will use at run time to
-  execute its scripts and the test programs written using the atf-sh
-  library. If empty, the configure script will try to find a suitable
-  interpreter for you.
+    Specifies the POSIX shell interpreter that ATF will use at run time to
+    execute its scripts and the test programs written using the atf-sh
+    library. If empty, the configure script will try to find a suitable
+    interpreter for you.
 
 The following flags are specific to ATF's `configure` script:
 
-- `--enable-developer`:
+-   `--enable-developer`:
 
-  **Possible values:** `yes`, `no`
+    **Possible values:** `yes`, `no`
 
-  **Default:** `yes` in HEAD builds; `no` in release builds.
+    **Default:** `yes` in HEAD builds; `no` in release builds.
 
-  Enables several features useful for development, such as the inclusion
-  of debugging symbols in all objects or the enforcement of compilation
-  warnings.
+    Enables several features useful for development, such as the inclusion
+    of debugging symbols in all objects or the enforcement of compilation
+    warnings.
 
-  The compiler will be executed with an exhaustive collection of warning
-  detection features regardless of the value of this flag. However, such
-  warnings are only fatal when `--enable-developer` is `yes`.
+    The compiler will be executed with an exhaustive collection of warning
+    detection features regardless of the value of this flag. However, such
+    warnings are only fatal when `--enable-developer` is `yes`.
