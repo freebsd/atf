@@ -114,12 +114,4 @@ clean-all:
 
 .PHONY: $(PHONY_TARGETS)
 
-# TODO(jmmv): Remove after atf 0.22.
-install-data-hook:
-	cd $(DESTDIR)$(man3dir) && \
-	for binding in c c++ sh; do \
-	    rm -f "atf-$${binding}-api.3"; \
-	    $(LN_S) "atf-$${binding}.3" "atf-$${binding}-api.3"; \
-	done
-
 # vim: syntax=make:noexpandtab:shiftwidth=8:softtabstop=8
