@@ -25,7 +25,6 @@
 
 libatf_c___la_SOURCES += atf-c++/detail/application.cpp \
                          atf-c++/detail/application.hpp \
-                         atf-c++/detail/auto_array.hpp \
                          atf-c++/detail/env.cpp \
                          atf-c++/detail/env.hpp \
                          atf-c++/detail/exceptions.cpp \

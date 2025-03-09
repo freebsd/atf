@@ -54,6 +54,26 @@ test_printf(const char *format, ...)
     AC_SUBST([ATTRIBUTE_FORMAT_PRINTF], [${value}])
 ])
 
+AC_DEFUN([ATF_ATTRIBUTE_NONNULL], [
+    AC_CACHE_CHECK(
+        [whether __attribute__((nonnull)) is supported],
+        [kyua_cv_attribute_nonnull], [
+        AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM([
+void	func(char *foo __attribute__((nonnull)));
+])],
+        [kyua_cv_attribute_nonnull=yes],
+	[kyua_cv_attribute_nonnull=no])
+    ])
+    if test x"${kyua_cv_attribute_nonnull}" = xyes; then
+        value="__attribute__((nonnull))"
+    else
+        value=""
+    fi
+    AC_SUBST([ATTRIBUTE_NONNULL], [${value}])
+])
+
+
 AC_DEFUN([ATF_ATTRIBUTE_NORETURN], [
     dnl XXX This check is overly simple and should be fixed.  For example,
     dnl Sun's cc does support the noreturn attribute but CC (the C++
@@ -103,6 +123,7 @@ function(int a __attribute__((__unused__)))
 
 AC_DEFUN([ATF_MODULE_DEFS], [
     ATF_ATTRIBUTE_FORMAT_PRINTF
+    ATF_ATTRIBUTE_NONNULL
     ATF_ATTRIBUTE_NORETURN
     ATF_ATTRIBUTE_UNUSED
 ])
