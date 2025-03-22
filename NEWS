@@ -4,8 +4,15 @@ Major changes between releases                  Automated Testing Framework
 Changes in version 0.23
 ***********************
 
-STILL UNDER DEVELOPMENT; NOT RELEASED YET.
-DON'T FORGET TO BUMP THE -version-info PRE-RELEASE IF NECESSARY!
+Released on XXXX, XX, 2025
+
+* Issue #101: fix release tarballs by using `make dist` instead of
+  alternative ad hoc method.
+
+### General fixes
+
+* Fix various style issues which were blocking `make dist` from completing
+  cleanly.
 
 Changes in version 0.22
 ***********************
