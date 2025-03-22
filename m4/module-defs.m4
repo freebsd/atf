@@ -63,7 +63,7 @@ AC_DEFUN([ATF_ATTRIBUTE_NONNULL], [
 void	func(char *foo __attribute__((nonnull)));
 ])],
         [kyua_cv_attribute_nonnull=yes],
-	[kyua_cv_attribute_nonnull=no])
+        [kyua_cv_attribute_nonnull=no])
     ])
     if test x"${kyua_cv_attribute_nonnull}" = xyes; then
         value="__attribute__((nonnull))"
