@@ -1,5 +1,17 @@
 # Major changes between releases
 
+## Changes in version 0.22.1
+
+Released on March, 29, 2025
+
+* Issue #101: fix release tarballs by using `make dist` instead of
+  alternative ad hoc method.
+
+### General fixes
+
+* Fix various style issues which were blocking `make dist` from completing
+  cleanly.
+
 ## Changes in version 0.22
 
 Released on November 25th, 2024.
