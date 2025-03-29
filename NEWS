@@ -1,16 +1,39 @@
 # Major changes between releases
 
-## Changes in version 0.22.1
+## Changes in version 0.23
 
 Released on March, 29, 2025
 
 * Issue #101: fix release tarballs by using `make dist` instead of
   alternative ad hoc method.
 
+* Issue #76: `atf_check`: fix `std::length_error` thrown from `temp_file`.
+
+* #87: Update documentation/build files to point to FreeBSD repo/mailing lists.
+
+* #86: Improve diagnostics when paths cannot be opened
+
+* #85: various build-related changes. Highlights:
+    * Remove leftover references of `auto_array` (bugfix).
+    * Remove the `atf-*-api` manpages (enhancement).
+    * Require -std=C++14 with ATF (enhancement).
+    * Expose `WCOREDUMP(..)` on platforms that support it (bugfix).
+    * Add `__attribute__((nonnull))` support (enhancement).
+    * Restore `AC_PROG_CPP` (bugfix).
+
 ### General fixes
 
 * Fix various style issues which were blocking `make dist` from completing
   cleanly.
+
+* Fix `atf_utils_file_exists` declaration in atf-c(3).
+
+* Fix various memory leaks and logic errors.
+
+* `atf-test-case(4)`: update reference to the "descr" metadata property so it's
+  marked Optional.
+
+* `atf-check.cpp`: remove unnecessary data copy in `temp_file`.
 
 ## Changes in version 0.22
 
