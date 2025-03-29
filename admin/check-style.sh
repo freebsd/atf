@@ -95,6 +95,7 @@ find_sources() {
               \! -path "*/atf-[0-9]*" -a \
               \! -path "*autom4te*" -a \
               -type f -a \
+              \! -name "ac_cxx_compile_stdcxx.m4" \
               \! -name "aclocal.m4" \
               \! -name "config.h" \
               \! -name "defs.h" \
