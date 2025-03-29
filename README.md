@@ -64,9 +64,5 @@ here, follow the instructions in the [INSTALL file](INSTALL.md).
 ## Support
 
 Please use the
-[atf-discuss mailing list](https://groups.google.com/forum/#!forum/atf-discuss)
-for any support inquiries related to `atf-c`, `atf-c++` or `atf-sh`.
-
-If you have any questions on Kyua proper, please use the
-[kyua-discuss mailing list](https://groups.google.com/forum/#!forum/kyua-discuss)
-instead.
+[FreeBSD-testing@FreeBSD.org](mailto:FreeBSD-testing@FreeBSD.org) mailing list
+for any support inquiries related to `atf-c`, `atf-c++`, `atf-sh`, or `kyua`.
