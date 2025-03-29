@@ -52,7 +52,7 @@ include test-programs/Makefile.am.inc
 # Top-level distfile documents.
 #
 
-doc_DATA = AUTHORS COPYING NEWS.md README.md
+doc_DATA = AUTHORS COPYING NEWS README.md
 noinst_DATA += INSTALL.md README.md
 EXTRA_DIST += $(doc_DATA) INSTALL.md README.md
 

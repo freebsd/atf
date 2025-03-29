@@ -77,7 +77,7 @@ find_sources() {
     find . \( -name "AUTHORS" -o \
               -name "COPYING" -o \
               -name "ChangeLog" -o \
-              -name "NEWS.md" -o \
+              -name "NEWS" -o \
               -name "README.md" -o \
               -name "TODO" -o \
               -name "*.[0-9]" -o \

@@ -109,7 +109,7 @@ in their base systems and provide extensive test suites based on it.
 .Pp
 For more details on historical changes, refer to:
 .Bd -literal -offset indent
-.Pa __DOCDIR__/NEWS.md
+.Pa __DOCDIR__/NEWS
 .Ed
 .Sh AUTHORS
 For more details on the people that made
