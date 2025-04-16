@@ -60,7 +60,7 @@ Released on November 25th, 2024.
 
 * Replace `auto_array` with `std::vector` (fixes modern C++ compliance).
 
-* Replace `auto_ptr` with `std::shared_ptr` (fixes modern C++ compliance).
+* Replace `auto_ptr` with `std::unique_ptr` (fixes modern C++ compliance).
 
 * Update autotools idioms and requirements. The minimum required version of
   autoconf is now 2.68.
