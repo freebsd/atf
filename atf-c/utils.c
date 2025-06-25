@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <regex.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -426,8 +427,9 @@ void
 atf_utils_wait(const pid_t pid, const int exitstatus, const char *expout,
                const char *experr)
 {
-    int status;
-    ATF_REQUIRE(waitpid(pid, &status, 0) != -1);
+    siginfo_t info;
+    ATF_REQUIRE(waitid(P_PID, pid, &info, WEXITED) != -1);
+    ATF_REQUIRE(info.si_pid == pid);
 
     atf_dynstr_t out_name;
     init_out_filename(&out_name, pid, "out", true);
@@ -438,8 +440,8 @@ atf_utils_wait(const pid_t pid, const int exitstatus, const char *expout,
     atf_utils_cat_file(atf_dynstr_cstring(&out_name), "subprocess stdout: ");
     atf_utils_cat_file(atf_dynstr_cstring(&err_name), "subprocess stderr: ");
 
-    ATF_REQUIRE(WIFEXITED(status));
-    ATF_REQUIRE_EQ(exitstatus, WEXITSTATUS(status));
+    ATF_REQUIRE(info.si_code == CLD_EXITED);
+    ATF_REQUIRE_EQ(exitstatus, info.si_status);
 
     const char *save_prefix = "save:";
     const size_t save_prefix_length = strlen(save_prefix);

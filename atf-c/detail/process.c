@@ -44,7 +44,7 @@
 
 /* This prototype is not in the header file because this is a private
  * function; however, we need to access it during testing. */
-atf_error_t atf_process_status_init(atf_process_status_t *, int);
+atf_error_t atf_process_status_init(atf_process_status_t *, siginfo_t *);
 
 /* ---------------------------------------------------------------------
  * The "stream_prepare" auxiliary type.
@@ -188,10 +188,10 @@ atf_process_stream_type(const atf_process_stream_t *sb)
  * --------------------------------------------------------------------- */
 
 atf_error_t
-atf_process_status_init(atf_process_status_t *s, int status)
+atf_process_status_init(atf_process_status_t *s, siginfo_t *info)
 {
-    s->m_status = status;
 
+    s->m_info = *info;
     return atf_no_error();
 }
 
@@ -203,43 +203,35 @@ atf_process_status_fini(atf_process_status_t *s ATF_DEFS_ATTRIBUTE_UNUSED)
 bool
 atf_process_status_exited(const atf_process_status_t *s)
 {
-    int mutable_status = s->m_status;
-    return WIFEXITED(mutable_status);
+    return s->m_info.si_code == CLD_EXITED;
 }
 
 int
 atf_process_status_exitstatus(const atf_process_status_t *s)
 {
     PRE(atf_process_status_exited(s));
-    int mutable_status = s->m_status;
-    return WEXITSTATUS(mutable_status);
+    return s->m_info.si_status;
 }
 
 bool
 atf_process_status_signaled(const atf_process_status_t *s)
 {
-    int mutable_status = s->m_status;
-    return WIFSIGNALED(mutable_status);
+    int si_code = s->m_info.si_code;
+    return si_code == CLD_KILLED || si_code == CLD_DUMPED;
 }
 
 int
 atf_process_status_termsig(const atf_process_status_t *s)
 {
     PRE(atf_process_status_signaled(s));
-    int mutable_status = s->m_status;
-    return WTERMSIG(mutable_status);
+    return s->m_info.si_status;
 }
 
 bool
 atf_process_status_coredump(const atf_process_status_t *s)
 {
     PRE(atf_process_status_signaled(s));
-#if defined(WCOREDUMP)
-    int mutable_status = s->m_status;
-    return WCOREDUMP(mutable_status);
-#else
-    return false;
-#endif
+    return s->m_info.si_code == CLD_DUMPED;
 }
 
 /* ---------------------------------------------------------------------
@@ -271,14 +263,14 @@ atf_error_t
 atf_process_child_wait(atf_process_child_t *c, atf_process_status_t *s)
 {
     atf_error_t err;
-    int status;
+    siginfo_t info;
 
-    if (waitpid(c->m_pid, &status, 0) == -1)
+    if (waitid(P_PID, c->m_pid, &info, WEXITED) == -1)
         err = atf_libc_error(errno, "Failed waiting for process %d",
                              c->m_pid);
     else {
         atf_process_child_fini(c);
-        err = atf_process_status_init(s, status);
+        err = atf_process_status_init(s, &info);
     }
 
     return err;

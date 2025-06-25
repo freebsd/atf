@@ -207,12 +207,12 @@ parse_exit_code(const std::string& str)
 {
     try {
         const int value = atf::text::to_type< int >(str);
-        if (value < 0 || value > 255)
+        if (value < INT_MIN || value > INT_MAX)
             throw std::runtime_error("Unused reason");
         return value;
     } catch (const std::runtime_error&) {
         throw atf::application::usage_error("Invalid exit code for -s option; "
-            "must be an integer in range 0-255");
+            "must be an integer in range [%d, %d]", INT_MIN, INT_MAX);
     }
 }
 
