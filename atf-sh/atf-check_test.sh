@@ -70,13 +70,12 @@ sflag_eq_ne_body()
 {
     h_pass "true" -s eq:0
     h_pass "false" -s ne:0
-    h_pass "exit 255" -s eq:255
+    h_pass "exit 2147483647" -s eq:2147483647
     h_pass "exit 0" -s ne:255
 
-    h_fail "exit 256" -s eq:256
+    h_fail "exit 2147483648" -s eq:2147483648
     h_fail "exit -1" -s eq:-1
-    h_fail "true" -s ne:256
-    h_fail "true" -s ne:-1
+    h_fail "true" -s ne:2147483649
 }
 
 atf_test_case sflag_exit
@@ -88,13 +87,12 @@ sflag_exit_body()
 {
     h_pass 'true' -s exit:0
     h_pass 'false' -s not-exit:0
-    h_pass 'exit 255' -s exit:255
+    h_pass 'exit 2147483647' -s exit:2147483647
     h_pass 'exit 0' -s not-exit:255
 
-    h_fail 'exit 256' -s exit:256
+    h_fail 'exit 2147483648' -s exit:2147483648
     h_fail 'exit -1' -s exit:-1
-    h_fail 'true' -s not-exit:256
-    h_fail 'true' -s not-exit:-1
+    h_fail 'true' -s not-exit:2147483649
 
     h_pass 'true' -s exit
     h_pass 'false' -s exit
