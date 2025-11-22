@@ -30,6 +30,7 @@ extern "C" {
 #include <limits.h>
 #include <signal.h>
 #include <stdint.h>
+#include <time.h>
 #include <unistd.h>
 }
 
