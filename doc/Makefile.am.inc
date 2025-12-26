@@ -23,7 +23,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-dist_man_MANS += doc/atf-test-case.4 \
+dist_man_MANS += doc/atf-test-case.7 \
                  doc/atf-test-program.1
 
 man_MANS += doc/atf.7
