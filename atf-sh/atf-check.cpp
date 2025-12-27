@@ -690,7 +690,7 @@ run_status_checks(const std::vector< status_check >& checks,
 
 static
 bool
-run_output_check(const output_check oc, const atf::fs::path& path,
+run_output_check(const output_check& oc, const atf::fs::path& path,
                  const std::string& stdxxx)
 {
     bool result;
