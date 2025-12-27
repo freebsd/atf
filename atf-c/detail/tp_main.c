@@ -292,17 +292,13 @@ static
 atf_error_t
 handle_tcarg(const char *tcarg, char **tcname, enum tc_part *tcpart)
 {
-    atf_error_t err;
-
-    err = atf_no_error();
+    char *delim;
 
     *tcname = strdup(tcarg);
-    if (*tcname == NULL) {
-        err = atf_no_memory_error();
-        goto out;
-    }
+    if (*tcname == NULL)
+        return atf_no_memory_error();
 
-    char *delim = strchr(*tcname, ':');
+    delim = strchr(*tcname, ':');
     if (delim != NULL) {
         *delim = '\0';
 
@@ -312,13 +308,11 @@ handle_tcarg(const char *tcarg, char **tcname, enum tc_part *tcpart)
         } else if (strcmp(delim, "cleanup") == 0) {
             *tcpart = CLEANUP;
         } else {
-            err = usage_error("Invalid test case part `%s'", delim);
-            goto out;
+            return usage_error("Invalid test case part `%s'", delim);
         }
     }
 
-out:
-    return err;
+    return atf_no_error();
 }
 
 static
@@ -329,9 +323,7 @@ process_params(int argc, char **argv, struct params *p)
     int ch;
     int old_opterr;
 
-    err = params_init(p, argv[0]);
-    if (atf_is_error(err))
-        goto out;
+    err = atf_no_error();
 
     old_opterr = opterr;
     opterr = 0;
@@ -389,10 +381,6 @@ process_params(int argc, char **argv, struct params *p)
         }
     }
 
-    if (atf_is_error(err))
-        params_fini(p);
-
-out:
     return err;
 }
 
@@ -486,12 +474,8 @@ run_tc(const atf_tp_t *tp, struct params *p, int *exitcode)
 {
     atf_error_t err;
 
-    err = atf_no_error();
-
-    if (!atf_tp_has_tc(tp, p->m_tcname)) {
-        err = usage_error("Unknown test case `%s'", p->m_tcname);
-        goto out;
-    }
+    if (!atf_tp_has_tc(tp, p->m_tcname))
+        return usage_error("Unknown test case `%s'", p->m_tcname);
 
     if (!atf_env_has("__RUNNING_INSIDE_ATF_RUN") || strcmp(atf_env_get(
         "__RUNNING_INSIDE_ATF_RUN"), "internal-yes-value") != 0)
@@ -531,7 +515,6 @@ run_tc(const atf_tp_t *tp, struct params *p, int *exitcode)
     }
 
     INV(!atf_is_error(err));
-out:
     return err;
 }
 
@@ -546,9 +529,13 @@ controlled_main(int argc, char **argv,
     atf_tp_t tp;
     char **raw_config;
 
-    err = process_params(argc, argv, &p);
+    err = params_init(&p, argv[0]);
     if (atf_is_error(err))
         goto out;
+
+    err = process_params(argc, argv, &p);
+    if (atf_is_error(err))
+        goto out_p;
 
     err = handle_srcdir(&p);
     if (atf_is_error(err))
