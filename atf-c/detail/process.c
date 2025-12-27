@@ -67,6 +67,8 @@ stream_prepare_init(stream_prepare_t *sp, const atf_process_stream_t *sb)
     const int type = atf_process_stream_type(sb);
 
     sp->m_sb = sb;
+    sp->m_pipefds[0] = -1;
+    sp->m_pipefds[1] = -1;
     sp->m_pipefds_ok = false;
 
     if (type == atf_process_stream_type_capture) {
@@ -239,14 +241,12 @@ atf_process_status_coredump(const atf_process_status_t *s)
  * --------------------------------------------------------------------- */
 
 static
-atf_error_t
+void
 atf_process_child_init(atf_process_child_t *c)
 {
     c->m_pid = 0;
     c->m_stdout = -1;
     c->m_stderr = -1;
-
-    return atf_no_error();
 }
 
 static
@@ -381,25 +381,17 @@ parent_connect(const stream_prepare_t *sp, int *fd)
 }
 
 static
-atf_error_t
+void
 do_parent(atf_process_child_t *c,
           const pid_t pid,
           const stream_prepare_t *outsp,
           const stream_prepare_t *errsp)
 {
-    atf_error_t err;
-
-    err = atf_process_child_init(c);
-    if (atf_is_error(err))
-        goto out;
 
     c->m_pid = pid;
 
     parent_connect(outsp, &c->m_stdout);
     parent_connect(errsp, &c->m_stderr);
-
-out:
-    return err;
 }
 
 static
@@ -475,7 +467,7 @@ fork_with_streams(atf_process_child_t *c,
         abort();
         err = atf_no_error();
     } else {
-        err = do_parent(c, pid, &outsp, &errsp);
+        do_parent(c, pid, &outsp, &errsp);
         if (atf_is_error(err))
             goto err_errpipe;
     }
@@ -521,6 +513,8 @@ atf_process_fork(atf_process_child_t *c,
     atf_error_t err;
     atf_process_stream_t inherit_outsb, inherit_errsb;
     const atf_process_stream_t *real_outsb, *real_errsb;
+
+    atf_process_child_init(c);
 
     real_outsb = NULL;  /* Shut up GCC warning. */
     err = init_stream_w_default(outsb, &inherit_outsb, &real_outsb);
