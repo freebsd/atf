@@ -659,7 +659,7 @@ atf_process_exec_list(atf_process_status_t *s,
 
     err = atf_process_exec_array(s, prog, argv2, outsb, errsb, prehook);
 
-    free(argv2);
 out:
+    free(argv2);
     return err;
 }
