@@ -122,13 +122,7 @@ static void
 set_program_name(const char* argv0)
 {
     const std::string program_name = atf::fs::path(argv0).leaf_name();
-    // Libtool workaround: if running from within the source tree (binaries
-    // that are not installed yet), skip the "lt-" prefix added to files in
-    // the ".libs" directory to show the real (not temporary) name.
-    if (program_name.substr(0, 3) == "lt-")
-        Program_Name = program_name.substr(3);
-    else
-        Program_Name = program_name;
+    Program_Name = program_name;
 }
 
 bool
