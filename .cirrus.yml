@@ -4,15 +4,21 @@ env:
 
 task:
   matrix:
-    - name: 14.0-CURRENT
+    - name: 16.0-CURRENT
       freebsd_instance:
-        image_family: freebsd-14-0-snap
-    - name: 13.0-STABLE
+        image_family: freebsd-16-0-snap
+    - name: 15-STABLE
       freebsd_instance:
-        image_family: freebsd-13-0-snap
-    - name: 13.0-RELEASE
+        image_family: freebsd-15-0-amd64-ufs-snap
+    - name: 15.0-RELEASE
       freebsd_instance:
-        image_family: freebsd-13-0
+        image_family: freebsd-15-0-amd64-ufs
+    - name: 14-STABLE
+      freebsd_instance:
+        image_family: freebsd-14-3-snap
+    - name: 14.3-RELEASE
+      freebsd_instance:
+        image_family: freebsd-14-3
   install_script:
     - sed -i.bak -e 's,pkg+http://pkg.FreeBSD.org/\${ABI}/quarterly,pkg+http://pkg.FreeBSD.org/\${ABI}/latest,' /etc/pkg/FreeBSD.conf
     - ASSUME_ALWAYS_YES=yes pkg bootstrap -f
