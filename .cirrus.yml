@@ -4,9 +4,16 @@ env:
 
 task:
   matrix:
-    - name: 16.0-CURRENT
-      freebsd_instance:
-        image_family: freebsd-16-0-snap
+    # ngie: as of 2025-12-28 the 16.0-CURRENT supplied image on GCP does not
+    # boot (gets stuck trying to find the bootdisk). Disable it so Cirrus CI
+    # actually completes instead of getting stuck forever.
+    #
+    # See https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=292009 for more
+    # details.
+    #
+    #- name: 16.0-CURRENT
+    #  freebsd_instance:
+    #    image_family: freebsd-16-0-snap
     - name: 15-STABLE
       freebsd_instance:
         image_family: freebsd-15-0-amd64-ufs-snap
