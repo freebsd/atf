@@ -1,9 +1,14 @@
+---
+
 env:
   CIRRUS_CLONE_DEPTH: 1
   ARCH: amd64
 
 task:
+  timeout_in: 30m
   matrix:
+    # yamllint disable rule:comments
+    #
     # ngie: as of 2025-12-28 the 16.0-CURRENT supplied image on GCP does not
     # boot (gets stuck trying to find the bootdisk). Disable it so Cirrus CI
     # actually completes instead of getting stuck forever.
@@ -11,9 +16,12 @@ task:
     # See https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=292009 for more
     # details.
     #
+    #
     #- name: 16.0-CURRENT
     #  freebsd_instance:
     #    image_family: freebsd-16-0-snap
+    #
+    # yamllint enable rule:comments
     - name: 15-STABLE
       freebsd_instance:
         image_family: freebsd-15-0-amd64-ufs-snap
@@ -27,11 +35,17 @@ task:
       freebsd_instance:
         image_family: freebsd-14-3
   install_script:
+    # yamllint disable-line rule:line-length
     - sed -i.bak -e 's,pkg+http://pkg.FreeBSD.org/\${ABI}/quarterly,pkg+http://pkg.FreeBSD.org/\${ABI}/latest,' /etc/pkg/FreeBSD.conf
     - ASSUME_ALWAYS_YES=yes pkg bootstrap -f
     - pkg install -y autoconf automake libtool kyua pkgconf
   script:
-    - env JUNIT_OUTPUT=$(pwd)/test-results.xml ./admin/ci-build.sh
+    - ./admin/ci-build/01_configure.sh
+    - env JUNIT_OUTPUT="$(pwd)/test-results.xml"
+          ./admin/ci-build/02_distcheck.sh
+  on_failure:
+    dump_distcheck_logs:
+      - cat atf-*/_build/sub/config.log
   always:
     junit_artifacts:
       path: "test-results.xml"
