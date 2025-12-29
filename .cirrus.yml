@@ -31,7 +31,7 @@ task:
     - ASSUME_ALWAYS_YES=yes pkg bootstrap -f
     - pkg install -y autoconf automake libtool kyua pkgconf
   script:
-    - env JUNIT_OUTPUT=$(pwd)/test-results.xml ./admin/travis-build.sh
+    - env JUNIT_OUTPUT=$(pwd)/test-results.xml ./admin/ci-build.sh
   always:
     junit_artifacts:
       path: "test-results.xml"
