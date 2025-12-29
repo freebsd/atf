@@ -667,6 +667,15 @@ ATF_TC_BODY(status_coredump, tc)
         atf_tc_skip("Cannot unlimit the core file size; check limits "
                     "manually");
 
+#if defined(__APPLE__)
+    /*
+     * The default security policy on macOS prevents this check from being
+     * tested (coredumps aren't generated for unsigned binaries).
+     */
+    atf_tc_expect_fail(
+        "atf_process_status_coredump check fails on macOS");
+#endif
+
     siginfo_t info;
     fork_and_wait_child(child_sigquit, &info);
     atf_process_status_t s;
