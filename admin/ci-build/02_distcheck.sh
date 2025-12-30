@@ -22,11 +22,11 @@ f="${f} ATF_BUILD_CXX='${CXX}'"
 if [ -e "$(dirname "$(dirname "$0")")/.git" ]; then
     f="${f} --enable-developer"
 fi
-if [ -n "${EXTRA_DISTCONFIGURE_ARGS:-}" ]; then
-    f="${f} ${EXTRA_DISTCONFIGURE_ARGS}"
+if [ -n "${EXTRA_DISTCHECK_CONFIGURE_ARGS:-}" ]; then
+    f="${f} ${EXTRA_DISTCHECK_CONFIGURE_ARGS}"
 fi
 
-kyua_conf="$(realpath "$(mktemp kyua-XXXXXXXX.conf)")"
+kyua_conf="$(realpath "$(mktemp kyuaconf-XXXXXXXX)")"
 trap 'rm -f "${kyua_conf}"' EXIT INT TERM
 
 sudo=
