@@ -41,7 +41,8 @@ task:
     - pkg install -y autoconf automake libtool kyua pkgconf
   script:
     - ./admin/ci-build/01_configure.sh
-    - env JUNIT_OUTPUT="$(pwd)/test-results.xml"
+    - env EXTRA_DISTCHECK_CONFIGURE_ARGS="--enable-developer"
+          JUNIT_OUTPUT="$(pwd)/test-results.xml"
           ./admin/ci-build/02_distcheck.sh
   on_failure:
     dump_distcheck_logs:

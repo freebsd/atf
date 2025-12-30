@@ -100,7 +100,7 @@ jobs:
               run: |
                   CFG_ARGS="--disable-dependency-tracking --enable-developer"
                   cd "${ATF_SRCDIR}"
-                  env "EXTRA_DISTCONFIGURE_ARGS=${CFG_ARGS}" \
+                  env "EXTRA_DISTCHECK_CONFIGURE_ARGS=${CFG_ARGS}" \
                       ./admin/ci-build/02_distcheck.sh
             - name: Gather/Archive Logs and Reports
               run: |
