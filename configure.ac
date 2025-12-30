@@ -27,7 +27,7 @@ dnl -----------------------------------------------------------------------
 dnl Initialize the GNU build system.
 dnl -----------------------------------------------------------------------
 
-AC_INIT([Automated Testing Framework], [0.23],
+AC_INIT([Automated Testing Framework], [0.24],
         [freebsd-testing@freebsd.org], [atf],
         [https://github.com/freebsd/atf/])
 AC_PREREQ([2.68])
