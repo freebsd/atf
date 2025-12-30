@@ -36,7 +36,7 @@ jobs:
             OBJDUMP: ${{ matrix.llvm-bindir }}/llvm-objdump
             STRIP: ${{ matrix.llvm-bindir }}/llvm-strip
             ATF_SRCDIR: ${{ github.workspace }}/src
-            ATF_OBJDIR: ${{ github.workspace }}/src
+            ATF_OBJDIR: ${{ github.workspace }}/obj
             JOB_NAME: ${{ matrix.build-os }} ${{ matrix.compiler }}
         runs-on: "${{ matrix.build-os }}"
         strategy:
@@ -109,7 +109,11 @@ jobs:
                   (
                     cd "${REPORTS_DIR}"
                     mkdir -p build_logs
-                    cp -a "${ATF_SRCDIR}"/atf-*/_build/sub/*.log build_logs/
+                    # Gather the distcheck failure log if the target failed.
+                    # It's easier to ignore the failure than create yet another
+                    # conditional variable step.
+                    cp -a "${ATF_SRCDIR}"/atf-*/_build/sub/*.log build_logs/ \
+                        2>/dev/null || true
                     # Include the raw kyua logs.
                     cp -a ~/.kyua/logs kyua_logs
                   )
