@@ -61,6 +61,8 @@ atf-c++/atf-c++.pc: $(srcdir)/atf-c++/atf-c++.pc.in Makefile
 	    -e 's#__CXX__#$(ATF_BUILD_CXX)#g' \
 	    -e 's#__INCLUDEDIR__#$(includedir)#g' \
 	    -e 's#__LIBDIR__#$(libdir)#g' \
+	    -e 's#__PC_CXXFLAGS__#$(pc_cxxflags)#g' \
+	    -e 's#__PC_LDFLAGS__#$(pc_ldflags)#g' \
 	    <$(srcdir)/atf-c++/atf-c++.pc.in >atf-c++/atf-c++.pc.tmp; \
 	mv atf-c++/atf-c++.pc.tmp atf-c++/atf-c++.pc
 
