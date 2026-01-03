@@ -175,16 +175,12 @@ atf_error_t
 copy_contents(const atf_fs_path_t *p, char **buf)
 {
     atf_error_t err;
-    char *str;
 
-    str = (char *)malloc(atf_dynstr_length(&p->m_data) + 1);
-    if (str == NULL)
+    *buf = strdup(atf_fs_path_cstring(p));
+    if (*buf == NULL)
         err = atf_no_memory_error();
-    else {
-        strcpy(str, atf_dynstr_cstring(&p->m_data));
-        *buf = str;
+    else
         err = atf_no_error();
-    }
 
     return err;
 }
@@ -795,10 +791,8 @@ atf_fs_mkdtemp(atf_fs_path_t *p)
     atf_error_t err;
     char *buf;
 
-    if (!check_umask(S_IRWXU, S_IRWXU)) {
-        err = invalid_umask_error(p, atf_fs_stat_dir_type, current_umask());
-        goto out;
-    }
+    if (!check_umask(S_IRWXU, S_IRWXU))
+        return invalid_umask_error(p, atf_fs_stat_dir_type, current_umask());
 
     err = copy_contents(p, &buf);
     if (atf_is_error(err))
@@ -806,14 +800,13 @@ atf_fs_mkdtemp(atf_fs_path_t *p)
 
     err = do_mkdtemp(buf);
     if (atf_is_error(err))
-        goto out_buf;
+        goto out;
 
     replace_contents(p, buf);
 
     INV(!atf_is_error(err));
-out_buf:
-    free(buf);
 out:
+    free(buf);
     return err;
 }
 
@@ -824,10 +817,8 @@ atf_fs_mkstemp(atf_fs_path_t *p, int *fdout)
     char *buf;
     int fd;
 
-    if (!check_umask(S_IRWXU, S_IRWXU)) {
-        err = invalid_umask_error(p, atf_fs_stat_reg_type, current_umask());
-        goto out;
-    }
+    if (!check_umask(S_IRWXU, S_IRWXU))
+        return invalid_umask_error(p, atf_fs_stat_reg_type, current_umask());
 
     err = copy_contents(p, &buf);
     if (atf_is_error(err))
@@ -835,15 +826,14 @@ atf_fs_mkstemp(atf_fs_path_t *p, int *fdout)
 
     err = do_mkstemp(buf, &fd);
     if (atf_is_error(err))
-        goto out_buf;
+        goto out;
 
     replace_contents(p, buf);
     *fdout = fd;
 
     INV(!atf_is_error(err));
-out_buf:
-    free(buf);
 out:
+    free(buf);
     return err;
 }
 
