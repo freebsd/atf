@@ -19,7 +19,8 @@ NPROC=$(nproc 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || echo 1)
 f=
 f="${f} ATF_BUILD_CC='${CC}'"
 f="${f} ATF_BUILD_CXX='${CXX}'"
-if [ -e "$(dirname "$(dirname "$0")")/.git" ]; then
+# Is this being run in a git clone, or with a release artifact?
+if git rev-parse --is-inside-work-tree; then
     f="${f} --enable-developer"
 fi
 if [ -n "${EXTRA_DISTCHECK_CONFIGURE_ARGS:-}" ]; then
