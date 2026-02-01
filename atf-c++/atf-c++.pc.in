@@ -7,5 +7,5 @@ libdir=__LIBDIR__
 Name: atf-c++
 Description: Automated Testing Framework (C++ binding)
 Version: __ATF_VERSION__
-Cflags: -I${includedir}
-Libs: -L${libdir} -latf-c++ -latf-c
+Cflags: -I${includedir} __PC_CXXFLAGS__
+Libs: -L${libdir} -latf-c++ -latf-c __PC_LDFLAGS__
