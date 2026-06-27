@@ -32,7 +32,7 @@
 
 #include "atf-c/detail/sanity.h"
 
-/* Theoretically, there can only be a single error intance at any given
+/* Theoretically, there can only be a single error instance at any given
  * point in time, because errors are raised at one point and must be
  * handled immediately.  If another error has to be raised during the
  * handling process, something else has to be done with the previous
