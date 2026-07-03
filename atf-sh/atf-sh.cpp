@@ -167,14 +167,16 @@ atf_sh::main(void)
         throw std::runtime_error("The test program '" + script.str() + "' "
                                  "does not exist");
 
-    std::vector<std::string> argvv = construct_argv(m_shell.str(), m_argc, m_argv);
+    std::vector<std::string> argvv = construct_argv(m_shell.str(), m_argc,
+        m_argv);
     std::vector<const char *> argv;
 
     for (std::size_t i = 0; i < argvv.size(); i++)
         argv.push_back(argvv[i].c_str());
     argv.push_back(NULL);
 
-    const int ret = execv(m_shell.c_str(), const_cast<char* const *>(argv.data()));
+    const int ret = execv(m_shell.c_str(),
+        const_cast<char* const *>(argv.data()));
     INV(ret == -1);
 
     std::cerr << "Failed to execute " << m_shell.str() << ": "
