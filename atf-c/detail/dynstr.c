@@ -158,6 +158,7 @@ atf_dynstr_init_ap(atf_dynstr_t *ad, const char *fmt, va_list ap)
         va_end(ap2);
         if (ret < 0) {
             free(ad->m_data);
+            ad->m_data = NULL;
             err = atf_libc_error(errno, "Cannot format string");
             goto out;
         }
@@ -278,6 +279,7 @@ atf_dynstr_fini(atf_dynstr_t *ad)
 {
     INV(ad->m_data != NULL);
     free(ad->m_data);
+    ad->m_data = NULL;
 }
 
 char *
