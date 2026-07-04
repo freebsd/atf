@@ -583,12 +583,6 @@ atf_tp_main(int argc, char **argv, atf_error_t (*add_tcs_hook)(atf_tp_t *))
     else
         progname++;
 
-    /* Libtool workaround: if running from within the source tree (binaries
-     * that are not installed yet), skip the "lt-" prefix added to files in
-     * the ".libs" directory to show the real (not temporary) name. */
-    if (strncmp(progname, "lt-", 3) == 0)
-        progname += 3;
-
     exitcode = EXIT_FAILURE; /* Silence GCC warning. */
     err = controlled_main(argc, argv, add_tcs_hook, &exitcode);
     if (atf_is_error(err)) {

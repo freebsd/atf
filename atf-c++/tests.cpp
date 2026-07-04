@@ -122,13 +122,7 @@ static void
 set_program_name(const char* argv0)
 {
     const std::string program_name = atf::fs::path(argv0).leaf_name();
-    // Libtool workaround: if running from within the source tree (binaries
-    // that are not installed yet), skip the "lt-" prefix added to files in
-    // the ".libs" directory to show the real (not temporary) name.
-    if (program_name.substr(0, 3) == "lt-")
-        Program_Name = program_name.substr(3);
-    else
-        Program_Name = program_name;
+    Program_Name = program_name;
 }
 
 bool
@@ -454,9 +448,7 @@ init_tcs(void (*add_tcs)(tc_vector&), tc_vector& tcs,
          const atf::tests::vars_map& vars)
 {
     add_tcs(tcs);
-    for (tc_vector::iterator iter = tcs.begin(); iter != tcs.end(); iter++) {
-        impl::tc* tc = *iter;
-
+    for (auto& tc : tcs) {
         tc->init(vars);
     }
 }
@@ -609,27 +601,25 @@ safe_main(int argc, char** argv, void (*add_tcs)(tc_vector&))
 
     int errcode;
 
-    tc_vector tcs;
     if (lflag) {
         if (argc > 0)
             throw usage_error("Cannot provide test case names with -l");
-
-        init_tcs(add_tcs, tcs, vars);
-        errcode = list_tcs(tcs);
     } else {
         if (argc == 0)
             throw usage_error("Must provide a test case name");
         else if (argc > 1)
             throw usage_error("Cannot provide more than one test case name");
         INV(argc == 1);
-
-        init_tcs(add_tcs, tcs, vars);
-        errcode = run_tc(tcs, argv[0], resfile);
     }
-    for (tc_vector::iterator iter = tcs.begin(); iter != tcs.end(); iter++) {
-        impl::tc* tc = *iter;
-
-        delete tc;
+    tc_vector tcs;
+    try {
+        init_tcs(add_tcs, tcs, vars);
+        errcode = lflag ? list_tcs(tcs) : run_tc(tcs, argv[0], resfile);
+    } catch (...) {
+        for (auto& tc: tcs) {
+            delete tc;
+        }
+        throw;
     }
 
     return errcode;
