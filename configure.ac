@@ -49,6 +49,60 @@ AM_INIT_AUTOMAKE([1.9 check-news foreign subdir-objects -Wall])
 AM_PROG_AR
 LT_INIT
 
+pc_cflags=
+pc_cxxflags=
+pc_ldflags=
+
+AC_ARG_ENABLE([asan],
+AS_HELP_STRING([--enable-asan], [Turn on AddressSanitizer]),,
+[enable_asan=no])
+
+if test "${enable_asan}" = yes; then
+    AC_MSG_NOTICE([building with AddressSanitizer (ASAN)])
+    enable_developer=yes
+    CFLAGS="${CFLAGS} -fsanitize=address"
+    pc_cflags="${pc_cflags} -fsanitize=address"
+    CXXFLAGS="${CXXFLAGS} -fsanitize=address"
+    pc_cxxflags="${pc_cxxflags} -fsanitize=address"
+    LDFLAGS="${LDFLAGS} -fsanitize=address"
+    pc_ldflags="${pc_ldflags} -fsanitize=address"
+fi
+
+AC_ARG_ENABLE([lsan],
+AS_HELP_STRING([--enable-lsan], [Turn on LeakSanitizer]),,
+[enable_lsan=no])
+
+if test "${enable_lsan}" = yes; then
+    AC_MSG_NOTICE([building with LeakSanitizer (LSAN)])
+    enable_developer=yes
+    CFLAGS="${CFLAGS} -fsanitize=leak"
+    pc_cflags="${pc_cflags} -fsanitize=leak"
+    CXXFLAGS="${CXXFLAGS} -fsanitize=leak"
+    pc_cxxflags="${pc_cxxflags} -fsanitize=leak"
+    LDFLAGS="${LDFLAGS} -fsanitize=leak"
+    pc_ldflags="${pc_ldflags} -fsanitize=leak"
+fi
+
+AC_ARG_ENABLE([ubsan],
+AS_HELP_STRING([--enable-ubsan], [Turn on UndefinedBehaviourSanitizer]),,
+[enable_ubsan=no])
+
+if test "${enable_ubsan}" = yes; then
+    AC_MSG_NOTICE([building with UndefinedBehaviourSanitizer (UBSAN)])
+    enable_developer=yes
+    CFLAGS="${CFLAGS} -fsanitize=undefined"
+    pc_cflags="${pc_cflags} -fsanitize=undefined"
+    CXXFLAGS="${CXXFLAGS} -fsanitize=undefined"
+    pc_cxxflags="${pc_cxxflags} -fsanitize=undefined"
+    LDFLAGS="${LDFLAGS} -fsanitize=undefined"
+    pc_ldflags="${pc_ldflags} -fsanitize=undefined"
+fi
+
+AC_SUBST([pc_cflags])
+AC_SUBST([pc_cxxflags])
+AC_SUBST([pc_ldflags])
+
+
 dnl -----------------------------------------------------------------------
 dnl Check for the C and C++ compilers and required features.
 dnl -----------------------------------------------------------------------

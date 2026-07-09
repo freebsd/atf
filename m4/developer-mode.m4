@@ -55,8 +55,8 @@ AC_DEFUN([KYUA_DEVELOPER_MODE], [
     AC_ARG_ENABLE(
         [developer],
         AS_HELP_STRING([--enable-developer], [enable developer features]),,
-        [if test -d ${srcdir}/.git; then
-             AC_MSG_NOTICE([building from HEAD; developer mode autoenabled])
+        [if test -d "${srcdir}/.git"; then
+             AC_MSG_NOTICE([building from HEAD (developer mode auto-enabled)])
              enable_developer=yes
          else
              enable_developer=no
@@ -70,8 +70,7 @@ AC_DEFUN([KYUA_DEVELOPER_MODE], [
     #                   Mac OS X.  This is due to the way _IOR is defined.
     #
 
-    try_c_cxx_flags="-D_FORTIFY_SOURCE=2 \
-                     -Wall \
+    try_c_cxx_flags="-Wall \
                      -Wcast-qual \
                      -Wextra \
                      -Wpointer-arith \
@@ -81,6 +80,11 @@ AC_DEFUN([KYUA_DEVELOPER_MODE], [
                      -Wsign-compare \
                      -Wswitch \
                      -Wwrite-strings"
+
+    # -D_FORTIFY_SOURCE doesn't play well with ASAN/LSAN.
+    if test "${enable_asan}" = no && test "${enable_lsan}" = no; then
+        try_c_cxx_flags="${try_c_cxx_flags} -D_FORTIFY_SOURCE=2"
+    fi
 
     try_c_flags="-Wmissing-prototypes \
                  -Wno-traditional \
@@ -97,10 +101,12 @@ AC_DEFUN([KYUA_DEVELOPER_MODE], [
                    -Wsign-promo \
                    -Wsynth"
 
-    if test ${enable_developer} = yes; then
+    if test "${enable_developer}" = yes; then
+        AC_MSG_NOTICE([Developer mode enabled])
         try_werror=yes
         try_c_cxx_flags="${try_c_cxx_flags} -g -Werror"
     else
+        AC_MSG_NOTICE([Developer mode disabled])
         try_werror=no
         try_c_cxx_flags="${try_c_cxx_flags} -DNDEBUG"
     fi
