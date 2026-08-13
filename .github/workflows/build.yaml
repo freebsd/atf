@@ -43,9 +43,11 @@ jobs:
             fail-fast: false
             matrix:
                 build-os:
-                    - ubuntu-24.04
                     - macos-latest
+                    - ubuntu-latest
                 include:
+                    # The macOS runner uses a homebrew provided compiler as the
+                    # system compiler lacks ASAN/LSAN/UBSAN support.
                     - build-os: macos-latest
                       compiler: clang-19
                       pkgs:
@@ -56,7 +58,7 @@ jobs:
                           - llvm@19
                           - pkgconf
                       llvm-bindir: /opt/homebrew/opt/llvm@19/bin
-                    - build-os: ubuntu-24.04
+                    - build-os: ubuntu-latest
                       compiler: clang-18
                       pkgs:
                           - clang-18
@@ -75,8 +77,8 @@ jobs:
             - name: Install packages (Ubuntu)
               if: runner.os == 'Linux'
               run: |
-                  sudo apt-get update --quiet
-                  sudo apt-get --quiet -y --no-install-suggests \
+                  sudo apt update --quiet
+                  sudo apt --quiet -y --no-install-suggests \
                       --no-install-recommends install \
                       ${{ join(matrix.pkgs, ' ') }}
             - name: Checking out source
@@ -116,6 +118,8 @@ jobs:
                         2>/dev/null || true
                     # Include the raw kyua logs.
                     cp -a ~/.kyua/logs kyua_logs
+                    # Include the raw kyua results DBs.
+                    cp -a ~/.kyua/store kyua_store
                   )
                   # Create an archive of the reports.
                   job_name_encoded=$(echo "${JOB_NAME}" | tr ' ' '_')
