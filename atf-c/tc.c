@@ -648,6 +648,7 @@ atf_tc_init_pack(atf_tc_t *tc, const atf_tc_pack_t *pack,
 void
 atf_tc_fini(atf_tc_t *tc)
 {
+    atf_map_fini(&tc->pimpl->m_config);
     atf_map_fini(&tc->pimpl->m_vars);
     free(tc->pimpl);
     tc->pimpl = NULL;
