@@ -60,16 +60,19 @@ init_out_filename(atf_dynstr_t *name, const pid_t pid, const char *suffix,
 {
     atf_error_t error;
 
-    error = atf_dynstr_init_fmt(name, "atf_utils_fork_%d_%s.txt",
-                                (int)pid, suffix);
-    if (atf_is_error(error)) {
-        char buffer[1024];
-        atf_error_format(error, buffer, sizeof(buffer));
-        if (in_parent) {
-            atf_tc_fail("Failed to create output file: %s", buffer);
-        } else {
-            err(EXIT_FAILURE, "Failed to create output file: %s", buffer);
-        }
+    error = atf_dynstr_init_fmt(name, "atf_utils_fork_%d_%s.txt", pid, suffix);
+    if (!atf_is_error(error))
+        return;
+
+    char buffer[1024];
+
+    atf_error_format(error, buffer, sizeof(buffer));
+    atf_error_free(error);
+
+    if (in_parent) {
+        atf_tc_fail("Failed to create output file: %s", buffer);
+    } else {
+        err(EXIT_FAILURE, "Failed to create output file: %s", buffer);
     }
 }
 
