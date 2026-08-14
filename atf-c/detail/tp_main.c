@@ -310,6 +310,7 @@ handle_tcarg(const char *tcarg, char **tcname_out, enum tc_part *tcpart)
         } else if (strcmp(delim, "cleanup") == 0) {
             *tcpart = CLEANUP;
         } else {
+            free(tcname);
             return usage_error("Invalid test case part `%s'", delim);
         }
     }
