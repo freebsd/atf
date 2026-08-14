@@ -472,4 +472,7 @@ atf_utils_wait(const pid_t pid, const int exitstatus, const char *expout,
 
     ATF_REQUIRE(unlink(atf_dynstr_cstring(&out_name)) != -1);
     ATF_REQUIRE(unlink(atf_dynstr_cstring(&err_name)) != -1);
+
+    atf_dynstr_fini(&out_name);
+    atf_dynstr_fini(&err_name);
 }
