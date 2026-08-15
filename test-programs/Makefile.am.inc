@@ -23,6 +23,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+CODE_COVERAGE_DIRS+=	test-programs
+
 tests_test_programs_DATA = test-programs/Kyuafile
 tests_test_programsdir = $(pkgtestsdir)/test-programs
 EXTRA_DIST += $(tests_test_programs_DATA)

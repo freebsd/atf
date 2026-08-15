@@ -26,6 +26,7 @@
 atf_aclocal_DATA =
 BUILT_SOURCES =
 CLEANFILES =
+CODE_COVERAGE_DIRS =
 EXTRA_DIST =
 bin_PROGRAMS =
 dist_man_MANS =
@@ -89,6 +90,7 @@ pkgtestsdir = $(testsdir)/$(PACKAGE)
 PHONY_TARGETS += installcheck-kyua
 if HAVE_KYUA
 INSTALLCHECK_TARGETS += installcheck-kyua
+
 installcheck-kyua:
 	set +e; cd $(pkgtestsdir) && $(TESTS_ENVIRONMENT) \
 	    $(KYUA) --config='$(KYUA_TEST_CONFIG_FILE)' test; \
@@ -104,6 +106,33 @@ installcheck-kyua:
 	cd $(pkgtestsdir) && $(TESTS_ENVIRONMENT) \
 		$(KYUA) --config='$(KYUA_TEST_CONFIG_FILE)' report --verbose; \
 	exit $$ret
+
+if CODE_COVERAGE
+CODE_COVERAGE_EXCLUDES = '/usr/include/*' '/usr/local/include/*'
+CODE_COVERAGE_OUTPUT_DIR ?= code_coverage
+EXTRA_GENHTML_ARGS ?=
+INSTALLCHECK_TARGETS+=	installcheck-kyua-lcov
+
+installcheck-kyua-lcov: installcheck-kyua
+	mkdir -p $(CODE_COVERAGE_OUTPUT_DIR)/html
+	$(LCOV) --capture --directory $(srcdir) \
+	    --output-file $(CODE_COVERAGE_OUTPUT_DIR)/lcov.info
+	$(LCOV) --remove $(CODE_COVERAGE_OUTPUT_DIR)/lcov.info \
+	    $(CODE_COVERAGE_EXCLUDES) \
+	    --output-file $(CODE_COVERAGE_OUTPUT_DIR)/lcov-filtered.info
+	$(GENHTML) -o $(CODE_COVERAGE_OUTPUT_DIR)/html $(EXTRA_GENHTML_ARGS) \
+	    $(CODE_COVERAGE_OUTPUT_DIR)/lcov-filtered.info
+endif
+
+endif
+
+if CODE_COVERAGE
+PHONY_TARGETS += mostlyclean-code-coverage
+mostlyclean-local: mostlyclean-code-coverage
+mostlyclean-code-coverage:
+	-for dir in $(CODE_COVERAGE_DIRS); do \
+	    find $$dir \( -name \*.gcda -or -name \*.gcno \) -delete -print; \
+	done
 endif
 
 installcheck-local: $(INSTALLCHECK_TARGETS)

@@ -11,6 +11,7 @@ set -eux
 
 : "${AS_ROOT=no}"
 : "${CC=cc}"
+: "${CODE_COVERAGE_OUTPUT_DIR=build/code_coverage}"
 : "${CXX=c++}"
 : "${EXTRA_DISTCHECK_CONFIGURE_ARGS=}"
 
@@ -19,7 +20,8 @@ NPROC=$(nproc 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || echo 1)
 f=
 f="${f} ATF_BUILD_CC='${CC}'"
 f="${f} ATF_BUILD_CXX='${CXX}'"
-# Is this being run in a git clone, or with a release artifact?
+# Is this being run in a git clone, or with a release artifact? If the former,
+# automatically enable developer mode.
 if git rev-parse --is-inside-work-tree; then
     f="${f} --enable-developer"
 fi
@@ -42,7 +44,8 @@ if [ "${AS_ROOT}" = yes ]; then
     sudo="sudo -H"
 fi
 ${sudo} env PATH="${PATH}" make distcheck -j"${NPROC}" \
+    CODE_COVERAGE_OUTPUT_DIR="${CODE_COVERAGE_OUTPUT_DIR}" \
     DISTCHECK_CONFIGURE_FLAGS="${f}" \
     KYUA_TEST_CONFIG_FILE="${kyua_conf}"
 
-# vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4
+# vim: syntax=sh:expandtab:shiftwidth=4:softtabstop=4:textwidth=80

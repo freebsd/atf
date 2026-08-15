@@ -23,6 +23,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+CODE_COVERAGE_DIRS+=	atf-c++/detail
+
 libatf_c___la_SOURCES += atf-c++/detail/application.cpp \
                          atf-c++/detail/application.hpp \
                          atf-c++/detail/env.cpp \

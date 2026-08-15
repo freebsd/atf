@@ -23,6 +23,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+CODE_COVERAGE_DIRS+=	bootstrap
+
 check_PROGRAMS = bootstrap/h_tp_basic_c
 bootstrap_h_tp_basic_c_SOURCES = bootstrap/h_tp_basic_c.c
 bootstrap_h_tp_basic_c_LDADD = libatf-c.la

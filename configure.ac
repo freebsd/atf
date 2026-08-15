@@ -69,6 +69,22 @@ if test ${enable_asan} = yes; then
 fi
 AM_CONDITIONAL([HAVE_ASAN], [test "${enable_asan}" = yes])
 
+AC_ARG_ENABLE([code-coverage],
+AS_HELP_STRING([--enable-code-coverage], [Turn on runtime code coverage]),,
+[enable_code_coverage=no])
+
+if test ${enable_code_coverage} = yes; then
+    AC_MSG_NOTICE([building with code coverage])
+    enable_developer=yes
+    CFLAGS="${CFLAGS} --coverage"
+    pc_cflags="${pc_cflags} --coverage"
+    CXXFLAGS="${CXXFLAGS} --coverage"
+    pc_cxxflags="${pc_cxxflags} --coverage"
+    LDFLAGS="${LDFLAGS} --coverage"
+    pc_ldflags="${pc_ldflags} --coverage"
+fi
+AM_CONDITIONAL([CODE_COVERAGE], [test "${enable_code_coverage}" = yes])
+
 AC_ARG_ENABLE([lsan],
 AS_HELP_STRING([--enable-lsan], [Turn on LeakSanitizer]),,
 [enable_lsan=no])
@@ -191,6 +207,14 @@ dnl -----------------------------------------------------------------------
 AC_PATH_PROG([KYUA], [kyua])
 AM_CONDITIONAL([HAVE_KYUA], [test -n "${KYUA}"])
 AC_PATH_PROG([GIT], [git])
+if test x"${enable_code_coverage}" = xyes; then
+    AC_MSG_NOTICE([Checking for lcov package])
+    AC_PATH_PROG([GENHTML], [genhtml])
+    AC_PATH_PROG([LCOV], [lcov])
+    if test -z "${GENHTML}" -a -z "${LCOV}"; then
+        AC_MSG_ERROR([Please install lcov to obtain code coverage])
+    fi
+fi
 
 dnl -----------------------------------------------------------------------
 dnl Finally, generate output.
