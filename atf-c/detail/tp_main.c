@@ -293,12 +293,15 @@ atf_error_t
 handle_tcarg(const char *tcarg, char **tcname_out, enum tc_part *tcpart)
 {
     char *delim, *tcname;
+    atf_error_t err;
 
     *tcname_out = NULL;
     tcname = strdup(tcarg);
     if (tcname == NULL) {
         return atf_no_memory_error();
     }
+
+    err = atf_no_error();
 
     delim = strchr(tcname, ':');
     if (delim != NULL) {
@@ -310,13 +313,14 @@ handle_tcarg(const char *tcarg, char **tcname_out, enum tc_part *tcpart)
         } else if (strcmp(delim, "cleanup") == 0) {
             *tcpart = CLEANUP;
         } else {
+            err = usage_error("Invalid test case part `%s'", delim);
             free(tcname);
-            return usage_error("Invalid test case part `%s'", delim);
         }
     }
 
-    *tcname_out = tcname;
-    return atf_no_error();
+    if (!atf_is_error(err))
+        *tcname_out = tcname;
+    return err;
 }
 
 static
@@ -480,6 +484,8 @@ run_tc(const atf_tp_t *tp, struct params *p, int *exitcode)
 
     if (!atf_tp_has_tc(tp, p->m_tcname))
         return usage_error("Unknown test case `%s'", p->m_tcname);
+
+    err = atf_no_error();
 
     if (!atf_env_has("__RUNNING_INSIDE_ATF_RUN") || strcmp(atf_env_get(
         "__RUNNING_INSIDE_ATF_RUN"), "internal-yes-value") != 0)
