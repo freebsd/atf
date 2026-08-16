@@ -779,4 +779,4 @@ Experimental version released on August 20th, 2007.
 
 
 ===========================================================================
-vim: filetype=text:textwidth=75:expandtab:shiftwidth=2:softtabstop=2
+# vim: syntax=markdown:textwidth=75:expandtab:shiftwidth=2:softtabstop=2
