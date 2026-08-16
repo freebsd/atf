@@ -75,8 +75,9 @@ jobs:
                       sanitize: ["asan", "lsan"]
                 sanitize:
                     - ""
-                    # TODO(ngie,77): tests currently fail when these options are enabled.
-                    #- ["asan", "lsan"]
+                    # TODO(ngie,77): tests currently fail when these options
+                    #                are enabled.
+                    # - ["asan", "lsan"]
                     - ubsan
 
         steps:
