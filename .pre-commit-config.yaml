@@ -1,0 +1,16 @@
+---
+fail_fast: true
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: trailing-whitespace
+  - repo: https://github.com/pre-commit/pre-commit
+    rev: v4.5.1
+    hooks:
+      - id: validate_manifest
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
