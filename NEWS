@@ -2,7 +2,32 @@
 
 ## Changes in version 0.24
 
-Released on MM, DD, 2026
+Released on August, 17, 2026
+
+### Major Changes
+* This version of ATF requires C++-20 to build/function.
+* This version of ATF focused heavily on correctness and memory management
+  issues discussed in #77. While most of the issues are believed to be resolved,
+  some issues may still remain.
+* The `atf::text::duplicate(..)` API and tests were removed.
+
+### Feature Enhancements
+* Issue #105: Widen our process status capabilties
+
+### Docs
+* Issue #107: Clarify the semantics of ATF_{CHECK,REQUIRE}_ERRNO()
+* Issue #124: atf-check.1: Add missing -r flag to synopsis
+* Issue #127: atf-c.3: Fix test case addition in ATF_TP_ADD_TCS synopsis example
+
+### Developer Workflow Changes
+* GitHub Actions support was added.
+* Cirrus CI support was removed.
+* FreeBSD vmactions CI support was added.
+* ASAN/LSAN/UBSAN support was added for Linux and macOS.
+* (Initial) runtime code coverage support was added.
+* (Initial) pre-commit support was added.
+
+**Full Changelog**: https://github.com/freebsd/atf/compare/atf-0.23...atf-0.24
 
 ## Changes in version 0.23
 
