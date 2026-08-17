@@ -9,11 +9,18 @@
 #     * Install
 #     * Run tests
 #
+# On FreeBSD we build with:
+# * latest clang from ports
+#     * The sanitizer libs for the base system compiler are installed in the
+#       wrong directory:
+#       https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=297510 .
+# * ld from system
+#
 # On MacOS we build with:
-#   * latest clang from brew (system provided clang lacks sanitizers).
-#   * ld from system
+# * latest clang from brew (system provided clang lacks sanitizers).
+# * ld from system
 name: build
-on:  # yamllint disable-line rule:truthy
+"on":
     pull_request:
         branches:
             - master
@@ -33,8 +40,8 @@ jobs:
             CPP: ${{ matrix.llvm-bindir }}/clang-cpp
             CXX: ${{ matrix.llvm-bindir }}/clang++
             NM: ${{ matrix.llvm-bindir }}/llvm-nm
-            RANLIB: ${{ matrix.llvm-bindir }}/llvm-ranlib
             OBJDUMP: ${{ matrix.llvm-bindir }}/llvm-objdump
+            RANLIB: ${{ matrix.llvm-bindir }}/llvm-ranlib
             STRIP: ${{ matrix.llvm-bindir }}/llvm-strip
             ATF_SRCDIR: ${{ github.workspace }}/src
             ATF_OBJDIR: ${{ github.workspace }}/obj
@@ -70,9 +77,6 @@ jobs:
                           - libtool
                           - pkgconf
                       llvm-bindir: /usr/lib/llvm-18/bin
-                exclude:
-                    - build-os: macos-latest
-                      sanitize: ["asan", "lsan"]
                 sanitize:
                     - ""
                     # TODO(ngie,77): tests currently fail when these options
@@ -116,7 +120,7 @@ jobs:
                   ./admin/ci-build/01_configure.sh ${CFG_ARGS}
             - name: Distcheck (builds and tests)
               run: |
-                  CFG_ARGS="--disable-dependency-tracking"
+                  CFG_ARGS="--disable-dependency-tracking --enable-developer"
                   for i in ${{ join(matrix.sanitize, ' ') }}; do
                       CFG_ARGS="${CFG_ARGS} --enable-${i}"
                   done
@@ -124,6 +128,150 @@ jobs:
                   env "EXTRA_DISTCHECK_CONFIGURE_ARGS=${CFG_ARGS}" \
                       ./admin/ci-build/02_distcheck.sh
             - name: Gather/Archive Logs and Reports
+              run: |
+                  REPORTS_DIR="${ATF_OBJDIR}/reports"
+                  mkdir -p "${REPORTS_DIR}"
+                  (
+                    cd "${REPORTS_DIR}"
+                    mkdir -p build_logs
+                    # Gather the distcheck failure log if the target failed.
+                    # It's easier to ignore the failure than create yet another
+                    # conditional variable step.
+                    cp -a "${ATF_SRCDIR}"/atf-*/_build/sub/*.log build_logs/ \
+                        2>/dev/null || true
+                    # Include the raw kyua logs.
+                    cp -a ~/.kyua/logs kyua_logs
+                    # Include the raw kyua results DBs.
+                    cp -a ~/.kyua/store kyua_store
+                  )
+                  # Create an archive of the reports.
+                  job_name_encoded=$(echo "${JOB_NAME}" | tr ' ' '_')
+                  tar -cvf "atf-test-reports-${job_name_encoded}.tar" \
+                      -C "${REPORTS_DIR}" .
+              if: ${{ ! cancelled() }}
+            - name: Archive Build Artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: Test Report for ${{ env.JOB_NAME }}
+                  path: atf-test-reports-*.tar
+                  compression-level: 0
+                  retention-days: 10
+                  overwrite: true
+              if: ${{ ! cancelled() }}
+
+    build-and-test-freebsd:
+        # yamllint disable-line rule:line-length
+        name: FreeBSD ${{ matrix.release }} ${{ matrix.compiler }} ${{ join(matrix.sanitize, '+') }}
+        env:
+            AR: ${{ matrix.llvm-bindir }}/llvm-ar${{ matrix.llvm-version }}
+            CC: ${{ matrix.llvm-bindir }}/clang${{ matrix.llvm-version }}
+            CPP: ${{ matrix.llvm-bindir }}/clang-cpp${{ matrix.llvm-version }}
+            CXX: ${{ matrix.llvm-bindir }}/clang++${{ matrix.llvm-version }}
+            NM: ${{ matrix.llvm-bindir }}/llvm-nm${{ matrix.llvm-version }}
+            # yamllint disable-line rule:line-length
+            OBJDUMP: ${{ matrix.llvm-bindir }}/llvm-objdump${{ matrix.llvm-version }}
+            # yamllint disable-line rule:line-length
+            RANLIB: ${{ matrix.llvm-bindir }}/llvm-ranlib${{ matrix.llvm-version }}
+            # yamllint disable-line rule:line-length
+            STRIP: ${{ matrix.llvm-bindir }}/llvm-strip${{ matrix.llvm-version }}
+            ATF_SRCDIR: ${{ github.workspace }}/src
+            ATF_OBJDIR: ${{ github.workspace }}/obj
+            # yamllint disable-line rule:line-length
+            JOB_NAME: FreeBSD ${{ matrix.release }} ${{ matrix.compiler }} ${{ join(matrix.sanitize, '+') }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - release: 14.4
+                      compiler: clang-22
+                      llvm-bindir: /usr/local/bin
+                      llvm-version: 22
+                      pkgs:
+                          - autoconf
+                          - automake
+                          - git
+                          # kyua is distributed in the FreeBSD-tests package
+                          # on 14.4.
+                          - FreeBSD-tests
+                          - libtool
+                          - llvm22
+                          - m4
+                          - pkgconf
+                          - sudo
+                    - release: 15.1
+                      compiler: clang-22
+                      llvm-bindir: /usr/local/bin
+                      llvm-version: 22
+                      pkgs:
+                          - autoconf
+                          - automake
+                          - git
+                          - libtool
+                          - llvm22
+                          - m4
+                          - pkgconf
+                          - sudo
+                          - FreeBSD-kyua
+                release:
+                    - 14.4
+                    - 15.1
+                sanitize:
+                    - ""
+                    - ubsan
+
+        steps:
+            - name: Checking out source
+              uses: actions/checkout@v4
+              with:
+                  path: src
+            - name: Start FreeBSD ${{ matrix.release }} VM
+              uses: vmactions/freebsd-vm@e9ea2cef1135a17c880e9ed9956c983d58421ece # v1.5.3
+              with:
+                  envs: 'ATF_SRCDIR CC CPP CXX NM OBJDUMP RANLIB STRIP JOB_NAME'
+                  prepare: |
+                      cd "${ATF_SRCDIR}"
+                      ./admin/ci-build/00_prepare_freebsd_image.sh
+                      pkg update
+                      pkg install -y ${{ join(matrix.pkgs, ' ') }}
+                      # Set up sudo no password for :wheel.
+                      echo '%wheel ALL=(ALL:ALL) NOPASSWD: ALL' > \
+                          /usr/local/etc/sudoers.d/wheel-no-password
+                  release: "${{ matrix.release }}"
+                  # NB: I tried nfs (failed when running chflags) and sshfs
+                  # (could not find files/directories when running configure)
+                  # to no avail here. This may change in the future, but for
+                  # now use rsync.
+                  # - ngie (2026-08-16)
+                  sync: rsync
+                  sync-time: true
+            - name: Configure
+              shell: freebsd {0}
+              run: |
+                  CFG_ARGS=""
+                  for i in ${{ join(matrix.sanitize, ' ') }}; do
+                      CFG_ARGS="${CFG_ARGS} --enable-${i}"
+                  done
+                  echo "uname -a: $(uname -a)"
+                  echo "uname -m: $(uname -m)"
+                  echo "uname -p: $(uname -p)"
+                  echo "Build environment:"
+                  kyua about | head -1
+                  env
+                  cd "${ATF_SRCDIR}"
+                  ./admin/ci-build/01_configure.sh ${CFG_ARGS}
+            - name: Distcheck (builds and tests)
+              shell: freebsd {0}
+              run: |
+                  CFG_ARGS="--disable-dependency-tracking --enable-developer"
+                  for i in ${{ join(matrix.sanitize, ' ') }}; do
+                      CFG_ARGS="${CFG_ARGS} --enable-${i}"
+                  done
+                  cd "${ATF_SRCDIR}"
+                  env "EXTRA_DISTCHECK_CONFIGURE_ARGS=${CFG_ARGS}" \
+                      ./admin/ci-build/02_distcheck.sh
+            - name: Gather/Archive Logs and Reports
+              shell: freebsd {0}
               run: |
                   REPORTS_DIR="${ATF_OBJDIR}/reports"
                   mkdir -p "${REPORTS_DIR}"
