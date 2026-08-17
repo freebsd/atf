@@ -23,6 +23,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+CODE_COVERAGE_DIRS+=	atf-sh
+
 libexec_PROGRAMS += atf-sh/atf-check
 atf_sh_atf_check_SOURCES = atf-sh/atf-check.cpp
 atf_sh_atf_check_LDADD = $(ATF_CXX_LIBS)

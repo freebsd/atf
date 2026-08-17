@@ -181,6 +181,21 @@ The following flags are specific to ATF's `configure` script:
 
   Platform-specific support varies depending on the toolchain and OS.
 
+- `--enable-code-coverage`
+
+  **Default:** `no`.
+
+  Enable runtime code coverage support support in the toolchain.
+
+  This option is automatically "plumbed in" to the `make distcheck` target.
+  code coverage output (LCOV files; html report) are placed in the [root]
+  directory defined by `CODE_COVERAGE_OUTPUT_DIR` (this variable defaults to
+  `build/code_coverage`). `genhtml` behavior can be tuned via the
+  `EXTRA_GENHTML_FLAGS` variable.
+
+  This functionality requires the [lcov](https://github.com/linux-test-project/lcov)
+  package and a compatible toolchain be installed beforehand.
+
 - `--enable-lsan`
 
   **Default:** `no`.

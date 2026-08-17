@@ -23,6 +23,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+CODE_COVERAGE_DIRS+=	atf-c/detail
+
 libatf_c_la_SOURCES += atf-c/detail/dynstr.c \
                        atf-c/detail/dynstr.h \
                        atf-c/detail/env.c \
