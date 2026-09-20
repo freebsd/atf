@@ -57,8 +57,7 @@ atf_c_HEADERS = atf-c/build.h \
                 atf-c/tc.h \
                 atf-c/tp.h \
                 atf-c/utils.h
-nodist_atf_c_HEADERS =	\
-		atf-c/defs.h
+nodist_atf_c_HEADERS = atf-c/defs.h
 atf_cdir = $(includedir)/atf-c
 
 dist_man_MANS += atf-c/atf-c.3
