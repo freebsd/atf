@@ -217,14 +217,6 @@ if test x"${enable_code_coverage}" = xyes; then
     fi
 fi
 
-if test -z "${ATF_TARGET_OS}"; then
-    AC_MSG_NOTICE([Checking target OS])
-    ATF_TARGET_OS="$(uname -o)"
-fi
-
-AM_CONDITIONAL([FreeBSD], [test "${ATF_TARGET_OS}" = "FreeBSD"])
-AC_MSG_NOTICE([Target OS: ${ATF_TARGET_OS}])
-
 dnl -----------------------------------------------------------------------
 dnl Finally, generate output.
 dnl -----------------------------------------------------------------------
