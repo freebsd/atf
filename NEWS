@@ -21,8 +21,7 @@ Released on 2026/09/22.
 Released on 2026/09/02.
 
 ### Bugfixes
-* Issue #187: Fix the build on NetBSD by renaming a variable added in
-  version 0.24.
+* #187: Fix the build on NetBSD by renaming a variable added in version 0.24.
 
 ### Developer Workflow Changes
 * #185: The version of LLVM used in macOS runners was bumped from 19 to 20
