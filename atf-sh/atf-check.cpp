@@ -122,15 +122,7 @@ public:
             atf::env::get("TMPDIR", "/tmp")) / pattern;
 
         std::string file_s = file.str();
-        // C++14 returns const char* with `std::string::data()`.
-        //
-        // TODO(ngie): remove the else block and simplify once we are on C++17
-        // or later.
-#if __cplusplus >= 201703L
         char *file_ch_arr = file_s.data();
-#else
-        char *file_ch_arr = &file_s[0];
-#endif
         m_fd = ::mkstemp(file_ch_arr);
         if (m_fd == -1)
             throw atf::system_error("atf_check::temp_file::temp_file(" +
