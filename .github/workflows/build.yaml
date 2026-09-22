@@ -32,21 +32,21 @@ permissions:
 
 jobs:
     build-and-test:
-        # yamllint disable-line rule:line-length
+        # yamllint disable rule:line-length
         name: ${{ matrix.build-os }} ${{ matrix.compiler }} ${{ join(matrix.sanitize, '+') }}
         env:
-            AR: ${{ matrix.llvm-bindir }}/llvm-ar
-            CC: ${{ matrix.llvm-bindir }}/clang
-            CPP: ${{ matrix.llvm-bindir }}/clang-cpp
-            CXX: ${{ matrix.llvm-bindir }}/clang++
-            NM: ${{ matrix.llvm-bindir }}/llvm-nm
-            OBJDUMP: ${{ matrix.llvm-bindir }}/llvm-objdump
-            RANLIB: ${{ matrix.llvm-bindir }}/llvm-ranlib
-            STRIP: ${{ matrix.llvm-bindir }}/llvm-strip
+            AR: ${{ matrix.compiler-bindir }}/llvm-ar
+            CC: ${{ matrix.compiler-bindir }}/clang
+            CPP: ${{ matrix.compiler-bindir }}/clang-cpp
+            CXX: ${{ matrix.compiler-bindir }}/clang++
+            NM: ${{ matrix.compiler-bindir }}/llvm-nm
+            OBJDUMP: ${{ matrix.compiler-bindir }}/llvm-objdump
+            RANLIB: ${{ matrix.compiler-bindir }}/llvm-ranlib
+            STRIP: ${{ matrix.compiler-bindir }}/llvm-strip
             ATF_SRCDIR: ${{ github.workspace }}/src
             ATF_OBJDIR: ${{ github.workspace }}/obj
-            # yamllint disable-line rule:line-length
             JOB_NAME: ${{ matrix.build-os }} ${{ matrix.compiler }} ${{ join(matrix.sanitize, '+') }}
+        # yamllint enable rule:line-length
         runs-on: "${{ matrix.build-os }}"
         strategy:
             fail-fast: false
@@ -66,7 +66,7 @@ jobs:
                           - libtool
                           - llvm@20
                           - pkgconf
-                      llvm-bindir: /opt/homebrew/opt/llvm@20/bin
+                      compiler-bindir: /opt/homebrew/opt/llvm@20/bin
                     - build-os: ubuntu-latest
                       compiler: clang-18
                       pkgs:
@@ -76,7 +76,7 @@ jobs:
                           - kyua
                           - libtool
                           - pkgconf
-                      llvm-bindir: /usr/lib/llvm-18/bin
+                      compiler-bindir: /usr/lib/llvm-18/bin
                 sanitize:
                     - ""
                     # TODO(ngie,77): tests currently fail when these options
@@ -160,24 +160,21 @@ jobs:
               if: ${{ ! cancelled() }}
 
     build-and-test-freebsd:
-        # yamllint disable-line rule:line-length
+        # yamllint disable rule:line-length
         name: FreeBSD ${{ matrix.release }} ${{ matrix.compiler }} ${{ join(matrix.sanitize, '+') }}
         env:
-            AR: ${{ matrix.llvm-bindir }}/llvm-ar${{ matrix.llvm-version }}
-            CC: ${{ matrix.llvm-bindir }}/clang${{ matrix.llvm-version }}
-            CPP: ${{ matrix.llvm-bindir }}/clang-cpp${{ matrix.llvm-version }}
-            CXX: ${{ matrix.llvm-bindir }}/clang++${{ matrix.llvm-version }}
-            NM: ${{ matrix.llvm-bindir }}/llvm-nm${{ matrix.llvm-version }}
-            # yamllint disable-line rule:line-length
-            OBJDUMP: ${{ matrix.llvm-bindir }}/llvm-objdump${{ matrix.llvm-version }}
-            # yamllint disable-line rule:line-length
-            RANLIB: ${{ matrix.llvm-bindir }}/llvm-ranlib${{ matrix.llvm-version }}
-            # yamllint disable-line rule:line-length
-            STRIP: ${{ matrix.llvm-bindir }}/llvm-strip${{ matrix.llvm-version }}
+            AR: ${{ matrix.compiler-bindir }}/llvm-ar${{ matrix.compiler-suffix }}
+            CC: ${{ matrix.compiler-bindir }}/clang${{ matrix.compiler-suffix }}
+            CPP: ${{ matrix.compiler-bindir }}/clang-cpp${{ matrix.compiler-suffix }}
+            CXX: ${{ matrix.compiler-bindir }}/clang++${{ matrix.compiler-suffix }}
+            NM: ${{ matrix.compiler-bindir }}/llvm-nm${{ matrix.compiler-suffix }}
+            OBJDUMP: ${{ matrix.compiler-bindir }}/llvm-objdump${{ matrix.compiler-suffix }}
+            RANLIB: ${{ matrix.compiler-bindir }}/llvm-ranlib${{ matrix.compiler-suffix }}
+            STRIP: ${{ matrix.compiler-bindir }}/llvm-strip${{ matrix.compiler-suffix }}
             ATF_SRCDIR: ${{ github.workspace }}/src
             ATF_OBJDIR: ${{ github.workspace }}/obj
-            # yamllint disable-line rule:line-length
             JOB_NAME: FreeBSD ${{ matrix.release }} ${{ matrix.compiler }} ${{ join(matrix.sanitize, '+') }}
+        # yamllint enable rule:line-length
         runs-on: ubuntu-latest
         strategy:
             fail-fast: false
@@ -185,8 +182,8 @@ jobs:
                 include:
                     - release: 14.4
                       compiler: clang-22
-                      llvm-bindir: /usr/local/bin
-                      llvm-version: 22
+                      compiler-bindir: /usr/local/bin
+                      compiler-suffix: 22
                       pkgs:
                           - autoconf
                           - automake
@@ -201,8 +198,8 @@ jobs:
                           - sudo
                     - release: 15.1
                       compiler: clang-22
-                      llvm-bindir: /usr/local/bin
-                      llvm-version: 22
+                      compiler-bindir: /usr/local/bin
+                      compiler-suffix: 22
                       pkgs:
                           - autoconf
                           - automake
