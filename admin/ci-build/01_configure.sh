@@ -9,9 +9,11 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 autoreconf_args="-isv"
-if [ -d /usr/local/share/aclocal ]; then
-    autoreconf_args="${autoreconf_args} -I/usr/local/share/aclocal"
-fi
+for prefix in /usr/local /usr/pkg; do
+    if [ -d "${prefix}/share/aclocal" ]; then
+        autoreconf_args="${autoreconf_args} -I${prefix}/share/aclocal"
+    fi
+done
 # shellcheck disable=SC2086
 autoreconf ${autoreconf_args}
 
