@@ -19,6 +19,13 @@
 # On MacOS we build with:
 # * latest clang from brew (system provided clang lacks sanitizers).
 # * ld from system
+#
+# On NetBSD we build with:
+# * latest clang/LLVM from pkgsrc
+#     * clang/LLVM lacks sanitizer support:
+#       https://wiki.netbsd.org/users/kamil/sanitizers/ .
+# * ld from system
+#
 name: build
 "on":
     pull_request:
@@ -223,7 +230,8 @@ jobs:
               with:
                   path: src
             - name: Start FreeBSD ${{ matrix.release }} VM
-              uses: vmactions/freebsd-vm@e9ea2cef1135a17c880e9ed9956c983d58421ece # v1.5.3
+              # yamllint disable-line rule:line-length
+              uses: vmactions/freebsd-vm@e9ea2cef1135a17c880e9ed9956c983d58421ece  # v1.5.3
               with:
                   envs: 'ATF_SRCDIR CC CPP CXX NM OBJDUMP RANLIB STRIP JOB_NAME'
                   prepare: |
@@ -269,6 +277,139 @@ jobs:
                       ./admin/ci-build/02_distcheck.sh
             - name: Gather/Archive Logs and Reports
               shell: freebsd {0}
+              run: |
+                  REPORTS_DIR="${ATF_OBJDIR}/reports"
+                  mkdir -p "${REPORTS_DIR}"
+                  (
+                    cd "${REPORTS_DIR}"
+                    mkdir -p build_logs
+                    # Gather the distcheck failure log if the target failed.
+                    # It's easier to ignore the failure than create yet another
+                    # conditional variable step.
+                    cp -a "${ATF_SRCDIR}"/atf-*/_build/sub/*.log build_logs/ \
+                        2>/dev/null || true
+                    # Include the raw kyua logs.
+                    cp -a ~/.kyua/logs kyua_logs
+                    # Include the raw kyua results DBs.
+                    cp -a ~/.kyua/store kyua_store
+                  )
+                  # Create an archive of the reports.
+                  job_name_encoded=$(echo "${JOB_NAME}" | tr ' ' '_')
+                  tar -cvf "atf-test-reports-${job_name_encoded}.tar" \
+                      -C "${REPORTS_DIR}" .
+              if: ${{ ! cancelled() }}
+            - name: Archive Build Artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: Test Report for ${{ env.JOB_NAME }}
+                  path: atf-test-reports-*.tar
+                  compression-level: 0
+                  retention-days: 10
+                  overwrite: true
+              if: ${{ ! cancelled() }}
+
+    build-and-test-netbsd:
+        # yamllint disable-line rule:line-length
+        name: NetBSD ${{ matrix.release }} ${{ matrix.compiler }} ${{ join(matrix.sanitize, '+') }}
+        env:
+            CC: ${{ matrix.compiler-bindir }}/clang
+            CPP: ${{ matrix.compiler-bindir }}/clang-cpp
+            CXX: ${{ matrix.compiler-bindir }}/clang++
+            NM: ${{ matrix.compiler-bindir }}/llvm-nm
+            OBJDUMP: ${{ matrix.compiler-bindir }}/llvm-objdump
+            # yamllint disable-line rule:line-length
+            RANLIB: ${{ matrix.compiler-bindir }}/llvm-ranlib
+            # yamllint disable-line rule:line-length
+            STRIP: ${{ matrix.compiler-bindir }}/llvm-strip
+            ATF_SRCDIR: ${{ github.workspace }}/src
+            ATF_OBJDIR: ${{ github.workspace }}/obj
+            # yamllint disable-line rule:line-length
+            JOB_NAME: NetBSD ${{ matrix.release }} ${{ matrix.compiler }} ${{ join(matrix.sanitize, '+') }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - release: 11.0
+                      compiler: clang-21
+                      compiler-bindir: /usr/pkg/bin
+                      pkgs:
+                          - autoconf
+                          - automake
+                          - clang
+                          - git
+                          - kyua
+                          - libtool
+                          - m4
+                          - pkgconf
+                          - sudo
+                release:
+                    - 11.0
+                sanitize:
+                    - ""
+                    # clang/LLVM sanitizer support on NetBSD is incomplete:
+                    # https://wiki.netbsd.org/users/kamil/sanitizers/ .
+                    # - ubsan
+
+        steps:
+            - name: Checking out source
+              uses: actions/checkout@v4
+              with:
+                  path: src
+            - name: Start NetBSD ${{ matrix.release }} VM
+              # yamllint disable-line rule:line-length
+              uses: vmactions/netbsd-vm@20ee93a005c9fc78743e6e05269f4cb023b87413  # v1.5.0
+              with:
+                  # yamllint disable rule:line-length
+                  envs: 'ATF_OBJDIR ATF_SRCDIR CC CPP CXX NM OBJDUMP RANLIB STRIP JOB_NAME'
+                  prepare: |
+                      # Instructions for setting up pkgsrc gleaned from
+                      # https://www.pkgsrc.org .
+                      #
+                      # NB: `PKG_PATH` is not setup here because it conflicts
+                      # with workarounds used by vmactions.
+                      pkg_add pkgin
+                      pkgin -y update
+                      pkgin -y install ${{ join(matrix.pkgs, ' ') }}
+                      # Set up sudo no password for :wheel.
+                      echo '%wheel ALL=(ALL:ALL) NOPASSWD: ALL' > \
+                          /usr/pkg/etc/sudoers.d/wheel-no-password
+                  # yamllint enable rule:line-length
+                  release: "${{ matrix.release }}"
+                  # NB: I tried nfs (failed when running chflags) and sshfs
+                  # (could not find files/directories when running configure)
+                  # to no avail here. This may change in the future, but for
+                  # now use rsync.
+                  # - ngie (2026-08-16)
+                  sync: rsync
+                  sync-time: true
+            - name: Configure
+              shell: netbsd {0}
+              run: |
+                  CFG_ARGS="--enable-developer"
+                  for i in ${{ join(matrix.sanitize, ' ') }}; do
+                      CFG_ARGS="${CFG_ARGS} --enable-${i}"
+                  done
+                  echo "uname -a: $(uname -a)"
+                  echo "uname -m: $(uname -m)"
+                  echo "uname -p: $(uname -p)"
+                  echo "Build environment:"
+                  kyua about | head -1
+                  env
+                  cd "${ATF_SRCDIR}"
+                  ./admin/ci-build/01_configure.sh ${CFG_ARGS}
+            - name: Distcheck (builds and tests)
+              shell: netbsd {0}
+              run: |
+                  CFG_ARGS="--disable-dependency-tracking --enable-developer"
+                  for i in ${{ join(matrix.sanitize, ' ') }}; do
+                      CFG_ARGS="${CFG_ARGS} --enable-${i}"
+                  done
+                  cd "${ATF_SRCDIR}"
+                  env "EXTRA_DISTCHECK_CONFIGURE_ARGS=${CFG_ARGS}" \
+                      ./admin/ci-build/02_distcheck.sh
+            - name: Gather/Archive Logs and Reports
+              shell: netbsd {0}
               run: |
                   REPORTS_DIR="${ATF_OBJDIR}/reports"
                   mkdir -p "${REPORTS_DIR}"
