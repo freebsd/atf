@@ -967,9 +967,9 @@ _atf_tc_pass(struct context *ctx)
 }
 
 static void
-_atf_tc_require_kmod(struct context *ctx, const char *prog)
+_atf_tc_require_kmod(struct context *ctx, const char *kmod)
 {
-    check_fatal_error(check_kmod(ctx, prog));
+    check_fatal_error(check_kmod(ctx, kmod));
 }
 
 static void
