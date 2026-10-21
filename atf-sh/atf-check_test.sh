@@ -156,6 +156,71 @@ xflag_body()
         atf_fail "Using -x does not respect all provided arguments"
 }
 
+atf_test_case vflag
+vflag_head()
+{
+    atf_set "descr" "The -v option shows both streams on successful checks"
+}
+vflag_body()
+{
+    cmd='echo output; echo error >&2'
+    expected='stdout:\noutput\n\nstderr:\nerror\n\n'
+
+    atf_check -o ignore -e empty ${Atf_Check} \
+        -o ignore -e ignore -x "${cmd}"
+    atf_check -o ignore -e inline:"${expected}" ${Atf_Check} \
+        -v -o inline:"output\n" -e inline:"error\n" -x "${cmd}"
+    atf_check -o ignore -e inline:"${expected}" ${Atf_Check} \
+        -v -s exit:7 -o save:out -e save:err -x "${cmd}; exit 7"
+    atf_check -o inline:"output\n" cat out
+    atf_check -o inline:"error\n" cat err
+
+    atf_check -o ignore -e inline:"stdout:\n\nstderr:\n\n" \
+        ${Atf_Check} -v true
+    atf_check -o ignore -e inline:"stdout:\noutput\nstderr:\nerror\n" \
+        ${Atf_Check} -v -o ignore -e ignore \
+        -x 'printf output; printf error >&2'
+}
+
+atf_test_case vflag_failure
+vflag_failure_head()
+{
+    atf_set "descr" "The -v option preserves failures without duplicate dumps"
+}
+vflag_failure_body()
+{
+    cmd='echo output; echo error >&2; exit 1'
+    atf_check -s not-exit:0 -o ignore -e save:expected ${Atf_Check} \
+        -o ignore -e ignore -x "${cmd}"
+    atf_check -s not-exit:0 -o ignore -e file:expected ${Atf_Check} \
+        -v -o ignore -e ignore -x "${cmd}"
+
+    atf_check -s not-exit:0 -o ignore -e match:'stdout:' \
+        -e match:'stderr:' -e match:'Fail:' ${Atf_Check} \
+        -v -o empty -e ignore -x 'echo output; echo error >&2'
+}
+
+atf_test_case vflag_repeat
+vflag_repeat_head()
+{
+    atf_set "descr" "The -v option shows output from each retry"
+}
+vflag_repeat_body()
+{
+    cat >script.sh <<'EOF'
+echo output
+echo error >&2
+if [ ! -f retried ]; then
+    touch retried
+    exit 1
+fi
+EOF
+    expected='Fail: incorrect exit status: 1, expected: 0\n'
+    streams='stdout:\noutput\n\nstderr:\nerror\n\n'
+    atf_check -o ignore -e inline:"${expected}${streams}${streams}" \
+        ${Atf_Check} -v -r 10 -o ignore -e ignore ${Atf_Shell} script.sh
+}
+
 atf_test_case oflag_empty
 oflag_empty_head()
 {
@@ -412,6 +477,9 @@ atf_init_test_cases()
     atf_add_test_case sflag_signal
 
     atf_add_test_case xflag
+    atf_add_test_case vflag
+    atf_add_test_case vflag_failure
+    atf_add_test_case vflag_repeat
 
     atf_add_test_case oflag_empty
     atf_add_test_case oflag_ignore
