@@ -76,6 +76,7 @@
 .Nm atf_tc_get_config_var_as_long ,
 .Nm atf_tc_get_config_var_as_long_wd ,
 .Nm atf_tc_get_config_var_wd ,
+.Nm atf_tc_has_config_var ,
 .Nm atf_tc_pass ,
 .Nm atf_tc_require_kmod ,
 .Nm atf_tc_require_prog ,
@@ -206,6 +207,11 @@
 .Fa "const atf_tc_t *tc"
 .Fa "const char *name"
 .Fa "const char *defval"
+.Fc
+.Ft void
+.Fo atf_tc_has_config_var
+.Fa "const atf_tc_t *tc"
+.Fa "const char *name"
 .Fc
 .Ft void
 .Fo atf_tc_pass
