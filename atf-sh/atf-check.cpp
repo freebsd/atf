@@ -598,7 +598,8 @@ decode(const std::string& s)
 
 static
 bool
-run_status_check(const status_check& sc, const atf::check::check_result& cr)
+run_status_check(const status_check& sc, const atf::check::check_result& cr,
+                 const bool verbose)
 {
     bool result;
 
@@ -652,7 +653,7 @@ run_status_check(const status_check& sc, const atf::check::check_result& cr)
         result = false;
     }
 
-    if (result == false) {
+    if (verbose || result == false) {
         std::cerr << "stdout:\n";
         cat_file(atf::fs::path(cr.stdout_path()));
         std::cerr << "\n";
@@ -668,13 +669,13 @@ run_status_check(const status_check& sc, const atf::check::check_result& cr)
 static
 bool
 run_status_checks(const std::vector< status_check >& checks,
-                  const atf::check::check_result& result)
+                  const atf::check::check_result& result, const bool verbose)
 {
     bool ok = false;
 
     for (std::vector< status_check >::const_iterator iter = checks.begin();
          !ok && iter != checks.end(); iter++) {
-         ok |= run_status_check(*iter, result);
+         ok |= run_status_check(*iter, result, verbose);
     }
 
     return ok;
@@ -787,6 +788,7 @@ namespace {
 
 class atf_check : public atf::application::app {
     bool m_rflag;
+    bool m_vflag;
     bool m_xflag;
 
     useconds_t m_timo;
@@ -819,6 +821,7 @@ const char* atf_check::m_description =
 atf_check::atf_check(void) :
     app(m_description, "atf-check(1)"),
     m_rflag(false),
+    m_vflag(false),
     m_xflag(false)
 {
 }
@@ -865,6 +868,7 @@ atf_check::specific_options(void)
     opts.insert(option('r', "timeout[:interval]", "Repeat failed check until "
                 "the timeout expires."));
     opts.insert(option('x', "", "Execute command as a shell command"));
+    opts.insert(option('v', "", "Show stdout and stderr even on success"));
 
     return opts;
 }
@@ -888,6 +892,10 @@ atf_check::process_option(int ch, const char* arg)
     case 'r':
         m_rflag = true;
         parse_repeat_check_arg(arg, &m_timo, &m_interval);
+        break;
+
+    case 'v':
+        m_vflag = true;
         break;
 
     case 'x':
@@ -924,7 +932,7 @@ atf_check::main(void)
         std::unique_ptr< atf::check::check_result > r =
             m_xflag ? execute_with_shell(m_argv) : execute(m_argv);
 
-        if ((run_status_checks(m_status_checks, *r) == false) ||
+        if ((run_status_checks(m_status_checks, *r, m_vflag) == false) ||
             (run_output_checks(*r, "stderr") == false) ||
             (run_output_checks(*r, "stdout") == false))
             status = EXIT_FAILURE;
