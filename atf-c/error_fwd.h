@@ -31,6 +31,6 @@
  * --------------------------------------------------------------------- */
 
 struct atf_error;
-typedef struct atf_error *atf_error_t;
+typedef struct atf_error* atf_error_t;
 
 #endif /* !defined(ATF_C_ERROR_FWD_H) */
