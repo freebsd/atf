@@ -60,7 +60,7 @@ jobs:
             matrix:
                 build-os:
                     - macos-latest
-                    - ubuntu-latest
+                    - ubuntu-24.04
                 include:
                     # The macOS runner uses a homebrew provided compiler as the
                     # system compiler lacks ASAN/LSAN/UBSAN support.
@@ -74,7 +74,7 @@ jobs:
                           - llvm@20
                           - pkgconf
                       compiler-bindir: /opt/homebrew/opt/llvm@20/bin
-                    - build-os: ubuntu-latest
+                    - build-os: ubuntu-24.04
                       compiler: clang-18
                       pkgs:
                           - clang-18
