@@ -11,10 +11,10 @@ if [ "${VERSION_MAJOR}" != 14 ]; then
     exit 0
 fi
 
-# NO_CHECK_STYLE_BEGIN
+# NOLINTBEGIN
 pkgbasify_sha256="7f3a4d514c46d03ad52d6689b621f4971ce85db42b1a41cabb18913e593357ad"
 pkgbasify_url="https://github.com/FreeBSDFoundation/pkgbasify/raw/refs/tags/v1.1.0/pkgbasify.lua"
-# NO_CHECK_STYLE_END
+# NOLINTEND
 pkgbasify_script="pkgbasify.lua"
 fetch -o "${pkgbasify_script}" "${pkgbasify_url}"
 chmod +x "${pkgbasify_script}"

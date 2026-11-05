@@ -25,7 +25,7 @@
 
 #include <sys/types.h>
 
-#include <assert.h> /* NO_CHECK_STYLE */
+#include <assert.h> /* NOLINT */
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,7 +49,7 @@ static int
 h_exit_signal(void)
 {
     kill(getpid(), SIGKILL);
-    assert(0); /* NO_CHECK_STYLE */
+    assert(0); /* NOLINT */
     return EXIT_FAILURE;
 }
 
