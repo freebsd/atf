@@ -139,7 +139,7 @@ ATF_TC_BODY(path_normalize, tc)
             "/foo/bar",
         },
 
-        /* NO_CHECK_STYLE_BEGIN */
+        /* NOLINTBEGIN */
         {
             "//",
             "/",
@@ -161,7 +161,7 @@ ATF_TC_BODY(path_normalize, tc)
             "///foo///bar///",
             "/foo/bar",
         },
-        /* NO_CHECK_STYLE_END */
+        /* NOLINTEND */
 
         { NULL, NULL }
         /* NOLINTEND */ /* clang-format: on */
@@ -218,12 +218,12 @@ ATF_TC_BODY(path_is_absolute, tc)
     } tests[] = {
         /* NOLINTBEGIN */ /* clang-format: off */
         { "/", true },
-        /* NO_CHECK_STYLE_BEGIN */
+        /* NOLINTBEGIN */
         { "////", true },
         { "////a", true },
         { "//a//", true },
         { "a////", false },
-        /* NO_CHECK_STYLE_END */
+        /* NOLINTEND */
         { "../foo", false },
         { NULL, false },
         /* NOLINTBEGIN */ /* clang-format: on */
@@ -262,12 +262,12 @@ ATF_TC_BODY(path_is_root, tc)
     } tests[] = {
         /* NOLINTBEGIN */ /* clang-format: off */
         { "/", true },
-        /* NO_CHECK_STYLE_BEGIN */
+        /* NOLINTBEGIN */
         { "////", true },
         { "////a", false },
         { "//a//", false },
         { "a////", false },
-        /* NO_CHECK_STYLE_END */
+        /* NOLINTEND */
         { "../foo", false },
         { NULL, false },
         /* NOLINTEND */ /* clang-format: on */
@@ -387,7 +387,7 @@ ATF_TC_BODY(path_append, tc)
         { "foo", "bar", "foo/bar" },
         { "foo/", "/bar", "foo/bar" },
         { "foo/", "/bar/baz", "foo/bar/baz" },
-        { "foo/", "///bar///baz", "foo/bar/baz" }, /* NO_CHECK_STYLE */
+        { "foo/", "///bar///baz", "foo/bar/baz" }, /* NOLINT */
 
         { NULL, NULL, NULL }
         /* NOLINTEND */

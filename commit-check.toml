@@ -20,9 +20,9 @@ require_signed_off_by = true
 # This breaks the (optional, but encouraged) Conventional Commit format.
 #subject_capitalized = true
 subject_capitalized = false
-# NO_CHECK_STYLE_BEGIN
+# NOLINTBEGIN
 # Ref: https://docs.freebsd.org/en/articles/committers-guide/#_use_the_present_tense_imperative_mood
 subject_imperative = true
 # Ref: https://docs.freebsd.org/en/articles/committers-guide/#_keep_subject_lines_short
 subject_max_length = 68
-# NO_CHECK_STYLE_END
+# NOLINTEND

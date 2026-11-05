@@ -153,7 +153,7 @@ init_and_run_h_tc(const char* name, void (*head)(atf_tc_t*),
 #define H_REQUIRE_EQ_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_require_eq_##id)
 #define H_REQUIRE_EQ_BODY_NAME(id) ATF_TC_BODY_NAME(h_require_eq_##id)
 #define H_REQUIRE_EQ(id, v1, v2) \
-    H_DEF(require_eq_##id, ATF_REQUIRE_EQ(v1, v2)) /* NO_CHECK_STYLE */
+    H_DEF(require_eq_##id, ATF_REQUIRE_EQ(v1, v2)) /* NOLINT */
 
 #define H_REQUIRE_STREQ_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_require_streq_##id)
 #define H_REQUIRE_STREQ_BODY_NAME(id) ATF_TC_BODY_NAME(h_require_streq_##id)
