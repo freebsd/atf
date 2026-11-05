@@ -23,7 +23,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  */
 
-#include <atf-c.h>
+#include "atf-c.h"
 
 ATF_TC(this_is_used);
 ATF_TC_HEAD(this_is_used, tc)

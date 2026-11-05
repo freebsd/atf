@@ -25,18 +25,17 @@
 
 #include "atf-c/detail/sanity.h"
 
-#if defined(HAVE_CONFIG_H)
+/* clang-format off */
 #include "config.h"
-#endif
+/* clang-format on */
 
 #include <err.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-static
-void
-fail(const char *fmt, ...)
+static void
+fail(const char* fmt, ...)
 {
     va_list ap;
     char buf[4096];
@@ -56,19 +55,19 @@ fail(const char *fmt, ...)
 }
 
 void
-atf_sanity_inv(const char *file, int line, const char *cond)
+atf_sanity_inv(const char* file, int line, const char* cond)
 {
     fail("Invariant check failed at %s:%d: %s", file, line, cond);
 }
 
 void
-atf_sanity_pre(const char *file, int line, const char *cond)
+atf_sanity_pre(const char* file, int line, const char* cond)
 {
     fail("Precondition check failed at %s:%d: %s", file, line, cond);
 }
 
 void
-atf_sanity_post(const char *file, int line, const char *cond)
+atf_sanity_post(const char* file, int line, const char* cond)
 {
     fail("Postcondition check failed at %s:%d: %s", file, line, cond);
 }

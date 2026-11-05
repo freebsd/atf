@@ -23,14 +23,13 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  */
 
-#include "atf-c/error.h"
-
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "atf-c/detail/sanity.h"
+#include "atf-c/error.h"
 
 /* Theoretically, there can only be a single error instance at any given
  * point in time, because errors are raised at one point and must be
@@ -46,18 +45,16 @@ static bool error_on_flight = false;
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
-static
-void
-error_format(const atf_error_t err, char *buf, size_t buflen)
+static void
+error_format(const atf_error_t err, char* buf, size_t buflen)
 {
     PRE(err != NULL);
     snprintf(buf, buflen, "Error '%s'", err->m_type);
 }
 
-static
-bool
-error_init(atf_error_t err, const char *type, void *data, size_t datalen,
-           void (*format)(const atf_error_t, char *, size_t))
+static bool
+error_init(atf_error_t err, const char* type, void* data, size_t datalen,
+           void (*format)(const atf_error_t, char*, size_t))
 {
     bool ok;
 
@@ -87,8 +84,8 @@ error_init(atf_error_t err, const char *type, void *data, size_t datalen,
  * --------------------------------------------------------------------- */
 
 atf_error_t
-atf_error_new(const char *type, void *data, size_t datalen,
-              void (*format)(const atf_error_t, char *, size_t))
+atf_error_new(const char* type, void* data, size_t datalen,
+              void (*format)(const atf_error_t, char*, size_t))
 {
     atf_error_t err;
 
@@ -148,14 +145,14 @@ atf_is_error(const atf_error_t err)
 }
 
 bool
-atf_error_is(const atf_error_t err, const char *type)
+atf_error_is(const atf_error_t err, const char* type)
 {
     PRE(err != NULL);
 
     return strcmp(err->m_type, type) == 0;
 }
 
-const void *
+const void*
 atf_error_data(const atf_error_t err)
 {
     PRE(err != NULL);
@@ -164,7 +161,7 @@ atf_error_data(const atf_error_t err)
 }
 
 void
-atf_error_format(const atf_error_t err, char *buf, size_t buflen)
+atf_error_format(const atf_error_t err, char* buf, size_t buflen)
 {
     PRE(err != NULL);
     err->m_format(err, buf, buflen);
@@ -184,11 +181,10 @@ struct atf_libc_error_data {
 };
 typedef struct atf_libc_error_data atf_libc_error_data_t;
 
-static
-void
-libc_format(const atf_error_t err, char *buf, size_t buflen)
+static void
+libc_format(const atf_error_t err, char* buf, size_t buflen)
 {
-    const atf_libc_error_data_t *data;
+    const atf_libc_error_data_t* data;
 
     PRE(atf_error_is(err, "libc"));
 
@@ -197,7 +193,7 @@ libc_format(const atf_error_t err, char *buf, size_t buflen)
 }
 
 atf_error_t
-atf_libc_error(int syserrno, const char *fmt, ...)
+atf_libc_error(int syserrno, const char* fmt, ...)
 {
     atf_error_t err;
     atf_libc_error_data_t data;
@@ -216,7 +212,7 @@ atf_libc_error(int syserrno, const char *fmt, ...)
 int
 atf_libc_error_code(const atf_error_t err)
 {
-    const struct atf_libc_error_data *data;
+    const struct atf_libc_error_data* data;
 
     PRE(atf_error_is(err, "libc"));
 
@@ -225,10 +221,10 @@ atf_libc_error_code(const atf_error_t err)
     return data->m_errno;
 }
 
-const char *
+const char*
 atf_libc_error_msg(const atf_error_t err)
 {
-    const struct atf_libc_error_data *data;
+    const struct atf_libc_error_data* data;
 
     PRE(atf_error_is(err, "libc"));
 
@@ -243,9 +239,8 @@ atf_libc_error_msg(const atf_error_t err)
 
 static struct atf_error no_memory_error;
 
-static
-void
-no_memory_format(const atf_error_t err, char *buf, size_t buflen)
+static void
+no_memory_format(const atf_error_t err, char* buf, size_t buflen)
 {
     PRE(atf_error_is(err, "no_memory"));
 
@@ -257,8 +252,7 @@ atf_no_memory_error(void)
 {
     PRE(!error_on_flight);
 
-    error_init(&no_memory_error, "no_memory", NULL, 0,
-               no_memory_format);
+    error_init(&no_memory_error, "no_memory", NULL, 0, no_memory_format);
 
     error_on_flight = true;
     return &no_memory_error;

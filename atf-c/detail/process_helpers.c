@@ -32,23 +32,20 @@
 #include <string.h>
 #include <unistd.h>
 
-static
-int
-h_echo(const char *msg)
+static int
+h_echo(const char* msg)
 {
     printf("%s\n", msg);
     return EXIT_SUCCESS;
 }
 
-static
-int
+static int
 h_exit_failure(void)
 {
     return EXIT_FAILURE;
 }
 
-static
-int
+static int
 h_exit_signal(void)
 {
     kill(getpid(), SIGKILL);
@@ -56,16 +53,14 @@ h_exit_signal(void)
     return EXIT_FAILURE;
 }
 
-static
-int
+static int
 h_exit_success(void)
 {
     return EXIT_SUCCESS;
 }
 
-static
-int
-h_stdout_stderr(const char *id)
+static int
+h_stdout_stderr(const char* id)
 {
     fprintf(stdout, "Line 1 to stdout for %s\n", id);
     fprintf(stdout, "Line 2 to stdout for %s\n", id);
@@ -75,9 +70,8 @@ h_stdout_stderr(const char *id)
     return EXIT_SUCCESS;
 }
 
-static
-void
-check_args(const int argc, const char *const argv[], const int required)
+static void
+check_args(const int argc, const char* const argv[], const int required)
 {
     if (argc < required) {
         fprintf(stderr, "Usage: %s helper-name [args]\n", argv[0]);
@@ -86,7 +80,7 @@ check_args(const int argc, const char *const argv[], const int required)
 }
 
 int
-main(int argc, const char *const argv[])
+main(int argc, const char* const argv[])
 {
     int exitcode;
 

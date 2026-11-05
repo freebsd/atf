@@ -23,14 +23,12 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  */
 
-#include "atf-c/build.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <atf-c.h>
-
+#include "atf-c.h"
+#include "atf-c/build.h"
 #include "atf-c/detail/env.h"
 #include "atf-c/detail/test_helpers.h"
 #include "atf-c/h_build.h"
@@ -40,9 +38,8 @@
  * Auxiliary functions.
  * --------------------------------------------------------------------- */
 
-static
-bool
-equal_arrays(const char *const *exp_array, char **actual_array)
+static bool
+equal_arrays(const char* const* exp_array, char** actual_array)
 {
     bool equal;
 
@@ -65,12 +62,11 @@ equal_arrays(const char *const *exp_array, char **actual_array)
     return equal;
 }
 
-static
-void
-check_equal_array(const char *const *exp_array, char **actual_array)
+static void
+check_equal_array(const char* const* exp_array, char** actual_array)
 {
     {
-        const char *const *exp_ptr;
+        const char* const* exp_ptr;
         printf("Expected arguments:");
         for (exp_ptr = exp_array; *exp_ptr != NULL; exp_ptr++)
             printf(" '%s'", *exp_ptr);
@@ -78,7 +74,7 @@ check_equal_array(const char *const *exp_array, char **actual_array)
     }
 
     {
-        char **actual_ptr;
+        char** actual_ptr;
         printf("Returned arguments:");
         for (actual_ptr = actual_array; *actual_ptr != NULL; actual_ptr++)
             printf(" '%s'", *actual_ptr);
@@ -90,9 +86,8 @@ check_equal_array(const char *const *exp_array, char **actual_array)
                              "expected values");
 }
 
-static
-void
-verbose_set_env(const char *var, const char *val)
+static void
+verbose_set_env(const char* var, const char* val)
 {
     printf("Setting %s to '%s'\n", var, val);
     RE(atf_env_set(var, val));
@@ -105,36 +100,37 @@ verbose_set_env(const char *var, const char *val)
 ATF_TC(equal_arrays);
 ATF_TC_HEAD(equal_arrays, tc)
 {
-    atf_tc_set_md_var(tc, "descr", "Tests the test case internal "
+    atf_tc_set_md_var(tc, "descr",
+                      "Tests the test case internal "
                       "equal_arrays function");
 }
 ATF_TC_BODY(equal_arrays, tc)
 {
     {
-        const char *const exp[] = { NULL };
-        char *actual[] = { NULL };
+        const char* const exp[] = { NULL };
+        char* actual[] = { NULL };
 
         ATF_CHECK(equal_arrays(exp, actual));
     }
 
     {
-        const char *const exp[] = { NULL };
-        char *actual[2] = { strdup("foo"), NULL };
+        const char* const exp[] = { NULL };
+        char* actual[2] = { strdup("foo"), NULL };
 
         ATF_CHECK(!equal_arrays(exp, actual));
         free(actual[0]);
     }
 
     {
-        const char *const exp[] = { "foo", NULL };
-        char *actual[] = { NULL };
+        const char* const exp[] = { "foo", NULL };
+        char* actual[] = { NULL };
 
         ATF_CHECK(!equal_arrays(exp, actual));
     }
 
     {
-        const char *const exp[] = { "foo", NULL };
-        char *actual[2] = { strdup("foo"), NULL };
+        const char* const exp[] = { "foo", NULL };
+        char* actual[2] = { strdup("foo"), NULL };
 
         ATF_CHECK(equal_arrays(exp, actual));
         free(actual[0]);
@@ -152,7 +148,7 @@ ATF_TC_HEAD(c_o, tc)
 }
 ATF_TC_BODY(c_o, tc)
 {
-    struct c_o_test *test;
+    struct c_o_test* test;
 
     for (test = c_o_tests; test->expargv[0] != NULL; test++) {
         printf("> Test: %s\n", test->msg);
@@ -162,7 +158,7 @@ ATF_TC_BODY(c_o, tc)
         verbose_set_env("ATF_BUILD_CPPFLAGS", test->cppflags);
 
         {
-            char **argv;
+            char** argv;
             if (test->hasoptargs)
                 RE(atf_build_c_o(test->sfile, test->ofile, test->optargs,
                                  &argv));
@@ -181,7 +177,7 @@ ATF_TC_HEAD(cpp, tc)
 }
 ATF_TC_BODY(cpp, tc)
 {
-    struct cpp_test *test;
+    struct cpp_test* test;
 
     for (test = cpp_tests; test->expargv[0] != NULL; test++) {
         printf("> Test: %s\n", test->msg);
@@ -190,7 +186,7 @@ ATF_TC_BODY(cpp, tc)
         verbose_set_env("ATF_BUILD_CPPFLAGS", test->cppflags);
 
         {
-            char **argv;
+            char** argv;
             if (test->hasoptargs)
                 RE(atf_build_cpp(test->sfile, test->ofile, test->optargs,
                                  &argv));
@@ -209,7 +205,7 @@ ATF_TC_HEAD(cxx_o, tc)
 }
 ATF_TC_BODY(cxx_o, tc)
 {
-    struct cxx_o_test *test;
+    struct cxx_o_test* test;
 
     for (test = cxx_o_tests; test->expargv[0] != NULL; test++) {
         printf("> Test: %s\n", test->msg);
@@ -219,7 +215,7 @@ ATF_TC_BODY(cxx_o, tc)
         verbose_set_env("ATF_BUILD_CPPFLAGS", test->cppflags);
 
         {
-            char **argv;
+            char** argv;
             if (test->hasoptargs)
                 RE(atf_build_cxx_o(test->sfile, test->ofile, test->optargs,
                                    &argv));
