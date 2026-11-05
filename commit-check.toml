@@ -1,0 +1,16 @@
+[branch]
+conventional_branch = false
+
+[commit]
+ai_attribution = "disclose"
+ai_disclosure_trailers = ["Assisted-by"]
+allow_empty_commits = false
+allow_fixup_commits = false
+allow_merge_commits = false
+allow_wip_commits = false
+# Reject commits authored by anonymous GitHub accounts.
+author_email_pattern = '(?i)^(?!.*@users\.noreply\.github\.com$).+@.+$'
+conventional_commits = false
+require_body = true
+require_signed_off_by = true
+subject_max_length = 80
