@@ -23,6 +23,8 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  */
 
+/* SPDX-License-Identifier: BSD-2-Clause */
+
 #if defined(ATF_C_H_BUILD_H)
 #error "Cannot include h_build.h more than once."
 #else
