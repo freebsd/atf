@@ -24,8 +24,6 @@ dnl OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 dnl IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 AC_DEFUN([ATF_MODULE_APPLICATION], [
-    ATF_CHECK_STD_VSNPRINTF
-
     AC_CACHE_CHECK(
       [whether getopt allows a + sign for POSIX behavior],
       [kyua_cv_getopt_plus], [

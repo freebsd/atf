@@ -46,12 +46,6 @@ extern "C" {
 
 #include "atf-c++/detail/sanity.hpp"
 
-#if !defined(HAVE_VSNPRINTF_IN_STD)
-namespace std {
-using ::vsnprintf;
-}
-#endif // !defined(HAVE_VSNPRINTF_IN_STD)
-
 namespace impl = atf::application;
 #define IMPL_NAME "atf::application"
 
