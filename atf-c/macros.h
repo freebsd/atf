@@ -198,6 +198,42 @@
                       _atf_expected, _atf_actual, ##__VA_ARGS__);      \
     } while (0)
 
+#define ATF_REQUIRE_WCSEQ(expected, actual)                        \
+    do {                                                           \
+        const wchar_t* _atf_expected = (expected);                 \
+        const wchar_t* _atf_actual = (actual);                     \
+        ATF_REQUIRE_MSG(wcscmp(_atf_expected, _atf_actual) == 0,   \
+                        "%s != %s (%S != %S)", #expected, #actual, \
+                        _atf_expected, _atf_actual);               \
+    } while (0)
+
+#define ATF_CHECK_WCSEQ(expected, actual)                        \
+    do {                                                         \
+        const wchar_t* _atf_expected = (expected);               \
+        const wchar_t* _atf_actual = (actual);                   \
+        ATF_CHECK_MSG(wcscmp(_atf_expected, _atf_actual) == 0,   \
+                      "%s != %s (%S != %S)", #expected, #actual, \
+                      _atf_expected, _atf_actual);               \
+    } while (0)
+
+#define ATF_REQUIRE_WCSEQ_MSG(expected, actual, fmt, ...)                \
+    do {                                                                 \
+        const wchar_t* _atf_expected = (expected);                       \
+        const wchar_t* _atf_actual = (actual);                           \
+        ATF_REQUIRE_MSG(wcscmp(_atf_expected, _atf_actual) == 0,         \
+                        "%s != %s (%S != %S): " fmt, #expected, #actual, \
+                        _atf_expected, _atf_actual, ##__VA_ARGS__);      \
+    } while (0)
+
+#define ATF_CHECK_WCSEQ_MSG(expected, actual, fmt, ...)                \
+    do {                                                               \
+        const wchar_t* _atf_expected = (expected);                     \
+        const wchar_t* _atf_actual = (actual);                         \
+        ATF_CHECK_MSG(wcscmp(_atf_expected, _atf_actual) == 0,         \
+                      "%s != %s (%S != %S): " fmt, #expected, #actual, \
+                      _atf_expected, _atf_actual, ##__VA_ARGS__);      \
+    } while (0)
+
 #define ATF_REQUIRE_INTEQ(expected, actual)                                    \
     do {                                                                       \
         intmax_t _atf_expected = (expected);                                   \
