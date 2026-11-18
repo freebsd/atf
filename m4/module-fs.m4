@@ -53,7 +53,9 @@ AC_DEFUN([ATF_MODULE_FS], [
             [AC_LANG_PROGRAM([#include <stdlib.h>
 #include <unistd.h>], [
          char *cwd = getcwd(NULL, 0);
-         return (cwd != NULL) ? EXIT_SUCCESS : EXIT_FAILURE;
+         int result = (cwd != NULL) ? EXIT_SUCCESS : EXIT_FAILURE;
+         free(cwd);
+         return result;
          ])],
          [kyua_cv_getcwd_works=yes],
          [kyua_cv_getcwd_works=no])

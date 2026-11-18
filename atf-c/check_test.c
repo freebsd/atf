@@ -483,6 +483,7 @@ ATF_TC_BODY(exec_umask, tc)
     umask(0222);
     RE(atf_check_exec_array(argv, &result));
 
+    atf_check_result_fini(&result);
     atf_fs_path_fini(&process_helpers);
 }
 
