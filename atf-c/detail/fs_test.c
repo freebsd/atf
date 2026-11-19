@@ -976,7 +976,9 @@ do_umask_check(atf_error_t (*const mk_func)(atf_fs_path_t*),
 
     ATF_REQUIRE(!atf_is_error(err));
     ATF_CHECK_EQ(post_mask, test_mask);
-    RE(rm_func(&path));
+    err = rm_func(&path);
+    atf_fs_path_fini(&path);
+    RE(err);
 }
 
 ATF_TC(mkdtemp_umask);

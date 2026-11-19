@@ -81,6 +81,7 @@ struct context {
 };
 
 static void context_init(struct context*, const atf_tc_t*, const char*);
+static void context_fini(struct context*);
 static void context_set_resfile(struct context*, const char*);
 static void context_close_resfile(struct context*);
 static void check_fatal_error(atf_error_t);
@@ -126,6 +127,17 @@ context_init(struct context* ctx, const atf_tc_t* tc, const char* resfile)
     ctx->expect_fail_count = 0;
     ctx->expect_exitcode = 0;
     ctx->expect_signo = 0;
+}
+
+static void
+context_fini(struct context* ctx)
+{
+    if (ctx->tc == NULL)
+        return;
+
+    context_close_resfile(ctx);
+    atf_dynstr_fini(&ctx->expect_reason);
+    ctx->tc = NULL;
 }
 
 static void
@@ -1126,6 +1138,7 @@ static struct context Current;
 atf_error_t
 atf_tc_run(const atf_tc_t* tc, const char* resfile)
 {
+    context_fini(&Current);
     context_init(&Current, tc, resfile);
 
     tc->pimpl->m_body(tc);
