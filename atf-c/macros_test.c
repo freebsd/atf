@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <wchar.h>
 
 #include "atf-c.h"
 #include "atf-c/detail/fs.h"
@@ -118,6 +119,11 @@ init_and_run_h_tc(const char* name, void (*head)(atf_tc_t*),
 #define H_CHECK_STREQ(id, v1, v2) \
     H_DEF(check_streq_##id, ATF_CHECK_STREQ(v1, v2))
 
+#define H_CHECK_WCSEQ_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_check_wcseq_##id)
+#define H_CHECK_WCSEQ_BODY_NAME(id) ATF_TC_BODY_NAME(h_check_wcseq_##id)
+#define H_CHECK_WCSEQ(id, v1, v2) \
+    H_DEF(check_wcseq_##id, ATF_CHECK_WCSEQ(v1, v2))
+
 #define H_CHECK_MATCH_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_check_match_##id)
 #define H_CHECK_MATCH_BODY_NAME(id) ATF_TC_BODY_NAME(h_check_match_##id)
 #define H_CHECK_MATCH(id, v1, v2) \
@@ -132,6 +138,11 @@ init_and_run_h_tc(const char* name, void (*head)(atf_tc_t*),
 #define H_CHECK_STREQ_MSG_BODY_NAME(id) ATF_TC_BODY_NAME(h_check_streq_msg_##id)
 #define H_CHECK_STREQ_MSG(id, v1, v2, msg) \
     H_DEF(check_streq_msg_##id, ATF_CHECK_STREQ_MSG(v1, v2, msg))
+
+#define H_CHECK_WCSEQ_MSG_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_check_wcseq_msg_##id)
+#define H_CHECK_WCSEQ_MSG_BODY_NAME(id) ATF_TC_BODY_NAME(h_check_wcseq_msg_##id)
+#define H_CHECK_WCSEQ_MSG(id, v1, v2, msg) \
+    H_DEF(check_wcseq_msg_##id, ATF_CHECK_WCSEQ_MSG(v1, v2, msg))
 
 #define H_CHECK_MATCH_MSG_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_check_match_msg_##id)
 #define H_CHECK_MATCH_MSG_BODY_NAME(id) ATF_TC_BODY_NAME(h_check_match_msg_##id)
@@ -162,6 +173,11 @@ init_and_run_h_tc(const char* name, void (*head)(atf_tc_t*),
 #define H_REQUIRE_STREQ(id, v1, v2) \
     H_DEF(require_streq_##id, ATF_REQUIRE_STREQ(v1, v2))
 
+#define H_REQUIRE_WCSEQ_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_require_wcseq_##id)
+#define H_REQUIRE_WCSEQ_BODY_NAME(id) ATF_TC_BODY_NAME(h_require_wcseq_##id)
+#define H_REQUIRE_WCSEQ(id, v1, v2) \
+    H_DEF(require_wcseq_##id, ATF_REQUIRE_WCSEQ(v1, v2))
+
 #define H_REQUIRE_MATCH_HEAD_NAME(id) ATF_TC_HEAD_NAME(h_require_match_##id)
 #define H_REQUIRE_MATCH_BODY_NAME(id) ATF_TC_BODY_NAME(h_require_match_##id)
 #define H_REQUIRE_MATCH(id, v1, v2) \
@@ -178,6 +194,13 @@ init_and_run_h_tc(const char* name, void (*head)(atf_tc_t*),
     ATF_TC_BODY_NAME(h_require_streq_msg_##id)
 #define H_REQUIRE_STREQ_MSG(id, v1, v2, msg) \
     H_DEF(require_streq_msg_##id, ATF_REQUIRE_STREQ_MSG(v1, v2, msg))
+
+#define H_REQUIRE_WCSEQ_MSG_HEAD_NAME(id) \
+    ATF_TC_HEAD_NAME(h_require_wcseq_msg_##id)
+#define H_REQUIRE_WCSEQ_MSG_BODY_NAME(id) \
+    ATF_TC_BODY_NAME(h_require_wcseq_msg_##id)
+#define H_REQUIRE_WCSEQ_MSG(id, v1, v2, msg) \
+    H_DEF(require_wcseq_msg_##id, ATF_REQUIRE_WCSEQ_MSG(v1, v2, msg))
 
 #define H_REQUIRE_MATCH_MSG_HEAD_NAME(id) \
     ATF_TC_HEAD_NAME(h_require_match_msg_##id)
@@ -369,8 +392,8 @@ ATF_TC_BODY(check, tc)
 struct check_eq_test {
     void (*head)(atf_tc_t*);
     void (*body)(const atf_tc_t*);
-    const char* v1;
-    const char* v2;
+    const void* v1;
+    const void* v2;
     const char* msg;
     bool ok;
 };
@@ -381,8 +404,36 @@ do_check_eq_tests(const struct check_eq_test* tests)
     const struct check_eq_test* t;
 
     for (t = &tests[0]; t->head != NULL; t++) {
-        printf("Checking with %s, %s and expecting %s\n", t->v1, t->v2,
-               t->ok ? "true" : "false");
+        printf("Checking with %s, %s and expecting %s\n", (const char*)t->v1,
+               (const char*)t->v2, t->ok ? "true" : "false");
+
+        init_and_run_h_tc("h_check", t->head, t->body);
+
+        ATF_CHECK(exists("before"));
+        ATF_CHECK(exists("after"));
+
+        if (t->ok) {
+            ATF_REQUIRE(atf_utils_grep_file("^passed", "result"));
+        } else {
+            ATF_REQUIRE(atf_utils_grep_file("^failed", "result"));
+            ATF_CHECK(atf_utils_grep_file("Check failed: .*"
+                                          "macros_test.c:[0-9]+: %s$",
+                                          "error", t->msg));
+        }
+
+        ATF_CHECK(unlink("before") != -1);
+        ATF_CHECK(unlink("after") != -1);
+    }
+}
+
+static void
+do_check_eq_tests_w(const struct check_eq_test* tests)
+{
+    const struct check_eq_test* t;
+
+    for (t = &tests[0]; t->head != NULL; t++) {
+        printf("Checking with %S, %S and expecting %s\n", (const wchar_t*)t->v1,
+               (const wchar_t*)t->v2, t->ok ? "true" : "false");
 
         init_and_run_h_tc("h_check", t->head, t->body);
 
@@ -493,6 +544,56 @@ ATF_TC_BODY(check_streq, tc)
     do_check_eq_tests(tests);
 }
 
+H_CHECK_WCSEQ(1_1, L"1", L"1");
+H_CHECK_WCSEQ(1_2, L"1", L"2");
+H_CHECK_WCSEQ(2_1, L"2", L"1");
+H_CHECK_WCSEQ(2_2, L"2", L"2");
+H_CHECK_WCSEQ_MSG(1_1, L"1", L"1", "1 does not match 1");
+H_CHECK_WCSEQ_MSG(1_2, L"1", L"2", "1 does not match 2");
+H_CHECK_WCSEQ_MSG(2_1, L"2", L"1", "2 does not match 1");
+H_CHECK_WCSEQ_MSG(2_2, L"2", L"2", "2 does not match 2");
+const wchar_t* check_wcseq_var1 = L"5";
+const wchar_t* check_wcseq_var2 = L"9";
+H_CHECK_WCSEQ(vars, check_wcseq_var1, check_wcseq_var2);
+
+ATF_TC(check_wcseq);
+ATF_TC_HEAD(check_wcseq, tc)
+{
+    atf_tc_set_md_var(tc, "descr",
+                      "Tests the ATF_CHECK_WCSEQ and "
+                      "ATF_CHECK_WCSEQ_MSG macros");
+}
+ATF_TC_BODY(check_wcseq, tc)
+{
+    struct check_eq_test tests[] = {
+        { H_CHECK_WCSEQ_HEAD_NAME(1_1), H_CHECK_WCSEQ_BODY_NAME(1_1), L"1",
+          L"1", "L\"1\" != L\"1\" \\(1 != 1\\)", true },
+        { H_CHECK_WCSEQ_HEAD_NAME(1_2), H_CHECK_WCSEQ_BODY_NAME(1_2), L"1",
+          L"2", "L\"1\" != L\"2\" \\(1 != 2\\)", false },
+        { H_CHECK_WCSEQ_HEAD_NAME(2_1), H_CHECK_WCSEQ_BODY_NAME(2_1), L"2",
+          L"1", "L\"2\" != L\"1\" \\(2 != 1\\)", false },
+        { H_CHECK_WCSEQ_HEAD_NAME(2_2), H_CHECK_WCSEQ_BODY_NAME(2_2), L"2",
+          L"2", "L\"2\" != L\"2\" \\(2 != 2\\)", true },
+        { H_CHECK_WCSEQ_MSG_HEAD_NAME(1_1), H_CHECK_WCSEQ_MSG_BODY_NAME(1_1),
+          L"1", L"1", "L\"1\" != L\"1\" \\(1 != 1\\): 1 does not match 1",
+          true },
+        { H_CHECK_WCSEQ_MSG_HEAD_NAME(1_2), H_CHECK_WCSEQ_MSG_BODY_NAME(1_2),
+          L"1", L"2", "L\"1\" != L\"2\" \\(1 != 2\\): 1 does not match 2",
+          false },
+        { H_CHECK_WCSEQ_MSG_HEAD_NAME(2_1), H_CHECK_WCSEQ_MSG_BODY_NAME(2_1),
+          L"2", L"1", "L\"2\" != L\"1\" \\(2 != 1\\): 2 does not match 1",
+          false },
+        { H_CHECK_WCSEQ_MSG_HEAD_NAME(2_2), H_CHECK_WCSEQ_MSG_BODY_NAME(2_2),
+          L"2", L"2", "L\"2\" != L\"2\" \\(2 != 2\\): 2 does not match 2",
+          true },
+        { H_CHECK_WCSEQ_HEAD_NAME(vars), H_CHECK_WCSEQ_BODY_NAME(vars),
+          check_wcseq_var1, check_wcseq_var2,
+          "check_wcseq_var1 != check_wcseq_var2 \\(5 != 9\\)", false },
+        { NULL, NULL, 0, 0, "", false }
+    };
+    do_check_eq_tests_w(tests);
+}
+
 /* ---------------------------------------------------------------------
  * Test cases for the ATF_CHECK_MATCH and ATF_CHECK_MATCH_MSG macros.
  * --------------------------------------------------------------------- */
@@ -591,8 +692,8 @@ ATF_TC_BODY(require, tc)
 struct require_eq_test {
     void (*head)(atf_tc_t*);
     void (*body)(const atf_tc_t*);
-    const char* v1;
-    const char* v2;
+    const void* v1;
+    const void* v2;
     const char* msg;
     bool ok;
 };
@@ -603,8 +704,36 @@ do_require_eq_tests(const struct require_eq_test* tests)
     const struct require_eq_test* t;
 
     for (t = &tests[0]; t->head != NULL; t++) {
-        printf("Checking with %s, %s and expecting %s\n", t->v1, t->v2,
-               t->ok ? "true" : "false");
+        printf("Checking with %s, %s and expecting %s\n", (const char*)t->v1,
+               (const char*)t->v2, t->ok ? "true" : "false");
+
+        init_and_run_h_tc("h_require", t->head, t->body);
+
+        ATF_REQUIRE(exists("before"));
+        if (t->ok) {
+            ATF_REQUIRE(atf_utils_grep_file("^passed", "result"));
+            ATF_REQUIRE(exists("after"));
+        } else {
+            ATF_REQUIRE(atf_utils_grep_file("^failed: .*macros_test.c"
+                                            ":[0-9]+: %s$",
+                                            "result", t->msg));
+            ATF_REQUIRE(!exists("after"));
+        }
+
+        ATF_REQUIRE(unlink("before") != -1);
+        if (t->ok)
+            ATF_REQUIRE(unlink("after") != -1);
+    }
+}
+
+static void
+do_require_eq_tests_w(const struct require_eq_test* tests)
+{
+    const struct require_eq_test* t;
+
+    for (t = &tests[0]; t->head != NULL; t++) {
+        printf("Checking with %S, %S and expecting %s\n", (const wchar_t*)t->v1,
+               (const wchar_t*)t->v2, t->ok ? "true" : "false");
 
         init_and_run_h_tc("h_require", t->head, t->body);
 
@@ -717,6 +846,56 @@ ATF_TC_BODY(require_streq, tc)
         { NULL, NULL, 0, 0, "", false }
     };
     do_require_eq_tests(tests);
+}
+
+H_REQUIRE_WCSEQ(1_1, L"1", L"1");
+H_REQUIRE_WCSEQ(1_2, L"1", L"2");
+H_REQUIRE_WCSEQ(2_1, L"2", L"1");
+H_REQUIRE_WCSEQ(2_2, L"2", L"2");
+H_REQUIRE_WCSEQ_MSG(1_1, L"1", L"1", "1 does not match 1");
+H_REQUIRE_WCSEQ_MSG(1_2, L"1", L"2", "1 does not match 2");
+H_REQUIRE_WCSEQ_MSG(2_1, L"2", L"1", "2 does not match 1");
+H_REQUIRE_WCSEQ_MSG(2_2, L"2", L"2", "2 does not match 2");
+const wchar_t* require_wcseq_var1 = L"5";
+const wchar_t* require_wcseq_var2 = L"9";
+H_REQUIRE_WCSEQ(vars, require_wcseq_var1, require_wcseq_var2);
+
+ATF_TC(require_wcseq);
+ATF_TC_HEAD(require_wcseq, tc)
+{
+    atf_tc_set_md_var(tc, "descr",
+                      "Tests the ATF_REQUIRE_WCSEQ and "
+                      "ATF_REQUIRE_WCSEQ_MSG macros");
+}
+ATF_TC_BODY(require_wcseq, tc)
+{
+    struct require_eq_test tests[] = {
+        { H_REQUIRE_WCSEQ_HEAD_NAME(1_1), H_REQUIRE_WCSEQ_BODY_NAME(1_1), L"1",
+          L"1", "L\"1\" != L\"1\" \\(1 != 1\\)", true },
+        { H_REQUIRE_WCSEQ_HEAD_NAME(1_2), H_REQUIRE_WCSEQ_BODY_NAME(1_2), L"1",
+          L"2", "L\"1\" != L\"2\" \\(1 != 2\\)", false },
+        { H_REQUIRE_WCSEQ_HEAD_NAME(2_1), H_REQUIRE_WCSEQ_BODY_NAME(2_1), L"2",
+          L"1", "L\"2\" != L\"1\" \\(2 != 1\\)", false },
+        { H_REQUIRE_WCSEQ_HEAD_NAME(2_2), H_REQUIRE_WCSEQ_BODY_NAME(2_2), L"2",
+          L"2", "L\"2\" != L\"2\" \\(2 != 2\\)", true },
+        { H_REQUIRE_WCSEQ_MSG_HEAD_NAME(1_1),
+          H_REQUIRE_WCSEQ_MSG_BODY_NAME(1_1), L"1", L"1",
+          "L\"1\" != L\"1\" \\(1 != 1\\): 1 does not match 1", true },
+        { H_REQUIRE_WCSEQ_MSG_HEAD_NAME(1_2),
+          H_REQUIRE_WCSEQ_MSG_BODY_NAME(1_2), L"1", L"2",
+          "L\"1\" != L\"2\" \\(1 != 2\\): 1 does not match 2", false },
+        { H_REQUIRE_WCSEQ_MSG_HEAD_NAME(2_1),
+          H_REQUIRE_WCSEQ_MSG_BODY_NAME(2_1), L"2", L"1",
+          "L\"2\" != L\"1\" \\(2 != 1\\): 2 does not match 1", false },
+        { H_REQUIRE_WCSEQ_MSG_HEAD_NAME(2_2),
+          H_REQUIRE_WCSEQ_MSG_BODY_NAME(2_2), L"2", L"2",
+          "L\"2\" != L\"2\" \\(2 != 2\\): 2 does not match 2", true },
+        { H_REQUIRE_WCSEQ_HEAD_NAME(vars), H_REQUIRE_WCSEQ_BODY_NAME(vars),
+          require_wcseq_var1, require_wcseq_var2,
+          "require_wcseq_var1 != require_wcseq_var2 \\(5 != 9\\)", false },
+        { NULL, NULL, 0, 0, "", false }
+    };
+    do_require_eq_tests_w(tests);
 }
 
 /* ---------------------------------------------------------------------
@@ -865,12 +1044,14 @@ ATF_TP_ADD_TCS(tp)
     ATF_TP_ADD_TC(tp, check);
     ATF_TP_ADD_TC(tp, check_eq);
     ATF_TP_ADD_TC(tp, check_streq);
+    ATF_TP_ADD_TC(tp, check_wcseq);
     ATF_TP_ADD_TC(tp, check_errno);
     ATF_TP_ADD_TC(tp, check_match);
 
     ATF_TP_ADD_TC(tp, require);
     ATF_TP_ADD_TC(tp, require_eq);
     ATF_TP_ADD_TC(tp, require_streq);
+    ATF_TP_ADD_TC(tp, require_wcseq);
     ATF_TP_ADD_TC(tp, require_errno);
     ATF_TP_ADD_TC(tp, require_match);
 
