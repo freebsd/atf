@@ -64,7 +64,7 @@ BEGIN {
     warn("Use the macros in sanity.hpp instead of assert");
 }
 
-/include.*assert/ {
+/#.*include.*assert/ {
     warn("Do not include assert.h nor cassert");
 }
 
