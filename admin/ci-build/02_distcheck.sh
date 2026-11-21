@@ -17,6 +17,13 @@ set -eux
 : "${CXX=c++}"
 : "${EXTRA_DISTCHECK_CONFIGURE_ARGS=}"
 
+if [ "$(uname -s)" = Darwin ]; then
+    script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+    LSAN_OPTIONS="${LSAN_OPTIONS:+${LSAN_OPTIONS}:}"
+    LSAN_OPTIONS="${LSAN_OPTIONS}suppressions=${script_dir}/lsan-macos.supp"
+    export LSAN_OPTIONS="${LSAN_OPTIONS}:print_suppressions=0"
+fi
+
 NPROC=$(nproc 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || echo 1)
 
 f=

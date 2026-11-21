@@ -62,8 +62,8 @@ jobs:
                     - macos-latest
                     - ubuntu-26.04
                 include:
-                    # The macOS runner uses a homebrew provided compiler as the
-                    # system compiler lacks ASAN/LSAN/UBSAN support.
+                    # Use Homebrew LLVM 22 for the ASan initialization fix on macOS.
+                    # https://github.com/llvm/llvm-project/pull/192082
                     - build-os: macos-latest
                       compiler: clang-22
                       pkgs:
@@ -81,15 +81,14 @@ jobs:
                           - automake
                           - clang-22
                           - kyua
+                          - libclang-rt-22-dev  # sanitizers libs
                           - libtool
+                          - llvm-22
                           - pkgconf
                       compiler-bindir: /usr/lib/llvm-22/bin
                 sanitize:
-                    - ""
-                    # TODO(ngie,77): tests currently fail when these options
-                    #                are enabled.
-                    # - ["asan", "lsan"]
-                    - ubsan
+                    - []
+                    - ["asan", "lsan", "ubsan"]
 
         steps:
             - name: Install packages (macOS)
@@ -221,8 +220,9 @@ jobs:
                     - 14.5
                     - 15.1
                 sanitize:
-                    - ""
-                    - ubsan
+                    - []
+                    # FreeBSD lacks LSAN support
+                    - ["asan", "ubsan"]
 
         steps:
             - name: Checking out source
@@ -346,7 +346,7 @@ jobs:
                 release:
                     - 11.0
                 sanitize:
-                    - ""
+                    - []
                     # clang/LLVM sanitizer support on NetBSD is incomplete:
                     # https://wiki.netbsd.org/users/kamil/sanitizers/ .
                     # - ubsan
