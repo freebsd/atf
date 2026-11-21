@@ -80,6 +80,10 @@ if HAVE_UBSAN
 TESTS_ENVIRONMENT+= UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1
 endif
 
+AM_CFLAGS=	$(pc_cflags)
+AM_CXXFLAGS=	$(pc_cxxflags)
+AM_LDFLAGS=	$(pc_ldflags)
+
 # Allow the caller to override the configuration file to passed to our
 # test runs below.
 KYUA_TEST_CONFIG_FILE = none
