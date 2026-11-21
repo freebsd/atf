@@ -60,30 +60,30 @@ jobs:
             matrix:
                 build-os:
                     - macos-latest
-                    - ubuntu-24.04
+                    - ubuntu-26.04
                 include:
                     # The macOS runner uses a homebrew provided compiler as the
                     # system compiler lacks ASAN/LSAN/UBSAN support.
                     - build-os: macos-latest
-                      compiler: clang-20
+                      compiler: clang-22
                       pkgs:
                           - autoconf
                           - automake
                           - kyua
                           - libtool
-                          - llvm@20
+                          - llvm@22
                           - pkgconf
-                      compiler-bindir: /opt/homebrew/opt/llvm@20/bin
-                    - build-os: ubuntu-24.04
-                      compiler: clang-18
+                      compiler-bindir: /opt/homebrew/opt/llvm@22/bin
+                    - build-os: ubuntu-26.04
+                      compiler: clang-22
                       pkgs:
-                          - clang-18
                           - autoconf
                           - automake
+                          - clang-22
                           - kyua
                           - libtool
                           - pkgconf
-                      compiler-bindir: /usr/lib/llvm-18/bin
+                      compiler-bindir: /usr/lib/llvm-22/bin
                 sanitize:
                     - ""
                     # TODO(ngie,77): tests currently fail when these options
