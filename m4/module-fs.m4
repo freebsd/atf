@@ -28,7 +28,7 @@ AC_DEFUN([ATF_MODULE_FS], [
     AC_COMPILE_IFELSE(
         [AC_LANG_PROGRAM([#include <libgen.h>], [
          const char* s = "/foo/bar/";
-         (void)::basename(s);
+         (void)basename(s);
          ])],
         AC_MSG_RESULT(yes)
         AC_DEFINE([HAVE_CONST_BASENAME], [1],
@@ -39,7 +39,7 @@ AC_DEFUN([ATF_MODULE_FS], [
     AC_COMPILE_IFELSE(
         [AC_LANG_PROGRAM([#include <libgen.h>], [
          const char* s = "/foo/bar/";
-         (void)::dirname(s);
+         (void)dirname(s);
          ])],
         AC_MSG_RESULT(yes)
         AC_DEFINE([HAVE_CONST_DIRNAME], [1],
