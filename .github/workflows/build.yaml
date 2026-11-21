@@ -112,6 +112,7 @@ jobs:
               run: |
                   which -a kyua
             - name: Configure
+              timeout-minutes: 10
               run: |
                   CFG_ARGS="--enable-developer"
                   for i in ${{ join(matrix.sanitize, ' ') }}; do
@@ -126,6 +127,7 @@ jobs:
                   cd "${ATF_SRCDIR}"
                   ./admin/ci-build/01_configure.sh ${CFG_ARGS}
             - name: Distcheck (builds and tests)
+              timeout-minutes: 30
               run: |
                   CFG_ARGS="--disable-dependency-tracking --enable-developer"
                   for i in ${{ join(matrix.sanitize, ' ') }}; do
@@ -251,6 +253,7 @@ jobs:
                   sync: rsync
                   sync-time: true
             - name: Configure
+              timeout-minutes: 10
               shell: freebsd {0}
               run: |
                   CFG_ARGS="--enable-developer"
@@ -266,6 +269,7 @@ jobs:
                   cd "${ATF_SRCDIR}"
                   ./admin/ci-build/01_configure.sh ${CFG_ARGS}
             - name: Distcheck (builds and tests)
+              timeout-minutes: 30
               shell: freebsd {0}
               run: |
                   CFG_ARGS="--disable-dependency-tracking --enable-developer"
@@ -384,6 +388,7 @@ jobs:
                   sync: rsync
                   sync-time: true
             - name: Configure
+              timeout-minutes: 10
               shell: netbsd {0}
               run: |
                   CFG_ARGS="--enable-developer"
@@ -399,6 +404,7 @@ jobs:
                   cd "${ATF_SRCDIR}"
                   ./admin/ci-build/01_configure.sh ${CFG_ARGS}
             - name: Distcheck (builds and tests)
+              timeout-minutes: 30
               shell: netbsd {0}
               run: |
                   CFG_ARGS="--disable-dependency-tracking --enable-developer"
