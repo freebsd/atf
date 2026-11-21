@@ -187,7 +187,7 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    - release: 14.4
+                    - release: 14.5
                       compiler: clang-22
                       compiler-bindir: /usr/local/bin
                       compiler-suffix: 22
@@ -196,7 +196,7 @@ jobs:
                           - automake
                           - git
                           # kyua is distributed in the FreeBSD-tests package
-                          # on 14.4.
+                          # on 14.x.
                           - FreeBSD-tests
                           - libtool
                           - llvm22
@@ -218,7 +218,7 @@ jobs:
                           - sudo
                           - FreeBSD-kyua
                 release:
-                    - 14.4
+                    - 14.5
                     - 15.1
                 sanitize:
                     - ""
@@ -231,7 +231,7 @@ jobs:
                   path: src
             - name: Start FreeBSD ${{ matrix.release }} VM
               # yamllint disable-line rule:line-length
-              uses: vmactions/freebsd-vm@e9ea2cef1135a17c880e9ed9956c983d58421ece  # v1.5.3
+              uses: vmactions/freebsd-vm@811efaaac0668df8bfb8308c3ec997b5ab50037b  # v1.6.0
               with:
                   envs: 'ATF_SRCDIR CC CPP CXX NM OBJDUMP RANLIB STRIP JOB_NAME'
                   prepare: |
