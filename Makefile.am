@@ -144,9 +144,10 @@ installcheck-local: $(INSTALLCHECK_TARGETS)
 pkgtests_DATA = Kyuafile
 EXTRA_DIST += $(pkgtests_DATA)
 
+# Use octal \043 for '#' to avoid Automake's escaped-comment warning
 BUILD_SH_TP = \
 	test -d "$$(dirname "$${dst}")" || mkdir -p "$$(dirname "$${dst}")"; \
-	echo "\#! $(bindir)/atf-sh" >"$${dst}"; \
+	printf '\043! %s/atf-sh\n' "$(bindir)" >"$${dst}"; \
 	if [ -n "$${substs}" ]; then \
 	    cat $${src} | sed $${substs} >>"$${dst}"; \
 	else \
