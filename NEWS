@@ -6,7 +6,7 @@ Released on 2026/11/25.
 
 ### Summary
 
-This release candidate addresses a number of bugs in ATF that were present in
+This release addresses a number of bugs in ATF that were present in
 0.26[.0]. Most of these are Developer Workflow related, however, these
 changes deserve special attention:
 
