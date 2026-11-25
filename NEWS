@@ -26,7 +26,6 @@ is bumped.
 
 * #128: SPDX license identifiers to atf-c
 * #199: atf-check: remove pre-C++17 compatibility
-
 * #202: atf-sh/integration_test: fix hang when invoked via kyua
 * #203: atf_require_kmod: fix variable name typo
 * #205: Add -v flag to atf-check
@@ -48,6 +47,7 @@ is bumped.
 * #210: fix(commit-check): tighten subject criteria
 * #211: feat: Enforce C/C++ style in the project with `clang-format`
 * #212: chore: change `NO_STYLE_CHECK*` to `NOLINT*`
+* #217: Enable sanitizers for Linux, MacOS and FreeBSD
 * #224: chore(ci): update FreeBSD 14 image from 14.4 to 14.5
 * #225: Add GHA build timeouts
 * #226: chore(ci): sync ATF's build.yaml with Kyua's build.yaml
