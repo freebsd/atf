@@ -7,11 +7,12 @@ Released on 2026/11/25.
 ### Summary
 
 This release candidate addresses a number of bugs in ATF that were present in
-0.26[.0]. Most of these are Developer Workflow related, but the remaining
-[known] issues have also been resolved by @holmuk in #215.
+0.26[.0]. Most of these are Developer Workflow related, however, these
+changes deserve special attention:
 
-A key issue with how macros in atf-c(3) are evaluated was also resolved by
-@dag-erling in #229.
+* The remaining [known] memory leak issues were resolved by @holmuk in #215.
+* A key issue with how macros in atf-c(3) are evaluated was also resolved by
+  @dag-erling in #229.
 
 ### A Note on Versioning
 
@@ -52,9 +53,7 @@ is bumped.
 * #225: Add GHA build timeouts
 * #226: chore(ci): sync ATF's build.yaml with Kyua's build.yaml
 
-### Feature Enhancements
-
-**Full Changelog**: https://github.com/freebsd/atf/compare/atf-0.26...atf-0.26.1-rc1
+**Full Changelog**: https://github.com/freebsd/atf/compare/atf-0.26...atf-0.26.1
 
 ## Changes in version 0.26
 
