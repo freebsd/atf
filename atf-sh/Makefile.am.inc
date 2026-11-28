@@ -40,17 +40,18 @@ atf_sh_atf_sh_LDADD = $(ATF_CXX_LIBS)
 dist_man_MANS += atf-sh/atf-sh.1
 
 atf_sh_DATA = atf-sh/libatf-sh.subr
-libatf_subr_sources = atf-sh/libatf-sh/common.subr
+libatf_subr_sources = $(srcdir)/atf-sh/libatf-sh/common.subr
 if FreeBSD
-libatf_subr_sources += atf-sh/libatf-sh/FreeBSD.subr
+libatf_subr_sources += $(srcdir)/atf-sh/libatf-sh/FreeBSD.subr
 else
-libatf_subr_sources += atf-sh/libatf-sh/os_stubs.subr
+libatf_subr_sources += $(srcdir)/atf-sh/libatf-sh/os_stubs.subr
 endif
 atf_shdir = $(pkgdatadir)
 EXTRA_DIST += $(atf_sh_DATA)
+EXTRA_DIST += $(libatf_subr_sources)
 
 CLEANFILES += atf-sh/libatf-sh.subr
-atf-sh/libatf-sh.subr:
+atf-sh/libatf-sh.subr: $(libatf_subr_sources)
 	$(AM_V_GEN)cat ${libatf_subr_sources} > atf-sh/libatf-sh.subr.tmp; \
 	mv atf-sh/libatf-sh.subr.tmp atf-sh/libatf-sh.subr
 
