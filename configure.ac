@@ -28,14 +28,13 @@ dnl -----------------------------------------------------------------------
 dnl Initialize the GNU build system.
 dnl -----------------------------------------------------------------------
 
-AC_INIT([Automated Testing Framework], [0.26.1],
+AC_INIT([Automated Testing Framework], [0.27.0],
         [freebsd-testing@freebsd.org], [atf],
         [https://github.com/freebsd/atf/])
 AC_PREREQ([2.68])
-AC_COPYRIGHT([Copyright (c) 2007-2012 The NetBSD Foundation, Inc.])
-AC_DEFINE([PACKAGE_COPYRIGHT],
-          ["Copyright (c) 2007-2012 The NetBSD Foundation, Inc."],
-          [Define to the copyright string applicable to this package.])
+dnl NOLINTBEGIN
+AC_COPYRIGHT([Copyright (c) 2014-2020 The FreeBSD Foundation.\nCopyright (c) 2007-2019 The NetBSD Foundation, Inc.])
+dnl NOLINTEND
 AC_CONFIG_AUX_DIR([admin])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
